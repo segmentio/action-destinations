@@ -43,9 +43,7 @@ describe('CustomerIO', () => {
               birthdate: dayjs.utc(birthdate).unix()
             }
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -75,9 +73,7 @@ describe('CustomerIO', () => {
             anonymous_id: anonymousId
           },
           timestamp: dayjs.utc(timestamp).unix(),
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -133,9 +129,7 @@ describe('CustomerIO', () => {
             anonymous_id: event.anonymousId
           },
           timestamp,
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -179,9 +173,7 @@ describe('CustomerIO', () => {
             anonymous_id: event.anonymousId
           },
           timestamp: dayjs.utc(timestamp).unix(),
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -212,9 +204,7 @@ describe('CustomerIO', () => {
             anonymous_id: event.anonymousId
           },
           timestamp: dayjs.utc(timestamp).unix(),
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -279,9 +269,7 @@ describe('CustomerIO', () => {
             anonymous_id: event.anonymousId
           },
           timestamp: dayjs.utc(timestamp).unix(),
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
     })

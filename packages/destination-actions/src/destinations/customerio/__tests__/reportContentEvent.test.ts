@@ -38,9 +38,7 @@ describe('CustomerIO', () => {
             anonymous_id: 'abc123'
           },
           name: 'viewed_content',
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         }
       },
       {
@@ -67,9 +65,7 @@ describe('CustomerIO', () => {
             anonymous_id: 'abc123'
           },
           name: 'clicked_content',
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         }
       }
     ]

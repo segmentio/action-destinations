@@ -30,9 +30,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
     })

@@ -48,9 +48,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -94,9 +92,7 @@ describe('CustomerIO', () => {
           identifiers: {
             email: userId
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -141,9 +137,7 @@ describe('CustomerIO', () => {
           identifiers: {
             email: traits.email
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -189,9 +183,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -255,9 +247,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -287,9 +277,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -319,9 +307,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -366,9 +352,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -405,9 +389,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -460,9 +442,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -513,9 +493,7 @@ describe('CustomerIO', () => {
               identifiers: { object_type_id: '2', object_id: groupId }
             }
           ],
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -543,9 +521,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -591,9 +567,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -654,9 +628,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
 
@@ -716,9 +688,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person',
-          enable_batching: true,
-          batch_size: 10
+          type: 'person'
         })
       })
     })
