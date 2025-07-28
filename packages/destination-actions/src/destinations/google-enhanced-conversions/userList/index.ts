@@ -174,7 +174,6 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Existing List ID',
           description:
             'The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.',
-          required: false,
           dynamic: async (request, { settings, auth, features, statsContext }) => {
             return await getListIds(request, settings, auth, features, statsContext)
           }
