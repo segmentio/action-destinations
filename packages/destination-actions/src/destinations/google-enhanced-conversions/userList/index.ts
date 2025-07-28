@@ -174,6 +174,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Existing List ID',
           description:
             'The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.',
+          required: false,
           dynamic: async (request, { settings, auth, features, statsContext }) => {
             return await getListIds(request, settings, auth, features, statsContext)
           }
@@ -181,12 +182,14 @@ const action: ActionDefinition<Settings, Payload> = {
         list_name: {
           type: 'string',
           label: 'List Name',
-          description: 'The name of the Google list that you would like to create.'
+          description: 'The name of the Google list that you would like to create.',
+          required: false
         },
         external_id_type: {
           type: 'string',
           label: 'External ID Type',
           description: 'Customer match upload key types.',
+          required: true,
           default: 'CONTACT_INFO',
           choices: [
             { label: 'CONTACT INFO', value: 'CONTACT_INFO' },
@@ -250,7 +253,7 @@ const action: ActionDefinition<Settings, Payload> = {
               savedData: {
                 id: hookInputs.list_id,
                 name: response.results[0].userList.name,
-                external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO'
+                external_id_type: hookInputs.external_id_type
               }
             }
           } catch (e) {
@@ -270,7 +273,7 @@ const action: ActionDefinition<Settings, Payload> = {
             audienceName: hookInputs.list_name,
             settings: settings,
             audienceSettings: {
-              external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO',
+              external_id_type: hookInputs.external_id_type,
               app_id: hookInputs.app_id
             }
           }
@@ -287,7 +290,7 @@ const action: ActionDefinition<Settings, Payload> = {
             savedData: {
               id: listId,
               name: hookInputs.list_name,
-              external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO'
+              external_id_type: hookInputs.external_id_type
             }
           }
         } catch (e) {

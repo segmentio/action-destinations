@@ -33,13 +33,9 @@ import type { Payload as UserListPayload } from './userList/generated-types'
 import { RefreshTokenResponse } from '.'
 import { STATUS_CODE_MAPPING } from './constants'
 import { processHashing } from '../../lib/hashing-utils'
-export const API_VERSION = 'v19'
+export const API_VERSION = 'v17'
 export const CANARY_API_VERSION = 'v19'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
-export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
-import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-
-const phoneUtil = PhoneNumberUtil.getInstance()
 
 type GoogleAdsErrorData = {
   error: {
@@ -443,70 +439,16 @@ export function formatToE164(phoneNumber: string, countryCode: string): string {
   return formattedPhoneNumber
 }
 
-export const formatPhone = (
-  phone: string,
-  countryCode?: string,
-  features?: Features,
-  statsContext?: StatsContext
-): string => {
+export const formatPhone = (phone: string, countryCode?: string): string => {
   // Check if phone number is already hashed before doing any formatting
   if (isHashedInformation(phone)) {
     return phone
   }
-  let formattedPhone
-  if (features && features[FLAGON_NAME_PHONE_VALIDATION_CHECK]) {
-    formattedPhone = validateAndFormatToE164(phone, countryCode ?? '+1', statsContext)
-  } else {
-    // If phone validation check is disabled, just format to E.164
-    formattedPhone = formatToE164(phone, countryCode ?? '+1')
-  }
-
-  // TODO: Log stats for pre-formatted phone numbers, Will remove it in clean up
-  if (phone == formattedPhone) {
-    statsContext?.statsClient?.incr('validateAndFormatPhone.pre_formatted', 1, statsContext?.tags)
-  }
+  const formattedPhone = formatToE164(phone, countryCode ?? '+1')
   return formattedPhone
 }
 
-export const validateAndFormatToE164 = (
-  phoneNumber: string,
-  countryCode?: string,
-  statsContext?: StatsContext
-): string => {
-  try {
-    let regionCode = 'US' // default region
-
-    // If numeric country code is provided, convert to region code
-    if (countryCode) {
-      const intCode = parseInt(countryCode.replace(/\D/g, ''))
-      regionCode = phoneUtil.getRegionCodeForCountryCode(intCode) || 'US'
-    }
-
-    // Parse the phone number using region
-    const parsedNumber = phoneUtil.parseAndKeepRawInput(phoneNumber, regionCode)
-
-    // Validate the number
-    if (!phoneUtil.isValidNumber(parsedNumber)) {
-      statsContext?.statsClient?.incr('validateAndFormatPhone.error', 1, statsContext?.tags)
-      throw new PayloadValidationError('Invalid phone number or country code.')
-    }
-
-    statsContext?.statsClient?.incr('validateAndFormatPhone.success', 1, statsContext?.tags)
-    // Return E.164 formatted number
-    return phoneUtil.format(parsedNumber, PhoneNumberFormat.E164)
-  } catch (error) {
-    statsContext?.statsClient?.incr('validateAndFormatPhone.error', 1, statsContext?.tags)
-    throw new PayloadValidationError((error as Error).message || 'Invalid phone number or country code.')
-  }
-}
-
-const extractUserIdentifiers = (
-  payloads: UserListPayload[],
-  idType: string,
-  syncMode?: string,
-  features?: Features | undefined,
-  statsContext?: StatsContext | undefined
-) => {
+const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syncMode?: string) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
   // Map user data to Google Ads API format
@@ -527,7 +469,7 @@ const extractUserIdentifiers = (
       if (payload.phone) {
         identifiers.push({
           hashedPhoneNumber: processHashing(payload.phone, 'sha256', 'hex', (value) =>
-            formatPhone(value, payload.phone_country_code, features, statsContext)
+            formatPhone(value, payload.phone_country_code)
           )
         })
       }
@@ -683,13 +625,7 @@ export const handleUpdate = async (
   }
   const id_type = hookListType ?? audienceSettings.external_id_type
   // Format the user data for Google Ads API
-  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(
-    payloads,
-    id_type,
-    syncMode,
-    features,
-    statsContext
-  )
+  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, id_type, syncMode)
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Create an offline user data job
   const offlineUserJobResponse = await createOfflineUserJob(
@@ -846,7 +782,7 @@ const runOfflineUserJob = async (
   }
 }
 
-export const createIdentifierExtractors = (features?: Features) => ({
+export const createIdentifierExtractors = () => ({
   MOBILE_ADVERTISING_ID: (payload: UserListPayload) => {
     return payload.mobile_advertising_id?.trim() ? { mobileId: payload.mobile_advertising_id.trim() } : null
   },
@@ -867,7 +803,7 @@ export const createIdentifierExtractors = (features?: Features) => ({
     if (payload.phone) {
       identifiers.push({
         hashedPhoneNumber: processHashing(payload.phone, 'sha256', 'hex', (value) =>
-          formatPhone(value, payload.phone_country_code, features)
+          formatPhone(value, payload.phone_country_code)
         )
       })
     }
@@ -891,15 +827,14 @@ const extractBatchUserIdentifiers = (
   payloads: UserListPayload[],
   idType: string,
   multiStatusResponse: MultiStatusResponse,
-  syncMode?: string,
-  features?: Features
+  syncMode?: string
 ) => {
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []
   const validPayloadIndicesBitmap: number[] = []
 
   //Identify the user identifiers based on the idType
-  const extractors = createIdentifierExtractors(features)
+  const extractors = createIdentifierExtractors()
 
   payloads.forEach((payload, index) => {
     let userIdentifiers
@@ -998,8 +933,7 @@ export const processBatchPayload = async (
     payloads,
     id_type,
     multiStatusResponse,
-    syncMode,
-    features
+    syncMode
   )
   // Create offline user data job payload
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
