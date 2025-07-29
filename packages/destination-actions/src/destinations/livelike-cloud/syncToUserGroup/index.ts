@@ -96,6 +96,12 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
+    enable_batching: {
+      label: 'Enable Batching',
+      type: 'boolean',
+      description: 'Enable batching for this action. If enabled, the action will process records in batches.',
+      default: true
+    },
     batch_size: {
       label: 'Batch Size',
       type: 'number',
