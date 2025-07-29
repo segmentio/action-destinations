@@ -183,13 +183,13 @@ export async function send(request: RequestClient, payload: Payload, settings: S
         )
       }
 
-      tags[k] = trimmedValue
-
-      if ((tags[k] as string).length > 128) {
+      if (trimmedValue.length > 128) {
         throw new PayloadValidationError(
           `Tag value for key "${k}" exceeds the maximum tag value length of 128 characters.`
         )
       }
+
+      tags[k] = trimmedValue
     }
 
     if (Object.keys(tags as { [k: string]: string }).length > 10) {
