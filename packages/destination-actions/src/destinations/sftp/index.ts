@@ -1,13 +1,14 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import syncModelToSFTP from './syncModelToSFTP'
 import syncToSFTP from './syncToSFTP'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'SFTP',
   slug: 'actions-sftp',
   mode: 'cloud',
-  description: 'Sync Segment event data to SFTP.',
+  description: 'Sync Segment events to SFTP',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -90,7 +91,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    syncToSFTP
+    syncToSFTP,
+    syncModelToSFTP
   }
 }
 

@@ -233,3 +233,84 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     default: 'csv'
   }
 }
+
+export const baseFields: ActionDefinition<Settings>['fields'] = {
+  columns: {
+    label: 'Columns',
+    description: `Choose columns to write to the file sent to SFTP`,
+    type: 'object',
+    defaultObjectUI: 'keyvalue',
+    required: true,
+    additionalProperties: true,
+    properties: {},
+    default: {}
+  },
+  batch_size_column_name: {
+    label: 'Batch Size Column Name',
+    description:
+      'Specify the column name to store the batch size when the event is sent to SFTP. Leave blank if no column is required',
+    type: 'string',
+    required: false,
+    disabledInputMethods: ['variable', 'function', 'enrichment'],
+    default: 'batch_size'
+  },
+  enable_batching: {
+    type: 'boolean',
+    label: 'Enable Batching',
+    description: 'Enable Batching Hidden Field',
+    unsafe_hidden: false,
+    required: true,
+    default: true
+  },
+  batch_size: {
+    label: 'Batch Size',
+    description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+    type: 'number',
+    required: true,
+    default: 100_000,
+    minimum: 1,
+    maximum: 100_000
+  },
+  sftp_folder_path: {
+    label: 'Folder Path',
+    description:
+      'Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.',
+    type: 'string',
+    required: true,
+    default: { '@template': '/' }
+  },
+  filename_prefix: {
+    label: 'Filename prefix',
+    description: `Prefix to prepend to the name of the uploaded file. Timestamp will be appended to the filename.`,
+    type: 'string',
+    required: true
+  },
+  delimiter: {
+    label: 'Delimiter',
+    description: `Character used to separate tokens in the resulting file.`,
+    type: 'string',
+    required: true,
+    disabledInputMethods: ['enrichment', 'function', 'variable'],
+    choices: [
+      { label: 'comma', value: ',' },
+      { label: 'pipe', value: '|' },
+      { label: 'tab', value: 'tab' },
+      { label: 'semicolon', value: ';' },
+      { label: 'colon', value: ':' }
+    ],
+    default: ','
+  },
+  file_extension: {
+    label: 'File Extension',
+    description: `File extension for the uploaded file.`,
+    type: 'string',
+    required: true,
+    choices: [
+      { label: 'csv', value: 'csv' },
+      { label: 'txt', value: 'txt' },
+      { label: 'tsv', value: 'tsv' },
+      { label: 'psv', value: 'psv' }
+    ],
+    default: 'csv'
+  }
+}
