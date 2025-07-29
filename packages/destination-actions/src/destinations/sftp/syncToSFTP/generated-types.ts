@@ -76,7 +76,7 @@ export interface Payload {
    */
   audience_action_column_name?: string
   /**
-   * Specify the column name to store the batch size when the event is sent to S3. Leave blank if no column is required
+   * Specify the column name to store the batch size when the event is sent to SFTP. Leave blank if no column is required
    */
   batch_size_column_name?: string
   /**

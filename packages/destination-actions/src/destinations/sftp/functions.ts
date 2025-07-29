@@ -49,9 +49,9 @@ function createFilename(filename_prefix: string, file_extension: string): string
   }
 }
 
-/*
-Generates the SFTP upload file with same pattern as S3 destination
-*/
+/**
+ * Generates file to be uploaded to SFTP
+ */
 function generateFile(
   payloads: Payload[],
   headers: ColumnHeader[],

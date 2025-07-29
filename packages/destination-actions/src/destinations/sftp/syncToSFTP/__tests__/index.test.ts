@@ -420,7 +420,7 @@ describe('Integration Tests', () => {
     expect(calls[0].content).toContain('\t') // Should contain tab characters
   })
 
-  it('should generate CSV with comprehensive mapping similar to AWS S3 example', async () => {
+  it('should generate CSV with comprehensive mapping', async () => {
     // Use jest.useFakeTimers for consistent date control
     jest.useFakeTimers()
     jest.setSystemTime(new Date('2023-07-26T15:23:39.803Z'))

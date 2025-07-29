@@ -147,7 +147,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
   batch_size_column_name: {
     label: 'Batch Size Column Name',
     description:
-      'Specify the column name to store the batch size when the event is sent to S3. Leave blank if no column is required',
+      'Specify the column name to store the batch size when the event is sent to SFTP. Leave blank if no column is required',
     type: 'string',
     required: false,
     disabledInputMethods: ['variable', 'function', 'enrichment'],
