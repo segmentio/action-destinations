@@ -5,7 +5,8 @@ import { processPayloads } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync to User Group',
-  description: 'Sync Segment user data to a user group in LiveLike. Can be used to sync Engage Audience data to LiveLike User Groups.',
+  description:
+    'Sync Segment user data to a user group in LiveLike. Can be used to sync Engage Audience data to LiveLike User Groups.',
   defaultSubscription: 'type = "identify"',
   fields: {
     audience_id: {
@@ -24,12 +25,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The name of the Segment Audience.',
       default: {
         '@path': '$.context.personas.computation_key'
-      } 
+      }
     },
     action: {
       label: 'Action',
       type: 'boolean',
-      description: 'Set to true to add the user to the User Group, set to false to remove the user from the User Group. If connecting to an Engage Audience, leave this field empty.'
+      description:
+        'Set to true to add the user to the User Group, set to false to remove the user from the User Group. If connecting to an Engage Audience, leave this field empty.'
     },
     timestamp: {
       label: 'Timestamp',
@@ -100,12 +102,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The number of records to process in each batch. Default is 100.',
       default: 100,
       minimum: 1,
-      maximum: 1000
+      maximum: 500
     }
   },
   perform: (request, { settings, payload }) => {
     return processPayloads(request, [payload], settings)
-
   },
   performBatch: (request, { settings, payload }) => {
     return processPayloads(request, payload, settings)
