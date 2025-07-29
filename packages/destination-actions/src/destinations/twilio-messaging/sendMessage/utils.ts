@@ -88,7 +88,7 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     }
     throw new PayloadValidationError('Unsupported Sender Type')
   }
- 
+
   const getContent = (): Content => {
     if (contentTemplateType === ALL_CONTENT_TYPES.INLINE.friendly_name) {
       return {
@@ -148,49 +148,55 @@ export async function send(request: RequestClient, payload: Payload, settings: S
   }
 
   const getTags = (): { [k: string]: string } | undefined => {
-    if (!tags || typeof tags !== 'object') return undefined;
+    if (!tags || typeof tags !== 'object') return undefined
 
     const allowedPattern = /^[a-zA-Z0-9 _-]+$/
 
     for (const k in tags) {
-      const v = tags[k];
+      const v = tags[k]
 
-      if (v == null || String(v).trim() === '') {
+      if (v === null || String(v).trim() === '') {
         delete tags[k]
         continue
       }
 
       if (typeof v === 'object') {
-        throw new PayloadValidationError(`Tag value for key "${k}" cannot be an object or array.`);
+        throw new PayloadValidationError(`Tag value for key "${k}" cannot be an object or array.`)
       }
 
       if (k.length > 128) {
-        throw new PayloadValidationError(`Tag key "${k}" exceeds the maximum tag key length of 128 characters.`);
+        throw new PayloadValidationError(`Tag key "${k}" exceeds the maximum tag key length of 128 characters.`)
       }
 
       const trimmedValue = String(v).trim()
 
       // Validate allowed characters in key and value
       if (!allowedPattern.test(k)) {
-        throw new PayloadValidationError(`Tag key "${k}" contains invalid characters. Only alphanumeric, space, hyphen (-), and underscore (_) are allowed.`);
+        throw new PayloadValidationError(
+          `Tag key "${k}" contains invalid characters. Only alphanumeric, space, hyphen (-), and underscore (_) are allowed.`
+        )
       }
 
       if (!allowedPattern.test(trimmedValue)) {
-        throw new PayloadValidationError(`Tag value "${trimmedValue}" for key "${k}" contains invalid characters. Only alphanumeric, space, hyphen (-), and underscore (_) are allowed.`);
+        throw new PayloadValidationError(
+          `Tag value "${trimmedValue}" for key "${k}" contains invalid characters. Only alphanumeric, space, hyphen (-), and underscore (_) are allowed.`
+        )
       }
 
       tags[k] = trimmedValue
 
       if ((tags[k] as string).length > 128) {
-        throw new PayloadValidationError(`Tag value for key "${k}" exceeds the maximum tag value length of 128 characters.`);
+        throw new PayloadValidationError(
+          `Tag value for key "${k}" exceeds the maximum tag value length of 128 characters.`
+        )
       }
     }
 
-    if (Object.keys(tags).length > 10) {
-      throw new PayloadValidationError('Tags cannot contain more than 10 key-value pairs.');
+    if (Object.keys(tags as { [k: string]: string }).length > 10) {
+      throw new PayloadValidationError('Tags cannot contain more than 10 key-value pairs.')
     }
 
-    return Object.keys(tags).length > 0 ? { Tags: JSON.stringify(tags) } : undefined
+    return Object.keys(tags as { [k: string]: string }).length > 0 ? { Tags: JSON.stringify(tags) } : undefined
   }
 
   const twilioPayload: TwilioPayload = (() => ({
