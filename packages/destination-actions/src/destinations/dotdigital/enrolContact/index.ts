@@ -16,6 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `List of active programs`,
       type: 'string',
       required: true,
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
       dynamic: true
     }
   },
@@ -41,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (channelIdentifier === 'email' && typeof emailIdentifier === 'string') {
       channel = { email: emailIdentifier }
     } else if (channelIdentifier === 'mobileNumber' && typeof mobileNumberIdentifier === 'string') {
-      channel = { 'mobileNumber': mobileNumberIdentifier }
+      channel = { mobileNumber: mobileNumberIdentifier }
     } else {
       throw new PayloadValidationError('Invalid channel identifier')
     }
