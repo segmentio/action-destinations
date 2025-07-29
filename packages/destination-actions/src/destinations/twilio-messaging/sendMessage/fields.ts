@@ -20,7 +20,6 @@ export const fields: Record<string, InputField> = {
       "The Sender type to use for the message. Depending on the selected 'Channel' this can be a phone number, messaging service, or Messenger sender ID.",
     type: 'string',
     required: true,
-    default: "Phone number",
     dynamic: true
   },
   contentTemplateType: {
@@ -29,7 +28,6 @@ export const fields: Record<string, InputField> = {
       'The Content Template type to use for the message. Selecting "Inline" will allow you to define the message body directly. For all other options a Content Template must be pre-defined in Twilio.',
     type: 'string',
     required: true,
-    default: "Text",
     dynamic: true
   },
   toPhoneNumber: {
