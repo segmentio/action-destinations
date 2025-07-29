@@ -201,7 +201,7 @@ describe('Multistatus', () => {
       })
     })
 
-    it('should mark "Unable to save rows for data extension ID" error as retryable even if SFMC returns 400', async () => {
+    it('should mark "Unable to save rows for data extension ID" error status as it is if additional error is present', async () => {
       const errorResponse = {
         status: 400,
         message: 'Invalid keys for ID: HS1',
@@ -251,31 +251,25 @@ describe('Multistatus', () => {
       })
 
       expect(response[0]).toMatchObject({
-        status: 500,
-        errortype: 'INTERNAL_SERVER_ERROR',
+        status: 400,
+        errortype: 'BAD_REQUEST',
         errormessage: 'Unable to save rows for data extension ID',
         errorreporter: 'DESTINATION'
       })
 
       expect(response[1]).toMatchObject({
-        status: 500,
-        errortype: 'INTERNAL_SERVER_ERROR',
+        status: 400,
+        errortype: 'BAD_REQUEST',
         errormessage: 'Unable to save rows for data extension ID',
         errorreporter: 'DESTINATION'
       })
     })
 
-    it('should mark "Unable to save rows for data extension ID" error as retryable even if SFMC returns 400 and message and code availble in outside of additionalErrors', async () => {
+    it('should mark "Unable to save rows for data extension ID" error as retryable even if SFMC returns 400 and message and code availble without additional error', async () => {
       const errorResponse = {
         status: 400,
-        message: 'Unable to save rows for data extension ID 4f2dd70a-0ab2-ef11-a5c2-d4f5ef42f422',
-        errorcode: 10006,
-        additionalErrors: [
-          {
-            errorcode: 10006,
-            message: 'Unable to save rows for data extension ID'
-          }
-        ]
+        message: 'Unable to save rows for data extension ID',
+        errorcode: 10006
       }
 
       nock(requestUrl).post('').reply(400, errorResponse)
@@ -597,17 +591,11 @@ describe('Multistatus', () => {
       })
     })
 
-    it('should mark "Unable to save rows for data extension ID" error as retryable even if SFMC returns 400 and message and code availble in outside of additionalErrors', async () => {
+    it('should mark "Unable to save rows for data extension ID" error as retryable even if SFMC returns 400 and message and code availble without additional errors', async () => {
       const errorResponse = {
         status: 400,
-        message: 'Unable to save rows for data extension ID 4f2dd70a-0ab2-ef11-a5c2-d4f5ef42f422',
-        errorcode: 10006,
-        additionalErrors: [
-          {
-            errorcode: 10006,
-            message: 'Unable to save rows for data extension ID'
-          }
-        ]
+        message: 'Unable to save rows for data extension ID',
+        errorcode: 10006
       }
 
       nock(requestUrl).post('').reply(400, errorResponse)
@@ -664,7 +652,7 @@ describe('Multistatus', () => {
       })
     })
 
-    it('should mark "Unable to save rows for data extension ID" error as retryable even if SFMC returns 400', async () => {
+    it('should mark "Unable to save rows for data extension ID" error status as it is if additional error is present', async () => {
       const errorResponse = {
         status: 400,
         message: 'Invalid keys for ID: HS1',
@@ -716,15 +704,15 @@ describe('Multistatus', () => {
       })
 
       expect(response[0]).toMatchObject({
-        status: 500,
-        errortype: 'INTERNAL_SERVER_ERROR',
+        status: 400,
+        errortype: 'BAD_REQUEST',
         errormessage: 'Unable to save rows for data extension ID',
         errorreporter: 'DESTINATION'
       })
 
       expect(response[1]).toMatchObject({
-        status: 500,
-        errortype: 'INTERNAL_SERVER_ERROR',
+        status: 400,
+        errortype: 'BAD_REQUEST',
         errormessage: 'Unable to save rows for data extension ID',
         errorreporter: 'DESTINATION'
       })

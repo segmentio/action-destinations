@@ -28,19 +28,13 @@ function generateRows(payloads: payload_dataExtension[] | payload_contactDataExt
   return rows
 }
 
-function hasError10006WithMessage(errData: ErrorData): boolean {
-  // Check main errorcode and message
-  if (errData?.errorcode === 10006 && errData?.message.includes('Unable to save rows for data extension ID')) {
-    return true
-  }
-
-  // Also check additionalErrors array if present
-  if (Array.isArray(errData?.additionalErrors)) {
-    return errData?.additionalErrors?.some(
-      (err) => err?.errorcode === 10006 && err?.message.includes('Unable to save rows for data extension ID')
-    )
-  }
-  return false
+function isRetryableError(errData: ErrorData, status: number): boolean {
+  return (
+    status === 400 &&
+    errData?.errorcode === 10006 &&
+    errData?.message.includes('Unable to save rows for data extension ID') &&
+    !errData?.additionalErrors
+  )
 }
 
 export function upsertRows(
@@ -157,7 +151,9 @@ export async function executeUpsertWithMultiStatus(
       err.response.data.additionalErrors
 
     let status = 500 // default status is 500
-    if (!hasError10006WithMessage(errData) && err?.response?.status) {
+    const isRetryable = isRetryableError(errData, err?.response?.status)
+    statsContext?.statsClient?.incr('sfmc_upsert_rows_error', 1, [...statsContext.tags, `retryable:${isRetryable}`])
+    if (!isRetryable && err?.response?.status) {
       status = err.response.status
     }
     payloads.forEach((_, index) => {
