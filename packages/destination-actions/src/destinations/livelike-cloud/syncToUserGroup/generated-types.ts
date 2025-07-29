@@ -41,4 +41,8 @@ export interface Payload {
    * A unique identifier for a user.
    */
   user_id?: string
+  /**
+   * The number of records to process in each batch. Default is 100.
+   */
+  batch_size?: number
 }
