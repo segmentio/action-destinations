@@ -28,7 +28,7 @@ function generateRows(payloads: payload_dataExtension[] | payload_contactDataExt
   return rows
 }
 
-function hasError10006WithMessage(errData: ErrorData, status: number): boolean {
+function isRetryableError(errData: ErrorData, status: number): boolean {
   return (
     status === 400 &&
     errData?.errorcode === 10006 &&
@@ -151,12 +151,9 @@ export async function executeUpsertWithMultiStatus(
       err.response.data.additionalErrors
 
     let status = 500 // default status is 500
-    const hasAnyRetryableError = hasError10006WithMessage(errData, err?.response?.status)
-    statsContext?.statsClient?.incr('sfmc_upsert_rows_error', 1, [
-      ...statsContext.tags,
-      `retryable:${hasAnyRetryableError}`
-    ])
-    if (!hasAnyRetryableError && err?.response?.status) {
+    const isRetryable = isRetryableError(errData, err?.response?.status)
+    statsContext?.statsClient?.incr('sfmc_upsert_rows_error', 1, [...statsContext.tags, `retryable:${isRetryable}`])
+    if (!isRetryable && err?.response?.status) {
       status = err.response.status
     }
     payloads.forEach((_, index) => {
