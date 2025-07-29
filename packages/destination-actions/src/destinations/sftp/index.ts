@@ -1,6 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import { testSFTPConnection } from './client'
 import syncModelToSFTP from './syncModelToSFTP'
 import syncToSFTP from './syncToSFTP'
 
@@ -88,7 +89,8 @@ const destination: DestinationDefinition<Settings> = {
           ]
         }
       }
-    }
+    },
+    testAuthentication: async (_, { settings }) => await testSFTPConnection(settings)
   },
   actions: {
     syncToSFTP,

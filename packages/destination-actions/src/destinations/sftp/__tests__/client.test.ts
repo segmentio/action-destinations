@@ -1,4 +1,4 @@
-import { normalizeSSHKey, uploadSFTP } from '../client'
+import { normalizeSSHKey, testSFTPConnection, uploadSFTP } from '../client'
 import { Settings } from '../generated-types'
 
 import Client from 'ssh2-sftp-client'
@@ -353,6 +353,285 @@ MIIEpAIBAAKCAQEA1234567890
       // Should not end with empty lines
       expect(lines[lines.length - 1]).toBe('-----END RSA PRIVATE KEY-----')
       expect(lines[lines.length - 2]).toBe('B') // The remaining character after 64-char split
+    })
+  })
+
+  describe('testSFTPConnection', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+      jest.clearAllTimers()
+    })
+
+    describe('success cases', () => {
+      beforeEach(() => {
+        Client.prototype.connect = jest.fn().mockResolvedValue(undefined)
+        Client.prototype.list = jest.fn().mockResolvedValue([
+          { name: 'file1.txt', type: '-' },
+          { name: 'folder1', type: 'd' }
+        ])
+        Client.prototype.end = jest.fn().mockResolvedValue(undefined)
+      })
+
+      it('should test connection successfully with password authentication', async () => {
+        const result = await testSFTPConnection(passwordSettings)
+
+        expect(Client.prototype.connect).toHaveBeenCalledWith({
+          host: 'sftp_host',
+          port: 22,
+          username: 'sftp_username',
+          password: 'sftp_password'
+        })
+        expect(Client.prototype.list).toHaveBeenCalledWith('/')
+        expect(Client.prototype.end).toHaveBeenCalled()
+        expect(result).toEqual([
+          { name: 'file1.txt', type: '-' },
+          { name: 'folder1', type: 'd' }
+        ])
+      })
+
+      it('should test connection successfully with SSH key authentication', async () => {
+        const result = await testSFTPConnection(sshKeySettings)
+
+        expect(Client.prototype.connect).toHaveBeenCalledWith({
+          host: 'sftp_host',
+          port: 22,
+          username: 'sftp_username',
+          privateKey: 'sftp_ssh_key'
+        })
+        expect(Client.prototype.list).toHaveBeenCalledWith('/')
+        expect(Client.prototype.end).toHaveBeenCalled()
+        expect(result).toEqual([
+          { name: 'file1.txt', type: '-' },
+          { name: 'folder1', type: 'd' }
+        ])
+      })
+
+      it('should test connection successfully when root directory is empty', async () => {
+        Client.prototype.list = jest.fn().mockResolvedValue([])
+
+        const result = await testSFTPConnection(passwordSettings)
+
+        expect(Client.prototype.connect).toHaveBeenCalled()
+        expect(Client.prototype.list).toHaveBeenCalledWith('/')
+        expect(Client.prototype.end).toHaveBeenCalled()
+        expect(result).toEqual([])
+      })
+
+      it('should use normalized SSH key when testing connection', async () => {
+        const settingsWithMalformedKey: Settings = {
+          ...sshKeySettings,
+          sftp_ssh_key: `-----BEGIN RSA PRIVATE KEY-----MIIEpAIBAAKCAQEA1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN-----END RSA PRIVATE KEY-----` // gitleaks:allow
+        }
+
+        await testSFTPConnection(settingsWithMalformedKey)
+
+        // Should connect with normalized key (properly formatted with line breaks)
+        expect(Client.prototype.connect).toHaveBeenCalledWith({
+          host: 'sftp_host',
+          port: 22,
+          username: 'sftp_username',
+          privateKey:
+            `-----BEGIN RSA PRIVATE KEY-----` + // gitleaks:allow
+            `
+MIIEpAIBAAKCAQEA1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKL
+MN
+-----END RSA PRIVATE KEY-----` // gitleaks:allow
+        })
+      })
+    })
+
+    describe('error handling', () => {
+      beforeEach(() => {
+        Client.prototype.end = jest.fn().mockResolvedValue(undefined)
+      })
+
+      it('should throw auth error when connect fails', async () => {
+        const authError = new Error('Authentication failed')
+        Client.prototype.connect = jest.fn().mockRejectedValue(authError)
+
+        await expect(testSFTPConnection(passwordSettings)).rejects.toThrow('Authentication failed')
+        expect(Client.prototype.connect).toHaveBeenCalled()
+        // Note: end() is not called when connect() fails because the error occurs before the try-catch block
+      })
+
+      it('should throw network error when host unreachable', async () => {
+        const connectionError = new Error('ENOTFOUND sftp_host')
+        Client.prototype.connect = jest.fn().mockRejectedValue(connectionError)
+
+        await expect(testSFTPConnection(passwordSettings)).rejects.toThrow('ENOTFOUND sftp_host')
+        expect(Client.prototype.connect).toHaveBeenCalled()
+        // Note: end() is not called when connect() fails because the error occurs before the try-catch block
+      })
+
+      it('should throw PayloadValidationError for NO_SUCH_FILE SFTP error on list operation', async () => {
+        Client.prototype.connect = jest.fn().mockResolvedValue(undefined)
+
+        // Mock SFTP error with NO_SUCH_FILE code on list operation
+        const sftpError = new Error('No such file') as any
+        sftpError.code = 2 // SFTPErrorCode.NO_SUCH_FILE
+        Client.prototype.list = jest.fn().mockRejectedValue(sftpError)
+
+        await expect(testSFTPConnection(passwordSettings)).rejects.toThrow('Could not find path: /')
+        expect(Client.prototype.connect).toHaveBeenCalled()
+        expect(Client.prototype.list).toHaveBeenCalledWith('/')
+        expect(Client.prototype.end).toHaveBeenCalled()
+      })
+
+      it('should re-throw non-SFTP errors unchanged from list operation', async () => {
+        Client.prototype.connect = jest.fn().mockResolvedValue(undefined)
+
+        const genericError = new Error('Permission denied')
+        Client.prototype.list = jest.fn().mockRejectedValue(genericError)
+
+        await expect(testSFTPConnection(passwordSettings)).rejects.toThrow('Permission denied')
+        expect(Client.prototype.connect).toHaveBeenCalled()
+        expect(Client.prototype.list).toHaveBeenCalledWith('/')
+        expect(Client.prototype.end).toHaveBeenCalled()
+      })
+
+      it('should throw timeout error when operation takes too long', async () => {
+        // Mock setTimeout to immediately execute the timeout callback
+        const originalSetTimeout = global.setTimeout
+        global.setTimeout = ((callback: Function) => {
+          callback()
+          return 123 as any
+        }) as any
+
+        Client.prototype.connect = jest.fn().mockResolvedValue(undefined)
+        Client.prototype.list = jest.fn().mockResolvedValue([])
+        Client.prototype.end = jest.fn().mockResolvedValue(undefined)
+
+        await expect(testSFTPConnection(passwordSettings)).rejects.toThrow(
+          'Did not complete SFTP operation under allotted time: 10000'
+        )
+
+        global.setTimeout = originalSetTimeout
+      })
+
+      it('should handle connection errors with cleanup', async () => {
+        const connectionError = new Error('Connection refused')
+        Client.prototype.connect = jest.fn().mockRejectedValue(connectionError)
+
+        await expect(testSFTPConnection(passwordSettings)).rejects.toThrow('Connection refused')
+        expect(Client.prototype.connect).toHaveBeenCalledWith({
+          host: 'sftp_host',
+          port: 22,
+          username: 'sftp_username',
+          password: 'sftp_password'
+        })
+        // Note: end() is not called when connect() fails because the error occurs before the try-catch block
+      })
+
+      it('should handle list operation failure gracefully', async () => {
+        Client.prototype.connect = jest.fn().mockResolvedValue(undefined)
+
+        const listError = new Error('Directory listing failed')
+        Client.prototype.list = jest.fn().mockRejectedValue(listError)
+
+        await expect(testSFTPConnection(passwordSettings)).rejects.toThrow('Directory listing failed')
+        expect(Client.prototype.connect).toHaveBeenCalled()
+        expect(Client.prototype.list).toHaveBeenCalledWith('/')
+        expect(Client.prototype.end).toHaveBeenCalled()
+      })
+
+      it('should log error when sftp.end() fails during timeout cleanup', async () => {
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
+        // Mock setTimeout to immediately execute the timeout callback
+        const originalSetTimeout = global.setTimeout
+        global.setTimeout = ((callback: Function) => {
+          callback()
+          return 123 as any
+        }) as any
+
+        Client.prototype.connect = jest.fn().mockResolvedValue(undefined)
+        Client.prototype.list = jest.fn().mockResolvedValue([])
+
+        // Make sftp.end() fail during timeout cleanup
+        const endError = new Error('Connection failed during cleanup')
+        Client.prototype.end = jest.fn().mockRejectedValue(endError)
+
+        await expect(testSFTPConnection(passwordSettings)).rejects.toThrow(
+          'Did not complete SFTP operation under allotted time: 10000'
+        )
+
+        expect(consoleSpy).toHaveBeenCalledWith(endError)
+
+        consoleSpy.mockRestore()
+        global.setTimeout = originalSetTimeout
+      })
+    })
+
+    describe('configuration variations', () => {
+      beforeEach(() => {
+        Client.prototype.connect = jest.fn().mockResolvedValue(undefined)
+        Client.prototype.list = jest.fn().mockResolvedValue([])
+        Client.prototype.end = jest.fn().mockResolvedValue(undefined)
+      })
+
+      it('should use custom port when specified', async () => {
+        const customPortSettings: Settings = {
+          ...passwordSettings,
+          sftp_port: 2222
+        }
+
+        await testSFTPConnection(customPortSettings)
+
+        expect(Client.prototype.connect).toHaveBeenCalledWith({
+          host: 'sftp_host',
+          port: 2222,
+          username: 'sftp_username',
+          password: 'sftp_password'
+        })
+      })
+
+      it('should default to port 22 when not specified', async () => {
+        const noPortSettings: Settings = {
+          ...passwordSettings,
+          sftp_port: undefined
+        }
+
+        await testSFTPConnection(noPortSettings)
+
+        expect(Client.prototype.connect).toHaveBeenCalledWith({
+          host: 'sftp_host',
+          port: 22,
+          username: 'sftp_username',
+          password: 'sftp_password'
+        })
+      })
+
+      it('should handle empty SSH key gracefully', async () => {
+        const emptyKeySettings: Settings = {
+          ...sshKeySettings,
+          sftp_ssh_key: ''
+        }
+
+        await testSFTPConnection(emptyKeySettings)
+
+        expect(Client.prototype.connect).toHaveBeenCalledWith({
+          host: 'sftp_host',
+          port: 22,
+          username: 'sftp_username',
+          privateKey: ''
+        })
+      })
+
+      it('should handle undefined SSH key gracefully', async () => {
+        const undefinedKeySettings: Settings = {
+          ...sshKeySettings,
+          sftp_ssh_key: undefined
+        }
+
+        await testSFTPConnection(undefinedKeySettings)
+
+        expect(Client.prototype.connect).toHaveBeenCalledWith({
+          host: 'sftp_host',
+          port: 22,
+          username: 'sftp_username',
+          privateKey: ''
+        })
+      })
     })
   })
 })

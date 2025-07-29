@@ -167,4 +167,16 @@ function normalizeSSHKey(key = ''): string {
   return normalizedKey
 }
 
-export { Client, executeSFTPOperation, normalizeSSHKey, uploadSFTP }
+/**
+ * Tests the SFTP connection using the provided settings.
+ */
+async function testSFTPConnection(settings: Settings): Promise<unknown> {
+  const sftp = new Client()
+  return executeSFTPOperation(sftp, settings, '/', async (sftp) => {
+    // Simply attempt to list the root directory to test connection
+    // This is a minimal operation that tests authentication and basic connectivity
+    return sftp.list('/')
+  })
+}
+
+export { Client, executeSFTPOperation, normalizeSSHKey, testSFTPConnection, uploadSFTP }
