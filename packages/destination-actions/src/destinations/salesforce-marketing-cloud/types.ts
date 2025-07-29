@@ -4,9 +4,11 @@ interface AdditionalError {
   documentation: string
 }
 
-interface ErrorData {
+export interface ErrorData {
   additionalErrors: AdditionalError[]
   message: string
+  errorcode?: number
+  documentation?: string
 }
 
 interface ErrorResponseData {
