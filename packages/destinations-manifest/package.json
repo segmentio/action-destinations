@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.122.1-staging-358a2fde7.0",
+  "version": "1.122.1-staging-66469272d.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -15,7 +15,7 @@
     "@segment/analytics-browser-actions-1flow": "1.70.1-staging-358a2fde7.0",
     "@segment/analytics-browser-actions-adobe-target": "1.89.1-staging-358a2fde7.0",
     "@segment/analytics-browser-actions-algolia-plugins": "1.65.1-staging-358a2fde7.0",
-    "@segment/analytics-browser-actions-amplitude-plugins": "1.88.1-staging-358a2fde7.0",
+    "@segment/analytics-browser-actions-amplitude-plugins": "1.88.1-staging-66469272d.0",
     "@segment/analytics-browser-actions-braze": "1.98.1-staging-358a2fde7.0",
     "@segment/analytics-browser-actions-braze-cloud-plugins": "1.98.1-staging-358a2fde7.0",
     "@segment/analytics-browser-actions-bucket": "1.69.1-staging-358a2fde7.0",
