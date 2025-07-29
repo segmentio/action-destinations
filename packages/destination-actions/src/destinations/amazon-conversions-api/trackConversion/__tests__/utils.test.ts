@@ -570,6 +570,50 @@ describe('trackConversion utils', () => {
       expect(() => prepareEventData(payload, settings)).toThrow('At least one valid match key must be provided')
     })
 
+    it('should include currencyCode and unitsSold when eventType is OFF_AMAZON_PURCHASES', () => {
+      const payload: Payload = {
+        name: 'purchase_event',
+        eventType: ConversionTypeV2.OFF_AMAZON_PURCHASES,
+        eventActionSource: 'WEBSITE',
+        countryCode: 'US',
+        timestamp: '2023-01-01T12:00:00Z',
+        currencyCode: 'USD',
+        unitsSold: 2,
+        matchKeys: {
+          email: 'test@example.com'
+        },
+        enable_batching: true
+      }
+
+      const result = prepareEventData(payload, settings)
+
+      // Check that OFF_AMAZON_PURCHASES fields are included
+      expect(result.currencyCode).toBe('USD')
+      expect(result.unitsSold).toBe(2)
+    })
+
+    it('should exclude currencyCode and unitsSold when eventType is not OFF_AMAZON_PURCHASES', () => {
+      const payload: Payload = {
+        name: 'view_event',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
+        countryCode: 'US',
+        timestamp: '2023-01-01T12:00:00Z',
+        currencyCode: 'USD',
+        unitsSold: 2,
+        matchKeys: {
+          email: 'test@example.com'
+        },
+        enable_batching: true
+      }
+
+      const result = prepareEventData(payload, settings)
+
+      // Check that OFF_AMAZON_PURCHASES fields are excluded
+      expect(result.currencyCode).toBeUndefined()
+      expect(result.unitsSold).toBeUndefined()
+    })
+
     it('should include optional fields when provided', () => {
       const payload: Payload = {
         name: 'purchase_event',
