@@ -188,7 +188,9 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
     type: 'number',
     required: true,
-    default: 100_000
+    default: 100_000,
+    minimum: 1,
+    maximum: 100_000
   },
   sftp_folder_path: {
     label: 'Folder Path',
