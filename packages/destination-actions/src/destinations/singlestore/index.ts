@@ -1,14 +1,11 @@
-import { DestinationDefinition, IntegrationError, InvalidAuthenticationError } from '@segment/actions-core'
+import { DestinationDefinition, IntegrationError } from '@segment/actions-core'
 import { Settings } from './generated-types'
-import { SingleStoreCreateJSON } from './types'
-import { createUrl } from './const'
+import { ExecJSONRequest, ExecJSONResponse } from './types'
 import send from './send'
-// eslint-disable-next-line no-restricted-syntax
-import { createHash } from 'crypto'
-import { encryptText, destinationId, checkChamber } from './util'
+import btoa from 'btoa-lite'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Singlestore',
+  name: 'SingleStore',
   slug: 'actions-singlestore',
   mode: 'cloud',
 
@@ -17,26 +14,25 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       host: {
         label: 'Host',
-        description: 'The host of the Singlestore database.',
+        description: 'The host of the SingleStore database.',
         type: 'string',
         required: true
       },
       port: {
         label: 'Port',
-        description: 'The port of the Singlestore database.',
-        type: 'number',
-        required: true,
-        default: 3306
+        description: 'The port of the SingleStore Data API. Defaults to 443.',
+        type: 'string',
+        default: '443'
       },
       username: {
         label: 'Username',
-        description: 'The username of the Singlestore database.',
+        description: 'The username of the SingleStore database.',
         type: 'string',
         required: true
       },
       password: {
         label: 'Password',
-        description: 'The password of the Singlestore database.',
+        description: 'The password of the SingleStore database.',
         type: 'password',
         required: true
       },
@@ -46,63 +42,60 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
-      environment: {
-        label: 'Environment',
-        description: 'The environment of the Singlestore database.',
+      tableName: {
+        label: 'Table Name',
+        description: 'The name of the table. Defaults to "segment_data".',
         type: 'string',
         required: true,
-        choices: [
-          {
-            value: 'Prod',
-            label: 'Prod'
-          },
-          {
-            value: 'Stage',
-            label: 'Stage'
-          }
-        ],
-        default: 'Prod'
+        default: 'segment_data'
       }
     },
     testAuthentication: async (request, { settings }) => {
-      checkChamber()
+      const { host, port, username, password, dbName, tableName } = settings
 
-      const destination_id = destinationId(settings)
+      const url = `https://${host}:${port}/api/v2/exec`
 
-      if (!destination_id) {
-        throw new IntegrationError('Destination Id is missing', 'MISSING_DESTINATION_ID', 400)
-      }
-      const kafkaTopic = createHash('sha256').update(destination_id).digest('hex')
-      const kafkaUsername = createHash('sha256').update(`${destination_id}_user`).digest('hex')
-      const kafkaPassword = encryptText(kafkaUsername)
+      const encodedCredentials = btoa(`${username}:${password}`)
 
-      const json: SingleStoreCreateJSON = {
-        ...settings,
-        kafkaUsername,
-        kafkaPassword,
-        kafkaTopic,
-        destinationIdentifier: destination_id,
-        noRollbackOnFailure: true
-      }
-      let res
-      try {
-        res = await request(createUrl, {
-          headers: {
-            'x-security-key': process.env.ACTIONS_SINGLE_STORE_X_SECURITY_KEY as string
-          },
-          throwHttpErrors: false,
-          json,
-          method: 'POST'
-        })
-      } catch (err) {
-        return Promise.resolve('Configuration is taking a bit longer than normal...')
-      }
+      const sql = `
+        CREATE TABLE IF NOT EXISTS \`${tableName.replace(/`/g, '``')}\` (
+          messageId TEXT NOT NULL,
+          timestamp DATETIME(6) NOT NULL,
+          type TEXT NOT NULL,
+          event TEXT,
+          name TEXT,
+          properties JSON,
+          userId TEXT,
+          anonymousId TEXT,
+          groupId TEXT,
+          traits JSON,
+          context JSON,
+          SHARD KEY ()
+        ) AUTOSTATS_CARDINALITY_MODE=PERIODIC AUTOSTATS_HISTOGRAM_MODE=CREATE SQL_MODE='STRICT_ALL_TABLES';
+      `
 
-      if (res?.status != 200) {
-        const messageBody = JSON.parse(JSON.stringify(res?.data))
-        throw new InvalidAuthenticationError(`${messageBody.error}`)
+      const requestData: ExecJSONRequest = {
+        sql,
+        database: dbName
       }
-      return res
+      const response = await request<ExecJSONResponse>(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${encodedCredentials}`
+        },
+        json: requestData,
+        throwHttpErrors: false
+      })
+
+      if (response.status !== 200 || response.ok === false) {
+        throw new IntegrationError(
+          `Failed to create table: ${(await response.text()) || 'Unknown error'}`,
+          response.statusText,
+          response.status
+        )
+      }
+      return response
     }
   },
   actions: {

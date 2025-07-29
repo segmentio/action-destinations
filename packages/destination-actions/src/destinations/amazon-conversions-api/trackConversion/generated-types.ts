@@ -34,7 +34,7 @@ export interface Payload {
    */
   unitsSold?: number
   /**
-   * The client specified id for the event. For events with the same clientDedupeId only the latest event will be kept.
+   * Amazon Conversions API uses the `clientDedupeId` field to prevent duplicate events. By default, Segment maps the messageId to this field. For events with the same clientDedupeId, only the latest event will be processed. Please be advised that deduplication occurs across all event types, rather than being limited to individual event types.
    */
   clientDedupeId?: string
   /**
@@ -82,7 +82,7 @@ export interface Payload {
      */
     rampId?: string
     /**
-     * Match ID for the customer.
+     * Match ID serves as an anonymous, opaque unique identifier that corresponds to individual users within an advertiser system, such as loyalty membership identifications and order references. This functionality enables advertisers to precisely monitor campaign effectiveness while maintaining customer data privacy, eliminating the need to share sensitive information like hashed email addresses or phone numbers with Amazon, particularly when analyzing complex customer journeys across multiple channels and devices. The advertisers who implement the Amazon Advertising Tag (AAT) on their websites can transmit match_id as a parameter in conjunction with online event tracking. The Amazon system subsequently correlates these identifiers with users through cookies or hashed Personally Identifiable Information (PII). In instances where users complete offline conversions, advertisers can report these activities through the Conversions API (CAPI) utilizing the corresponding match_id, ensuring seamless cross-channel attribution.
      */
     matchId?: string
   }
@@ -116,30 +116,63 @@ export interface Payload {
     gpp?: string
   }
   /**
-   * Custom attributes associated with the event to provide additional context.
+   * Custom attributes associated with the event to provide additional context. Note that only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.
    */
   customAttributes?: {
     /**
-     * Name of the custom attribute. Only letters, numbers and the underscore character are allowed.
+     * The brand associated with the event.
      */
-    name: string
+    brand?: string
     /**
-     * Data type of the custom attribute.
+     * The category associated with the event.
      */
-    dataType?: string
+    category?: string
     /**
-     * Value of the custom attribute. Max length 256 characters.
+     * The product ID associated with the event.
      */
-    value: string
-  }[]
-  /**
-   * The Amazon impression ID associated with the event.
-   */
-  amazonImpressionId?: string
-  /**
-   * The Amazon click ID associated with the event.
-   */
-  amazonClickId?: string
+    productId?: string
+    /**
+     * Custom attribute 1 associated with the event.
+     */
+    attr1?: string
+    /**
+     * Custom attribute 2 associated with the event.
+     */
+    attr2?: string
+    /**
+     * Custom attribute 3 associated with the event.
+     */
+    attr3?: string
+    /**
+     * Custom attribute 4 associated with the event.
+     */
+    attr4?: string
+    /**
+     * Custom attribute 5 associated with the event.
+     */
+    attr5?: string
+    /**
+     * Custom attribute 6 associated with the event.
+     */
+    attr6?: string
+    /**
+     * Custom attribute 7 associated with the event.
+     */
+    attr7?: string
+    /**
+     * Custom attribute 8 associated with the event.
+     */
+    attr8?: string
+    /**
+     * Custom attribute 9 associated with the event.
+     */
+    attr9?: string
+    /**
+     * Custom attribute 10 associated with the event.
+     */
+    attr10?: string
+    [k: string]: unknown
+  }
   /**
    * When enabled, Segment will send data in batching.
    */

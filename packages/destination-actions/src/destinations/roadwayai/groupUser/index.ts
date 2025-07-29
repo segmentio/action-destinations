@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: getGroupUserFields(),
   perform: async (request, { settings, payload }) => {
     const flattenedPayload = flattenPayload<GroupUserRequest>(payload)
-    return request(`https://app.roadwayai.com/api/v1/segment/events/group`, {
+    return request(`https://production.api.roadwayai.com/api/v1/segment/events/group`, {
       method: 'POST',
       headers: {
         'x-api-key': settings.apiKey
@@ -24,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { settings, payload }) => {
     const transformedPayloads = flattenPayloadBatch<GroupUserRequest[]>(payload)
 
-    return request(`https://app.roadwayai.com/api/v1/segment/events/group`, {
+    return request(`https://production.api.roadwayai.com/api/v1/segment/events/group`, {
       method: 'POST',
       headers: {
         'x-api-key': settings.apiKey

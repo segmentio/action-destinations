@@ -18,7 +18,7 @@ describe('Roadwayai.trackPageView', () => {
       userId: 'user123'
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
 
     const responses = await testDestination.testAction('trackPageView', {
       event,
@@ -49,7 +49,7 @@ describe('Roadwayai.trackPageView', () => {
       userId: 'customuser'
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
 
     const responses = await testDestination.testAction('trackPageView', {
       event,
@@ -89,7 +89,7 @@ describe('Roadwayai.trackPageView', () => {
       anonymousId: 'anon123'
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
 
     const responses = await testDestination.testAction('trackPageView', {
       event,
@@ -119,7 +119,7 @@ describe('Roadwayai.trackPageView', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
 
     const responses = await testDestination.testAction('trackPageView', {
       event,
@@ -149,7 +149,7 @@ describe('Roadwayai.trackPageView', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
 
     try {
       await testDestination.testAction('trackPageView', {
@@ -186,7 +186,7 @@ describe('Roadwayai.trackPageView', () => {
       })
     ]
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
 
     const responses = await testDestination.testBatchAction('trackPageView', {
       events,

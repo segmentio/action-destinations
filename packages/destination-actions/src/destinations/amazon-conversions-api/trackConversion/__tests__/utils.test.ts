@@ -571,7 +571,7 @@ describe('trackConversion utils', () => {
     })
 
     it('should include optional fields when provided', () => {
-      const payload = {
+      const payload: Payload = {
         name: 'purchase_event',
         eventType: ConversionTypeV2.OFF_AMAZON_PURCHASES,
         eventActionSource: 'WEBSITE',
@@ -590,14 +590,93 @@ describe('trackConversion utils', () => {
           amznAdStorage: 'GRANTED',
           amznUserData: 'GRANTED'
         },
-        customAttributes: [
-          { name: 'color', dataType: 'STRING', value: 'blue' },
-          { name: 'size', dataType: 'STRING', value: 'medium' }
-        ],
+        customAttributes: {
+          brand: 'brand1',
+          category: 'category1',
+          productId: 'productId1',
+          attr1: 'attr1value',
+          attr2: 'attr2value',
+          attr3: undefined,
+          attr4: 'undefined',
+          attr5: '999.99',
+          attr6: 'true',
+          attr7: 'false',
+          attr8: 'true',
+          attr9: '{"newsletter":true,"notifications":false}',
+          attr10: '["premium","loyalty",9099]',
+          someOtherAttr: null, // This should be ignored
+          someOtherAttr2: undefined, // This should also be ignored
+          someOtherAttr3: 'valid', // This should be included
+          someOtherAttr4: 123, // This should be included as a string
+          someOtherAttr5: true // This should be included as a string
+        },
         enable_batching: true
       }
 
       const result = prepareEventData(payload, settings)
+
+      const customAttributes = [
+        {
+          name: 'brand',
+          value: 'brand1'
+        },
+        {
+          name: 'category',
+          value: 'category1'
+        },
+        {
+          name: 'productId',
+          value: 'productId1'
+        },
+        {
+          name: 'attr1',
+          value: 'attr1value'
+        },
+        {
+          name: 'attr2',
+          value: 'attr2value'
+        },
+        {
+          name: 'attr4',
+          value: 'undefined'
+        },
+        {
+          name: 'attr5',
+          value: '999.99'
+        },
+        {
+          name: 'attr6',
+          value: 'true'
+        },
+        {
+          name: 'attr7',
+          value: 'false'
+        },
+        {
+          name: 'attr8',
+          value: 'true'
+        },
+        {
+          name: 'attr9',
+          value: '{"newsletter":true,"notifications":false}'
+        },
+        {
+          name: 'attr10',
+          value: '["premium","loyalty",9099]'
+        },
+        {
+          name: 'someOtherAttr3',
+          value: 'valid'
+        },
+        {
+          name: 'someOtherAttr4',
+          value: '123'
+        },
+        {
+          name: 'someOtherAttr5',
+          value: 'true'
+        }
+      ]
 
       // Check all optional fields are included
       expect(result.value).toBe(99.99)
@@ -606,7 +685,7 @@ describe('trackConversion utils', () => {
       expect(result.clientDedupeId).toBe('dedup-123')
       expect(result.dataProcessingOptions).toEqual(['LIMITED_DATA_USE'])
       expect(result.consent).toBeDefined()
-      expect(result.customAttributes).toEqual(payload.customAttributes)
+      expect(result.customAttributes).toEqual(customAttributes)
     })
   })
 })
