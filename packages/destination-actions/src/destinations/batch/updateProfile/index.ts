@@ -169,9 +169,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
 async function send(request: RequestClient, payload: Payload[]) {
   const json = payload.map(mapPayload)
-
-  console.log('Batch update profile payload:', JSON.stringify(json, null, 2))
-
   return await request('https://api.batch.com/2.5/profiles/update', {
     method: 'post',
     json
