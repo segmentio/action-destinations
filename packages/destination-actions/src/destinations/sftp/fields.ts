@@ -48,7 +48,7 @@ const enable_batching: InputField = {
   type: 'boolean',
   label: 'Enable Batching',
   description: 'Enable Batching Hidden Field',
-  unsafe_hidden: false,
+  unsafe_hidden: true,
   required: true,
   default: true
 }

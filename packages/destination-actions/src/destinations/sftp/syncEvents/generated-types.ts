@@ -2,22 +2,6 @@
 
 export interface Payload {
   /**
-   * Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.
-   */
-  sftp_folder_path: string
-  /**
-   * Prefix to prepend to the name of the uploaded file. Timestamp will be appended to the filename.
-   */
-  filename_prefix: string
-  /**
-   * Character used to separate tokens in the resulting file.
-   */
-  delimiter: string
-  /**
-   * File extension for the uploaded file.
-   */
-  file_extension: string
-  /**
    * Column write to the SFTP CSV file.
    */
   columns: {
@@ -87,6 +71,22 @@ export interface Payload {
     audience_space_id?: string
     [k: string]: unknown
   }
+  /**
+   * Prefix to prepend to the name of the uploaded file. Timestamp will be appended to the filename.
+   */
+  filename_prefix: string
+  /**
+   * File extension for the uploaded file.
+   */
+  file_extension: string
+  /**
+   * Character used to separate tokens in the resulting file.
+   */
+  delimiter: string
+  /**
+   * Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.
+   */
+  sftp_folder_path: string
   /**
    * Enable Batching Hidden Field
    */
