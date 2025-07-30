@@ -14,6 +14,7 @@ export interface TikTokConversionsData {
   properties: TikTokConversionsProperties
   page?: TikTokConversionsPage
   limited_data_use: boolean
+  lead?: TikTokLeadData
 }
 
 export interface TikTokConversionsPage {
@@ -26,7 +27,7 @@ export interface TikTokConversionsUser {
   phone: string[]
   email: string[]
   ttp?: string
-  lead_id?: string
+  // lead_id?: string
   ip?: string
   user_agent?: string
   locale?: string
@@ -37,6 +38,11 @@ export interface TikTokConversionsUser {
   country?: string
   zip_code?: string
   ttclid?: string
+}
+
+export interface TikTokLeadData {
+  lead_id?: string
+  lead_event_source?: string
 }
 
 export interface TikTokConversionsProperties {

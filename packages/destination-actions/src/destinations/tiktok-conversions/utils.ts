@@ -6,16 +6,19 @@ import {
   TikTokConversionsPage,
   TikTokConversionsProperties,
   TikTokConversionsRequest,
-  TikTokConversionsUser
+  TikTokConversionsUser,
+  TikTokLeadData
 } from './types'
 
 export function performWebEvent(request: RequestClient, settings: Settings, payload: Payload) {
   const requestUser = validateRequestUser(payload)
   const requestProperties = validateRequestProperties(payload)
   const requestPage = validateRequestPage(payload)
+  const requestLead = validateRequestLead(payload)
+  const requestEventSource = settings.eventSource
 
   const requestJson: TikTokConversionsRequest = {
-    event_source: 'web',
+    event_source: requestEventSource,
     event_source_id: settings.pixelCode,
     partner_name: 'Segment',
     test_event_code: payload.test_event_code ? payload.test_event_code : undefined,
@@ -32,6 +35,10 @@ export function performWebEvent(request: RequestClient, settings: Settings, payl
         limited_data_use: payload.limited_data_use ? payload.limited_data_use : false
       }
     ]
+  }
+
+  if (requestEventSource === 'crm') {
+    requestJson.data[0].lead = requestLead
   }
 
   // https://business-api.tiktok.com/portal/docs?id=1771101303285761
@@ -73,9 +80,9 @@ function validateRequestUser(payload: Payload) {
     requestUser.ttclid = urlTtclid || payload.ttclid
   }
 
-  if (payload.lead_id) {
-    requestUser.lead_id = payload.lead_id
-  }
+  // if (payload.lead_id) {
+  //   requestUser.lead_id = payload.lead_id
+  // }
 
   if (payload.ttp) {
     requestUser.ttp = payload.ttp
@@ -158,4 +165,18 @@ function validateRequestPage(payload: Payload) {
   }
 
   return requestPage
+}
+
+function validateRequestLead(payload: Payload) {
+  const requestLeadData: TikTokLeadData = {}
+
+  if (payload.lead_id) {
+    requestLeadData.lead_id = payload.lead_id
+  }
+
+  if (payload.lead_event_source) {
+    requestLeadData.lead_event_source = payload.lead_event_source
+  }
+
+  return requestLeadData
 }

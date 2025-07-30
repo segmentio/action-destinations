@@ -199,6 +199,13 @@ export const commonFields: Record<string, InputField> = {
     type: 'string',
     default: { '@path': '$.properties.lead_id' }
   },
+  lead_event_source: {
+    label: 'TikTok Lead Event Source',
+    description:
+      'Lead source of TikTok leads. Please set this field to the name of your CRM system, such as HubSpot or Salesforce.',
+    type: 'string',
+    default: { '@path': '$.properties.lead_event_source' }
+  },
   locale: {
     label: 'Locale',
     description:

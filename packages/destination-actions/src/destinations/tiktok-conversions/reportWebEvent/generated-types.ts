@@ -75,6 +75,10 @@ export interface Payload {
    */
   lead_id?: string
   /**
+   * Lead source of TikTok leads. Please set this field to the name of your CRM system, such as HubSpot or Salesforce.
+   */
+  lead_event_source?: string
+  /**
    * The BCP 47 language identifier. For reference, refer to the [IETF BCP 47 standardized code](https://www.rfc-editor.org/rfc/bcp/bcp47.txt).
    */
   locale?: string
