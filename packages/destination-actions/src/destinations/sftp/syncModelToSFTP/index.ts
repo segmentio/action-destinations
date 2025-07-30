@@ -6,9 +6,10 @@ import { Data, RawMapping } from '../types'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Sync RETL Model to SFTP',
-  description: 'Syncs RETL Model to SFTP',
-  defaultSubscription: 'type = "track"',
+  title: 'Sync RETL Model',
+  description:
+    'Sync Reverse ETL model data to SFTP. Can also be used to sync Segment events with no predefined mappings.',
+  defaultSubscription: 'type = "identify" or type = "track" or type = "page" or type = "screen" or type = "group"',
   fields: baseFields,
   perform: async (_, data) => {
     const { payload, settings } = data

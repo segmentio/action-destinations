@@ -1,29 +1,26 @@
 import { uploadSFTP } from './client'
 import { Settings } from './generated-types'
-import { Payload } from './syncToSFTP/generated-types'
+import { Payload } from './syncEvents/generated-types'
 import { ColumnHeader, RawMapping } from './types'
 
 async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping) {
-  const delimiter = payloads[0]?.delimiter
-  const actionColName = payloads[0]?.audience_action_column_name
-  const batchColName = payloads[0]?.batch_size_column_name
+  const {
+    delimiter,
+    audience_action_column_name,
+    batch_size_column_name,
+    filename_prefix,
+    file_extension,
+    sftp_folder_path
+  } = payloads[0]
 
-  const headers: ColumnHeader[] = Object.entries(rawMapping.columns)
-    .filter(([_, value]) => value !== '')
-    .map(([column]) => {
-      return { cleanName: clean(delimiter, column), originalName: column }
-    })
+  const headers: ColumnHeader[] = createHeaders(
+    rawMapping,
+    delimiter,
+    audience_action_column_name,
+    batch_size_column_name
+  )
 
-  if (actionColName) {
-    headers.push({ cleanName: clean(delimiter, actionColName), originalName: actionColName })
-  }
-
-  if (batchColName) {
-    headers.push({ cleanName: clean(delimiter, batchColName), originalName: batchColName })
-  }
-
-  const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName)
-  const { filename_prefix, file_extension, sftp_folder_path } = payloads[0]
+  const fileContent = generateFile(payloads, headers, delimiter, audience_action_column_name, batch_size_column_name)
   const filename = createFilename(filename_prefix, file_extension)
 
   return uploadSFTP(settings, sftp_folder_path, filename, fileContent)
@@ -31,6 +28,36 @@ async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapp
 
 function clean(delimiter: string, str = '') {
   return delimiter === 'tab' ? str : str.replace(delimiter, '')
+}
+
+/**
+ * Creates file headers array from raw mapping and optional additional columns
+ */
+function createHeaders(
+  rawMapping: RawMapping,
+  delimiter: string,
+  audienceActionColumnName?: string,
+  batchSizeColumnName?: string
+): ColumnHeader[] {
+  const createHeader = (columnName: string): ColumnHeader => ({
+    cleanName: clean(delimiter, columnName),
+    originalName: columnName
+  })
+
+  const headers: ColumnHeader[] = []
+
+  // Add mapped columns
+  Object.entries(rawMapping.columns)
+    .filter(([_, value]) => value !== '')
+    .forEach(([column]) => {
+      headers.push(createHeader(column))
+    })
+
+  // Add optional columns
+  if (audienceActionColumnName) headers.push(createHeader(audienceActionColumnName))
+  if (batchSizeColumnName) headers.push(createHeader(batchSizeColumnName))
+
+  return headers
 }
 
 /**
@@ -62,13 +89,14 @@ function generateFile(
   const rows = payloads.map((payload, index) => {
     const isLastRow = index === payloads.length - 1
     const row = headers.map((header): string => {
-      if (header.originalName === actionColName) {
-        return processField(getAudienceAction(payload))
+      switch (header.originalName) {
+        case actionColName:
+          return processField(getAudienceAction(payload))
+        case batchColName:
+          return processField(payloads.length)
+        default:
+          return processField(payload.columns[header.originalName])
       }
-      if (header.originalName === batchColName) {
-        return processField(payloads.length)
-      }
-      return processField(payload.columns[header.originalName])
     })
 
     return Buffer.from(`${row.join(delimiter === 'tab' ? '\t' : delimiter)}${isLastRow ? '' : '\n'}`)
@@ -109,4 +137,4 @@ function enquoteIdentifier(identifier: string) {
   return `"${String(identifier).replace(/"/g, '""')}"`
 }
 
-export { clean, createFilename, enquoteIdentifier, generateFile, getAudienceAction, processField, send }
+export { clean, createFilename, createHeaders, enquoteIdentifier, generateFile, getAudienceAction, processField, send }

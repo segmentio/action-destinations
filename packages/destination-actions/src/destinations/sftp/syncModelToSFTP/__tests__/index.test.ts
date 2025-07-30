@@ -19,7 +19,8 @@ const payload = {
   filename_prefix: 'segment_',
   enable_batching: true,
   batch_size: 100000,
-  file_extension: 'csv'
+  file_extension: 'csv',
+  columns: {}
 }
 
 const mockedRETLEvents: SegmentEvent[] = Array.from({ length: 50 }, (_, i) => ({
