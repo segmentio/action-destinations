@@ -9,7 +9,7 @@ import {
   send
 } from '../functions'
 import { Settings } from '../generated-types'
-import type { Payload } from '../syncToSFTP/generated-types'
+import type { Payload } from '../syncEvents/generated-types'
 import type { ColumnHeader, RawMapping } from '../types'
 
 // Mock the client functions

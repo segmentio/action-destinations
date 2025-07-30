@@ -8,18 +8,6 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Specify the column name to store the batch size when the event is sent to SFTP. Leave blank if no column is required
-   */
-  batch_size_column_name?: string
-  /**
-   * Enable Batching Hidden Field
-   */
-  enable_batching: boolean
-  /**
-   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
-   */
-  batch_size: number
-  /**
    * Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.
    */
   sftp_folder_path: string
@@ -35,4 +23,16 @@ export interface Payload {
    * File extension for the uploaded file.
    */
   file_extension: string
+  /**
+   * Enable Batching Hidden Field
+   */
+  enable_batching: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size: number
+  /**
+   * Specify the column name to store the batch size when the event is sent to SFTP. Leave blank if no column is required
+   */
+  batch_size_column_name?: string
 }

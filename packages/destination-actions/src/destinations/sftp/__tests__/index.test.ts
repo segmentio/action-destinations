@@ -286,7 +286,7 @@ describe('SFTP Destination', () => {
 
     it('should have actions defined', () => {
       expect(destination.actions).toBeDefined()
-      expect(destination.actions.syncToSFTP).toBeDefined()
+      expect(destination.actions.syncEvents).toBeDefined()
       expect(destination.actions.syncModelToSFTP).toBeDefined()
     })
   })

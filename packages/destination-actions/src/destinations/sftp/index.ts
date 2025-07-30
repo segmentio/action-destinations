@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 
 import { testSFTPConnection } from './client'
 import syncModelToSFTP from './syncModelToSFTP'
-import syncToSFTP from './syncToSFTP'
+import syncEvents from './syncEvents'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'SFTP',
@@ -93,7 +93,7 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: async (_, { settings }) => await testSFTPConnection(settings)
   },
   actions: {
-    syncToSFTP,
+    syncEvents,
     syncModelToSFTP
   }
 }

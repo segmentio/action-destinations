@@ -2,6 +2,22 @@
 
 export interface Payload {
   /**
+   * Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.
+   */
+  sftp_folder_path: string
+  /**
+   * Prefix to prepend to the name of the uploaded file. Timestamp will be appended to the filename.
+   */
+  filename_prefix: string
+  /**
+   * Character used to separate tokens in the resulting file.
+   */
+  delimiter: string
+  /**
+   * File extension for the uploaded file.
+   */
+  file_extension: string
+  /**
    * Column write to the SFTP CSV file.
    */
   columns: {
@@ -72,13 +88,21 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Name of the column that will contain the action for the audience. true if the user is in the audience, false if not.
+   * Enable Batching Hidden Field
    */
-  audience_action_column_name?: string
+  enable_batching: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size: number
   /**
    * Specify the column name to store the batch size when the event is sent to SFTP. Leave blank if no column is required
    */
   batch_size_column_name?: string
+  /**
+   * Name of the column that will contain the action for the audience. true if the user is in the audience, false if not.
+   */
+  audience_action_column_name?: string
   /**
    * Field used to retrieve Audience value
    */
@@ -89,28 +113,4 @@ export interface Payload {
    * Field used to retrieve Audience Key
    */
   computation_key?: string
-  /**
-   * Enable Batching Hidden Field
-   */
-  enable_batching: boolean
-  /**
-   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
-   */
-  batch_size: number
-  /**
-   * Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.
-   */
-  sftp_folder_path: string
-  /**
-   * Prefix to prepend to the name of the uploaded file. Timestamp will be appended to the filename.
-   */
-  filename_prefix: string
-  /**
-   * Character used to separate tokens in the resulting file.
-   */
-  delimiter: string
-  /**
-   * File extension for the uploaded file.
-   */
-  file_extension: string
 }

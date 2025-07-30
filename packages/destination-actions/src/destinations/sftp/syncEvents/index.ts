@@ -6,8 +6,9 @@ import { send } from '../functions'
 import { Data, RawMapping } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Sync to SFTP',
-  description: 'Syncs Segment event data to SFTP.',
+  title: 'Sync Events',
+  description:
+    'Sync Segment events to SFTP. Includes predefined mappings for common Segment event fields. Additional column mappings may be added.',
   defaultSubscription: 'type = "identify" or type = "track" or type = "page" or type = "screen" or type = "group"',
   fields: commonFields,
   perform: async (_, data) => {

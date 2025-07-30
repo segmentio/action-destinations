@@ -48,7 +48,7 @@ SFTP connection details are configured at the destination level:
 - **Username**: SFTP authentication username
 - **Password**: SFTP authentication password
 
-### Action: Sync to SFTP
+### Action: Sync Events
 
 The single action handles all event types and supports extensive field mapping.
 

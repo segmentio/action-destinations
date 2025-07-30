@@ -1,6 +1,6 @@
 import { ExecuteInput } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import type { Payload as sftpPayload } from './syncToSFTP/generated-types'
+import type { Payload as sftpPayload } from './syncEvents/generated-types'
 
 export interface Data {
   rawMapping: RawMapping

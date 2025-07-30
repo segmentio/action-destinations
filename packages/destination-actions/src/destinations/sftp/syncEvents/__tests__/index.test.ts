@@ -51,7 +51,7 @@ const mockSftpClient = {
 
 jest.mock('ssh2-sftp-client', () => jest.fn(() => mockSftpClient))
 
-describe('syncToSFTP', () => {
+describe('syncEvents', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     jest.resetModules()
@@ -64,7 +64,7 @@ describe('syncToSFTP', () => {
   })
 
   describe('Action Definition', () => {
-    const action = testDestination.actions.syncToSFTP
+    const action = testDestination.actions.syncEvents
     it('should be defined', () => {
       expect(action).toBeDefined()
     })
@@ -74,14 +74,16 @@ describe('syncToSFTP', () => {
     })
 
     it('should have correct title and description', () => {
-      expect(action.definition.title).toBe('Sync to SFTP')
-      expect(action.definition.description).toBe('Syncs Segment event data to SFTP.')
+      expect(action.definition.title).toBe('Sync Events')
+      expect(action.definition.description).toBe(
+        'Sync Segment events to SFTP. Includes predefined mappings for common Segment event fields. Additional column mappings may be added.'
+      )
     })
   })
 
   describe('Authentication Types', () => {
     it('should work with SSH key authentication', async () => {
-      await testDestination.testAction('syncToSFTP', {
+      await testDestination.testAction('syncEvents', {
         event: createTestEvent({
           messageId: 'test-message-id',
           timestamp: '2023-07-26T15:23:39.803Z',
@@ -114,7 +116,7 @@ describe('syncToSFTP', () => {
     })
 
     it('should work with password authentication', async () => {
-      await testDestination.testAction('syncToSFTP', {
+      await testDestination.testAction('syncEvents', {
         event: createTestEvent({
           messageId: 'test-message-id',
           timestamp: '2023-07-26T15:23:39.803Z',
@@ -150,7 +152,7 @@ describe('syncToSFTP', () => {
   describe('Single Event Processing', () => {
     it('should handle single event processing', async () => {
       await expect(
-        testDestination.testAction('syncToSFTP', {
+        testDestination.testAction('syncEvents', {
           event: mockedEvents[0],
           settings,
           mapping: payload,
@@ -161,7 +163,7 @@ describe('syncToSFTP', () => {
 
     it('should handle filename prefix by defaulting to csv', async () => {
       await expect(
-        testDestination.testAction('syncToSFTP', {
+        testDestination.testAction('syncEvents', {
           event: mockedEvents[0],
           settings,
           mapping: payload,
@@ -183,7 +185,7 @@ describe('syncToSFTP', () => {
       }
 
       await expect(
-        testDestination.testAction('syncToSFTP', {
+        testDestination.testAction('syncEvents', {
           event: mockedEvents[0],
           settings,
           mapping: payload,
@@ -196,7 +198,7 @@ describe('syncToSFTP', () => {
   describe('Batch Processing', () => {
     it('should handle batch processing', async () => {
       await expect(
-        testDestination.testBatchAction('syncToSFTP', {
+        testDestination.testBatchAction('syncEvents', {
           events: mockedEvents,
           settings,
           mapping: payload,
@@ -207,7 +209,7 @@ describe('syncToSFTP', () => {
 
     it('should fall back to port 22 if not provided', async () => {
       await expect(
-        testDestination.testBatchAction('syncToSFTP', {
+        testDestination.testBatchAction('syncEvents', {
           events: mockedEvents,
           settings: { ...settings, sftp_port: undefined },
           mapping: payload,
@@ -228,7 +230,7 @@ describe('syncToSFTP', () => {
       }))
 
       await expect(
-        testDestination.testBatchAction('syncToSFTP', {
+        testDestination.testBatchAction('syncEvents', {
           events: largeEventsBatch,
           settings,
           mapping: payload,
@@ -264,7 +266,7 @@ describe('Integration Tests', () => {
     })
 
     await expect(
-      testDestination.testAction('syncToSFTP', {
+      testDestination.testAction('syncEvents', {
         event: testEvent,
         settings,
         mapping: payload,
@@ -298,7 +300,7 @@ describe('Integration Tests', () => {
       }
     })
 
-    await testDestination.testAction('syncToSFTP', {
+    await testDestination.testAction('syncEvents', {
       event: testEvent,
       settings,
       mapping: payload,
@@ -352,7 +354,7 @@ describe('Integration Tests', () => {
       })
     ]
 
-    await testDestination.testBatchAction('syncToSFTP', {
+    await testDestination.testBatchAction('syncEvents', {
       events: testEvents,
       settings,
       mapping: payload,
@@ -408,7 +410,7 @@ describe('Integration Tests', () => {
       }
     })
 
-    await testDestination.testAction('syncToSFTP', {
+    await testDestination.testAction('syncEvents', {
       event: testEvent,
       settings,
       mapping: payload,
@@ -499,7 +501,7 @@ describe('Integration Tests', () => {
       })
     ]
 
-    await testDestination.testBatchAction('syncToSFTP', {
+    await testDestination.testBatchAction('syncEvents', {
       events: testEvents,
       settings,
       mapping: comprehensivePayload,
@@ -577,7 +579,7 @@ describe('Integration Tests', () => {
       }
     })
 
-    await testDestination.testAction('syncToSFTP', {
+    await testDestination.testAction('syncEvents', {
       event: testEvent,
       settings,
       mapping: payload,
@@ -696,7 +698,7 @@ describe('Integration Tests', () => {
         })
       ]
 
-      await testDestination.testBatchAction('syncToSFTP', {
+      await testDestination.testBatchAction('syncEvents', {
         events: testEvents,
         settings,
         mapping: payload,
@@ -752,7 +754,7 @@ describe('Integration Tests', () => {
         }
       })
 
-      await testDestination.testAction('syncToSFTP', {
+      await testDestination.testAction('syncEvents', {
         event: testEvent,
         settings,
         mapping: payload,
@@ -807,7 +809,7 @@ describe('Integration Tests', () => {
         }
       })
 
-      await testDestination.testAction('syncToSFTP', {
+      await testDestination.testAction('syncEvents', {
         event: testEvent,
         settings,
         mapping: payload,
@@ -867,7 +869,7 @@ describe('Integration Tests', () => {
         }
       })
 
-      await testDestination.testAction('syncToSFTP', {
+      await testDestination.testAction('syncEvents', {
         event: testEvent,
         settings,
         mapping: payload,
@@ -926,7 +928,7 @@ describe('Integration Tests', () => {
         }
       })
 
-      await testDestination.testAction('syncToSFTP', {
+      await testDestination.testAction('syncEvents', {
         event: testEvent,
         settings,
         mapping: payload,
@@ -981,7 +983,7 @@ describe('Integration Tests', () => {
         }
       })
 
-      await testDestination.testAction('syncToSFTP', {
+      await testDestination.testAction('syncEvents', {
         event: testEvent,
         settings,
         mapping: payload,
@@ -1054,7 +1056,7 @@ describe('Integration Tests', () => {
         })
       ]
 
-      await testDestination.testBatchAction('syncToSFTP', {
+      await testDestination.testBatchAction('syncEvents', {
         events: testEvents,
         settings,
         mapping: payload,
@@ -1097,7 +1099,7 @@ describe('Integration Tests', () => {
         // No properties, context, etc.
       })
 
-      await testDestination.testAction('syncToSFTP', {
+      await testDestination.testAction('syncEvents', {
         event: testEvent,
         settings,
         mapping: payload,
@@ -1179,7 +1181,7 @@ describe('Integration Tests', () => {
         })
       ]
 
-      await testDestination.testBatchAction('syncToSFTP', {
+      await testDestination.testBatchAction('syncEvents', {
         events: testEvents,
         settings,
         mapping: payload,
@@ -1270,7 +1272,7 @@ describe('Integration Tests', () => {
         })
       ]
 
-      await testDestination.testBatchAction('syncToSFTP', {
+      await testDestination.testBatchAction('syncEvents', {
         events: testEvents,
         settings,
         mapping: payload,
@@ -1351,7 +1353,7 @@ describe('Integration Tests', () => {
         })
       ]
 
-      await testDestination.testBatchAction('syncToSFTP', {
+      await testDestination.testBatchAction('syncEvents', {
         events: testEvents,
         settings,
         mapping: payload,
@@ -1396,7 +1398,7 @@ describe('Integration Tests', () => {
       expect(expectedCSV.trim()).toBe('user_id,email,audience_name,audience_id,audience_action,timestamp,message_id')
 
       // Test with empty events array - behavior may vary by implementation
-      await testDestination.testBatchAction('syncToSFTP', {
+      await testDestination.testBatchAction('syncEvents', {
         events: [],
         settings,
         mapping: payload,
@@ -1444,7 +1446,7 @@ describe('Integration Tests', () => {
         }
       })
 
-      await testDestination.testAction('syncToSFTP', {
+      await testDestination.testAction('syncEvents', {
         event: testEvent,
         settings,
         mapping: commaPayload,
@@ -1516,7 +1518,7 @@ describe('Integration Tests', () => {
         }
       })
 
-      await testDestination.testAction('syncToSFTP', {
+      await testDestination.testAction('syncEvents', {
         event: testEvent,
         settings,
         mapping: payload,
