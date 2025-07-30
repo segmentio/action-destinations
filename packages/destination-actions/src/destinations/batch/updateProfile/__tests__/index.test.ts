@@ -59,14 +59,14 @@ describe('Batch.updateProfile', () => {
               properties: {
                 id: 39792,
                 email: 'antoine39792@hotmail.com',
-                firstName: 'Test',
-                lastName: 'User',
+                firstname: 'Test',
+                lastname: 'User',
                 birthday: '2024-06-06T18:13:48+02:00'
               },
               type: 'identify',
-              userId: '8de68ddc-22ab-4c1e-a50b-dd6f3a63da06',
+              userid: '8de68ddc-22ab-4c1e-a50b-dd6f3a63da06',
               'date(originaltimestamp)': '2025-01-02T14:18:42.235Z',
-              messageId: 'api-2r4o5eBJElExhnmTMqEg3OAEL7H',
+              messageid: 'api-2r4o5eBJElExhnmTMqEg3OAEL7H',
               integrations: {}
             }
           }

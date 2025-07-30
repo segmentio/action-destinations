@@ -1,5 +1,5 @@
 import { Payload } from './generated-types'
-import { ProfileAttributes, BatchJSON, SubscriptionSetting, EventAttributes, EventObject, Event } from './type'
+import { Identifiers, ProfileAttributes, BatchJSON, SubscriptionSetting, EventAttributes, EventObject, Event } from './type'
 import { MAX_ATTRIBUTES_SIZE } from './constants'
 
 export function mapPayload(payload: Payload): BatchJSON {
@@ -51,7 +51,7 @@ export function mapPayload(payload: Payload): BatchJSON {
     : undefined
 
   const json: BatchJSON = {
-    identifiers,
+    identifiers: formatIdentifiers(identifiers),
     attributes: Object.keys(attributes).length === 0 ? undefined : attributes,
     events
   }
@@ -88,6 +88,18 @@ export function formatAttributes(
   }
 
   return result
+}
+
+export function formatIdentifiers(identifiers: Payload['identifiers']): Identifiers {
+  const cleanedIdentifiers: Identifiers = {
+    custom_id: identifiers.custom_id,
+    ...Object.fromEntries(
+      Object.entries(identifiers)
+        .filter(([key]) => key !== 'custom_id')
+        .map(([key, value]) => [key, String(value)])
+    )
+  }
+  return cleanedIdentifiers
 }
 
 function formatEventName(eventName: string | undefined | null): string | undefined {
