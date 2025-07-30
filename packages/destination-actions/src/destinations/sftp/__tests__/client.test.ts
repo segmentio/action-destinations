@@ -1,4 +1,5 @@
 import { normalizeSSHKey, testSFTPConnection, uploadSFTP } from '../client'
+import { SFTP_DEFAULT_PORT } from '../constants'
 import { Settings } from '../generated-types'
 
 import Client from 'ssh2-sftp-client'
@@ -11,7 +12,7 @@ const passwordSettings: Settings = {
   sftp_host: 'sftp_host',
   sftp_username: 'sftp_username',
   sftp_password: 'sftp_password',
-  sftp_port: 22
+  sftp_port: SFTP_DEFAULT_PORT
 }
 
 const sshKeySettings: Settings = {
@@ -19,7 +20,7 @@ const sshKeySettings: Settings = {
   sftp_host: 'sftp_host',
   sftp_username: 'sftp_username',
   sftp_ssh_key: 'sftp_ssh_key',
-  sftp_port: 22
+  sftp_port: SFTP_DEFAULT_PORT
 }
 
 describe('SFTP Client', () => {
@@ -40,7 +41,7 @@ describe('SFTP Client', () => {
 
       expect(Client.prototype.connect).toHaveBeenCalledWith({
         host: 'sftp_host',
-        port: 22,
+        port: SFTP_DEFAULT_PORT,
         username: 'sftp_username',
         password: 'sftp_password'
       })
@@ -52,7 +53,7 @@ describe('SFTP Client', () => {
 
       expect(Client.prototype.connect).toHaveBeenCalledWith({
         host: 'sftp_host',
-        port: 22,
+        port: SFTP_DEFAULT_PORT,
         username: 'sftp_username',
         privateKey: 'sftp_ssh_key'
       })
@@ -377,7 +378,7 @@ MIIEpAIBAAKCAQEA1234567890
 
         expect(Client.prototype.connect).toHaveBeenCalledWith({
           host: 'sftp_host',
-          port: 22,
+          port: SFTP_DEFAULT_PORT,
           username: 'sftp_username',
           password: 'sftp_password'
         })
@@ -394,7 +395,7 @@ MIIEpAIBAAKCAQEA1234567890
 
         expect(Client.prototype.connect).toHaveBeenCalledWith({
           host: 'sftp_host',
-          port: 22,
+          port: SFTP_DEFAULT_PORT,
           username: 'sftp_username',
           privateKey: 'sftp_ssh_key'
         })
@@ -428,7 +429,7 @@ MIIEpAIBAAKCAQEA1234567890
         // Should connect with normalized key (properly formatted with line breaks)
         expect(Client.prototype.connect).toHaveBeenCalledWith({
           host: 'sftp_host',
-          port: 22,
+          port: SFTP_DEFAULT_PORT,
           username: 'sftp_username',
           privateKey:
             `-----BEGIN RSA PRIVATE KEY-----` + // gitleaks:allow
@@ -515,7 +516,7 @@ MN
         await expect(testSFTPConnection(passwordSettings)).rejects.toThrow('Connection refused')
         expect(Client.prototype.connect).toHaveBeenCalledWith({
           host: 'sftp_host',
-          port: 22,
+          port: SFTP_DEFAULT_PORT,
           username: 'sftp_username',
           password: 'sftp_password'
         })
@@ -572,20 +573,20 @@ MN
       it('should use custom port when specified', async () => {
         const customPortSettings: Settings = {
           ...passwordSettings,
-          sftp_port: 2222
+          sftp_port: 11
         }
 
         await testSFTPConnection(customPortSettings)
 
         expect(Client.prototype.connect).toHaveBeenCalledWith({
           host: 'sftp_host',
-          port: 2222,
+          port: 11,
           username: 'sftp_username',
           password: 'sftp_password'
         })
       })
 
-      it('should default to port 22 when not specified', async () => {
+      it('should default to port SFTP_DEFAULT_PORT when not specified', async () => {
         const noPortSettings: Settings = {
           ...passwordSettings,
           sftp_port: undefined
@@ -595,7 +596,7 @@ MN
 
         expect(Client.prototype.connect).toHaveBeenCalledWith({
           host: 'sftp_host',
-          port: 22,
+          port: SFTP_DEFAULT_PORT,
           username: 'sftp_username',
           password: 'sftp_password'
         })
@@ -611,7 +612,7 @@ MN
 
         expect(Client.prototype.connect).toHaveBeenCalledWith({
           host: 'sftp_host',
-          port: 22,
+          port: SFTP_DEFAULT_PORT,
           username: 'sftp_username',
           privateKey: ''
         })
@@ -627,7 +628,7 @@ MN
 
         expect(Client.prototype.connect).toHaveBeenCalledWith({
           host: 'sftp_host',
-          port: 22,
+          port: SFTP_DEFAULT_PORT,
           username: 'sftp_username',
           privateKey: ''
         })

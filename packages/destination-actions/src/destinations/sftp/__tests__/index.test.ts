@@ -1,4 +1,5 @@
 import { testSFTPConnection } from '../client'
+import { SFTP_DEFAULT_PORT } from '../constants'
 import { Settings } from '../generated-types'
 import destination from '../index'
 
@@ -17,7 +18,7 @@ describe('SFTP Destination', () => {
       sftp_host: 'test.example.com',
       sftp_username: 'testuser',
       sftp_password: 'testpass',
-      sftp_port: 22
+      sftp_port: SFTP_DEFAULT_PORT
     }
 
     const mockSSHKeySettings: Settings = {
@@ -25,7 +26,7 @@ describe('SFTP Destination', () => {
       sftp_host: 'test.example.com',
       sftp_username: 'testuser',
       sftp_ssh_key: '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA1234567890\n-----END RSA PRIVATE KEY-----', // gitleaks:allow
-      sftp_port: 22
+      sftp_port: SFTP_DEFAULT_PORT
     }
 
     const mockAuthData = {
@@ -158,7 +159,7 @@ describe('SFTP Destination', () => {
     it('should work with custom port settings', async () => {
       const customPortSettings: Settings = {
         ...mockPasswordSettings,
-        sftp_port: 2222
+        sftp_port: 11
       }
       mockTestSFTPConnection.mockResolvedValue([])
 
@@ -174,7 +175,7 @@ describe('SFTP Destination', () => {
       }
     })
 
-    it('should work with undefined port (defaults to 22)', async () => {
+    it(`should work with undefined port (defaults to ${SFTP_DEFAULT_PORT})`, async () => {
       const noPortSettings: Settings = {
         ...mockPasswordSettings,
         sftp_port: undefined

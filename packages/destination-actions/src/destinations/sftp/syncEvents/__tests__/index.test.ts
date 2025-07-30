@@ -1,6 +1,7 @@
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { SFTP_DEFAULT_PORT } from '../../constants'
 import { Settings } from '../../generated-types'
 import Destination from '../../index'
 
@@ -10,7 +11,7 @@ const settings: Settings = {
   sftp_host: 'test.example.com',
   sftp_username: 'testuser',
   sftp_password: 'testpass',
-  sftp_port: 22
+  sftp_port: SFTP_DEFAULT_PORT
 }
 
 const sshKeySettings: Settings = {
@@ -18,7 +19,7 @@ const sshKeySettings: Settings = {
   sftp_host: 'test.example.com',
   sftp_username: 'testuser',
   sftp_ssh_key: 'sftp_ssh_key',
-  sftp_port: 22
+  sftp_port: SFTP_DEFAULT_PORT
 }
 
 const payload = {
@@ -107,7 +108,7 @@ describe('syncEvents', () => {
 
       expect(mockSftpClient.connect).toHaveBeenCalledWith({
         host: 'test.example.com',
-        port: 22,
+        port: SFTP_DEFAULT_PORT,
         username: 'testuser',
         privateKey: 'sftp_ssh_key'
       })
@@ -140,7 +141,7 @@ describe('syncEvents', () => {
 
       expect(mockSftpClient.connect).toHaveBeenCalledWith({
         host: 'test.example.com',
-        port: 22,
+        port: SFTP_DEFAULT_PORT,
         username: 'testuser',
         password: 'testpass'
       })
@@ -207,7 +208,7 @@ describe('syncEvents', () => {
       ).resolves.not.toThrow()
     })
 
-    it('should fall back to port 22 if not provided', async () => {
+    it(`should fall back to port ${SFTP_DEFAULT_PORT} if not provided`, async () => {
       await expect(
         testDestination.testBatchAction('syncEvents', {
           events: mockedEvents,

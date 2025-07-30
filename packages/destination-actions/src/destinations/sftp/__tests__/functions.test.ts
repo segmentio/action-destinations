@@ -1,4 +1,5 @@
 import { uploadSFTP } from '../client'
+import { SFTP_DEFAULT_PORT } from '../constants'
 import {
   clean,
   createFilename,
@@ -393,7 +394,7 @@ describe('send', () => {
     sftp_host: 'test.example.com',
     sftp_username: 'testuser',
     sftp_password: 'testpass',
-    sftp_port: 22
+    sftp_port: SFTP_DEFAULT_PORT
   }
 
   const mockRawMapping: RawMapping = {

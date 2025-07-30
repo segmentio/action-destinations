@@ -4,6 +4,7 @@ import type { Settings } from './generated-types'
 import { testSFTPConnection } from './client'
 import syncModelToSFTP from './syncModelToSFTP'
 import syncEvents from './syncEvents'
+import { SFTP_DEFAULT_PORT } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'SFTP',
@@ -35,7 +36,7 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The port number for the SFTP connection',
         type: 'number',
         required: false,
-        default: 22
+        default: SFTP_DEFAULT_PORT
       },
       sftp_username: {
         label: 'Username',

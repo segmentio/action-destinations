@@ -1,4 +1,5 @@
 import { createTestIntegration, SegmentEvent } from '@segment/actions-core'
+import { SFTP_DEFAULT_PORT } from '../../constants'
 import { Settings } from '../../generated-types'
 import Destination from '../../index'
 
@@ -8,7 +9,7 @@ const settings: Settings = {
   sftp_host: 'test.example.com',
   sftp_username: 'testuser',
   sftp_password: 'testpass',
-  sftp_port: 22
+  sftp_port: SFTP_DEFAULT_PORT
 }
 
 const payload = {

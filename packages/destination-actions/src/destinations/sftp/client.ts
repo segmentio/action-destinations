@@ -1,6 +1,7 @@
 import { DEFAULT_REQUEST_TIMEOUT, PayloadValidationError, SelfTimeoutError } from '@segment/actions-core'
 import path from 'path'
 import Client from 'ssh2-sftp-client'
+import { SFTP_DEFAULT_PORT } from './constants'
 import { Settings } from './generated-types'
 import { sftpConnectionConfig } from './types'
 
@@ -78,7 +79,7 @@ function createConnectionConfig(settings: Settings): sftpConnectionConfig {
 
   return {
     host: settings.sftp_host,
-    port: settings.sftp_port || 22,
+    port: settings.sftp_port || SFTP_DEFAULT_PORT,
     username: settings.sftp_username,
     [credentialKey]: credentialValue
   }
