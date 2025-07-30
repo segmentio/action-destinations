@@ -148,6 +148,208 @@ export interface Payload {
    */
   query?: string
   /**
+   * Product IDs associated with the event, such as SKUs.
+   */
+  content_ids?: string[]
+  /**
+   * Category of the delivery.
+   */
+  delivery_category?: string
+  /**
+   * Number of items when checkout was initiated. Used with the InitiateCheckout event.
+   */
+  num_items?: number
+  /**
+   * Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.
+   */
+  predicted_ltv?: number
+  /**
+   * The text string entered by the user for the search. Used with the Search event.
+   */
+  search_string?: string
+  /**
+   * Hotel city location.
+   */
+  city?: string
+  /**
+   * Hotel region location.
+   */
+  region?: string
+  /**
+   * Hotel country location.
+   */
+  country?: string
+  /**
+   * Hotel check-in date.
+   */
+  checkin_date?: string
+  /**
+   * Hotel check-out date.
+   */
+  checkout_date?: string
+  /**
+   * Number of adults.
+   */
+  num_adults?: number
+  /**
+   * Number of children.
+   */
+  num_children?: number
+  /**
+   * Number of infants flying.
+   */
+  num_infants?: number
+  /**
+   * Suggested hotels.
+   */
+  suggested_hotels?: string[]
+  /**
+   * Date of flight departure. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD
+   */
+  departing_departure_date?: string
+  /**
+   * Date of return flight. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD
+   */
+  returning_departure_date?: string
+  /**
+   * Origin airport.
+   */
+  origin_airport?: string
+  /**
+   * Destination airport.
+   */
+  destination_airiport?: string
+  /**
+   * If a client has a destination catalog, the client can associate one or more destinations in the catalog with a specific flight event. For instance, link a particular route to a nearby museum and a nearby beach, both of which are destinations in the catalog.
+   */
+  destination_ids?: string[]
+  /**
+   * The date and time for arrival at the destination of the outbound journey. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD
+   */
+  departing_arrival_date?: string
+  /**
+   * The date and time when the return journey is completed. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD
+   */
+  returning_arrival_date?: string
+  /**
+   * Class of the flight ticket, must be: "eco", "prem", "bus", "first".
+   */
+  travel_class?: string
+  /**
+   * Represents the relative value of this potential customer to advertiser.
+   */
+  user_score?: number
+  /**
+   * The preferred number of stops the user is looking for. 0 for direct flight.
+   */
+  preferred_num_stops?: number
+  /**
+   * The start date of user's trip. Accept date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD.
+   */
+  travel_start?: string
+  /**
+   * The end date of user's trip. Accept date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD.
+   */
+  travel_end?: string
+  /**
+   * A list of IDs representing destination suugestions for this user. This parameter is not applicable for the Search event.
+   */
+  suggested_destinations?: string[]
+  /**
+   * Postal code for the vehicle location.
+   */
+  postal_code?: string
+  /**
+   * Vehicle make/brand/manufacturer.
+   */
+  make?: string
+  /**
+   * Vehicle model.
+   */
+  model?: string
+  /**
+   * Year the vehicle was laucned in yyyy format.
+   */
+  year?: number
+  /**
+   * Vehicle status. Supported values: "New", "Used", "CPO".
+   */
+  state_of_vehicle?: string
+  /**
+   * Vehicle mileage detail.
+   */
+  mileage?: {
+    /**
+     * Vehicle mileage (in km or miles). Zero (0) for new vehicle.
+     */
+    value?: number
+    /**
+     * Mileage unites in miles (MI) or kilometers (KM).
+     */
+    unit?: string
+  }
+  /**
+   * Vehicle exterior color.
+   */
+  exterior_color?: string
+  /**
+   * Vehicle transmission type. Supported values: "Automatic", "Manual", "Other".
+   */
+  transmission?: string
+  /**
+   * Vehicle body type. Supported values: "Convertible", "Coupe", "Hatchback", "Minivan", "Truck", "SUV", "Sedan", "Van", "Wagon", "Crossover", "Other".
+   */
+  body_style?: string
+  /**
+   * Vehicle fuel type. Supported values: "Diesel", "Electric", "Flex", "Gasoline", "Hybrid", "Other".
+   */
+  fuel_type?: string
+  /**
+   * Vehicle drivetrain. Supported values: "AWD", "FOUR_WD", "FWD", "RWD", "TWO_WD", "Other".
+   */
+  drivetrain?: string
+  /**
+   * Vehicle price range.
+   */
+  preferred_price_range?: {
+    /**
+     * Minimum preferred price of the vehicle.
+     */
+    min?: number
+    /**
+     * Maximum preferred price of the vehicle.
+     */
+    max?: number
+  }
+  /**
+   * Vehicle trim.
+   */
+  trim?: string
+  /**
+   * Vehicle identification number. Maximum characters: 17.
+   */
+  vin?: string
+  /**
+   * Vehicle interior color.
+   */
+  interior_color?: string
+  /**
+   * Vehicle drivetrain. Supported values: "Excellent", "Good", "Fair", "Poor", "Other".
+   */
+  condition_of_vehicle?: string
+  /**
+   * Optional for ViewContent. Use viewcontent_type to differentiate between soft lead landing pages.
+   */
+  viewcontent_type?: string
+  /**
+   * Optional for Search. Use search_type to differentiate other user searches (such as dealer lookup) from inventory search.
+   */
+  search_type?: string
+  /**
+   * Optional for CompleteRegistration. Use registration_type to differentiate between different types of customer registration on websites.
+   */
+  registration_type?: string
+  /**
    * Use this field to flag an event for limited data processing. TikTok will recognize this parameter as a request for limited data processing, and will limit its processing activities accordingly if the event shared occurred in an eligible location. To learn more about the Limited Data Use feature, refer to [Events API 2.0 - Limited Data Use](https://ads.tiktok.com/marketing_api/docs?id=1771101204435970).
    */
   limited_data_use?: boolean

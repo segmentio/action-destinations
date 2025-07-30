@@ -54,6 +54,57 @@ export interface TikTokConversionsProperties {
   description?: string
   order_id?: string
   shop_id?: string
+  content_ids?: string[]
+  delivery_category?: string
+  num_items?: number
+  predicted_ltv?: number
+  search_string?: string
+  city?: string // Travel Params
+  region?: string
+  country?: string
+  checkin_date?: string
+  checkout_date?: string
+  num_adults?: number
+  num_children?: number
+  num_infants?: number
+  suggested_hotels?: string[]
+  departing_departure_date?: string
+  returning_departure_date?: string
+  origin_airport?: string
+  destination_airiport?: string
+  destination_ids?: string[]
+  departing_arrival_date?: string
+  returning_arrival_date?: string
+  travel_class?: string
+  user_score?: number
+  preferred_num_stops?: number
+  travel_start?: string
+  travel_end?: string
+  suggested_destinations?: string[]
+  postal_code?: string // Auto Params
+  make?: string
+  model?: string
+  year?: number
+  state_of_vehicle?: string
+  mileage?: TikTokConversionsPropertiesMileage
+  exterior_color?: string
+  transmission?: string
+  body_style?: string
+  fuel_type?: string
+  drivetrain?: string
+  preferred_price_range?: number[]
+  trim?: string
+  vin?: string
+  interior_color?: string
+  condition_of_vehicle?: string
+  viewcontent_type?: string
+  search_type?: string
+  registration_type?: string
+}
+
+export interface TikTokConversionsPropertiesMileage {
+  value?: number
+  unit?: string
 }
 
 export interface TikTokConversionsContent {
