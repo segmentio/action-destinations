@@ -12,7 +12,18 @@ const settings: Settings = {
   sftp_port: SFTP_DEFAULT_PORT
 }
 
-const payload = {
+const payloadWithoutMappedColumns = {
+  sftp_folder_path: '/uploads',
+  column1: 'test-audience',
+  delimiter: ',',
+  filename_prefix: 'segment_',
+  enable_batching: true,
+  batch_size: 100000,
+  file_extension: 'csv'
+  // columns: {}
+}
+
+const payloadWithMappedColumns = {
   sftp_folder_path: '/uploads',
   column1: 'test-audience',
   delimiter: ',',
@@ -20,7 +31,13 @@ const payload = {
   enable_batching: true,
   batch_size: 100000,
   file_extension: 'csv',
-  columns: {}
+  columns: {
+    retlColumn1: 'retlColumn1',
+    retlColumn2: 'retlColumn2',
+    retlColumn3: 'retlColumn3',
+    retlColumn4: 'retlColumn4',
+    retlColumn5: 'retlColumn5'
+  }
 }
 
 const mockedRETLEvents: SegmentEvent[] = Array.from({ length: 50 }, (_, i) => ({
@@ -67,10 +84,20 @@ describe('syncModelToSFTP', () => {
         testDestination.testAction('syncModelToSFTP', {
           event: mockedRETLEvents[0],
           settings,
-          mapping: payload,
+          mapping: payloadWithMappedColumns,
           useDefaultMappings: true
         })
       ).resolves.not.toThrow()
+    })
+    it('should throw PayloadValidationError if no columns are defined in Mapping', async () => {
+      await expect(
+        testDestination.testAction('syncModelToSFTP', {
+          event: mockedRETLEvents[0],
+          settings,
+          mapping: payloadWithoutMappedColumns,
+          useDefaultMappings: true
+        })
+      ).rejects.toThrow()
     })
   })
 
@@ -80,7 +107,7 @@ describe('syncModelToSFTP', () => {
         testDestination.testBatchAction('syncModelToSFTP', {
           events: mockedRETLEvents,
           settings,
-          mapping: payload,
+          mapping: payloadWithMappedColumns,
           useDefaultMappings: true
         })
       ).resolves.not.toThrow()

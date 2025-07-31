@@ -1,10 +1,16 @@
-import { ErrorCodes, JSONLikeObject, MultiStatusResponse } from '@segment/actions-core'
+import { ErrorCodes, JSONLikeObject, MultiStatusResponse, PayloadValidationError } from '@segment/actions-core'
 import { uploadSFTP } from './client'
 import { Settings } from './generated-types'
 import { Payload } from './syncEvents/generated-types'
 import { ColumnHeader, RawMapping } from './types'
 
 async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping) {
+  // Validate that there are actual column mappings
+  const validColumnMappings = Object.entries(rawMapping.columns).filter(([_, value]) => value !== '')
+  if (validColumnMappings.length === 0) {
+    throw new PayloadValidationError('No Columns Mapped')
+  }
+
   const {
     delimiter,
     audience_action_column_name,

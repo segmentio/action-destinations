@@ -411,6 +411,27 @@ describe('send', () => {
     mockUploadSFTP.mockResolvedValue(undefined)
   })
 
+  it('should throw PayloadValidationError when no columns are mapped', async () => {
+    // Test case 1: Empty rawMapping.columns
+    const emptyRawMapping: RawMapping = {
+      columns: {}
+    }
+
+    const payloads: Payload[] = [
+      {
+        sftp_folder_path: '/uploads',
+        delimiter: ',',
+        filename_prefix: 'test',
+        enable_batching: true,
+        file_extension: 'csv',
+        batch_size: 100000,
+        columns: {}
+      }
+    ]
+
+    await expect(send(payloads, mockSettings, emptyRawMapping)).rejects.toThrow('No Columns Mapped')
+  })
+
   it('should validate SFTP settings and upload file', async () => {
     const payloads: Payload[] = [
       {
