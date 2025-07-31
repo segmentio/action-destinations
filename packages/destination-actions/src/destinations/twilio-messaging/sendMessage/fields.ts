@@ -11,16 +11,14 @@ export const fields: Record<string, InputField> = {
       { label: 'SMS', value: CHANNELS.SMS },
       { label: 'MMS', value: CHANNELS.MMS },
       { label: 'WhatsApp', value: CHANNELS.WHATSAPP },
-      { label: 'RCS', value: CHANNELS.RCS }
-    ],
-    default: CHANNELS.RCS
+      { label: 'RCS', value: CHANNELS.RCS } 
+    ]
   },
   senderType: {
     label: 'Sender Type',
     description:
       "The Sender type to use for the message. Depending on the selected 'Channel' this can be a phone number, messaging service, or Messenger sender ID.",
     type: 'string',
-    default: 'Messaging Service',
     required: true,
     dynamic: true
   },
@@ -29,7 +27,6 @@ export const fields: Record<string, InputField> = {
     description:
       'The Content Template type to use for the message. Selecting "Inline" will allow you to define the message body directly. For all other options a Content Template must be pre-defined in Twilio.',
     type: 'string',
-    default: 'Text',
     required: true,
     dynamic: true
   },
@@ -38,7 +35,7 @@ export const fields: Record<string, InputField> = {
     description: 'The number to send the message to (E.164 format).',
     type: 'string',
     required: false,
-    default: '+4917672899431',
+    default: undefined,
     depends_on: {
       match: 'all',
       conditions: [
@@ -110,7 +107,7 @@ export const fields: Record<string, InputField> = {
     type: 'string',
     dynamic: true,
     required: false,
-    default: 'MG78a8b50a7f1ee35ff3ec91bd43e1d199',
+    default: undefined,
     allowNull: false,
     disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
     depends_on: {
@@ -131,7 +128,6 @@ export const fields: Record<string, InputField> = {
     dynamic: true,
     required: false,
     allowNull: false,
-    default: 'HX4d32b64e3a5ee6f8c2fa3908cd8a2eca',
     disabledInputMethods: ['variable', 'function'],
     depends_on: {
       match: 'all',
@@ -152,10 +148,6 @@ export const fields: Record<string, InputField> = {
     dynamic: true,
     required: false,
     defaultObjectUI: 'keyvalue',
-    default: {
-      '1': 'value1',
-      '2': 'value2'
-    },
     additionalProperties: true,
     depends_on: {
       match: 'all',
