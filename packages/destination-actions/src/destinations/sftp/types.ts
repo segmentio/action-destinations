@@ -1,6 +1,6 @@
 import { ExecuteInput } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import type { Payload as sftpPayload } from './syncEvents/generated-types'
+import type { Payload } from './syncEvents/generated-types'
 
 export interface Data {
   rawMapping: RawMapping
@@ -28,7 +28,7 @@ export type RawData = {
   }
 }
 
-export type ProcessDataInput<T extends sftpPayload> = {
+export type ProcessDataInput<T extends Payload> = {
   payloads: T[]
   features?: Record<string, boolean>
   rawData?: RawData[]

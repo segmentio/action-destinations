@@ -2,9 +2,9 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import { testSFTPConnection } from './client'
-import syncModelToSFTP from './syncModelToSFTP'
-import syncEvents from './syncEvents'
 import { SFTP_DEFAULT_PORT } from './constants'
+import syncEvents from './syncEvents'
+import syncModelToSFTP from './syncModelToSFTP'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'SFTP',
@@ -40,13 +40,13 @@ const destination: DestinationDefinition<Settings> = {
       },
       sftp_username: {
         label: 'Username',
-        description: 'User credentials for establishing an SFTP connection',
+        description: 'Username for establishing an SFTP connection',
         type: 'string',
         required: true
       },
       sftp_password: {
         label: 'Password',
-        description: 'User credentials for establishing an SFTP connection',
+        description: 'Password for establishing an SFTP connection',
         type: 'password',
         required: {
           conditions: [
@@ -69,7 +69,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       sftp_ssh_key: {
         label: 'SSH Key',
-        description: 'SSH Key for establishing an SFTP connection.',
+        description: 'SSH Key for establishing an SFTP connection',
         type: 'password',
         required: {
           conditions: [

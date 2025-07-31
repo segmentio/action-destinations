@@ -14,15 +14,15 @@ export interface Settings {
    */
   sftp_port?: number
   /**
-   * User credentials for establishing an SFTP connection
+   * Username for establishing an SFTP connection
    */
   sftp_username: string
   /**
-   * User credentials for establishing an SFTP connection
+   * Password for establishing an SFTP connection
    */
   sftp_password?: string
   /**
-   * SSH Key for establishing an SFTP connection.
+   * SSH Key for establishing an SFTP connection
    */
   sftp_ssh_key?: string
 }
