@@ -357,4 +357,36 @@ describe('TwilioMessaging.sendMessage', () => {
       })
     ).rejects.toThrow("The root value is missing the required field 'messagingServiceSid'. The root value must match \"then\" schema.")
   })
+
+  it('should send RCS messsage with tags', async () => {
+    const body = "To=%2B1234567890&SendAt=2025-12-31T23%3A59%3A59Z&MessagingServiceSid=MG5555555555bbbbbb5555555555bbbbbb&Body=Scheduled+message+with+media&MediaUrl=https%3A%2F%2Fexample.com%2Fscheduled-image.png&Tags=%7B%22campaign_name%22%3A%22Spring+Sale+2022%22%2C%22message_type%22%3A%22cart_abandoned%22%2C%22number_tag%22%3A%2212345%22%2C%22boolean_tag%22%3A%22true%22%7D"
+    nock('https://api.twilio.com')
+      .post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`, body)
+      .reply(200, {
+        sid: 'SM1234567890abcdef1234567890abcdef',
+        status: 'sent'
+      })
+
+    await testDestination.testAction('sendMessage', {
+      settings: defaultSettings,
+      mapping: {
+        channel: CHANNELS.RCS,
+        senderType: SENDER_TYPE.MESSAGING_SERVICE,
+        toPhoneNumber: '+1234567890',
+        messagingServiceSid: 'Scheduled Service [MG5555555555bbbbbb5555555555bbbbbb]',
+        contentTemplateType: 'Inline',
+        inlineBody: 'Scheduled message with media',
+        inlineMediaUrls: ['https://example.com/scheduled-image.png'],
+        sendAt: '2025-12-31T23:59:59Z',
+        tags: {
+          campaign_name: 'Spring Sale 2022',
+          message_type: 'cart_abandoned',
+          number_tag: 12345,
+          boolean_tag: true,
+          null_tag: null,
+          empty_string_tag: ''
+        }
+      }
+    })
+  })
 })
