@@ -1,4 +1,10 @@
-import { ActionDefinition, RequestClient, RetryableError, HTTPError } from '@segment/actions-core'
+import {
+  ActionDefinition,
+  RequestClient,
+  RetryableError,
+  HTTPError,
+  filterPayloadByActionDefinition
+} from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { convertValidTimestamp, getUniqueIntercomContact } from '../util'
 import type { Payload } from './generated-types'
@@ -38,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       type: 'string',
-      description: "The contact's email address. Email is required if the role is `user` and External ID is blank.",
+      description: "The contact's email address. Email is required for leads, and for users when External ID is blank.",
       label: 'Email Address',
       format: 'email',
       default: {
@@ -111,14 +117,19 @@ const action: ActionDefinition<Settings, Payload> = {
      *
      * Note: When creating a lead, Intercom doesn't accept an external_id; Intercom only accepts email.
      */
-    payload.signed_up_at = convertValidTimestamp(payload.signed_up_at)
-    payload.last_seen_at = convertValidTimestamp(payload.last_seen_at)
+
+    // Filter payload based on depends_on conditions
+    const filteredPayload = filterPayloadByActionDefinition(payload, action)
+
+    filteredPayload.signed_up_at = convertValidTimestamp(filteredPayload.signed_up_at)
+    filteredPayload.last_seen_at = convertValidTimestamp(filteredPayload.last_seen_at)
+
     try {
-      const contact = await getUniqueIntercomContact(request, payload)
+      const contact = await getUniqueIntercomContact(request, filteredPayload)
       if (contact) {
-        return updateIntercomContact(request, contact.id, payload)
+        return updateIntercomContact(request, contact.id, filteredPayload)
       }
-      return await createIntercomContact(request, payload)
+      return await createIntercomContact(request, filteredPayload)
     } catch (error) {
       if ((error as HTTPError)?.response?.status === 409) {
         // The contact already exists but the Intercom cache most likely wasn't updated yet
