@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * The type of events you are uploading through TikTok Events API. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to find this value.
+   */
+  event_source?: string
+  /**
    * Conversion event name. Please refer to the "Supported Web Events" section on in TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.
    */
   event: string
@@ -70,14 +74,6 @@ export interface Payload {
    * TikTok Cookie ID. If you also use Pixel SDK and have enabled cookies, Pixel SDK automatically saves a unique identifier in the `_ttp` cookie. The value of `_ttp` is used to match website visitor events with TikTok ads. You can extract the value of `_ttp` and attach the value here. To learn more about the `ttp` parameter, refer to [Events API 2.0 - Send TikTok Cookie](https://ads.tiktok.com/marketing_api/docs?id=%201771100936446977) (`_ttp`).
    */
   ttp?: string
-  /**
-   * ID of TikTok leads. Every lead will have its own lead_id when exported from TikTok. This feature is in Beta. Please contact your TikTok representative to inquire regarding availability
-   */
-  lead_id?: string
-  /**
-   * Lead source of TikTok leads. Please set this field to the name of your CRM system, such as HubSpot or Salesforce.
-   */
-  lead_event_source?: string
   /**
    * The BCP 47 language identifier. For reference, refer to the [IETF BCP 47 standardized code](https://www.rfc-editor.org/rfc/bcp/bcp47.txt).
    */
@@ -168,187 +164,200 @@ export interface Payload {
    */
   search_string?: string
   /**
-   * Hotel city location.
+   * Fields related to CRM events.
    */
-  city?: string
+  lead_fields?: {
+    /**
+     * ID of TikTok leads. Every lead will have its own lead_id when exported from TikTok. This feature is in Beta. Please contact your TikTok representative to inquire regarding availability
+     */
+    lead_id?: string
+    /**
+     * Lead source of TikTok leads. Please set this field to the name of your CRM system, such as HubSpot or Salesforce.
+     */
+    lead_event_source?: string
+  }
   /**
-   * Hotel region location.
+   * Fields related to travel events.
    */
-  region?: string
+  travel_fields?: {
+    /**
+     * Hotel city location.
+     */
+    city?: string
+    /**
+     * Hotel region location.
+     */
+    region?: string
+    /**
+     * Hotel country location.
+     */
+    country?: string
+    /**
+     * Hotel check-in date.
+     */
+    checkin_date?: string
+    /**
+     * Hotel check-out date.
+     */
+    checkout_date?: string
+    /**
+     * Number of adults.
+     */
+    num_adults?: number
+    /**
+     * Number of children.
+     */
+    num_children?: number
+    /**
+     * Number of infants flying.
+     */
+    num_infants?: number
+    /**
+     * Suggested hotels.
+     */
+    suggested_hotels?: string[]
+    /**
+     * Date of flight departure. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD
+     */
+    departing_departure_date?: string
+    /**
+     * Date of return flight. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD
+     */
+    returning_departure_date?: string
+    /**
+     * Origin airport.
+     */
+    origin_airport?: string
+    /**
+     * Destination airport.
+     */
+    destination_airiport?: string
+    /**
+     * If a client has a destination catalog, the client can associate one or more destinations in the catalog with a specific flight event. For instance, link a particular route to a nearby museum and a nearby beach, both of which are destinations in the catalog.
+     */
+    destination_ids?: string[]
+    /**
+     * The date and time for arrival at the destination of the outbound journey. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD
+     */
+    departing_arrival_date?: string
+    /**
+     * The date and time when the return journey is completed. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD
+     */
+    returning_arrival_date?: string
+    /**
+     * Class of the flight ticket, must be: "eco", "prem", "bus", "first".
+     */
+    travel_class?: string
+    /**
+     * Represents the relative value of this potential customer to advertiser.
+     */
+    user_score?: number
+    /**
+     * The preferred number of stops the user is looking for. 0 for direct flight.
+     */
+    preferred_num_stops?: number
+    /**
+     * The start date of user's trip. Accept date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD.
+     */
+    travel_start?: string
+    /**
+     * The end date of user's trip. Accept date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD.
+     */
+    travel_end?: string
+    /**
+     * A list of IDs representing destination suugestions for this user. This parameter is not applicable for the Search event.
+     */
+    suggested_destinations?: string[]
+  }
   /**
-   * Hotel country location.
+   * Fields related to vehicle events.
    */
-  country?: string
-  /**
-   * Hotel check-in date.
-   */
-  checkin_date?: string
-  /**
-   * Hotel check-out date.
-   */
-  checkout_date?: string
-  /**
-   * Number of adults.
-   */
-  num_adults?: number
-  /**
-   * Number of children.
-   */
-  num_children?: number
-  /**
-   * Number of infants flying.
-   */
-  num_infants?: number
-  /**
-   * Suggested hotels.
-   */
-  suggested_hotels?: string[]
-  /**
-   * Date of flight departure. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD
-   */
-  departing_departure_date?: string
-  /**
-   * Date of return flight. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD
-   */
-  returning_departure_date?: string
-  /**
-   * Origin airport.
-   */
-  origin_airport?: string
-  /**
-   * Destination airport.
-   */
-  destination_airiport?: string
-  /**
-   * If a client has a destination catalog, the client can associate one or more destinations in the catalog with a specific flight event. For instance, link a particular route to a nearby museum and a nearby beach, both of which are destinations in the catalog.
-   */
-  destination_ids?: string[]
-  /**
-   * The date and time for arrival at the destination of the outbound journey. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD
-   */
-  departing_arrival_date?: string
-  /**
-   * The date and time when the return journey is completed. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD
-   */
-  returning_arrival_date?: string
-  /**
-   * Class of the flight ticket, must be: "eco", "prem", "bus", "first".
-   */
-  travel_class?: string
-  /**
-   * Represents the relative value of this potential customer to advertiser.
-   */
-  user_score?: number
-  /**
-   * The preferred number of stops the user is looking for. 0 for direct flight.
-   */
-  preferred_num_stops?: number
-  /**
-   * The start date of user's trip. Accept date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD.
-   */
-  travel_start?: string
-  /**
-   * The end date of user's trip. Accept date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD.
-   */
-  travel_end?: string
-  /**
-   * A list of IDs representing destination suugestions for this user. This parameter is not applicable for the Search event.
-   */
-  suggested_destinations?: string[]
-  /**
-   * Postal code for the vehicle location.
-   */
-  postal_code?: string
-  /**
-   * Vehicle make/brand/manufacturer.
-   */
-  make?: string
-  /**
-   * Vehicle model.
-   */
-  model?: string
-  /**
-   * Year the vehicle was laucned in yyyy format.
-   */
-  year?: number
-  /**
-   * Vehicle status. Supported values: "New", "Used", "CPO".
-   */
-  state_of_vehicle?: string
-  /**
-   * Vehicle mileage detail.
-   */
-  mileage?: {
+  auto_fields?: {
+    /**
+     * Postal code for the vehicle location.
+     */
+    postal_code?: string
+    /**
+     * Vehicle make/brand/manufacturer.
+     */
+    make?: string
+    /**
+     * Vehicle model.
+     */
+    model?: string
+    /**
+     * Year the vehicle was laucned in yyyy format.
+     */
+    year?: number
+    /**
+     * Vehicle status.
+     */
+    state_of_vehicle?: string
     /**
      * Vehicle mileage (in km or miles). Zero (0) for new vehicle.
      */
-    value?: number
+    mileage_value?: number
     /**
      * Mileage unites in miles (MI) or kilometers (KM).
      */
-    unit?: string
-  }
-  /**
-   * Vehicle exterior color.
-   */
-  exterior_color?: string
-  /**
-   * Vehicle transmission type. Supported values: "Automatic", "Manual", "Other".
-   */
-  transmission?: string
-  /**
-   * Vehicle body type. Supported values: "Convertible", "Coupe", "Hatchback", "Minivan", "Truck", "SUV", "Sedan", "Van", "Wagon", "Crossover", "Other".
-   */
-  body_style?: string
-  /**
-   * Vehicle fuel type. Supported values: "Diesel", "Electric", "Flex", "Gasoline", "Hybrid", "Other".
-   */
-  fuel_type?: string
-  /**
-   * Vehicle drivetrain. Supported values: "AWD", "FOUR_WD", "FWD", "RWD", "TWO_WD", "Other".
-   */
-  drivetrain?: string
-  /**
-   * Vehicle price range.
-   */
-  preferred_price_range?: {
+    mileage_unit?: string
+    /**
+     * Vehicle exterior color.
+     */
+    exterior_color?: string
+    /**
+     * Vehicle transmission type.
+     */
+    transmission?: string
+    /**
+     * Vehicle body type.
+     */
+    body_style?: string
+    /**
+     * Vehicle fuel type.
+     */
+    fuel_type?: string
+    /**
+     * Vehicle drivetrain.
+     */
+    drivetrain?: string
     /**
      * Minimum preferred price of the vehicle.
      */
-    min?: number
+    preferred_price_range_min?: number
     /**
      * Maximum preferred price of the vehicle.
      */
-    max?: number
+    preferred_price_range_max?: number
+    /**
+     * Vehicle trim.
+     */
+    trim?: string
+    /**
+     * Vehicle identification number. Maximum characters: 17.
+     */
+    vin?: string
+    /**
+     * Vehicle interior color.
+     */
+    interior_color?: string
+    /**
+     * Vehicle drivetrain.
+     */
+    condition_of_vehicle?: string
+    /**
+     * Optional for ViewContent. Use viewcontent_type to differentiate between soft lead landing pages.
+     */
+    viewcontent_type?: string
+    /**
+     * Optional for Search. Use search_type to differentiate other user searches (such as dealer lookup) from inventory search.
+     */
+    search_type?: string
+    /**
+     * Optional for CompleteRegistration. Use registration_type to differentiate between different types of customer registration on websites.
+     */
+    registration_type?: string
   }
-  /**
-   * Vehicle trim.
-   */
-  trim?: string
-  /**
-   * Vehicle identification number. Maximum characters: 17.
-   */
-  vin?: string
-  /**
-   * Vehicle interior color.
-   */
-  interior_color?: string
-  /**
-   * Vehicle drivetrain. Supported values: "Excellent", "Good", "Fair", "Poor", "Other".
-   */
-  condition_of_vehicle?: string
-  /**
-   * Optional for ViewContent. Use viewcontent_type to differentiate between soft lead landing pages.
-   */
-  viewcontent_type?: string
-  /**
-   * Optional for Search. Use search_type to differentiate other user searches (such as dealer lookup) from inventory search.
-   */
-  search_type?: string
-  /**
-   * Optional for CompleteRegistration. Use registration_type to differentiate between different types of customer registration on websites.
-   */
-  registration_type?: string
   /**
    * Use this field to flag an event for limited data processing. TikTok will recognize this parameter as a request for limited data processing, and will limit its processing activities accordingly if the event shared occurred in an eligible location. To learn more about the Limited Data Use feature, refer to [Events API 2.0 - Limited Data Use](https://ads.tiktok.com/marketing_api/docs?id=1771101204435970).
    */

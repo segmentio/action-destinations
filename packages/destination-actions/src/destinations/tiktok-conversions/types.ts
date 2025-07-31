@@ -6,15 +6,26 @@ export interface TikTokConversionsRequest {
   data: TikTokConversionsData[]
 }
 
+export interface TikTokConversionsLeadRequest {
+  event_source: string
+  event_source_id: string
+  partner_name: string
+  test_event_code?: string
+  data: TikTokConversionsLeadData[]
+}
+
 export interface TikTokConversionsData {
   event: string
   event_time: number
   event_id?: string
   user: TikTokConversionsUser
-  properties: TikTokConversionsProperties
+  properties: TikTokConversionsProperties | TikTokConversionsTravelProperties | TikTokConversionsAutoProperties
   page?: TikTokConversionsPage
   limited_data_use: boolean
-  lead?: TikTokLeadData
+}
+
+export interface TikTokConversionsLeadData extends TikTokConversionsData {
+  lead: TikTokLeadData
 }
 
 export interface TikTokConversionsPage {
@@ -27,7 +38,6 @@ export interface TikTokConversionsUser {
   phone: string[]
   email: string[]
   ttp?: string
-  // lead_id?: string
   ip?: string
   user_agent?: string
   locale?: string
@@ -59,7 +69,10 @@ export interface TikTokConversionsProperties {
   num_items?: number
   predicted_ltv?: number
   search_string?: string
-  city?: string // Travel Params
+}
+
+export interface TikTokConversionsTravelProperties extends TikTokConversionsProperties {
+  city?: string
   region?: string
   country?: string
   checkin_date?: string
@@ -81,7 +94,10 @@ export interface TikTokConversionsProperties {
   travel_start?: string
   travel_end?: string
   suggested_destinations?: string[]
-  postal_code?: string // Auto Params
+}
+
+export interface TikTokConversionsAutoProperties extends TikTokConversionsProperties {
+  postal_code?: string
   make?: string
   model?: string
   year?: number

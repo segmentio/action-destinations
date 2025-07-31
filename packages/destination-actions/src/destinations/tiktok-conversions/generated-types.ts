@@ -9,8 +9,4 @@ export interface Settings {
    * Your TikTok Pixel ID. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to find this value.
    */
   pixelCode: string
-  /**
-   * The type of events you are uploading through TikTok Events API. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to find this value.
-   */
-  eventSource: string
 }

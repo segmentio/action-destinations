@@ -73,23 +73,6 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'Your TikTok Pixel ID. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to find this value.',
         required: true
-      },
-      eventSource: {
-        label: 'Event Source',
-        type: 'string',
-        description:
-          'The type of events you are uploading through TikTok Events API. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to find this value.',
-        required: true,
-        choices: [
-          {
-            value: 'web',
-            label: 'The events took place on your website and are measured by a Pixel Code.'
-          },
-          {
-            value: 'crm',
-            label: 'The lead events took place on a CRM system and are tracked by a CRM Event Set ID.'
-          }
-        ]
       }
     },
     testAuthentication: (request, { settings }) => {
