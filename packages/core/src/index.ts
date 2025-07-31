@@ -1,4 +1,4 @@
-export { Destination, fieldsToJsonSchema } from './destination-kit'
+export { Destination, fieldsToJsonSchema, filterPayloadByActionDefinition } from './destination-kit'
 export { getAuthData } from './destination-kit/parse-settings'
 export { transform, Features } from './mapping-kit'
 export {
