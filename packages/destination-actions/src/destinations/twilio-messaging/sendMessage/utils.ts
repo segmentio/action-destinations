@@ -211,8 +211,6 @@ export async function send(request: RequestClient, payload: Payload, settings: S
 
   const encodedBody = encode(twilioPayload)
 
-  console.log('Twilio Payload:', encodedBody)
-
   return await request(SEND_SMS_URL.replace(ACCOUNT_SID_TOKEN, settings.accountSID), {
     method: 'post',
     body: encodedBody
