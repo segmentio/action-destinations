@@ -106,7 +106,15 @@ export const fields: Record<string, InputField> = {
     description: 'The SID of the messaging service to use. If not in the dropdown, enter it directly.',
     type: 'string',
     dynamic: true,
-    required: false,
+    required: {
+      conditions: [
+        { 
+          fieldKey: 'channel',
+          operator: 'is',
+          value: CHANNELS.RCS
+        }
+      ]
+    },
     default: undefined,
     allowNull: false,
     disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],

@@ -256,6 +256,27 @@ describe('TwilioMessaging.sendMessage', () => {
     })
   })
 
+  it('should send RCS with messaging service and scheduled send', async () => {
+    nock('https://api.twilio.com').post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`, "To=%2B1234567890&SendAt=2025-12-31T23%3A59%3A59Z&MessagingServiceSid=MG5555555555bbbbbb5555555555bbbbbb&Body=Scheduled+message+with+media&MediaUrl=https%3A%2F%2Fexample.com%2Fscheduled-image.png").reply(200, {
+      sid: 'SM1234567890abcdef1234567890abcdef',
+      status: 'scheduled'
+    })
+
+    await testDestination.testAction('sendMessage', {
+      settings: defaultSettings,
+      mapping: {
+        channel: CHANNELS.RCS,
+        senderType: SENDER_TYPE.MESSAGING_SERVICE,
+        toPhoneNumber: '+1234567890',
+        messagingServiceSid: 'Scheduled Service [MG5555555555bbbbbb5555555555bbbbbb]',
+        contentTemplateType: 'Inline',
+        inlineBody: 'Scheduled message with media',
+        inlineMediaUrls: ['https://example.com/scheduled-image.png'],
+        sendAt: '2025-12-31T23:59:59Z'
+      }
+    })
+  })
+
   it('should throw error for invalid phone number format', async () => {
     await expect(
       testDestination.testAction('sendMessage', {
@@ -319,5 +340,21 @@ describe('TwilioMessaging.sendMessage', () => {
         }
       })
     ).rejects.toThrow(PayloadValidationError)
+  })
+
+  it('should throw error if RCS send attempted with a phone number (i.e without a Messaging Service)', async () => {
+    await expect(
+      testDestination.testAction('sendMessage', {
+        settings: defaultSettings,
+        mapping: {
+          channel: CHANNELS.RCS,
+          senderType: SENDER_TYPE.PHONE_NUMBER,
+          toPhoneNumber: '+1234567890',
+          fromPhoneNumber: '+19876543210',
+          contentTemplateType: 'Inline',
+          inlineBody: 'Hello World!'
+        }
+      })
+    ).rejects.toThrow("The root value is missing the required field 'messagingServiceSid'. The root value must match \"then\" schema.")
   })
 })
