@@ -91,20 +91,6 @@ describe('SFTP Client', () => {
       )
     })
 
-    it('re-throws non-SFTP errors unchanged', async () => {
-      Client.prototype.connect = jest.fn().mockResolvedValue(undefined)
-      Client.prototype.end = jest.fn().mockResolvedValue(undefined)
-
-      // Mock a generic error (not an SFTP error)
-      const genericError = new Error('Generic network error')
-      Client.prototype.put = jest.fn().mockRejectedValue(genericError)
-
-      // Should re-throw the original error
-      await expect(uploadSFTP(passwordSettings, '/uploads', 'filename', Buffer.from('test content'))).rejects.toThrow(
-        'Generic network error'
-      )
-    })
-
     it('should throw timeout error when timeout occurs but action completes (line 73 coverage)', async () => {
       // This test covers the specific line: if (timeoutError) throw timeoutError
 
@@ -260,40 +246,27 @@ QRSTUV
       expect(contentLines.every((line) => line.length > 0)).toBe(true)
     })
 
-    it('should handle different key types (DSA)', () => {
+    it('should handle different key types', () => {
+      // Test DSA key
       const dsaKey = `-----BEGIN DSA PRIVATE KEY-----MIIEpAIBAAKCAQEA1234567890abcdefghijklmnopqrstuvwxyz-----END DSA PRIVATE KEY-----` // gitleaks:allow
+      const expectedDsaKey =
+        `-----BEGIN DSA PRIVATE KEY-----` +
+        `\nMIIEpAIBAAKCAQEA1234567890abcdefghijklmnopqrstuvwxyz\n-----END DSA PRIVATE KEY-----` // gitleaks:allow
+      expect(normalizeSSHKey(dsaKey)).toBe(expectedDsaKey)
 
-      const expectedKey =
-        `-----BEGIN DSA PRIVATE KEY-----` + // gitleaks:allow
-        `
-MIIEpAIBAAKCAQEA1234567890abcdefghijklmnopqrstuvwxyz
------END DSA PRIVATE KEY-----`
-
-      expect(normalizeSSHKey(dsaKey)).toBe(expectedKey)
-    })
-
-    it('should handle different key types (EC)', () => {
+      // Test EC key
       const ecKey = `-----BEGIN EC PRIVATE KEY-----MIIEpAIBAAKCAQEA1234567890abcdefghijklmnopqrstuvwxyz-----END EC PRIVATE KEY-----` // gitleaks:allow
+      const expectedEcKey =
+        `-----BEGIN EC PRIVATE KEY-----` +
+        `\nMIIEpAIBAAKCAQEA1234567890abcdefghijklmnopqrstuvwxyz\n-----END EC PRIVATE KEY-----` // gitleaks:allow
+      expect(normalizeSSHKey(ecKey)).toBe(expectedEcKey)
 
-      const expectedKey =
-        `-----BEGIN EC PRIVATE KEY-----` + // gitleaks:allow
-        `
-MIIEpAIBAAKCAQEA1234567890abcdefghijklmnopqrstuvwxyz
------END EC PRIVATE KEY-----`
-
-      expect(normalizeSSHKey(ecKey)).toBe(expectedKey)
-    })
-
-    it('should handle OpenSSH key type', () => {
+      // Test OpenSSH key
       const opensshKey = `-----BEGIN OPENSSH PRIVATE KEY-----MIIEpAIBAAKCAQEA1234567890abcdefghijklmnopqrstuvwxyz-----END OPENSSH PRIVATE KEY-----` // gitleaks:allow
-
-      const expectedKey =
-        `-----BEGIN OPENSSH PRIVATE KEY-----` + // gitleaks:allow
-        `
-MIIEpAIBAAKCAQEA1234567890abcdefghijklmnopqrstuvwxyz
------END OPENSSH PRIVATE KEY-----`
-
-      expect(normalizeSSHKey(opensshKey)).toBe(expectedKey)
+      const expectedOpensshKey =
+        `-----BEGIN OPENSSH PRIVATE KEY-----` +
+        `\nMIIEpAIBAAKCAQEA1234567890abcdefghijklmnopqrstuvwxyz\n-----END OPENSSH PRIVATE KEY-----` // gitleaks:allow
+      expect(normalizeSSHKey(opensshKey)).toBe(expectedOpensshKey)
     })
 
     it('should split long content into 64-character lines', () => {

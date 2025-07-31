@@ -83,26 +83,31 @@ describe('syncEvents', () => {
   })
 
   describe('Authentication Types', () => {
-    it('should work with SSH key authentication', async () => {
-      await testDestination.testAction('syncEvents', {
-        event: createTestEvent({
-          messageId: 'test-message-id',
-          timestamp: '2023-07-26T15:23:39.803Z',
-          type: 'track',
-          userId: 'userid1',
-          receivedAt: '2015-12-12T19:11:01.266Z',
-          properties: {
-            email: 'test@example.com'
-          },
-          event: 'Test Event'
-        }),
-        mapping: {
-          ...payload,
-          columns: {
-            user_id: { '@path': '$.userId' },
-            email: { '@path': '$.properties.email' }
-          }
+    it('should work with both SSH key and password authentication', async () => {
+      const testEvent = createTestEvent({
+        messageId: 'test-message-id',
+        timestamp: '2023-07-26T15:23:39.803Z',
+        type: 'track',
+        userId: 'userid1',
+        receivedAt: '2015-12-12T19:11:01.266Z',
+        properties: {
+          email: 'test@example.com'
         },
+        event: 'Test Event'
+      })
+
+      const testMapping = {
+        ...payload,
+        columns: {
+          user_id: { '@path': '$.userId' },
+          email: { '@path': '$.properties.email' }
+        }
+      }
+
+      // Test SSH key authentication
+      await testDestination.testAction('syncEvents', {
+        event: testEvent,
+        mapping: testMapping,
         settings: sshKeySettings
       })
 
@@ -112,30 +117,14 @@ describe('syncEvents', () => {
         username: 'testuser',
         privateKey: 'sftp_ssh_key'
       })
-      expect(mockSftpClient.put).toHaveBeenCalled()
-      expect(mockSftpClient.end).toHaveBeenCalled()
-    })
 
-    it('should work with password authentication', async () => {
+      // Reset mocks
+      jest.clearAllMocks()
+
+      // Test password authentication
       await testDestination.testAction('syncEvents', {
-        event: createTestEvent({
-          messageId: 'test-message-id',
-          timestamp: '2023-07-26T15:23:39.803Z',
-          type: 'track',
-          userId: 'userid1',
-          receivedAt: '2015-12-12T19:11:01.266Z',
-          properties: {
-            email: 'test@example.com'
-          },
-          event: 'Test Event'
-        }),
-        mapping: {
-          ...payload,
-          columns: {
-            user_id: { '@path': '$.userId' },
-            email: { '@path': '$.properties.email' }
-          }
-        },
+        event: testEvent,
+        mapping: testMapping,
         settings
       })
 

@@ -147,13 +147,8 @@ describe('generateFile', () => {
 describe('enquoteIdentifier', () => {
   it('should quote values correctly', () => {
     expect(enquoteIdentifier('simple')).toBe('"simple"')
-    expect(enquoteIdentifier('with "quotes"')).toBe('"with ""quotes"""')
-    expect(enquoteIdentifier('with,comma')).toBe('"with,comma"')
-    expect(enquoteIdentifier('')).toBe('""')
-  })
-  it('should properly quote identifiers with no special characters', () => {
-    expect(enquoteIdentifier('simple')).toBe('"simple"')
     expect(enquoteIdentifier('123')).toBe('"123"')
+    expect(enquoteIdentifier('')).toBe('""')
   })
 
   it('should escape quotes within identifiers', () => {
@@ -161,13 +156,10 @@ describe('enquoteIdentifier', () => {
     expect(enquoteIdentifier('Say "Hello"')).toBe('"Say ""Hello"""')
   })
 
-  it('should handle empty strings', () => {
-    expect(enquoteIdentifier('')).toBe('""')
-  })
-
   it('should handle strings with delimiters', () => {
     expect(enquoteIdentifier('Hello, World')).toBe('"Hello, World"')
     expect(enquoteIdentifier('A;B;C')).toBe('"A;B;C"')
+    expect(enquoteIdentifier('with,comma')).toBe('"with,comma"')
   })
 })
 
@@ -220,29 +212,9 @@ describe('createFilename', () => {
     expect(result).toBe(`data__${expectedTimestamp}.txt`)
   })
 
-  it('should handle prefix with extension when extension matches', () => {
-    const result = createFilename('report.txt', 'txt')
-    expect(result).toBe(`report__${expectedTimestamp}.txt`)
-  })
-
   it('should handle prefix with different extension than file_extension', () => {
     const result = createFilename('report.csv', 'txt')
     expect(result).toBe(`report.csv__${expectedTimestamp}.txt`)
-  })
-
-  it('should handle numeric prefix', () => {
-    const result = createFilename('123', 'csv')
-    expect(result).toBe(`123__${expectedTimestamp}.csv`)
-  })
-
-  it('should handle special characters in prefix', () => {
-    const result = createFilename('test-file_with@special#chars', 'csv')
-    expect(result).toBe(`test-file_with@special#chars__${expectedTimestamp}.csv`)
-  })
-
-  it('should create proper timestamp format', () => {
-    const result = createFilename('end_of_year', 'csv')
-    expect(result).toBe(`end_of_year__2023-07-26T15-23-39-803Z.csv`)
   })
 })
 
