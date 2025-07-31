@@ -47,7 +47,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'synced',
       full_audience_sync: false
     },
-    createAudience: async (request, { settings, audienceName }) => {
+    async createAudience(request, createAudienceInput) {
+      const { settings, audienceName } = createAudienceInput
       const client: OrttoClient = new OrttoClient(request)
       const audience = await client.createAudience(settings, audienceName)
       return {
@@ -55,7 +56,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         externalId: audience.id
       }
     },
-    getAudience: async (request, { settings, externalId }) => {
+    async getAudience(request, { settings, externalId }) {
       const client: OrttoClient = new OrttoClient(request)
       const audience = await client.getAudience(settings, externalId)
       return {

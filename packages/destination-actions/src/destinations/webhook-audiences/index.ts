@@ -183,6 +183,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(send.fields),
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Entity Added to Warehouse',
+      partnerAction: 'send',
+      mapping: defaultValues(send.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
     }
   ]
 }
