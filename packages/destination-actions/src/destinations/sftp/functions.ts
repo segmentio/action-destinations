@@ -1,3 +1,4 @@
+import { ErrorCodes, JSONLikeObject, MultiStatusResponse } from '@segment/actions-core'
 import { uploadSFTP } from './client'
 import { Settings } from './generated-types'
 import { Payload } from './syncEvents/generated-types'
@@ -23,7 +24,30 @@ async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapp
   const fileContent = generateFile(payloads, headers, delimiter, audience_action_column_name, batch_size_column_name)
   const filename = createFilename(filename_prefix, file_extension)
 
-  return uploadSFTP(settings, sftp_folder_path, filename, fileContent)
+  const msResponse = new MultiStatusResponse()
+  try {
+    await uploadSFTP(settings, sftp_folder_path, filename, fileContent)
+    // Set success response for each payload
+    payloads.forEach((payload, index) => {
+      msResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        sent: payload as unknown as JSONLikeObject, // Ensure payload is sent as JSON-like object
+        body: 'Processed successfully'
+      })
+    })
+  } catch (error) {
+    payloads.forEach((payload, index) => {
+      msResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: ErrorCodes.BAD_REQUEST,
+        errormessage: 'Failed to upload file to SFTP',
+        sent: payload as unknown as JSONLikeObject, // Ensure payload is sent as JSON-like object
+        body: 'Failed to upload file to SFTP'
+      })
+    })
+  }
+
+  return msResponse
 }
 
 function clean(delimiter: string, str = '') {

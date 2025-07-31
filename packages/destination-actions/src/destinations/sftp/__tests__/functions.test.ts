@@ -1,3 +1,4 @@
+import { MultiStatusResponse } from '@segment/actions-core'
 import { uploadSFTP } from '../client'
 import { SFTP_DEFAULT_PORT } from '../constants'
 import {
@@ -552,5 +553,70 @@ describe('send', () => {
     expect(content).not.toContain('empty_field')
     expect(content).toContain('email')
     expect(content).toContain('name')
+  })
+
+  it('should return error responses when uploadSFTP fails', async () => {
+    const uploadError = new Error('SFTP connection failed')
+    mockUploadSFTP.mockRejectedValue(uploadError)
+
+    // Spy on MultiStatusResponse methods
+    const setErrorSpy = jest.spyOn(MultiStatusResponse.prototype, 'setErrorResponseAtIndex')
+
+    const payloads: Payload[] = [
+      {
+        sftp_folder_path: '/uploads',
+        delimiter: ',',
+        filename_prefix: 'test',
+        enable_batching: true,
+        file_extension: 'csv',
+        batch_size: 100000,
+        columns: {
+          email: 'test1@example.com',
+          name: 'John Doe'
+        }
+      },
+      {
+        sftp_folder_path: '/uploads',
+        delimiter: ',',
+        filename_prefix: 'test',
+        enable_batching: true,
+        file_extension: 'csv',
+        batch_size: 100000,
+        columns: {
+          email: 'test2@example.com',
+          name: 'Jane Smith'
+        }
+      }
+    ]
+
+    const result = await send(payloads, mockSettings, mockRawMapping)
+
+    // Should still call uploadSFTP and get the error
+    expect(mockUploadSFTP).toHaveBeenCalled()
+
+    // Should return a MultiStatusResponse
+    expect(result).toBeDefined()
+
+    // Should have called setErrorResponseAtIndex for each payload
+    expect(setErrorSpy).toHaveBeenCalledTimes(2)
+
+    // Verify the error responses were set correctly
+    expect(setErrorSpy).toHaveBeenCalledWith(0, {
+      status: 400,
+      errortype: 'BAD_REQUEST',
+      errormessage: 'Failed to upload file to SFTP',
+      sent: expect.any(Object),
+      body: 'Failed to upload file to SFTP'
+    })
+
+    expect(setErrorSpy).toHaveBeenCalledWith(1, {
+      status: 400,
+      errortype: 'BAD_REQUEST',
+      errormessage: 'Failed to upload file to SFTP',
+      sent: expect.any(Object),
+      body: 'Failed to upload file to SFTP'
+    })
+
+    setErrorSpy.mockRestore()
   })
 })
