@@ -1,6 +1,8 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import syncAudiences from './syncAudiences'
+
 // For an example audience destination, refer to webhook-audiences. The Readme section is under 'Audience Support'
 const destination: AudienceDestinationDefinition<Settings> = {
   name: 'Bing Ads Audiences',
@@ -65,7 +67,9 @@ const destination: AudienceDestinationDefinition<Settings> = {
   //   // implement this function and should remove it completely.
   // },
 
-  actions: {}
+  actions: {
+    syncAudiences
+  }
 }
 
 export default destination
