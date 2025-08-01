@@ -4,18 +4,21 @@ import { AlgoliaBehaviourURL, AlgoliaProductViewedEvent, AlgoliaEventType } from
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-export const productViewedEvents: ActionDefinition<Settings, Payload> = {
-  title: 'Product Viewed Events',
+const segmentEventName = 'Product List Viewed'
+
+export const productListViewedEvents: ActionDefinition<Settings, Payload> = {
+  title: `${segmentEventName} Events`,
   description:
-    'Product view events act as a positive signal for associated record objects — the associated Product ID. Query ID is optional and indicates that the view event is the result of a search query.',
+    'Product list viewed events act as a positive signal for associated record objects — the associated Product IDs. Query ID is optional and indicates that the view events are the result of a search query.',
   fields: {
-    objectID: {
-      label: 'Product ID',
-      description: 'Product ID of the viewed item.',
+    objectIDs: {
+      label: 'Product IDs',
+      description: 'Product IDs of the viewed items. Defaults to an array of `products.product_id`.',
       type: 'string',
+      multiple: true,
       required: true,
       default: {
-        '@path': '$.properties.product_id'
+        '@arrayPath': ['$.properties.products', { '@path': '$.product_id' }]
       }
     },
     index: {
@@ -29,7 +32,7 @@ export const productViewedEvents: ActionDefinition<Settings, Payload> = {
     },
     queryID: {
       label: 'Query ID',
-      description: 'Query ID of the list on which the item was viewed.',
+      description: 'Query ID of the list on which the items were viewed.',
       type: 'string',
       required: false,
       default: {
@@ -79,10 +82,10 @@ export const productViewedEvents: ActionDefinition<Settings, Payload> = {
     },
     eventName: {
       label: 'Event Name',
-      description: "The name of the event to be send to Algolia. Defaults to 'Product Viewed'",
+      description: `The name of the event to be send to Algolia. Defaults to '${segmentEventName}'`,
       type: 'string',
       required: false,
-      default: 'Product Viewed'
+      default: segmentEventName
     },
     eventType: {
       label: 'Event Type',
@@ -97,15 +100,15 @@ export const productViewedEvents: ActionDefinition<Settings, Payload> = {
       ]
     }
   },
-  defaultSubscription: 'type = "track" and event = "Product Viewed"',
+  defaultSubscription: `type = "track" and event = "${segmentEventName}"`,
   perform: (request, data) => {
     const insightEvent: AlgoliaProductViewedEvent = {
       ...data.payload.extraProperties,
-      eventName: data.payload.eventName ?? 'Product Viewed',
+      eventName: data.payload.eventName ?? segmentEventName,
       eventType: (data.payload.eventType as AlgoliaEventType) ?? ('view' as AlgoliaEventType),
       index: data.payload.index,
       queryID: data.payload.queryID,
-      objectIDs: [data.payload.objectID],
+      objectIDs: data.payload.objectIDs,
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined,
       userToken: data.payload.userToken,
       authenticatedUserToken: data.payload.authenticatedUserToken
@@ -120,10 +123,10 @@ export const productViewedEvents: ActionDefinition<Settings, Payload> = {
 }
 
 /** used in the quick setup */
-export const productViewedPresets: Preset = {
-  name: 'Send product viewed events to Algolia',
-  subscribe: productViewedEvents.defaultSubscription as string,
-  partnerAction: 'productViewedEvents',
-  mapping: defaultValues(productViewedEvents.fields),
+export const productListViewedPresets: Preset = {
+  name: 'Send product list viewed events to Algolia',
+  subscribe: productListViewedEvents.defaultSubscription as string,
+  partnerAction: 'productListViewedEvents',
+  mapping: defaultValues(productListViewedEvents.fields),
   type: 'automatic'
 }

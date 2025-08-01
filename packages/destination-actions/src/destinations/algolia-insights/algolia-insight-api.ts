@@ -12,6 +12,7 @@ type EventCommon = {
   eventName: string
   index: string
   userToken: string
+  authenticatedUserToken?: string
   timestamp?: number
   queryID?: string
   eventType: AlgoliaEventType
