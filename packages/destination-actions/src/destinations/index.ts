@@ -204,6 +204,11 @@ register('68516bd8ca73bd53f38a0104', './roadwayai')
 register('68516c107fc235f3572f8a64', './posthog')
 register('6863e71f2a1e1ddc4b4612bf', './nudge')
 register('686799c65fcebef2a98c8141', './ortto-audiences')
+register('6870f42bdaad87a11d764e91', './eagleeye-audiences')
+register('6874c64e5eda096bf3850ee0', './aampe')
+register('6880c39343b2271b41970fd9', './epsilon')
+register('6888c9ea14d648263fff811d', './clay')
+register('688b65709774ffcb4af8a03b', './bing-ads-audiences')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
