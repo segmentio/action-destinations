@@ -1,0 +1,6 @@
+user_id,email,audience_name,audience_id,audience_action,timestamp,message_id,anonymous_id,event_name,event_type
+"user1","user1@example.com","marketing_campaign","aud_456","true","2023-07-26T15:23:39.803Z","msg_001","anon_001","Audience Entered","identify"
+"user2","user2@example.com","marketing_campaign","aud_456","true","2023-07-26T15:24:12.456Z","msg_002","anon_002","Audience Entered","identify"
+"user3","user3@example.com","marketing_campaign","aud_456","false","2023-07-26T15:24:45.789Z","msg_003","anon_003","Audience Exited","identify"
+"user4","user4@example.com","marketing_campaign","aud_456","true","2023-07-26T15:25:18.012Z","msg_004","anon_004","Audience Entered","identify"
+"user5","user5@example.com","marketing_campaign","aud_456","true","2023-07-26T15:25:51.345Z","msg_005","anon_005","Audience Entered","identify"
