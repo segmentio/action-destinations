@@ -63,14 +63,29 @@ export function performWebEvent(request: RequestClient, settings: Settings, payl
 }
 
 function getUser(payload: Payload): TTUser {
-  const phone_numbers = formatPhones(payload.phone_number)
-  const emails = formatEmails(payload.email)
-  const userIds = formatUserIds(payload.external_id)
+  const {
+    phone_number,
+    email,
+    external_id,
+    url,
+    first_name,
+    last_name,
+    address,
+    ttclid,
+    ttp,
+    ip,
+    user_agent,
+    locale
+  } = payload
+  
+  const phone_numbers = formatPhones(phone_number)
+  const emails = formatEmails(email)
+  const userIds = formatUserIds(external_id)
 
   let payloadUrl, urlTtclid
-  if (payload.url) {
+  if (url) {
     try {
-      payloadUrl = new URL(payload.url)
+      payloadUrl = new URL(url)
     } catch (error) {
       //  invalid url
     }
@@ -82,34 +97,19 @@ function getUser(payload: Payload): TTUser {
     external_id: userIds,
     phone: phone_numbers,
     email: emails,
-    first_name: formatString(payload.first_name),
-    last_name: formatString(payload.last_name),
-    city: formatAddress(payload.address?.city),
-    state: formatAddress(payload.address?.state),
-    country: formatAddress(payload.address?.country),
-    zip_code: formatString(payload.address?.zip_code)
+    first_name: formatString(first_name),
+    last_name: formatString(last_name),
+    city: formatAddress(address?.city),
+    state: formatAddress(address?.state),
+    country: formatAddress(address?.country),
+    zip_code: formatString(address?.zip_code),
+    ...(ttclid || urlTtclid ? { ttclid: urlTtclid ?? ttclid } : {}),
+    ...(ttp ? { ttp } : {}),
+    ...(ip ? { ip } : {}),
+    ...(user_agent ? { user_agent } : {}),
+    ...(locale ? { locale } : {})
   }
-
-  if (payload.ttclid || urlTtclid) {
-    requestUser.ttclid = urlTtclid || payload.ttclid
-  }
-
-  if (payload.ttp) {
-    requestUser.ttp = payload.ttp
-  }
-
-  if (payload.ip) {
-    requestUser.ip = payload.ip
-  }
-
-  if (payload.user_agent) {
-    requestUser.user_agent = payload.user_agent
-  }
-
-  if (payload.locale) {
-    requestUser.locale = payload.locale
-  }
-
+  
   return requestUser
 }
 
@@ -130,7 +130,7 @@ function getProps(payload: Payload): TTBaseProps {
     contents
   } = payload
   
-  const requestProperties: TTProps = {
+  const requestProperties: TTBaseProps = {
     contents: contents
       ? contents.map(({ price, quantity, content_category, content_id, content_name, brand }) => ({
           price: price ?? undefined,
