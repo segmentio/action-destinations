@@ -70,6 +70,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'List Id',
       description: `The default List ID to subscribe users to. This list takes precedence over the new list segment auto creates when attaching this destination to an audience.`,
       type: 'string'
+    },
+    optInProcess: {
+      label: 'Select Opt In Process',
+      description:
+        'Use double_opt_in to require confirmation from subscribers. Use single_opt_in if you want immediate subscriptions with no user confirmation.',
+      type: 'string',
+      choices: [
+        { label: 'Single Opt In', value: 'single_opt_in' },
+        { label: 'Double Opt In', value: 'double_opt_in' }
+      ]
     }
   },
   audienceConfig: {
