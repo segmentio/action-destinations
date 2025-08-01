@@ -33,4 +33,12 @@ export interface Payload {
    * A timestamp of when the metric event took place. Default is when the event was triggered.
    */
   timestamp?: string | number
+  /**
+   * Set as true to ensure Segment sends data to Customer.io in batches.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }
