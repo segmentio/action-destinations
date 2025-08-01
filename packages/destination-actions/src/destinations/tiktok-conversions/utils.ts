@@ -3,45 +3,66 @@ import { Settings } from './generated-types'
 import { Payload } from './reportWebEvent/generated-types'
 import { formatEmails, formatPhones, formatUserIds, formatString, formatAddress } from './formatter'
 import {
-  TikTokConversionsPage,
-  TikTokConversionsProperties,
-  TikTokConversionsRequest,
-  TikTokConversionsUser
+  TTJSON,
+  TTAutoProps,
+  TTBaseProps,
+  TTTravelProps,
+  TTUser
 } from './types'
 
 export function performWebEvent(request: RequestClient, settings: Settings, payload: Payload) {
-  const requestUser = validateRequestUser(payload)
-  const requestProperties = validateRequestProperties(payload)
-  const requestPage = validateRequestPage(payload)
+  const { 
+    event, 
+    event_id, 
+    event_spec_type, 
+    test_event_code, 
+    url, 
+    referrer, 
+    limited_data_use,
+    lead_fields: { 
+      lead_id, 
+      lead_event_source 
+    } = {} } = payload
 
-  const requestJson: TikTokConversionsRequest = {
-    event_source: 'web',
+  const user = getUser(payload)
+  const properties = getProps(payload)
+  const event_source = payload.event_source ?? 'web'
+
+  const requestJson: TTJSON = {
+    event_source,
     event_source_id: settings.pixelCode,
     partner_name: 'Segment',
-    test_event_code: payload.test_event_code ? payload.test_event_code : undefined,
+    test_event_code: test_event_code ? test_event_code : undefined,
     data: [
       {
-        event: payload.event,
+        event,
         event_time: payload.timestamp
           ? Math.floor(new Date(payload.timestamp).getTime() / 1000)
           : Math.floor(new Date().getTime() / 1000),
-        event_id: payload.event_id ? `${payload.event_id}` : undefined,
-        user: requestUser,
-        properties: requestProperties,
-        page: requestPage,
-        limited_data_use: payload.limited_data_use ? payload.limited_data_use : false
+        event_id: event_id ? `${event_id}` : undefined,
+        user,
+        properties: {
+          ...properties,
+          ...(event_spec_type === 'travel' && event_source === 'web' ? getTravelProps(payload) : {}),
+          ...(event_spec_type === 'auto' && event_source === 'web' ? getAutoProps(payload) : {})
+        },
+        ...((url || referrer) ? { page: { ...(url && { url }), ...(referrer && { referrer }) } } : {}),
+        ...(event_source === 'crm' && (lead_id || lead_event_source) 
+          ? { lead: { ...(lead_id && { lead_id }), ...(lead_event_source && { lead_event_source }) } } 
+          : {}
+        ),
+        limited_data_use: typeof limited_data_use === 'boolean' ? limited_data_use : false
       }
     ]
   }
 
-  // https://business-api.tiktok.com/portal/docs?id=1771101303285761
   return request('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
     method: 'post',
     json: requestJson
   })
 }
 
-function validateRequestUser(payload: Payload) {
+function getUser(payload: Payload): TTUser {
   const phone_numbers = formatPhones(payload.phone_number)
   const emails = formatEmails(payload.email)
   const userIds = formatUserIds(payload.external_id)
@@ -57,7 +78,7 @@ function validateRequestUser(payload: Payload) {
 
   if (payloadUrl) urlTtclid = payloadUrl.searchParams.get('ttclid')
 
-  const requestUser: TikTokConversionsUser = {
+  const requestUser: TTUser = {
     external_id: userIds,
     phone: phone_numbers,
     email: emails,
@@ -71,10 +92,6 @@ function validateRequestUser(payload: Payload) {
 
   if (payload.ttclid || urlTtclid) {
     requestUser.ttclid = urlTtclid || payload.ttclid
-  }
-
-  if (payload.lead_id) {
-    requestUser.lead_id = payload.lead_id
   }
 
   if (payload.ttp) {
@@ -96,66 +113,158 @@ function validateRequestUser(payload: Payload) {
   return requestUser
 }
 
-function validateRequestProperties(payload: Payload) {
-  const requestProperties: TikTokConversionsProperties = {
-    contents: []
-  }
-
-  if (payload.contents) {
-    payload.contents.forEach((content) => {
-      const contentObj = {
-        price: content.price ? content.price : undefined,
-        quantity: content.quantity ? content.quantity : undefined,
-        content_category: content.content_category ? content.content_category : undefined,
-        content_id: content.content_id ? content.content_id : undefined,
-        content_name: content.content_name ? content.content_name : undefined,
-        brand: content.brand ? content.brand : undefined
-      }
-      requestProperties.contents.push(contentObj)
-    })
-  }
-
-  if (payload.content_type) {
-    requestProperties.content_type = payload.content_type
-  }
-
-  if (payload.currency) {
-    requestProperties.currency = payload.currency
-  }
-
-  if (payload.value || payload.value === 0) {
-    requestProperties.value = payload.value
-  }
-
-  if (payload.query) {
-    requestProperties.query = payload.query
-  }
-
-  if (payload.description) {
-    requestProperties.description = payload.description
-  }
-
-  if (payload.order_id) {
-    requestProperties.order_id = payload.order_id
-  }
-
-  if (payload.shop_id) {
-    requestProperties.shop_id = payload.shop_id
+function getProps(payload: Payload): TTBaseProps {
+  const {
+    content_type,
+    currency,
+    value,
+    query,
+    description,
+    order_id,
+    shop_id,
+    content_ids,
+    delivery_category,
+    num_items,
+    predicted_ltv,
+    search_string,
+    contents
+  } = payload
+  
+  const requestProperties: TTProps = {
+    contents: contents
+      ? contents.map(({ price, quantity, content_category, content_id, content_name, brand }) => ({
+          price: price ?? undefined,
+          quantity: quantity ?? undefined,
+          content_category: content_category ?? undefined,
+          content_id: content_id ?? undefined,
+          content_name: content_name ?? undefined,
+          brand: brand ?? undefined,
+        }))
+      : [],
+    ...(content_type !== undefined && { content_type }),
+    ...(currency !== undefined && { currency }),
+    ...(value !== undefined && { value }),
+    ...(query !== undefined && { query }),
+    ...(description !== undefined && { description }),
+    ...(order_id !== undefined && { order_id }),
+    ...(shop_id !== undefined && { shop_id }),
+    ...(content_ids !== undefined && { content_ids }),
+    ...(delivery_category !== undefined && { delivery_category }),
+    ...(num_items !== undefined && { num_items }),
+    ...(predicted_ltv !== undefined && { predicted_ltv }),
+    ...(search_string !== undefined && { search_string })
   }
 
   return requestProperties
 }
 
-function validateRequestPage(payload: Payload) {
-  const requestPage: TikTokConversionsPage = {}
+function getTravelProps(payload: Payload): TTTravelProps {
+  const {
+    city,
+    region,
+    country,
+    checkin_date,
+    checkout_date,
+    num_adults,
+    num_children,
+    num_infants,
+    suggested_hotels,
+    departing_departure_date,
+    returning_departure_date,
+    origin_airport,
+    destination_airiport,
+    destination_ids,
+    departing_arrival_date,
+    returning_arrival_date,
+    travel_class,
+    user_score,
+    preferred_num_stops,
+    travel_start,
+    travel_end,
+    suggested_destinations,
+  } = payload?.travelFields ?? {}
 
-  if (payload.url) {
-    requestPage.url = payload.url
+  const requestProperties: TTTravelProps = {
+    ...(city !== undefined && { city }),
+    ...(region !== undefined && { region }),
+    ...(country !== undefined && { country }),
+    ...(checkin_date !== undefined && { checkin_date }),
+    ...(checkout_date !== undefined && { checkout_date }),
+    ...(num_adults !== undefined && { num_adults }),
+    ...(num_children !== undefined && { num_children }),
+    ...(num_infants !== undefined && { num_infants }),
+    ...(suggested_hotels !== undefined && { suggested_hotels }),
+    ...(departing_departure_date !== undefined && { departing_departure_date }),
+    ...(returning_departure_date !== undefined && { returning_departure_date }),
+    ...(origin_airport !== undefined && { origin_airport }),
+    ...(destination_airiport !== undefined && { destination_airiport }),
+    ...(destination_ids !== undefined && { destination_ids }),
+    ...(departing_arrival_date !== undefined && { departing_arrival_date }),
+    ...(returning_arrival_date !== undefined && { returning_arrival_date }),
+    ...(travel_class !== undefined && { travel_class }),
+    ...(user_score !== undefined && { user_score }),
+    ...(preferred_num_stops !== undefined && { preferred_num_stops }),
+    ...(travel_start !== undefined && { travel_start }),
+    ...(travel_end !== undefined && { travel_end }),
+    ...(suggested_destinations !== undefined && { suggested_destinations }),
   }
 
-  if (payload.referrer) {
-    requestPage.referrer = payload.referrer
-  }
+  return requestProperties
+}
 
-  return requestPage
+function getAutoProps(payload: Payload): TTAutoProps {
+  const {
+    postal_code,
+    make,
+    model,
+    year,
+    state_of_vehicle,
+    mileage_unit,
+    mileage_value,
+    exterior_color,
+    transmission,
+    body_style,
+    fuel_type,
+    drivetrain,
+    preferred_price_range_min,
+    preferred_price_range_max,
+    trim,
+    vin,
+    interior_color,
+    condition_of_vehicle,
+    viewcontent_type,
+    search_type,
+    registration_type
+  } = payload?.autoFields ?? {}
+
+  const requestProperties: TTAutoProps = {
+    ...(postal_code !== undefined && { postal_code }),
+    ...(make !== undefined && { make }),
+    ...(model !== undefined && { model }),
+    ...(year !== undefined && { year }),
+    ...(state_of_vehicle !== undefined && { state_of_vehicle }),
+    ...(exterior_color !== undefined && { exterior_color }),
+    ...(transmission !== undefined && { transmission }),
+    ...(body_style !== undefined && { body_style }),
+    ...(fuel_type !== undefined && { fuel_type }),
+    ...(drivetrain !== undefined && { drivetrain }),
+    ...(trim !== undefined && { trim }),
+    ...(vin !== undefined && { vin }),
+    ...(interior_color !== undefined && { interior_color }),
+    ...(condition_of_vehicle !== undefined && { condition_of_vehicle }),
+    ...(viewcontent_type !== undefined && { viewcontent_type }),
+    ...(search_type !== undefined && { search_type }),
+    ...(registration_type !== undefined && { registration_type }),
+    ...(mileage_unit !== undefined && mileage_value !== undefined && {
+      mileage: {
+        unit: mileage_unit,
+        value: mileage_value
+      }
+    }),
+    ...(preferred_price_range_min !== undefined && preferred_price_range_max !== undefined && {
+      preferred_price_range: [preferred_price_range_min, preferred_price_range_max]
+    })
+  }  
+
+  return requestProperties
 }
