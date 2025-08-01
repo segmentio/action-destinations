@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audiences',
-  description: '',
+  description: 'Sync users to Bing Ads',
   fields: {},
   perform: (request, data) => {
     // Make your partner api request here!
