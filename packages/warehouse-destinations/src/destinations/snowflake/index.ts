@@ -1,5 +1,7 @@
 import type { WarehouseDestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { defaultValues } from '@segment/actions-core'
+import aududienceDefaultFields from './sendCustomEvent/audience-default-fields'
 
 import sendCustomEvent from './sendCustomEvent'
 
@@ -16,6 +18,49 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       required: true
     }
   },
+
+  presets: [
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'sendCustomEvent',
+      mapping: {
+        ...defaultValues(sendCustomEvent.fields),
+        ...defaultValues(aududienceDefaultFields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'sendCustomEvent',
+      mapping: {
+        ...defaultValues(sendCustomEvent.fields),
+        ...defaultValues(aududienceDefaultFields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Entities Audience Entered',
+      partnerAction: 'sendCustomEvent',
+      mapping: {
+        ...defaultValues(sendCustomEvent.fields),
+        ...defaultValues(aududienceDefaultFields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_entered_track'
+    },
+    {
+      name: 'Entities Exited',
+      partnerAction: 'trackEvent',
+      mapping: {
+        ...defaultValues(sendCustomEvent.fields),
+        ...defaultValues(aududienceDefaultFields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_exited_track'
+    }
+  ],
 
   actions: {
     sendCustomEvent
