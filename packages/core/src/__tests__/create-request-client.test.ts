@@ -1,6 +1,7 @@
 import btoa from 'btoa-lite'
 import createTestServer from 'create-test-server'
 import createRequestClient from '../create-request-client'
+import { Response } from '../fetch'
 
 describe('createRequestClient', () => {
   it('should create a request client instance that has Segment defaults', async () => {
@@ -109,6 +110,27 @@ describe('createRequestClient', () => {
       data: undefined,
       content: ''
     })
+    await server.close()
+  })
+
+  it('should emulate an HTTP response if emulateHttpResponse property is set', async () => {
+    const server = await createTestServer()
+    server.get('/', (_request, response) => {
+      response.json({ greeting: 'This is the server response' })
+    })
+
+    const request = createRequestClient()
+
+    const emulateHttpResponse = new Response(JSON.stringify({ hello: 'This is the emulated response' }), {
+      headers: { 'Content-Type': 'application/json' },
+      status: 200,
+      statusText: 'OK'
+    })
+
+    await expect(request(server.url, { method: 'get', emulateHttpResponse })).resolves.toMatchObject({
+      data: expect.objectContaining({ hello: 'This is the emulated response' })
+    })
+
     await server.close()
   })
 })
