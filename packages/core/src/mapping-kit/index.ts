@@ -12,7 +12,6 @@ import { evaluateLiquid } from './liquid-directive'
 export type InputData = { [key: string]: unknown }
 export type Features = { [key: string]: boolean }
 type Directive = (options: JSONValue, payload: JSONObject) => JSONLike
-type StringDirective = (value: string, payload: JSONObject) => JSONLike
 
 interface Directives {
   [directive: string]: Directive | undefined
@@ -29,17 +28,6 @@ function registerDirective(name: string, fn: Directive): void {
   }
 
   directives[name] = fn
-}
-
-function registerStringDirective(name: string, fn: StringDirective): void {
-  registerDirective(name, (value, payload) => {
-    const str = resolve(value, payload)
-    if (typeof str !== 'string') {
-      throw new Error(`${name}: expected string, got ${realTypeOf(str)}`)
-    }
-
-    return fn(str, payload)
-  })
 }
 
 function runDirective(obj: JSONObject, payload: JSONObject): JSONLike {
@@ -214,12 +202,64 @@ registerDirective('@arrayPath', (data, payload) => {
   return root
 })
 
-registerStringDirective('@path', (path, payload) => {
-  return get(payload, path.replace('$.', ''))
+registerDirective('@path', (value: JSONValue, payload: JSONObject): JSONLike => {
+  const name = '@path'
+  const realType = realTypeOf(value)
+  if (!['object', 'array', 'string'].includes(realTypeOf(value))) {
+    throw new Error(`${name}: expected string, array or object but got ${realTypeOf(value)}`)
+  }
+
+  const getAsStringPath = (obj: JSONObject, strPath: string) => get(obj, strPath.replace('$.', ''))
+
+  switch (realType) {
+    case 'string':
+      return getAsStringPath(payload, value as string) as JSONLike
+    case 'array': {
+      // The first item in the path is considered the root.
+      // For now, this will always be '$' referring to the whole event
+      const [_, ...path] = value as string[]
+      return get(payload, path)
+    }
+    case 'object': {
+      const str = resolve(value, payload)
+      if (typeof str !== 'string') {
+        throw new Error(`${name}: expected string to resolve but got ${realTypeOf(value)}`)
+      }
+      return getAsStringPath(payload, str) as JSONLike
+    }
+  }
 })
 
-registerStringDirective('@template', (template: string, payload) => {
-  return render(template, payload)
+registerDirective('@template', (value: string | JSONValue, payload) => {
+  const name = '@template'
+  const realType = realTypeOf(value)
+  if (!['array', 'string'].includes(realTypeOf(value))) {
+    throw new Error(`${name}: expected string, array or object but got ${realTypeOf(value)}`)
+  }
+
+  switch (realType) {
+    case 'string':
+      return render(value as string, payload)
+    case 'array': {
+      const vals = value as JSONLike[]
+      for (let i = 0; i < vals.length; i++) {
+        const v = vals[i]
+        if (realTypeOf(v) == 'object') {
+          const templateObjKeys = Object.keys(v as object)
+          // Each template object can only be @path or @literal
+          // This is to prevent nesting of another template
+          // but we can enhance this in the future
+          if (!templateObjKeys.every((k) => ['@path', '@literal'].indexOf(k) > -1)) {
+            throw new Error(`${name}: path object at index ${i} was not @path or @literal`)
+          }
+        }
+      }
+      return vals
+        .map((v) => resolve(v, payload))
+        .map((v) => (typeof v === 'object' || Array.isArray(v) ? JSON.stringify(v) : v))
+        .join('')
+    }
+  }
 })
 
 // Literal should be used in place of 'empty' template strings as they will not resolve correctly
