@@ -1,6 +1,5 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
 import syncAudiences from './syncAudiences'
 
 // For an example audience destination, refer to webhook-audiences. The Readme section is under 'Audience Support'
