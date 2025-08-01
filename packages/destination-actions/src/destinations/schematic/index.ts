@@ -49,6 +49,19 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     }
   ],
+  onDelete: async (request, { payload, settings }) => {
+    return request(`https://api.schematichq.com/users/delete`, {
+      method: 'delete',
+      headers: {
+        'X-Schematic-Api-Key': `${settings.apiKey}`
+      },
+      json: {
+        keys: {
+          userId: payload.userId
+        }
+      }
+    })
+  },
   extendRequest: ({ settings }) => {
     return {
       headers: { Authorization: `Bearer ${settings.apiKey}` }
