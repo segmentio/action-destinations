@@ -1,4 +1,4 @@
-import { processHashing } from '../../lib/hashing-utils'
+import { processHashing } from '../../../lib/hashing-utils'
 /**
  * Convert emails to lower case, and hash in SHA256.
  */

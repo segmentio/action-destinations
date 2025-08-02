@@ -1,19 +1,20 @@
 import { InputField } from '@segment/actions-core'
+import { VEHICLE_FIELDS, TRAVEL_FIELDS, WEB, CRM } from './constants'
 
-export const commonFields: Record<string, InputField> = {
+export const common_fields: Record<string, InputField> = {
   event_source: {
     label: 'Event Source',
     type: 'string',
     description:
       "The type of events you are uploading through TikTok Events API. Please see TikTok's [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to find this value. If no selection is made 'Web' is assumed.",
-    default: 'web',
+    default: WEB,
     choices: [
       {
-        value: 'web',
+        value: WEB,
         label: 'The events took place on your website and are measured by a Pixel Code.'
       },
       {
-        value: 'crm',
+        value: CRM,
         label: 'The lead events took place on a CRM system and are tracked by a CRM Event Set ID.'
       }
     ]
@@ -21,10 +22,10 @@ export const commonFields: Record<string, InputField> = {
   event_spec_type: {
     label: 'Additional Fields',
     type: 'string',
-    description: 'Include fields for travel or auto events.',
+    description: 'Include fields for travel or vehicle events.',
     choices: [
-      { value: 'Travel Fields', label: 'travel_fields' },
-      { value: 'Auto Fields', label: 'auto_fields' }
+      { value: 'Travel Fields', label: TRAVEL_FIELDS },
+      { value: 'Vehicle Fields', label: VEHICLE_FIELDS }
     ]
   },
   event: {
@@ -442,7 +443,7 @@ export const new_fields: Record<string, InputField> = {
         {
           fieldKey: 'event_source',
           operator: 'is',
-          value: 'crm'
+          value: CRM
         }
       ]
     }

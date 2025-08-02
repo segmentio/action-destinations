@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core'
+import { TRAVEL_FIELDS, WEB } from './constants'
 
 export const travel_fields: InputField = {
   label: 'Travel Fields',
@@ -210,12 +211,12 @@ export const travel_fields: InputField = {
       {
         fieldKey: 'event_source',
         operator: 'is',
-        value: 'web'
+        value: WEB
       },
       {
         fieldKey: 'event_spec_type',
         operator: 'is',
-        value: 'travel_fields'
+        value: TRAVEL_FIELDS
       }
     ]
   }

@@ -1,7 +1,8 @@
 import { RequestClient } from '@segment/actions-core'
-import { Settings } from './generated-types'
-import { Payload } from './reportWebEvent/generated-types'
+import { Settings } from '../generated-types'
+import { Payload } from './generated-types'
 import { formatEmails, formatPhones, formatUserIds, formatString, formatAddress } from './formatter'
+import { WEB, CRM, TRAVEL_FIELDS, VEHICLE_FIELDS } from './constants'
 import {
   TTJSON,
   TTAutoProps,
@@ -10,7 +11,7 @@ import {
   TTUser
 } from './types'
 
-export function performWebEvent(request: RequestClient, settings: Settings, payload: Payload) {
+export function send(request: RequestClient, settings: Settings, payload: Payload) {
   const { 
     event, 
     event_id, 
@@ -26,7 +27,7 @@ export function performWebEvent(request: RequestClient, settings: Settings, payl
 
   const user = getUser(payload)
   const properties = getProps(payload)
-  const event_source = payload.event_source ?? 'web'
+  const event_source = payload.event_source ?? WEB
 
   const requestJson: TTJSON = {
     event_source,
@@ -43,11 +44,11 @@ export function performWebEvent(request: RequestClient, settings: Settings, payl
         user,
         properties: {
           ...properties,
-          ...(event_spec_type === 'travel' && event_source === 'web' ? getTravelProps(payload) : {}),
-          ...(event_spec_type === 'auto' && event_source === 'web' ? getAutoProps(payload) : {})
+          ...(event_spec_type === TRAVEL_FIELDS && event_source === WEB ? getTravelProps(payload) : {}),
+          ...(event_spec_type === VEHICLE_FIELDS && event_source === WEB ? getAutoProps(payload) : {})
         },
         ...((url || referrer) ? { page: { ...(url && { url }), ...(referrer && { referrer }) } } : {}),
-        ...(event_source === 'crm' && (lead_id || lead_event_source) 
+        ...(event_source === CRM && (lead_id || lead_event_source) 
           ? { lead: { ...(lead_id && { lead_id }), ...(lead_event_source && { lead_event_source }) } } 
           : {}
         ),
@@ -109,7 +110,7 @@ function getUser(payload: Payload): TTUser {
     ...(user_agent ? { user_agent } : {}),
     ...(locale ? { locale } : {})
   }
-  
+
   return requestUser
 }
 
