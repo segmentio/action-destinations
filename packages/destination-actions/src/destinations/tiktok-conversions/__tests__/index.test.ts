@@ -436,7 +436,6 @@ describe('Tiktok Conversions', () => {
         properties: {
           email: 'coreytest1231@gmail.com',
           phone: '+1555-555-5555',
-          lead_id: '2229012621312',
           currency: 'USD',
           value: 100,
           query: 'shoes',
@@ -527,7 +526,6 @@ describe('Tiktok Conversions', () => {
               email: ['eb9869a32b532840dd6aa714f7a872d21d6f650fc5aa933d9feefc64708969c7'],
               external_id: ['481f202262e9c5ccc48d24e60798fadaa5f6ff1f8369f7ab927c04c3aa682a7f'],
               ip: '0.0.0.0',
-              lead_id: '2229012621312',
               phone: ['910a625c4ba147b544e6bd2f267e130ae14c591b6ba9c25cb8573322dedbebd0'],
               ttclid: '123ATXSfe',
               user_agent:
