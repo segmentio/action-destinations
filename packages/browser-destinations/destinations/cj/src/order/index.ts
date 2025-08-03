@@ -2,8 +2,9 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { CJ, SimpleOrder, AdvancedOrder } from '../types'
-import { send, smartHash, normalizeEmail } from '../utils'
+import { send } from '../utils'
 import { getCookieValue } from './utils'
+import { smartHash, normalizeEmail } from './hashing-utils'
 import { orderFields } from './order-fields'
 
 const action: BrowserActionDefinition<Settings, CJ, Payload> = {
@@ -12,8 +13,7 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
   defaultSubscription: 'event = "Order Completed"',
   platform: 'web',
   fields: orderFields,
-  perform: (cj, { payload, settings }) => {
-    console.log('CJ Order Action', payload)
+  perform: async (cj, { payload, settings }) => {
     const {
       userId,
       enterpriseId,
@@ -49,14 +49,12 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
       )
     }
 
-    const hashedEmail = smartHash(emailHash ?? '', normalizeEmail) ?? undefined
-
     const order: SimpleOrder | AdvancedOrder = {
       trackingSource: 'Segment',
       userId,
       enterpriseId,
       pageType,
-      emailHash: hashedEmail,
+      emailHash: emailHash ? await smartHash(emailHash, normalizeEmail) : undefined,
       orderId,
       actionTrackerId: actionTrackerId ?? actionTrackerIdFromSettings ?? '',
       currency,
@@ -77,7 +75,6 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
       .then(() => {
         cj.sitePage = undefined
         cj.order = undefined
-        console.log('CJ Order Action sent successfully', order)
       })
       .catch((err) => {
         console.warn(err)

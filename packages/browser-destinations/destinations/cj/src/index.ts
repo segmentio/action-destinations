@@ -12,7 +12,6 @@ declare global {
   }
 }
 
-// Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, CJ> = {
   name: 'Commission Junction (Actions)',
   slug: 'actions-cj',
@@ -34,14 +33,11 @@ export const destination: BrowserDestinationDefinition<Settings, CJ> = {
     }
   },
   initialize: async () => {
-    console.log('initialize5')
-
     if (!window.cj) {
       window.cj = {} as CJ
     }
     return window.cj
   },
-
   actions: {
     sitePage,
     order

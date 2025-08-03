@@ -111,7 +111,6 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
     }
   },
   perform: (cj, { payload, settings }) => {
-    console.log('2cj site page payload', payload)
     cj.sitePage = payload
     const { tagId } = settings
     send(tagId)

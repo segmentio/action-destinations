@@ -1,8 +1,6 @@
 /* eslint-disable */
 // @ts-nocheck
 
-//import { processHashing } from '../../../lib/hashing-utils'
-
 export function send(tagId): Promise<void> {
   return new Promise((resolve, reject) => {
     ;(function (a, b, c, d) {
@@ -20,21 +18,4 @@ export function send(tagId): Promise<void> {
       a.parentNode.insertBefore(d, a)
     })()
   })
-}
-
-export function smartHash(value: string, normalizeFunction?: (value: string) => string): string {
-  return value
-  //return processHashing(value, 'sha256', 'hex', normalizeFunction)
-}
-
-function normalize(value: string, allowedChars: RegExp, trim = true): string {
-  let normalized = value.toLowerCase().replace(allowedChars, '')
-  if (trim) normalized = normalized.trim()
-  return normalized
-}
-
-const emailAllowed = /[^a-z0-9.@+-]/g
-
-export function normalizeEmail(email: string): string {
-  return normalize(email, emailAllowed)
 }
