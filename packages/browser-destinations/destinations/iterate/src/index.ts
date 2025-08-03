@@ -49,6 +49,7 @@ export const destination: BrowserDestinationDefinition<Settings, Iterate> = {
   },
 
   initialize: async ({ settings }, deps) => {
+    console.log('initialize')
     // initialize settings
     window.iterateSettings = {
       apiKey: settings.apiKey,

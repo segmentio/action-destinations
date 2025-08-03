@@ -20,6 +20,7 @@ const action: BrowserActionDefinition<Settings, IterateClient, Payload> = {
     }
   },
   perform: (Iterate, event) => {
+    console.log('track2')
     Iterate(Command.Event, event.payload.name)
   }
 }
