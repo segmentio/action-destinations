@@ -13,7 +13,7 @@ export const eventProperties: Record<string, InputField> = {
     type: 'number',
     required: false,
     minimum: 2,
-    maximum: 15,
-    default: 10
+    maximum: 100,
+    default: 50
   }
 }
