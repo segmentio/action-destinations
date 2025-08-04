@@ -116,10 +116,23 @@ type BasePayload = {
   primary?: Identifiers
   secondary?: Identifiers
   timestamp?: string | number
+  enable_batching?: boolean
+  batch_size?: number
 }
 
 export const buildPayload = <Payload extends BasePayload>({ action, type, payload }: RequestPayload<Payload>) => {
-  const { convert_timestamp, person_id, anonymous_id, email, object_id, object_type_id, timestamp, ...data } = payload
+  const {
+    convert_timestamp,
+    person_id,
+    anonymous_id,
+    email,
+    object_id,
+    object_type_id,
+    timestamp,
+    enable_batching,
+    batch_size,
+    ...data
+  } = payload
   let rest = data
 
   if ('convert_timestamp' in payload && convert_timestamp !== false) {

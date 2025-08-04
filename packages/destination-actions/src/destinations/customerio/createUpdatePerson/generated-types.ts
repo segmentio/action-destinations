@@ -41,4 +41,12 @@ export interface Payload {
    * The ID used to uniquely identify a custom object type in Customer.io. [Learn more](https://customer.io/docs/object-relationships).
    */
   object_type_id?: string
+  /**
+   * Set as true to ensure Segment sends data to Customer.io in batches.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }
