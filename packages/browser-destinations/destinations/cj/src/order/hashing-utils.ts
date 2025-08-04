@@ -4,14 +4,7 @@
  */
 import btoa from 'btoa-lite'
 
-export const EncryptionMethods = ['sha1', 'sha224', 'sha256', 'sha384', 'sha512'] as const
-export type EncryptionMethod = typeof EncryptionMethods[number]
-
-export const DigestTypes = ['hex', 'base64'] as const
-export type DigestType = typeof DigestTypes[number]
-
-type CleaningFunction = (value: string) => string
-
+export type EncryptionMethod = 'sha1' | 'sha224' | 'sha256' | 'sha384' | 'sha512'
 export const hashConfigs: {
   [key in EncryptionMethod]: { lengthHex: number; lengthBase64: number }
 } = {
@@ -21,6 +14,12 @@ export const hashConfigs: {
   sha384: { lengthHex: 96, lengthBase64: 64 },
   sha512: { lengthHex: 128, lengthBase64: 88 }
 }
+
+export const DigestTypes = ['hex', 'base64'] as const
+export type DigestType = typeof DigestTypes[number]
+
+type CleaningFunction = (value: string) => string
+
 class SmartHashing {
   private preHashed: boolean
 
