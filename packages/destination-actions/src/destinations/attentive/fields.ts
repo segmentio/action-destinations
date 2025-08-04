@@ -193,27 +193,13 @@ export const locale: InputField = {
   description: 'User locale. e.g. "en-US". Either Locale or Signup Source ID is required.',
   type: 'string',
   allowNull: false,
-  required: {
-    match: 'any',
-    conditions: [
-      { fieldKey: 'signUpSourceId', operator: 'is', value: undefined },
-      { fieldKey: 'signUpSourceId', operator: 'is', value: "" }
-    ]
-  },
   default: { '@path': '$.context.locale' }
 }
 
 export const signUpSourceId: InputField = {
   label: 'Signup Source ID',
   description: 'A unique identifier for the sign up source. Talk to your Attentive represenative. Either Locale or Signup Source ID is required.',
-  type: 'string',
-  required: {
-    match: 'any',
-    conditions: [
-      { fieldKey: 'locale', operator: 'is', value: undefined },
-      { fieldKey: 'locale', operator: 'is', value: "" }
-    ]
-  }
+  type: 'string'
 }
 
 export const singleOptIn: InputField = {
