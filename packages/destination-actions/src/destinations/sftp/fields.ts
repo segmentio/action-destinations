@@ -1,5 +1,4 @@
-import { ActionDefinition, InputField } from '@segment/actions-core'
-import { Settings } from './generated-types'
+import { InputField } from '@segment/actions-core'
 
 const batch_size_column_name: InputField = {
   label: 'Batch Size Column Name',
@@ -10,20 +9,18 @@ const batch_size_column_name: InputField = {
   disabledInputMethods: ['variable', 'function', 'enrichment'],
   default: 'batch_size'
 }
-
 const audience_action_column_name: InputField = {
   label: 'Audience Action Column Name',
   description:
-    'Name of the column that will contain the action for the audience. true if the user is in the audience, false if not.',
+    'Name of the column to contain the action for the audience. true if the user is in the audience, false if not.',
   type: 'string',
   required: false,
   disabledInputMethods: ['variable', 'function', 'enrichment'],
   default: 'audience_action'
 }
-
 const traits_or_props: InputField = {
   label: 'Traits or Props - Hidden Field',
-  description: 'Field used to retrieve Audience value',
+  description: 'Hidden field used to retrieve Audience action value',
   type: 'object',
   required: false,
   unsafe_hidden: true,
@@ -37,13 +34,12 @@ const traits_or_props: InputField = {
 }
 const computation_key: InputField = {
   label: 'Audience_Key - Hidden Field',
-  description: 'Field used to retrieve Audience Key',
+  description: 'Hidden field used to retrieve Audience Key',
   type: 'string',
   required: false,
   unsafe_hidden: true,
   default: { '@path': '$.context.personas.computation_key' }
 }
-
 const enable_batching: InputField = {
   type: 'boolean',
   label: 'Enable Batching',
@@ -52,7 +48,6 @@ const enable_batching: InputField = {
   required: true,
   default: true
 }
-
 const batch_size: InputField = {
   label: 'Batch Size',
   description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
@@ -62,7 +57,6 @@ const batch_size: InputField = {
   minimum: 1,
   maximum: 100_000
 }
-
 const sftp_folder_path: InputField = {
   label: 'Folder Path',
   description:
@@ -71,14 +65,12 @@ const sftp_folder_path: InputField = {
   required: true,
   default: { '@template': '/' }
 }
-
 const filename_prefix: InputField = {
   label: 'Filename prefix',
   description: `Prefix to prepend to the name of the uploaded file. Timestamp will be appended to the filename.`,
   type: 'string',
   required: true
 }
-
 const delimiter: InputField = {
   label: 'Delimiter',
   description: `Character used to separate tokens in the resulting file.`,
@@ -94,7 +86,6 @@ const delimiter: InputField = {
   ],
   default: ','
 }
-
 const file_extension: InputField = {
   label: 'File Extension',
   description: `File extension for the uploaded file.`,
@@ -108,16 +99,9 @@ const file_extension: InputField = {
   ],
   default: 'csv'
 }
-
-const audienceFields = {
-  audience_action_column_name,
-  traits_or_props,
-  computation_key
-}
-
 const columnsWithDefaultMappings: InputField = {
   label: 'Columns',
-  description: `Column write to the SFTP CSV file.`,
+  description: `Column headers to write to files sent to SFTP.`,
   type: 'object',
   defaultObjectUI: 'keyvalue',
   required: true,
@@ -248,29 +232,20 @@ const columnsWithDefaultMappings: InputField = {
     }
   }
 }
-
 const columnsNoDefaultMappings: InputField = {
   label: 'Columns',
-  description: `Choose columns to write to the file sent to SFTP`,
+  description: `Column headers to write to files sent to SFTP.`,
   type: 'object',
   defaultObjectUI: 'keyvalue',
   required: true,
   additionalProperties: true
 }
-
-export const commonFields: ActionDefinition<Settings>['fields'] = {
-  columns: columnsWithDefaultMappings,
-  filename_prefix,
-  file_extension,
-  delimiter,
-  sftp_folder_path,
-  enable_batching,
-  batch_size,
-  batch_size_column_name,
-  ...audienceFields
+const audienceFields: Record<string, InputField> = {
+  audience_action_column_name,
+  traits_or_props,
+  computation_key
 }
-
-export const baseFields: ActionDefinition<Settings>['fields'] = {
+export const baseFields: Record<string, InputField> = {
   columns: columnsNoDefaultMappings,
   filename_prefix,
   file_extension,
@@ -279,4 +254,9 @@ export const baseFields: ActionDefinition<Settings>['fields'] = {
   enable_batching,
   batch_size,
   batch_size_column_name
+}
+export const commonFields: Record<string, InputField> = {
+  ...baseFields,
+  columns: columnsWithDefaultMappings,
+  ...audienceFields
 }

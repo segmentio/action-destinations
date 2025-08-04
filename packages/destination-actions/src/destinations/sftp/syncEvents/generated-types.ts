@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Column write to the SFTP CSV file.
+   * Column headers to write to files sent to SFTP.
    */
   columns: {
     /**
@@ -100,17 +100,17 @@ export interface Payload {
    */
   batch_size_column_name?: string
   /**
-   * Name of the column that will contain the action for the audience. true if the user is in the audience, false if not.
+   * Name of the column to contain the action for the audience. true if the user is in the audience, false if not.
    */
   audience_action_column_name?: string
   /**
-   * Field used to retrieve Audience value
+   * Hidden field used to retrieve Audience action value
    */
   traits_or_props?: {
     [k: string]: unknown
   }
   /**
-   * Field used to retrieve Audience Key
+   * Hidden field used to retrieve Audience Key
    */
   computation_key?: string
 }

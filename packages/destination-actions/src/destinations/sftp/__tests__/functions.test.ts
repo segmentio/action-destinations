@@ -47,7 +47,8 @@ describe('generateFile', () => {
     ]
 
     const headers = createTestHeaders()
-    const result = generateFile(payloads, headers, ',')
+    const rowsObservabilityArray: string[] = []
+    const result = generateFile(payloads, headers, ',', rowsObservabilityArray)
 
     expect(result).toBeInstanceOf(Buffer)
 
@@ -89,7 +90,8 @@ describe('generateFile', () => {
       { cleanName: 'name', originalName: 'name' }
     ]
 
-    const result = generateFile(payloads, headers, ',')
+    const rowsObservabilityArray: string[] = []
+    const result = generateFile(payloads, headers, ',', rowsObservabilityArray)
     const content = result.toString()
 
     // Should contain both users
@@ -115,7 +117,8 @@ describe('generateFile', () => {
 
     const headers: ColumnHeader[] = [{ cleanName: 'email', originalName: 'email' }]
 
-    const result = generateFile(payloads, headers, '|')
+    const rowsObservabilityArray: string[] = []
+    const result = generateFile(payloads, headers, '|', rowsObservabilityArray)
     const content = result.toString()
 
     expect(content).toContain('email')
@@ -136,8 +139,8 @@ describe('generateFile', () => {
     ]
 
     const headers: ColumnHeader[] = []
-
-    const result = generateFile(payloads, headers, ',')
+    const rowsObservabilityArray: string[] = []
+    const result = generateFile(payloads, headers, ',', rowsObservabilityArray)
     const content = result.toString()
 
     expect(content).toBe('\n')
@@ -383,7 +386,7 @@ describe('send', () => {
     mockUploadSFTP.mockResolvedValue(undefined)
   })
 
-  it('should throw PayloadValidationError when no columns are mapped', async () => {
+  it('should throw PayloadValidationError when no headers are mapped', async () => {
     // Test case 1: Empty rawMapping.columns
     const emptyRawMapping: RawMapping = {
       columns: {}
@@ -401,7 +404,7 @@ describe('send', () => {
       }
     ]
 
-    await expect(send(payloads, mockSettings, emptyRawMapping)).rejects.toThrow('No Columns Mapped')
+    await expect(send(payloads, mockSettings, emptyRawMapping)).rejects.toThrow('No columns headers specified')
   })
 
   it('should validate SFTP settings and upload file', async () => {
@@ -597,17 +600,36 @@ describe('send', () => {
     expect(setErrorSpy).toHaveBeenCalledWith(0, {
       status: 400,
       errortype: 'BAD_REQUEST',
-      errormessage: 'Failed to upload file to SFTP',
-      sent: expect.any(Object),
-      body: 'Failed to upload file to SFTP'
+      errormessage: 'SFTP connection failed',
+      sent: {
+        batch_size: 100000,
+        columns: {
+          email: 'test1@example.com',
+          name: 'John Doe'
+        },
+        delimiter: ',',
+        enable_batching: true,
+        file_extension: 'csv',
+        filename_prefix: 'test',
+        sftp_folder_path: '/uploads'
+      },
+      body: 'Header row = email,name,user_id. Row content ="test1@example.com","John Doe",""\n'
     })
 
     expect(setErrorSpy).toHaveBeenCalledWith(1, {
       status: 400,
       errortype: 'BAD_REQUEST',
-      errormessage: 'Failed to upload file to SFTP',
-      sent: expect.any(Object),
-      body: 'Failed to upload file to SFTP'
+      errormessage: 'SFTP connection failed',
+      sent: {
+        batch_size: 100000,
+        columns: { email: 'test2@example.com', name: 'Jane Smith' },
+        delimiter: ',',
+        enable_batching: true,
+        file_extension: 'csv',
+        filename_prefix: 'test',
+        sftp_folder_path: '/uploads'
+      },
+      body: 'Header row = email,name,user_id. Row content ="test2@example.com","Jane Smith",""'
     })
 
     setErrorSpy.mockRestore()

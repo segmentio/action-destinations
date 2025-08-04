@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Choose columns to write to the file sent to SFTP
+   * Column headers to write to files sent to SFTP.
    */
   columns: {
     [k: string]: unknown

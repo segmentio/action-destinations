@@ -5,12 +5,6 @@ import { Payload } from './syncEvents/generated-types'
 import { ColumnHeader, RawMapping } from './types'
 
 async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping) {
-  // Validate that there are actual column mappings
-  const validColumnMappings = Object.entries(rawMapping.columns).filter(([_, value]) => value !== '')
-  if (validColumnMappings.length === 0) {
-    throw new PayloadValidationError('No Columns Mapped')
-  }
-
   const {
     delimiter,
     audience_action_column_name,
@@ -26,29 +20,41 @@ async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapp
     audience_action_column_name,
     batch_size_column_name
   )
-
-  const fileContent = generateFile(payloads, headers, delimiter, audience_action_column_name, batch_size_column_name)
+  const rowsObservabilityArray: string[] = []
+  const fileContent = generateFile(
+    payloads,
+    headers,
+    delimiter,
+    rowsObservabilityArray,
+    audience_action_column_name,
+    batch_size_column_name
+  )
   const filename = createFilename(filename_prefix, file_extension)
 
   const msResponse = new MultiStatusResponse()
   try {
     await uploadSFTP(settings, sftp_folder_path, filename, fileContent)
-    // Set success response for each payload
     payloads.forEach((payload, index) => {
+      const row = rowsObservabilityArray[index] ?? ''
       msResponse.setSuccessResponseAtIndex(index, {
         status: 200,
-        sent: payload as unknown as JSONLikeObject, // Ensure payload is sent as JSON-like object
-        body: 'Processed successfully'
+        sent: payload as unknown as JSONLikeObject,
+        body: `Header row = ${headers.map((header) => header.cleanName) ?? 'Headers not found'}. Row content =${
+          row ?? 'Row content not found'
+        }`
       })
     })
   } catch (error) {
     payloads.forEach((payload, index) => {
+      const row = rowsObservabilityArray[index] ?? ''
       msResponse.setErrorResponseAtIndex(index, {
-        status: 400,
-        errortype: ErrorCodes.BAD_REQUEST,
-        errormessage: 'Failed to upload file to SFTP',
-        sent: payload as unknown as JSONLikeObject, // Ensure payload is sent as JSON-like object
-        body: 'Failed to upload file to SFTP'
+        status: error?.status || 400,
+        errortype: error?.code || ErrorCodes.BAD_REQUEST,
+        errormessage: error?.message ?? 'Failed to upload file to SFTP',
+        sent: payload as unknown as JSONLikeObject,
+        body: `Header row = ${headers.map((header) => header.cleanName) ?? 'Headers not found'}. Row content =${
+          row ?? 'Row content not found'
+        }`
       })
     })
   }
@@ -87,6 +93,10 @@ function createHeaders(
   if (audienceActionColumnName) headers.push(createHeader(audienceActionColumnName))
   if (batchSizeColumnName) headers.push(createHeader(batchSizeColumnName))
 
+  if (headers.length === 0) {
+    throw new PayloadValidationError('No columns headers specified')
+  }
+
   return headers
 }
 
@@ -113,6 +123,7 @@ function generateFile(
   payloads: Payload[],
   headers: ColumnHeader[],
   delimiter: string,
+  rowsArray: string[],
   actionColName?: string,
   batchColName?: string
 ): Buffer {
@@ -131,7 +142,7 @@ function generateFile(
 
     return Buffer.from(`${row.join(delimiter === 'tab' ? '\t' : delimiter)}${isLastRow ? '' : '\n'}`)
   })
-
+  rowsArray.push(...rows.map((row) => row.toString()))
   return Buffer.concat([
     Buffer.from(`${headers.map((header) => header.cleanName).join(delimiter === 'tab' ? '\t' : delimiter)}\n`),
     ...rows
