@@ -4,7 +4,7 @@ import destination from '../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const destinationSlug = 'actions-livelike-cloud'
+const destinationSlug = 'actions-clay'
 
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
@@ -33,7 +33,9 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       try {
         const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot()
+        expect(json).toMatchSnapshot({
+          messageId: expect.any(String)
+        })
         return
       } catch (err) {
         expect(rawBody).toMatchSnapshot()
@@ -67,7 +69,10 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       try {
         const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot()
+        expect(json).toMatchSnapshot({
+          messageId: expect.any(String),
+          timestamp: expect.any(String)
+        })
         return
       } catch (err) {
         expect(rawBody).toMatchSnapshot()

@@ -59,4 +59,10 @@ export interface Payload {
    * The time that Twilio will send the message. Must be in ISO 8601 format.
    */
   sendAt?: string
+  /**
+   * Custom tags to be included in the message. Key:value pairs of strings are allowed.
+   */
+  tags?: {
+    [k: string]: unknown
+  }
 }

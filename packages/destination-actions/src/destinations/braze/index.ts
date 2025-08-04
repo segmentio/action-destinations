@@ -140,13 +140,6 @@ const destination: DestinationDefinition<Settings> = {
       eventSlug: 'warehouse_entity_removed_track'
     },
     {
-      name: 'Trigger Canvas',
-      subscribe: 'type = "track" and event = "Trigger Canvas"',
-      partnerAction: 'triggerCanvas',
-      mapping: defaultValues(triggerCanvas.fields),
-      type: 'automatic'
-    },
-    {
       name: 'Entities Audience Entered',
       partnerAction: 'trackEvent',
       mapping: {
