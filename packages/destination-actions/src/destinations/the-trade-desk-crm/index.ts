@@ -100,7 +100,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const response: ModifiedResponse<CreateApiResponse> = await request(`${BASE_URL}/crmdata/segment`, {
+      const response: ModifiedResponse<CreateApiResponse> = await request(`${BASE_URL}/crmdata/targeting/segment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

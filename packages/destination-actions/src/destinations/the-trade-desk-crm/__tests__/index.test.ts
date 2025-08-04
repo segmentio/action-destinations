@@ -38,7 +38,7 @@ describe('The Trade Desk CRM', () => {
     })
 
     it('should create a new Trade Desk CRM Data Segment', async () => {
-      nock(`https://api.thetradedesk.com/${API_VERSION}/crmdata/segment`).post(/.*/).reply(200, {
+      nock(`https://api.thetradedesk.com/${API_VERSION}/crmdata/targeting/segment`).post(/.*/).reply(200, {
         CrmDataId: 'test_audience'
       })
 
