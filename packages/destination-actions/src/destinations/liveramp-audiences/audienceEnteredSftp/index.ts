@@ -1,5 +1,5 @@
-import { ActionDefinition, PayloadValidationError, InvalidAuthenticationError } from '@segment/actions-core'
-import { uploadSFTP, validateSFTP, Client as ClientSFTP, testSFTPFileRead } from './sftp'
+import { ActionDefinition, InvalidAuthenticationError, PayloadValidationError } from '@segment/actions-core'
+import { uploadSFTP, validateSFTP, Client as ClientSFTP, testAuthenticationSFTP } from './sftp'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
 import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
@@ -131,20 +131,16 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     //------------
     // LEGACY FLOW
     // -----------
+    try {
+      await testAuthenticationSFTP(sftpClient, input.payloads[0])
+    } catch (error) {
+      throw new InvalidAuthenticationError('Invalid SFTP credentials')
+    }
     return uploadSFTP(sftpClient, input.payloads[0], filename, fileContents)
   } else {
     //------------
     // AWS FLOW
     // -----------
-    try {
-      await testSFTPFileRead(sftpClient, input.payloads[0])
-    } catch (error) {
-      throw new InvalidAuthenticationError(
-        `Failed to validate SFTP connection to LiveRamp. Please verify your SFTP username, password, and folder path are correct. ${
-          error instanceof Error ? error.message : 'Unknown error occurred during SFTP validation.'
-        }`
-      )
-    }
     return sendEventToAWS(input.request, {
       audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
       uploadType: 'sftp',
