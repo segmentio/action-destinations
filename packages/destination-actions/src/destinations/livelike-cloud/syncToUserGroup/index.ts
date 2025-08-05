@@ -44,7 +44,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Additional user traits',
       description: 'Used for trait values to send to Livelike.',
       type: 'object',
-      unsafe_hidden: true,
       defaultObjectUI: 'keyvalue:only',
       additionalProperties: true,
       properties: {
@@ -80,6 +79,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Traits or Properties hidden',
       description: 'Hidden field used to figure out if user is added or removed from an Engage Audience',
       type: 'object',
+      unsafe_hidden: true,
       default: {
         '@if': {
           exists: { '@path': '$.traits' },
@@ -95,6 +95,12 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.userId'
       }
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      type: 'boolean',
+      description: 'Enable batching for this action. If enabled, the action will process records in batches.',
+      default: true
     },
     batch_size: {
       label: 'Batch Size',

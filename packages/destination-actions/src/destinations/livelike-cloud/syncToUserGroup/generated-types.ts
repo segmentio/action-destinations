@@ -42,6 +42,10 @@ export interface Payload {
    */
   user_id?: string
   /**
+   * Enable batching for this action. If enabled, the action will process records in batches.
+   */
+  enable_batching?: boolean
+  /**
    * The number of records to process in each batch. Default is 100.
    */
   batch_size?: number
