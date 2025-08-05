@@ -53,7 +53,7 @@ function formatUser(userIdentifiers: UserIdentifiers): User {
 function formatItems(items: Items): Array<Item> {
   return items.map(({ value, currency, ...rest }) => ({
     ...rest,
-    price: currency !== undefined && currency !== null && currency !== '' ? [value, currency] : [value]
+    price: currency !== undefined && currency !== null && currency !== '' ? [{value, currency}] : [{value}]
   }))
 }
 
