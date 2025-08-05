@@ -20,6 +20,11 @@ jest.mock('ssh2-sftp-client', () => {
   return jest.fn(() => sftpClient)
 })
 
+jest.mock('../audienceEnteredSftp/sftp', () => ({
+  ...jest.requireActual('../audienceEnteredSftp/sftp'),
+  testAuthenticationSFTP: jest.fn().mockResolvedValue(true)
+}))
+
 describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destination action:`, () => {
   const actionSlug = 'audienceEnteredS3'
   const seedName = `${destinationSlug}#${actionSlug}`
