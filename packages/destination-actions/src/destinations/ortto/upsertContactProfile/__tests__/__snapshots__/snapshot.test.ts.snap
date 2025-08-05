@@ -15,7 +15,7 @@ Array [
       "state": "2fUSE5G",
     },
     "message_id": "2fUSE5G",
-    "timestamp": "2099-03-03T14:35:24.780Z",
+    "timestamp": "2099-03-03T09:05:24.780Z",
     "traits": Object {
       "testType": "2fUSE5G",
     },
@@ -29,7 +29,7 @@ Array [
   Object {
     "anonymous_id": "2fUSE5G",
     "message_id": "2fUSE5G",
-    "timestamp": "2099-03-03T14:35:24.780Z",
+    "timestamp": "2099-03-03T09:05:24.780Z",
     "user_id": "2fUSE5G",
   },
 ]
