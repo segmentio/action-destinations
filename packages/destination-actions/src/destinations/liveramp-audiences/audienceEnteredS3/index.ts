@@ -85,7 +85,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number',
       unsafe_hidden: true,
       required: false,
-      default: 170000
+      default: 50000
     },
     s3_aws_bucket_path: {
       label: 'AWS Bucket Path [optional]',
