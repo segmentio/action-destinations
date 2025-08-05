@@ -10,7 +10,7 @@ export interface Payload {
    */
   external_id?: string
   /**
-   * The contact's email address. Email is required if the role is `user` and External ID is blank.
+   * The contact's email address. Email is required for leads, and for users when External ID is blank.
    */
   email?: string
   /**
