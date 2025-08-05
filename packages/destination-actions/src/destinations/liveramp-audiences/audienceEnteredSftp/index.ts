@@ -1,5 +1,5 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
+import { ActionDefinition, InvalidAuthenticationError, PayloadValidationError } from '@segment/actions-core'
+import { uploadSFTP, validateSFTP, Client as ClientSFTP, testAuthenticationSFTP } from './sftp'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
 import {
@@ -134,8 +134,16 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     //------------
     // LEGACY FLOW
     // -----------
-    const sftpClient = new ClientSFTP()
-    return uploadSFTP(sftpClient, input.payloads[0], filename, fileContents)
+    const authSftpClient = new ClientSFTP()
+    try {
+      await testAuthenticationSFTP(authSftpClient, input.payloads[0])
+    } catch (error) {
+      throw new InvalidAuthenticationError('Invalid SFTP credentials')
+    }
+
+    // Create a new SFTP client for the actual upload operation
+    const uploadSftpClient = new ClientSFTP()
+    return uploadSFTP(uploadSftpClient, input.payloads[0], filename, fileContents)
   } else {
     //------------
     // AWS FLOW
