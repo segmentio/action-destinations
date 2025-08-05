@@ -749,7 +749,7 @@ describe('destination kit', () => {
 
       expect(res).toEqual([
         {
-          multistatus: [{ body: {}, sent: {}, status: 200 }]
+          multistatus: [{ body: {}, sent: { __segment_internal_sync_mode: 'add' }, status: 200 }]
         }
       ])
     })

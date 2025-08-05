@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Nudge's trackEvent destination action: all fields 1`] = `
+Array [
+  Object {
+    "ext_id": "xl^o5o8fgv6#8hq",
+    "name": "xl^o5o8fgv6#8hq",
+    "occurred_at": "2021-02-01T00:00:00.000Z",
+    "props": Object {
+      "testType": "XL^o5o8FGV6#8hq",
+    },
+  },
+]
+`;
+
+exports[`Testing snapshot for Nudge's trackEvent destination action: required fields 1`] = `
+Array [
+  Object {
+    "ext_id": "xl^o5o8fgv6#8hq",
+    "name": "xl^o5o8fgv6#8hq",
+    "occurred_at": "2021-02-01T00:00:00.000Z",
+  },
+]
+`;

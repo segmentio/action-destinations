@@ -1,6 +1,6 @@
 import { ActionDefinition, IntegrationError, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { apiBaseUrl } from '../properties'
+import { apiBaseUrl } from '../constants'
 import type { Payload } from './generated-types'
 
 const processData = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {

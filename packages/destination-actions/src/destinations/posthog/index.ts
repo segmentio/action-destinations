@@ -40,8 +40,7 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'If enabled, this ensures that events are processed in order without triggering our spike detection systems. Affects events sent via the track Action only.',
         type: 'boolean',
-        default: false,
-        required: true
+        default: false
       }
     }
   },

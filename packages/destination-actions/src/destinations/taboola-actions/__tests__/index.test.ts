@@ -16,8 +16,6 @@ const getAudienceInput = {
   audienceSettings: {}
 }
 
-
-
 describe('Taboola (actions)', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
@@ -33,7 +31,6 @@ describe('Taboola (actions)', () => {
 
   describe('createAudience', () => {
     it('should fail if no audience name is set', async () => {
-
       const createAudienceInput1 = {
         settings: {
           client_id: 'test_client_id',
@@ -49,7 +46,7 @@ describe('Taboola (actions)', () => {
         audienceSettings: {
           ttl_in_hours: 1024,
           exclude_from_campaigns: false,
-          account_id:accountId
+          account_id: accountId
         }
       }
 
@@ -59,7 +56,6 @@ describe('Taboola (actions)', () => {
     })
 
     it('should fail if no account ID is set', async () => {
-
       const createAudienceInput2 = {
         settings: {
           client_id: 'test_client_id',
@@ -69,7 +65,7 @@ describe('Taboola (actions)', () => {
         audienceSettings: {
           ttl_in_hours: 1024,
           exclude_from_campaigns: false,
-          account_id:''
+          account_id: ''
         }
       }
 
@@ -91,7 +87,7 @@ describe('Taboola (actions)', () => {
         audienceSettings: {
           ttl_in_hours: 1024,
           exclude_from_campaigns: false,
-          account_id:accountId
+          account_id: accountId
         }
       }
       const r = await testDestination.createAudience(createAudienceInput3)
@@ -99,15 +95,17 @@ describe('Taboola (actions)', () => {
     })
 
     it('should create a new Taboola Audience with computation_key', async () => {
-      
       const expectedCreateAudienceReq = {
-        audience_name:"test_computation_key",
-        ttl_in_hours:1024,
-        exclude_from_campaigns:false
+        audience_name: 'test_computation_key',
+        ttl_in_hours: 1024,
+        exclude_from_campaigns: false,
+        integration_source: 'segment.com'
       }
-      
+
       nock('https://backstage.taboola.com').post('/backstage/oauth/token').reply(200, { accessToken: 'some_token' })
-      nock(createAudienceUrl).post('/audience_onboarding/create', expectedCreateAudienceReq).reply(200, { audience_id: '1234' })
+      nock(createAudienceUrl)
+        .post('/audience_onboarding/create', expectedCreateAudienceReq)
+        .reply(200, { audience_id: '1234' })
 
       const createAudienceInput3 = {
         settings: {
@@ -124,7 +122,7 @@ describe('Taboola (actions)', () => {
         audienceSettings: {
           ttl_in_hours: 1024,
           exclude_from_campaigns: false,
-          account_id:accountId
+          account_id: accountId
         }
       }
       const r = await testDestination.createAudience(createAudienceInput3)
@@ -132,15 +130,17 @@ describe('Taboola (actions)', () => {
     })
 
     it('should create a new Taboola Audience with audience_name', async () => {
-      
       const expectedCreateAudienceReq = {
-        audience_name:"test_audience_name",
-        ttl_in_hours:1024,
-        exclude_from_campaigns:false
+        audience_name: 'test_audience_name',
+        ttl_in_hours: 1024,
+        exclude_from_campaigns: false,
+        integration_source: 'segment.com'
       }
-      
+
       nock('https://backstage.taboola.com').post('/backstage/oauth/token').reply(200, { accessToken: 'some_token' })
-      nock(createAudienceUrl).post('/audience_onboarding/create', expectedCreateAudienceReq).reply(200, { audience_id: '1234' })
+      nock(createAudienceUrl)
+        .post('/audience_onboarding/create', expectedCreateAudienceReq)
+        .reply(200, { audience_id: '1234' })
 
       const createAudienceInput3 = {
         settings: {
@@ -157,7 +157,7 @@ describe('Taboola (actions)', () => {
         audienceSettings: {
           ttl_in_hours: 1024,
           exclude_from_campaigns: false,
-          account_id:accountId
+          account_id: accountId
         }
       }
       const r = await testDestination.createAudience(createAudienceInput3)

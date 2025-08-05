@@ -171,7 +171,7 @@ describe('trackConversion', () => {
             nock(`${Region.NA}`)
                 .post('/events/v1')
                 .reply(207, {
-                    success: [{ index: 1, message: 'Success' }],
+                    success: [{ index: 1, message: 'Success' },{ index: 2, message: 'Success' }],
                     error: []
                 })
 
@@ -210,7 +210,7 @@ describe('trackConversion', () => {
                 })
 
                 // We should get at least one response for the valid events
-                expect(responses.length).toBeGreaterThan(0)
+                expect(responses.length).toBeGreaterThanOrEqual(1)
 
                 // Check the structure of the response but don't rely on specific properties
                 expect(responses[0]).toBeDefined()

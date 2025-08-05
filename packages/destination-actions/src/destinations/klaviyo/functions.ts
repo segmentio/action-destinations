@@ -223,7 +223,8 @@ export async function getProfiles(
 export function formatSubscribeProfile(
   email: string | undefined,
   phone_number: string | undefined,
-  consented_at: string | number | undefined
+  consented_at: string | number | undefined,
+  historical_import: boolean | undefined = false
 ) {
   const profileToSubscribe: SubscribeProfile = {
     type: 'profile',
@@ -239,7 +240,7 @@ export function formatSubscribeProfile(
         consent: 'SUBSCRIBED'
       }
     }
-    if (consented_at) {
+    if (historical_import && consented_at) {
       profileToSubscribe.attributes.subscriptions.email.marketing.consented_at = consented_at
     }
   }
@@ -250,7 +251,7 @@ export function formatSubscribeProfile(
         consent: 'SUBSCRIBED'
       }
     }
-    if (consented_at) {
+    if (historical_import && consented_at) {
       profileToSubscribe.attributes.subscriptions.sms.marketing.consented_at = consented_at
     }
   }
@@ -261,7 +262,8 @@ export function formatSubscribeProfile(
 export function formatSubscribeRequestBody(
   profiles: SubscribeProfile | SubscribeProfile[],
   list_id: string | undefined,
-  custom_source: string | undefined
+  custom_source: string | undefined,
+  historical_import: boolean | undefined = false
 ) {
   if (!Array.isArray(profiles)) {
     profiles = [profiles]
@@ -272,6 +274,7 @@ export function formatSubscribeRequestBody(
     data: {
       type: 'profile-subscription-bulk-create-job',
       attributes: {
+        historical_import: historical_import ?? false,
         profiles: {
           data: profiles
         }
