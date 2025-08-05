@@ -13,14 +13,6 @@ export interface Payload {
      * Email address of the Subscriber.
      */
     email?: string
-    /**
-     * Phone number of the Subscriber.
-     */
-    phone?: string
-    /**
-     * The internal Taguchi ID of the Subscriber. usually not visible ourside the Taguchi platform.
-     */
-    id?: number
   }
   /**
    * Standard traits for the Subscriber. All text fields. No specific formats for any of them.
@@ -55,6 +47,10 @@ export interface Payload {
      */
     address3?: string
     /**
+     * Phone number of the Subscriber.
+     */
+    phone?: string
+    /**
      * Suburb of the Subscriber.
      */
     suburb?: string
@@ -84,6 +80,8 @@ export interface Payload {
    * Array or comma delimited list of Taguchi List IDs to unsubscribe the Subscriber from.
    */
   unsubscribeLists?: string[]
-
+  /**
+   * The timestamp of the event in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ). Defaults to the current time if not provided.
+   */
   timestamp: string
 }
