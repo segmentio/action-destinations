@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 import updateProfile from './updateProfile'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Batch',
+  name: 'Batch (Actions)',
   slug: 'actions-batch',
   mode: 'cloud',
 
