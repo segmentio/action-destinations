@@ -209,6 +209,8 @@ register('6874c64e5eda096bf3850ee0', './aampe')
 register('6880c39343b2271b41970fd9', './epsilon')
 register('6888c9ea14d648263fff811d', './clay')
 register('688b65709774ffcb4af8a03b', './bing-ads-audiences')
+register('6891fb45c0068b7fad1e80a5', './batch')
+register('6891e1a284d96219f601647b', './sftp')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
