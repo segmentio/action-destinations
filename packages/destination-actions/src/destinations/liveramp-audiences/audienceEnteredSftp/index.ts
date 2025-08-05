@@ -126,17 +126,20 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
 
   const { filename, fileContents } = generateFile(input.payloads)
 
-  const sftpClient = new ClientSFTP()
   if (input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true) {
     //------------
     // LEGACY FLOW
     // -----------
+    const authSftpClient = new ClientSFTP()
     try {
-      await testAuthenticationSFTP(sftpClient, input.payloads[0])
+      await testAuthenticationSFTP(authSftpClient, input.payloads[0])
     } catch (error) {
       throw new InvalidAuthenticationError('Invalid SFTP credentials')
     }
-    return uploadSFTP(sftpClient, input.payloads[0], filename, fileContents)
+
+    // Create a new SFTP client for the actual upload operation
+    const uploadSftpClient = new ClientSFTP()
+    return uploadSFTP(uploadSftpClient, input.payloads[0], filename, fileContents)
   } else {
     //------------
     // AWS FLOW
