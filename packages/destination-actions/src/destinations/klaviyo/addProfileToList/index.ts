@@ -49,7 +49,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    console.log(payload, 'payload')
     const {
       email,
       phone_number: initialPhoneNumber,

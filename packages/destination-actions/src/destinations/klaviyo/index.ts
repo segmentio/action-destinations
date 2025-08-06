@@ -91,6 +91,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audienceName = createAudienceInput.audienceName
       const apiKey = createAudienceInput.settings.api_key
       const defaultAudienceId = createAudienceInput.audienceSettings?.listId
+      const selectedOptInProcess = createAudienceInput.audienceSettings?.optInProcess
 
       if (defaultAudienceId) {
         return { externalId: defaultAudienceId }
@@ -103,13 +104,19 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       if (!apiKey) {
         throw new PayloadValidationError('Missing Api Key value')
       }
-
+      const payload = {
+        data: {
+          type: 'list',
+          attributes: {
+            name: audienceName,
+            ...(selectedOptInProcess && { opt_in_process: selectedOptInProcess })
+          }
+        }
+      }
       const response = await request(`${API_URL}/lists`, {
         method: 'POST',
         headers: buildHeaders(apiKey),
-        json: {
-          data: { type: 'list', attributes: { name: audienceName } }
-        }
+        json: payload
       })
       const r = await response.json()
       return {

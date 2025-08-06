@@ -6,6 +6,7 @@ const testDestination = createTestIntegration(Definition)
 
 const API_URL = 'https://a.klaviyo.com/api'
 const apiKey = 'fake-api-key'
+const opt_in_process = 'single_opt_in'
 
 export const settings = {
   api_key: apiKey
@@ -17,7 +18,8 @@ const createAudienceInput = {
   },
   audienceName: '',
   audienceSettings: {
-    listId: ''
+    listId: '',
+    optInProcess: ''
   }
 }
 
@@ -98,6 +100,26 @@ describe('Klaviyo (actions)', () => {
       const r = await testDestination.createAudience(createAudienceInput)
       expect(r).toEqual({
         externalId: 'XYZABC'
+      })
+    })
+    it('should create a audience when optInProcess is passed in audienceSettings', async () => {
+      createAudienceInput.audienceName = audienceName
+      createAudienceInput.settings.api_key = apiKey
+      createAudienceInput.audienceSettings.optInProcess = opt_in_process
+
+      nock(`${API_URL}`)
+        .post('/lists', { data: { type: 'list', attributes: { name: audienceName, opt_in_process } } })
+        .matchHeader('Authorization', `Klaviyo-API-Key ${apiKey}`)
+        .reply(200, {
+          success: true,
+          data: {
+            id: 'V4YXH9'
+          }
+        })
+
+      const r = await testDestination.createAudience(createAudienceInput)
+      expect(r).toEqual({
+        externalId: 'V4YXH9'
       })
     })
 
