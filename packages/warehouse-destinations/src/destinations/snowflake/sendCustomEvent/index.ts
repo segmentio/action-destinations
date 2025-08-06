@@ -40,7 +40,10 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       default: { '@path': '$.type' },
-      readOnly: true
+      readOnly: true,
+      // this is required for the warehouse pipeline to process the event,
+      // but it's removed before being sent to Snowflake
+      unsafe_hidden: true
     },
     receivedAt: {
       label: 'Received At',
