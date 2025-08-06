@@ -64,28 +64,28 @@ describe('forwardAudienceEvent', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].request.headers).toMatchInlineSnapshot(`
       Headers {
-        Symbol(map): {
-          "authorization": [
+        Symbol(map): Object {
+          "authorization": Array [
             "Bearer test-graphql-key",
           ],
-          "content-type": [
+          "content-type": Array [
             "application/json",
           ],
-          "user-agent": [
+          "user-agent": Array [
             "Segment (Actions)",
           ],
         },
       }
     `)
     expect(requestBody).toMatchInlineSnapshot(`
-      {
+      Object {
         "query": "mutation {
             upsertProfiles(
               input: {
                 advertiserId: 23,
-                externalProvider: "segmentio",
-                syncId: "18173ad77a58c56aee5ef6ebde0ff2911b80807f32985ff1e10c03b02cd0b8bc",
-                profiles: "[{\\"userId\\":\\"user-id\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"enter\\"}]"
+                externalProvider: \\"segmentio\\",
+                syncId: \\"18173ad77a58c56aee5ef6ebde0ff2911b80807f32985ff1e10c03b02cd0b8bc\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
               }
             ) {
               userErrors {
@@ -95,8 +95,8 @@ describe('forwardAudienceEvent', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{\\"incomingKey\\":\\"userId\\",\\"destinationKey\\":\\"external_id\\",\\"type\\":STRING,\\"isPii\\":false,\\"label\\":\\"External Profile ID\\"}],
-                mappableType: "segmentio",
+                mappingSchemaV2: [{\\\\\\"incomingKey\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false,\\\\\\"label\\\\\\":\\\\\\"External Profile ID\\\\\\"}],
+                mappableType: \\"segmentio\\",
               }
             ) {
               userErrors {
@@ -106,8 +106,8 @@ describe('forwardAudienceEvent', () => {
             upsertExternalAudienceMapping(
               input: {
                 advertiserId: 23,
-                mappingSchema: [{\\"incomingKey\\":\\"audienceId\\",\\"destinationKey\\":\\"external_id\\",\\"type\\":STRING,\\"label\\":\\"External Audience ID\\",\\"isPii\\":false},{\\"incomingKey\\":\\"audienceName\\",\\"destinationKey\\":\\"name\\",\\"type\\":STRING,\\"label\\":\\"External Audience Name\\",\\"isPii\\":false}],
-                mappableType: "segmentio"
+                mappingSchema: [{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience ID\\\\\\",\\\\\\"isPii\\\\\\":false},{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"name\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience Name\\\\\\",\\\\\\"isPii\\\\\\":false}],
+                mappableType: \\"segmentio\\"
               }
             ) {
               userErrors {
@@ -138,28 +138,28 @@ describe('forwardAudienceEvent', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].request.headers).toMatchInlineSnapshot(`
       Headers {
-        Symbol(map): {
-          "authorization": [
+        Symbol(map): Object {
+          "authorization": Array [
             "Bearer test-graphql-key",
           ],
-          "content-type": [
+          "content-type": Array [
             "application/json",
           ],
-          "user-agent": [
+          "user-agent": Array [
             "Segment (Actions)",
           ],
         },
       }
     `)
     expect(requestBody).toMatchInlineSnapshot(`
-      {
+      Object {
         "query": "mutation {
             upsertProfiles(
               input: {
                 advertiserId: 23,
-                externalProvider: "segmentio",
-                syncId: "18173ad77a58c56aee5ef6ebde0ff2911b80807f32985ff1e10c03b02cd0b8bc",
-                profiles: "[{\\"userId\\":\\"user-id\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"enter\\"}]"
+                externalProvider: \\"segmentio\\",
+                syncId: \\"18173ad77a58c56aee5ef6ebde0ff2911b80807f32985ff1e10c03b02cd0b8bc\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
               }
             ) {
               userErrors {
@@ -169,8 +169,8 @@ describe('forwardAudienceEvent', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{\\"incomingKey\\":\\"userId\\",\\"destinationKey\\":\\"external_id\\",\\"type\\":STRING,\\"isPii\\":false,\\"label\\":\\"External Profile ID\\"}],
-                mappableType: "segmentio",
+                mappingSchemaV2: [{\\\\\\"incomingKey\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false,\\\\\\"label\\\\\\":\\\\\\"External Profile ID\\\\\\"}],
+                mappableType: \\"segmentio\\",
               }
             ) {
               userErrors {
@@ -180,8 +180,8 @@ describe('forwardAudienceEvent', () => {
             upsertExternalAudienceMapping(
               input: {
                 advertiserId: 23,
-                mappingSchema: [{\\"incomingKey\\":\\"audienceId\\",\\"destinationKey\\":\\"external_id\\",\\"type\\":STRING,\\"label\\":\\"External Audience ID\\",\\"isPii\\":false},{\\"incomingKey\\":\\"audienceName\\",\\"destinationKey\\":\\"name\\",\\"type\\":STRING,\\"label\\":\\"External Audience Name\\",\\"isPii\\":false}],
-                mappableType: "segmentio"
+                mappingSchema: [{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience ID\\\\\\",\\\\\\"isPii\\\\\\":false},{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"name\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience Name\\\\\\",\\\\\\"isPii\\\\\\":false}],
+                mappableType: \\"segmentio\\"
               }
             ) {
               userErrors {
@@ -211,14 +211,14 @@ describe('forwardAudienceEvent', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(requestBody).toMatchInlineSnapshot(`
-      {
+      Object {
         "query": "mutation {
             upsertProfiles(
               input: {
                 advertiserId: 23,
-                externalProvider: "segmentio",
-                syncId: "c371022fd0a74b3ff0376ee0a8838c0e7d21be220ba335bfdd7205bca9545bd3",
-                profiles: "[{\\"userId\\":\\"user-id\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"enter\\"},{\\"userId\\":\\"user-id\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"enter\\"}]"
+                externalProvider: \\"segmentio\\",
+                syncId: \\"c371022fd0a74b3ff0376ee0a8838c0e7d21be220ba335bfdd7205bca9545bd3\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"},{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
               }
             ) {
               userErrors {
@@ -228,8 +228,8 @@ describe('forwardAudienceEvent', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{\\"incomingKey\\":\\"userId\\",\\"destinationKey\\":\\"external_id\\",\\"type\\":STRING,\\"isPii\\":false,\\"label\\":\\"External Profile ID\\"}],
-                mappableType: "segmentio",
+                mappingSchemaV2: [{\\\\\\"incomingKey\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false,\\\\\\"label\\\\\\":\\\\\\"External Profile ID\\\\\\"}],
+                mappableType: \\"segmentio\\",
               }
             ) {
               userErrors {
@@ -239,8 +239,8 @@ describe('forwardAudienceEvent', () => {
             upsertExternalAudienceMapping(
               input: {
                 advertiserId: 23,
-                mappingSchema: [{\\"incomingKey\\":\\"audienceId\\",\\"destinationKey\\":\\"external_id\\",\\"type\\":STRING,\\"label\\":\\"External Audience ID\\",\\"isPii\\":false},{\\"incomingKey\\":\\"audienceName\\",\\"destinationKey\\":\\"name\\",\\"type\\":STRING,\\"label\\":\\"External Audience Name\\",\\"isPii\\":false}],
-                mappableType: "segmentio"
+                mappingSchema: [{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience ID\\\\\\",\\\\\\"isPii\\\\\\":false},{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"name\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience Name\\\\\\",\\\\\\"isPii\\\\\\":false}],
+                mappableType: \\"segmentio\\"
               }
             ) {
               userErrors {
