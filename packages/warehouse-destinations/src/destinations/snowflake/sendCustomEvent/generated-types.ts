@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * The name of the table.
+   */
+  event: string
+  /**
    * Additional columns to write to Snowflake.
    */
   properties: {

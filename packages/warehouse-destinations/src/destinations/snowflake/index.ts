@@ -21,7 +21,7 @@ const destination: WarehouseDestinationDefinition<Settings> = {
 
   presets: [
     {
-      name: 'Associated Entity Added',
+      name: 'Linked Audience Entity Added',
       partnerAction: 'sendCustomEvent',
       mapping: {
         ...defaultValues(sendCustomEvent.fields),
@@ -31,7 +31,7 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       eventSlug: 'warehouse_entity_added_track'
     },
     {
-      name: 'Associated Entity Removed',
+      name: 'Linked Audience Associated Entity Removed',
       partnerAction: 'sendCustomEvent',
       mapping: {
         ...defaultValues(sendCustomEvent.fields),
@@ -41,7 +41,7 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       eventSlug: 'warehouse_entity_removed_track'
     },
     {
-      name: 'Entities Audience Entered',
+      name: 'Linked Audience Profile Entered',
       partnerAction: 'sendCustomEvent',
       mapping: {
         ...defaultValues(sendCustomEvent.fields),
@@ -51,8 +51,8 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       eventSlug: 'warehouse_audience_entered_track'
     },
     {
-      name: 'Entities Exited',
-      partnerAction: 'trackEvent',
+      name: 'Linked Audience Profile Exited',
+      partnerAction: 'sendCustomEvent',
       mapping: {
         ...defaultValues(sendCustomEvent.fields),
         ...defaultValues(aududienceDefaultFields)

@@ -6,6 +6,13 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Custom Event',
   description: 'Record custom events in Snowflake',
   fields: {
+    event: {
+      label: 'Table Name',
+      description: 'The name of the table.',
+      type: 'string',
+      required: true,
+      default: { '@path': '$.event' }
+    },
     // note that this must be `properties` to be processed by the warehouse pipeline
     properties: {
       label: 'Columns',
