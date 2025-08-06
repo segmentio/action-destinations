@@ -121,19 +121,16 @@ type BasePayload = {
 }
 
 export const buildPayload = <Payload extends BasePayload>({ action, type, payload }: RequestPayload<Payload>) => {
-  const {
-    convert_timestamp,
-    person_id,
-    anonymous_id,
-    email,
-    object_id,
-    object_type_id,
-    timestamp,
-    enable_batching,
-    batch_size,
-    ...data
-  } = payload
+  const { convert_timestamp, person_id, anonymous_id, email, object_id, object_type_id, timestamp, ...data } = payload
   let rest = data
+
+  // Remove batching configuration fields that shouldn't be sent to Customer.io
+  if ('enable_batching' in rest) {
+    delete rest.enable_batching
+  }
+  if ('batch_size' in rest) {
+    delete rest.batch_size
+  }
 
   if ('convert_timestamp' in payload && convert_timestamp !== false) {
     rest = convertAttributeTimestamps(rest)
