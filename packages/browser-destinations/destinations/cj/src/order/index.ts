@@ -15,6 +15,7 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
   fields: orderFields,
   perform: async (cj, { payload, settings }) => {
     const {
+      verticalType,
       userId,
       enterpriseId,
       pageType,
@@ -64,9 +65,9 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
       cjeventOrder: cjeventOrder ?? '',
       items,
       ...allVerticals,
-      ...travelVerticals,
-      ...financeVerticals,
-      ...networkServicesVerticals
+      ...verticalType === 'travel' ? travelVerticals : {},
+      ...verticalType === 'finance' ? financeVerticals: {},
+      ...verticalType === 'network' ? networkServicesVerticals : {}
     }
 
     setOrderJSON(cj, order)

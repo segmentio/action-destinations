@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * Send additional data relating to travel, finance network services
+   */
+  verticalType?: string
+  /**
    * A unique ID assigned by you to the user.
    */
   userId?: string

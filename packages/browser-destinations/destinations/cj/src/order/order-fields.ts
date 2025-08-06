@@ -1,152 +1,6 @@
 import { InputField } from '@segment/actions-core'
 
-export const orderFields: Record<string, InputField> = {
-  userId: {
-    label: 'User ID',
-    description: 'A unique ID assigned by you to the user.',
-    type: 'string',
-    required: false,
-    default: { '@path': '$.userId' }
-  },
-  enterpriseId: {
-    label: 'Enterprise ID',
-    description: 'Your CJ Enterprise ID.',
-    type: 'number',
-    required: true
-  },
-  pageType: {
-    label: 'Page Type',
-    description: 'Page type to be sent to CJ.',
-    type: 'string',
-    choices: [
-      { label: 'Account Center', value: 'accountCenter' },
-      { label: 'Account Signup', value: 'accountSignup' },
-      { label: 'Application Start', value: 'applicationStart' },
-      { label: 'Branch Locator', value: 'branchLocator' },
-      { label: 'Cart', value: 'cart' },
-      { label: 'Category', value: 'category' },
-      { label: 'Conversion Confirmation', value: 'conversionConfirmation' },
-      { label: 'Department', value: 'department' },
-      { label: 'Homepage', value: 'homepage' },
-      { label: 'Information', value: 'information' },
-      { label: 'Product Detail', value: 'productDetail' },
-      { label: 'Property Detail', value: 'propertyDetail' },
-      { label: 'Property Results', value: 'propertyResults' },
-      { label: 'Search Results', value: 'searchResults' },
-      { label: 'Store Locator', value: 'storeLocator' },
-      { label: 'Sub Category', value: 'subCategory' }
-    ],
-    required: true,
-    default: 'conversionConfirmation',
-    readOnly: true
-  },
-  emailHash: {
-    label: 'Email address',
-    description: 'Segment will ensure the email address is hashed before sending to CJ.',
-    type: 'string',
-    required: false,
-    default: {
-      '@if': {
-        exists: { '@path': '$.context.traits.email' },
-        then: { '@path': '$.context.traits.email' },
-        else: { '@path': '$.properties.email' }
-      }
-    }
-  },
-  orderId: {
-    label: 'Order ID',
-    description:
-      'The orderId is a unique identifier, such as an order identifier or invoice number, which must be populated for each order.',
-    type: 'string',
-    required: true,
-    default: { '@path': '$.properties.order_id' }
-  },
-  actionTrackerId: {
-    label: 'Action Tracker ID',
-    description:
-      'Required if not specified in Settings. This is a static value provided by CJ. Each account may have multiple actions and each will be referenced by a different actionTrackerId value.',
-    type: 'string' // required either at Setting level or Action level. Will validate in the perform()
-  },
-  currency: {
-    label: 'Currency',
-    description: 'The currency of the order, e.g. USD, EUR.',
-    type: 'string',
-    required: true,
-    default: { '@path': '$.properties.currency' }
-  },
-  amount: {
-    label: 'Amount',
-    description: 'The total amount of the order. This should exclude shipping or tax.',
-    type: 'number',
-    required: true,
-    default: { '@path': '$.properties.total' }
-  },
-  discount: {
-    label: 'Discount',
-    description: 'The total discount applied to the order.',
-    type: 'number',
-    required: false,
-    default: { '@path': '$.properties.discount' }
-  },
-  coupon: {
-    label: 'Coupon',
-    description: 'The coupon code applied to the order.',
-    type: 'string',
-    required: false,
-    default: { '@path': '$.properties.coupon' }
-  },
-  cjeventOrderCookieName: {
-    label: 'CJ Event Order Cookie Name',
-    description:
-      'The name of the cookie that stores the CJ Event ID. This is required whenever the advertiser uses their own cookie to store the Event ID.',
-    type: 'string',
-    required: true,
-    default: 'cje'
-  },
-  items: {
-    label: 'Items',
-    description: 'The items to be sent to CJ.',
-    type: 'object',
-    multiple: true,
-    properties: {
-      unitPrice: {
-        label: 'Unit Price',
-        description: 'the price of the item before tax and discount.',
-        type: 'number',
-        required: true
-      },
-      itemId: {
-        label: 'Item ID',
-        description: 'The item sku.',
-        type: 'string',
-        required: true
-      },
-      quantity: {
-        label: 'Quantity',
-        description: 'The quantity of the item.',
-        type: 'number',
-        required: true
-      },
-      discount: {
-        label: 'Discount',
-        description: 'The discount applied to the item.',
-        type: 'number',
-        required: false
-      }
-    },
-    default: {
-      '@arrayPath': [
-        '$.properties.products',
-        {
-          itemPrice: { '@path': '$.price' },
-          itemId: { '@path': '$.id' },
-          quantity: { '@path': '$.quantity' },
-          discount: { '@path': '$.discount' }
-        }
-      ]
-    }
-  },
-  allVerticals: {
+export const allVerticals: InputField = {
     label: 'All Vertical Parameters',
     description:
       "This field is used to pass additional parameters specific to the vertical. All vertical parameters listed below can be utilized regardless of the account's vertical.",
@@ -630,8 +484,9 @@ export const orderFields: Record<string, InputField> = {
       taxType: { '@path': '$.properties.tax_type' },
       upsell: { '@path': '$.properties.upsell' }
     }
-  },
-  travelVerticals: {
+}
+
+export const travelVerticals: InputField = {
     label: 'Travel Vertical Parameters',
     description: 'This field is used to pass additional parameters specific to the travel vertical.',
     type: 'object',
@@ -898,8 +753,9 @@ export const orderFields: Record<string, InputField> = {
       shipName: { '@path': '$.properties.ship_name' },
       travelType: { '@path': '$.properties.travel_type' }
     }
-  },
-  financeVerticals: {
+}
+
+export const financeVerticals: InputField = {
     label: 'Finance Verticals',
     description: 'This field is used to pass additional parameters specific to the finance vertical.',
     type: 'object',
@@ -1068,8 +924,9 @@ export const orderFields: Record<string, InputField> = {
       prequalify: { '@path': '$.properties.prequalify' },
       transferFee: { '@path': '$.properties.transfer_fee' }
     }
-  },
-  networkServicesVerticals: {
+}
+
+export const networkServicesVerticals: InputField = {
     label: 'Network Services Verticals',
     description: 'This field is used to pass additional parameters specific to the network services vertical.',
     type: 'object',
@@ -1110,5 +967,166 @@ export const orderFields: Record<string, InputField> = {
       contractLength: { '@path': '$.properties.contract_length' },
       contractType: { '@path': '$.properties.contract_type' }
     }
-  }
+}
+
+export const orderFields: Record<string, InputField> = {
+  verticalType: {
+    label: 'Vertical type',
+    description: 'Send additional data relating to travel, finance network services',
+    type: 'string',
+    choices: [
+      {label: 'Travel Vertical', value:'travel'},
+      {label: 'Network Vertical', value:'network'},
+      {label: 'Finance Vertical', value:'finance'}
+    ]
+  },
+  userId: {
+    label: 'User ID',
+    description: 'A unique ID assigned by you to the user.',
+    type: 'string',
+    required: false,
+    default: { '@path': '$.userId' }
+  },
+  enterpriseId: {
+    label: 'Enterprise ID',
+    description: 'Your CJ Enterprise ID.',
+    type: 'number',
+    required: true
+  },
+  pageType: {
+    label: 'Page Type',
+    description: 'Page type to be sent to CJ.',
+    type: 'string',
+    choices: [
+      { label: 'Account Center', value: 'accountCenter' },
+      { label: 'Account Signup', value: 'accountSignup' },
+      { label: 'Application Start', value: 'applicationStart' },
+      { label: 'Branch Locator', value: 'branchLocator' },
+      { label: 'Cart', value: 'cart' },
+      { label: 'Category', value: 'category' },
+      { label: 'Conversion Confirmation', value: 'conversionConfirmation' },
+      { label: 'Department', value: 'department' },
+      { label: 'Homepage', value: 'homepage' },
+      { label: 'Information', value: 'information' },
+      { label: 'Product Detail', value: 'productDetail' },
+      { label: 'Property Detail', value: 'propertyDetail' },
+      { label: 'Property Results', value: 'propertyResults' },
+      { label: 'Search Results', value: 'searchResults' },
+      { label: 'Store Locator', value: 'storeLocator' },
+      { label: 'Sub Category', value: 'subCategory' }
+    ],
+    required: true,
+    default: 'conversionConfirmation',
+    readOnly: true
+  },
+  emailHash: {
+    label: 'Email address',
+    description: 'Segment will ensure the email address is hashed before sending to CJ.',
+    type: 'string',
+    required: false,
+    default: {
+      '@if': {
+        exists: { '@path': '$.context.traits.email' },
+        then: { '@path': '$.context.traits.email' },
+        else: { '@path': '$.properties.email' }
+      }
+    }
+  },
+  orderId: {
+    label: 'Order ID',
+    description:
+      'The orderId is a unique identifier, such as an order identifier or invoice number, which must be populated for each order.',
+    type: 'string',
+    required: true,
+    default: { '@path': '$.properties.order_id' }
+  },
+  actionTrackerId: {
+    label: 'Action Tracker ID',
+    description:
+      'Required if not specified in Settings. This is a static value provided by CJ. Each account may have multiple actions and each will be referenced by a different actionTrackerId value.',
+    type: 'string' // required either at Setting level or Action level. Will validate in the perform()
+  },
+  currency: {
+    label: 'Currency',
+    description: 'The currency of the order, e.g. USD, EUR.',
+    type: 'string',
+    required: true,
+    default: { '@path': '$.properties.currency' }
+  },
+  amount: {
+    label: 'Amount',
+    description: 'The total amount of the order. This should exclude shipping or tax.',
+    type: 'number',
+    required: true,
+    default: { '@path': '$.properties.total' }
+  },
+  discount: {
+    label: 'Discount',
+    description: 'The total discount applied to the order.',
+    type: 'number',
+    required: false,
+    default: { '@path': '$.properties.discount' }
+  },
+  coupon: {
+    label: 'Coupon',
+    description: 'The coupon code applied to the order.',
+    type: 'string',
+    required: false,
+    default: { '@path': '$.properties.coupon' }
+  },
+  cjeventOrderCookieName: {
+    label: 'CJ Event Order Cookie Name',
+    description:
+      'The name of the cookie that stores the CJ Event ID. This is required whenever the advertiser uses their own cookie to store the Event ID.',
+    type: 'string',
+    required: true,
+    default: 'cje'
+  },
+  items: {
+    label: 'Items',
+    description: 'The items to be sent to CJ.',
+    type: 'object',
+    multiple: true,
+    properties: {
+      unitPrice: {
+        label: 'Unit Price',
+        description: 'the price of the item before tax and discount.',
+        type: 'number',
+        required: true
+      },
+      itemId: {
+        label: 'Item ID',
+        description: 'The item sku.',
+        type: 'string',
+        required: true
+      },
+      quantity: {
+        label: 'Quantity',
+        description: 'The quantity of the item.',
+        type: 'number',
+        required: true
+      },
+      discount: {
+        label: 'Discount',
+        description: 'The discount applied to the item.',
+        type: 'number',
+        required: false
+      }
+    },
+    default: {
+      '@arrayPath': [
+        '$.properties.products',
+        {
+          itemPrice: { '@path': '$.price' },
+          itemId: { '@path': '$.id' },
+          quantity: { '@path': '$.quantity' },
+          discount: { '@path': '$.discount' }
+        }
+      ]
+    }
+  },
+  allVerticals,
+  travelVerticals,
+  financeVerticals,
+  networkServicesVerticals
 }

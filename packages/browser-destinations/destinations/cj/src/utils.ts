@@ -2,7 +2,6 @@
 // @ts-nocheck
 
 export function send(tagId): Promise<void> {
-  console.log("send called")
   return new Promise((resolve, reject) => {
     ;(function (a, b, c, d) {
       a = `//www.mczbf.com/tags/${tagId}/tag.js`

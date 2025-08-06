@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CJ } from '../types'
 import { send } from '../utils'
+import { setSitePageJSON } from './utils'
 
 const action: BrowserActionDefinition<Settings, CJ, Payload> = {
   title: 'Site Page',
@@ -111,13 +112,12 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
     }
   },
   perform: (cj, { payload, settings }) => {
-    cj.sitePage = payload
+    setSitePageJSON(cj, payload)
     const { tagId } = settings
     send(tagId)
       .then(() => {
         cj.sitePage = undefined
         cj.order = undefined
-        console.log('cj site page sent successfully')
       })
       .catch((err) => {
         console.warn(err)
