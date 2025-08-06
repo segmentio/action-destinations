@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { APIError, IntegrationError, createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
+import { CreateAudienceInput } from '../types'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -12,14 +13,13 @@ export const settings = {
   api_key: apiKey
 }
 
-const createAudienceInput = {
+const createAudienceInput: CreateAudienceInput = {
   settings: {
     api_key: ''
   },
   audienceName: '',
   audienceSettings: {
-    listId: '',
-    optInProcess: ''
+    listId: ''
   }
 }
 

@@ -253,3 +253,14 @@ export interface KlaviyoProfile {
   type: string
   attributes: ProfileAttributes
 }
+
+export interface CreateAudienceInput {
+  settings: {
+    api_key: string
+  }
+  audienceName: string
+  audienceSettings: {
+    listId: string
+    optInProcess?: string
+  }
+}
