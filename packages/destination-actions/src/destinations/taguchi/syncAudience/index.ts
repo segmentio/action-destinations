@@ -9,7 +9,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     identifiers: {
       label: 'Subscriber Identifiers',
-      description: 'At least one identifier is required. Any identifiers sent will then become required for fugure updates to that Subscriber.',
+      description:
+        'At least one identifier is required. Any identifiers sent will then become required for fugure updates to that Subscriber.',
       type: 'object',
       required: true,
       properties: {
@@ -23,17 +24,11 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'Email address of the Subscriber.',
           type: 'string',
           format: 'email'
-        },
-        phone: {
-          label: 'Phone Number',
-          description: 'Phone number of the Subscriber.',
-          type: 'string'
-        },
-        id: {
-          label: 'ID',
-          description: 'The internal Taguchi ID of the Subscriber. usually not visible ourside the Taguchi platform.',
-          type: 'integer'
-        },
+        }
+      },
+      default: {
+        ref: { '@path': '$.userId' },
+        email: { '@path': '$.email' }
       }
     },
     traits: {
@@ -63,30 +58,34 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         dob: {
           label: 'Date of Birth',
-          description:
-            "Date of birth of the Subscriber in ISO 8601 format (YYYY-MM-DD).",
+          description: 'Date of birth of the Subscriber in ISO 8601 format (YYYY-MM-DD).',
           type: 'string',
           format: 'date-time',
           required: false
         },
         address: {
           label: 'Address Line 1',
-          description:
-            "Primary address line for the Subscriber.",
+          description: 'Primary address line for the Subscriber.',
           type: 'string',
           required: false
         },
-        address2:{
-            label:'Address Line 2',
-            description:'Secondary address line for the Subscriber.',
-            type:'string',
-            required:false
+        address2: {
+          label: 'Address Line 2',
+          description: 'Secondary address line for the Subscriber.',
+          type: 'string',
+          required: false
         },
-        address3:{
-            label:'Address Line 3',
-            description:'Tertiary address line for the Subscriber.',
-            type:'string',
-            required:false
+        address3: {
+          label: 'Address Line 3',
+          description: 'Tertiary address line for the Subscriber.',
+          type: 'string',
+          required: false
+        },
+        phone: {
+          label: 'Phone Number',
+          description: 'Phone number of the Subscriber.',
+          type: 'string',
+          required: false
         },
         suburb: {
           label: 'Suburb',
@@ -131,6 +130,8 @@ const action: ActionDefinition<Settings, Payload> = {
         state: { '@path': '$.traits.state' },
         country: { '@path': '$.traits.country' },
         postcode: { '@path': '$.traits.postal_code' },
+        phone: { '@path': '$.traits.phone' },
+        gender: { '@path': '$.traits.gender' }
       }
     },
     subscribeLists: {
@@ -147,14 +148,15 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     timestamp: {
       label: 'Timestamp',
-      description: 'The timestamp of the event in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ). Defaults to the current time if not provided.',
+      description:
+        'The timestamp of the event in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ). Defaults to the current time if not provided.',
       type: 'string',
       format: 'date-time',
       required: true,
       default: { '@path': '$.timestamp' }
     }
   },
-  perform: async (request, {payload, settings}) => {
+  perform: async (request, { payload, settings }) => {
     await send(request, [payload], settings, false)
   },
   performBatch: async (request, { payload, settings }) => {

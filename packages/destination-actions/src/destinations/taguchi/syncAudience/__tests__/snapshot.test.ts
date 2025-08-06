@@ -23,8 +23,19 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
-      settings: settingsData,
+      mapping: {
+        ...event.properties,
+        identifiers: {
+          ref: 'test-user-123',
+          email: 'test@example.com'
+        }
+      },
+      settings: {
+        ...settingsData,
+        integrationURL: 'https://api.taguchi.com.au',
+        apiKey: 'test-api-key',
+        organizationId: '123'
+      },
       auth: undefined
     })
 
@@ -56,8 +67,19 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
-      settings: settingsData,
+      mapping: {
+        ...event.properties,
+        identifiers: {
+          ref: 'test-user-123',
+          email: 'test@example.com'
+        }
+      },
+      settings: {
+        ...settingsData,
+        integrationURL: 'https://api.taguchi.com.au',
+        apiKey: 'test-api-key',
+        organizationId: '123'
+      },
       auth: undefined
     })
 
