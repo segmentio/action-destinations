@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { CJ, SimpleOrder, AdvancedOrder } from '../types'
 import { send } from '../utils'
-import { getCookieValue } from './utils'
+import { getCookieValue, setOrderJSON } from './utils'
 import { smartHash, normalizeEmail } from './hashing-utils'
 import { orderFields } from './order-fields'
 
@@ -43,7 +43,7 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
 
     const actionTrackerIdFromSettings = settings.actionTrackerId
 
-    if (!actionTrackerId || !actionTrackerIdFromSettings) {
+    if (!actionTrackerId && !actionTrackerIdFromSettings) {
       console.warn(
         'Segment CJ Actions Destination: Missing actionTrackerId. This can be set as a Setting or as an Action field value.'
       )
@@ -69,7 +69,7 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
       ...networkServicesVerticals
     }
 
-    cj.order = order
+    setOrderJSON(cj, order)
     const { tagId } = settings
     send(tagId)
       .then(() => {

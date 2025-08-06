@@ -1,3 +1,5 @@
+import { CJ } from '../types'
+
 export function getCookieValue(cookieName: string): string | null {
   const name = cookieName + '='
   const decodedCookie = decodeURIComponent(document.cookie)
@@ -10,4 +12,8 @@ export function getCookieValue(cookieName: string): string | null {
   }
 
   return null
+}
+
+export function setOrderJSON(cj: CJ, orderJSON: CJ['order']) {
+  cj.order = orderJSON
 }

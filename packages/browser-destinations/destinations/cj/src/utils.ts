@@ -2,6 +2,7 @@
 // @ts-nocheck
 
 export function send(tagId): Promise<void> {
+  console.log("send called")
   return new Promise((resolve, reject) => {
     ;(function (a, b, c, d) {
       a = `//www.mczbf.com/tags/${tagId}/tag.js`
@@ -17,5 +18,6 @@ export function send(tagId): Promise<void> {
       a = b.getElementsByTagName(c)[0]
       a.parentNode.insertBefore(d, a)
     })()
+    console.log(`CJ script loaded with tagId: ${tagId}`)
   })
 }
