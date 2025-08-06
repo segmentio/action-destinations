@@ -32,9 +32,9 @@ export async function send(request: RequestClient, payload: Payload, settings: S
 
   const getTo = (): string => {
     switch (channel) {
-      case 'SMS':
-      case 'MMS':
-      case 'RCS': {
+      case CHANNELS.SMS:
+      case CHANNELS.MMS:
+      case CHANNELS.RCS: {
         toPhoneNumber = toPhoneNumber?.trim() ?? ''
         if (!(E164_REGEX.test(toPhoneNumber) || TWILIO_SHORT_CODE_REGEX.test(toPhoneNumber))) {
           throw new PayloadValidationError(
@@ -43,7 +43,7 @@ export async function send(request: RequestClient, payload: Payload, settings: S
         }
         return toPhoneNumber
       }
-      case 'Whatsapp': {
+      case CHANNELS.WHATSAPP: {
         toPhoneNumber = toPhoneNumber?.trim() ?? ''
         if (!E164_REGEX.test(toPhoneNumber)) {
           throw new PayloadValidationError("'To' field should be a valid phone number in E.164 format")
