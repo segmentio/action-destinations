@@ -208,7 +208,7 @@ register('6870f42bdaad87a11d764e91', './eagleeye-audiences')
 register('6874c64e5eda096bf3850ee0', './aampe')
 register('6880c39343b2271b41970fd9', './epsilon')
 register('6888c9ea14d648263fff811d', './clay')
-register('688b65709774ffcb4af8a03b', './bing-ads-audiences')
+register('6889ff1e4630aa0885027bc1', './bing-ads-audiences')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
