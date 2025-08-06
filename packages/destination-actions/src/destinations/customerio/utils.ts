@@ -116,8 +116,6 @@ type BasePayload = {
   primary?: Identifiers
   secondary?: Identifiers
   timestamp?: string | number
-  enable_batching?: boolean
-  batch_size?: number
 }
 
 export const buildPayload = <Payload extends BasePayload>({ action, type, payload }: RequestPayload<Payload>) => {
