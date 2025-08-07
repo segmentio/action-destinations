@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-yonoma destination: sendEvent action - all fields 1`] = `
+Object {
+  "event": "P7FUe2pWh35Ew8i",
+  "listId": "P7FUe2pWh35Ew8i",
+  "properties": Object {
+    "testType": "P7FUe2pWh35Ew8i",
+  },
+  "timestamp": "2081-08-25T09:38:03.739Z",
+  "userId": "P7FUe2pWh35Ew8i",
+}
+`;
+
+exports[`Testing snapshot for actions-yonoma destination: trackEvent action - all fields 1`] = `
+Object {
+  "anonymousId": "8MO8%I##rI",
+  "email": "jacefrar@tankewvu.tr",
+  "event": "8MO8%I##rI",
+  "listId": "8MO8%I##rI",
+  "properties": Object {
+    "testType": "8MO8%I##rI",
+  },
+  "timestamp": "2106-05-16T12:49:54.464Z",
+  "userId": "8MO8%I##rI",
+}
+`;
+
+exports[`Testing snapshot for actions-yonoma destination: trackPageView action - all fields 1`] = `
+Object {
+  "anonymousId": "dEsmWlY@dv",
+  "email": "vuwhijga@hi.iq",
+  "listId": "dEsmWlY@dv",
+  "properties": Object {
+    "testType": "dEsmWlY@dv",
+  },
+  "referrer": "dEsmWlY@dv",
+  "timestamp": "2029-05-13T05:10:39.152Z",
+  "title": "dEsmWlY@dv",
+  "url": "dEsmWlY@dv",
+  "userId": "dEsmWlY@dv",
+}
+`;

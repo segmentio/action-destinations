@@ -32,7 +32,11 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'URL of the referring page.'
         }
       },
-      default: { '@path': '$.event' }
+      default: {
+        title: { '@path': '$.context.page.title' },
+        url: { '@path': '$.context.page.url' },
+        referrer: { '@path': '$.context.page.referrer' }
+      }
     },
     identifiers: {
       label: 'Identifiers',
