@@ -13,7 +13,7 @@ const prioritizationChoices = [
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Campaign',
-  description: 'Trigger a Braze Campaign via API-triggered delivery',
+  description: 'Trigger a Braze Campaign via API-triggered deliver',
   defaultSubscription: 'type = "track"',
   dynamicFields: {
     ...dynamicFields
