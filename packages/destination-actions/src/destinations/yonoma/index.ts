@@ -21,14 +21,15 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
+      return request('https://api.yonoma.io/integration/authenticate', {
+        method: 'GET'
+      })
     }
   },
   extendRequest: ({ settings }) => {
     return { 
-      headers: { 
+      headers: {
+        "User-Agent": "Segment",
         "Content-Type": "application/json",
         'Authorization': `Bearer ${settings.apiKey}` } 
     }
