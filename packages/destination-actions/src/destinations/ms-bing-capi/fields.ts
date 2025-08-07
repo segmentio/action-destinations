@@ -1,81 +1,6 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 import { getCurrencyChoices } from './sendEvent/utils'
 
-export const data: InputField = {
-  label: 'Data',
-  description: 'TODO - description for this field',
-  type: 'object',
-  required: true,
-  properties: {
-    eventType: {
-      label: 'Event Type',
-      description: 'The type of event being sent to the Bing API.',
-      type: 'string',
-      required: true,
-      choices: [
-        { label: 'Page Load', value: 'pageLoad' },
-        { label: 'Custom', value: 'custom' }
-      ]
-    },
-    eventId: {
-      label: 'Event ID',
-      description: 'EventID for deduplication. Defaults to the Segment messageId.',
-      type: 'string'
-    },
-    eventName: {
-      label: 'Event Name',
-      description: 'Event action for custom conversion goals, if used.',
-      type: 'string'
-    },
-    eventTime: {
-      label: 'Event Time',
-      description: 'The time the event occurred.',
-      type: 'string',
-      format: 'date-time',
-      required: true
-    },
-    eventSourceUrl: {
-      label: 'Event Source URL',
-      description: 'URL of the page, used for example: “destination URL” goals. Required for pageLoad events.',
-      type: 'string',
-      required: {
-        conditions: [{ fieldKey: 'eventDetails.eventType', operator: 'is', value: 'pageLoad' }]
-      }
-    },
-    pageLoadId: {
-      label: 'Page Load ID',
-      description: 'Page load id that links to 0+ custom events from the same page. Format as a v4 UUID. ',
-      type: 'string'
-    },
-    referrerUrl: {
-      label: 'Referrer URL',
-      description: 'Referrer of the page, used for example: "referral" remarketing lists.',
-      type: 'string'
-    },
-    pageTitle: {
-      label: 'Page Title',
-      description: 'Title of the page.',
-      type: 'string'
-    },
-    keywords: {
-      label: 'Keywords',
-      description: 'Page keywords - SEO meta keyworls.',
-      type: 'string'
-    }
-  },
-  default: {
-    eventType: { '@path': '$.properties.event_type' },
-    eventId: { '@path': '$.messageId' },
-    eventName: { '@path': '$.event' },
-    eventTime: { '@path': '$.timestamp' },
-    eventSourceUrl: { '@path': '$.context.page.url' },
-    pageLoadId: { '@path': '$.properties.page_load_id' },
-    referrerUrl: { '@path': '$.context.page.referrer' },
-    pageTitle: { '@path': '$.context.page.title' },
-    keywords: { '@path': '$.properties.keywords' }
-  }
-}
-
 export const userData: InputField = {
   label: 'User Data',
   description: 'A list of user identifiers associated with the event.',
@@ -101,8 +26,7 @@ export const userData: InputField = {
       label: 'Email',
       description:
         'Email address of the user. Accepts a clear text or hashed email address. Segment will ensure the email address is hashed before sending to Bing Ads.',
-      type: 'string',
-      format: 'email'
+      type: 'string'
     },
     ph: {
       label: 'Phone',
@@ -147,6 +71,81 @@ export const userData: InputField = {
         else: { '@path': '$.integrations.Ms Bing Capi.msclkid' }
       }
     }
+  }
+}
+
+export const data: InputField = {
+  label: 'Data',
+  description: 'TODO - description for this field',
+  type: 'object',
+  required: true,
+  properties: {
+    eventType: {
+      label: 'Event Type',
+      description: 'The type of event being sent to the Bing API.',
+      type: 'string',
+      required: true,
+      choices: [
+        { label: 'Page Load', value: 'pageLoad' },
+        { label: 'Custom', value: 'custom' }
+      ]
+    },
+    eventId: {
+      label: 'Event ID',
+      description: 'EventID for deduplication. Defaults to the Segment messageId.',
+      type: 'string'
+    },
+    eventName: {
+      label: 'Event Name',
+      description: 'Event action for custom conversion goals, if used.',
+      type: 'string'
+    },
+    eventTime: {
+      label: 'Event Time',
+      description: 'The time the event occurred.',
+      type: 'string',
+      required: true
+    },
+    eventSourceUrl: {
+      label: 'Event Source URL',
+      description: 'URL of the page, used for example: “destination URL” goals. Required for pageLoad events.',
+      type: 'string',
+      required: {
+        conditions: [{ fieldKey: 'eventDetails.eventType', operator: 'is', value: 'pageLoad' }]
+      }
+    },
+    pageLoadId: {
+      label: 'Page Load ID',
+      description: 'Page load id that links to 0+ custom events from the same page. Format as a v4 UUID. ',
+      type: 'string'
+    },
+    referrerUrl: {
+      label: 'Referrer URL',
+      description: 'Referrer of the page, used for example: "referral" remarketing lists.',
+      type: 'string'
+    },
+    pageTitle: {
+      label: 'Page Title',
+      description: 'Title of the page.',
+      type: 'string'
+    },
+    keywords: {
+      label: 'Keywords',
+      description: 'Page keywords - SEO meta keyworls.',
+      type: 'string'
+    },
+    userData: userData
+  },
+  default: {
+    eventType: { '@path': '$.properties.event_type' },
+    eventId: { '@path': '$.messageId' },
+    eventName: { '@path': '$.event' },
+    eventTime: { '@path': '$.timestamp' },
+    eventSourceUrl: { '@path': '$.context.page.url' },
+    pageLoadId: { '@path': '$.properties.page_load_id' },
+    referrerUrl: { '@path': '$.context.page.referrer' },
+    pageTitle: { '@path': '$.context.page.title' },
+    keywords: { '@path': '$.properties.keywords' }
   }
 }
 

@@ -1,4 +1,4 @@
-export const url = `https://capi.uet.microsoft.com/v1/${tagID}/events`
+export const API_URL = `https://capi.uet.microsoft.com/v1/`
 
 export const CURRENCY_ISO_CODES = new Set([
   'AED',
