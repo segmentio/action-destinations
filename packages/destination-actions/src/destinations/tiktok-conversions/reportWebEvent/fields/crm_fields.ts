@@ -13,8 +13,7 @@ export const crm_fields: Record<string, InputField> = {
         label: 'TikTok Lead ID',
         description:
           'ID of TikTok leads. Every lead will have its own lead_id when exported from TikTok. This feature is in Beta. Please contact your TikTok representative to inquire regarding availability',
-        type: 'string',
-        required: true
+        type: 'string'
       },
       lead_event_source: {
         label: 'TikTok Lead Event Source',
