@@ -5,7 +5,6 @@ import { CJ } from './types'
 import sitePage from './sitePage'
 import order from './order'
 
-// Declare global to access your client
 declare global {
   interface Window {
     cj: CJ

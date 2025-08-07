@@ -995,25 +995,10 @@ export const orderFields: Record<string, InputField> = {
   },
   pageType: {
     label: 'Page Type',
-    description: 'Page type to be sent to CJ.',
+    description: 'Page type to be sent to CJ. Must be set to "conversionConfirmation" for order events.',
     type: 'string',
     choices: [
-      { label: 'Account Center', value: 'accountCenter' },
-      { label: 'Account Signup', value: 'accountSignup' },
-      { label: 'Application Start', value: 'applicationStart' },
-      { label: 'Branch Locator', value: 'branchLocator' },
-      { label: 'Cart', value: 'cart' },
-      { label: 'Category', value: 'category' },
-      { label: 'Conversion Confirmation', value: 'conversionConfirmation' },
-      { label: 'Department', value: 'department' },
-      { label: 'Homepage', value: 'homepage' },
-      { label: 'Information', value: 'information' },
-      { label: 'Product Detail', value: 'productDetail' },
-      { label: 'Property Detail', value: 'propertyDetail' },
-      { label: 'Property Results', value: 'propertyResults' },
-      { label: 'Search Results', value: 'searchResults' },
-      { label: 'Store Locator', value: 'storeLocator' },
-      { label: 'Sub Category', value: 'subCategory' }
+      { label: 'Conversion Confirmation', value: 'conversionConfirmation' }
     ],
     required: true,
     default: 'conversionConfirmation',
@@ -1044,7 +1029,7 @@ export const orderFields: Record<string, InputField> = {
     label: 'Action Tracker ID',
     description:
       'Required if not specified in Settings. This is a static value provided by CJ. Each account may have multiple actions and each will be referenced by a different actionTrackerId value.',
-    type: 'string' // required either at Setting level or Action level. Will validate in the perform()
+    type: 'string' 
   },
   currency: {
     label: 'Currency',
