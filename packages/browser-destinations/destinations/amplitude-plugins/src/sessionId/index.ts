@@ -3,20 +3,21 @@ import { UniversalStorage } from '@segment/analytics-next'
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { Analytics } from '@segment/analytics-next'
 
 function newSessionId(): number {
   return now()
 }
 
-function startSession(eventName = 'session_started') {
-  window.analytics
+function startSession(analytics: Analytics, eventName = 'session_started') {
+  analytics
     .track(eventName, {})
     .then(() => true)
     .catch(() => true)
 }
 
-function endSession(eventName = 'session_ended') {
-  window.analytics
+function endSession(analytics: Analytics, eventName = 'session_ended') {
+  analytics
     .track(eventName, {})
     .then(() => true)
     .catch(() => true)
@@ -126,14 +127,14 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     const withInSessionLimit = withinSessionLimit(newSession, updated, payload.sessionLength)
     if (!withInSessionLimit && payload.allowSessionTracking) {
       // end previous session
-      endSession(payload.sessionEndEvent)
+      endSession(analytics, payload.sessionEndEvent)
     }
 
     let id: number | null = raw
     if (stale(raw, updated, payload.sessionLength)) {
       id = newSession
       storage.set('analytics_session_id', id)
-      if (payload.allowSessionTracking) startSession(payload.sessionStartEvent)
+      if (payload.allowSessionTracking) startSession(analytics, payload.sessionStartEvent)
     } else {
       // we are storing the session id regardless, so it gets synced between different storage mediums
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- id can't be null because of stale check

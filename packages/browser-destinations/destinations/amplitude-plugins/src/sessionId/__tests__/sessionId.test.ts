@@ -32,7 +32,17 @@ const example: Subscription[] = [
     name: 'SessionId',
     enabled: true,
     subscribe: 'type = "track"',
-    mapping: {}
+    mapping: {
+      allowSessionTracking: {
+        '@path': '$.properties.allowSessionTracking'
+      },
+      sessionStartEvent: {
+        '@path': '$.properties.sessionStartEvent'
+      },
+      sessionEndEvent: {
+        '@path': '$.properties.sessionEndEvent'
+      }
+    }
   }
 ]
 
@@ -169,6 +179,42 @@ describe('sessionId', () => {
       const updatedCtx = await sessionIdPlugin.track?.(ctx)
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
       expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(id())
+    })
+
+    test('sets a session id and send session start track event when allowSessionTracking is true', async () => {
+      const ctx = new Context({
+        type: 'track',
+        event: 'greet',
+        properties: {
+          greeting: 'Oi!',
+          allowSessionTracking: true
+        }
+      })
+
+      const updatedCtx = await sessionIdPlugin.track?.(ctx)
+      // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+      expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(id())
+      expect(window.analytics.track).toHaveBeenCalledWith('session_ended', {})
+      expect(window.analytics.track).toHaveBeenCalledWith('session_started', {})
+    })
+
+    test('session event with custom name', async () => {
+      const ctx = new Context({
+        type: 'track',
+        event: 'greet',
+        properties: {
+          greeting: 'Oi!',
+          allowSessionTracking: true,
+          sessionStartEvent: 'Session Started',
+          sessionEndEvent: 'Session Ended'
+        }
+      })
+
+      const updatedCtx = await sessionIdPlugin.track?.(ctx)
+      // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+      expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(id())
+      expect(window.analytics.track).toHaveBeenCalledWith('Session Ended', {})
+      expect(window.analytics.track).toHaveBeenCalledWith('Session Started', {})
     })
 
     test('persists the session id', async () => {
