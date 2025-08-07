@@ -17,6 +17,5 @@ export function send(tagId): Promise<void> {
       a = b.getElementsByTagName(c)[0]
       a.parentNode.insertBefore(d, a)
     })()
-    console.log(`CJ script loaded with tagId: ${tagId}`)
   })
 }
