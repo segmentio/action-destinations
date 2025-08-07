@@ -571,45 +571,7 @@ describe('Tiktok Conversions', () => {
         userId: 'testId123'
       })
 
-      nock('https://business-api.tiktok.com/open_api/v1.3/event/track').post('/').reply(200, {})
-      const responses = await testDestination.testAction('reportWebEvent', {
-        event,
-        settings,
-        useDefaultMappings: true,
-        mapping: {
-          event: 'AddToCart',
-          test_event_code: 'TEST04030',
-          contents: {
-            '@arrayPath': [
-              '$.properties',
-              {
-                price: {
-                  '@path': '$.price'
-                },
-                quantity: {
-                  '@path': '$.quantity'
-                },
-                content_category: {
-                  '@path': '$.category'
-                },
-                content_id: {
-                  '@path': '$.product_id'
-                },
-                content_name: {
-                  '@path': '$.name'
-                },
-                brand: {
-                  '@path': '$.brand'
-                }
-              }
-            ]
-          }
-        }
-      })
-
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].options.json).toMatchObject({
+      const json = {
         data: [
           {
             event: 'AddToCart',
@@ -651,7 +613,46 @@ describe('Tiktok Conversions', () => {
         event_source_id: 'test',
         partner_name: 'Segment',
         test_event_code: 'TEST04030'
+      }
+
+      nock('https://business-api.tiktok.com/open_api/v1.3/event/track').post('/', json).reply(200, {})
+      const responses = await testDestination.testAction('reportWebEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          event: 'AddToCart',
+          test_event_code: 'TEST04030',
+          contents: {
+            '@arrayPath': [
+              '$.properties',
+              {
+                price: {
+                  '@path': '$.price'
+                },
+                quantity: {
+                  '@path': '$.quantity'
+                },
+                content_category: {
+                  '@path': '$.category'
+                },
+                content_id: {
+                  '@path': '$.product_id'
+                },
+                content_name: {
+                  '@path': '$.name'
+                },
+                brand: {
+                  '@path': '$.brand'
+                }
+              }
+            ]
+          }
+        }
       })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
     })
   })
 })

@@ -30,7 +30,7 @@ export function send(request: RequestClient, settings: Settings, payload: Payloa
   const event_source = payload.event_source ?? WEB
 
   const requestJson: TTJSON = {
-    event_source,
+    event_source: event_source ? event_source : WEB,
     event_source_id: settings.pixelCode,
     partner_name: 'Segment',
     test_event_code: test_event_code ? test_event_code : undefined,
@@ -48,10 +48,14 @@ export function send(request: RequestClient, settings: Settings, payload: Payloa
           ...(event_spec_type === VEHICLE_FIELDS && event_source === WEB ? getAutoProps(payload) : {})
         },
         ...((url || referrer) ? { page: { ...(url && { url }), ...(referrer && { referrer }) } } : {}),
-        ...(event_source === CRM && (lead_id || lead_event_source) 
-          ? { lead: { ...(lead_id && { lead_id }), ...(lead_event_source && { lead_event_source }) } } 
-          : {}
-        ),
+        ...(event_source === CRM && typeof lead_id === 'string'
+          ? {
+              lead: {
+                lead_id,
+                ...(lead_event_source && { lead_event_source })
+              }
+            }
+          : {}),
         limited_data_use: typeof limited_data_use === 'boolean' ? limited_data_use : false
       }
     ]
@@ -173,7 +177,7 @@ function getTravelProps(payload: Payload): TTTravelProps {
     departing_departure_date,
     returning_departure_date,
     origin_airport,
-    destination_airiport,
+    destination_airport,
     destination_ids,
     departing_arrival_date,
     returning_arrival_date,
@@ -198,7 +202,7 @@ function getTravelProps(payload: Payload): TTTravelProps {
     ...(departing_departure_date !== undefined && { departing_departure_date }),
     ...(returning_departure_date !== undefined && { returning_departure_date }),
     ...(origin_airport !== undefined && { origin_airport }),
-    ...(destination_airiport !== undefined && { destination_airiport }),
+    ...(destination_airport !== undefined && { destination_airport }),
     ...(destination_ids !== undefined && { destination_ids }),
     ...(departing_arrival_date !== undefined && { departing_arrival_date }),
     ...(returning_arrival_date !== undefined && { returning_arrival_date }),
@@ -256,13 +260,13 @@ function getAutoProps(payload: Payload): TTAutoProps {
     ...(viewcontent_type !== undefined && { viewcontent_type }),
     ...(search_type !== undefined && { search_type }),
     ...(registration_type !== undefined && { registration_type }),
-    ...(mileage_unit !== undefined && mileage_value !== undefined && {
+    ...(mileage_unit !== undefined && typeof mileage_value === 'number' && {
       mileage: {
         unit: mileage_unit,
         value: mileage_value
       }
     }),
-    ...(preferred_price_range_min !== undefined && preferred_price_range_max !== undefined && {
+    ...(typeof preferred_price_range_min === 'number' && typeof preferred_price_range_max === 'number' && {
       preferred_price_range: [preferred_price_range_min, preferred_price_range_max]
     })
   }  

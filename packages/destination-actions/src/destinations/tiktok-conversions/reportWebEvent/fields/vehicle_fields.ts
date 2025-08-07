@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core'
-import { VEHICLE_FIELDS, WEB } from './constants'
+import { VEHICLE_FIELDS, WEB } from '../constants'
 
 export const vehicle_fields: InputField = {
   label: 'Vehicle Fields',
@@ -46,7 +46,11 @@ export const vehicle_fields: InputField = {
     mileage_unit: {
       label: 'Mileage Unit',
       type: 'string',
-      description: 'Mileage unites in miles (MI) or kilometers (KM).'
+      description: 'Mileage unites in miles (MI) or kilometers (KM).',
+      choices: [
+        { value: 'MI', label: 'Miles' },
+        { value: 'KM', label: 'Kilometers' }
+      ]
     },
     exterior_color: {
       label: 'Exterior Color of the Vehicle',
@@ -147,19 +151,37 @@ export const vehicle_fields: InputField = {
     viewcontent_type: {
       label: 'Soft Lead Landing Page',
       type: 'string',
-      description: 'Optional for ViewContent. Use viewcontent_type to differentiate between soft lead landing pages.'
+      description: 'Optional for ViewContent. Use viewcontent_type to differentiate between soft lead landing pages.',
+      depends_on: {
+        match: 'any',
+        conditions:[
+          { fieldKey: 'event', operator: 'is', value: 'ViewContent' }
+        ]
+      }
     },
     search_type: {
       label: 'Other Search Page',
       type: 'string',
       description:
-        'Optional for Search. Use search_type to differentiate other user searches (such as dealer lookup) from inventory search.'
+        'Optional for Search. Use search_type to differentiate other user searches (such as dealer lookup) from inventory search.',
+      depends_on: {
+        match: 'any',
+        conditions:[
+          { fieldKey: 'event', operator: 'is', value: 'Search' }
+        ]
+      }
     },
     registration_type: {
       label: 'Other Registration Page',
       type: 'string',
       description:
-        'Optional for CompleteRegistration. Use registration_type to differentiate between different types of customer registration on websites.'
+        'Optional for CompleteRegistration. Use registration_type to differentiate between different types of customer registration on websites.',
+      depends_on: {
+        match: 'any',
+        conditions:[
+          { fieldKey: 'event', operator: 'is', value: 'CompleteRegistration' }
+        ]
+      }
     }
   },
   default: {

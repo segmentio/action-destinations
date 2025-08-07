@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core'
-import { TRAVEL_FIELDS, WEB } from './constants'
+import { TRAVEL_FIELDS, WEB } from '../constants'
 
 export const travel_fields: InputField = {
   label: 'Travel Fields',
@@ -50,7 +50,7 @@ export const travel_fields: InputField = {
     },
     suggested_hotels: {
       label: 'Suggested Hotels',
-      description: 'Suggested hotels.',
+      description: 'Suggested hotels. This can be a single string value or an array of string values.',
       type: 'string',
       multiple: true
     },
@@ -71,7 +71,7 @@ export const travel_fields: InputField = {
       type: 'string',
       description: 'Origin airport.'
     },
-    destination_airiport: {
+    destination_airport: {
       label: 'Destination Airport',
       type: 'string',
       description: 'Destination airport.'
@@ -79,7 +79,7 @@ export const travel_fields: InputField = {
     destination_ids: {
       label: 'Destination IDs',
       description:
-        'If a client has a destination catalog, the client can associate one or more destinations in the catalog with a specific flight event. For instance, link a particular route to a nearby museum and a nearby beach, both of which are destinations in the catalog.',
+        'If a client has a destination catalog, the client can associate one or more destinations in the catalog with a specific flight event. For instance, link a particular route to a nearby museum and a nearby beach, both of which are destinations in the catalog. This field accepts a single string value or an array of string values.',
       type: 'string',
       multiple: true
     },
@@ -100,7 +100,6 @@ export const travel_fields: InputField = {
       type: 'string',
       description: 'Class of the flight ticket, must be: "eco", "prem", "bus", "first".',
       choices: [
-        // TODO: have choices & default mapping?
         { value: 'eco', label: 'Economy' },
         { value: 'prem', label: 'Premium' },
         { value: 'bus', label: 'Bus' },
@@ -114,7 +113,7 @@ export const travel_fields: InputField = {
     },
     preferred_num_stops: {
       label: 'Preferred Number of Stops',
-      type: 'number',
+      type: 'integer',
       description: 'The preferred number of stops the user is looking for. 0 for direct flight.'
     },
     travel_start: {
@@ -132,7 +131,7 @@ export const travel_fields: InputField = {
     suggested_destinations: {
       label: 'Suggested Destination IDs',
       description:
-        'A list of IDs representing destination suugestions for this user. This parameter is not applicable for the Search event.',
+        'A list of IDs representing destination suggestions for this user. This parameter is not applicable for the Search event. This field accepts a single string value or an array of string values.',
       type: 'string',
       multiple: true
     }
@@ -163,7 +162,7 @@ export const travel_fields: InputField = {
       '@path': '$.properties.num_infants'
     },
     suggested_hotels: {
-      '@path': '$.properties.suggested_hotels' // TODO: confirm multiple value mapping
+      '@path': '$.properties.suggested_hotels' // Confirmed this can be a single string or an array of strings
     },
     departing_departure_date: {
       '@path': '$.properties.departing_departure_date'
@@ -178,7 +177,7 @@ export const travel_fields: InputField = {
       '@path': '$.properties.destination_airiport'
     },
     destination_ids: {
-      '@path': '$.properties.destination_ids' // TODO: confirm multiple value mapping
+      '@path': '$.properties.destination_ids' // Confirmed this can be a single string or an array of strings
     },
     departing_arrival_date: {
       '@path': '$.properties.departing_arrival_date'
@@ -202,7 +201,7 @@ export const travel_fields: InputField = {
       '@path': '$.properties.travel_end'
     },
     suggested_destinations: {
-      '@path': '$.properties.suggested_destinations' // TODO: confirm multiple value mapping
+      '@path': '$.properties.suggested_destinations' // Confirmed this can be a single string or an array of strings
     }
   },
   depends_on: {

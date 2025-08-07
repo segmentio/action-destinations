@@ -17,7 +17,7 @@ interface TTDataItem {
   }
   limited_data_use: boolean
   lead?: {
-    lead_id?: string
+    lead_id: string
     lead_event_source?: string
   }
 }

@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core'
-import { VEHICLE_FIELDS, TRAVEL_FIELDS, WEB, CRM } from './constants'
+import { VEHICLE_FIELDS, TRAVEL_FIELDS, WEB, CRM } from '../constants'
 
 export const common_fields: Record<string, InputField> = {
   event_source: {
@@ -219,13 +219,6 @@ export const common_fields: Record<string, InputField> = {
       }
     }
   },
-  lead_id: {
-    label: 'TikTok Lead ID',
-    description:
-      'ID of TikTok leads. Every lead will have its own lead_id when exported from TikTok. This feature is in Beta. Please contact your TikTok representative to inquire regarding availability',
-    type: 'string',
-    default: { '@path': '$.properties.lead_id' }
-  },
   locale: {
     label: 'Locale',
     description:
@@ -305,6 +298,23 @@ export const common_fields: Record<string, InputField> = {
       }
     }
   },
+  content_ids: {
+    label: 'Content IDs',
+    description: "Product IDs associated with the event, such as SKUs. Do not populate this field if the 'Contents' field is populated. This field accepts a single string value or an array of string values.",
+    type: 'string',
+    multiple: true,
+    default: {
+      '@path': '$.properties.content_ids'
+    }
+  },
+  num_items: {
+    label: 'Number of Items',
+    type: 'number',
+    description: 'Number of items when checkout was initiated. Used with the InitiateCheckout event.',
+    default: {
+      '@path': '$.properties.num_items'
+    }
+  },
   content_type: {
     label: 'Content Type',
     description:
@@ -363,18 +373,6 @@ export const common_fields: Record<string, InputField> = {
     type: 'string',
     description:
       'Use this field to specify that events should be test events rather than actual traffic. You can find your Test Event Code in your TikTok Events Manager under the "Test Event" tab. You\'ll want to remove your Test Event Code when sending real traffic through this integration.'
-  }
-}
-
-export const new_fields: Record<string, InputField> = {
-  content_ids: {
-    label: 'Content IDs',
-    description: 'Product IDs associated with the event, such as SKUs.',
-    type: 'string',
-    multiple: true,
-    default: {
-      '@path': '$.properties.content_ids' // TODO: check multiple value mapping
-    }
   },
   delivery_category: {
     label: 'Delivery Category',
@@ -389,14 +387,6 @@ export const new_fields: Record<string, InputField> = {
       { value: 'home_delivery', label: 'Home Delivery - Purchase is delivered to the customer.' }
     ]
   },
-  num_items: {
-    label: 'Number of Items',
-    type: 'number',
-    description: 'Number of items when checkout was initiated. Used with the InitiateCheckout event.',
-    default: {
-      '@path': '$.properties.num_items'
-    }
-  },
   predicted_ltv: {
     label: 'Prediected Lifetime Value',
     type: 'number',
@@ -409,41 +399,16 @@ export const new_fields: Record<string, InputField> = {
   search_string: {
     label: 'Search String',
     type: 'string',
-    description: 'The text string entered by the user for the search. Used with the Search event.',
+    description: 'The text string entered by the user for the search. Optionally used with the Search event.',
     default: {
       '@path': '$.properties.search_string'
-    }
-  },
-  lead_fields: {
-    label: 'CRM Fields',
-    type: 'object',
-    description: 'Fields related to CRM events.',
-    additionalProperties: false,
-    defaultObjectUI: 'keyvalue',
-    properties: {
-      lead_id: {
-        label: 'TikTok Lead ID',
-        description:
-          'ID of TikTok leads. Every lead will have its own lead_id when exported from TikTok. This feature is in Beta. Please contact your TikTok representative to inquire regarding availability',
-        type: 'string'
-      },
-      lead_event_source: {
-        label: 'TikTok Lead Event Source',
-        description:
-          'Lead source of TikTok leads. Please set this field to the name of your CRM system, such as HubSpot or Salesforce.',
-        type: 'string'
-      }
-    },
-    default: {
-      lead_id: { '@path': '$.properties.lead_id' },
-      lead_event_source: { '@path': '$.properties.lead_event_source' }
     },
     depends_on: {
       conditions: [
         {
-          fieldKey: 'event_source',
+          fieldKey: 'event',
           operator: 'is',
-          value: CRM
+          value: 'Search'
         }
       ]
     }

@@ -6,7 +6,7 @@ export interface Payload {
    */
   event_source?: string
   /**
-   * Include fields for travel or auto events.
+   * Include fields for travel or vehicle events.
    */
   event_spec_type?: string
   /**
@@ -79,10 +79,6 @@ export interface Payload {
    */
   ttp?: string
   /**
-   * ID of TikTok leads. Every lead will have its own lead_id when exported from TikTok. This feature is in Beta. Please contact your TikTok representative to inquire regarding availability
-   */
-  lead_id?: string
-  /**
    * The BCP 47 language identifier. For reference, refer to the [IETF BCP 47 standardized code](https://www.rfc-editor.org/rfc/bcp/bcp47.txt).
    */
   locale?: string
@@ -132,6 +128,14 @@ export interface Payload {
     brand?: string
   }[]
   /**
+   * Product IDs associated with the event, such as SKUs. Do not populate this field if the 'Contents' field is populated. This field accepts a single string value or an array of string values.
+   */
+  content_ids?: string[]
+  /**
+   * Number of items when checkout was initiated. Used with the InitiateCheckout event.
+   */
+  num_items?: number
+  /**
    * Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.
    */
   content_type?: string
@@ -160,23 +164,15 @@ export interface Payload {
    */
   test_event_code?: string
   /**
-   * Product IDs associated with the event, such as SKUs.
-   */
-  content_ids?: string[]
-  /**
    * Category of the delivery.
    */
   delivery_category?: string
-  /**
-   * Number of items when checkout was initiated. Used with the InitiateCheckout event.
-   */
-  num_items?: number
   /**
    * Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.
    */
   predicted_ltv?: number
   /**
-   * The text string entered by the user for the search. Used with the Search event.
+   * The text string entered by the user for the search. Optionally used with the Search event.
    */
   search_string?: string
   /**
@@ -195,7 +191,7 @@ export interface Payload {
   /**
    * Fields related to vehicle events.
    */
-  autoFields?: {
+  vehicle_fields?: {
     /**
      * Postal code for the vehicle location.
      */
@@ -284,7 +280,7 @@ export interface Payload {
   /**
    * Fields related to travel events.
    */
-  travelFields?: {
+  travel_fields?: {
     /**
      * Hotel city location.
      */
@@ -318,7 +314,7 @@ export interface Payload {
      */
     num_infants?: number
     /**
-     * Suggested hotels.
+     * Suggested hotels. This can be a single string value or an array of string values.
      */
     suggested_hotels?: string[]
     /**
@@ -336,9 +332,9 @@ export interface Payload {
     /**
      * Destination airport.
      */
-    destination_airiport?: string
+    destination_airport?: string
     /**
-     * If a client has a destination catalog, the client can associate one or more destinations in the catalog with a specific flight event. For instance, link a particular route to a nearby museum and a nearby beach, both of which are destinations in the catalog.
+     * If a client has a destination catalog, the client can associate one or more destinations in the catalog with a specific flight event. For instance, link a particular route to a nearby museum and a nearby beach, both of which are destinations in the catalog. This field accepts a single string value or an array of string values.
      */
     destination_ids?: string[]
     /**
@@ -370,7 +366,7 @@ export interface Payload {
      */
     travel_end?: string
     /**
-     * A list of IDs representing destination suugestions for this user. This parameter is not applicable for the Search event.
+     * A list of IDs representing destination suggestions for this user. This parameter is not applicable for the Search event. This field accepts a single string value or an array of string values.
      */
     suggested_destinations?: string[]
   }
