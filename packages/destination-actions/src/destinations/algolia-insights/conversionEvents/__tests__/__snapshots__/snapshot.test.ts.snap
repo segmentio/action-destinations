@@ -4,6 +4,7 @@ exports[`Testing snapshot for AlgoliaInsights's conversionEvents destination act
 Object {
   "events": Array [
     Object {
+      "authenticatedUserToken": ")j)vR5%1AP*epuo8A%R",
       "currency": "CUC",
       "eventName": ")j)vR5%1AP*epuo8A%R",
       "eventSubtype": "addToCart",
@@ -34,6 +35,7 @@ exports[`Testing snapshot for AlgoliaInsights's conversionEvents destination act
 Object {
   "events": Array [
     Object {
+      "authenticatedUserToken": "user1234",
       "eventName": "Conversion Event",
       "eventSubtype": "purchase",
       "eventType": "conversion",

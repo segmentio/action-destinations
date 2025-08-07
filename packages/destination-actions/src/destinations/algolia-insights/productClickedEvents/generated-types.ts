@@ -18,9 +18,13 @@ export interface Payload {
    */
   position?: number
   /**
-   * The ID associated with the user.
+   * The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token
    */
   userToken: string
+  /**
+   * The authenticated ID associated with the user.
+   */
+  authenticatedUserToken?: string
   /**
    * The timestamp of the event.
    */
