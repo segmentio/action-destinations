@@ -39,7 +39,7 @@ export interface Payload {
      */
     phone?: string
     /**
-     * Contact's date of birth in YYYY-MM-DD format.
+     * Contact's date of birth in YYYY-MM-DD or ISO8601 format.
      */
     dateOfBirth?: string
     /**
@@ -66,7 +66,7 @@ export interface Payload {
   /**
    * Indicates if the Contact is subscribed or unsubscribed from marketing emails. Set to true to subscribe, false to unsubscribe.
    */
-  status?: boolean
+  status: boolean
   /**
    * List of tags to add to the Contact. Can be a single string or array of tags. Tags must already exist in Yonoma.
    */

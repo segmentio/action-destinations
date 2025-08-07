@@ -1,7 +1,9 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
 import upsertContact from './upsertContact'
+import trackEvent from './trackEvent'
+import sendEvent from './sendEvent'
+import trackPageView from './trackPageView'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Yonoma',
@@ -32,7 +34,10 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    upsertContact
+    upsertContact,
+    trackEvent,
+    sendEvent,
+    trackPageView
   }
 }
 

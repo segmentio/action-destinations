@@ -1,7 +1,7 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { UPSERT_CONTACT_URL, TAG_CONTACT_URL, UNTAG_CONTACT_URL } from './contants'
+import { UPSERT_CONTACT_URL, TAG_CONTACT_URL, UNTAG_CONTACT_URL } from './constants'
 import { UpsertContactJSON } from './types'
 import { formatDate } from './functions'
 
@@ -15,6 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       description: 'Unique identifiers for the contact. At least one of userId or anonymousId is required.',
       required: true,
+      additionalProperties: false,
       properties: {
         userId: {
           label: 'User ID',
