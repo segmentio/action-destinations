@@ -21,7 +21,8 @@ export default {
       personas_computation_key: { '@path': '$.context.personas.computation_key' },
       personas_computation_id: { '@path': '$.context.personas.computation_id' },
       personas_computation_run_id: { '@path': '$.context.personas.computation_run_id' },
-      personas_activation_id: { '@path': '$.context.personas.event_emitter_id' }
+      personas_activation_id: { '@path': '$.context.personas.event_emitter_id' },
+      event_name: { '@path': '$.event' }
     }
   }
 }
