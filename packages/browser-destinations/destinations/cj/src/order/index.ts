@@ -70,6 +70,10 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
       ...verticalType === 'network' ? networkServicesVerticals : {}
     }
 
+    if ('customerCountry' in order && typeof order.customerCountry === 'string') {
+      order.customerCountry = order.customerCountry.split('-').pop() || undefined
+    }
+
     setOrderJSON(cj, order)
     const { tagId } = settings
     send(tagId)

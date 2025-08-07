@@ -319,7 +319,8 @@ describe('CJ init', () => {
       context: {
         traits: {
           email: 'test@test.com'
-        }
+        },
+        locale: 'en-US'
       },
       properties: {
         order_id: 'abc12345',
@@ -353,7 +354,7 @@ describe('CJ init', () => {
         confirmation_number: 999888777,
         coupon_discount: 15,
         coupon_type: 'percent',
-        customer_country: 'US',
+        customer_country: 'en-US',
         customer_segment: 'Loyal',
         customer_status: 'Return',
         customer_type: 'GroupBuyer',
@@ -442,6 +443,7 @@ describe('CJ init', () => {
       confirmationNumber: 999888777,
       couponDiscount: 15,
       couponType: 'percent',
+      customerCountry: 'US',
       customerSegment: 'Loyal',
       customerStatus: 'Return',
       customerType: 'GroupBuyer',
