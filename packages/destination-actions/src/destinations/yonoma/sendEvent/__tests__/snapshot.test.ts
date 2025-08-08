@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'upsertContact'
+const actionSlug = 'sendEvent'
 const destinationSlug = 'Yonoma'
 const seedName = `${destinationSlug}#${actionSlug}`
 
@@ -21,9 +21,16 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
+    event.userId = "testuserid"
+
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: {
+        ...event.properties,
+        identifiers: {
+          userId: { '@path': '$.userId' }
+        }
+      },
       settings: settingsData,
       auth: undefined
     })

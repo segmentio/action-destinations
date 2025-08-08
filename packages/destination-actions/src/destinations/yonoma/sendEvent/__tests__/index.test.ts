@@ -2,7 +2,6 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
-import { SEND_EVENT_URL } from '../constants'
 
 let testDestination = createTestIntegration(Definition)
 const settings: Settings = {
@@ -13,7 +12,6 @@ const payload = {
   event: 'Test Event',
   type: 'track',
   userId: 'x_id',
-  anonymousId: 'anon_id',
   properties: {
     email: 'test@test.com',
     list_id: 'list_id',
@@ -30,7 +28,6 @@ const mapping = {
   event: { '@path': '$.event' },
   identifiers: {
     userId: { '@path': '$.userId' },
-    anonymousId: { '@path': '$.anonymousId' },
     email: { '@path': '$.properties.email' }
   },
   listId: { '@path': '$.properties.list_id' },
@@ -52,20 +49,17 @@ describe('Yonoma', () => {
 
 
       const json = {
-        event: 'Test Event',
-        userId: 'x_id',
-        anonymousId: 'anon_id',
-        email: 'test@test.com',
-        listId: 'list_id',
+        event: "Test Event",
+        userId: "x_id",
+        listId: "list_id",
         properties: {
-          email: 'test@test.com',
-          list_id: 'list_id',
-          prop1: 'value1',
+          prop1: "value1",
           prop2: true,
           prop3: 123,
-          prop4: ['value1', 'value2'],
-          prop5: { nested: 'value' }
-        }
+          prop4: ["value1", "value2"],
+          prop5: { nested: "value" }
+        },
+        timestamp: "2023-10-01T00:00:00Z"
       }
       nock('https://api.yonoma.io').post('/integration/segment/sendevent', json).reply(200, {})
 

@@ -37,7 +37,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         userId: { '@path': '$.userId' },
         anonymousId: { '@path': '$.anonymousId' },
-        email: { '@path': '$.traits.email' }
+        email: { 
+          '@if': {
+            exists: { '@path': '$.context.traits.email' },
+            then: { '@path': '$.context.traits.email' },
+            else: { '@path': '$.properties.email' }
+          }
+        }
       }
     },
     listId: {
@@ -45,7 +51,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: "The Yonoma list to add the contact to.",
       required: true,
-      default: { '@path': '$.traits.list_id' }
+      default: { 
+        '@if': {
+          exists: { '@path': '$.context.traits.list_id' },
+          then: { '@path': '$.context.traits.list_id' },
+          else: { '@path': '$.properties.list_id' }
+        }
+      }
     },
     properties: {
       label: 'Event Properties',
@@ -66,18 +78,21 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, {payload}) => {
     const {
       event,
-      listId,
       properties,
       identifiers: {
         userId,
         email,
       } = {},
+      listId,
       timestamp
     } = payload
 
     if(!userId && !email) {
       throw new PayloadValidationError('At least one identifier (userId or email) is required.')
     }
+
+    delete properties?.email
+    delete properties?.list_id 
 
     const json: SendEventJSON = {
       event,
