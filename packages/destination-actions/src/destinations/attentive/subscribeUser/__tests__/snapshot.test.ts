@@ -68,8 +68,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         ...event.properties,
         userIdentifiers: {
           userId: "testuserid"
-        }, 
-        locale: "en-US",
+        },
+        signUpSourceId: "test-signup-source-id",
+        locale: ""
       },
       settings: settingsData,
       auth: undefined
