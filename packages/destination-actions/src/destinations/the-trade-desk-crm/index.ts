@@ -6,8 +6,6 @@ import { getAllDataSegments } from './functions'
 import syncAudience from './syncAudience'
 export const API_VERSION = 'v3'
 const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
-const SEGMENT_TYPE = 'targeting'
-const DATA_PROVIDER_ID = 'twilio'
 
 export interface CreateApiResponse {
   CrmDataId: string
@@ -63,6 +61,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         required: true,
         default: true
       }
+    },
+    testAuthentication: (request, { settings }) => {
+      return request(`${BASE_URL}/crmdata/segment/${settings.advertiser_id}`, {
+        method: 'GET',
+        headers: {
+          'TTD-Auth': settings.auth_token,
+          'Content-Type': 'application/json'
+        }
+      })
     }
   },
   extendRequest({ settings }) {
@@ -102,22 +109,18 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const response: ModifiedResponse<CreateApiResponse> = await request(
-        `${BASE_URL}/crmdata/${SEGMENT_TYPE}/segment`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'TTD-Auth': authToken
-          },
-          json: {
-            AdvertiserId: advertiserId,
-            SegmentName: audienceName,
-            Region: region,
-            DataProviderId: DATA_PROVIDER_ID
-          }
+      const response: ModifiedResponse<CreateApiResponse> = await request(`${BASE_URL}/crmdata/segment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'TTD-Auth': authToken
+        },
+        json: {
+          AdvertiserId: advertiserId,
+          SegmentName: audienceName,
+          Region: region
         }
-      )
+      })
 
       if (response.status !== 200) {
         throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
