@@ -29,8 +29,8 @@ export function validate(payload: CustomEvent | EcommEvent | CustomAttributesEve
 
 export function validateSubscribeUser(payload: SubscribeUserEvent) {
   const { signUpSourceId, locale } = payload
-  if (!signUpSourceId && !locale) {
-    throw new PayloadValidationError('Either locale or signUpSourceId is required.')
+  if ([signUpSourceId, locale].filter(Boolean).length !== 1) {
+    throw new PayloadValidationError('Exactly one of signUpSourceId or locale should be provided.')
   }
 }
 
