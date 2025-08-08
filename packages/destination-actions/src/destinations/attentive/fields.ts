@@ -192,7 +192,6 @@ export const locale: InputField = {
   label: 'Locale',
   description: 'User locale. e.g. "en-US". Either Locale or Signup Source ID is required.',
   type: 'string',
-  allowNull: false,
   default: { '@path': '$.context.locale' }
 }
 

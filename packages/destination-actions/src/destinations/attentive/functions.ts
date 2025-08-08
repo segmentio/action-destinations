@@ -29,8 +29,8 @@ export function validate(payload: CustomEvent | EcommEvent | CustomAttributesEve
 
 export function validateSubscribeUser(payload: SubscribeUserEvent) {
   const { signUpSourceId, locale } = payload
-  if (!signUpSourceId && !locale) {
-    throw new PayloadValidationError('Either locale or signUpSourceId is required.')
+  if ([signUpSourceId, locale].filter(Boolean).length !== 1) {
+    throw new PayloadValidationError('Exactly one of signUpSourceId or locale should be provided.')
   }
 }
 
@@ -57,10 +57,7 @@ function formatItems(items: Items): Array<Item> {
   }))
 }
 
-function formatLocale(locale?: string): { language: string; country: string } {
-  if (!locale) {
-    throw new PayloadValidationError('Locale Signup Source ID is required.')
-  }
+function formatLocale(locale: string): { language: string; country: string } {
   const parts = locale.split('-')
   if (parts.length !== 2 || !parts[0] || !parts[1]) {
     throw new PayloadValidationError('Invalid locale format. Expected format: "language-country" e.g. "en-US".')
@@ -108,13 +105,13 @@ export function formatUpsertUserAttributesJSON(payload: CustomAttributesEvent): 
 }
 
 export function formatSubscribeUserJSON(payload: SubscribeUserEvent): SubscribeUserJSON {
-  const { externalEventId, occurredAt, userIdentifiers, subscriptionType, signUpSourceId, singleOptIn } = payload
+  const { externalEventId, occurredAt, userIdentifiers, subscriptionType, signUpSourceId, singleOptIn, locale } = payload
   return {
     externalEventId,
     occurredAt,
     subscriptionType: subscriptionType as SubscriptionType,
-    locale: formatLocale(payload?.locale),
-    signUpSourceId,
+    ...(locale ? { locale: formatLocale(locale) } : {}),
+    ...(signUpSourceId? { signUpSourceId } : {}),
     singleOptIn,
     user: formatUser(userIdentifiers)
   }
