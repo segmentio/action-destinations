@@ -130,6 +130,7 @@ describe('Liveramp Audiences', () => {
         expect(e.status).toEqual(400)
       }
     })
+
     it(`should throw error if S3 bucket name is invalid`, async () => {
       try {
         await testDestination.executeBatch('audienceEnteredS3', {

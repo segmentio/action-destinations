@@ -13,6 +13,7 @@ interface SendToAWSRequest {
   uploadType: 's3' | 'sftp'
   filename: string
   fileContents: Buffer
+  gzipCompressFile?: boolean
   sftpInfo?: {
     sftpUsername?: string
     sftpPassword?: string
