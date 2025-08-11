@@ -2,7 +2,6 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
-import { stat } from 'fs'
 
 let testDestination = createTestIntegration(Definition)
 const settings: Settings = {
@@ -13,7 +12,7 @@ const payload = {
   type: 'identify',
   userId: 'x_id',
   anonymousId: 'anon_id',
-  context : {
+  context: {
     page: {
       title: 'Test Page',
       url: 'https://example.com/test-page',
@@ -59,7 +58,7 @@ const mapping = {
     country: { '@path': '$.traits.address.country' },
     zipcode: { '@path': '$.traits.address.postal_code' }
   },
-  status: {'@path': '$.traits.consented'},
+  status: { '@path': '$.traits.consented' },
   tags_to_add: { '@path': '$.traits.tags_to_add' },
   tags_to_remove: { '@path': '$.traits.tags_to_remove' }
 }
@@ -70,47 +69,45 @@ beforeEach((done) => {
   done()
 })
 
-
 describe('Yonoma', () => {
   describe('upsertContact', () => {
     it('should send an upsertContact payload to Yonoma', async () => {
       const event = createTestEvent(payload)
 
-
       const jsonUpsertContact = {
-        userId: "x_id",
-        anonymousId: "anon_id",
-        email: "test@test.com",
-        listId: "list_id",
+        userId: 'x_id',
+        anonymousId: 'anon_id',
+        email: 'test@test.com',
+        listId: 'list_id',
         status: true,
         properties: {
-          firstName: "Jimmyjoe",
-          lastName: "Doe",
-          phone: "+1234567890",
-          dateOfBirth: "1990-01-01",
-          address: "123 Main St",
-          city: "Anytown",
-          state: "CA",
-          country: "USA",
-          zipcode: "12345"
+          firstName: 'Jimmyjoe',
+          lastName: 'Doe',
+          phone: '+1234567890',
+          dateOfBirth: '1990-01-01',
+          address: '123 Main St',
+          city: 'Anytown',
+          state: 'CA',
+          country: 'USA',
+          zipcode: '12345'
         }
       }
       nock('https://api.yonoma.io').post('/integration/segment/upsertcontact', jsonUpsertContact).reply(200, {})
 
       const jsonTag = {
-        userId: "x_id",
-        email: "test@test.com",
-        listId: "list_id",
-        tags: ["tag1", "tag2"]
+        userId: 'x_id',
+        email: 'test@test.com',
+        listId: 'list_id',
+        tags: ['tag1', 'tag2']
       }
 
       nock('https://api.yonoma.io').post('/integration/segment/tagcontact', jsonTag).reply(200, {})
 
       const jsonUntagContact = {
-        userId: "x_id",
-        email: "test@test.com",
-        listId: "list_id",
-        tags: ["tag3"]
+        userId: 'x_id',
+        email: 'test@test.com',
+        listId: 'list_id',
+        tags: ['tag3']
       }
 
       nock('https://api.yonoma.io').post('/integration/segment/untagcontact', jsonUntagContact).reply(200, {})
@@ -123,7 +120,65 @@ describe('Yonoma', () => {
       })
 
       expect(response.length).toBe(3)
+    })
 
+    it('upsertContact should handle birthday with ISO8601 format', async () => {
+      const payloadWithIsoBirthday = {
+        ...payload,
+        traits: {
+          ...payload.traits,
+          birthday: '1990-01-01T10:05:00Z' // ISO8601 format
+        }
+      }
+
+      const event = createTestEvent(payloadWithIsoBirthday)
+
+      const jsonUpsertContact = {
+        userId: 'x_id',
+        anonymousId: 'anon_id',
+        email: 'test@test.com',
+        listId: 'list_id',
+        status: true,
+        properties: {
+          firstName: 'Jimmyjoe',
+          lastName: 'Doe',
+          phone: '+1234567890',
+          dateOfBirth: '1990-01-01',
+          address: '123 Main St',
+          city: 'Anytown',
+          state: 'CA',
+          country: 'USA',
+          zipcode: '12345'
+        }
+      }
+      nock('https://api.yonoma.io').post('/integration/segment/upsertcontact', jsonUpsertContact).reply(200, {})
+
+      const jsonTag = {
+        userId: 'x_id',
+        email: 'test@test.com',
+        listId: 'list_id',
+        tags: ['tag1', 'tag2']
+      }
+
+      nock('https://api.yonoma.io').post('/integration/segment/tagcontact', jsonTag).reply(200, {})
+
+      const jsonUntagContact = {
+        userId: 'x_id',
+        email: 'test@test.com',
+        listId: 'list_id',
+        tags: ['tag3']
+      }
+
+      nock('https://api.yonoma.io').post('/integration/segment/untagcontact', jsonUntagContact).reply(200, {})
+
+      const response = await testDestination.testAction('upsertContact', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping
+      })
+
+      expect(response.length).toBe(3)
     })
   })
 })
