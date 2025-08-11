@@ -109,7 +109,7 @@ const action: ActionDefinition<Settings, Payload> = {
         city: { '@path': '$.traits.address.city' },
         state: { '@path': '$.traits.address.state' },
         country: { '@path': '$.traits.address.country' },
-        zipcode: { '@path': '$.traits.address.zipcode' }
+        zipcode: { '@path': '$.traits.address.postal_code' }
       }
     },
     status: {

@@ -111,6 +111,9 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('At least one identifier (userId, email, or anonymousId) is required.')
     }
 
+    delete properties?.email
+    delete properties?.list_id
+
     const json: TrackPageEventJSON = {
       url: url as string,
       ...(referrer ? { referrer } : {}),
