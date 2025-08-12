@@ -1,7 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
 import reportWebEvent from './reportWebEvent'
 
 const productProperties = {
