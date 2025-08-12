@@ -29,7 +29,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         ...event.properties,
         identifiers: {
           userId: { '@path': '$.userId' }
-        }
+        },
+        timestamp: "2024-01-01T00:00:00.000Z",
       },
       settings: settingsData,
       auth: undefined
@@ -63,7 +64,13 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: {
+        ...event.properties,
+        identifiers: {
+          userId: { '@path': '$.userId' }
+        },
+        timestamp: "2024-01-01T00:00:00.000Z",
+      },
       settings: settingsData,
       auth: undefined
     })
