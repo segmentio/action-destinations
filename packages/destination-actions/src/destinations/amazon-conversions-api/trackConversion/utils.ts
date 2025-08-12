@@ -17,11 +17,10 @@ import type {
   EventDataSuccessResponseV1,
   EventDataErrorResponseV1,
   MatchKeyV1,
-  ConversionTypeV2,
   CurrencyCodeV1,
   CustomAttributeV1
 } from '../types'
-import { MatchKeyTypeV1, Region } from '../types'
+import { MatchKeyTypeV1, Region, ConversionTypeV2 } from '../types'
 import type { Payload } from './generated-types'
 
 /**
@@ -393,8 +392,12 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
 
   Object.assign(eventData, {
     ...(payload.value !== undefined && { value: payload.value }),
-    ...(payload.currencyCode && { currencyCode: payload.currencyCode as CurrencyCodeV1 }),
-    ...(payload.unitsSold !== undefined && { unitsSold: payload.unitsSold }),
+    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.currencyCode && {
+      currencyCode: payload.currencyCode as CurrencyCodeV1
+    }),
+    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.unitsSold !== undefined && {
+      unitsSold: payload.unitsSold
+    }),
     ...(payload.clientDedupeId && { clientDedupeId: payload.clientDedupeId }),
     ...(payload.dataProcessingOptions && { dataProcessingOptions: payload.dataProcessingOptions }),
     ...(consent && { consent }),

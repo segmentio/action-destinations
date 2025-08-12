@@ -341,4 +341,156 @@ describe('processPayload', () => {
 
     expect(mockRequest).not.toHaveBeenCalled()
   })
+
+  it('should handle payload without email field', async () => {
+    const payload: Payload[] = [
+      {
+        custom_audience_name: 'demo_audience',
+        segment_computation_action: 'audience',
+        append_arrays: false,
+        traits_or_props: {
+          demo_audience: true
+        },
+        user_id: '123',
+        event_type: 'identify',
+        timestamp: '2023-03-06T14:57:04.135Z'
+      }
+    ]
+
+    await processPayload(mockRequest, payload)
+    expect(mockRequest).toHaveBeenCalledWith('https://unification.useinsider.com/api/user/v1/upsert', {
+      method: 'POST',
+      json: {
+        users: [
+          {
+            identifiers: {
+              uuid: '123'
+            },
+            attributes: {
+              custom: {
+                segment_audience_name: ['demo_audience']
+              }
+            }
+          }
+        ],
+        not_append: true,
+        platform: 'segment'
+      }
+    })
+  })
+
+  it('should handle payload with only anonymous_id when email is missing', async () => {
+    const payload: Payload[] = [
+      {
+        custom_audience_name: 'demo_audience',
+        segment_computation_action: 'audience',
+        append_arrays: false,
+        traits_or_props: {
+          demo_audience: true
+        },
+        anonymous_id: 'anon-123',
+        event_type: 'identify',
+        timestamp: '2023-03-06T14:57:04.135Z'
+      }
+    ]
+
+    await processPayload(mockRequest, payload)
+    expect(mockRequest).toHaveBeenCalledWith('https://unification.useinsider.com/api/user/v1/upsert', {
+      method: 'POST',
+      json: {
+        users: [
+          {
+            identifiers: {
+              custom: {
+                segment_anonymous_id: 'anon-123'
+              }
+            },
+            attributes: {
+              custom: {
+                segment_audience_name: ['demo_audience']
+              }
+            }
+          }
+        ],
+        not_append: true,
+        platform: 'segment'
+      }
+    })
+  })
+
+  it('should handle payload with empty email field', async () => {
+    const payload: Payload[] = [
+      {
+        custom_audience_name: 'demo_audience',
+        segment_computation_action: 'audience',
+        append_arrays: false,
+        email: '',
+        traits_or_props: {
+          demo_audience: true
+        },
+        user_id: '123',
+        event_type: 'identify',
+        timestamp: '2023-03-06T14:57:04.135Z'
+      }
+    ]
+
+    await processPayload(mockRequest, payload)
+    expect(mockRequest).toHaveBeenCalledWith('https://unification.useinsider.com/api/user/v1/upsert', {
+      method: 'POST',
+      json: {
+        users: [
+          {
+            identifiers: {
+              uuid: '123'
+            },
+            attributes: {
+              custom: {
+                segment_audience_name: ['demo_audience']
+              }
+            }
+          }
+        ],
+        not_append: true,
+        platform: 'segment'
+      }
+    })
+  })
+
+  it('should handle payload with null email field', async () => {
+    const payload: Payload[] = [
+      {
+        custom_audience_name: 'demo_audience',
+        segment_computation_action: 'audience',
+        append_arrays: false,
+        email: null as any,
+        traits_or_props: {
+          demo_audience: true
+        },
+        user_id: '123',
+        event_type: 'identify',
+        timestamp: '2023-03-06T14:57:04.135Z'
+      }
+    ]
+
+    await processPayload(mockRequest, payload)
+    expect(mockRequest).toHaveBeenCalledWith('https://unification.useinsider.com/api/user/v1/upsert', {
+      method: 'POST',
+      json: {
+        users: [
+          {
+            identifiers: {
+              uuid: '123'
+            },
+            attributes: {
+              custom: {
+                segment_audience_name: ['demo_audience']
+              }
+            }
+          }
+        ],
+        not_append: true,
+        platform: 'segment'
+      }
+    })
+  })
 })

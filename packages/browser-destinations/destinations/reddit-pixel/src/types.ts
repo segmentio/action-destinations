@@ -2,7 +2,8 @@ export interface RedditPixel {
   page: () => void
   init: (
     pixelId: string,
-    ldu?: {
+    options?: {
+      partner?: string
       dpm?: string
       dpcc?: string
       dprc?: string

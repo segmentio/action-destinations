@@ -27,7 +27,6 @@ Object {
     "country": "US",
     "language": "en",
   },
-  "signUpSourceId": "*Cc5M#wXxFe",
   "subscriptionType": "MARKETING",
   "user": Object {
     "externalIdentifiers": Object {

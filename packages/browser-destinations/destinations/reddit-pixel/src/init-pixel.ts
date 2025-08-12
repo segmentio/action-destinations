@@ -16,9 +16,9 @@ export function initializePixel(settings) {
     }
   })(window, document)
 
-  rdt.init = (pixel_id, ldu) => {
+  rdt.init = (pixel_id, options = {}) => {
     if (!rdt.init_already_called) {
-      rdt('init', pixel_id, ldu)
+      rdt('init', pixel_id, options)
     }
     rdt.init_already_called = true
   }

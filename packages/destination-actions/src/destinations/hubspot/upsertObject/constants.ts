@@ -18,5 +18,3 @@ export const SUPPORTED_HUBSPOT_OBJECT_TYPES = [
 ]
 
 export const MAX_HUBSPOT_BATCH_SIZE = 100
-
-export const HUBSPOT_DEDUPLICATION_FLAGON = 'hubspot-object-deduplication'
