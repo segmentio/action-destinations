@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Product IDs of the viewed items.
+   * Product IDs of the viewed items. Defaults to an array of `products.product_id`.
    */
   objectIDs: string[]
   /**
