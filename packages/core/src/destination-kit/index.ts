@@ -27,7 +27,10 @@ import type {
   Deletion,
   DeletionPayload,
   DynamicFieldResponse,
-  ResultMultiStatusNode
+  ResultMultiStatusNode,
+  AsyncOperationResponse,
+  PollResponse,
+  PollInput
 } from './types'
 import type { AllRequestOptions } from '../request-client'
 import { ErrorCodes, IntegrationError, InvalidAuthenticationError, MultiStatusErrorReporter } from '../errors'
@@ -44,7 +47,10 @@ export type {
   ActionHookType,
   ExecuteInput,
   RequestFn,
-  Result
+  Result,
+  AsyncOperationResponse,
+  PollResponse,
+  PollInput
 }
 export { hookTypeStrings }
 export type { MinimalInputField }
@@ -702,11 +708,11 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   public async executeDynamicField(
     actionSlug: string,
     fieldKey: string,
-    data: ExecuteDynamicFieldInput<Settings, object>,
+    data: ExecuteDynamicFieldInput<Settings, object, AudienceSettings>,
     /**
      * The dynamicFn argument is optional since it is only used by dynamic hook input fields. (For now)
      */
-    dynamicFn?: RequestFn<Settings, any, DynamicFieldResponse, AudienceSettings>
+    dynamicFn?: RequestFn<Settings, unknown, DynamicFieldResponse, AudienceSettings>
   ) {
     const action = this.actions[actionSlug]
     if (!action) {
