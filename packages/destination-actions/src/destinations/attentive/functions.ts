@@ -1,13 +1,19 @@
 import { PayloadValidationError } from '@segment/actions-core'
-import { Item, User, EcommEventJSON, CustomEventJSON, UpsertUserAttributesJSON, SubscribeUserJSON, SubscriptionType } from './types'
+import {
+  Item,
+  User,
+  EcommEventJSON,
+  CustomEventJSON,
+  UpsertUserAttributesJSON,
+  SubscribeUserJSON,
+  SubscriptionType
+} from './types'
 import { Payload as CustomEvent } from './customEvents/generated-types'
 import { Payload as EcommEvent } from './ecommEvent/generated-types'
 import { Payload as CustomAttributesEvent } from './upsertUserAttributes/generated-types'
 import { Payload as SubscribeUserEvent } from './subscribeUser/generated-types'
 
-type UserIdentifiers =
-  | CustomEvent['userIdentifiers']
-  | EcommEvent['userIdentifiers']
+type UserIdentifiers = CustomEvent['userIdentifiers'] | EcommEvent['userIdentifiers']
 
 type Items = EcommEvent['items']
 
@@ -19,10 +25,10 @@ export function validate(payload: CustomEvent | EcommEvent | CustomAttributesEve
   if (!email && !phone && !clientUserId && Object.keys(customIdentifiers).length === 0) {
     throw new PayloadValidationError('At least one user identifier is required.')
   }
-} 
+}
 
 export function validateSubscribeUser(payload: SubscribeUserEvent) {
-  const { userIdentifiers, locale } = payload 
+  const { userIdentifiers, locale } = payload
   if (!userIdentifiers && !locale) {
     throw new PayloadValidationError('Either locale or signUpSourceId is required.')
   }
@@ -49,13 +55,13 @@ function formatItems(items: Items): Array<Item> {
     ...rest,
     price: {
       value,
-      currency,
+      currency
     }
   }))
 }
 
-function formatLocale(locale?: string): { language: string, country: string } {
-  if(!locale) {
+function formatLocale(locale?: string): { language: string; country: string } {
+  if (!locale) {
     throw new PayloadValidationError('Locale Signup Source ID is required.')
   }
   const parts = locale.split('-')
@@ -76,15 +82,9 @@ export function formatEcommEventJSON(payload: EcommEvent): EcommEventJSON {
 }
 
 export function formatCustomEventJSON(payload: CustomEvent): CustomEventJSON {
-  const {
-    externalEventId,
-    type, 
-    properties,
-    occurredAt,
-    userIdentifiers
-  } = payload
-  
-  if (Object.values(properties ?? {}).some(value => Array.isArray(value))) {
+  const { externalEventId, type, properties, occurredAt, userIdentifiers } = payload
+
+  if (Object.values(properties ?? {}).some((value) => Array.isArray(value))) {
     throw new PayloadValidationError('Properties cannot contain arrays.')
   }
 
@@ -98,12 +98,9 @@ export function formatCustomEventJSON(payload: CustomEvent): CustomEventJSON {
 }
 
 export function formatUpsertUserAttributesJSON(payload: CustomAttributesEvent): UpsertUserAttributesJSON {
-  const { 
-    properties,  
-    userIdentifiers 
-  } = payload
+  const { properties, userIdentifiers } = payload
 
-  if (Object.values(properties ?? {}).some(value => typeof value === 'object' || Array.isArray(value))) {
+  if (Object.values(properties ?? {}).some((value) => typeof value === 'object' || Array.isArray(value))) {
     throw new PayloadValidationError('Properties cannot contain objects or arrays.')
   }
 
@@ -114,13 +111,14 @@ export function formatUpsertUserAttributesJSON(payload: CustomAttributesEvent): 
 }
 
 export function formatSubscribeUserJSON(payload: SubscribeUserEvent): SubscribeUserJSON {
-  const { externalEventId, occurredAt, userIdentifiers, subscriptionType, signUpSourceId, singleOptIn } = payload
+  const { externalEventId, occurredAt, userIdentifiers, subscriptionType, signUpSourceId, singleOptIn, locale } =
+    payload
   return {
     externalEventId,
     occurredAt,
     subscriptionType: subscriptionType as SubscriptionType,
-    locale: formatLocale(payload?.locale),
-    signUpSourceId,
+    ...(locale ? { locale: formatLocale(locale) } : {}),
+    ...(signUpSourceId ? { signUpSourceId } : {}),
     singleOptIn,
     user: formatUser(userIdentifiers)
   }

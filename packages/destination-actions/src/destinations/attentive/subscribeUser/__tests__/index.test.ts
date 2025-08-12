@@ -32,8 +32,7 @@ const mapping = {
   },
   subscriptionType: 'MARKETING',
   signUpSourceId: 'WEB',
-  singleOptIn: false,
-  locale: 'en-US'
+  singleOptIn: false
 }
 
 beforeEach(() => {
@@ -45,6 +44,18 @@ describe('Attentive.subscribeUser', () => {
   it('should send a subscription request to Attentive', async () => {
     const event = createTestEvent(validPayload)
 
+    const json = {
+      externalEventId: '123e4567-e89b-12d3-a456-426614174000',
+      occurredAt: '2024-01-08T13:52:50.212Z',
+      subscriptionType: 'MARKETING',
+      signUpSourceId: 'WEB',
+      singleOptIn: false,
+      user: {
+        phone: '+3538675765689',
+        email: 'test@test.com'
+      }
+    }
+
     // Use a function to loosely match the body instead of exact object
     nock('https://api.attentivemobile.com', {
       reqheaders: {
@@ -53,20 +64,7 @@ describe('Attentive.subscribeUser', () => {
         'user-agent': 'Segment (Actions)'
       }
     })
-      .post('/v1/subscriptions', (body) => {
-        // Verify essential fields exist
-        return (
-          body &&
-          body.externalEventId === event.messageId &&
-          body.subscriptionType === 'MARKETING' &&
-          body.signUpSourceId === 'WEB' &&
-          body.singleOptIn === false &&
-          (body.locale === 'en-US' || (body.locale.language === 'en' && body.locale.country === 'US')) && // support either format
-          body.user &&
-          body.user.phone === '+3538675765689' &&
-          body.user.email === 'test@test.com'
-        )
-      })
+      .post('/v1/subscriptions', json)
       .reply(200, {})
 
     const responses = await testDestination.testAction('subscribeUser', {
@@ -112,6 +110,17 @@ describe('Attentive.subscribeUser', () => {
 
     const event = createTestEvent(partialPayload)
 
+    const json = {
+      externalEventId: '123e4567-e89b-12d3-a456-426614174000',
+      occurredAt: '2024-01-08T13:52:50.212Z',
+      subscriptionType: 'MARKETING',
+      signUpSourceId: 'WEB',
+      singleOptIn: false,
+      user: {
+        phone: '+3538675765689'
+      }
+    }
+
     nock('https://api.attentivemobile.com', {
       reqheaders: {
         authorization: 'Bearer test-api-key',
@@ -119,19 +128,7 @@ describe('Attentive.subscribeUser', () => {
         'user-agent': 'Segment (Actions)'
       }
     })
-      .post('/v1/subscriptions', (body) => {
-        return (
-          body &&
-          body.externalEventId === event.messageId &&
-          body.subscriptionType === 'MARKETING' &&
-          body.signUpSourceId === 'WEB' &&
-          body.singleOptIn === false &&
-          (body.locale === 'en-US' || (body.locale.language === 'en' && body.locale.country === 'US')) &&
-          body.user &&
-          body.user.phone === '+3538675765689' &&
-          !body.user.email
-        )
-      })
+      .post('/v1/subscriptions', json)
       .reply(200, {})
 
     const responses = await testDestination.testAction('subscribeUser', {

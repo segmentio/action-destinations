@@ -4,8 +4,8 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'subscribeUser'
-const destinationSlug = 'Attentive'
+const actionSlug = 'trackPageView'
+const destinationSlug = 'Yonoma'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
@@ -21,14 +21,16 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
+    event.userId = 'testuserid'
+
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: {
         ...event.properties,
-        userIdentifiers: {
-          userId: 'testuserid'
+        identifiers: {
+          userId: { '@path': '$.userId' }
         },
-        locale: 'en-US'
+        timestamp: '2024-01-01T00:00:00.000Z'
       },
       settings: settingsData,
       auth: undefined
@@ -64,11 +66,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: {
         ...event.properties,
-        userIdentifiers: {
-          userId: 'testuserid'
+        identifiers: {
+          userId: { '@path': '$.userId' }
         },
-        signUpSourceId: 'test-signup-source-id',
-        locale: ''
+        timestamp: '2024-01-01T00:00:00.000Z'
       },
       settings: settingsData,
       auth: undefined
