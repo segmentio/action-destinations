@@ -68,8 +68,8 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
   async testDynamicField(
     action: string,
     fieldKey: string,
-    data: ExecuteDynamicFieldInput<T, object>,
-    dynamicFn?: RequestFn<any, any, DynamicFieldResponse, AudienceSettings>
+    data: ExecuteDynamicFieldInput<T, object, AudienceSettings>,
+    dynamicFn?: RequestFn<unknown, unknown, DynamicFieldResponse, AudienceSettings>
   ) {
     return await super.executeDynamicField(action, fieldKey, data, dynamicFn)
   }

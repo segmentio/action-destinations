@@ -16,7 +16,13 @@ import type {
   DynamicFieldContext,
   ActionDestinationSuccessResponseType,
   ActionDestinationErrorResponseType,
-  ResultMultiStatusNode
+  ResultMultiStatusNode,
+  AsyncOperationResponse,
+  MultiAsyncOperationResponse,
+  PollResponse,
+  MultiPollResponse,
+  PollInput,
+  MultiPollInput
 } from './types'
 import { syncModeTypes } from './types'
 import { HTTPError, NormalizedOptions } from '../request-client'
@@ -91,7 +97,11 @@ type GenericActionHookValues = Record<string, HookValueTypes>
 type IsArray<T> = T extends (infer U)[] ? U : never
 
 // Multi-status response from a batch request
-type PerformBatchResponse = MaybePromise<MultiStatusResponse> | MaybePromise<unknown>
+type PerformBatchResponse =
+  | MaybePromise<MultiStatusResponse>
+  | MaybePromise<AsyncOperationResponse>
+  | MaybePromise<MultiAsyncOperationResponse>
+  | MaybePromise<unknown>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ActionDefinition<
@@ -134,10 +144,25 @@ export interface ActionDefinition<
   }
 
   /** The operation to perform when this action is triggered */
-  perform: RequestFn<Settings, Payload, any, AudienceSettings>
+  perform: RequestFn<Settings, Payload, unknown, AudienceSettings>
 
   /** The operation to perform when this action is triggered for a batch of events */
   performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings>
+
+  /**
+   * The operation to poll for the status of an async operation initiated by performBatch.
+   * This method is only required if performBatch returns AsyncOperationResponse.
+   */
+  poll?: (request: RequestClient, data: PollInput<Settings, AudienceSettings>) => MaybePromise<PollResponse>
+
+  /**
+   * The operation to poll for the status of multiple async operations initiated by performBatch.
+   * This method is only required if performBatch returns MultiAsyncOperationResponse.
+   */
+  pollMultiple?: (
+    request: RequestClient,
+    data: MultiPollInput<Settings, AudienceSettings>
+  ) => MaybePromise<MultiPollResponse>
 
   /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
    * destination using the provided inputs and return a response. The response may then optionally be stored
@@ -205,7 +230,7 @@ export interface ActionHookDefinition<
   >
 }
 
-export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = any> {
+export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = unknown> {
   settings: Settings
   audienceSettings?: AudienceSettings
   payload: Payload
@@ -218,7 +243,7 @@ export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = 
   dynamicFieldContext?: DynamicFieldContext
 }
 
-interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, ActionHookValues = any> {
+interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = unknown, ActionHookValues = unknown> {
   data: Data
   settings: T
   audienceSettings?: AudienceSettings
@@ -253,13 +278,14 @@ const isSyncMode = (value: unknown): value is SyncMode => {
  * Action is the beginning step for all partner actions. Entrypoints always start with the
  * MapAndValidateInput step.
  */
-export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings = any> extends EventEmitter {
+export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings = unknown> extends EventEmitter {
   readonly definition: ActionDefinition<Settings, Payload, AudienceSettings>
   readonly destinationName: string
   readonly schema?: JSONSchema4
   readonly hookSchemas?: Record<string, JSONSchema4>
   readonly hasBatchSupport: boolean
   readonly hasHookSupport: boolean
+  readonly hasAsyncSupport: boolean
   // Payloads may be any type so we use `any` explicitly here.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extendRequest: RequestExtension<Settings, any> | undefined
@@ -277,6 +303,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     this.extendRequest = extendRequest
     this.hasBatchSupport = typeof definition.performBatch === 'function'
     this.hasHookSupport = definition.hooks !== undefined
+    this.hasAsyncSupport = typeof definition.poll === 'function' || typeof definition.pollMultiple === 'function'
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
       this.schema = fieldsToJsonSchema(definition.fields)
@@ -520,6 +547,43 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         return multiStatusResponse
       }
 
+      // PerformBatch returned an AsyncOperationResponse
+      if (this.isAsyncOperationResponse(performBatchResponse)) {
+        // For async operations, we return a success status with the operation details
+        this.fillMultiStatusResponse({
+          multiStatusResponse,
+          invalidPayloadIndices,
+          batchPayloadLength,
+          status: 202, // Accepted - processing started
+          body: {
+            operationId: performBatchResponse.operationId,
+            status: performBatchResponse.status,
+            message: performBatchResponse.message || 'Async operation initiated'
+          },
+          filteredPayloads: payloads
+        })
+
+        return multiStatusResponse
+      }
+
+      // PerformBatch returned a MultiAsyncOperationResponse
+      if (this.isMultiAsyncOperationResponse(performBatchResponse)) {
+        // For multi async operations, we return a success status with all operation details
+        this.fillMultiStatusResponse({
+          multiStatusResponse,
+          invalidPayloadIndices,
+          batchPayloadLength,
+          status: 202, // Accepted - processing started
+          body: {
+            operations: performBatchResponse.operations,
+            message: performBatchResponse.message || 'Multiple async operations initiated'
+          },
+          filteredPayloads: payloads
+        })
+
+        return multiStatusResponse
+      }
+
       // PerformBatch returned a Spec V2 compliant MultiStatus Response
       if (performBatchResponse instanceof MultiStatusResponse) {
         let resultsReadIndex = 0
@@ -658,7 +722,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   async executeHook(
     hookType: ActionHookType,
     data: ExecuteInput<Settings, Payload, AudienceSettings>
-  ): Promise<ActionHookResponse<any>> {
+  ): Promise<ActionHookResponse<unknown>> {
     if (!this.hasHookSupport) {
       throw new IntegrationError('This action does not support any hooks.', 'NotImplemented', 501)
     }
@@ -675,7 +739,47 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       })
     }
 
-    return (await this.performRequest(hookFn, data)) as ActionHookResponse<any>
+    return (await this.performRequest(hookFn, data)) as ActionHookResponse<unknown>
+  }
+
+  /**
+   * Poll for the status of an async operation initiated by performBatch
+   */
+  async executePoll(pollInput: PollInput<Settings, AudienceSettings>): Promise<PollResponse> {
+    if (!this.hasAsyncSupport) {
+      throw new IntegrationError('This action does not support async operations or polling.', 'NotImplemented', 501)
+    }
+
+    if (!this.definition.poll) {
+      throw new IntegrationError('Missing poll implementation for async action.', 'NotImplemented', 501)
+    }
+
+    // Create request client for the poll operation
+    const requestClient = this.createPollRequestClient(pollInput)
+
+    // Execute the poll function
+    const response = await this.definition.poll(requestClient, pollInput)
+    return response
+  }
+
+  /**
+   * Poll for the status of multiple async operations initiated by performBatch
+   */
+  async executePollMultiple(pollInput: MultiPollInput<Settings, AudienceSettings>): Promise<MultiPollResponse> {
+    if (!this.hasAsyncSupport) {
+      throw new IntegrationError('This action does not support async operations or polling.', 'NotImplemented', 501)
+    }
+
+    if (!this.definition.pollMultiple) {
+      throw new IntegrationError('Missing pollMultiple implementation for multi-async action.', 'NotImplemented', 501)
+    }
+
+    // Create request client for the poll operation
+    const requestClient = this.createPollRequestClient(pollInput)
+
+    // Execute the pollMultiple function
+    const response = await this.definition.pollMultiple(requestClient, pollInput)
+    return response
   }
 
   /**
@@ -684,7 +788,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
    * and given data bundle
    */
   private async performRequest<T extends Payload | Payload[]>(
-    requestFn: RequestFn<Settings, T, any, AudienceSettings>,
+    requestFn: RequestFn<Settings, T, unknown, AudienceSettings>,
     data: ExecuteInput<Settings, T, AudienceSettings>
   ): Promise<unknown> {
     const requestClient = this.createRequestClient(data)
@@ -693,13 +797,31 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private createRequestClient(data: ExecuteInput<Settings, any>): RequestClient {
+  private createRequestClient(data: ExecuteInput<Settings, unknown>): RequestClient {
     // TODO turn `extendRequest` into a beforeRequest hook
     const options = this.extendRequest?.(data) ?? {}
     return createRequestClient(options, {
       afterResponse: [this.afterResponse.bind(this)],
       statsContext: data.statsContext,
       signal: data?.signal
+    })
+  }
+
+  private createPollRequestClient(
+    data: PollInput<Settings, AudienceSettings> | MultiPollInput<Settings, AudienceSettings>
+  ): RequestClient {
+    // Create a minimal ExecuteInput-like object for the request client
+    const executeInputLike = {
+      ...data,
+      payload: {}, // Poll operations don't need payload data
+      mapping: {},
+      hookOutputs: {}
+    } as ExecuteInput<Settings, unknown, AudienceSettings>
+
+    const options = this.extendRequest?.(executeInputLike) ?? {}
+    return createRequestClient(options, {
+      afterResponse: [this.afterResponse.bind(this)],
+      statsContext: data.statsContext
     })
   }
 
@@ -726,6 +848,41 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     // otherwise, we don't really know what this is, so return as-is
     return response
+  }
+
+  /**
+   * Type guard to check if a response is an AsyncOperationResponse
+   */
+  private isAsyncOperationResponse(response: unknown): response is AsyncOperationResponse {
+    return (
+      typeof response === 'object' &&
+      response !== null &&
+      'operationId' in response &&
+      'status' in response &&
+      typeof (response as AsyncOperationResponse).operationId === 'string' &&
+      ['pending', 'completed', 'failed'].includes((response as AsyncOperationResponse).status)
+    )
+  }
+
+  /**
+   * Type guard to check if a response is a MultiAsyncOperationResponse
+   */
+  private isMultiAsyncOperationResponse(response: unknown): response is MultiAsyncOperationResponse {
+    return (
+      typeof response === 'object' &&
+      response !== null &&
+      'operations' in response &&
+      Array.isArray((response as MultiAsyncOperationResponse).operations) &&
+      (response as MultiAsyncOperationResponse).operations.every(
+        (op) =>
+          typeof op === 'object' &&
+          op !== null &&
+          'operationId' in op &&
+          'status' in op &&
+          typeof op.operationId === 'string' &&
+          ['pending', 'completed', 'failed'].includes(op.status)
+      )
+    )
   }
 
   private fillMultiStatusResponse(input: FillMultiStatusResponseInput) {

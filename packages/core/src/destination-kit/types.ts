@@ -19,6 +19,118 @@ import type { ErrorCodes, MultiStatusErrorReporter } from '../errors'
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 export type MaybePromise<T> = T | Promise<T>
 
+// Response from an async operation
+export interface AsyncOperationResponse {
+  /** The operation ID for polling status */
+  operationId: string
+  /** Current status of the operation */
+  status: 'pending' | 'accepted' | 'processing'
+  /** Optional message describing the operation status */
+  message?: string
+}
+
+// Response from multiple async operations
+export interface MultiAsyncOperationResponse {
+  /** Array of operations, each covering specific payload indices */
+  operations: Array<{
+    /** The operation ID for polling status */
+    operationId: string
+    /** Current status of this operation */
+    status: 'pending' | 'accepted' | 'processing'
+    /** Array of payload indices covered by this operation (0-based) */
+    payloadIndices: number[]
+    /** Optional message describing the operation status */
+    message?: string
+  }>
+  /** Overall batch status */
+  batchStatus: 'pending' | 'completed' | 'partial' | 'failed'
+  /** Optional message describing the overall batch status */
+  message?: string
+}
+
+// Poll response for checking async operation status
+export interface PollResponse {
+  /** Status of the async operation */
+  status: 'pending' | 'completed' | 'failed'
+  /** Optional message describing the operation status */
+  message?: string
+  /** Optional result data when operation is completed */
+  result?: JSONLikeObject
+  /** Optional error details when operation fails */
+  error?: {
+    message: string
+    code?: string
+  }
+}
+
+// Multi-operation poll response for checking multiple async operations
+export interface MultiPollResponse {
+  /** Array of results, one per operation */
+  results: Array<{
+    /** The operation ID this result corresponds to */
+    operationId: string
+    /** Status of this specific operation */
+    status: 'pending' | 'completed' | 'failed'
+    /** Optional message describing the operation status */
+    message?: string
+    /** Results for each payload covered by this operation */
+    payloadResults?: Array<{
+      /** Index of the payload this result corresponds to (0-based) */
+      payloadIndex: number
+      /** Status of this specific payload */
+      status: 'success' | 'failed' | 'pending'
+      /** Result data for this payload */
+      result?: JSONLikeObject
+      /** Error details if this payload failed */
+      error?: {
+        message: string
+        code?: string
+      }
+    }>
+    /** Optional error details when the entire operation fails */
+    error?: {
+      message: string
+      code?: string
+    }
+  }>
+  /** Overall status across all operations */
+  overallStatus: 'pending' | 'completed' | 'partial' | 'failed'
+}
+
+// Poll input data for checking operation status
+export interface PollInput<Settings, AudienceSettings = unknown> {
+  /** The operation ID to poll for */
+  operationId: string
+  /** The global destination settings */
+  settings: Settings
+  /** The audience-specific destination settings */
+  audienceSettings?: AudienceSettings
+  /** The data needed in OAuth requests */
+  auth?: AuthTokens
+  /** For internal Segment/Twilio use only */
+  features?: Features
+  statsContext?: StatsContext
+  logger?: Logger
+  stateContext?: StateContext
+}
+
+// Multi-operation poll input for checking multiple async operations
+export interface MultiPollInput<Settings, AudienceSettings = unknown> {
+  /** Array of operation IDs to poll for */
+  operationIds: string[]
+  /** The global destination settings */
+  settings: Settings
+  /** The audience-specific destination settings */
+  audienceSettings?: AudienceSettings
+  /** The data needed in OAuth requests */
+  auth?: AuthTokens
+  /** For internal Segment/Twilio use only */
+  features?: Features
+  statsContext?: StatsContext
+  logger?: Logger
+  stateContext?: StateContext
+}
+
 /*
   Note: The Cloud Event object that we receive from Centrifuge contains an array of subscriptions,
   the result object below is the result of execution of each subscription.
