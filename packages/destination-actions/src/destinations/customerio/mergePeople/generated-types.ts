@@ -9,4 +9,12 @@ export interface Payload {
    * The person that you want to delete after the merge, identified by id, email or cio_id. This person's information is merged into the primary person's profile and then it is deleted.
    */
   secondary: string
+  /**
+   * Set as true to ensure Segment sends data to Customer.io in batches.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }
