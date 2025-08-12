@@ -113,11 +113,9 @@ const exampleAsyncAction: ActionDefinition<ExampleSettings, ExamplePayload> = {
     const asyncResponse: AsyncOperationResponse = {
       operationId: responseData.operationId,
       status: 'pending',
-      message: `Batch operation initiated for ${payload.length} records`,
-      data: {
-        recordCount: payload.length,
-        estimatedDuration: responseData.estimatedDuration || '5-10 minutes'
-      }
+      message: `Batch operation initiated for ${payload.length} records (estimated duration: ${
+        responseData.estimatedDuration || '5-10 minutes'
+      })`
     }
 
     return asyncResponse

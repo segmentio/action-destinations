@@ -36,13 +36,16 @@ describe('Multi Async Actions', () => {
       async pollMultiple(_request: any, data: MultiPollInput<unknown, unknown>) {
         // Simulate polling multiple operations using context data
         const results = data.operationIds.map((operationId, index) => {
-          const context = data.contexts?.[operationId]
+          // Get context from stateContext instead of a non-existent contexts property
+          const contextData = data.stateContext?.getRequestContext(`operation_${operationId}`)
+          const context = contextData && typeof contextData === 'string' ? JSON.parse(contextData) : {}
+          const priority = context?.priority
           return {
             operationId,
             status: 'completed' as const,
             result: {
               processedName: `processed-${index}`,
-              priority: context?.priority,
+              priority: priority,
               originalIndex: context?.payloadIndex
             }
           }

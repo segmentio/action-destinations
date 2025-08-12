@@ -153,7 +153,16 @@ export interface ActionDefinition<
    * The operation to poll for the status of an async operation initiated by performBatch.
    * This method is only required if performBatch returns AsyncOperationResponse.
    */
-  poll?: (request: RequestClient, data: PollInput<Settings, AudienceSettings>) => MaybePromise<PollResponse>
+  poll?: (
+    request: RequestClient,
+    data: PollInput<Settings, AudienceSettings>,
+    context: {
+      stateContext?: StateContext
+      logger?: Logger
+      features?: Features
+      statsContext?: StatsContext
+    }
+  ) => MaybePromise<PollResponse>
 
   /**
    * The operation to poll for the status of multiple async operations initiated by performBatch.
@@ -161,8 +170,14 @@ export interface ActionDefinition<
    */
   pollMultiple?: (
     request: RequestClient,
-    data: MultiPollInput<Settings, AudienceSettings>
-  ) => MaybePromise<MultiPollResponse>
+    data: MultiPollInput<Settings, AudienceSettings>,
+    context: {
+      stateContext?: StateContext
+      logger?: Logger
+      features?: Features
+      statsContext?: StatsContext
+    }
+  ) => MaybePromise<PollResponse[]>
 
   /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
    * destination using the provided inputs and return a response. The response may then optionally be stored
@@ -757,8 +772,16 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // Create request client for the poll operation
     const requestClient = this.createPollRequestClient(pollInput)
 
+    // Extract context for poll method
+    const context = {
+      stateContext: pollInput.stateContext,
+      logger: pollInput.logger,
+      features: pollInput.features,
+      statsContext: pollInput.statsContext
+    }
+
     // Execute the poll function
-    const response = await this.definition.poll(requestClient, pollInput)
+    const response = await this.definition.poll(requestClient, pollInput, context)
     return response
   }
 
@@ -777,9 +800,34 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // Create request client for the poll operation
     const requestClient = this.createPollRequestClient(pollInput)
 
+    // Extract context for poll method
+    const context = {
+      stateContext: pollInput.stateContext,
+      logger: pollInput.logger,
+      features: pollInput.features,
+      statsContext: pollInput.statsContext
+    }
+
     // Execute the pollMultiple function
-    const response = await this.definition.pollMultiple(requestClient, pollInput)
-    return response
+    const responses = await this.definition.pollMultiple(requestClient, pollInput, context)
+
+    // Transform array of PollResponse to MultiPollResponse
+    const results = responses.map((response, index) => ({
+      operationId: pollInput.operationIds[index],
+      status: response.status,
+      message: response.message,
+      error: response.error
+    }))
+
+    // Determine overall status
+    const allCompleted = results.every((r) => r.status === 'completed')
+    const anyFailed = results.some((r) => r.status === 'failed')
+    const overallStatus = anyFailed ? 'failed' : allCompleted ? 'completed' : 'partial'
+
+    return {
+      results,
+      overallStatus
+    }
   }
 
   /**
