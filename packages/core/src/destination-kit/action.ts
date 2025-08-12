@@ -153,31 +153,13 @@ export interface ActionDefinition<
    * The operation to poll for the status of an async operation initiated by performBatch.
    * This method is only required if performBatch returns AsyncOperationResponse.
    */
-  poll?: (
-    request: RequestClient,
-    data: PollInput<Settings, AudienceSettings>,
-    context: {
-      stateContext?: StateContext
-      logger?: Logger
-      features?: Features
-      statsContext?: StatsContext
-    }
-  ) => MaybePromise<PollResponse>
+  poll?: RequestFn<Settings, PollInput<Settings, AudienceSettings>, PollResponse, AudienceSettings>
 
   /**
    * The operation to poll for the status of multiple async operations initiated by performBatch.
    * This method is only required if performBatch returns MultiAsyncOperationResponse.
    */
-  pollMultiple?: (
-    request: RequestClient,
-    data: MultiPollInput<Settings, AudienceSettings>,
-    context: {
-      stateContext?: StateContext
-      logger?: Logger
-      features?: Features
-      statsContext?: StatsContext
-    }
-  ) => MaybePromise<PollResponse[]>
+  pollMultiple?: RequestFn<Settings, MultiPollInput<Settings, AudienceSettings>, PollResponse[], AudienceSettings>
 
   /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
    * destination using the provided inputs and return a response. The response may then optionally be stored
@@ -772,16 +754,21 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // Create request client for the poll operation
     const requestClient = this.createPollRequestClient(pollInput)
 
-    // Extract context for poll method
-    const context = {
-      stateContext: pollInput.stateContext,
-      logger: pollInput.logger,
+    // Create ExecuteInput object matching RequestFn signature - payload is the poll input
+    const data: ExecuteInput<Settings, PollInput<Settings, AudienceSettings>, AudienceSettings> = {
+      mapping: {},
+      settings: pollInput.settings,
+      audienceSettings: pollInput.audienceSettings,
+      payload: pollInput,
+      auth: pollInput.auth,
       features: pollInput.features,
-      statsContext: pollInput.statsContext
+      statsContext: pollInput.statsContext,
+      logger: pollInput.logger,
+      stateContext: pollInput.stateContext
     }
 
     // Execute the poll function
-    const response = await this.definition.poll(requestClient, pollInput, context)
+    const response = await this.definition.poll(requestClient, data)
     return response
   }
 
@@ -800,16 +787,21 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // Create request client for the poll operation
     const requestClient = this.createPollRequestClient(pollInput)
 
-    // Extract context for poll method
-    const context = {
-      stateContext: pollInput.stateContext,
-      logger: pollInput.logger,
+    // Create ExecuteInput object matching RequestFn signature - payload is the poll input
+    const data: ExecuteInput<Settings, MultiPollInput<Settings, AudienceSettings>, AudienceSettings> = {
+      mapping: {},
+      settings: pollInput.settings,
+      audienceSettings: pollInput.audienceSettings,
+      payload: pollInput,
+      auth: pollInput.auth,
       features: pollInput.features,
-      statsContext: pollInput.statsContext
+      statsContext: pollInput.statsContext,
+      logger: pollInput.logger,
+      stateContext: pollInput.stateContext
     }
 
     // Execute the pollMultiple function
-    const responses = await this.definition.pollMultiple(requestClient, pollInput, context)
+    const responses = await this.definition.pollMultiple(requestClient, data)
 
     // Transform array of PollResponse to MultiPollResponse
     const results = responses.map((response, index) => ({

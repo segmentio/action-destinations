@@ -94,9 +94,8 @@ const testAction: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  async poll(request: RequestClient, data, context) {
-    const { operationId, settings } = data
-    const { stateContext } = context
+  async poll(request: RequestClient, { payload, settings, stateContext }) {
+    const { operationId } = payload
 
     // Retrieve context set by performBatch method
     const batchMetadataStr = stateContext?.getRequestContext('batchMetadata')
@@ -125,9 +124,8 @@ const testAction: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  async pollMultiple(request: RequestClient, data, context) {
-    const { operationIds, settings } = data
-    const { stateContext } = context
+  async pollMultiple(request: RequestClient, { payload, settings, stateContext }) {
+    const { operationIds } = payload
 
     // Retrieve context set by performBatch method
     const batchMetadataStr = stateContext?.getRequestContext('batchMetadata')

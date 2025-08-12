@@ -6,7 +6,7 @@
  */
 
 import { ActionDefinition } from '../action'
-import { AsyncOperationResponse, PollResponse, PollInput } from '../types'
+import { AsyncOperationResponse, PollResponse } from '../types'
 import { RequestClient } from '../../create-request-client'
 
 // Example destination settings
@@ -125,10 +125,10 @@ const exampleAsyncAction: ActionDefinition<ExampleSettings, ExamplePayload> = {
    * Poll method to check the status of an async operation
    * This method is called periodically to check if the operation is complete
    */
-  poll: async (request: RequestClient, data: PollInput<ExampleSettings>) => {
-    const response = await request(`${data.settings.endpoint}/batch/status/${data.operationId}`, {
+  poll: async (request: RequestClient, { settings, payload }) => {
+    const response = await request(`${settings.endpoint}/batch/status/${payload.operationId}`, {
       method: 'GET',
-      timeout: data.settings.timeout || 10000
+      timeout: settings.timeout || 10000
     })
 
     const statusData = response.data as {

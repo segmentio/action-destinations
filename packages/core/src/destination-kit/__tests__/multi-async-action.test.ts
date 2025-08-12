@@ -1,5 +1,5 @@
 import { Action } from '../action'
-import { MultiAsyncOperationResponse, MultiPollResponse, MultiPollInput } from '../types'
+import { MultiAsyncOperationResponse, MultiPollResponse, MultiPollInput, ExecuteInput } from '../types'
 
 describe('Multi Async Actions', () => {
   it('should support multi async operations with performBatch returning MultiAsyncOperationResponse', async () => {
@@ -33,11 +33,14 @@ describe('Multi Async Actions', () => {
           message: 'Multiple async operations initiated'
         } as MultiAsyncOperationResponse
       },
-      async pollMultiple(_request: any, data: MultiPollInput<unknown, unknown>) {
+      async pollMultiple(
+        _request: any,
+        { payload, stateContext }: ExecuteInput<unknown, MultiPollInput<unknown, unknown>>
+      ) {
         // Simulate polling multiple operations using context data
-        const results = data.operationIds.map((operationId, index) => {
+        const results = payload.operationIds.map((operationId: string, index: number) => {
           // Get context from stateContext instead of a non-existent contexts property
-          const contextData = data.stateContext?.getRequestContext(`operation_${operationId}`)
+          const contextData = stateContext?.getRequestContext(`operation_${operationId}`)
           const context = contextData && typeof contextData === 'string' ? JSON.parse(contextData) : {}
           const priority = context?.priority
           return {
@@ -54,7 +57,7 @@ describe('Multi Async Actions', () => {
         return {
           overallStatus: 'completed',
           results,
-          payloadResults: results.map((r) => r.result)
+          payloadResults: results.map((r: any) => r.result)
         } as MultiPollResponse
       }
     } as any)
@@ -116,15 +119,15 @@ describe('Multi Async Actions', () => {
           ]
         } as MultiAsyncOperationResponse
       },
-      async pollMultiple(_request: any, data: MultiPollInput<unknown, unknown>) {
+      async pollMultiple(_request: any, { payload }: ExecuteInput<unknown, MultiPollInput<unknown, unknown>>) {
         return {
           overallStatus: 'completed',
-          results: data.operationIds.map((id) => ({
+          results: payload.operationIds.map((id: string) => ({
             operationId: id,
             status: 'completed' as const,
             result: { processed: true, operationId: id }
           })),
-          payloadResults: data.operationIds.map((id) => ({ processed: true, operationId: id }))
+          payloadResults: payload.operationIds.map((id: string) => ({ processed: true, operationId: id }))
         } as MultiPollResponse
       }
     } as any)
