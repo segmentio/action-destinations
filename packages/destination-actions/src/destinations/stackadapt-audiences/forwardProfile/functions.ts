@@ -2,7 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import camelCase from 'lodash/camelCase'
 import isEmpty from 'lodash/isEmpty'
 import { Payload } from './generated-types'
-import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes } from '../functions'
+import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes, stringifyMappingSchemaForGraphQL } from '../functions'
 
 const standardFields = new Set([
   'email',
@@ -74,7 +74,7 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
         input: {
           advertiserId: ${advertiserId},
           mappingSchemaV2: ${getProfileMappings(Array.from(fieldsToMap), fieldTypes)},
-          mappableType: "${EXTERNAL_PROVIDER}",
+          mappableType: "${EXTERNAL_PROVIDER}"
         }
       ) {
         userErrors {
@@ -119,7 +119,7 @@ function getProfileMappings(customFields: string[], fieldTypes: Record<string, s
       isPii: false
     })
   }
-  return stringifyJsonWithEscapedQuotes(mappingSchema)
+  return stringifyMappingSchemaForGraphQL(mappingSchema)
 }
 
 function generateLabel(field: string) {
