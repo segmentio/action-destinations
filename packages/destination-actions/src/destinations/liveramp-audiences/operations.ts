@@ -1,6 +1,7 @@
 import { RequestClient, ExecuteInput } from '@segment/actions-core'
 import type { Payload as s3Payload } from './audienceEnteredS3/generated-types'
 import type { Payload as sftpPayload } from './audienceEnteredSftp/generated-types'
+import type { Settings } from './generated-types'
 import { processHashing } from '../../lib/hashing-utils'
 
 // Type definitions
@@ -19,6 +20,7 @@ export type ProcessDataInput<T extends s3Payload | sftpPayload> = {
   payloads: T[]
   features?: Record<string, boolean>
   rawData?: RawData[]
+  settings?: Settings
 }
 
 export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unknown> = ExecuteInput<
