@@ -63,6 +63,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
+      // comment for publish
       return request(`${BASE_URL}/crmdata/segment/${settings.advertiser_id}`, {
         method: 'GET',
         headers: {
