@@ -122,7 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 async function processData(input: ProcessDataInput<Payload>, subscriptionMetadata?: SubscriptionMetadata) {
-  // Check if this request is from the event tester first
+  // Check if this request is from the event tester first and return here
   if (input.settings && input.settings.__segment_internal_from_event_tester === true) {
     try {
       // Create a new SFTP client for authentication
