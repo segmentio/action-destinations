@@ -1,8 +1,8 @@
-import { ActionDefinition, InvalidAuthenticationError } from '@segment/actions-core'
+import { ActionDefinition, InvalidAuthenticationError, PayloadValidationError } from '@segment/actions-core'
 import { uploadSFTP, validateSFTP, Client as ClientSFTP, testAuthenticationSFTP } from './sftp'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
-import { LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
+import { LIVERAMP_LEGACY_FLOW_FLAG_NAME, LIVERAMP_MIN_RECORD_COUNT } from '../properties'
 
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -118,21 +118,30 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 async function processData(input: ProcessDataInput<Payload>, subscriptionMetadata?: SubscriptionMetadata) {
-  // if (input.payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
-  //   throw new PayloadValidationError(
-  //     `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
-  //   )
-  // }
-
-  // Check if force full sync is enabled, if so validate SFTP credentials
-  if (input.settings && input.settings.__segment_internal_engage_force_full_sync === true) {
+  // Check if this request is from the event tester first
+  if (input.settings && input.settings.__segment_internal_from_event_tester === true) {
     try {
       // Create a new SFTP client for authentication
       const authSftpClient = new ClientSFTP()
       await testAuthenticationSFTP(authSftpClient, input.payloads[0])
+
+      // Return early with a validation-only response
+      return {
+        status: 200,
+        data: {
+          message:
+            'SFTP credentials validated successfully. Event not delivered as this is a validation-only request from the event tester.'
+        }
+      }
     } catch (error) {
       throw new InvalidAuthenticationError(`SFTP authentication failed: ${error.message}`)
     }
+  }
+
+  if (input.payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
+    throw new PayloadValidationError(
+      `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
+    )
   }
 
   validateSFTP(input.payloads[0])
