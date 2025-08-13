@@ -6,29 +6,12 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Custom Event',
   description: 'Record custom events in Snowflake',
   fields: {
-    messageId: {
-      label: 'Message ID',
-      description: 'Name of column for the unique identifier for the message.',
-      type: 'string',
-      required: true,
-      default: { '@path': '$.messageId' },
-      readOnly: true
-    },
     event: {
       label: 'Table Name',
-      description: 'Name of the table. This will be the event name.',
+      description: 'The name of the table.',
       type: 'string',
       required: true,
-      default: { '@path': '$.event' },
-      readOnly: true
-    },
-    type: {
-      label: 'Event Type',
-      description: 'The type of event',
-      type: 'string',
-      required: true,
-      default: { '@path': '$.type' },
-      readOnly: true
+      default: { '@path': '$.event' }
     },
     // note that this must be `properties` to be processed by the warehouse pipeline
     properties: {
@@ -39,49 +22,34 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       additionalProperties: true,
       default: {
-        entity_context: {
-          '@json': {
-            mode: 'encode',
-            value: {
-              '@path': '$.properties.data_graph_entity_context'
-            }
-          }
-        },
-        user_id: { '@path': '$.userId' },
-        audience_key: { '@path': '$.properties.audience_key' },
-        personas_computation_key: { '@path': '$.context.personas.computation_key' },
-        personas_computation_id: { '@path': '$.context.personas.computation_id' },
-        personas_computationRun_id: { '@path': '$.context.personas.computation_run_id' },
-        personas_activation_id: { '@path': '$.context.personas.event_emitter_id' }
+        user_id: { '@path': '$.userId' }
       }
     },
-    // include all segment timestamp fields - https://segment.com/docs/connections/spec/common/#timestamp-overview
-    timestamp: {
-      label: 'Timestamp',
-      description: 'Timestamp of the event',
-      type: 'datetime',
+    // These are all required for data to be processed by the warehouse pipeline
+    messageId: {
+      label: 'ID',
+      description: 'Name of column for the unique identifier for the message.',
+      type: 'string',
       required: true,
-      default: { '@path': '$.timestamp' }
+      default: { '@path': '$.messageId' },
+      readOnly: true
     },
-    originalTimestamp: {
-      label: 'Original Timestamp',
-      description: 'Time on the client device when call was invoked.',
-      type: 'datetime',
+    type: {
+      label: 'Event Type',
+      description: 'The type of event.',
+      type: 'string',
       required: true,
-      default: { '@path': '$.originalTimestamp' }
-    },
-    sentAt: {
-      label: 'Sent At',
-      description: 'Time on client device when call was sent.',
-      type: 'datetime',
-      required: false,
-      default: { '@path': '$.sentAt' }
+      default: { '@path': '$.type' },
+      readOnly: true,
+      // this is required for the warehouse pipeline to process the event,
+      // but it's removed before being sent to Snowflake
+      unsafe_hidden: true
     },
     receivedAt: {
       label: 'Received At',
-      description: 'Time on Segment server clock when call was received.',
+      description: 'Time when event was received.',
       type: 'datetime',
-      required: false,
+      required: true,
       default: { '@path': '$.receivedAt' }
     }
   },
