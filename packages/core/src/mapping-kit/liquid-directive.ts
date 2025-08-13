@@ -4,7 +4,12 @@ import { StatsContext } from '../destination-kit'
 const liquidEngine = new Liquid({
   renderLimit: 500, // 500 ms
   parseLimit: 1000, // 1000 characters. This is also enforced by us to enable a custom error message
-  memoryLimit: 1e8 // 100 MB memory
+  memoryLimit: 1e8, // 100 MB memory
+  // trim whitespace to enable users to write multi line functions
+  trimOutputLeft: true,
+  trimOutputRight: true,
+  trimTagLeft: true,
+  trimTagRight: true
 })
 
 const disabledTags = ['case', 'for', 'include', 'layout', 'render', 'tablerow']
