@@ -59,6 +59,7 @@ export function getLiquidKeys(liquidValue: string): string[] {
   return liquidEngine.fullVariablesSync(liquidValue)
 }
 
+// comment to trigger new publish
 export function evaluateLiquid(liquidValue: any, event: any, statsContext?: StatsContext | undefined): string {
   if (typeof liquidValue !== 'string') {
     // type checking of @liquid directive is done in validate.ts as well
