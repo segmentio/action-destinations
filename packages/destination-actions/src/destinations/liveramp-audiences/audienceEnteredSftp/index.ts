@@ -125,7 +125,7 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
   // Check if this request is from the event tester first and return here
   if (input.settings && input.settings.__segment_internal_from_event_tester === true) {
     try {
-      // Create a new SFTP client for authentication
+      // Create a new SFTP client for liveramp authentication
       const authSftpClient = new ClientSFTP()
       await testAuthenticationSFTP(authSftpClient, input.payloads[0])
 
