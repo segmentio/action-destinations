@@ -1,10 +1,10 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
+import { ActionDefinition, InvalidAuthenticationError, PayloadValidationError } from '@segment/actions-core'
+import { uploadSFTP, validateSFTP, Client as ClientSFTP, testAuthenticationSFTP } from './sftp'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
 import {
-  LIVERAMP_MIN_RECORD_COUNT,
   LIVERAMP_LEGACY_FLOW_FLAG_NAME,
+  LIVERAMP_MIN_RECORD_COUNT,
   LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME
 } from '../properties'
 
@@ -91,28 +91,30 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (
     request,
-    { payload, features, rawData, subscriptionMetadata }: ExecuteInputRaw<Settings, Payload, RawData>
+    { payload, features, rawData, subscriptionMetadata, settings }: ExecuteInputRaw<Settings, Payload, RawData>
   ) => {
     return processData(
       {
         request,
         payloads: [payload],
         features,
-        rawData: rawData ? [rawData] : []
+        rawData: rawData ? [rawData] : [],
+        settings
       },
       subscriptionMetadata
     )
   },
   performBatch: (
     request,
-    { payload, features, rawData, subscriptionMetadata }: ExecuteInputRaw<Settings, Payload[], RawData[]>
+    { payload, features, rawData, subscriptionMetadata, settings }: ExecuteInputRaw<Settings, Payload[], RawData[]>
   ) => {
     return processData(
       {
         request,
         payloads: payload,
         features,
-        rawData
+        rawData,
+        settings
       },
       subscriptionMetadata
     )
@@ -120,6 +122,30 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 async function processData(input: ProcessDataInput<Payload>, subscriptionMetadata?: SubscriptionMetadata) {
+  // Check if this request is from the event tester first and return here
+  if (input.settings && input.settings.__segment_internal_from_event_tester === true) {
+    try {
+      // Create a new SFTP client for liveramp authentication
+      const authSftpClient = new ClientSFTP()
+      await testAuthenticationSFTP(authSftpClient, input.payloads[0])
+
+      // Return early with a validation-only response
+      return {
+        status: 200,
+        data: {
+          message:
+            'SFTP credentials validated successfully. Event not delivered as this is a validation-only request from the event tester.'
+        },
+        // Include sent to make the message visible in the action tester
+        sent: {
+          message: 'SFTP credentials validated successfully'
+        }
+      }
+    } catch (error) {
+      throw new InvalidAuthenticationError(`SFTP authentication failed: ${error.message}`)
+    }
+  }
+
   if (input.payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
       `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
@@ -134,8 +160,10 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     //------------
     // LEGACY FLOW
     // -----------
-    const sftpClient = new ClientSFTP()
-    return uploadSFTP(sftpClient, input.payloads[0], filename, fileContents)
+
+    // Create a new SFTP client for the actual upload operation
+    const uploadSftpClient = new ClientSFTP()
+    return uploadSFTP(uploadSftpClient, input.payloads[0], filename, fileContents)
   } else {
     //------------
     // AWS FLOW
