@@ -1290,7 +1290,7 @@ describe('Cm360.conversionUpload', () => {
             defaultFloodlightConfigurationId: floodlightConfigurationId
           }
         })
-      ).rejects.toThrowError('request failed: 401 - Unauthorized')
+      ).rejects.toThrowError('Unauthorized')
     })    
   })
 })

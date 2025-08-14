@@ -1179,7 +1179,7 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
             defaultFloodlightConfigurationId: floodlightConfigurationId
           }
         })
-      ).rejects.toThrowError('request failed: 401 - Unauthorized')
+      ).rejects.toThrowError('Unauthorized')
     })
   })
 })

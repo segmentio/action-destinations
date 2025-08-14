@@ -42,8 +42,7 @@ export async function send(
         'Content-Type': 'application/json',
         Host: 'dfareporting.googleapis.com'
       },
-      json,
-      throwHttpErrors: false
+      json
     }
   )
 
@@ -55,14 +54,6 @@ export async function send(
     const message = firstError?.message ?? '200 response contained unknown error'
     const code = firstError?.code ?? ErrorCodes.UNKNOWN_ERROR
     throw new IntegrationError(message, code, 400)
-  }
-
-  if (response.ok === false) {
-    throw new IntegrationError(
-      `request failed: ${response.status} - ${response.statusText}`,
-      response.statusText,
-      response.status
-    )
   }
 
   return response
