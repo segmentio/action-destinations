@@ -11,14 +11,26 @@ export const productListViewedEvents: ActionDefinition<Settings, Payload> = {
   description:
     'Product list viewed events act as a positive signal for associated record objects — the associated Product IDs. Query ID is optional and indicates that the view events are the result of a search query.',
   fields: {
-    objectIDs: {
-      label: 'Product IDs',
-      description: 'Product IDs of the viewed items. Defaults to an array of `products.product_id`.',
-      type: 'string',
+    products: {
+      label: 'Product Details',
+      description:
+        'The viewed products. Populates the ObjectIDs field in the Algolia Insights API. Each object must contain a product_id field.',
+      type: 'object',
+      defaultObjectUI: 'keyvalue',
       multiple: true,
       required: true,
+      properties: {
+        product_id: { label: 'product_id', type: 'string', required: true }
+      },
       default: {
-        '@arrayPath': ['$.properties.products', { '@path': '$.product_id' }]
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            product_id: {
+              '@path': '$.product_id'
+            }
+          }
+        ]
       }
     },
     index: {
@@ -108,7 +120,7 @@ export const productListViewedEvents: ActionDefinition<Settings, Payload> = {
       eventType: (data.payload.eventType as AlgoliaEventType) ?? ('view' as AlgoliaEventType),
       index: data.payload.index,
       queryID: data.payload.queryID,
-      objectIDs: data.payload.objectIDs,
+      objectIDs: data.payload.products.map((obj) => obj.product_id),
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined,
       userToken: data.payload.userToken,
       authenticatedUserToken: data.payload.authenticatedUserToken

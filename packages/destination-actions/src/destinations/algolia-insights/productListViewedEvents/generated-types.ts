@@ -2,9 +2,11 @@
 
 export interface Payload {
   /**
-   * Product IDs of the viewed items. Defaults to an array of `products.product_id`.
+   * The viewed products. Populates the ObjectIDs field in the Algolia Insights API. Each object must contain a product_id field.
    */
-  objectIDs: string[]
+  products: {
+    product_id: string
+  }[]
   /**
    * Name of the targeted search index.
    */
