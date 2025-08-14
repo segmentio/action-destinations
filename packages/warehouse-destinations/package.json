@@ -1,6 +1,6 @@
 {
   "name": "@segment/warehouse-destinations",
-  "version": "1.5.1-staging-83c0ce0e3.0",
+  "version": "1.5.1-staging-3ba1364c8.0",
   "description": "Definitions for warehouse destinations. Only used for definitions - should not be imported for anything other than types.",
   "publishConfig": {
     "access": "public",
