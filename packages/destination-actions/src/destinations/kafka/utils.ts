@@ -1,10 +1,17 @@
 import { Kafka, ProducerRecord, Partitioners, SASLOptions, KafkaConfig, KafkaJSError, Producer } from 'kafkajs'
-import { DynamicFieldResponse, IntegrationError, Features } from '@segment/actions-core'
+import {
+  DynamicFieldResponse,
+  IntegrationError,
+  Features,
+  StatsContext,
+  RequestClient,
+  Response
+} from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
 import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
-import { StatsContext } from '@segment/actions-core/destination-kit'
+import { handleKafkaError } from './errors'
 
 export const producersByConfig: Record<string, CachedProducer> = {}
 
@@ -137,7 +144,10 @@ const getProducer = (settings: Settings) => {
   })
 }
 
-export const getOrCreateProducer = async (settings: Settings, statsContext: StatsContext | undefined): Promise<Producer> => {
+export const getOrCreateProducer = async (
+  settings: Settings,
+  statsContext: StatsContext | undefined
+): Promise<Producer> => {
   const key = serializeKafkaConfig(settings)
   const now = Date.now()
 
@@ -174,7 +184,13 @@ export const getOrCreateProducer = async (settings: Settings, statsContext: Stat
   return producer
 }
 
-export const sendData = async (settings: Settings, payload: Payload[], features: Features | undefined, statsContext: StatsContext | undefined) => {
+export const sendData = async (
+  request: RequestClient,
+  settings: Settings,
+  payload: Payload[],
+  features: Features | undefined,
+  statsContext: StatsContext | undefined
+) => {
   validate(settings)
 
   const groupedPayloads: { [topic: string]: Payload[] } = {}
@@ -202,22 +218,25 @@ export const sendData = async (settings: Settings, payload: Payload[], features:
   }))
 
   let producer: Producer
-  if (features && features[FLAGON_NAME]) {
-    producer = await getOrCreateProducer(settings, statsContext)
-  } else {
-    producer = getProducer(settings)
-    await producer.connect()
+  try {
+    if (features && features[FLAGON_NAME]) {
+      producer = await getOrCreateProducer(settings, statsContext)
+    } else {
+      producer = getProducer(settings)
+      await producer.connect()
+    }
+  } catch (error) {
+    return handleKafkaError(request, settings.brokers, error as KafkaJSError, settings.brokers)
   }
 
   for (const data of topicMessages) {
     try {
       await producer.send(data as ProducerRecord)
+
+      // If the send was successful, emulate an HTTP request to record a trace
+      await emulateSuccessfulHttpRequest(request, settings.brokers, data)
     } catch (error) {
-      throw new IntegrationError(
-        `Kafka Producer Error: ${(error as KafkaJSError).message}`,
-        'KAFKA_PRODUCER_ERROR',
-        400
-      )
+      return handleKafkaError(request, settings.brokers, error as KafkaJSError, settings.brokers)
     }
   }
 
@@ -229,4 +248,23 @@ export const sendData = async (settings: Settings, payload: Payload[], features:
   } else {
     await producer.disconnect()
   }
+}
+
+function emulateSuccessfulHttpRequest(request: RequestClient, url: string, data: TopicMessages) {
+  const emulateHttpResponse = new Response(JSON.stringify({ status: 'success' }), {
+    headers: { 'Content-Type': 'application/json' },
+    status: 200,
+    statusText: 'OK'
+  })
+
+  return request(url, {
+    method: 'POST',
+    json: {
+      data
+    },
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    emulateHttpResponse
+  })
 }
