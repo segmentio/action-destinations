@@ -4050,12 +4050,62 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
+"@segment/action-destinations@^3.288.0":
+  version "3.418.0"
+  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.418.0.tgz#e8cb7187de25b807c07d8c275bccea9a92acdf8c"
+  integrity sha512-NbBMTIR/OsfCynuYPLuP1SG1VmJSSYlr6ab4bE5v8/IBTsZRIweB3aP7mF1PDlB1Z8BzxPlI8RvikHNXcGf7aw==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@aws-sdk/client-eventbridge" "^3.741.0"
+    "@aws-sdk/client-s3" "^3.600.0"
+    "@bufbuild/protobuf" "^2.2.3"
+    "@segment/a1-notation" "^2.1.4"
+    "@segment/actions-core" "^3.158.0"
+    "@segment/actions-shared" "^1.139.0"
+    "@types/node" "^22.13.1"
+    ajv-formats "^2.1.1"
+    aws4 "^1.12.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    google-libphonenumber "^3.2.31"
+    kafkajs "^2.2.4"
+    liquidjs "^10.8.4"
+    lodash "^4.17.21"
+    lru-cache "10.4.3"
+    ssh2-sftp-client "^10.0.3"
+
 "@segment/action-emitters@^1.3.6":
   version "1.3.6"
   resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.3.6.tgz#0160442ae99821c43a9465c05226afddec73cbe5"
   integrity sha512-866kjuuebzDdRvls0OGFw9uPRiY5xK9N2unfPdO77TJBSGak31csmhQhYk6lMcanFUlfTewRSVS8Rt0kXQk0iQ==
   dependencies:
     "@types/node" "^18.11.15"
+
+"@segment/analytics-browser-actions-braze-cloud-plugins@^1.99.0":
+  version "1.99.0"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-braze-cloud-plugins/-/analytics-browser-actions-braze-cloud-plugins-1.99.0.tgz#2e8569a5b48a5df58c75f62dfc08253abac1f8d5"
+  integrity sha512-FxN89VCSLCnyi3/k+4ScLeCwErI59BmiNewoFLghUuS4Fd+cSlzA23BKgeLS8G3pEkKFV+LnH27g0JEqs8NbVg==
+  dependencies:
+    "@segment/analytics-browser-actions-braze" "^1.99.0"
+    "@segment/browser-destination-runtime" "^1.87.0"
+
+"@segment/analytics-browser-actions-braze@^1.99.0":
+  version "1.99.0"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-braze/-/analytics-browser-actions-braze-1.99.0.tgz#5a619ed4aee60c57a13e22ee57ec6f3ae7d9916c"
+  integrity sha512-46NMcWEqJyAYzy8tSarEhSR0f8AoldDmIFYIQHJykcoBxGv1xt5L+vOfXWjVM8MWwqXk0Cmn+EwzXeU3nPK5bg==
+  dependencies:
+    "@braze/web-sdk" "npm:@braze/web-sdk@^5"
+    "@braze/web-sdk-v3" "npm:@braze/web-sdk@^3.5.1"
+    "@segment/actions-core" "^3.158.0"
+    "@segment/browser-destination-runtime" "^1.87.0"
+
+"@segment/analytics-browser-actions-facebook-conversions-api-web@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-facebook-conversions-api-web/-/analytics-browser-actions-facebook-conversions-api-web-1.2.0.tgz#a4ca12756c189f2cb0c0a2c95e1396b247e63f0c"
+  integrity sha512-sikdziAk4Hn6nJ25Y/BfxAzYL7W5PPOhR8F75ajq66zjY5nWCWTl4HWf7kJE6CCkMBt/pUE3fOYAsOvFab9b7w==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.87.0"
 
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
@@ -4096,6 +4146,53 @@
   integrity sha512-lZwCyEXT4aaHBLNK433okEKdxGAuyrVmop4BpQqQSJuRz0DglPZgd9B/XjiiWs1UyOankg2aNYMN3VcS8t4eSQ==
   dependencies:
     unfetch "^3.1.1"
+
+"@segment/destinations-manifest@^1.71.0":
+  version "1.124.0"
+  resolved "https://registry.yarnpkg.com/@segment/destinations-manifest/-/destinations-manifest-1.124.0.tgz#61afbcaa88a339ded410dc9181b18007774fea69"
+  integrity sha512-eUAs5GsnFrwUJ4lpnfgIfXb5w9ivxI4q9e4DQM43CefqbJKZY5J/A48MUjJlcrKosWxkd38BxzcxdfNudrUWpg==
+  dependencies:
+    "@segment/analytics-browser-actions-1flow" "^1.70.0"
+    "@segment/analytics-browser-actions-adobe-target" "^1.89.0"
+    "@segment/analytics-browser-actions-algolia-plugins" "^1.65.0"
+    "@segment/analytics-browser-actions-amplitude-plugins" "^1.88.0"
+    "@segment/analytics-browser-actions-braze" "^1.99.0"
+    "@segment/analytics-browser-actions-braze-cloud-plugins" "^1.99.0"
+    "@segment/analytics-browser-actions-bucket" "^1.69.0"
+    "@segment/analytics-browser-actions-cdpresolution" "^1.75.0"
+    "@segment/analytics-browser-actions-commandbar" "^1.88.0"
+    "@segment/analytics-browser-actions-contentstack-web" "^1.31.0"
+    "@segment/analytics-browser-actions-devrev" "^1.75.0"
+    "@segment/analytics-browser-actions-facebook-conversions-api-web" "^1.2.0"
+    "@segment/analytics-browser-actions-friendbuy" "^1.89.0"
+    "@segment/analytics-browser-actions-fullstory" "^1.90.0"
+    "@segment/analytics-browser-actions-google-analytics-4" "^1.95.0"
+    "@segment/analytics-browser-actions-google-campaign-manager" "^1.79.0"
+    "@segment/analytics-browser-actions-heap" "^1.88.0"
+    "@segment/analytics-browser-actions-hubspot" "^1.88.0"
+    "@segment/analytics-browser-actions-intercom" "^1.94.0"
+    "@segment/analytics-browser-actions-iterate" "^1.88.0"
+    "@segment/analytics-browser-actions-jimo" "^1.78.0"
+    "@segment/analytics-browser-actions-koala" "^1.90.0"
+    "@segment/analytics-browser-actions-logrocket" "^1.89.0"
+    "@segment/analytics-browser-actions-pendo-web-actions" "^1.78.0"
+    "@segment/analytics-browser-actions-playerzero" "^1.88.0"
+    "@segment/analytics-browser-actions-replaybird" "^1.69.0"
+    "@segment/analytics-browser-actions-ripe" "^1.88.0"
+    "@segment/analytics-browser-actions-sabil" "^1.6.0"
+    "@segment/analytics-browser-actions-screeb" "^1.89.0"
+    "@segment/analytics-browser-actions-snap-plugins" "^1.69.0"
+    "@segment/analytics-browser-actions-sprig" "^1.88.0"
+    "@segment/analytics-browser-actions-stackadapt" "^1.90.0"
+    "@segment/analytics-browser-actions-survicate" "^1.64.0"
+    "@segment/analytics-browser-actions-tiktok-pixel" "^1.89.0"
+    "@segment/analytics-browser-actions-upollo" "^1.88.0"
+    "@segment/analytics-browser-actions-userpilot" "^1.88.0"
+    "@segment/analytics-browser-actions-utils" "^1.88.0"
+    "@segment/analytics-browser-actions-vwo" "^1.91.0"
+    "@segment/analytics-browser-actions-wiseops" "^1.89.0"
+    "@segment/analytics-browser-hubble-web" "^1.74.0"
+    "@segment/browser-destination-runtime" "^1.87.0"
 
 "@segment/facade@^3.4.9":
   version "3.4.10"

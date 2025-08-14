@@ -25,6 +25,11 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      - name: Set NPM Token
+        run: |
+          npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_PUBLISH_TOKEN }}
+          npm whoami
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -41,11 +46,6 @@ jobs:
       - name: Fetch Latest Tags
         run: |
           git fetch --tags
-
-      - name: Set NPM Token
-        run: |
-          npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_PUBLISH_TOKEN }}
-          npm whoami
 
       - name: Publish
         run: |
