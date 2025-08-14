@@ -20,8 +20,14 @@ export const productListViewedEvents: ActionDefinition<Settings, Payload> = {
       multiple: true,
       required: true,
       properties: {
-        product_id: { label: 'product_id', type: 'string', required: true }
+        product_id: {
+          label: 'product_id',
+          type: 'string',
+          description: 'The unique ID of the product.',
+          required: true
+        }
       },
+      additionalProperties: false,
       default: {
         '@arrayPath': [
           '$.properties.products',

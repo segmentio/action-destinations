@@ -5,6 +5,9 @@ export interface Payload {
    * The viewed products. Populates the ObjectIDs field in the Algolia Insights API. Each object must contain a product_id field.
    */
   products: {
+    /**
+     * The unique ID of the product.
+     */
     product_id: string
   }[]
   /**
