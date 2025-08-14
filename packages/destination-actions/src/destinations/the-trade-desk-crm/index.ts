@@ -61,6 +61,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         required: true,
         default: true
       }
+    },
+    testAuthentication: (request, { settings }) => {
+      return request(`${BASE_URL}/crmdata/segment/${settings.advertiser_id}`, {
+        method: 'GET',
+        headers: {
+          'TTD-Auth': settings.auth_token,
+          'Content-Type': 'application/json'
+        }
+      })
     }
   },
   extendRequest({ settings }) {
