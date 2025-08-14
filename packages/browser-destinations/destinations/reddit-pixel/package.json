@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-reddit-pixel",
-  "version": "1.6.1-staging-a4f645d22.0",
+  "version": "1.6.1-staging-2591129e4.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,7 +15,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "1.87.1-staging-a4f645d22.0"
+    "@segment/browser-destination-runtime": "1.87.1-staging-2591129e4.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
