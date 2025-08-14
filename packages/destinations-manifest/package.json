@@ -23,6 +23,7 @@
     "@segment/analytics-browser-actions-commandbar": "^1.88.0",
     "@segment/analytics-browser-actions-contentstack-web": "^1.31.0",
     "@segment/analytics-browser-actions-devrev": "^1.75.0",
+    "@segment/analytics-browser-actions-facebook-conversions-api-web": "1.2.1-staging-c7f6ab9e0.0",
     "@segment/analytics-browser-actions-friendbuy": "^1.89.0",
     "@segment/analytics-browser-actions-fullstory": "^1.90.0",
     "@segment/analytics-browser-actions-google-analytics-4": "^1.95.0",
