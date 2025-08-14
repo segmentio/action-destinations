@@ -1184,5 +1184,113 @@ describe('Cm360.conversionUpload', () => {
         })
       ).rejects.toThrowError('Conversions over 28 days old may not be updated.')
     })
+
+    it('throws an error when a 401 response is returned', async () => {
+      const tsNow = new Date().toISOString()
+      
+      const event = createTestEvent({
+        timestamp: tsNow,
+        event: 'Test Event',
+        context: {
+          traits: {
+            email: 'daffy@warnerbros.com',
+            phone: '1234567890',
+            firstName: 'Daffy',
+            lastName: 'Duck',
+            streetAddress: '123 Daffy St',
+            city: 'Burbank',
+            state: 'CA',
+            postalCode: '98765',
+            countryCode: 'US'
+          }
+        },
+        properties: {
+          ordinal: '1',
+          quantity: '1',
+          value: '123',
+          gclid: '54321',
+          limitAdTracking: true,
+          childDirectedTreatment: true,
+          nonPersonalizedAd: true,
+          treatmentForUnderage: true
+        }
+      })
+
+      nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        .post('')
+        .reply(401)
+
+      await expect(
+        testDestination.testAction('conversionUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
+            },
+            limitAdTracking: {
+              '@path': '$.properties.limitAdTracking'
+            },
+            childDirectedTreatment: {
+              '@path': '$.properties.childDirectedTreatment'
+            },
+            nonPersonalizedAd: {
+              '@path': '$.properties.nonPersonalizedAd'
+            },
+            treatmentForUnderage: {
+              '@path': '$.properties.treatmentForUnderage'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+      ).rejects.toThrowError('request failed: 401 - Unauthorized')
+    })    
   })
 })
