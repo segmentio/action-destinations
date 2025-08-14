@@ -18,8 +18,8 @@ Object {
       upsertProfileMapping(
         input: {
           advertiserId: 84GW[vK%wv2xv@UF5iy,
-          mappingSchemaV2: [{\\\\\\"incomingKey\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false,\\\\\\"label\\\\\\":\\\\\\"External Profile ID\\\\\\"}],
-          mappableType: \\"segment_io\\",
+          mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",type:STRING,isPii:false,label:\\"External Profile ID\\"}],
+          mappableType: \\"segment_io\\"
         }
       ) {
         userErrors {
@@ -29,7 +29,7 @@ Object {
       upsertExternalAudienceMapping(
         input: {
           advertiserId: 84GW[vK%wv2xv@UF5iy,
-          mappingSchema: [{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience ID\\\\\\",\\\\\\"isPii\\\\\\":false},{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"name\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience Name\\\\\\",\\\\\\"isPii\\\\\\":false}],
+          mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
           mappableType: \\"segment_io\\"
         }
       ) {
@@ -59,8 +59,8 @@ Object {
       upsertProfileMapping(
         input: {
           advertiserId: 84GW[vK%wv2xv@UF5iy,
-          mappingSchemaV2: [{\\\\\\"incomingKey\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false,\\\\\\"label\\\\\\":\\\\\\"External Profile ID\\\\\\"}],
-          mappableType: \\"segment_io\\",
+          mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",type:STRING,isPii:false,label:\\"External Profile ID\\"}],
+          mappableType: \\"segment_io\\"
         }
       ) {
         userErrors {
@@ -70,7 +70,7 @@ Object {
       upsertExternalAudienceMapping(
         input: {
           advertiserId: 84GW[vK%wv2xv@UF5iy,
-          mappingSchema: [{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience ID\\\\\\",\\\\\\"isPii\\\\\\":false},{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"name\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience Name\\\\\\",\\\\\\"isPii\\\\\\":false}],
+          mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
           mappableType: \\"segment_io\\"
         }
       ) {
@@ -100,8 +100,8 @@ Object {
       upsertProfileMapping(
         input: {
           advertiserId: PsAwlRv%,
-          mappingSchemaV2: [{\\\\\\"incomingKey\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"label\\\\\\":\\\\\\"User Id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false}],
-          mappableType: \\"segment_io\\",
+          mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false}],
+          mappableType: \\"segment_io\\"
         }
       ) {
         userErrors {
@@ -130,8 +130,8 @@ Object {
       upsertProfileMapping(
         input: {
           advertiserId: PsAwlRv%,
-          mappingSchemaV2: [{\\\\\\"incomingKey\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"label\\\\\\":\\\\\\"User Id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false}],
-          mappableType: \\"segment_io\\",
+          mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false}],
+          mappableType: \\"segment_io\\"
         }
       ) {
         userErrors {

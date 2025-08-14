@@ -131,8 +131,8 @@ describe('forwardProfile', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{\\\\\\"incomingKey\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"label\\\\\\":\\\\\\"User Id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false}],
-                mappableType: \\"segment_io\\",
+                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false}],
+                mappableType: \\"segment_io\\"
               }
             ) {
               userErrors {
@@ -194,8 +194,8 @@ describe('forwardProfile', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{\\\\\\"incomingKey\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"label\\\\\\":\\\\\\"User Id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false}],
-                mappableType: \\"segment_io\\",
+                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false}],
+                mappableType: \\"segment_io\\"
               }
             ) {
               userErrors {
@@ -242,8 +242,8 @@ describe('forwardProfile', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{\\\\\\"incomingKey\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"label\\\\\\":\\\\\\"User Id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false},{\\\\\\"incomingKey\\\\\\":\\\\\\"customField\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"customField\\\\\\",\\\\\\"label\\\\\\":\\\\\\"Custom Field\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false},{\\\\\\"incomingKey\\\\\\":\\\\\\"numberCustomField\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"numberCustomField\\\\\\",\\\\\\"label\\\\\\":\\\\\\"Number Custom Field\\\\\\",\\\\\\"type\\\\\\":NUMBER,\\\\\\"isPii\\\\\\":false}],
-                mappableType: \\"segment_io\\",
+                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false},{incomingKey:\\"customField\\",destinationKey:\\"customField\\",label:\\"Custom Field\\",type:STRING,isPii:false},{incomingKey:\\"numberCustomField\\",destinationKey:\\"numberCustomField\\",label:\\"Number Custom Field\\",type:NUMBER,isPii:false}],
+                mappableType: \\"segment_io\\"
               }
             ) {
               userErrors {
@@ -290,8 +290,8 @@ describe('forwardProfile', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{\\\\\\"incomingKey\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"label\\\\\\":\\\\\\"User Id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false}],
-                mappableType: \\"segment_io\\",
+                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false}],
+                mappableType: \\"segment_io\\"
               }
             ) {
               userErrors {
