@@ -62,6 +62,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         default: true
       }
     },
+    //Authentication method for validating credentials
     testAuthentication: (request, { settings }) => {
       return request(`${BASE_URL}/crmdata/segment/${settings.advertiser_id}`, {
         method: 'GET',
