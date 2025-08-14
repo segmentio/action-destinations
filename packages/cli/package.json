@@ -105,7 +105,8 @@
     "moduleNameMapper": {
       "@segment/actions-core": "<rootDir>/../core/src",
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
-      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src",
+      "@segment/destinations-manifest": "<rootDir>/../destinations-manifest/src"
     },
     "globals": {
       "ts-jest": {
