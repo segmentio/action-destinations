@@ -68,18 +68,9 @@ const action: ActionDefinition<Settings, Payload> = {
       throw error
     }
   },
-  performBatch: (request, { payload, statsContext }) => {
+  performBatch: (request, { payload }) => {
     // Expect these to be the same across the payloads
     const { url, method, headers } = payload[0]
-
-    if (statsContext) {
-      const { statsClient, tags } = statsContext
-      const set = new Set()
-      for (const p of payload) {
-        set.add(`${p.url} ${p.method} ${JSON.stringify(p.headers)}`)
-      }
-      statsClient?.histogram('webhook.configurable_batch_keys.unique_keys', set.size, tags)
-    }
 
     try {
       return request(url, {
