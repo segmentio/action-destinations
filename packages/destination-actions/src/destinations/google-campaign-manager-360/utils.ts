@@ -57,6 +57,14 @@ export async function send(
     throw new IntegrationError(message, code, 400)
   }
 
+  if (response.ok === false) {
+    throw new IntegrationError(
+      `request failed: ${response.status} - ${response.statusText}`,
+      response.statusText,
+      response.status
+    )
+  }
+
   return response
 }
 
