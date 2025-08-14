@@ -87,7 +87,7 @@ export class IterableListsClient {
             listId: Number(listId),
             subscribers,
             campaignId: typeof this.campaignId === 'number' ? this.campaignId : undefined,
-            channelUnsubscribe: this.updateExistingUsersOnly
+            channelUnsubscribe: this.globalUnsubscribe
           }
         })
       )
