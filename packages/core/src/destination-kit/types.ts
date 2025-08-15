@@ -182,7 +182,7 @@ export interface InputFieldJSONSchema {
    * Note: this part of the schema is not persisted outside the code
    * but is used for validation and typedefs
    */
-  properties?: Record<string, Optional<InputField, 'description'>>
+  properties?: Record<string, Optional<this, 'description'>>
   /**
    * Format option to specify more nuanced 'string' types
    * @see {@link https://github.com/ajv-validator/ajv/tree/v6#formats}
