@@ -2,8 +2,7 @@
 
 export interface Settings {
   /**
-   * The AWS Account ID that the event bus belongs to.
-   *                       This is used to generate the ARN for the event bus.
+   * The AWS Account ID that the event bus belongs to. This is used to generate the ARN for the event bus.
    */
   accountId: string
   /**

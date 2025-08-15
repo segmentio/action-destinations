@@ -17,13 +17,11 @@ export interface Payload {
    */
   sourceId: string
   /**
-   * AWS resources, identified by Amazon Resource Name (ARN),
-   *                     which the event primarily concerns. Any number,
-   *                     including zero, may be present.
+   * AWS resources, identified by Amazon Resource Name (ARN), which the event primarily concerns. Any number, including zero, may be present.
    */
   resources?: string[]
   /**
-   * The timestamp the event occurred.
+   * The timestamp the event occurred. Accepts a date in ISO 8601 format or a date in YYYY-MM-DD format.
    */
   time?: string
   /**

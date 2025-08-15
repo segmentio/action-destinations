@@ -13,7 +13,8 @@ export const createCustomHandler = (requestClient: RequestClient): HttpHandler =
     const result = await requestClient(url, {
         method: request.method, 
         headers: request.headers,
-        body
+        body,
+        throwHttpErrors: false
     })
 
     let headers: Record<string, string> = {}
