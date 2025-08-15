@@ -4,6 +4,7 @@ exports[`Testing snapshot for AlgoliaInsights's productListFilteredEvents destin
 Object {
   "events": Array [
     Object {
+      "authenticatedUserToken": "E625IsTOULbrg8",
       "eventName": "E625IsTOULbrg8",
       "eventType": "conversion",
       "filters": Array [
