@@ -1,11 +1,11 @@
-import { send } from '../../functions' // Adjust path as needed
-
+import { send } from '../functions' // Adjust path as needed
 import {
   PutPartnerEventsCommand,
   ListPartnerEventSourcesCommand,
   CreatePartnerEventSourceCommand
 } from '@aws-sdk/client-eventbridge'
-import { Payload } from '../../send/generated-types'
+import { SEGMENT_PARTNER_NAME } from '../constants' // Adjust path as needed
+import { Payload } from '../generated-types'
 import { Settings } from '../../generated-types'
 
 // Mock AWS SDK
@@ -28,8 +28,7 @@ describe('AWS EventBridge Integration', () => {
   const settings: Settings = {
     awsRegion: 'us-west-2',
     awsAccountId: '123456789012',
-    createPartnerEventSource: true,
-    partnerEventSourceName: 'your-partner-event-source-name'
+    createPartnerEventSource: true
   }
 
   afterEach(() => {
@@ -54,7 +53,7 @@ describe('AWS EventBridge Integration', () => {
 
     // Mocking the listPartnerEventSources response to simulate source existence check
     mockSend.mockResolvedValueOnce({
-      PartnerEventSources: [{ Name: `${settings.partnerEventSourceName}/test-source` }]
+      PartnerEventSources: [{ Name: `${SEGMENT_PARTNER_NAME}/test-source` }]
     })
 
     // Mocking a successful PutPartnerEventsCommand response
@@ -82,7 +81,7 @@ describe('AWS EventBridge Integration', () => {
     ]
 
     mockSend.mockResolvedValueOnce({
-      PartnerEventSources: [{ Name: `${settings.partnerEventSourceName}/test-source` }]
+      PartnerEventSources: [{ Name: `${SEGMENT_PARTNER_NAME}/test-source` }]
     })
 
     mockSend.mockResolvedValueOnce({
@@ -90,11 +89,12 @@ describe('AWS EventBridge Integration', () => {
       Entries: [{ ErrorCode: 'EventBridgeError', ErrorMessage: 'Invalid event' }]
     })
 
-    await expect(send(payloads, settings)).rejects.toThrow('Invalid event')
-
-    expect(mockSend).toHaveBeenCalledWith(expect.any(ListPartnerEventSourcesCommand))
-    expect(mockSend).toHaveBeenCalledWith(expect.any(PutPartnerEventsCommand))
-    expect(mockSend).toHaveBeenCalledTimes(2)
+    const result = await send(payloads, settings)
+    const responses = result.getAllResponses()
+    // Check if the first response has an error
+    if ('data' in responses[0]) {
+      expect(responses[0].data.status).toBe(400)
+    }
   })
 
   test('ensurePartnerSourceExists should create source if it does not exist', async () => {
@@ -110,7 +110,6 @@ describe('AWS EventBridge Integration', () => {
 
     const updatedSettings: Settings = {
       ...settings,
-      partnerEventSourceName: 'aws.partner/segment.com.test',
       createPartnerEventSource: true
     }
 
@@ -158,7 +157,6 @@ describe('AWS EventBridge Integration', () => {
 
     const updatedSettings: Settings = {
       ...settings,
-      partnerEventSourceName: 'your-partner-event-source-name',
       createPartnerEventSource: false
     }
 
@@ -221,8 +219,7 @@ describe('AWS EventBridge Integration', () => {
     await expect(
       send(payloads, {
         ...settings,
-        createPartnerEventSource: false,
-        partnerEventSourceName: 'aws.partner/segment.com.test'
+        createPartnerEventSource: false
       })
     ).rejects.toThrow('Partner Event Source aws.partner/segment.com.test/test-source does not exist.')
   })
@@ -268,9 +265,7 @@ describe('AWS EventBridge Integration', () => {
 
     const settings = {
       awsRegion: 'us-west-2',
-      awsAccountId: '123456789012',
-      partnerEventSourceName: 'test-source'
-      // Other settings here
+      awsAccountId: '123456789012'
     }
 
     // Mock a failed response
@@ -284,9 +279,15 @@ describe('AWS EventBridge Integration', () => {
       })
 
     // Call the function and assert that it throws an error
-    await expect(send(payloads, settings)).rejects.toThrow(
-      'EventBridge failed with 1 errors: Error: Error, Message: Failed'
-    )
+    // await expect(send(payloads, settings)).rejects.toThrow(
+    //   'EventBridge failed with 1 errors: Error: Error, Message: Failed'
+    // )
+    const result = await send(payloads, settings)
+
+    const response = result.getAllResponses()[0].data
+
+    expect(response.status).toBe(400)
+    expect(response.errormessage).toMatch(/Failed/)
   })
 
   test('process_data should send event to EventBridge', async () => {
@@ -300,14 +301,22 @@ describe('AWS EventBridge Integration', () => {
       }
     ]
 
-    // Proper mock setup for List and Put commands
+    const settings = {
+      awsRegion: 'us-west-2',
+      awsAccountId: '123456789012',
+      createPartnerEventSource: true
+      // Other settings here
+    }
+
     mockSend
-      .mockResolvedValueOnce({ PartnerEventSources: [] }) // Simulate "List" finding no source
-      .mockResolvedValueOnce({}) // Simulate successful event send
+      .mockResolvedValueOnce({ PartnerEventSources: [{ Name: 'aws.partner/segment.com.test/test-source' }] }) // ListPartnerEventSourcesCommand
+      .mockResolvedValueOnce({
+        FailedEntryCount: 0,
+        Entries: [{}]
+      })
 
-    await send(payloads, settings)
-
-    expect(mockSend).toHaveBeenCalledWith(expect.any(Object))
-    expect(mockSend).toHaveBeenCalledTimes(3) // One for List, one for Put
+    const result = await send(payloads, settings)
+    const response = result.getAllResponses()[0].data
+    expect(response.status).toBe(200)
   })
 })

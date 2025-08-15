@@ -30,15 +30,6 @@ test('authentication should contain valid AWS region choices', () => {
   ])
 })
 
-test('authentication should contain valid partnerEventSourceName choices', () => {
-  const partnerEventSourceField = testDestination.authentication?.fields?.partnerEventSourceName
-  expect(partnerEventSourceField).toBeDefined()
-  expect(partnerEventSourceField?.choices).toEqual([
-    { label: 'segment.com', value: 'aws.partner/segment.com' },
-    { label: 'segment.com.test', value: 'aws.partner/segment.com.test' }
-  ])
-})
-
 test('createPartnerEventSource should default to false', () => {
   const createPartnerEventSourceField = testDestination.authentication?.fields?.createPartnerEventSource
   expect(createPartnerEventSourceField).toBeDefined()
