@@ -21,7 +21,7 @@ export interface Payload {
    *                     which the event primarily concerns. Any number,
    *                     including zero, may be present.
    */
-  resources?: string
+  resources?: string[]
   /**
    * The timestamp the event occurred.
    */
