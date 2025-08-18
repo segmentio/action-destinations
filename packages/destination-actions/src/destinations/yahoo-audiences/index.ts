@@ -17,7 +17,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Yahoo Audiences',
   slug: 'actions-yahoo-audiences',
   mode: 'cloud',
-  description: 'Sync Segment Engage Audiences to Yahoo Ads',
+  description: 'Sync users to Yahoo Ads',
   authentication: {
     scheme: 'oauth2',
     fields: {
@@ -176,6 +176,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(updateSegment.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'updateSegment',
+      mapping: defaultValues(updateSegment.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }

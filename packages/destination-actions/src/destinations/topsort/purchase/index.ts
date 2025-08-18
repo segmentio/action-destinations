@@ -61,6 +61,12 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'Count of products purchased.',
           type: 'integer',
           required: false
+        },
+        vendorId: {
+          label: 'Vendor ID',
+          description: 'The vendor ID of the product being purchased.',
+          type: 'string',
+          required: false
         }
       },
       default: {
@@ -69,7 +75,14 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             productId: { '@path': '$.product_id' },
             unitPrice: { '@path': '$.price' },
-            quantity: { '@path': '$.quantity' }
+            quantity: { '@path': '$.quantity' },
+            vendorId: {
+              '@if': {
+                exists: { '@path': '$.vendorId' },
+                then: { '@path': '$.vendorId' },
+                else: { '@path': '$.brand' }
+              }
+            }
           }
         ]
       }

@@ -24,6 +24,7 @@ Array [
   },
 ]
 `;
+
 exports[`Testing snapshot for Batch's updateProfile destination action: required fields 1`] = `
 Array [
   Object {

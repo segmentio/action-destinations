@@ -1,4 +1,4 @@
-import { ExecuteInput, Features, ModifiedResponse, RequestClient } from '@segment/actions-core'
+import { ExecuteInput, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import {
@@ -426,15 +426,15 @@ const buildAppData = (payload: Payload, settings: Settings) => {
   }
 }
 
-const buildUserData = (payload: Payload, features?: Features) => {
+const buildUserData = (payload: Payload) => {
   const { user_data } = payload
   // Removes all leading and trailing whitespace and converts all characters to lowercase.
   const normalizedValue = (value: string) => value?.replace(/\s/g, '').toLowerCase()
-  const email = smartHash(user_data?.email ?? payload.email, features, normalizedValue)
+  const email = smartHash(user_data?.email ?? payload.email, normalizedValue)
 
   // Removes all non-numberic characters and leading zeros.
   const normalizedPhoneNumber = (value: string) => value?.replace(/\D|^0+/g, '')
-  const phone_number = smartHash(user_data?.phone ?? payload.phone_number, features, normalizedPhoneNumber)
+  const phone_number = smartHash(user_data?.phone ?? payload.phone_number, normalizedPhoneNumber)
 
   // Converts all characters to lowercase
   const madid = (user_data?.madid ?? payload.mobile_ad_id)?.toLowerCase()
@@ -443,37 +443,37 @@ const buildUserData = (payload: Payload, features?: Features) => {
     const normalizedValue = value?.replace(/\s/g, '').toLowerCase()
     return normalizedValue === 'male' ? 'm' : normalizedValue === 'female' ? 'f' : normalizedValue
   }
-  const hashedGender = smartHash(user_data?.gender, features, normalizedGender)
+  const hashedGender = smartHash(user_data?.gender, normalizedGender)
 
-  const hashedLastName = smartHash(user_data?.lastName, features, normalizedValue)
+  const hashedLastName = smartHash(user_data?.lastName, normalizedValue)
 
-  const hashedFirstName = smartHash(user_data?.firstName, features, normalizedValue)
+  const hashedFirstName = smartHash(user_data?.firstName, normalizedValue)
 
   const client_ip_address = user_data?.client_ip_address ?? payload.ip_address
   const client_user_agent = user_data?.client_user_agent ?? payload.user_agent
 
-  const hashedCity = smartHash(user_data?.city, features, normalizedValue)
+  const hashedCity = smartHash(user_data?.city, normalizedValue)
 
   // checks if the full US state name is used instead of the two letter abbreviation
   const normalizedState = (value: string): string => {
     const normalizedValue = value?.replace(/\s/g, '').toLowerCase()
     return US_STATE_CODES.get(normalizedValue ?? '') ?? normalizedValue
   }
-  const hashedState = smartHash(user_data?.state, features, normalizedState)
+  const hashedState = smartHash(user_data?.state, normalizedState)
 
-  const hashedZip = smartHash(user_data?.zip, features, normalizedValue)
+  const hashedZip = smartHash(user_data?.zip, normalizedValue)
 
   const normalizedCountry = (value: string): string => {
     const normalizedValue = value?.replace(/\s/g, '').toLowerCase()
     return COUNTRY_CODES.get(normalizedValue ?? '') ?? normalizedValue
   }
-  const hashedCountry = smartHash(user_data?.country, features, normalizedCountry)
+  const hashedCountry = smartHash(user_data?.country, normalizedCountry)
 
   const external_id = user_data?.externalId?.map((id) => {
-    return processHashing(id, 'sha256', 'hex', features, 'actions-snap-conversions', normalizedValue)
+    return processHashing(id, 'sha256', 'hex', normalizedValue)
   })
 
-  const db = smartHash(user_data?.dateOfBirth, features)
+  const db = smartHash(user_data?.dateOfBirth)
   const lead_id = user_data?.leadID
   const subscription_id = user_data?.subscriptionID
 
@@ -606,7 +606,7 @@ const getSupportedActionSource = (action_source: string | undefined): string | u
     : undefined
 }
 
-const buildPayloadData = (payload: Payload, settings: Settings, features?: Features) => {
+const buildPayloadData = (payload: Payload, settings: Settings) => {
   // event_conversion_type is a required parameter whose value is enforced as
   // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
   const action_source =
@@ -626,7 +626,7 @@ const buildPayloadData = (payload: Payload, settings: Settings, features?: Featu
   const event_time = event_time_date_time ?? event_time_number
 
   const app_data = action_source === 'app' ? buildAppData(payload, settings) : undefined
-  const user_data = buildUserData(payload, features)
+  const user_data = buildUserData(payload)
   const custom_data = buildCustomData(payload)
 
   const data_processing_options = payload.data_processing_options ?? false ? ['LDU'] : undefined
@@ -730,12 +730,11 @@ const validatePayload = (payload: ReturnType<typeof buildPayloadData>) => {
 
 export const performSnapCAPIv3 = async (
   request: RequestClient,
-  data: ExecuteInput<Settings, Payload>,
-  features?: Features
+  data: ExecuteInput<Settings, Payload>
 ): Promise<ModifiedResponse<unknown>> => {
   const { payload, settings } = data
 
-  const payloadData = buildPayloadData(payload, settings, features)
+  const payloadData = buildPayloadData(payload, settings)
 
   validatePayload(payloadData)
   validateSettingsConfig(settings, payloadData.action_source)

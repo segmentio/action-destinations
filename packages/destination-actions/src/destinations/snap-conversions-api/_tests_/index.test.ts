@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
-import { hash } from '../reportConversionEvent/utils'
+import { smartHash } from '../reportConversionEvent/utils'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -593,17 +593,17 @@ describe('Snap Conversions API ', () => {
       expect(custom_data.search_string).toEqual('test-query')
       expect(custom_data.value).toEqual(1000)
 
-      expect(user_data.external_id[0]).toEqual(hash(testEvent.userId ?? ''))
-      expect(user_data.em[0]).toEqual(hash('test123@gmail.com'))
-      expect(user_data.ph[0]).toEqual(hash('448444124653'))
-      expect(user_data.db).toEqual(hash('19970216'))
-      expect(user_data.fn).toEqual(hash('tester'))
-      expect(user_data.ln).toEqual(hash('mctest'))
-      expect(user_data.ge).toEqual(hash('m'))
-      expect(user_data.ct).toEqual(hash('afakecity'))
-      expect(user_data.st).toEqual(hash('notevenastate'))
-      expect(user_data.country).toEqual(hash('bo'))
-      expect(user_data.zp).toEqual(hash('1234'))
+      expect(user_data.external_id[0]).toEqual(smartHash(testEvent.userId ?? ''))
+      expect(user_data.em[0]).toEqual(smartHash('test123@gmail.com'))
+      expect(user_data.ph[0]).toEqual(smartHash('448444124653'))
+      expect(user_data.db).toEqual(smartHash('19970216'))
+      expect(user_data.fn).toEqual(smartHash('tester'))
+      expect(user_data.ln).toEqual(smartHash('mctest'))
+      expect(user_data.ge).toEqual(smartHash('m'))
+      expect(user_data.ct).toEqual(smartHash('afakecity'))
+      expect(user_data.st).toEqual(smartHash('notevenastate'))
+      expect(user_data.country).toEqual(smartHash('bo'))
+      expect(user_data.zp).toEqual(smartHash('1234'))
       expect(user_data.client_ip_address).toBe(testEvent.context?.ip)
       expect(user_data.client_user_agent).toBe(testEvent.context?.userAgent)
       expect(user_data.idfv).toBe(testEvent.context?.device?.id)
@@ -711,7 +711,7 @@ describe('Snap Conversions API ', () => {
       expect(custom_data.search_string).toEqual('test-query')
       expect(custom_data.value).toEqual(1000)
 
-      expect(user_data.external_id[0]).toEqual(hash(testEvent.userId ?? ''))
+      expect(user_data.external_id[0]).toEqual(smartHash(testEvent.userId ?? ''))
       expect(user_data.em[0]).toEqual('388c735eec8225c4ad7a507944dd0a975296baea383198aa87177f29af2c6f69')
       expect(user_data.ph[0]).toEqual('d74dcef7e1dba5aed01b62bc932ab1a7848ed9a590ca029aa958a1bf82b6993d')
       expect(user_data.db).toEqual('6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b')
@@ -819,7 +819,7 @@ describe('Snap Conversions API ', () => {
       expect(custom_data.search_string).toEqual('test-query')
       expect(custom_data.value).toEqual(1000)
 
-      expect(user_data.external_id[0]).toEqual(hash(testEvent.userId ?? ''))
+      expect(user_data.external_id[0]).toEqual(smartHash(testEvent.userId ?? ''))
       expect(user_data.em[0]).toEqual('388c735eec8225c4ad7a507944dd0a975296baea383198aa87177f29af2c6f69')
       expect(user_data.ph[0]).toEqual('d74dcef7e1dba5aed01b62bc932ab1a7848ed9a590ca029aa958a1bf82b6993d')
       expect(user_data.fn).toEqual(undefined)

@@ -14,10 +14,6 @@ export interface Payload {
    */
   event_time: string
   /**
-   * The timezone of the event. TODO: Add more information about this field.
-   */
-  event_timezone?: string
-  /**
    * Indicates the channel through which conversion happened.
    */
   action_source: string

@@ -30,7 +30,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     enable_batching: { ...enable_batching },
     external_audience_id: { ...external_audience_id }
   },
-  perform: async (request, { audienceSettings, payload, statsContext, features }) => {
+  perform: async (request, { audienceSettings, payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
     const statsTag = statsContext?.tags
 
@@ -39,9 +39,9 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
 
     statsClient?.incr('removeFromAudience', 1, statsTag)
-    return processPayload(request, audienceSettings, [payload], 'delete', features || {})
+    return processPayload(request, audienceSettings, [payload], 'delete')
   },
-  performBatch: async (request, { audienceSettings, payload, statsContext, features }) => {
+  performBatch: async (request, { audienceSettings, payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
     const statsTag = statsContext?.tags
 
@@ -50,7 +50,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
 
     statsClient?.incr('removeFromAudience', 1, statsTag)
-    return processPayload(request, audienceSettings, payload, 'delete', features || {})
+    return processPayload(request, audienceSettings, payload, 'delete')
   }
 }
 

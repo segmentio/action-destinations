@@ -8,6 +8,7 @@ import deleteObject from './deleteObject'
 import deletePerson from './deletePerson'
 import mergePeople from './mergePeople'
 import reportDeliveryEvent from './reportDeliveryEvent'
+import reportContentEvent from './reportContentEvent'
 import suppressPerson from './suppressPerson'
 import unsuppressPerson from './unsuppressPerson'
 import trackEvent from './trackEvent'
@@ -72,7 +73,8 @@ const destination: DestinationDefinition<Settings> = {
     mergePeople,
     suppressPerson,
     unsuppressPerson,
-    reportDeliveryEvent
+    reportDeliveryEvent,
+    reportContentEvent
   },
 
   presets: [
@@ -100,6 +102,7 @@ const destination: DestinationDefinition<Settings> = {
         and event != "User Unsuppressed"
         and event != "Object Deleted"
         and event != "Report Delivery Event"
+        and event != "Report Content Event"
       `,
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields),
@@ -132,6 +135,13 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportDeliveryEvent',
       mapping: defaultValues(reportDeliveryEvent.fields),
       type: 'automatic'
+    },
+    {
+      name: 'Report Content Event',
+      subscribe: 'event = "Report Content Event"',
+      partnerAction: 'reportContentEvent',
+      mapping: defaultValues(reportContentEvent.fields),
+      type: 'automatic',
     },
     {
       name: 'Associated Entity Added',

@@ -14,3 +14,19 @@ export const serializeParams = (params: any) => {
     }, new URLSearchParams())
     .toString()
 }
+
+export function normalizeEmail(email: string): string {
+  if (!email) {
+    return ''
+  }
+
+  email = email.trim().toLowerCase()
+
+  if (email.endsWith('@gmail.com')) {
+    const [localPart, domain] = email.split('@')
+    const cleanedLocalPart = localPart.replace(/\./g, '').split('+')[0]
+    return `${cleanedLocalPart}@${domain}`
+  }
+
+  return email
+}

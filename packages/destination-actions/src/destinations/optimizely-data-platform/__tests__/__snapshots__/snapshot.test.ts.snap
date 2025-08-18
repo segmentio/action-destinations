@@ -17,8 +17,10 @@ Array [
     "user_identifiers": Object {
       "anonymousId": "p$KWIG5p0vR(@gNw)lv@",
       "email": "agijit@cove.ly",
+      "fs_user_id": "p$KWIG5p0vR(@gNw)lv@",
       "optimizely_vuid": "p$KWIG5p0vR(@gNw)lv@",
       "userId": "p$KWIG5p0vR(@gNw)lv@",
+      "web_user_id": "p$KWIG5p0vR(@gNw)lv@",
     },
   },
 ]
@@ -48,8 +50,10 @@ Array [
     "user_identifiers": Object {
       "anonymousId": "SjDZyt(p",
       "email": "avasa@saec.bw",
+      "fs_user_id": "SjDZyt(p",
       "optimizely_vuid": "SjDZyt(p",
       "userId": "SjDZyt(p",
+      "web_user_id": "SjDZyt(p",
     },
   },
 ]
@@ -83,8 +87,10 @@ Array [
     "user_identifiers": Object {
       "anonymousId": "3!#ax",
       "email": "elenal@fen.uz",
+      "fs_user_id": "3!#ax",
       "optimizely_vuid": "3!#ax",
       "userId": "3!#ax",
+      "web_user_id": "3!#ax",
     },
   },
 ]
@@ -126,8 +132,10 @@ Array [
     "user_identifiers": Object {
       "anonymousId": "WnJP3)h29qx6Q9XcA@qx",
       "email": "hi@iz.bw",
+      "fs_user_id": "WnJP3)h29qx6Q9XcA@qx",
       "optimizely_vuid": "WnJP3)h29qx6Q9XcA@qx",
       "userId": "WnJP3)h29qx6Q9XcA@qx",
+      "web_user_id": "WnJP3)h29qx6Q9XcA@qx",
     },
   },
 ]

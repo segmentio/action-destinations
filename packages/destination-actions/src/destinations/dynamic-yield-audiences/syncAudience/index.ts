@@ -5,7 +5,7 @@ import { getUpsertURL, hashAndEncode, getDataCenter, getSectionId } from '../hel
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync Audience',
-  description: 'Sync Segment Engage Audiences to Dynamic Yield',
+  description: 'Sync users to Dynamic Yield',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     message_id: {
@@ -110,7 +110,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
   },
 
-  perform: async (request, { audienceSettings, payload, settings, features }) => {
+  perform: async (request, { audienceSettings, payload, settings }) => {
     const { external_audience_id } = payload
 
     if (!audienceSettings?.audience_name) {
@@ -177,7 +177,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
             {
               type: idTypeToSend,
               encoding: idTypeToSend === 'email' ? '"sha-256"' : 'raw',
-              value: idTypeToSend === 'email' ? hashAndEncode(primaryIdentifier, features || {}) : primaryIdentifier
+              value: idTypeToSend === 'email' ? hashAndEncode(primaryIdentifier) : primaryIdentifier
             }
           ],
           audiences: [

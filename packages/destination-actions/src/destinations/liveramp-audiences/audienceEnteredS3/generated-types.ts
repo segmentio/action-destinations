@@ -16,7 +16,7 @@ export interface Payload {
   /**
    * Region where the S3 bucket is hosted.
    */
-  s3_aws_region?: string
+  s3_aws_region: string
   /**
    * Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers. See more information on [LiveRamp Audience Key](https://docs.liveramp.com/connect/en/onboarding-terms-and-concepts.html#audience-key)
    */
@@ -38,7 +38,7 @@ export interface Payload {
    */
   delimiter: string
   /**
-   * Name of the CSV file to upload for LiveRamp ingestion.
+   * Name of the CSV file to upload for LiveRamp ingestion. For multiple subscriptions, make sure to use a unique filename for each subscription.
    */
   filename: string
   /**
@@ -49,4 +49,8 @@ export interface Payload {
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
+  /**
+   * Optional path within the S3 bucket where the files will be uploaded to. If not provided, files will be uploaded to the root of the bucket. Example: "folder1/folder2"
+   */
+  s3_aws_bucket_path?: string
 }

@@ -2,6 +2,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
+import { Chance } from 'chance'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'setViewPortion'
@@ -12,6 +13,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+    eventData.portion = new Chance(seedName).floating({ min: 0, max: 1 })
 
     nock(/.*/).persist().post(/.*/).reply(200)
 
@@ -43,6 +45,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   it('all fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+    eventData.portion = new Chance(seedName).floating({ min: 0, max: 1 })
 
     nock(/.*/).persist().post(/.*/).reply(200)
 

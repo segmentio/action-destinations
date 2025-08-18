@@ -52,10 +52,11 @@ export const click_id: InputField = {
 
 export const conversion_id: InputField = {
   label: 'Conversion ID',
-  description: 'The unique conversion ID that corresponds to a distinct conversion event.',
+  description:
+    'The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication.',
   type: 'string',
   required: false,
-  default: { '@path': '$.properties.conversion_id' },
+  default: { '@path': '$.messageId' },
   category: 'hashedPII'
 }
 
@@ -99,7 +100,11 @@ export const event_metadata: InputField = {
       '@path': '$.properties.quantity'
     },
     value_decimal: {
-      '@path': '$.properties.total'
+      '@if': {
+        exists: { '@path': '$.properties.revenue' },
+        then: { '@path': '$.properties.revenue' },
+        else: { '@path': '$.properties.total' }
+      }
     }
   }
 }
@@ -187,6 +192,11 @@ export const user: InputField = {
       description:
         "The value from the first-party Pixel '_rdt_uuid' cookie on your domain. Note that it is in the '{timestamp}.{uuid}' format. You may use the full value or just the UUID portion.",
       type: 'string'
+    },
+    phone_number: {
+      label: 'Phone Number',
+      description: 'The phone number of the user in E.164 standard format.',
+      type: 'string'
     }
   },
   default: {
@@ -213,6 +223,13 @@ export const user: InputField = {
         exists: { '@path': '$.integrations.Reddit Conversions Api.uuid' },
         then: { '@path': '$.integrations.Reddit Conversions Api.uuid' },
         else: { '@path': '$.properties.uuid' }
+      }
+    },
+    phone_number: {
+      '@if': {
+        exists: { '@path': '$.context.traits.phone' },
+        then: { '@path': '$.context.traits.phone' },
+        else: { '@path': '$.properties.phone' }
       }
     }
   }

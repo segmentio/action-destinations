@@ -213,9 +213,6 @@ describe('PinterestConversionApi', () => {
             num_items: '2',
             value: 2000
           }
-        },
-        features: {
-          'smart-hashing': true
         }
       })
       expect(responses.length).toBe(1)

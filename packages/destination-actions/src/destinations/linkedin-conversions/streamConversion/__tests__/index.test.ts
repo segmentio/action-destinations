@@ -459,8 +459,7 @@ describe('LinkedinConversions.streamConversion', () => {
           },
           enable_batching: true,
           batch_size: 5000
-        },
-        features: { 'smart-hashing': true }
+        }
       })
     ).resolves.not.toThrowError()
   })

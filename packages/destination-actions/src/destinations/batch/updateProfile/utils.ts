@@ -183,3 +183,4 @@ function mapSubscription(value: unknown): SubscriptionSetting | 'reset' {
 
   return 'reset'
 }
+

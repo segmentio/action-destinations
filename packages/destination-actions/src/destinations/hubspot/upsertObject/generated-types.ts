@@ -67,4 +67,8 @@ export interface Payload {
    * Maximum number of events to include in each batch.
    */
   batch_size: number
+  /**
+   * The time the event occurred. This will be used to de-duplicate the events before sending them to hubspot.
+   */
+  timestamp?: string
 }

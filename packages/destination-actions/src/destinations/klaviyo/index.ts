@@ -168,6 +168,41 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(removeProfileFromList.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_exited_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'addProfileToList',
+      mapping: defaultValues(addProfileToList.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'orderCompleted',
+      mapping: defaultValues(orderCompleted.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'subscribeProfile',
+      mapping: defaultValues(subscribeProfile.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'unsubscribeProfile',
+      mapping: defaultValues(unsubscribeProfile.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }

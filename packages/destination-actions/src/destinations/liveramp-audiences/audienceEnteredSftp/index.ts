@@ -2,7 +2,11 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
-import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
+import {
+  LIVERAMP_MIN_RECORD_COUNT,
+  LIVERAMP_LEGACY_FLOW_FLAG_NAME,
+  LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME
+} from '../properties'
 
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -63,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     filename: {
       label: 'Filename',
-      description: `Name of the CSV file to upload for LiveRamp ingestion.`,
+      description: `Name of the CSV file to upload for LiveRamp ingestion. For multiple subscriptions, make sure to use a unique filename for each subscription.`,
       type: 'string',
       required: true,
       default: { '@template': '{{properties.audience_key}}_PII.csv' }
@@ -136,6 +140,8 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     //------------
     // AWS FLOW
     // -----------
+    const shouldEnableCompression = input.features && input.features[LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME] === true
+
     return sendEventToAWS(input.request, {
       audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
       uploadType: 'sftp',
@@ -143,6 +149,7 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
       fileContents,
       destinationInstanceID: subscriptionMetadata?.destinationConfigId,
       subscriptionId: subscriptionMetadata?.actionConfigId,
+      gzipCompressFile: shouldEnableCompression,
       sftpInfo: {
         sftpUsername: input.payloads[0].sftp_username,
         sftpPassword: input.payloads[0].sftp_password,

@@ -1,4 +1,4 @@
-import { RequestClient, PayloadValidationError, Features } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload as ReportOfflineEventPayload } from './reportOfflineEvent/generated-types'
 import { Payload as TrackNonPaymentOfflineConversionPayload } from './trackNonPaymentOfflineConversion/generated-types'
@@ -10,15 +10,10 @@ type OfflineEventPayload =
   | TrackNonPaymentOfflineConversionPayload
   | TrackPaymentOfflineConversionPayload
 
-export function performOfflineEvent(
-  request: RequestClient,
-  settings: Settings,
-  payload: OfflineEventPayload,
-  features: Features
-) {
-  const phone_numbers = formatPhones(payload.phone_numbers, features)
-  const emails = formatEmails(payload.email_addresses, features)
-  const userIds = formatUserIds(payload.external_ids, features)
+export function performOfflineEvent(request: RequestClient, settings: Settings, payload: OfflineEventPayload) {
+  const phone_numbers = formatPhones(payload.phone_numbers)
+  const emails = formatEmails(payload.email_addresses)
+  const userIds = formatUserIds(payload.external_ids)
 
   if (phone_numbers.length < 1 && emails.length < 1 && userIds.length < 1)
     throw new PayloadValidationError(

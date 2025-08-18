@@ -26,8 +26,10 @@ Array [
     "user_identifiers": Object {
       "anonymousId": "uMyg@6QjI31r!",
       "email": "usezaf@efeho.vg",
+      "fs_user_id": "uMyg@6QjI31r!",
       "optimizely_vuid": "uMyg@6QjI31r!",
       "userId": "uMyg@6QjI31r!",
+      "web_user_id": "uMyg@6QjI31r!",
     },
   },
 ]

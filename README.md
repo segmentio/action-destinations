@@ -31,6 +31,7 @@ For more detailed instruction, see the following READMEs:
 - [Presets](#presets)
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
+- [Parsing MultiStatus Responses](#parsing-multistatus-responses)
 - [Action Hooks](#action-hooks)
 - [HTTP Requests](#http-requests)
 - [Support](#support)
@@ -692,7 +693,7 @@ The perform method will be invoked once for every event subscription that trigge
 
 ## Batching Requests
 
-Sometimes your customers have a lot of events, and your API supports a more efficient way to receive and process those large sets of data. We have early, experimental support for batching.
+Sometimes your customers have a lot of events, and your API supports a more efficient way to receive and process those large sets of data.
 
 You can implement an _additional_ perform method named `performBatch` in the action definition, alongside the `perform` method. The method signature looks like identical to `perform` except the `payload` is an array of data, where each item is an object matching your action’s field schema:
 
@@ -734,7 +735,100 @@ Keep in mind a few important things about how batching works:
 - Batches may have to up 1,000 events, currently. This, too, is subject to change.
 - Batch sizes are not guaranteed. Due to the way that batches are accumulated internally, you may see smaller batch sizes than you expect when sending low rates of events.
 
-Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
+### Advanced batching configurations
+
+The following are some advanced batching configurations for Cloud Mode destinations. Please consult with Segment before using any of these features as this could have significant impact on your destination's performance.
+
+### Batch Keys
+
+By default, Segment groups events using destination instance, settings, action instance, and action mapping settings. For `AudienceDestinationDefinition` implementations, `computation_key` (audience key), audience config settings, and `externalAudienceId` (unique external audience identifier) are also used for batch grouping.
+
+In case you have special requirement to group events into batches based on mapping resolved value of certain field configurations, you can declare those using `batch_keys` field in your action configuration. It is important that the fields chosen for grouping are of low cardinality to avoid forming small batches.
+
+```js
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Account',
+  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  defaultSubscription: 'type = "group"',
+  fields: {
+    list_id: {...},
+    enable_batching: {...}
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true, // this should always be hidden and shouldn't be exposed to customers.
+      required: false,
+      multiple: true,
+      default: ['list_id']
+    },
+  },
+  performBatch: async (request, { settings, payload }) => { ... }
+}
+```
+
+### Batch Size
+
+In case you need to control the maximum number of events that can be batched together for a specific action, you can declare the `batch_size` field in your action configuration. This field allows you to define the upper limit for the number of events in a single batch. It is important to use judgement when deciding to expose this field to customers, as it can impact delivery performance. When exposed, ensure that min and max limits of batch size values is enforced for validation. If a `batch_size` is not specified, the default batch size of 1000 will be used. Please note this default value is subject to change.
+
+```js
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Account',
+  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  defaultSubscription: 'type = "group"',
+  fields: {
+    list_id: {...},
+    enable_batching: {...}
+    batch_size: {
+      label: 'Batch Size',
+      description: 'The maximum number of events to include in a single batch.',
+      type: 'number',
+      unsafe_hidden: true, // consider if this should be exposed to customers.
+      default: 10000,
+      required: false
+    }
+  },
+  performBatch: async (request, { settings, payload }) => { ... }
+}
+```
+
+### Batch Bytes
+
+In addition to `batch_size`, you can also control the maximum size of a batch in terms of bytes using the `batch_bytes` field in your action configuration. This field allows you to set an upper limit on the total byte size of the batch payload that can be received in your `performBatch` function. This can be useful when the destination API has limitations on request payload size. Exercise caution when using this field and avoid exposing it to customers as it can affect delivery performance. If not specified, a default byte limit of 4MB will be considered. Please note this default value is subject to change.
+
+```js
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Account',
+  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  defaultSubscription: 'type = "group"',
+  fields: {
+    list_id: {...},
+    enable_batching: {...},
+    batch_size: {
+      label: 'Batch Size',
+      description: 'The maximum number of events to include in a single batch.',
+      type: 'number',
+      unsafe_hidden: true,
+      required: false
+    },
+    batch_bytes: {
+      label: 'Batch Bytes',
+      description: 'The maximum size of a batch in bytes.',
+      type: 'number',
+      unsafe_hidden: true, // consider if this should be exposed to customers. Please avoid by default.
+      required: false,
+      default: 2000000 // 2 MB
+    }
+  },
+  performBatch: async (request, { settings, payload }) => { ... }
+}
+```
+
+## Parsing MultiStatus Responses
+
+When a batch request to a destination returns a 207 MultiStatus response, the `performBatch` method will typically receive an array of responses, indicating the status of each event in the batch. The Actions Framework provides a `MultiStatusResponse` class to help you parse these responses to report a more granular success or failure status for each event.
+
+A detailed example of how to use the `MultiStatusResponse` class can be found in the [MultiStatus Documentation](./docs/multistatus.md).
 
 ## Action Hooks
 
@@ -959,6 +1053,50 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 - `headers` can only be a plain object instead of also accepting a `Headers` object.
 - some options and behaviors are not applicable to Node.js and will be ignored by `node-fetch`. See this list of [known differences](https://github.com/node-fetch/node-fetch/blob/1780f5ae89107ded4f232f43219ab0e548b0647c/docs/v2-LIMITS.md).
 - `method` will automatically get upcased for consistency.
+
+## Automatic Hashing Detection with `processHashing`
+
+Our popular segment Adtect destinations support [automatic hash detection](https://segment.com/docs/connections/destinations/#hashing) of personally identifyable information (PII). If your destination hashes PII data, we recommend you use the `processHashing` utility instead of `createHash` from `crypto` module.
+This utility automatically detects if a value is already hashed. It will only apply a hash if the value appears to be unhashed.
+
+The `processHashing` utility supports `md5`, `sha1`,`sha224`,`sha256`,`sha384` and`sha512` hashing algorithms. It can output digests in `hex` or `base64` format.
+
+**Note**: For empty or whitespace-only strings, the `processHashing` outputs an empty string instead of throwing an error like `createHash` hash module.
+
+### Example 1: Hashing an Email Address
+
+```
+  import { processHashing } from 'destination-actions/lib/hashing-utils'
+
+  const email = ' Person@email.com '
+  const hashedEmail = processHashing(
+    email,
+    'sha256',
+    'hex',
+    (value) => value.trim().toLowerCase()
+  )
+
+  console.log(hashedEmail) // hashed string
+```
+
+### Example 2: Hashing a Phone Number
+
+```
+  const phone = '+1(706)-767-5127'
+  const normalizePhone = (value: string) => value.replace(/[^0-9]/g, '')
+
+  const hashedPhone = processHashing(
+    phone,
+    'sha256',
+    'hex',
+    normalizePhone
+  )
+
+  console.log(hashedPhone) // hashed string
+```
+
+**Requesting Additional Algorithms**
+To request additional hash algorithms, contact partner-support@segment.com.
 
 ## Support
 

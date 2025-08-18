@@ -93,6 +93,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(syncAudience.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }

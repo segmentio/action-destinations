@@ -1,4 +1,4 @@
-import type { ActionDefinition, Features, RequestClient, StatsContext } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient, StatsContext } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -149,13 +149,13 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, { payload, auth, statsContext, features }) => {
+  perform: (request, { payload, auth, statsContext }) => {
     const rt_access_token = auth?.accessToken
-    return process_payload(request, [payload], rt_access_token, statsContext, features ?? {})
+    return process_payload(request, [payload], rt_access_token, statsContext)
   },
-  performBatch: (request, { payload, auth, statsContext, features }) => {
+  performBatch: (request, { payload, auth, statsContext }) => {
     const rt_access_token = auth?.accessToken
-    return process_payload(request, payload, rt_access_token, statsContext, features ?? {})
+    return process_payload(request, payload, rt_access_token, statsContext)
   }
 }
 
@@ -164,10 +164,9 @@ async function process_payload(
   request: RequestClient,
   payload: Payload[],
   token: string | undefined,
-  statsContext: StatsContext | undefined,
-  features: Features
+  statsContext: StatsContext | undefined
 ) {
-  const body = gen_update_segment_payload(payload, features)
+  const body = gen_update_segment_payload(payload)
   const statsClient = statsContext?.statsClient
   const statsTag = statsContext?.tags
   // Send request to Yahoo only when all events in the batch include selected Ids

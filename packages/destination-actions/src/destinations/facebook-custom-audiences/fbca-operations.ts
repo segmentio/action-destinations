@@ -41,7 +41,7 @@ interface FacebookSyncRequestParams {
 }
 
 // exported for unit testing. Also why these are not members of the class
-export const generateData = (payloads: Payload[], features: Features | undefined): (string | number)[][] => {
+export const generateData = (payloads: Payload[]): (string | number)[][] => {
   const data: (string | number)[][] = new Array(payloads.length)
 
   payloads.forEach((payload, index) => {
@@ -50,10 +50,10 @@ export const generateData = (payloads: Payload[], features: Features | undefined
     Object.entries(payload).forEach(([key, value]) => {
       if (typeof value === 'object') {
         Object.entries(value).forEach(([nestedKey, value]) => {
-          appendToDataRow(nestedKey, value as string | number, row, features)
+          appendToDataRow(nestedKey, value as string | number, row)
         })
       } else {
-        appendToDataRow(key, value as string | number, row, features)
+        appendToDataRow(key, value as string | number, row)
       }
     })
 
@@ -63,12 +63,7 @@ export const generateData = (payloads: Payload[], features: Features | undefined
   return data
 }
 
-const appendToDataRow = (
-  key: string,
-  value: string | number,
-  row: (string | number)[],
-  features: Features | undefined
-) => {
+const appendToDataRow = (key: string, value: string | number, row: (string | number)[]) => {
   const index = segmentSchemaKeyToArrayIndex.get(key)
 
   if (index === undefined) {
@@ -81,14 +76,7 @@ const appendToDataRow = (
     return
   }
 
-  row[index] = processHashing(
-    value,
-    'sha256',
-    'hex',
-    features,
-    'actions-facebook-custom-audiences',
-    normalizationFunctions.get(key)
-  )
+  row[index] = processHashing(value, 'sha256', 'hex', normalizationFunctions.get(key))
 }
 
 export const getApiVersion = (features?: Features, statsContext?: StatsContext): string => {
@@ -154,7 +142,7 @@ export default class FacebookClient {
   }
 
   syncAudience = async (input: { audienceId: string; payloads: Payload[]; deleteUsers?: boolean }) => {
-    const data = generateData(input.payloads, this.features)
+    const data = generateData(input.payloads)
 
     const app_ids: string[] = []
     let app_ids_items = 0

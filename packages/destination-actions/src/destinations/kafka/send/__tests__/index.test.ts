@@ -1,6 +1,9 @@
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { Kafka, KafkaConfig, Partitioners } from 'kafkajs'
+import { producersByConfig, serializeKafkaConfig, getOrCreateProducer } from '../../utils'
+import { Settings } from '../../generated-types'
+import { Producer } from 'kafkajs'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -65,6 +68,7 @@ describe('Kafka.send', () => {
      {
         clientId: 'yourClientId',
         brokers: ['yourBroker'],
+        requestTimeout: 10000,
         ssl: true,
         sasl: {
           mechanism: 'plain',
@@ -90,6 +94,7 @@ describe('Kafka.send', () => {
      {
         clientId: 'yourClientId',
         brokers: ['yourBroker'],
+        requestTimeout: 10000,
         ssl: true,
         sasl: {
           mechanism: 'scram-sha-256',
@@ -115,6 +120,7 @@ describe('Kafka.send', () => {
      {
         clientId: 'yourClientId',
         brokers: ['yourBroker'],
+        requestTimeout: 10000,
         ssl: true,
         sasl: {
           mechanism: 'scram-sha-512',
@@ -143,6 +149,7 @@ describe('Kafka.send', () => {
      {
         clientId: 'yourClientId',
         brokers: ['yourBroker'],
+        requestTimeout: 10000,
         ssl: true,
         sasl: {
           mechanism: 'aws',
@@ -170,6 +177,7 @@ describe('Kafka.send', () => {
      {
         clientId: 'yourClientId',
         brokers: ['yourBroker'],
+        requestTimeout: 10000,
         ssl: {
           ca: ['-----BEGIN CERTIFICATE-----\nyourCACert\n-----END CERTIFICATE-----'],
           rejectUnauthorized: true
@@ -205,6 +213,7 @@ describe('Kafka.send', () => {
      {
         clientId: 'yourClientId',
         brokers: ['yourBroker'],
+        requestTimeout: 10000,
         ssl: {
           ca: ['-----BEGIN CERTIFICATE-----\nyourCACert\n-----END CERTIFICATE-----'],
           rejectUnauthorized: true,
@@ -239,5 +248,136 @@ describe('Kafka.send', () => {
         }
       ]
     })
+  })
+
+  it('serializeKafkaConfig() generates the correct producer connection cache key', async () => {
+    const settings: Settings = {
+      clientId: 'testClientId',
+      brokers: 'https://broker1:9092,https://broker2:9092',
+      mechanism: 'plain',
+      username: 'testUsername',
+      password: 'testPassword',
+      accessKeyId: 'testAccessKeyId',
+      secretAccessKey: 'testSecretAccessKey',
+      authorizationIdentity: 'testAuthorizationIdentity',
+      ssl_ca: 'testCACert',
+      ssl_cert: 'testCert',
+      ssl_key: 'testKey',
+      ssl_reject_unauthorized_ca: true,
+      ssl_enabled: true
+    }
+
+    const key = serializeKafkaConfig(settings)
+    expect(typeof key).toBe('string')
+    expect(key).toBe('{"clientId":"testClientId","brokers":["https://broker1:9092","https://broker2:9092"],"mechanism":"plain","username":"testUsername","password":"testPassword","accessKeyId":"testAccessKeyId","secretAccessKey":"testSecretAccessKey","authorizationIdentity":"testAuthorizationIdentity","ssl_ca":"testCACert","ssl_cert":"testCert","ssl_key":"testKey","ssl_reject_unauthorized_ca":true,"ssl_enabled":true}')
+  })
+
+  it('serializeKafkaConfig generates the correct producer connection cache key', async () => {
+    const settings: Settings = {
+      clientId: 'testClientId',
+      brokers: 'https://broker1:9092,https://broker2:9092',
+      mechanism: 'plain',
+      username: 'testUsername',
+      password: 'testPassword',
+      accessKeyId: 'testAccessKeyId',
+      secretAccessKey: 'testSecretAccessKey',
+      authorizationIdentity: 'testAuthorizationIdentity',
+      ssl_ca: 'testCACert',
+      ssl_cert: 'testCert',
+      ssl_key: 'testKey',
+      ssl_reject_unauthorized_ca: true,
+      ssl_enabled: true
+    }
+
+    const key = serializeKafkaConfig(settings)
+    expect(typeof key).toBe('string')
+    expect(key).toBe('{"clientId":"testClientId","brokers":["https://broker1:9092","https://broker2:9092"],"mechanism":"plain","username":"testUsername","password":"testPassword","accessKeyId":"testAccessKeyId","secretAccessKey":"testSecretAccessKey","authorizationIdentity":"testAuthorizationIdentity","ssl_ca":"testCACert","ssl_cert":"testCert","ssl_key":"testKey","ssl_reject_unauthorized_ca":true,"ssl_enabled":true}')
+  })
+})
+
+describe('getOrCreateProducer', () => {
+  const settings = {
+    clientId: 'testClientId',
+    brokers: 'https://broker1:9092,https://broker2:9092',
+    mechanism: 'plain',
+    username: 'testUsername',
+    password: 'testPassword',
+    accessKeyId: 'testAccessKeyId',
+    secretAccessKey: 'testSecretAccessKey',
+    authorizationIdentity: 'testAuthorizationIdentity',
+    ssl_ca: 'testCACert',
+    ssl_cert: 'testCert',
+    ssl_key: 'testKey',
+    ssl_reject_unauthorized_ca: true,
+    ssl_enabled: true
+  }
+
+  afterEach(() => {
+    for (const key in producersByConfig) {
+      delete producersByConfig[key]
+    }
+    jest.restoreAllMocks()
+  })
+
+  it('getOrCreateProducer ensures existing connections are reused', async () => {
+    const now = Date.now()
+    const key = serializeKafkaConfig(settings)
+
+    const fakeProducer = {
+      connect: jest.fn(),
+      disconnect: jest.fn(),
+      send: jest.fn(),
+      sendBatch: jest.fn(),
+      transaction: jest.fn()
+    } as unknown as Producer
+
+    // Insert into producer cache as active and recent
+    producersByConfig[key] = {
+      producer: fakeProducer,
+      isConnected: true,
+      lastUsed: now
+    }
+
+    jest.spyOn(Date, 'now').mockReturnValue(now)
+
+    const result = await getOrCreateProducer(settings, undefined)
+
+    expect(result).toBe(fakeProducer)
+    expect(fakeProducer.connect).toHaveBeenCalled() // this is a no-op since it's already connected, but is done to ensure the producer is ready anyway. It's an  idempotent operation.
+  })
+
+  it('getOrCreateProducer replaces expired connections and creates a new connection', async () => {
+    const now = Date.now()
+    const expiredTime = now - (31 * 60 * 1000) // 31 minutes ago
+    const key = serializeKafkaConfig(settings)
+
+    const oldProducer = {
+      connect: jest.fn(),
+      disconnect: jest.fn(),
+      send: jest.fn(),
+      sendBatch: jest.fn(),
+      transaction: jest.fn()
+    } as unknown as Producer
+
+    // Put expired producer in cache
+    producersByConfig[key] = {
+      producer: oldProducer,
+      isConnected: true,
+      lastUsed: expiredTime
+    }
+
+    jest.spyOn(Date, 'now').mockReturnValue(now)
+
+    const result = await getOrCreateProducer(settings, undefined)
+
+    // Expect the old producer to be cleaned up
+    expect(oldProducer.disconnect).toHaveBeenCalled()
+
+    // Expect a new producer to have connected
+    expect(result.connect).toHaveBeenCalled()
+
+    // Cache should now hold a new producer
+    expect(producersByConfig[key].producer).toBe(result)
+    expect(result).not.toBe(oldProducer)
   })
 })

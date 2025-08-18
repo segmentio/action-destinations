@@ -2,14 +2,15 @@ import { RequestClient } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import {
-  GET_TEMPLATES_URL,
+  getTemplatesURL,
   TRUNCATE_CHAR_LENGTH,
-  GET_IP_POOLS_URL,
-  GET_VALID_DOMAINS_URL,
-  GET_GROUP_IDS_URL,
-  GET_TEMPLATE_CONTENT_URL
+  getIPPoolsURL,
+  getValidDomainsURL,
+  getGroupIDsURL,
+  getTemplateContentURL
 } from './constants'
 import { parseTemplateId } from './utils'
+import type { Settings } from '../generated-types'
 
 interface ResultError {
   response: {
@@ -45,20 +46,15 @@ export function extractVariables(content: string | undefined): string[] {
   const removeIfStartsWith = ['if', 'unless', 'and', 'or', 'equals', 'notEquals', 'lessThan', 'greaterThan', 'each']
   const removeIfMatch = ['else', 'if', 'this', 'insert', 'default', 'length', 'formatDate']
 
-  const regex1 = /{{(.*?)}}/g   // matches handlebar expressions. e.g. {{root.user.username | default: "Unknown"}}
+  const regex1 = /{{(.*?)}}/g // matches handlebar expressions. e.g. {{root.user.username | default: "Unknown"}}
   const regex2 = /(["']).*?\1/g // removes anything between quotes. e.g. {{root.user.username | default: }}
   const regex3 = /[#/]?[\w.]+/g // matches words only. e.g. root.user.username , default
 
-  const words = [
-    ...new Set(
-      [...content.matchAll(regex1)].map(match => match[1])
-    )
-  ]
-  .map(word => 
-    word.replace(regex2, '').trim()
-  )
-  .join(' ')
-  .match(regex3) ?? []
+  const words =
+    [...new Set([...content.matchAll(regex1)].map((match) => match[1]))]
+      .map((word) => word.replace(regex2, '').trim())
+      .join(' ')
+      .match(regex3) ?? []
 
   const variables = [
     ...new Set(
@@ -75,7 +71,11 @@ export function extractVariables(content: string | undefined): string[] {
   return variables
 }
 
-export async function dynamicTemplateData(request: RequestClient, payload: Payload): Promise<DynamicFieldResponse> {
+export async function dynamicTemplateData(
+  request: RequestClient,
+  payload: Payload,
+  settings: Settings
+): Promise<DynamicFieldResponse> {
   interface ResultItem {
     id: string
     template_id: string
@@ -112,7 +112,7 @@ export async function dynamicTemplateData(request: RequestClient, payload: Paylo
   }
 
   try {
-    const response: ResponseType = await request(`${GET_TEMPLATE_CONTENT_URL}${templateId}`, {
+    const response: ResponseType = await request(getTemplateContentURL(settings, templateId), {
       method: 'GET',
       skipResponseCloning: true
     })
@@ -159,11 +159,11 @@ export async function dynamicTemplateData(request: RequestClient, payload: Paylo
     }
   } catch (err) {
     const error = err as ResultError
-    return createErrorResponse(error.data.error ?? 'Unknown error: dynamicTemplateData')
+    return createErrorResponse(error?.data?.error ?? 'Unknown error: dynamicTemplateData')
   }
 }
 
-export async function dynamicGroupId(request: RequestClient): Promise<DynamicFieldResponse> {
+export async function dynamicGroupId(request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> {
   interface ResultItem {
     id: string
     name: string
@@ -175,7 +175,7 @@ export async function dynamicGroupId(request: RequestClient): Promise<DynamicFie
   }
 
   try {
-    const response: ResponseType = await request(GET_GROUP_IDS_URL, {
+    const response: ResponseType = await request(getGroupIDsURL(settings), {
       method: 'GET',
       skipResponseCloning: true
     })
@@ -198,7 +198,7 @@ export async function dynamicGroupId(request: RequestClient): Promise<DynamicFie
   }
 }
 
-export async function dynamicDomain(request: RequestClient): Promise<DynamicFieldResponse> {
+export async function dynamicDomain(request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> {
   interface ResultItem {
     id: string
     subdomain?: string
@@ -212,7 +212,7 @@ export async function dynamicDomain(request: RequestClient): Promise<DynamicFiel
   }
 
   try {
-    const response: ResponseType = await request(GET_VALID_DOMAINS_URL, {
+    const response: ResponseType = await request(getValidDomainsURL(settings), {
       method: 'GET',
       skipResponseCloning: true
     })
@@ -237,7 +237,7 @@ export async function dynamicDomain(request: RequestClient): Promise<DynamicFiel
   }
 }
 
-export async function dynamicTemplateId(request: RequestClient): Promise<DynamicFieldResponse> {
+export async function dynamicTemplateId(request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> {
   interface ResultItem {
     id: string
     name: string
@@ -260,7 +260,7 @@ export async function dynamicTemplateId(request: RequestClient): Promise<Dynamic
   }
 
   try {
-    const response: ResponseType = await request(GET_TEMPLATES_URL, {
+    const response: ResponseType = await request(getTemplatesURL(settings), {
       method: 'GET',
       skipResponseCloning: true
     })
@@ -299,7 +299,7 @@ export async function dynamicTemplateId(request: RequestClient): Promise<Dynamic
   }
 }
 
-export async function dynamicIpPoolNames(request: RequestClient): Promise<DynamicFieldResponse> {
+export async function dynamicIpPoolNames(request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> {
   interface ResponseType {
     data: ResultItem[]
   }
@@ -309,7 +309,7 @@ export async function dynamicIpPoolNames(request: RequestClient): Promise<Dynami
   }
 
   try {
-    const response: ResponseType = await request(GET_IP_POOLS_URL, {
+    const response: ResponseType = await request(getIPPoolsURL(settings), {
       method: 'GET',
       skipResponseCloning: true
     })

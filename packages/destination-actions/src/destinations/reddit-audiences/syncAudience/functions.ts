@@ -2,6 +2,7 @@ import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { Payload } from '../syncAudience/generated-types'
 import { UpdateAudienceReq, Columns } from '../types'
 import { EMAIL_SCHEMA_NAME, MAID_SCHEMA_NAME } from '../const'
+// eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
 
 export async function send(request: RequestClient, payloads: Payload[]) {

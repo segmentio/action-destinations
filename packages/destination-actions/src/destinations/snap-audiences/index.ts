@@ -72,6 +72,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       eventSlug: 'warehouse_audience_membership_changed_identify'
     },
     {
+      name: 'Journeys Step Entered',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
       name: 'Sync Audience with Email',
       subscribe: 'type = "track" and context.traits.email exists',
       partnerAction: 'syncAudience',

@@ -165,6 +165,7 @@ export interface SubscribeEventData {
   data: {
     type: string
     attributes: {
+      historical_import: boolean
       custom_source?: string | number
       profiles: {
         data: SubscribeProfile[]

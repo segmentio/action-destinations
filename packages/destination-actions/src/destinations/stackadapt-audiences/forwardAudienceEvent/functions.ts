@@ -1,30 +1,31 @@
 import { RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
-import { GQL_ENDPOINT, sha256hash, stringifyJsonWithEscapedQuotes } from '../functions'
-
-const EXTERNAL_PROVIDER = 'SEGMENT_IO'
+import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes } from '../functions'
 
 const audienceMapping = stringifyJsonWithEscapedQuotes([
   {
-    incoming_key: 'audienceId',
-    destination_key: 'external_id',
-    data_type: 'string',
-    label: 'External Audience ID'
+    incomingKey: 'audienceId',
+    destinationKey: 'external_id',
+    type: 'string',
+    label: 'External Audience ID',
+    isPii: false,
   },
   {
-    incoming_key: 'audienceName',
-    destination_key: 'name',
-    data_type: 'string',
-    label: 'External Audience Name'
+    incomingKey: 'audienceName',
+    destinationKey: 'name',
+    type: 'string',
+    label: 'External Audience Name',
+    isPii: false,
+
   }
 ])
 
 const profileMapping = stringifyJsonWithEscapedQuotes([
   {
-    incoming_key: 'userId',
-    destination_key: 'external_id',
-    data_type: 'string',
-    is_pii: false,
+    incomingKey: 'userId',
+    destinationKey: 'external_id',
+    type: 'STRING',
+    isPii: false,
     label: 'External Profile ID'
   }
 ])
@@ -60,7 +61,7 @@ export async function performForwardAudienceEvents(request: RequestClient, event
       upsertProfileMapping(
         input: {
           advertiserId: ${advertiserId},
-          mappingSchema: "${profileMapping}",
+          mappingSchemaV2: ${profileMapping},
           mappableType: "${EXTERNAL_PROVIDER}",
         }
       ) {
@@ -71,7 +72,7 @@ export async function performForwardAudienceEvents(request: RequestClient, event
       upsertExternalAudienceMapping(
         input: {
           advertiserId: ${advertiserId},
-          mappingSchema: "${audienceMapping}",
+          mappingSchema: ${audienceMapping},
           mappableType: "${EXTERNAL_PROVIDER}"
         }
       ) {

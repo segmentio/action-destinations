@@ -45,5 +45,12 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         expect(rawBody).toMatchSnapshot()
       }
     })
+
+    const action = destination.actions[actionSlug]
+    if (action.fields.batch_keys) {
+      it(`${actionSlug} action - batch keys`, async () => {
+        expect(action.fields.batch_keys).toMatchSnapshot()
+      })
+    }
   }
 })

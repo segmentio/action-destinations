@@ -21,7 +21,8 @@ import {
   convertTimestamp,
   getApiVersion,
   commonEmailValidation,
-  getConversionActionDynamicData
+  getConversionActionDynamicData,
+  formatPhone
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 import { processHashing } from '../../../lib/hashing-utils'
@@ -76,6 +77,11 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       category: 'hashedPII'
+    },
+    phone_country_code: {
+      label: 'Phone Number Country Code',
+      description: `The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.`,
+      type: 'string'
     },
     phone_number: {
       label: 'Phone Number',
@@ -202,7 +208,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ad_user_data_consent_state: {
       label: 'Ad User Data Consent State',
       description:
-        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
+        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v19/Consent).',
       type: 'string',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
@@ -214,7 +220,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Ad Personalization Consent State',
       type: 'string',
       description:
-        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v19/Consent).',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
@@ -313,14 +319,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.email_address) {
-      const validatedEmail: string = processHashing(
-        payload.email_address,
-        'sha256',
-        'hex',
-        features ?? {},
-        'actions-google-enhanced-conversions',
-        commonEmailValidation
-      )
+      const validatedEmail: string = processHashing(payload.email_address, 'sha256', 'hex', commonEmailValidation)
 
       request_object.userIdentifiers.push({
         hashedEmail: validatedEmail
@@ -329,13 +328,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload.phone_number) {
       request_object.userIdentifiers.push({
-        hashedPhoneNumber: processHashing(
-          payload.phone_number,
-          'sha256',
-          'hex',
-          features ?? {},
-          'actions-google-enhanced-conversions',
-          (value) => '+' + value.split('+').join('')
+        hashedPhoneNumber: processHashing(payload.phone_number, 'sha256', 'hex', (value) =>
+          formatPhone(value, payload.phone_country_code)
         )
       } as UserIdentifierInterface)
     }
@@ -432,14 +426,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         if (payload.email_address) {
-          const validatedEmail: string = processHashing(
-            payload.email_address,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions',
-            commonEmailValidation
-          )
+          const validatedEmail: string = processHashing(payload.email_address, 'sha256', 'hex', commonEmailValidation)
 
           request_object.userIdentifiers.push({
             hashedEmail: validatedEmail
@@ -448,13 +435,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
         if (payload.phone_number) {
           request_object.userIdentifiers.push({
-            hashedPhoneNumber: processHashing(
-              payload.phone_number,
-              'sha256',
-              'hex',
-              features ?? {},
-              'actions-google-enhanced-conversions',
-              (value) => '+' + value.split('+').join('')
+            hashedPhoneNumber: processHashing(payload.phone_number, 'sha256', 'hex', (value) =>
+              formatPhone(value, payload.phone_country_code)
             )
           } as UserIdentifierInterface)
         }

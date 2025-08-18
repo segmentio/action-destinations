@@ -34,6 +34,10 @@ export interface Payload {
    */
   restatement_currency_code?: string
   /**
+   * The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.
+   */
+  phone_country_code?: string
+  /**
    * Email address of the individual who triggered the conversion event.
    */
   email_address?: string

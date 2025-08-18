@@ -156,6 +156,15 @@ const action: ActionDefinition<Settings, Payload> = {
         'Klaviyo list ID to override the default list ID when provided in an event payload. Added to support backward compatibility with klaviyo(classic) and facilitate a seamless migration.',
       type: 'string',
       default: { '@path': '$.integrations.Klaviyo.listId' }
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['list_id', 'override_list_id']
     }
   },
   hooks: {
@@ -239,6 +248,7 @@ const action: ActionDefinition<Settings, Payload> = {
       list_id: otherListId,
       override_list_id,
       country_code,
+      batch_keys,
       ...otherAttributes
     } = payload
 
@@ -299,7 +309,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: async (request, { payload, hookOutputs }) => {
+  performBatch: async (request, { payload, hookOutputs, statsContext }) => {
     payload = payload.filter((profile) => {
       // Validate and convert the phone number using the provided country code
       const validPhoneNumber = validateAndConvertPhoneNumber(profile.phone_number, profile.country_code)
@@ -314,6 +324,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return profile.email || profile.phone_number || profile.external_id
     })
+
+    if (statsContext) {
+      const { tags, statsClient } = statsContext
+      const set = new Set()
+      payload.forEach((x) => set.add(`${x.list_id}-${x.override_list_id}`))
+      statsClient?.histogram('actions-klaviyo.remove_profile_from_list.unique_list_id', set.size, tags)
+    }
 
     const profilesWithList: Payload[] = []
     const profilesWithoutList: Payload[] = []

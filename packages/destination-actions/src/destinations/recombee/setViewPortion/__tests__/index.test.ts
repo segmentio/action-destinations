@@ -99,7 +99,7 @@ describe('setViewPortion', () => {
     })
   })
 
-  it('should fail when portion is out of bounds', async () => {
+  it('should fail when portion is larger than 1', async () => {
     nock('https://rapi-eu-west.recombee.com/')
       .post(`/${DATABASE_ID}/viewportions/`)
       .query({
@@ -113,6 +113,33 @@ describe('setViewPortion', () => {
       properties: {
         product_id: 'product-id',
         portion: 1.5
+      },
+      timestamp: '2021-09-01T00:00:00.000Z'
+    })
+
+    await expect(
+      testDestination.testAction('setViewPortion', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow()
+  })
+
+  it('should fail when portion is negative', async () => {
+    nock('https://rapi-eu-west.recombee.com/')
+      .post(`/${DATABASE_ID}/viewportions/`)
+      .query({
+        hmac_timestamp: /.*/,
+        hmac_sign: /.*/
+      })
+      .reply(400, { message: 'Invalid numeric value "-1" for property portion: must be from interval [0,1]' })
+
+    const event = createTestEvent({
+      userId: 'user-id',
+      properties: {
+        product_id: 'product-id',
+        portion: -1
       },
       timestamp: '2021-09-01T00:00:00.000Z'
     })

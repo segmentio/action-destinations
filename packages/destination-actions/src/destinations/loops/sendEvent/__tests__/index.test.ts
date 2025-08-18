@@ -12,9 +12,11 @@ describe('Loops.sendEvent', () => {
       await testDestination.testAction('sendEvent', {
         settings: { apiKey: LOOPS_API_KEY }
       })
-    } catch (err) {
-      expect(err.message).toContain("missing the required field 'userId'.")
-      expect(err.message).toContain("missing the required field 'eventName'.")
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        expect(err.message).toContain("missing the required field 'userId'.")
+        expect(err.message).toContain("missing the required field 'eventName'.")
+      }
     }
   })
 
@@ -66,6 +68,44 @@ describe('Loops.sendEvent', () => {
       }
     }
     nock('https://app.loops.so/api/v1').post('/events/send', testPayload).reply(200, {
+      success: true
+    })
+
+    const responses = await testDestination.testAction('sendEvent', {
+      mapping: testPayload,
+      settings: { apiKey: LOOPS_API_KEY }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+  })
+
+  it('should work with contact properties', async () => {
+    const testPayload = {
+      userId: 'some-id-1',
+      eventName: 'signup',
+      eventProperties: {
+        someField: true, // boolean
+        someField1: 'hello', // string
+        someField2: '2024-04-01T10:09:65Z' // date
+      },
+      contactProperties: {
+        firstName: 'Bob',
+        anIntegerProperty: 1
+      }
+    }
+    const testPayloadOut = {
+      userId: 'some-id-1',
+      eventName: 'signup',
+      eventProperties: {
+        someField: true,
+        someField1: 'hello',
+        someField2: '2024-04-01T10:09:65Z'
+      },
+      firstName: 'Bob',
+      anIntegerProperty: 1
+    }
+    nock('https://app.loops.so/api/v1').post('/events/send', testPayloadOut).reply(200, {
       success: true
     })
 

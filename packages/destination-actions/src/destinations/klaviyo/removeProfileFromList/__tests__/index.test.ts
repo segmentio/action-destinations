@@ -190,4 +190,28 @@ describe('Remove List from Profile', () => {
       testDestination.testAction('removeProfileFromList', { event, mapping, settings })
     ).resolves.not.toThrowError()
   })
+
+  it('should throw payload validation error when no profile is mapped with provided identifier', async () => {
+    const email = 'test@example.com'
+    nock(`${API_URL}/profiles`).get(`/?filter=any(email,["${email}"])`).reply(200, {
+      data: []
+    })
+
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      context: {
+        personas: {
+          external_audience_id: listId
+        },
+        traits: {
+          email: 'test@example.com'
+        }
+      }
+    })
+
+    await expect(
+      testDestination.testAction('removeProfileFromList', { event, settings, useDefaultMappings: true })
+    ).rejects.toThrowError('No profiles found for the provided identifiers.')
+  })
 })

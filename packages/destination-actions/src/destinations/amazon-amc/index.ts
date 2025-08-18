@@ -253,6 +253,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'syncAudiencesToDSP',
+      mapping: {
+        ...defaultValues(syncAudiencesToDSP.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }

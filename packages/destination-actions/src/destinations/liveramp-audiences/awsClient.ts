@@ -13,6 +13,7 @@ interface SendToAWSRequest {
   uploadType: 's3' | 'sftp'
   filename: string
   fileContents: Buffer
+  gzipCompressFile?: boolean
   sftpInfo?: {
     sftpUsername?: string
     sftpPassword?: string
@@ -23,6 +24,7 @@ interface SendToAWSRequest {
     s3Region?: string
     s3AccessKeyId?: string
     s3SecretAccessKey?: string
+    s3BucketPath?: string
   }
 }
 
@@ -30,6 +32,7 @@ interface LRMetaPayload {
   audienceKey: string
   uploadType: 's3' | 'sftp'
   filename: string
+  gzipCompressFile?: boolean
   sftpInfo?: {
     sftpHost: string
     sftpPort: number
@@ -42,6 +45,7 @@ interface LRMetaPayload {
     s3Region: string
     s3AccessKeyId: string
     s3SecretAccessKey: string
+    s3BucketPath?: string
   }
 }
 
@@ -74,7 +78,8 @@ export const sendEventToAWS = async (request: RequestClient, input: SendToAWSReq
   const metadata: LRMetaPayload = {
     audienceKey: input.audienceComputeId || '',
     uploadType: input.uploadType,
-    filename: input.filename
+    filename: input.filename,
+    gzipCompressFile: input.gzipCompressFile
   }
 
   if (input.uploadType === 'sftp') {
@@ -90,7 +95,8 @@ export const sendEventToAWS = async (request: RequestClient, input: SendToAWSReq
       s3BucketName: input.s3Info?.s3BucketName || '',
       s3Region: input.s3Info?.s3Region || '',
       s3AccessKeyId: input.s3Info?.s3AccessKeyId || '',
-      s3SecretAccessKey: input.s3Info?.s3SecretAccessKey || ''
+      s3SecretAccessKey: input.s3Info?.s3SecretAccessKey || '',
+      s3BucketPath: input.s3Info?.s3BucketPath || ''
     }
   }
 

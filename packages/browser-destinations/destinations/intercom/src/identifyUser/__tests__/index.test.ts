@@ -38,6 +38,13 @@ const subscriptions: Subscription[] = [
           else: { '@path': '$.context.Intercom.userHash' }
         }
       },
+      intercom_user_jwt: {
+        '@if': {
+          exists: { '@path': '$.context.Intercom.intercom_user_jwt' },
+          then: { '@path': '$.context.Intercom.intercom_user_jwt' },
+          else: { '@path': '$.context.Intercom.intercomUserJwt' }
+        }
+      },
       hide_default_launcher: {
         '@if': {
           exists: { '@path': '$.context.Intercom.hideDefaultLauncher' },
@@ -366,6 +373,46 @@ describe('Intercom.update (user)', () => {
     expect(mockIntercom).toHaveBeenCalledWith('update', {
       user_id: 'id',
       user_hash: 'x'
+    })
+  })
+
+  test('allows passing a intercom user jwt', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'id',
+      traits: {},
+      context: {
+        Intercom: {
+          intercom_user_jwt: 'x'
+        }
+      }
+    })
+
+    await identifyUser.identify?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      user_id: 'id',
+      intercom_user_jwt: 'x'
+    })
+  })
+
+  test('accepts snake/camel case for intercom_user_jwt', async () => {
+    const context = new Context({
+      type: 'identify',
+      userId: 'id',
+      traits: {},
+      context: {
+        Intercom: {
+          intercomUserJwt: 'x'
+        }
+      }
+    })
+
+    await identifyUser.identify?.(context)
+
+    expect(mockIntercom).toHaveBeenCalledWith('update', {
+      user_id: 'id',
+      intercom_user_jwt: 'x'
     })
   })
 })

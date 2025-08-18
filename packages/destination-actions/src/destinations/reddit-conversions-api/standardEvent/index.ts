@@ -28,11 +28,11 @@ const action: ActionDefinition<Settings, Payload> = {
     event_metadata,
     conversion_id
   },
-  perform: async (request, { settings, payload, features }) => {
-    return await send(request, settings, [payload], features)
+  perform: async (request, { settings, payload }) => {
+    return await send(request, settings, [payload])
   },
-  performBatch: async (request, { settings, payload, features }) => {
-    return await send(request, settings, payload, features)
+  performBatch: async (request, { settings, payload }) => {
+    return await send(request, settings, payload)
   }
 }
 

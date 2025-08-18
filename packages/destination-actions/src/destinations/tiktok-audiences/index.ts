@@ -139,7 +139,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
       }
 
-      const externalId = r.data['list'][0]['audience_details']['audience_id']
+      const externalId = r.data?.list?.[0]?.audience_details?.audience_id
+      if (!externalId) {
+        statsClient?.incr('getAudience.error', 1, statsTags)
+        throw new IntegrationError('Audience ID not found.', 'INVALID_REQUEST_DATA', 400)
+      }
 
       if (externalId !== getAudienceInput.externalId) {
         throw new IntegrationError(
@@ -176,6 +180,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(removeFromAudience.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_exited_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'addToAudience',
+      mapping: defaultValues(addToAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }

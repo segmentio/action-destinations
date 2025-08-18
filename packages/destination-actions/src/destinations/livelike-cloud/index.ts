@@ -1,8 +1,10 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { apiBaseUrl } from './properties'
+import { apiBaseUrl } from './constants'
 
 import trackEvent from './trackEvent'
+
+import syncToUserGroup from './syncToUserGroup'
 
 const presets: DestinationDefinition['presets'] = [
   {
@@ -80,7 +82,8 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets,
   actions: {
-    trackEvent
+    trackEvent,
+    syncToUserGroup
   }
 }
 

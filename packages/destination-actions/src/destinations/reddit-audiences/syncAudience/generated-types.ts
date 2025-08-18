@@ -32,7 +32,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * When enabled, the action will batch events before sending them to LaunchDarkly. In most cases, batching should be enabled.
+   * When enabled, the action will batch events before sending them to Reddit. In most cases, batching should be enabled.
    */
   enable_batching?: boolean
   /**

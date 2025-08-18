@@ -190,8 +190,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         }
       },
       settings,
-      useDefaultMappings: true,
-      features: { 'smart-hashing': true }
+      useDefaultMappings: true
     })
 
     expect(response.length).toBe(1)

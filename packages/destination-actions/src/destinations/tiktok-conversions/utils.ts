@@ -1,4 +1,4 @@
-import { Features, RequestClient } from '@segment/actions-core'
+import { RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload } from './reportWebEvent/generated-types'
 import { formatEmails, formatPhones, formatUserIds, formatString, formatAddress } from './formatter'
@@ -9,8 +9,8 @@ import {
   TikTokConversionsUser
 } from './types'
 
-export function performWebEvent(request: RequestClient, settings: Settings, payload: Payload, features: Features) {
-  const requestUser = validateRequestUser(payload, features)
+export function performWebEvent(request: RequestClient, settings: Settings, payload: Payload) {
+  const requestUser = validateRequestUser(payload)
   const requestProperties = validateRequestProperties(payload)
   const requestPage = validateRequestPage(payload)
 
@@ -41,10 +41,10 @@ export function performWebEvent(request: RequestClient, settings: Settings, payl
   })
 }
 
-function validateRequestUser(payload: Payload, features: Features) {
-  const phone_numbers = formatPhones(payload.phone_number, features)
-  const emails = formatEmails(payload.email, features)
-  const userIds = formatUserIds(payload.external_id, features)
+function validateRequestUser(payload: Payload) {
+  const phone_numbers = formatPhones(payload.phone_number)
+  const emails = formatEmails(payload.email)
+  const userIds = formatUserIds(payload.external_id)
 
   let payloadUrl, urlTtclid
   if (payload.url) {
@@ -61,12 +61,12 @@ function validateRequestUser(payload: Payload, features: Features) {
     external_id: userIds,
     phone: phone_numbers,
     email: emails,
-    first_name: formatString(payload.first_name, features),
-    last_name: formatString(payload.last_name, features),
+    first_name: formatString(payload.first_name),
+    last_name: formatString(payload.last_name),
     city: formatAddress(payload.address?.city),
     state: formatAddress(payload.address?.state),
     country: formatAddress(payload.address?.country),
-    zip_code: formatString(payload.address?.zip_code, features)
+    zip_code: formatString(payload.address?.zip_code)
   }
 
   if (payload.ttclid || urlTtclid) {

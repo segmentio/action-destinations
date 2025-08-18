@@ -2,6 +2,14 @@
 
 exports[`Testing snapshot for actions-mantle destination: identify action - all fields 1`] = `
 Object {
+  "contacts": Array [
+    Object {
+      "email": "f$gKO(@kXal",
+      "label": "f$gKO(@kXal",
+      "name": "f$gKO(@kXal",
+      "phone": "f$gKO(@kXal",
+    },
+  ],
   "customFields": Object {
     "testType": "f$gKO(@kXal",
   },

@@ -1,4 +1,4 @@
-import type { ActionDefinition, Features, RequestClient } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import { PayloadValidationError, InvalidAuthenticationError, APIError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -96,7 +96,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { payload, settings, features }) => {
+  perform: async (request, { payload, settings }) => {
     // Check if client_identifier_id is valid
     let rt_access_token_response
     // Generate JWT token
@@ -111,9 +111,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     const rt_access_token = rt_access_token_response?.data?.token
     // Process the payload with the valid token
-    return process_payload(request, [payload], rt_access_token, settings.client_identifier_id, features || {})
+    return process_payload(request, [payload], rt_access_token, settings.client_identifier_id)
   },
-  performBatch: async (request, { payload, settings, features }) => {
+  performBatch: async (request, { payload, settings }) => {
     // Ensure client_identifier_id is provided
     let rt_access_token_response
     // Generate JWT token
@@ -128,7 +128,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     const rt_access_token = rt_access_token_response?.data?.token
     // Process the payload with the valid token
-    return process_payload(request, payload, rt_access_token, settings.client_identifier_id, features ?? {})
+    return process_payload(request, payload, rt_access_token, settings.client_identifier_id)
   }
 }
 
@@ -137,10 +137,9 @@ async function process_payload(
   request: RequestClient,
   payload: Payload[],
   token: string | undefined,
-  client_identifier_id: string,
-  features: Features
+  client_identifier_id: string
 ) {
-  const body = gen_update_segment_payload(payload, client_identifier_id, features)
+  const body = gen_update_segment_payload(payload, client_identifier_id)
   // Send request to Delivr AI only when all events in the batch include selected Ids
   if (body.data.length > 0) {
     return await request(`${DELIVRAI_BASE_URL}${DELIVRAI_SEGMENTATION_AUDIENCE}`, {

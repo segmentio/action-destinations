@@ -1,6 +1,6 @@
 import { Payload } from './updateSegment/generated-types'
 import { DelivrAIPayload } from './types'
-import { Features, RequestClient } from '@segment/actions-core'
+import { RequestClient } from '@segment/actions-core'
 import { DELIVRAI_BASE_URL, DELIVRAI_GET_TOKEN } from './constants'
 import { processHashing } from '../../lib/hashing-utils'
 
@@ -50,11 +50,7 @@ export function validate_phone(phone: string) {
     return ''
   }
 }
-export function gen_update_segment_payload(
-  payloads: Payload[],
-  client_identifier_id: string,
-  features: Features
-): DelivrAIPayload {
+export function gen_update_segment_payload(payloads: Payload[], client_identifier_id: string): DelivrAIPayload {
   const data_groups: {
     [hashed_email: string]: {
       exp: string
@@ -68,7 +64,7 @@ export function gen_update_segment_payload(
   for (const event of payloads) {
     let hashed_email: string | undefined = ''
     if (event.email) {
-      hashed_email = processHashing(event.email.toLowerCase(), 'sha256', 'hex', features, 'actions-delivrai-audiences')
+      hashed_email = processHashing(event.email.toLowerCase(), 'sha256', 'hex')
     }
     let idfa: string | undefined = ''
     let gpsaid: string | undefined = ''

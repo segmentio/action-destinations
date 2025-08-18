@@ -45,6 +45,15 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Payload to deliver to webhook URL (JSON-encoded).',
       type: 'object',
       default: { '@path': '$.' }
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The mapping keys to batch events together by.',
+      type: 'string',
+      multiple: true,
+      required: false,
+      unsafe_hidden: true,
+      default: ['url', 'method', 'headers']
     }
   },
   perform: (request, { payload }) => {
@@ -59,9 +68,19 @@ const action: ActionDefinition<Settings, Payload> = {
       throw error
     }
   },
-  performBatch: (request, { payload }) => {
+  performBatch: (request, { payload, statsContext }) => {
     // Expect these to be the same across the payloads
     const { url, method, headers } = payload[0]
+
+    if (statsContext) {
+      const { statsClient, tags } = statsContext
+      const set = new Set()
+      for (const p of payload) {
+        set.add(`${p.url} ${p.method} ${JSON.stringify(p.headers)}`)
+      }
+      statsClient?.histogram('webhook.configurable_batch_keys.unique_keys', set.size, tags)
+    }
+
     try {
       return request(url, {
         method: method as RequestMethod,

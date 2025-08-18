@@ -21,4 +21,8 @@ export interface Payload {
    * When enabled, the action will use the Klaviyo batch API.
    */
   enable_batching?: boolean
+  /**
+   * The keys to use for batching the events.
+   */
+  batch_keys?: string[]
 }

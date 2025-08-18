@@ -7,7 +7,8 @@ import {
   JSONLikeObject,
   HTTPError,
   MultiStatusResponse,
-  ErrorCodes
+  ErrorCodes,
+  StatsContext
 } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
 import { Settings } from './generated-types'
@@ -141,7 +142,7 @@ export const createImportJobPayload = (profiles: Payload[], listId?: string): { 
     attributes: {
       profiles: {
         data: profiles.map(
-          ({ list_id, enable_batching, batch_size, override_list_id, country_code, ...attributes }) => ({
+          ({ list_id, enable_batching, batch_size, override_list_id, country_code, batch_keys, ...attributes }) => ({
             type: 'profile',
             attributes
           })
@@ -222,7 +223,8 @@ export async function getProfiles(
 export function formatSubscribeProfile(
   email: string | undefined,
   phone_number: string | undefined,
-  consented_at: string | number | undefined
+  consented_at: string | number | undefined,
+  historical_import: boolean | undefined = false
 ) {
   const profileToSubscribe: SubscribeProfile = {
     type: 'profile',
@@ -238,7 +240,7 @@ export function formatSubscribeProfile(
         consent: 'SUBSCRIBED'
       }
     }
-    if (consented_at) {
+    if (historical_import && consented_at) {
       profileToSubscribe.attributes.subscriptions.email.marketing.consented_at = consented_at
     }
   }
@@ -249,7 +251,7 @@ export function formatSubscribeProfile(
         consent: 'SUBSCRIBED'
       }
     }
-    if (consented_at) {
+    if (historical_import && consented_at) {
       profileToSubscribe.attributes.subscriptions.sms.marketing.consented_at = consented_at
     }
   }
@@ -260,7 +262,8 @@ export function formatSubscribeProfile(
 export function formatSubscribeRequestBody(
   profiles: SubscribeProfile | SubscribeProfile[],
   list_id: string | undefined,
-  custom_source: string | undefined
+  custom_source: string | undefined,
+  historical_import: boolean | undefined = false
 ) {
   if (!Array.isArray(profiles)) {
     profiles = [profiles]
@@ -271,6 +274,7 @@ export function formatSubscribeRequestBody(
     data: {
       type: 'profile-subscription-bulk-create-job',
       attributes: {
+        historical_import: historical_import ?? false,
         profiles: {
           data: profiles
         }
@@ -519,7 +523,11 @@ async function updateMultiStatusWithKlaviyoErrors(
   })
 }
 
-export async function removeBulkProfilesFromList(request: RequestClient, payloads: RemoveProfilePayload[]) {
+export async function removeBulkProfilesFromList(
+  request: RequestClient,
+  payloads: RemoveProfilePayload[],
+  statsContext?: StatsContext
+) {
   const multiStatusResponse = new MultiStatusResponse()
 
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPrepareRemoveBulkProfilePayloads(
@@ -534,6 +542,13 @@ export async function removeBulkProfilesFromList(request: RequestClient, payload
   const emails = extractField(filteredPayloads, 'email')
   const externalIds = extractField(filteredPayloads, 'external_id')
   const phoneNumbers = extractField(filteredPayloads, 'phone_number')
+
+  if (statsContext) {
+    const { tags, statsClient } = statsContext
+    const set = new Set()
+    filteredPayloads.forEach((x) => set.add(x.list_id))
+    statsClient?.histogram('actions-klaviyo.remove_profile_from_list.unique_list_id', set.size, tags)
+  }
 
   const listId = filteredPayloads[0]?.list_id as string
 
@@ -640,7 +655,7 @@ function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
     delete payload.country_code
   }
 
-  const { list_id, enable_batching, batch_size, country_code, ...attributes } = payload
+  const { list_id, enable_batching, batch_size, country_code, batch_keys, ...attributes } = payload
 
   response.validPayload = { type: 'profile', attributes: attributes as JSONLikeObject }
   return response
@@ -666,7 +681,11 @@ function validateAndPrepareBatchedProfileImportPayloads(
   return { filteredPayloads, validPayloadIndicesBitmap }
 }
 
-export async function sendBatchedProfileImportJobRequest(request: RequestClient, payloads: AddProfileToListPayload[]) {
+export async function sendBatchedProfileImportJobRequest(
+  request: RequestClient,
+  payloads: AddProfileToListPayload[],
+  statsContext?: StatsContext
+) {
   const multiStatusResponse = new MultiStatusResponse()
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPrepareBatchedProfileImportPayloads(
     payloads,
@@ -675,6 +694,13 @@ export async function sendBatchedProfileImportJobRequest(request: RequestClient,
 
   if (!filteredPayloads.length) {
     return multiStatusResponse
+  }
+
+  if (statsContext) {
+    const { tags, statsClient } = statsContext
+    const set = new Set()
+    filteredPayloads.forEach((x) => set.add(x.list_id))
+    statsClient?.histogram('actions-klaviyo.add_profile_to_list.unique_list_id', set.size, tags)
   }
   const importJobPayload = constructBulkProfileImportPayload(
     filteredPayloads as unknown as KlaviyoProfile[],

@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Clay's track destination action: all fields 1`] = `
+Object {
+  "anonymousId": "s#NxR#]zhFrIncI7QBq",
+  "event": "s#NxR#]zhFrIncI7QBq",
+  "ip": "s#NxR#]zhFrIncI7QBq",
+  "messageId": Any<String>,
+  "page": Object {
+    "path": "s#NxR#]zhFrIncI7QBq",
+    "referrer": "s#NxR#]zhFrIncI7QBq",
+    "search": "s#NxR#]zhFrIncI7QBq",
+    "title": "s#NxR#]zhFrIncI7QBq",
+    "url": "s#NxR#]zhFrIncI7QBq",
+  },
+  "properties": Object {
+    "testType": "s#NxR#]zhFrIncI7QBq",
+  },
+  "timestamp": Any<String>,
+  "type": "track",
+  "userAgent": "s#NxR#]zhFrIncI7QBq",
+  "userId": "s#NxR#]zhFrIncI7QBq",
+}
+`;
+
+exports[`Testing snapshot for Clay's track destination action: required fields 1`] = `
+Object {
+  "anonymousId": "anonId1234",
+  "event": "s#NxR#]zhFrIncI7QBq",
+  "ip": "s#NxR#]zhFrIncI7QBq",
+  "messageId": Any<String>,
+  "page": Object {
+    "path": "/academy/",
+    "referrer": "",
+    "search": "",
+    "title": "Analytics Academy",
+    "url": "https://segment.com/academy/",
+  },
+  "properties": Object {
+    "event": "s#NxR#]zhFrIncI7QBq",
+    "ip": "s#NxR#]zhFrIncI7QBq",
+    "messageId": "s#NxR#]zhFrIncI7QBq",
+  },
+  "timestamp": Any<String>,
+  "type": "track",
+  "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
+  "userId": "user1234",
+}
+`;

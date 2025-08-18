@@ -4,6 +4,7 @@ import updateProfile from './updateProfile'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Batch',
+
   slug: 'actions-batch',
   mode: 'cloud',
 

@@ -29,5 +29,9 @@ export interface Payload {
      * Count of products purchased.
      */
     quantity?: number
+    /**
+     * The vendor ID of the product being purchased.
+     */
+    vendorId?: string
   }[]
 }

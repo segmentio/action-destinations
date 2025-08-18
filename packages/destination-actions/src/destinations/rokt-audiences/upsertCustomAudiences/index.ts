@@ -29,15 +29,37 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email',
-      description: "User's email address for including/excluding from custom audience",
+      description:
+        "User's email address to be included/excluded from the custom audience.  One of either email_sha256 or email must be specified.",
       type: 'string',
       format: 'email',
-      required: true,
+      required: {
+        // If emailSHA256 is not provided then email is required
+        conditions: [{ fieldKey: 'email_sha256', operator: 'is', value: undefined }]
+      },
       default: {
         '@if': {
           exists: { '@path': '$.context.traits.email' },
           then: { '@path': '$.context.traits.email' },
           else: { '@path': '$.traits.email' }
+        }
+      }
+    },
+    email_sha256: {
+      label: 'Email SHA256',
+      description:
+        "User's SHA256-hashed email address to be included/excluded from the custom audience. One of either email_sha256 or email must be specified.",
+      type: 'string',
+      format: 'text',
+      required: {
+        // If email is not provided then emailSHA256 is required
+        conditions: [{ fieldKey: 'email', operator: 'is', value: undefined }]
+      },
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.traits.email_sha256' },
+          then: { '@path': '$.context.traits.email_sha256' },
+          else: { '@path': '$.traits.email_sha256' }
         }
       }
     },

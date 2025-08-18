@@ -8,7 +8,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'SendGrid Lists (Actions)',
   slug: 'actions-sendgrid-audiences',
   mode: 'cloud',
-  description: 'Sync Segment Engage Audiences to Sengrid Lists.',
+  description: 'Sync users to Sengrid Lists.',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -90,6 +90,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(syncAudience.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }

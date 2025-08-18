@@ -47,6 +47,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Podscribe advertiser lookup key',
         type: 'string',
         required: true
+      },
+      userId: {
+        label: 'User ID',
+        description: 'Podscribe user ID',
+        type: 'string',
+        required: false
       }
     }
   },

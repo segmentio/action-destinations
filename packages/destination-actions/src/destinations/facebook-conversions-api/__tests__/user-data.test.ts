@@ -137,7 +137,7 @@ describe('FacebookConversionsApi', () => {
           }
         }
 
-        const hashed_data = hash_user_data(test_payload, { 'smart-hashing': true }) as Record<string, string>
+        const hashed_data = hash_user_data(test_payload) as Record<string, string>
 
         expect(hashed_data.em).toEqual('2d2fb2388f17f86affee71d632978425a3037fa8eed5b3f2baaa458c80d495ed')
         expect(hashed_data.ph).toEqual('92b5be0b4bcd88dbe1c5f7de1cc3f479fa8a702bd02b9905a5bc14bf66243c05')

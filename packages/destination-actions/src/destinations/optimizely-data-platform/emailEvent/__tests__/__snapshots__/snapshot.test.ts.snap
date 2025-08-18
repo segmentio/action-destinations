@@ -12,8 +12,10 @@ Array [
     "user_identifiers": Object {
       "anonymousId": "4v7TZkJBZ*J1n#7wW@T%",
       "email": "wi@ilcichu.sd",
+      "fs_user_id": "4v7TZkJBZ*J1n#7wW@T%",
       "optimizely_vuid": "4v7TZkJBZ*J1n#7wW@T%",
       "userId": "4v7TZkJBZ*J1n#7wW@T%",
+      "web_user_id": "4v7TZkJBZ*J1n#7wW@T%",
     },
   },
 ]

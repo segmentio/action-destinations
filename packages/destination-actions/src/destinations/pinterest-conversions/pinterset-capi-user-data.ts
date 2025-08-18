@@ -1,7 +1,6 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 import { Payload } from './reportConversionEvent/generated-types'
 import isEmpty from 'lodash/isEmpty'
-import { Features } from '@segment/actions-core'
 import { processHashing } from '../../lib/hashing-utils'
 
 // Implementation of Pinterest user data object
@@ -168,84 +167,84 @@ const normalizeGender = (value: string): string => {
   return value
 }
 
-export const normalisedAndHashed = (payload: UserData, features?: Features) => {
+export const normalisedAndHashed = (payload: UserData) => {
   if (payload.user_data) {
     if (!isEmpty(payload.user_data?.email)) {
       // Regex removes all whitespace in the string.
       payload.user_data.email = payload.user_data?.email?.map((el: string) =>
-        processHashing(el, 'sha256', 'hex', features ?? {}, 'actions-pinterest-conversions-api', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.phone)) {
       // Regex removes all non-numeric characters from the string.
       payload.user_data.phone = payload.user_data?.phone?.map((el: string) =>
-        processHashing(el, 'sha256', 'hex', features ?? {}, 'actions-pinterest-conversions-api', normalizePhone)
+        processHashing(el, 'sha256', 'hex', normalizePhone)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.gender)) {
       payload.user_data.gender = payload.user_data?.gender?.map((el: string) => {
-        return processHashing(el, 'sha256', 'hex', features ?? {}, 'actions-pinterest-conversions-api', normalizeGender)
+        return processHashing(el, 'sha256', 'hex', normalizeGender)
       }) as string[]
     }
 
     if (!isEmpty(payload.user_data?.last_name)) {
       payload.user_data.last_name = payload.user_data?.last_name?.map((el: string) =>
-        processHashing(el, 'sha256', 'hex', features ?? {}, 'actions-pinterest-conversions-api', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.first_name)) {
       payload.user_data.first_name = payload.user_data?.first_name?.map((el: string) =>
-        processHashing(el, 'sha256', 'hex', features ?? {}, 'actions-pinterest-conversions-api', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.city)) {
       payload.user_data.city = payload.user_data?.city?.map((el: string) =>
-        processHashing(el, 'sha256', 'hex', features ?? {}, 'actions-pinterest-conversions-api', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.state)) {
       payload.user_data.state = payload.user_data?.state?.map((el: string) =>
-        processHashing(el, 'sha256', 'hex', features ?? {}, 'actions-pinterest-conversions-api', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.zip)) {
       payload.user_data.zip = payload.user_data?.zip?.map((el: string) =>
-        processHashing(el, 'sha256', 'hex', features ?? {}, 'actions-pinterest-conversions-api', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.country)) {
       payload.user_data.country = payload.user_data?.country?.map((el: string) =>
-        processHashing(el, 'sha256', 'hex', features ?? {}, 'actions-pinterest-conversions-api', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.external_id)) {
       payload.user_data.external_id = payload.user_data?.external_id?.map((el: string) =>
-        processHashing(el, 'sha256', 'hex', features ?? {}, 'actions-pinterest-conversions-api', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
     if (!isEmpty(payload.user_data?.hashed_maids)) {
       payload.user_data.hashed_maids = payload.user_data?.hashed_maids?.map((el: string) =>
-        processHashing(el, 'sha256', 'hex', features ?? {}, 'actions-pinterest-conversions-api', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
     if (!isEmpty(payload.user_data?.date_of_birth)) {
       payload.user_data.date_of_birth = payload.user_data?.date_of_birth?.map((el: string) =>
-        processHashing(el, 'sha256', 'hex', features ?? {}, 'actions-pinterest-conversions-api', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
   }
 }
 
-export const hash_user_data = (payload: UserData, features?: Features): Object => {
-  normalisedAndHashed(payload, features)
+export const hash_user_data = (payload: UserData): Object => {
+  normalisedAndHashed(payload)
   return {
     em: payload.user_data?.email,
     ph: payload.user_data?.phone,

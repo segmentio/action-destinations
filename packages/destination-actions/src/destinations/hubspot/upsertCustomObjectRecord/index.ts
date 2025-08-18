@@ -65,7 +65,9 @@ const action: ActionDefinition<Settings, Payload> = {
         'The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/api/crm/crm-custom-objects#retrieve-existing-custom-objects).',
       type: 'string',
       required: true,
-      dynamic: true
+      dynamic: true,
+      allowNull: false,
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
     },
     properties: {
       label: 'Properties',
@@ -88,7 +90,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The CRM object schema to use for associating a record. This can be a standard object (i.e. tickets, deals, contacts, companies) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/api/crm/crm-custom-objects#retrieve-existing-custom-objects).',
       type: 'string',
-      dynamic: true
+      dynamic: true,
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
     },
     associationLabel: {
       label: 'Association Label',

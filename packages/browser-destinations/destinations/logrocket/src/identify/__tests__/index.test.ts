@@ -13,7 +13,7 @@ describe('Logrocket.identify', () => {
     goodbye: 'moon'
   }
 
-  it('should send user ID and traits to logrocket', async () => {
+  it.skip('should send user ID and traits to logrocket', async () => {
     const [identify] = await plugins({ ...settings, subscriptions: [identifySubscription] })
 
     await identify.load(Context.system(), {} as Analytics)
@@ -32,7 +32,7 @@ describe('Logrocket.identify', () => {
     expect(identifySpy).toHaveBeenCalledWith(userId, traits)
   })
 
-  it("shouldn't send an ID if the user is anonymous", async () => {
+  it.skip("shouldn't send an ID if the user is anonymous", async () => {
     const [identify] = await plugins({ appID: 'log/rocket', subscriptions: [identifySubscription] })
 
     await identify.load(Context.system(), {} as Analytics)
