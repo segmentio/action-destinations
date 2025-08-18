@@ -1,6 +1,11 @@
 # Actions
 
 Every Destination needs at least one Action.
+An Action contains zero or more Fields. Fields server multiple purposes:
+
+1. **Deliberately select only important attributes for processing**: In generaly, only part of a Segment payload is of importance to any particular Destination. Fields allow for only the important attributes from a Segment payload to be referenced in code. The rest is ignored.
+2. **User can override mappings in the UI**When an Action is displayed in the Segment user interface, Fields are displayed to the end user. The user can see the field label and description, as well as the default mapping value. Users can override the default mappings if they like.
+3. Fields can perform basic validation. For example, if a required field is missing a value, the entire payload will be dropped before getting passed to the perform() or performBatch() functions. An error message will then be displayed to the end user explaining why the event was rejected by Segment.
 
 # Action Fields
 
@@ -83,3 +88,52 @@ The `request` parameter is an object that allows for HTTPS request to be made. T
 `payload` corresponds to the `resolved payload` in the perform() fuction, and to an array of `resolved payload` items in the performBatch function.
 
 `settings` corresponds to the global settings object which contains values for setting and authorization fields.
+
+# Field examples
+
+In the examples below, let's assume we're building an Action containing some Fields for a platform called `MegaCorp`
+
+## Example 1 - a User ID field
+
+- Captures a unique identifier from the Segment payload. In this case, the userId value.
+- userId is always going to be a string. If any other value is passed, the payload will be rejected before reaching the perform() function
+- The label and description details get displayed in the UI of the Field. So these need to be descriptive but not too long.
+- the default mapping points to the location of the value to pull from the Segment payload. In this case it points to the userId value, which is always found at the root of the payload.
+- The value from this field will be accessed in the perform() and performBatch() functions as `payload.uniqueUserId`.
+
+```typescript
+uniqueUserId: {
+    label: 'Unique User Identifier',
+    type: 'string',
+    description: 'A unique identifier for a user known to MegaCorp.',
+    default: {'@path': '$.userId'}
+}
+```
+
+This field will get added to the generated-types.ts file as
+
+```typescript
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface Payload {
+  /**
+   * A unique identifier for a user known to MegaCorp.
+   */
+  uniqueUserId?: string
+}
+```
+
+# Example 1 - an AnonymousId field
+
+- Captures a unique identifier from the Segment payload. In this case, the anonymousId value.
+- anonymousId is always going to be a string. If any other value is passed, the payload will be rejected before reaching the perform() function
+- The default mapping points to the location where anonymousId
+
+```typescript
+anonUserId: {
+    label: 'Anonymous User Identifier',
+    type: 'string',
+    description: 'A unique identifier for a known user. The User ID is the ID assigned by <YOUR COMPANY> to the user.',
+    default: {'@path': '$.userId'}
+}
+```
