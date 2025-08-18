@@ -13,4 +13,8 @@ export interface Settings {
    * The region to send your data.
    */
   endpoint?: string
+  /**
+   * When enabled, the session start and end timestamps will be sent to Amplitude. This is useful for tracking user sessions.
+   */
+  trackSession?: boolean
 }
