@@ -9,7 +9,12 @@ export interface Payload {
      * The unique profile identifier
      */
     custom_id: string
+    [k: string]: unknown
   }
+  /**
+   * If enabled, the action will send multiple profiles in a single request. The maximum number of profiles in a single request is 200.
+   */
+  enable_batching?: boolean
   /**
    * Maximum number of attributes to include in each batch.
    */
@@ -31,11 +36,11 @@ export interface Payload {
      */
     phone_number?: string | null
     /**
-     * The profile's marketing emails subscription. Setting to null will reset the marketing emails subscription.
+     * The profile's marketing emails subscription. Setting to 'reset' will reset the marketing emails subscription.
      */
-    email_marketing?: string | null
+    email_marketing?: string
     /**
-     * The profile's marketing SMS subscription. Setting to 'Reset' will reset the marketing SMS subscription.
+     * The profile's marketing SMS subscription. Setting to 'reset' will reset the marketing SMS subscription.
      */
     sms_marketing?: string | null
     /**

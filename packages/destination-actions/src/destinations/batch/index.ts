@@ -24,7 +24,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request) => {
-      return await request('https://api.batch.com/2.5/profiles/update', {
+      return await request('https://api.batch.com/2.6/profiles/update', {
         method: 'POST',
         // Sample body for test
         body: JSON.stringify([

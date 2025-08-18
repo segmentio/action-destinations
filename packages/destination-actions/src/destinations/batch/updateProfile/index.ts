@@ -14,17 +14,26 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'User identifiers',
       type: 'object',
       required: true,
+      additionalProperties: true,
       properties: {
         custom_id: {
           label: 'User ID',
           description: 'The unique profile identifier',
           type: 'string',
-          required: true,
-          default: {
-            '@path': '$.userId'
-          }
+          required: true
         }
+      },
+      default: {
+        custom_id: { '@path': '$.userId' }
       }
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description:
+        'If enabled, the action will send multiple profiles in a single request. The maximum number of profiles in a single request is 200.',
+      type: 'boolean',
+      default: true,
+      unsafe_hidden: true
     },
     batch_size: {
       label: 'Batch Size',
@@ -51,7 +60,8 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Email',
           description: "The profile's email",
           type: 'string',
-          allowNull: true
+          allowNull: true,
+          format: 'email'
         },
         phone_number: {
           label: 'Phone Number',
@@ -62,23 +72,24 @@ const action: ActionDefinition<Settings, Payload> = {
         email_marketing: {
           label: 'Email marketing subscribe',
           description:
-            "The profile's marketing emails subscription. Setting to null will reset the marketing emails subscription.",
+            "The profile's marketing emails subscription. Setting to 'reset' will reset the marketing emails subscription.",
           type: 'string',
-          allowNull: true,
           choices: [
             { label: 'Subscribed', value: 'subscribed' },
-            { label: 'Unsubscribed', value: 'unsubscribed' }
+            { label: 'Unsubscribed', value: 'unsubscribed' },
+            { label: 'Reset', value: 'reset' }
           ]
         },
         sms_marketing: {
           label: 'SMS marketing subscribe',
           description:
-            "The profile's marketing SMS subscription. Setting to 'Reset' will reset the marketing SMS subscription.",
+            "The profile's marketing SMS subscription. Setting to 'reset' will reset the marketing SMS subscription.",
           type: 'string',
           allowNull: true,
           choices: [
             { label: 'Subscribed', value: 'subscribed' },
-            { label: 'Unsubscribed', value: 'unsubscribed' }
+            { label: 'Unsubscribed', value: 'unsubscribed' },
+            { label: 'Reset', value: 'reset' }
           ]
         },
         timezone: {
@@ -126,13 +137,7 @@ const action: ActionDefinition<Settings, Payload> = {
             else: { '@path': '$.traits.sms_marketing' }
           }
         },
-        timezone: {
-          '@if': {
-            exists: { '@path': '$.context.timezone' },
-            then: { '@path': '$.context.timezone' },
-            else: { '@path': '$.traits.timezone' }
-          }
-        },
+        timezone: { '@path': '$.context.timezone' },
         region: { '@path': '$.context.locale' }
       }
     },
@@ -164,7 +169,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
 async function send(request: RequestClient, payload: Payload[]) {
   const json = payload.map(mapPayload)
-  return await request('https://api.batch.com/2.5/profiles/update', {
+  return await request('https://api.batch.com/2.6/profiles/update', {
     method: 'post',
     json
   })

@@ -1,5 +1,13 @@
 import { Payload } from './generated-types'
-import { ProfileAttributes, BatchJSON, SubscriptionSetting, EventAttributes, EventObject, Event } from './types'
+import {
+  Identifiers,
+  ProfileAttributes,
+  BatchJSON,
+  SubscriptionSetting,
+  EventAttributes,
+  EventObject,
+  Event
+} from './type'
 import { MAX_ATTRIBUTES_SIZE } from './constants'
 
 export function mapPayload(payload: Payload): BatchJSON {
@@ -22,8 +30,8 @@ export function mapPayload(payload: Payload): BatchJSON {
   const nativeProfileAttributes: ProfileAttributes = {
     $email_address: email_address,
     $phone_number: phone_number,
-    $email_marketing: email_marketing as SubscriptionSetting,
-    $sms_marketing: sms_marketing as SubscriptionSetting,
+    $email_marketing: email_marketing === 'reset' ? null : (email_marketing as SubscriptionSetting),
+    $sms_marketing: sms_marketing === 'reset' ? null : (sms_marketing as SubscriptionSetting),
     $language: extractLanguage(language),
     $region: extractRegion(region),
     $timezone: timezone
@@ -34,22 +42,24 @@ export function mapPayload(payload: Payload): BatchJSON {
   })
 
   const customProfileAttributes = formatAttributes(customAttributes, false)
-
+  Ò
   const attributes: ProfileAttributes = Object.fromEntries(
     Object.entries({ ...nativeProfileAttributes, ...customProfileAttributes }).slice(0, MAX_ATTRIBUTES_SIZE)
   )
 
-  const events: Event[] | undefined = eventName
+  const eventNameCleaned = formatEventName(eventName)
+
+  const events: Event[] | undefined = eventNameCleaned
     ? [
         {
-          name: eventName,
+          name: eventNameCleaned,
           attributes: formatAttributes(eventAttributes ?? {}, true)
         }
       ]
     : undefined
 
   const json: BatchJSON = {
-    identifiers,
+    identifiers: formatIdentifiers(identifiers),
     attributes: Object.keys(attributes).length === 0 ? undefined : attributes,
     events
   }
@@ -57,9 +67,9 @@ export function mapPayload(payload: Payload): BatchJSON {
   return json
 }
 
-function formatAttributes(attributes: Record<string, unknown>, allowObjects: true): EventAttributes
-function formatAttributes(attributes: Record<string, unknown>, allowObjects?: false): ProfileAttributes
-function formatAttributes(
+export function formatAttributes(attributes: Record<string, unknown>, allowObjects: true): EventAttributes
+export function formatAttributes(attributes: Record<string, unknown>, allowObjects?: false): ProfileAttributes
+export function formatAttributes(
   attributes: Record<string, unknown>,
   allowObjects?: boolean
 ): EventAttributes | ProfileAttributes {
@@ -75,7 +85,7 @@ function formatAttributes(
     } else if (allowObjects) {
       if (Array.isArray(value)) {
         if (value.every((item) => typeof item === 'string')) {
-          result[newKey] = value as string[]
+          result[newKey] = value
         } else if (value.every(isFlatObject)) {
           result[newKey] = value.map((obj) => formatFlatObject(obj))
         }
@@ -86,6 +96,24 @@ function formatAttributes(
   }
 
   return result
+}
+
+export function formatIdentifiers(identifiers: Payload['identifiers']): Identifiers {
+  const cleanedIdentifiers: Identifiers = {
+    custom_id: identifiers.custom_id,
+    ...Object.fromEntries(
+      Object.entries(identifiers)
+        .filter(([key]) => key !== 'custom_id')
+        .map(([key, value]) => [key, String(value)])
+    )
+  }
+  return cleanedIdentifiers
+}
+
+function formatEventName(eventName: string | undefined | null): string | undefined {
+  if (!eventName) return undefined
+  const e = eventName.toLowerCase().replace(/[^a-z0-9_]/g, '_')
+  return e.length > 0 ? e : undefined
 }
 
 function extractLanguage(language: string | undefined | null): string | undefined | null {
@@ -110,6 +138,7 @@ function correctKey(key: string, value: unknown): string {
   if (typeof value === 'string') {
     if (isISO8601Date(value)) return `date(${fixAttributeName(key)})`
     if (isValidUrl(value)) return `url(${fixAttributeName(key)})`
+    return fixAttributeName(key)
   }
   return key
 }
@@ -125,7 +154,6 @@ function formatFlatObject(obj: EventObject): EventObject {
   const result: EventObject = {}
   for (const [key, value] of Object.entries(obj)) {
     result[correctKey(key, value)] = value
-    console.dir('value url = ' + value, { depth: null })
   }
   return result
 }

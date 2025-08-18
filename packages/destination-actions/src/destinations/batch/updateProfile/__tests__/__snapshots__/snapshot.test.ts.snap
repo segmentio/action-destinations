@@ -4,33 +4,30 @@ exports[`Testing snapshot for Batch's updateProfile destination action: all fiel
 Array [
   Object {
     "attributes": Object {
-      "$email_address": "*yCKAwocn#",
-      "$email_marketing": "*yCKAwocn#",
-      "$language": "*yCKAwocn#",
-      "$phone_number": "*yCKAwocn#",
-      "$region": "*yCKAwocn#",
-      "$sms_marketing": "*yCKAwocn#",
+      "$email_address": "kelja@ir.ie",
+      "$email_marketing": "unsubscribed",
+      "$phone_number": "+7397026953",
+      "$sms_marketing": "unsubscribed",
       "$timezone": "*yCKAwocn#",
     },
+    "events": Array [
+      Object {
+        "attributes": Object {
+          "testtype": "*yCKAwocn#",
+        },
+        "name": "_yckawocn_",
+      },
+    ],
     "identifiers": Object {
       "custom_id": "*yCKAwocn#",
     },
   },
 ]
 `;
-
 exports[`Testing snapshot for Batch's updateProfile destination action: required fields 1`] = `
 Array [
   Object {
-    "attributes": Object {
-      "$email_address": null,
-      "$email_marketing": null,
-      "$language": null,
-      "$phone_number": null,
-      "$region": null,
-      "$sms_marketing": null,
-      "$timezone": null,
-    },
+    "attributes": Object {},
     "identifiers": Object {
       "custom_id": "*yCKAwocn#",
     },

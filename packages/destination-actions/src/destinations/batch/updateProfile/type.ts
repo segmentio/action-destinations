@@ -4,7 +4,7 @@ export interface BatchJSON {
   events?: Event[]
 }
 
-type Identifiers = {
+export type Identifiers = {
   custom_id: string
 } & {
   [key: string]: string

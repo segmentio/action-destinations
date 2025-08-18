@@ -1,47 +1,23 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for actions-batch destination: trackEvent action - all fields 1`] = `
-Array [
-  Object {
-    "events": Array [
-      Object {
-        "attributes": Object {
-          "testType": "ek)J)lzyONWw(04s",
-        },
-        "name": "ek)J)lzyONWw(04s",
-      },
-    ],
-    "identifiers": Object {
-      "custom_id": "ek)J)lzyONWw(04s",
-    },
-  },
-]
-`;
-
-exports[`Testing snapshot for actions-batch destination: trackEvent action - required fields 1`] = `
-Array [
-  Object {
-    "events": Array [],
-    "identifiers": Object {
-      "custom_id": "ek)J)lzyONWw(04s",
-    },
-  },
-]
-`;
-
 exports[`Testing snapshot for actions-batch destination: updateProfile action - all fields 1`] = `
 Array [
   Object {
     "attributes": Object {
-      "$email_address": "E$Fjd*VczxvyBpVFPB",
-      "$email_marketing": "E$Fjd*VczxvyBpVFPB",
-      "$language": "E$Fjd*VczxvyBpVFPB",
-      "$phone_number": "E$Fjd*VczxvyBpVFPB",
-      "$region": "E$Fjd*VczxvyBpVFPB",
-      "$sms_marketing": "E$Fjd*VczxvyBpVFPB",
+      "$email_address": "ikcubeh@le.mz",
+      "$email_marketing": null,
+      "$phone_number": "+8555178147",
+      "$sms_marketing": null,
       "$timezone": "E$Fjd*VczxvyBpVFPB",
-      "testType": "E$Fjd*VczxvyBpVFPB",
     },
+    "events": Array [
+      Object {
+        "attributes": Object {
+          "testtype": "E$Fjd*VczxvyBpVFPB",
+        },
+        "name": "e_fjd_vczxvybpvfpb",
+      },
+    ],
     "identifiers": Object {
       "custom_id": "E$Fjd*VczxvyBpVFPB",
     },
@@ -52,15 +28,7 @@ Array [
 exports[`Testing snapshot for actions-batch destination: updateProfile action - required fields 1`] = `
 Array [
   Object {
-    "attributes": Object {
-      "$email_address": null,
-      "$email_marketing": null,
-      "$language": null,
-      "$phone_number": null,
-      "$region": null,
-      "$sms_marketing": null,
-      "$timezone": null,
-    },
+    "attributes": Object {},
     "identifiers": Object {
       "custom_id": "E$Fjd*VczxvyBpVFPB",
     },
