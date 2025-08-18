@@ -12,7 +12,7 @@ const liquidEngine = new Liquid({
   trimTagRight: true
 })
 
-const disabledTags = ['case', 'for', 'include', 'layout', 'render', 'tablerow']
+const disabledTags = ['case', 'include', 'layout', 'render', 'tablerow']
 
 const disabledFilters = [
   'array_to_sentence_string',
@@ -25,7 +25,6 @@ const disabledFilters = [
   'group_by_exp',
   'has',
   'has_exp',
-  'map',
   'newline_to_br',
   'reject',
   'reject_exp',
