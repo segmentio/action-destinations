@@ -1,24 +1,17 @@
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
-import { PayloadValidationError, MultiStatusResponse, RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
-import { SEGMENT_PARTNER_NAME, EBNotErrors, EBRetryableErrors, EBNotRetryableErrors } from './constants'
-import { EventBridgeClient, PutPartnerEventsCommand, CreatePartnerEventSourceCommand, ListPartnerEventSourcesCommand, PutPartnerEventsCommandOutput } from '@aws-sdk/client-eventbridge'
-import { PutPartnerEventsCommandJSON } from './types'
-import { createCustomHandler } from './custom-http-handler'
+import { PayloadValidationError, MultiStatusResponse, RetryableError, IntegrationError } from '@segment/actions-core'
+import { SEGMENT_PARTNER_NAME, EBRetryableErrors, EBNotRetryableErrors } from './constants'
+import { PutPartnerEventsResultEntry, EventBridgeClient, PutPartnerEventsCommand, PutPartnerEventsCommandOutput } from '@aws-sdk/client-eventbridge'
+import { PutPartnerEventsCommandJSON, HookOutputs } from './types'
 
-export async function send(request: RequestClient, payloads: Payload[], settings: Settings): Promise<MultiStatusResponse> {
- 
-  const sourceId = payloads[0].sourceId
+export async function send(payloads: Payload[], settings: Settings, hookOutputs?: HookOutputs): Promise<MultiStatusResponse> {
 
-  if (!sourceId) {
-    throw new PayloadValidationError('Source ID is required. It should be present at $.context.protocols.sourceId or $.projectId in the payload.')
-  }
+  const sourceId = getSourceId(payloads, hookOutputs)
 
-  const { accountId, region } = settings
+  const { region } = settings
 
-  const client = new EventBridgeClient({ region, requestHandler: createCustomHandler(request) })
-
-  await ensurePartnerSource(client, accountId, sourceId)
+  const client = new EventBridgeClient({ region })
 
   const commandJSON = createCommandJSON(payloads, sourceId)
 
@@ -35,8 +28,27 @@ export async function send(request: RequestClient, payloads: Payload[], settings
   return buildMultiStatusResponse(response, payloads)  
 }
 
+function getSourceId(payloads: Payload[], hookOutputs?: HookOutputs): string {
+  const payloadSourceId = payloads[0].sourceId
+  const hookSourceId = hookOutputs?.onMappingSave?.sourceId ?? hookOutputs?.retlOnMappingSave?.sourceId
+
+  if (!payloadSourceId) {
+    throw new PayloadValidationError('Source ID is required. Source ID not found in payload. It should be present at $.context.protocols.sourceId or $.projectId in the payload.')
+  }
+
+  if (!hookSourceId) {
+    throw new PayloadValidationError('Source ID is required. Source ID not found in hook outputs.')
+  }
+
+  if(hookSourceId !== payloadSourceId) {
+    throw new PayloadValidationError('Mismatch between payload and hook source ID values.')
+  }
+
+  return payloadSourceId
+}
+
 function buildMultiStatusResponse(response: PutPartnerEventsCommandOutput, payloads: Payload[]): MultiStatusResponse {
-  const entries: PutPartnerEventsResultEntryList = response.Entries
+  const entries: PutPartnerEventsResultEntry[] = response.Entries ?? []
   const multiStatusResponse = new MultiStatusResponse()
   payloads.forEach((event, index) => {
     const entry = entries[index]
@@ -70,49 +82,6 @@ function createCommandJSON(payloads: Payload[], sourceId: string): PutPartnerEve
       Time: event.time ? new Date(event.time): new Date()
     }))
   }
-}
-
-async function ensurePartnerSource(client: EventBridgeClient, awsAccountId: string, sourceId: string) {
-  const sourceExists = await findSource(client, sourceId)
-  if (!sourceExists) {
-    await createSource(client, awsAccountId, sourceId)
-  }
-}
-
-async function findSource( client: EventBridgeClient, sourceId: string): Promise<boolean> {
-  try {
-    const command = new ListPartnerEventSourcesCommand({ NamePrefix: getFullSourceName(sourceId)})
-    const response = await client.send(command)
-    return (response.PartnerEventSources?.length ?? 0) > 0
-  } 
-  catch (error) {
-    throwError(error, 'findSource')
-  }
-}
-
-async function createSource(client: EventBridgeClient, accountId: string, sourceId: string) {
-  const fullSourceName = getFullSourceName(sourceId)
-  const command = new CreatePartnerEventSourceCommand({ Account: accountId, Name: fullSourceName})
-  try {
-    await client.send(command)
-  } 
-  catch (error) {
-    if(isAnError(error)) {
-      throwError(error, `createSource(${fullSourceName})`)
-    }
-  }
-}
-
-function getFullSourceName(sourceId: string): string {
-  return `${SEGMENT_PARTNER_NAME}/${sourceId}`
-}
-
-function isAnError(error: unknown): boolean {
-  if (typeof error === 'object' && error !== null && 'name' in error) {
-    const err = error as { name: string }
-    return !(err.name in EBNotErrors)
-  }
-  return true
 }
 
 function isRetryableError(error: unknown): boolean {

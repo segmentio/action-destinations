@@ -34,3 +34,25 @@ export interface Payload {
    */
   batch_size?: number
 }
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface RetlOnMappingSaveInputs {}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface RetlOnMappingSaveOutputs {
+  /**
+   * The identifier for the source.
+   */
+  sourceId: string
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface OnMappingSaveInputs {}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface OnMappingSaveOutputs {
+  /**
+   * The identifier for the source.
+   */
+  sourceId: string
+}

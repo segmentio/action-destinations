@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { send } from './functions'
+import { ensureSourceIdHook } from './hooks'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
@@ -72,11 +73,19 @@ const action: ActionDefinition<Settings, Payload> = {
       maximum: 20
     }
   },
-  perform: (request, { payload, settings}) => {
-    return send(request, [payload], settings)
+  hooks: {
+      retlOnMappingSave: {
+        ...ensureSourceIdHook
+      },
+      onMappingSave: {
+        ...ensureSourceIdHook
+      }
   },
-  performBatch: (request, { payload, settings }) => {
-    return send(request, payload, settings)
+  perform: (_, { payload, settings, hookOutputs}) => {
+    return send([payload], settings, hookOutputs)
+  },
+  performBatch: (_, { payload, settings, hookOutputs }) => {
+    return send(payload, settings, hookOutputs)
   }
 }
 
