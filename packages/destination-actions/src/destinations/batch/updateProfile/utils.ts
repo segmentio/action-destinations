@@ -17,7 +17,9 @@ export function mapPayload(payload: Payload): BatchJSON {
       email_address,
       phone_number,
       email_marketing,
+      email_marketing_bool,
       sms_marketing,
+      sms_marketing_bool,
       region,
       timezone,
       ...customAttributes
@@ -27,11 +29,17 @@ export function mapPayload(payload: Payload): BatchJSON {
     eventAttributes
   } = payload
 
+  const emInput = email_marketing ?? email_marketing_bool
+  const smInput = sms_marketing ?? sms_marketing_bool
+
+  const em = mapSubscription(emInput)
+  const sm = mapSubscription(smInput)
+
   const nativeProfileAttributes: ProfileAttributes = {
     $email_address: email_address,
     $phone_number: phone_number,
-    $email_marketing: mapSubscription(email_marketing) === 'reset' ? null : (email_marketing as SubscriptionSetting),
-    $sms_marketing: mapSubscription(sms_marketing) === 'reset' ? null : (sms_marketing as SubscriptionSetting),
+    $email_marketing: em === 'reset' ? null : em,
+    $sms_marketing: sm === 'reset' ? null : sm,
     $language: extractLanguage(language),
     $region: extractRegion(region),
     $timezone: timezone
@@ -167,7 +175,6 @@ function isValidUrl(value: string): boolean {
   const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i
   return urlRegex.test(value)
 }
-
 function mapSubscription(value: unknown): SubscriptionSetting | 'reset' {
   if (value === null || value === undefined) return 'reset'
   if (typeof value === 'boolean') return value ? 'subscribed' : 'unsubscribed'
@@ -177,6 +184,8 @@ function mapSubscription(value: unknown): SubscriptionSetting | 'reset' {
     if (v === 'reset') return 'reset'
     if (v === 'subscribed') return 'subscribed'
     if (v === 'unsubscribed') return 'unsubscribed'
+    if (v === 'true') return 'subscribed'
+    if (v === 'false') return 'unsubscribed'
     if (v === 'true') return 'subscribed'
     if (v === 'false') return 'unsubscribed'
   }

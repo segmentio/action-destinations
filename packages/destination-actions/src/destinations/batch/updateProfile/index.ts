@@ -80,6 +80,13 @@ const action: ActionDefinition<Settings, Payload> = {
             { label: 'Reset', value: 'reset' }
           ]
         },
+        email_marketing_bool: {
+          label: 'Email marketing (boolean)',
+          description:
+            "Alternative boolean input. true → 'subscribed', false → 'unsubscribed'. If omitted, the string field is used.",
+          type: 'boolean',
+          default: { '@path': '$.traits.email_marketing' }
+        },
         sms_marketing: {
           label: 'SMS marketing subscribe',
           description:
@@ -91,6 +98,13 @@ const action: ActionDefinition<Settings, Payload> = {
             { label: 'Unsubscribed', value: 'unsubscribed' },
             { label: 'Reset', value: 'reset' }
           ]
+        },
+        sms_marketing_bool: {
+          label: 'Email marketing (boolean)',
+          description:
+            "Alternative boolean input. true → 'subscribed', false → 'unsubscribed'. If omitted, the string field is used.",
+          type: 'boolean',
+          default: { '@path': '$.traits.email_marketing' }
         },
         timezone: {
           label: 'Timezone',
@@ -130,7 +144,21 @@ const action: ActionDefinition<Settings, Payload> = {
             else: { '@path': '$.traits.email_marketing' }
           }
         },
+        email_marketing_bool: {
+          '@if': {
+            exists: { '@path': '$.context.traits.email_marketing' },
+            then: { '@path': '$.context.traits.email_marketing' },
+            else: { '@path': '$.traits.email_marketing' }
+          }
+        },
         sms_marketing: {
+          '@if': {
+            exists: { '@path': '$.context.traits.sms_marketing' },
+            then: { '@path': '$.context.traits.sms_marketing' },
+            else: { '@path': '$.traits.sms_marketing' }
+          }
+        },
+        sms_marketing_bool: {
           '@if': {
             exists: { '@path': '$.context.traits.sms_marketing' },
             then: { '@path': '$.context.traits.sms_marketing' },

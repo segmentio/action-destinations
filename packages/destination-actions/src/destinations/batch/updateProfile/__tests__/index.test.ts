@@ -74,7 +74,7 @@ describe('Batch.updateProfile', () => {
       }
     ]
 
-    nock('https://api.batch.com').post('/2.5/profiles/update', JSON.stringify(json)).reply(200, {})
+    nock('https://api.batch.com').post('/2.6/profiles/update', JSON.stringify(json)).reply(200, {})
 
     const responses = await testDestination.testAction('updateProfile', {
       event: event,
