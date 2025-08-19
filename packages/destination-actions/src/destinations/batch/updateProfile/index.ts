@@ -84,8 +84,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Email marketing (boolean)',
           description:
             "Alternative boolean input. true → 'subscribed', false → 'unsubscribed'. If omitted, the string field is used.",
-          type: 'boolean',
-          default: { '@path': '$.traits.email_marketing' }
+          type: 'boolean'
         },
         sms_marketing: {
           label: 'SMS marketing subscribe',
@@ -100,11 +99,10 @@ const action: ActionDefinition<Settings, Payload> = {
           ]
         },
         sms_marketing_bool: {
-          label: 'Email marketing (boolean)',
+          label: 'SMS marketing (boolean)',
           description:
             "Alternative boolean input. true → 'subscribed', false → 'unsubscribed'. If omitted, the string field is used.",
-          type: 'boolean',
-          default: { '@path': '$.traits.email_marketing' }
+          type: 'boolean'
         },
         timezone: {
           label: 'Timezone',

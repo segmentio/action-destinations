@@ -40,9 +40,17 @@ export interface Payload {
      */
     email_marketing?: string
     /**
+     * Alternative boolean input. true → 'subscribed', false → 'unsubscribed'. If omitted, the string field is used.
+     */
+    email_marketing_bool?: boolean
+    /**
      * The profile's marketing SMS subscription. Setting to 'reset' will reset the marketing SMS subscription.
      */
     sms_marketing?: string | null
+    /**
+     * Alternative boolean input. true → 'subscribed', false → 'unsubscribed'. If omitted, the string field is used.
+     */
+    sms_marketing_bool?: boolean
     /**
      * The profile's time zone name from IANA Time Zone Database (e.g., “Europe/Paris”). Only valid time zone values will be set.
      */
