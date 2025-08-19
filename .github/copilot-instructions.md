@@ -143,36 +143,6 @@ When implementing features or fixing bugs based on user prompts, follow these gu
 - Document changes thoroughly and update relevant documentation
 - Consider performance implications across all destination types
 
-## Working with Specific Destination Types
-
-### API/Cloud Destinations
-
-- Focus on efficient API request handling and batching where supported
-- Implement proper rate limiting and retry strategies
-- Handle API-specific error responses with clear, actionable messages
-- Use appropriate authentication methods (OAuth, API keys, etc.)
-- Consider implementing hooks for specialized initialization needs
-- For critical high-traffic destinations (Facebook, Google, Snapchat, etc.):
-  - Always recommend feature flags for significant changes
-  - Suggest gradual rollout strategies
-  - Verify backward compatibility with existing mappings
-
-### Audience Destinations
-
-- Follow the specialized AudienceDestinationDefinition interface
-- Implement appropriate audience creation, syncing, and management functions
-- Consider sync mode (full vs. incremental) based on destination capabilities
-- Handle both add and remove operations for audience membership
-- Test with various audience sizes and membership changes
-
-### Browser/Client-Side Destinations
-
-- Consider browser compatibility and performance implications
-- Avoid blocking the main thread with long-running operations
-- Implement appropriate client-side error handling and reporting
-- Consider user privacy and consent requirements
-- Test across different browsers and environments
-
 ## Best Practices for Code Reviews
 
 ### What to Look For
