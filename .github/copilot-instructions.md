@@ -17,7 +17,7 @@ This repository contains the Segment Action Destinations framework, which enable
 ### Key Packages
 
 - [`destination-actions`](../packages/destination-actions): Cloud-mode destinations that run on Segment's infrastructure. New destinations must be manually registered in [index.ts](../packages/destination-actions/src/index.ts).
-- [`browser-destinations`](../packages/browser-destinations): Browser-mode destinations that run on the client side. New destinations must be manually registered in [destination-manifest/index.ts](../packages/destinations-manifest/src/index.ts).
+- [`browser-destinations`](../packages/browser-destinations): Browser-mode destinations that run on the client side. New destinations must be manually registered in [destination-manifest/index.ts](../packages/destinations-manifest/index.ts).
 - [`core`](../packages/core): The core framework that powers both cloud and browser destinations. Changes here require thorough regression testing as they affect all destinations.
 - [`destination-subscriptions`](../packages/destination-subscriptions): Validates event payloads against an action's subscription AST.
 - [`browser-destination-runtime`](../packages/browser-destination-runtime): Runtime for browser-mode destinations, handling action execution and event processing.
