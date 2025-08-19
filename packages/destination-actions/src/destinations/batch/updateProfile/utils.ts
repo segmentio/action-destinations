@@ -186,10 +186,7 @@ function mapSubscription(value: unknown): SubscriptionSetting | 'reset' {
     if (v === 'unsubscribed') return 'unsubscribed'
     if (v === 'true') return 'subscribed'
     if (v === 'false') return 'unsubscribed'
-    if (v === 'true') return 'subscribed'
-    if (v === 'false') return 'unsubscribed'
   }
 
   return 'reset'
 }
-
