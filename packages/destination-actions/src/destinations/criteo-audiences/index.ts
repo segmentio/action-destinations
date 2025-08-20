@@ -36,7 +36,8 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Enable Batching',
         description: 'Important: This setting should remain enabled!',
         required: false,
-        default: true
+        default: true,
+        readOnly: true
       }
     },
     testAuthentication: async (request, { settings }) => {
