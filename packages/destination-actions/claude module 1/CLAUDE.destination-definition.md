@@ -971,6 +971,8 @@ products: {
   type: 'object',
   multiple: true,
   required: false,
+  // additionalProperties set to true allows the customer to add additional values into the items
+  additionalProperties: true,
   properties: {
     id: {
       label: 'Product ID',
@@ -1026,6 +1028,10 @@ products: {
     { "id": "product_id_1", "price": 100, "name": "Soft toy", "quantity": 1 },
     { "price": 21, "name": "Chess set", "quantity": 3 }
     { "id": "product_id_3", "price": 99.99, "name": "expensive chocolate bar" }
+    /*
+      The category and variant attributes in the following item will be accepted, as the Input Field has additionalProperties set to true
+    */
+    { "id": "product_id_4", "price": 2, "name": "expensive chocolate bar", "category": "Candy", "variant": "sugary sweets" }
   ]
 }
 ```
