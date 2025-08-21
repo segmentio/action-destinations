@@ -12,6 +12,8 @@ codecov:
 # Setting this configuration as recommended for beginners in the above blog post.
 # We can introduce more strict settings as we progress.
 coverage:
+  ignore:
+    - 'packages/cli/**/*' # Exclude packages/cli directory from coverage
   status:
     project:
       default:
