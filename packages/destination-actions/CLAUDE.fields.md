@@ -123,7 +123,7 @@ export interface Payload {
 }
 ```
 
-# Example 1 - an AnonymousId field
+# Example 2 - an AnonymousId field
 
 - Captures a unique identifier from the Segment payload. In this case, the anonymousId value.
 - anonymousId is always going to be a string. If any other value is passed, the payload will be rejected before reaching the perform() function
