@@ -5,12 +5,20 @@ import ora from 'ora'
 import * as path from 'path'
 import { autoPrompt } from '../lib/prompt'
 import { loadDestination } from '../lib/destinations'
-import type { JSONSchema7 } from 'json-schema'
 import { DestinationDefinition } from '../lib/destinations'
 import { BrowserDestinationDefinition } from '@segment/destinations-manifest'
-import type { DestinationDefinition as CloudModeDestinationDefinition, InputField } from '@segment/actions-core'
+import {
+  GlobalSetting,
+  isDirective,
+  DestinationDefinition as CloudModeDestinationDefinition,
+  InputField
+} from '@segment/actions-core'
+import Chance from 'chance'
+import { getRawKeys } from '@segment/actions-core/mapping-kit/value-keys'
+import { set } from 'lodash'
 export default class GenerateTestPayload extends Command {
   private spinner: ora.Ora = ora()
+  private chance: Chance.Chance = new Chance('Payload')
 
   static description = `Generates sample test payload curl commands for a cloud mode destination.`
 
@@ -152,6 +160,14 @@ export default class GenerateTestPayload extends Command {
       } else if ((destination as CloudModeDestinationDefinition).mode == 'cloud') {
         const destinationSettings = (destination as CloudModeDestinationDefinition).authentication?.fields
         settings = this.generateSampleFromSchema(destinationSettings || {})
+        if ((destination as CloudModeDestinationDefinition).authentication?.scheme === 'oauth2') {
+          settings = {
+            oauth: {
+              accessToken: 'YOUR_ACCESS_TOKEN',
+              refreshToken: 'YOUR_REFRESH_TOKEN'
+            }
+          }
+        }
       }
 
       // Generate sample mapping based on action fields
@@ -161,8 +177,6 @@ export default class GenerateTestPayload extends Command {
       for (const [fieldKey, field] of Object.entries(fields)) {
         if (field.default) {
           mapping[fieldKey] = field.default
-        } else if (field.required) {
-          mapping[fieldKey] = this.generatePlaceholderValue(field)
         }
       }
 
@@ -188,133 +202,145 @@ export default class GenerateTestPayload extends Command {
     }
   }
 
-  generateSampleFromSchema(schema: JSONSchema7): Record<string, any> {
+  generateSampleFromSchema(schema: Record<string, GlobalSetting>): Record<string, any> {
     const result: Record<string, any> = {}
-
-    if (!schema.properties) {
-      return result
-    }
-
-    for (const [propName, propSchema] of Object.entries(schema.properties)) {
-      const prop = propSchema as JSONSchema7
-
-      if (prop.default !== undefined) {
-        result[propName] = prop.default
-      } else if ((schema.required || []).includes(propName)) {
-        result[propName] = this.generatePlaceholderForSchema(prop)
+    for (const [propName, setting] of Object.entries(schema)) {
+      if (setting.default !== undefined) {
+        result[propName] = setting.default
+      } else if (setting.required) {
+        result[propName] = this.generatePlaceholderForSchema(setting)
       }
     }
 
     return result
   }
 
-  generatePlaceholderForSchema(schema: JSONSchema7): any {
-    const type = Array.isArray(schema.type) ? schema.type[0] : schema.type
+  generatePlaceholderForSchema(schema: GlobalSetting): any {
+    const type = schema.type
 
     switch (type) {
       case 'string':
-        if (schema.enum && schema.enum.length > 0) {
-          return schema.enum[0]
+        if (schema.choices) {
+          return schema.choices[0]
         }
-        return `YOUR_${schema.title || 'VALUE'}`
+        return `YOUR_${schema.label || 'VALUE'}`
       case 'number':
-      case 'integer':
         return 0
       case 'boolean':
         return false
-      case 'object':
-        return this.generateSampleFromSchema(schema)
-      case 'array':
-        if (schema.items && !Array.isArray(schema.items)) {
-          return [this.generatePlaceholderForSchema(schema.items as JSONSchema7)]
-        }
-        return []
+      case 'password':
+        return `YOUR_${schema.label || 'PASSWORD'}`
       default:
         return null
     }
   }
 
-  generatePlaceholderValue(field: any): any {
-    if (field.type === 'boolean') {
-      return false
-    } else if (field.type === 'number') {
-      return 0
-    } else if (field.type === 'object') {
-      return {}
-    } else if (field.type === 'array') {
-      return []
-    }
-
-    // For string type
-    return `YOUR_${field.label || field.title || 'VALUE'}`
-  }
-
   generateSamplePayloadFromMapping(mapping: Record<string, any>): Record<string, any> {
+    const chance = new Chance('payload')
     const payload: Record<string, any> = {
-      userId: 'user123',
-      anonymousId: 'anon456',
+      userId: chance.guid(),
+      anonymousId: chance.guid(),
       event: 'Example Event',
       type: 'track',
       timestamp: new Date().toISOString(),
       properties: {},
       context: {
-        ip: '127.0.0.1',
-        userAgent: 'Mozilla/5.0',
+        ip: chance.ip(),
+        userAgent:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36',
         page: {
-          path: '/',
-          url: 'https://example.com/',
-          referrer: '',
-          title: 'Example Page'
+          path: `/${chance.word()}`,
+          url: chance.url(),
+          referrer: chance.url(),
+          title: `${chance.capitalize(chance.word())} ${chance.capitalize(chance.word())}`
+        },
+        locale: chance.locale(),
+        library: {
+          name: 'analytics.js',
+          version: `${chance.integer({ min: 1, max: 5 })}.${chance.integer({ min: 0, max: 20 })}.${chance.integer({
+            min: 0,
+            max: 99
+          })}`
         }
       }
     }
 
-    // Add properties based on mapping
-    for (const [key, value] of Object.entries(mapping)) {
-      payload.properties[key] = value
-    }
-
-    // Add properties based on mapping
-    for (const [key, value] of Object.entries(mapping)) {
-      if (typeof value === 'string' && value.startsWith('$.')) {
-        // Handle field value from mapping path
-        const path = value.substring(2).split('.')
-        if (path[0] === 'properties') {
-          const propName = path.slice(1).join('.')
-          payload.properties[propName] = `SAMPLE_${key.toUpperCase()}`
-        } else if (path[0] === 'context') {
-          const nestedPath = path.slice(1)
-          let current = payload.context
-
-          for (let i = 0; i < nestedPath.length - 1; i++) {
-            if (!current[nestedPath[i]]) {
-              current[nestedPath[i]] = {}
-            }
-            current = current[nestedPath[i]]
-          }
-
-          if (nestedPath.length > 0) {
-            current[nestedPath[nestedPath.length - 1]] = `SAMPLE_${key.toUpperCase()}`
-          }
-        } else if (path[0] === 'traits') {
-          if (!payload.traits) {
-            payload.traits = {}
-          }
-          const propName = path.slice(1).join('.')
-          payload.traits[propName] = `SAMPLE_${key.toUpperCase()}`
-        } else if (path[0] === 'userId' || path[0] === 'anonymousId' || path[0] === 'event') {
-          // These are already set
-        } else {
-          // Handle top-level fields
-          payload[path[0]] = `SAMPLE_${key.toUpperCase()}`
-        }
-      } else if (typeof value === 'string') {
-        // Handle literal values from mappings
-        payload.properties[key] = value
+    // Add properties based on mapping with better values
+    for (const [_, value] of Object.entries(mapping)) {
+      if (isDirective(value)) {
+        const [key] = getRawKeys(value)
+        const path = key.replace('$.', '')
+        set(payload, path, this.generateValueByFieldName(path))
       }
     }
 
     return payload
+  }
+
+  generateValueByFieldName(fieldName: string): any {
+    const lowerFieldName = fieldName.toLowerCase()
+
+    // Check for common field name patterns
+    if (lowerFieldName.includes('email')) {
+      return this.chance.email()
+    } else if (lowerFieldName.includes('phone') || lowerFieldName.includes('mobile')) {
+      return `+${this.chance.phone({ formatted: false })}`
+    } else if (lowerFieldName.includes('name')) {
+      if (lowerFieldName.includes('first')) {
+        return this.chance.first()
+      } else if (lowerFieldName.includes('last')) {
+        return this.chance.last()
+      } else if (lowerFieldName.includes('full')) {
+        return this.chance.name()
+      } else {
+        return this.chance.name()
+      }
+    } else if (lowerFieldName.includes('url') || lowerFieldName.includes('link')) {
+      return this.chance.url()
+    } else if (lowerFieldName.includes('date')) {
+      return this.chance.date().toISOString()
+    } else if (lowerFieldName.includes('time')) {
+      return this.chance.date().toISOString()
+    } else if (
+      lowerFieldName.includes('price') ||
+      lowerFieldName.includes('amount') ||
+      lowerFieldName.includes('total')
+    ) {
+      return this.chance.floating({ min: 1, max: 1000, fixed: 2 })
+    } else if (lowerFieldName.includes('currency')) {
+      return this.chance.currency().code
+    } else if (lowerFieldName.includes('country')) {
+      return this.chance.country()
+    } else if (lowerFieldName.includes('city')) {
+      return this.chance.city()
+    } else if (lowerFieldName.includes('state') || lowerFieldName.includes('province')) {
+      return this.chance.state()
+    } else if (lowerFieldName.includes('zip') || lowerFieldName.includes('postal')) {
+      return this.chance.zip()
+    } else if (lowerFieldName.includes('address')) {
+      return this.chance.address()
+    } else if (lowerFieldName.includes('company') || lowerFieldName.includes('organization')) {
+      return this.chance.company()
+    } else if (lowerFieldName.includes('description')) {
+      return this.chance.paragraph()
+    } else if (lowerFieldName.includes('id')) {
+      return this.chance.guid()
+    } else if (lowerFieldName.includes('quantity') || lowerFieldName.includes('count')) {
+      return this.chance.integer({ min: 1, max: 10 })
+    } else if (lowerFieldName.includes('age')) {
+      return this.chance.age()
+    } else if (lowerFieldName === 'gender') {
+      return this.chance.gender()
+    } else if (
+      lowerFieldName.includes('boolean') ||
+      lowerFieldName.includes('enabled') ||
+      lowerFieldName.includes('active')
+    ) {
+      return this.chance.bool()
+    } else {
+      // Default fallback
+      return this.chance.word()
+    }
   }
 
   async catch(error: unknown) {
