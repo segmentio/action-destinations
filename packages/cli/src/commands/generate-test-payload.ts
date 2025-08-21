@@ -11,7 +11,8 @@ import {
   GlobalSetting,
   isDirective,
   DestinationDefinition as CloudModeDestinationDefinition,
-  InputField
+  InputField,
+  AudienceDestinationDefinition
 } from '@segment/actions-core'
 import Chance from 'chance'
 import { getRawKeys } from '@segment/actions-core/mapping-kit/value-keys'
@@ -132,7 +133,7 @@ export default class GenerateTestPayload extends Command {
 
     if (actionToGenerate === 'all') {
       for (const [slug, action] of actions) {
-        await this.generatePayloadForAction(destination, slug, action, flags.port)
+        await this.generatePayloadForAction(destination, slug, action)
       }
     } else {
       const action = actions.find(([slug]) => slug === actionToGenerate)
@@ -142,13 +143,13 @@ export default class GenerateTestPayload extends Command {
         return
       }
 
-      await this.generatePayloadForAction(destination, action[0], action[1], flags.port)
+      await this.generatePayloadForAction(destination, action[0], action[1])
     }
 
     this.log(chalk.green(`\nDone generating test payloads! 🎉`))
   }
 
-  async generatePayloadForAction(destination: DestinationDefinition, actionSlug: string, action: any, port: number) {
+  async generatePayloadForAction(destination: DestinationDefinition, actionSlug: string, action: any) {
     this.spinner.start(`Generating test payload for action: ${actionSlug}`)
 
     try {
@@ -170,6 +171,10 @@ export default class GenerateTestPayload extends Command {
         }
       }
 
+      const audienceSettings = {
+        ...(destination as AudienceDestinationDefinition)?.audienceFields
+      }
+
       // Generate sample mapping based on action fields
       const mapping = {} as Record<string, any>
       const fields = (action.fields || {}) as Record<string, InputField>
@@ -177,11 +182,20 @@ export default class GenerateTestPayload extends Command {
       for (const [fieldKey, field] of Object.entries(fields)) {
         if (field.default) {
           mapping[fieldKey] = field.default
+        } else if (field.choices) {
+          // if choices is array of string, pick the first one
+          // if choices is array of {label: string, value: string}, then pick the value of the first one
+          mapping[fieldKey] = typeof field.choices[0] === 'string' ? field.choices[0] : field.choices[0].value
         }
       }
 
       // Generate sample payload based on the fields
       const payload = this.generateSamplePayloadFromMapping(mapping)
+
+      // if audience settings exist, add them to the payload
+      if (audienceSettings) {
+        set(payload, 'context.personas.audience_settings', this.generateSampleFromSchema(audienceSettings || {}))
+      }
 
       // Generate final sample request
       const sampleRequest = {
@@ -194,7 +208,7 @@ export default class GenerateTestPayload extends Command {
 
       // Print the curl command to the terminal
       this.log(chalk.cyan(`\n# Test payload for ${chalk.bold(destination.name)} - ${chalk.bold(actionSlug)}`))
-      this.log(chalk.yellow(`curl -X POST http://localhost:${port}/${actionSlug} \\`))
+      this.log(chalk.yellow(`curl -X POST http://localhost:3000/${actionSlug} \\`))
       this.log(chalk.yellow(`  -H "Content-Type: application/json" \\`))
       this.log(chalk.yellow(`  -d '${JSON.stringify(sampleRequest).replace(/'/g, "\\'")}'`))
     } catch (error) {
@@ -207,7 +221,7 @@ export default class GenerateTestPayload extends Command {
     for (const [propName, setting] of Object.entries(schema)) {
       if (setting.default !== undefined) {
         result[propName] = setting.default
-      } else if (setting.required) {
+      } else {
         result[propName] = this.generatePlaceholderForSchema(setting)
       }
     }
@@ -223,13 +237,13 @@ export default class GenerateTestPayload extends Command {
         if (schema.choices) {
           return schema.choices[0]
         }
-        return `YOUR_${schema.label || 'VALUE'}`
+        return `<${schema.label || 'VALUE'}>`
       case 'number':
         return 0
       case 'boolean':
         return false
       case 'password':
-        return `YOUR_${schema.label || 'PASSWORD'}`
+        return `<${schema.label || 'PASSWORD'}>`
       default:
         return null
     }
