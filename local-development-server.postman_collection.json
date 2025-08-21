@@ -20,7 +20,7 @@
       }
     },
     {
-      "name": "Delete Destination",
+      "name": "Invoke Delete Handler",
       "request": {
         "method": "POST",
         "url": {
@@ -39,7 +39,7 @@
             }
           }
         },
-        "description": "Delete the destination"
+        "description": "Invokes the delete handler of the destination"
       }
     },
     {
