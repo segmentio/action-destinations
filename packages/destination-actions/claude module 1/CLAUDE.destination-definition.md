@@ -25,7 +25,7 @@ packages/destination-actions/src/destinations/<destination-name>
     └── index.ts
 ```
 
-### Destination Definition
+# The Destination Definition
 
 The main definition in the root index.ts file of your Destination will look something like this:
 
@@ -62,7 +62,7 @@ const destination: DestinationDefinition<Settings, AudienceSettings> = {
 export default destination
 ```
 
-### Action Definition
+# The Action Definition
 
 ```typescript
 import type { ActionDefinition } from '@segment/actions-core'
@@ -93,7 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
 export default action
 ```
 
-## Input Fields
+# Input Fields
 
 For each action or authentication scheme you can define a collection of inputs as fields. Input fields are what users see in the Segment UI to configure how data gets sent to the destination platform or what data is needed for authentication. These fields (for the action only) are able to accept input from the Segment event.
 
@@ -131,7 +131,7 @@ const destination = {
 }
 ```
 
-### Input Field Interface
+## The Input Field Interface
 
 Here's the full interface that input fields allow:
 
@@ -242,7 +242,7 @@ interface InputField {
 }
 ```
 
-## Default Values
+## The default attribute of an Input Field
 
 You can set default values for fields. These defaults are not used at run-time, however. These defaults **pre-populate the initial value of the field when users first set up an action**.
 
@@ -306,271 +306,13 @@ const destination = {
 }
 ```
 
-## Required Fields
-
-You may configure a field to either be always required, not required, or conditionally required. Validation for required fields is performed both when a user is configuring a mapping in the UI and when an event payload is delivered to the perform() or performBatch functions.
-
-**An example of each possible value for `required`**
-
-```typescript
-const destination = {
-  actions: {
-    // The name of the Action
-    readmeAction: {
-      fields: {
-        // The name of the Input Field
-        operation: {
-          label: 'Operation',
-          description: 'An operation for the readme action',
-          type: 'string',
-          // This field is always required and any payloads omitting it will fail
-          required: true
-        },
-        // The name of the Input Field
-        creationName: {
-          label: 'Creation Name',
-          description: "The name of the resource to create, required when operation = 'create'",
-          type: 'string',
-          required: {
-            // This field is required only when the 'operation' field has the value 'create'
-            match: 'all',
-            conditions: [
-              {
-                fieldKey: 'operation',
-                operator: 'is',
-                value: 'create'
-              }
-            ]
-          }
-        },
-        // The name of the Input Field
-        email: {
-          label: 'Customer Email',
-          description: "The customer's email address",
-          type: 'string',
-          format: 'email',
-          // This field is not required. This is the same as not including the 'required' property at all
-          required: false
-        },
-        // The name of the Input Field
-        userIdentifiers: {
-          label: 'User Identifiers',
-          description: 'User identifiers',
-          type: 'object',
-          properties: {
-            phone: {
-              label: 'Phone Number',
-              description: 'The customer phone number',
-              type: 'string',
-              required: {
-                // If email is not provided then a phone number is required
-                conditions: [{ fieldKey: 'email', operator: 'is', value: undefined }]
-              }
-            },
-            countryCode: {
-              label: 'Country Code',
-              description: 'The country code for the customer phone number',
-              type: 'string',
-              required: {
-                // If a userIdentifiers.phone is provided then the country code is also required
-                conditions: [
-                  {
-                    fieldKey: 'userIdentifiers.phone', // Dot notation may be used to address sub fields withing an object field.
-                    operator: 'is_not',
-                    value: undefined
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-**Examples of valid and invalid payloads for the fields above**
-
-```json
-// This payload is valid since the only required field, 'operation', is defined.
-{
-  "operation": "update",
-  "email": "read@me.com"
-}
-```
-
-```json
-// This payload is invalid since 'creationName' is required because 'operation' is 'create'
-{
-  "operation": "create",
-  "email": "read@me.com"
-}
-// The entire Segment input event will be dropped, with this message
-"message": "The root value is missing the required field 'creationName'. The root value must match \"then\" schema."
-```
-
-```json
-// This payload is valid since the two required fields, 'operation' and 'creationName' are defined.
-{
-  "operation": "create",
-  "creationName": "readme",
-  "email": "read@me.com"
-}
-```
-
-```json
-// This payload is invalid since 'phone' is required when 'email' is missing.
-{
-  "operation": "update",
-}
-// The entire Segment input event will be dropped, with this message
-"message": "The root value is missing the required field 'phone'. The root value must match \"then\" schema."
-```
-
-```json
-// This payload is invalid since 'countryCode' is required when 'phone' is defined
-{
-  "operation": "update",
-  "userIdentifiers": { "phone": "619-555-5555" }
-}
-// The entire Segment input event will be dropped, with this message
-"message": "The root value is missing the required field 'countryCode'. The root value must match \"then\" schema."
-```
-
-```json
-// This payload is valid since all conditionally required fields are included
-{
-  "operation": "update",
-  "userIdentifiers": {
-    "phone": "619-555-5555",
-    "countryCode": "+1"
-  }
-}
-```
-
-## Choices
-
-Input Fields can be set render as a dropdown list in the Segment user interface. The dropdown list will populate with the items from the choices array.
-
-The Input Field will then fail validation if the customer passes any value other than an allowable choice item's value
-
-### Valid example Input Fields with choices attribute set
-
-In the example below the customer can only pass a value to the region field if the value is `US`, `Ireland` or `UK`. The default option is set to `Ireland`.
-
-```typescript
-// The name of the field
-region: {
-  label: 'Region',
-  description: "The region to send data to"
-  type: 'string',
-  // The choices array
-  choices: [
-    {
-      // The label displays in the Segment user interface
-      label: 'US',
-      // The value is passed to the field if the customer selects US
-      value: 'https://us.some-service.com'
-    },
-    {
-      // The label displays in the Segment user interface
-      label: 'Ireland',
-      // The value is passed to the field if the customer selects Ireland
-      value: 'https://ie.some-service.com'
-    },
-    {
-      // The label displays in the Segment user interface
-      label: 'UK',
-      // The value is passed to the field if the customer selects UK
-      value: 'https://uk.some-service.com'
-    }
-  ],
-  // In this example a default mapping is set to Ireland. This will be passed to the field if the customer doesn't select anything.
-  default: 'Ireland',
-  // allowNull also specifies that a null value can be passed to the field
-  allowNull: true
-}
-```
-
-In this example the customer is restricted to setting the field value to a number.
-
-```typescript
-// The name of the field
-numberChildren: {
-  label: 'Number of Children',
-  description: "The number of children"
-  type: 'integer',
-  // The choices array
-  choices: [
-    {
-      // The label displays in the Segment user interface
-      label: 'No children',
-      // The value is passed to the field if the customer selects 'No children'
-      value: 0
-    },
-    {
-      // The label displays in the Segment user interface
-      label: '1 child',
-      // The value is passed to the field if the customer selects '1 child'
-      value: 1
-    },
-    {
-      // The label displays in the Segment user interface
-      label: '2 children',
-      // The value is passed to the field if the customer selects '2 children'
-      value: 2
-    }
-  ],
-  // In this example a default mapping is set to 0. This will be passed to the field if the customer doesn't select anything.
-  default: 0,
-
-  // allowNull also specifies that a null value can not be passed to the field
-  allowNull: false
-}
-```
-
-### Invalid example Input Fields with choices attribute set
-
-//TODO
-
-## The defaultSubscription attribute
-
-In addition to default values for input fields, you can also specify the defaultSubscription for a given action – this is the FQL query that will be automatically populated when a customer configures a new subscription triggering a given action.
-
-A Segment input event that matches the subscription value will trigger the Action.
-
-Triggering the Action means that the Segment input payload gets validated by the Action's InputFields, then the resolved payload gets passed to the Action's perform() or performBatch() functions for processing.
-
-Some examples are:
-
-```typescript
-// Only input Segment events where the type of the event is = 'track' will trigger the Action
-defaultSubscription: 'type = "track"'
-```
-
-```typescript
-// Only input Segment events where the type of the event is = 'track' or 'identify' or 'page' or 'group' will trigger the Action
-defaultSubscription: 'type = "track" or type = "identify" or type = "page" or type = "group"'
-```
-
-```typescript
-// Only input Segment events where the type of the event is = 'track' and the event name is not "Order Completed" will trigger the Action
-defaultSubscription: 'type = "track" and event != "Order Completed"'
-```
-
-```typescript
-// Only input Segment events where the type of the event is = 'track' and the event name = "Signed Out" will trigger the Action
-defaultSubscription: 'type = "track" and event = "Signed Out"'
-```
-
-## Mapping Kit Directives for default mappings
+### Mapping Kit Directives for default attribute of an Input Field
 
 Mapping Kit Directives are used to point to locations within a Segment input event. They allow the Developer to set default mappings for a field, and they also allow the customer to set mappings themselves. Any mapping set by the customer overrides the default mapping set by the Developer.
 
 The use of the $ symbol indicates the root of the Segment input event.
 
-### Valid Mapping Kit Directive examples
+#### Valid Mapping Kit Directive examples
 
 ```typescript
 // A valid mapping pointing to the root location of a Segment input event payload. This will select the entire payload for the field.
@@ -735,7 +477,7 @@ userIdentifiers: {
 }
 ```
 
-### Invalid Mapping Kit Directive examples
+#### Invalid Mapping Kit Directive examples
 
 ```typescript
 // An invalid mapping attempting to set the default value of the field to a JSON value
@@ -808,12 +550,495 @@ userIdentifiers: {
 }
 ```
 
-## Valid and invalid Field Definitions
+## the required attribute of an Input Field
 
-The following examples demonstrate valid and invalid Input Field defintitions
-Where the definition is invalid, the a reson is given.
+You may configure a field to either be always required, not required, or conditionally required. Validation for required fields is performed both when a user is configuring a mapping in the UI and when an event payload is delivered to the perform() or performBatch functions.
 
-### Valid Input Field Definitions
+### Examples of each possible value for the `required` attribute
+
+```typescript
+const destination = {
+  actions: {
+    // The name of the Action
+    readmeAction: {
+      fields: {
+        // The name of the Input Field
+        operation: {
+          label: 'Operation',
+          description: 'An operation for the readme action',
+          type: 'string',
+          // This field is always required and any payloads omitting it will fail
+          required: true
+        },
+        // The name of the Input Field
+        creationName: {
+          label: 'Creation Name',
+          description: "The name of the resource to create, required when operation = 'create'",
+          type: 'string',
+          required: {
+            // This field is required only when the 'operation' field has the value 'create'
+            match: 'all',
+            conditions: [
+              {
+                fieldKey: 'operation',
+                operator: 'is',
+                value: 'create'
+              }
+            ]
+          }
+        },
+        // The name of the Input Field
+        email: {
+          label: 'Customer Email',
+          description: "The customer's email address",
+          type: 'string',
+          format: 'email',
+          // This field is not required. This is the same as not including the 'required' property at all
+          required: false
+        },
+        // The name of the Input Field
+        userIdentifiers: {
+          label: 'User Identifiers',
+          description: 'User identifiers',
+          type: 'object',
+          properties: {
+            phone: {
+              label: 'Phone Number',
+              description: 'The customer phone number',
+              type: 'string',
+              required: {
+                // If email is not provided then a phone number is required
+                conditions: [{ fieldKey: 'email', operator: 'is', value: undefined }]
+              }
+            },
+            countryCode: {
+              label: 'Country Code',
+              description: 'The country code for the customer phone number',
+              type: 'string',
+              required: {
+                // If a userIdentifiers.phone is provided then the country code is also required
+                conditions: [
+                  {
+                    fieldKey: 'userIdentifiers.phone', // Dot notation may be used to address sub fields withing an object field.
+                    operator: 'is_not',
+                    value: undefined
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Examples of valid and invalid payloads for the fields above
+
+```json
+// This payload is valid since the only required field, 'operation', is defined.
+{
+  "operation": "update",
+  "email": "read@me.com"
+}
+```
+
+```json
+// This payload is invalid since 'creationName' is required because 'operation' is 'create'
+{
+  "operation": "create",
+  "email": "read@me.com"
+}
+// The entire Segment input event will be dropped, with this message
+"message": "The root value is missing the required field 'creationName'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is valid since the two required fields, 'operation' and 'creationName' are defined.
+{
+  "operation": "create",
+  "creationName": "readme",
+  "email": "read@me.com"
+}
+```
+
+```json
+// This payload is invalid since 'phone' is required when 'email' is missing.
+{
+  "operation": "update",
+}
+// The entire Segment input event will be dropped, with this message
+"message": "The root value is missing the required field 'phone'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is invalid since 'countryCode' is required when 'phone' is defined
+{
+  "operation": "update",
+  "userIdentifiers": { "phone": "619-555-5555" }
+}
+// The entire Segment input event will be dropped, with this message
+"message": "The root value is missing the required field 'countryCode'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is valid since all conditionally required fields are included
+{
+  "operation": "update",
+  "userIdentifiers": {
+    "phone": "619-555-5555",
+    "countryCode": "+1"
+  }
+}
+```
+
+## The choices attribute of an Input Field
+
+Input Fields can be set render as a dropdown list in the Segment user interface. The dropdown list will populate with the items from the choices array.
+
+The Input Field will then fail validation if the customer passes any value other than an allowable choice item's value
+
+The type for the choices attribute is defined as:
+
+```typescript
+choices?:
+  | Array<string>
+  | Array<{
+      /** The value of the option */
+      value: string | number
+      /** A human-friendly label for the option */
+      label: string
+    }>
+```
+
+### Valid example Input Fields with choices attribute set
+
+In the example below the customer can only pass a value to the region field if the value is `US`, `Ireland` or `UK`. The default option is set to `Ireland`.
+
+```typescript
+// The name of the field
+region: {
+  label: 'Region',
+  description: "The region to send data to"
+  type: 'string',
+  // The choices array
+  choices: [
+    {
+      // The label displays in the Segment user interface
+      label: 'US',
+      // The value is passed to the field if the customer selects US
+      value: 'https://us.some-service.com'
+    },
+    {
+      // The label displays in the Segment user interface
+      label: 'Ireland',
+      // The value is passed to the field if the customer selects Ireland
+      value: 'https://ie.some-service.com'
+    },
+    {
+      // The label displays in the Segment user interface
+      label: 'UK',
+      // The value is passed to the field if the customer selects UK
+      value: 'https://uk.some-service.com'
+    }
+  ],
+  // In this example a default mapping is set to Ireland. This will be passed to the field if the customer doesn't select anything.
+  default: 'Ireland',
+  // allowNull also specifies that a null value can be passed to the field
+  allowNull: true
+}
+```
+
+In this example the customer is restricted to setting the field value to a number.
+
+```typescript
+// The name of the field
+numberChildren: {
+  label: 'Number of Children',
+  description: "The number of children"
+  type: 'integer',
+  // The choices array
+  choices: [
+    {
+      // The label displays in the Segment user interface
+      label: 'No children',
+      // The value is passed to the field if the customer selects 'No children'
+      value: 0
+    },
+    {
+      // The label displays in the Segment user interface
+      label: '1 child',
+      // The value is passed to the field if the customer selects '1 child'
+      value: 1
+    },
+    {
+      // The label displays in the Segment user interface
+      label: '2 children',
+      // The value is passed to the field if the customer selects '2 children'
+      value: 2
+    }
+  ],
+  // In this example a default mapping is set to 0. This will be passed to the field if the customer doesn't select anything.
+  default: 0,
+
+  // allowNull also specifies that a null value can not be passed to the field
+  allowNull: false
+}
+```
+
+### Invalid example Input Fields with choices attribute set
+
+The following example is invalid because it attempts to set choice values as boolean.
+The correct way to handle a boolean scenario is to just remove the choices array. Segment will reject any non boolean value sent to a boolean Input Field anyway.
+
+```typescript
+// The name of the field
+hasChildren: {
+  label: 'Has Children',
+  description: "Does the user have children?"
+  type: 'boolean',
+  // The choices array
+  choices: [
+    {
+      // The label displays in the Segment user interface
+      label: 'NO',
+      // boolean false is an invalid value for a choice
+      value: false
+    },
+    {
+      // The label displays in the Segment user interface
+      label: 'YES',
+      // boolean true is an invalid value for a choice
+      value: true
+    }
+  ],
+  // In this example a default mapping is set to false. This will be passed to the field if the customer doesn't select anything.
+  default: false
+}
+```
+
+## The defaultSubscription attribute of an Input Field
+
+In addition to default values for input fields, you can also specify the defaultSubscription for a given action – this is the FQL query that will be automatically populated when a customer configures a new subscription triggering a given action.
+
+A Segment input event that matches the subscription value will trigger the Action.
+
+Triggering the Action means that the Segment input payload gets validated by the Action's InputFields, then the resolved payload gets passed to the Action's perform() or performBatch() functions for processing.
+
+Some examples are:
+
+```typescript
+// Only input Segment events where the type of the event is = 'track' will trigger the Action
+defaultSubscription: 'type = "track"'
+```
+
+```typescript
+// Only input Segment events where the type of the event is = 'track' or 'identify' or 'page' or 'group' will trigger the Action
+defaultSubscription: 'type = "track" or type = "identify" or type = "page" or type = "group"'
+```
+
+```typescript
+// Only input Segment events where the type of the event is = 'track' and the event name is not "Order Completed" will trigger the Action
+defaultSubscription: 'type = "track" and event != "Order Completed"'
+```
+
+```typescript
+// Only input Segment events where the type of the event is = 'track' and the event name = "Signed Out" will trigger the Action
+defaultSubscription: 'type = "track" and event = "Signed Out"'
+```
+
+## The multiple Input Field attribute
+
+The multiple Input Field attribute turns a field into an array.
+
+1. string turns into an array of strings
+2. number turns into an array of numbers
+3. boolean turns into an array of booleans
+4. object turns into an array of objects
+
+### Valid examples of the Input Fields with the multiple attribute
+
+#### Example 1
+
+```typescript
+/*
+  This is an Input Field that accepts an array of strings
+*/
+email_addresses: {
+  label: 'Email Addresses',
+  description: "The customer's email address",
+  type: 'string',
+  format: 'email',
+  multiple: true,
+  required: false,
+  default: {'@path': '$.traits.emails'}
+}
+```
+
+```json
+// This is an example value which could be successfully passed to the email_addresses Input Field above
+{
+  "traits": {
+    "emails": ["email1@gmail.com", "email2@gmail.com", "email3@gmail.com"]
+  }
+}
+```
+
+#### Example 2
+
+```typescript
+/*
+  This is an Input Field that accepts an array of numbers
+*/
+product_prices: {
+  label: 'Prices',
+  description: "A list of product prices",
+  type: 'number',
+  multiple: true,
+  required: false,
+  default: {'@path': '$.properties.prices'}
+}
+```
+
+```json
+// This is an example value which could be successfully passed to the product_prices Input Field above
+{
+  "properties": {
+    "prices": [100, 199.99, 2]
+  }
+}
+```
+
+#### Example 3
+
+```typescript
+/*
+  This is an object Input Field that containing a sub field that accepts an array of strings.
+  It's OK to have objects Input Fields that have sub fields whih are arrays of strings, arrays of booleans or arrays of numbers
+*/
+identifiers: {
+  label: 'User Identifiers',
+  description: "Unique identifers for the user",
+  type: 'object',
+  multiple: true,
+  required: false,
+  properties: {
+    userId: {
+      label: 'User Id',
+      description: "The user's main identifier",
+      type: "string"
+    },
+    email_addresses: {
+      label: 'Email Addresses',
+      description: "Email addresses associated with the user",
+      type: "string",
+      multiple: true
+    }
+  },
+  default: {
+    userId: {'@path': '$.userId'},
+    email_addresses: {
+      '@if': {
+        exists: { '@path': '$.traits.email_addresses' },
+        then: { '@path': '$.traits.email_addresses' },
+        else: { '@path': '$.context.traits.email_addresses' }
+      }
+    }
+  }
+}
+```
+
+```json
+// This is an example value which could be successfully passed to the identifiers Input Field above
+{
+  "userid": "uid_12345",
+  "traits": {
+    "email_addresses": ["email1@gmail.com", "email2@gmail.com", "email3@gmail.com"]
+  }
+}
+```
+
+#### Example 4
+
+```typescript
+/*
+  This is an object Input Field which accepts an array of objects.
+*/
+products: {
+  label: 'Products',
+  description: "A list of product items",
+  type: 'object',
+  multiple: true,
+  required: false,
+  properties: {
+    id: {
+      label: 'Product ID',
+      description: "Unique identifier for the product",
+      type: "string"
+    },
+    name: {
+      label: 'Product Name',
+      description: "The product's name",
+      type: "string"
+    },
+    price: {
+      label: 'Price',
+      description: "The product's price",
+      type: "number"
+    },
+    category: {
+      label: 'Cagegory',
+      description: "The product's category",
+      type: "string"
+    }
+  },
+  default: {
+    /*
+      The default mapping for an array of objects should use the @arrayPath directive.
+    */
+    '@arrayPath': [
+      /*
+        '$.products' refers to the location of the array in the Segment input event payload. In this case it's called products, and is located at root.properties.products.
+      */
+      '$.properties.products',
+      /*
+        Individual mappings are then provided for every sub field in the object.
+      */
+      {
+        id: { '@path': '$.id' },
+        price: { '@path': '$.price' },
+        name: { '@path': '$.name' },
+        quantity: { '@path': '$.quantity' }
+      }
+    ]
+  }
+}
+```
+
+```json
+/*
+  This is an example value which could be successfully passed to the products Input Field above.
+  The sub fields are all optional, so not all the values need to be popuated in the product array items
+*/
+{
+  "products": [
+    { "id": "product_id_1", "price": 100, "name": "Soft toy", "quantity": 1 },
+    { "price": 21, "name": "Chess set", "quantity": 3 }
+    { "id": "product_id_3", "price": 99.99, "name": "expensive chocolate bar" }
+  ]
+}
+```
+
+### Invalid examples of the Input Fields with the multiple attribute
+
+TODO
+
+## Valid and invalid Field Definitions examples
+
+The following examples illustrate valid and invalid Input Field defintitions
+
+### Valid Input Field Definition examples
 
 ```typescript
 /*
@@ -854,7 +1079,7 @@ known_user_identifier: {
   The defintion includes all 3 of the required attrinutes, label, description and type.
   placeholder is an allowable attribute.
   format: 'ipv4' is a valid format value
-  The default mapping is valid, and includes an '@if' directive
+  The default mapping is valid
   allowNull is a valid attribute
 */
 ip: {
@@ -863,76 +1088,175 @@ ip: {
   placeholder: '180.1.12.125',
   type: 'string',
   format: 'ipv4',
-  default: {
-    '@if': {
-      exists: { '@path': '$.traits.ip' },
-      then: { '@path': '$.traits.ip' },
-      else: { '@path': '$.properties.ip' }
-    }
-  },
+  default: { '@path': '$.context.ip' },
   allowNull: true
 }
 ```
 
 ```typescript
+/*
+  This is a valid Input Field Definition.
+  The field is optional as it doesn't have the required attribute set.
+*/
 location: {
+  /*
+    The defintion includes all 3 of the required attrinutes, label, description and type. the type of the field is object.
+  */
   label: 'Location',
   description: "The contact's location. Will take priority over the IP address.",
   type: 'object',
+  /*
+    defaultObjectUI is a valid attribute, and it's set to 'keyvalue:only' which is a valid value.
+  */
   defaultObjectUI: 'keyvalue:only',
+  /*
+    The additionalProperties is set to true, which allows the customer to send additional attributes in the object (apart from country, state, city and postal_code). This is valid.
+  */
   additionalProperties: false,
-  allowNull: true,
+  /*
+    The field has defined 4 properties or sub fields, country, state, city and postal_code.
+  */
   properties: {
+    /*
+      Each sub field has all 3 of the required attributes label, description and type.
+      While not technically a problem, it's good that each sub field relates to the parent object field. country, city, state and postal_code are all relevant to a user location.
+      If there was a sub field named age, it would be bad field design, but not a technical issue.
+    */
     country: {
       label: 'Country',
       type: 'string',
-      allowNull: true
+      description: "the user's country"
     },
     state: {
       label: 'State',
       type: 'string',
-      allowNull: true
+      description: "The user's state"
     },
     city: {
       label: 'City',
       type: 'string',
-      allowNull: true
+      description: "The user's city"
     },
     post_code: {
       label: 'Postcode',
       type: 'string',
-      allowNull: true
+      description: "The user's post code"
     }
   },
+  /*
+    The default attribute valid and is defined in the correct location of the field, which is at the object field level (the parent field level), and not the sub field level.
+    The default attribute also uses the '@if' directive correctly.
+    The default attribute sets default for all the sub fields.
+  */
   default: {
     country: {
       '@if': {
-        exists: { '@path': '$.traits.country' },
-        then: { '@path': '$.traits.country' },
+        exists: { '@path': '$.context.traits.country' },
+        then: { '@path': '$.context.traits.country' },
         else: { '@path': '$.properties.country' }
       }
     },
     state: {
       '@if': {
-        exists: { '@path': '$.traits.state' },
-        then: { '@path': '$.traits.state' },
+        exists: { '@path': '$.context.traits.state' },
+        then: { '@path': '$.context.traits.state' },
         else: { '@path': '$.properties.state' }
       }
     },
     city: {
       '@if': {
-        exists: { '@path': '$.traits.city' },
-        then: { '@path': '$.traits.city' },
+        exists: { '@path': '$.context.traits.city' },
+        then: { '@path': '$.context.traits.city' },
         else: { '@path': '$.properties.city' }
       }
     },
     post_code: {
       '@if': {
-        exists: { '@path': '$.traits.postal_code' },
-        then: { '@path': '$.traits.postal_code' },
+        exists: { '@path': '$.context.traits.postal_code' },
+        then: { '@path': '$.context.traits.postal_code' },
         else: { '@path': '$.properties.postal_code' }
       }
     }
   }
-},
+}
 ```
+
+### Invalid Input Field Definition examples
+
+```typescript
+/*
+  There are multiple issues with this Input Field Definition. 
+  While the name of the field (additional_details) is OK, it contains sub fields which do not relate to each other in some way. For example, username is related to a user, price is related to a product, and company_details is related to an organization. It would be better to collect these types of data in completely separate fields, or to add them as sub fields of more relevant object fields. For example, price could be added as a sub field of an object field named product_details, if there were other product related values to collect. username could be added as sub field of a user object field. And company_details could become its own field. 
+*/
+additional_details = {
+  label: 'Additional Details',
+  description: 'Additional information to send',
+  type: 'object',
+  properties: {
+    username: {
+      label: 'Username',
+      description: 'The username for the user',
+      type: 'string',
+      /*
+        The default mapping for sub fields should not be located within the sub field.  
+      */
+      default: { '@path': '$.properties.username' }
+    },
+    ip: {
+      label: 'IP Address',
+      description: "The user's IP address",
+      type: 'string',
+      /*
+        The default mapping for sub fields should not be located within the sub field.  
+      */
+      default: { '@path': '$.context.ip' }
+    },
+    price: {
+      label: 'Product Price',
+      description: 'The price of the product',
+      type: 'number',
+      /*
+        The default mapping for sub fields should not be located within the sub field.  
+      */
+      default: { '@path': '$.properties.price' }
+    },
+    /*
+      This parent field named additional_details is an object field which has a sub field named company_details which is also an object field. This will break the Segment User Interface. Object fields should only contain sub fields which are string, number or boolean.  
+    */
+    company_details: {
+      label: 'Custom Details',
+      description: 'Additional deetails about the company',
+      type: 'object',
+      properties: {
+        name: {
+          label: 'Company Name',
+          description: 'Company Name',
+          type: 'string'
+        },
+        number_employees: {
+          label: 'Number Employees',
+          description: 'Number of employees at the company',
+          type: 'string'
+        }
+      },
+      /*
+        The default mapping for sub fields should not be located within the sub field.  
+      */
+      default: { '@path': '$.properties.company_details' }
+    }
+  }
+  /*
+    The default mapping for all sub fields should be located at the parent field level and not in the sub fields themselves.  
+  */
+}
+```
+
+### Input Field design considerations
+
+1. Don't define too many fields as it will result in a cluttered user interface. Instead, try to group individual simple type fields (string, number, integer, boolean) together into object fields.
+2. When grouping fields into object fields, make sure there is a commonality between the fields that get added to each object field. For example, don't group user identifiers, user traits, product details into the same object field.
+3. Design fields with the Segment Identify and Ecommerce specs in mind. For example, if the Destination's API requires a phone number, make sure to add a default mapping to phone trait (which is documented in the Segment identify Spec). The phone trait should be located at `$.context.traits.phone` or `$.properties.phone` in track() event payloads, or `$.traits.phone` in identify() event payloads.
+4. Always specify if a field is required or optional, or specify a required condition.
+5. Always specify if a sub field is required of optional, or specify a required condition.
+6. For numeric fields, figure out if the field should have a type of `integer` or `number`, depending on what the field is called. For example a field named `age` should be of type `integer`, while a field named `price` should be of type `number`.
+7. When collecting user profile traits from an Action that has a detaultMapping to a track() event, always use the `@if` conditional statement to set two default paths, one to `$.context.traits.<field_name>` and the other to `$.properties.<field_name>`. If the Action is designed to handle identify() payloads then just map the user trait to `$.traits.field_name`.
