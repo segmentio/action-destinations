@@ -35,6 +35,10 @@ export default class GenerateTestPayload extends Command {
       char: 'p',
       description: 'destination actions directory path',
       default: './packages/destination-actions/src/destinations'
+    }),
+    browser: flags.boolean({
+      char: 'r',
+      description: 'generate payloads for browser destinations'
     })
   }
 
@@ -43,6 +47,7 @@ export default class GenerateTestPayload extends Command {
   async run() {
     const { flags } = this.parse(GenerateTestPayload)
     let destinationName = flags.destination
+    const isBrowser = !!flags.browser
 
     if (!destinationName) {
       const integrationsGlob = `${flags.directory}/*`
@@ -78,7 +83,10 @@ export default class GenerateTestPayload extends Command {
 
     this.spinner.start(`Loading destination: ${destinationName}`)
 
-    const targetDirectory = path.join(process.cwd(), flags.directory, destinationName, 'index.ts')
+    const cloudEntry = path.join(process.cwd(), flags.directory, destinationName, 'index.ts')
+    const browserEntry = path.join(process.cwd(), flags.directory, destinationName, 'src', 'index.ts')
+    const targetDirectory = isBrowser ? browserEntry : cloudEntry
+
     const destination = await loadDestination(targetDirectory)
     if (!destination) {
       this.error(`Failed to load destination: ${destinationName}`)
