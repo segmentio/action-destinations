@@ -1,0 +1,138 @@
+### Environment Variables
+@host = http://localhost:3000
+@actionSlug = yourActionSlug
+@field = yourDynamicField
+@hookName = yourHookName
+@fieldKey = yourFieldKey
+
+### Get Destination Manifest
+GET {{host}}/manifest
+Accept: application/json
+
+### Delete Destination
+POST {{host}}/delete
+Content-Type: application/json
+
+{
+  "payload": {},
+  "settings": {}
+}
+
+### Authenticate
+POST {{host}}/authenticate
+Content-Type: application/json
+
+{
+  "settings": {
+    "apiKey": "your-api-key"
+  }
+}
+
+### Create Audience
+POST {{host}}/createAudience
+Content-Type: application/json
+
+{
+  "settings": {
+    "apiKey": "your-api-key"
+  },
+  "audienceSettings": {
+    "name": "New Audience"
+  }
+}
+
+### Get Audience
+POST {{host}}/getAudience
+Content-Type: application/json
+
+{
+  "settings": {
+    "apiKey": "your-api-key"
+  },
+  "audienceId": "your-audience-id"
+}
+
+### Refresh Access Token
+POST {{host}}/refreshAccessToken
+Content-Type: application/json
+
+{
+  "settings": {
+    "refreshToken": "your-refresh-token"
+  }
+}
+
+### Execute Action
+POST {{host}}/{{actionSlug}}
+Content-Type: application/json
+
+{
+  "payload": {
+    "event": "Purchase",
+    "userId": "user123",
+    "properties": {
+      "price": 99.99,
+      "productId": "prod-456"
+    }
+  },
+  "settings": {
+    "apiKey": "your-api-key"
+  },
+  "mapping": {
+    "userId": "$.userId",
+    "event": "$.event",
+    "price": "$.properties.price"
+  },
+  "auth": {},
+  "features": {},
+  "subscriptionMetadata": {}
+}
+
+### Execute Dynamic Field
+POST {{host}}/{{actionSlug}}/{{field}}
+Content-Type: application/json
+
+{
+  "settings": {
+    "apiKey": "your-api-key"
+  },
+  "payload": {},
+  "page": 1,
+  "auth": {},
+  "audienceSettings": {},
+  "dynamicFieldContext": {}
+}
+
+### Execute Hook
+POST {{host}}/{{actionSlug}}/hooks/{{hookName}}
+Content-Type: application/json
+
+{
+  "settings": {
+    "apiKey": "your-api-key"
+  },
+  "payload": {},
+  "page": 1,
+  "auth": {},
+  "audienceSettings": {},
+  "hookInputs": {
+    "param1": "value1"
+  },
+  "hookOutputs": {}
+}
+
+### Execute Dynamic Hook Input Field
+POST {{host}}/{{actionSlug}}/hooks/{{hookName}}/dynamic/{{fieldKey}}
+Content-Type: application/json
+
+{
+  "settings": {
+    "apiKey": "your-api-key"
+  },
+  "payload": {},
+  "page": 1,
+  "auth": {},
+  "audienceSettings": {},
+  "hookInputs": {},
+  "dynamicFieldContext": {}
+}

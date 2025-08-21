@@ -1,0 +1,98 @@
+### Get Destination Manifest
+GET http://localhost:3000/manifest
+Accept: application/json
+
+### Delete Destination
+POST http://localhost:3000/delete
+Content-Type: application/json
+
+{
+  "payload": {},
+  "settings": {}
+}
+
+### Authenticate
+POST http://localhost:3000/authenticate
+Content-Type: application/json
+
+{
+  "settings": {}
+}
+
+### Create Audience
+POST http://localhost:3000/createAudience
+Content-Type: application/json
+
+{}
+
+### Get Audience
+POST http://localhost:3000/getAudience
+Content-Type: application/json
+
+{}
+
+### Refresh Access Token
+POST http://localhost:3000/refreshAccessToken
+Content-Type: application/json
+
+{
+  "settings": {}
+}
+
+### Execute Action
+# @name executeAction
+POST http://localhost:3000/{{actionSlug}}
+Content-Type: application/json
+
+{
+  "payload": {},
+  "settings": {},
+  "mapping": {},
+  "auth": {},
+  "features": {},
+  "subscriptionMetadata": {}
+}
+
+### Execute Dynamic Field
+# @name executeDynamicField
+POST http://localhost:3000/{{actionSlug}}/{{field}}
+Content-Type: application/json
+
+{
+  "settings": {},
+  "payload": {},
+  "page": 1,
+  "auth": {},
+  "audienceSettings": {},
+  "dynamicFieldContext": {}
+}
+
+### Execute Hook
+# @name executeHook
+POST http://localhost:3000/{{actionSlug}}/hooks/{{hookName}}
+Content-Type: application/json
+
+{
+  "settings": {},
+  "payload": {},
+  "page": 1,
+  "auth": {},
+  "audienceSettings": {},
+  "hookInputs": {},
+  "hookOutputs": {}
+}
+
+### Execute Dynamic Hook Input Field
+# @name executeDynamicHookInputField
+POST http://localhost:3000/{{actionSlug}}/hooks/{{hookName}}/dynamic/{{fieldKey}}
+Content-Type: application/json
+
+{
+  "settings": {},
+  "payload": {},
+  "page": 1,
+  "auth": {},
+  "audienceSettings": {},
+  "hookInputs": {},
+  "dynamicFieldContext": {}
+}

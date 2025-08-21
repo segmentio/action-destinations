@@ -1,0 +1,278 @@
+{
+  "info": {
+    "name": "Action Destinations API",
+    "description": "API collection for Segment Action Destinations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Destination Manifest",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:3000/manifest",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["manifest"]
+        },
+        "description": "Get the manifest of the destination"
+      }
+    },
+    {
+      "name": "Delete Destination",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "http://localhost:3000/delete",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["delete"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"payload\": {},\n  \"settings\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Delete the destination"
+      }
+    },
+    {
+      "name": "Authenticate",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "http://localhost:3000/authenticate",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["authenticate"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"settings\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Test authentication for the destination"
+      }
+    },
+    {
+      "name": "Create Audience",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "http://localhost:3000/createAudience",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["createAudience"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Create an audience in the destination"
+      }
+    },
+    {
+      "name": "Get Audience",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "http://localhost:3000/getAudience",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["getAudience"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Get an audience from the destination"
+      }
+    },
+    {
+      "name": "Refresh Access Token",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "http://localhost:3000/refreshAccessToken",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["refreshAccessToken"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"settings\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Refresh access token for the destination"
+      }
+    },
+    {
+      "name": "Execute Action",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "http://localhost:3000/:actionSlug",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": [":actionSlug"],
+          "variable": [
+            {
+              "key": "actionSlug",
+              "value": "yourActionSlug",
+              "description": "The slug of the action to execute"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"payload\": {},\n  \"settings\": {},\n  \"mapping\": {},\n  \"auth\": {},\n  \"features\": {},\n  \"subscriptionMetadata\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Execute a specific action"
+      }
+    },
+    {
+      "name": "Execute Dynamic Field",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "http://localhost:3000/:actionSlug/:field",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": [":actionSlug", ":field"],
+          "variable": [
+            {
+              "key": "actionSlug",
+              "value": "yourActionSlug",
+              "description": "The slug of the action"
+            },
+            {
+              "key": "field",
+              "value": "yourDynamicField",
+              "description": "The dynamic field to execute"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"settings\": {},\n  \"payload\": {},\n  \"page\": 1,\n  \"auth\": {},\n  \"audienceSettings\": {},\n  \"dynamicFieldContext\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Execute a dynamic field for a specific action"
+      }
+    },
+    {
+      "name": "Execute Hook",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "http://localhost:3000/:actionSlug/hooks/:hookName",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": [":actionSlug", "hooks", ":hookName"],
+          "variable": [
+            {
+              "key": "actionSlug",
+              "value": "yourActionSlug",
+              "description": "The slug of the action"
+            },
+            {
+              "key": "hookName",
+              "value": "yourHookName",
+              "description": "The name of the hook to execute"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"settings\": {},\n  \"payload\": {},\n  \"page\": 1,\n  \"auth\": {},\n  \"audienceSettings\": {},\n  \"hookInputs\": {},\n  \"hookOutputs\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Execute a hook for a specific action"
+      }
+    },
+    {
+      "name": "Execute Dynamic Hook Input Field",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "http://localhost:3000/:actionSlug/hooks/:hookName/dynamic/:fieldKey",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": [":actionSlug", "hooks", ":hookName", "dynamic", ":fieldKey"],
+          "variable": [
+            {
+              "key": "actionSlug",
+              "value": "yourActionSlug",
+              "description": "The slug of the action"
+            },
+            {
+              "key": "hookName",
+              "value": "yourHookName",
+              "description": "The name of the hook"
+            },
+            {
+              "key": "fieldKey",
+              "value": "yourFieldKey",
+              "description": "The key of the dynamic field"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"settings\": {},\n  \"payload\": {},\n  \"page\": 1,\n  \"auth\": {},\n  \"audienceSettings\": {},\n  \"hookInputs\": {},\n  \"dynamicFieldContext\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Execute a dynamic hook input field for a specific action"
+      }
+    }
+  ]
+}
