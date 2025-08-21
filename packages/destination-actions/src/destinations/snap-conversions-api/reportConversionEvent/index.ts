@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import snap_capi_input_fields_deprecated from './snap-capi-input-fields-deprecated'
 import snap_capi_input_fields_v3 from './snap-capi-input-fields-v3'
-import { performSnapCAPIv3 as perform } from './snap-capi-v3'
+import { performSnapCAPIv3 as perform, performSnapCAPIv3Batch as performBatch } from './snap-capi-v3'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
@@ -15,7 +15,8 @@ const action: ActionDefinition<Settings, Payload> = {
     ...snap_capi_input_fields_v3,
     ...snap_capi_input_fields_deprecated
   },
-  perform
+  perform,
+  performBatch
 }
 
 export default action

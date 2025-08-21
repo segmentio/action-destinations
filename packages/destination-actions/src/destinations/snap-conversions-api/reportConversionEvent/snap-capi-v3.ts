@@ -1,4 +1,4 @@
-import { ExecuteInput, ModifiedResponse, RequestClient } from '@segment/actions-core'
+import { ExecuteInput, ModifiedResponse, RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import {
@@ -748,6 +748,44 @@ export const performSnapCAPIv3 = async (
     method: 'post',
     json: {
       data: [payloadData]
+    }
+  })
+}
+
+export const performSnapCAPIv3Batch = async (
+  request: RequestClient,
+  data: ExecuteInput<Settings, Payload[]>
+): Promise<ModifiedResponse<unknown>> => {
+  const { payload, settings } = data
+
+  if (!Array.isArray(payload) || payload.length === 0) {
+    throw new IntegrationError('Batch payload must be a non-empty array', 'Invalid Input', 400)
+  }
+
+  // Snapchat supports up to 2,000 events per batch
+  if (payload.length > 2000) {
+    throw new IntegrationError('Batch size cannot exceed 2,000 events', 'Invalid Input', 400)
+  }
+
+  const payloadDataArray = payload.map((event) => buildPayloadData(event, settings))
+
+  // Validate all events and settings
+  payloadDataArray.forEach((payloadData) => {
+    validatePayload(payloadData)
+    validateSettingsConfig(settings, payloadData.action_source)
+  })
+
+  const authToken = emptyStringToUndefined(data.auth?.accessToken)
+  raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined(authToken, 'Missing valid auth token')
+
+  // Use the action_source from the first event to determine the URL
+  // All events in a batch should have the same action_source
+  const url = buildRequestURL(settings, payloadDataArray[0].action_source, authToken)
+
+  return request(url, {
+    method: 'post',
+    json: {
+      data: payloadDataArray
     }
   })
 }
