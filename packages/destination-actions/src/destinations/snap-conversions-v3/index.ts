@@ -2,6 +2,10 @@ import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import reportConversionEvent from './reportConversionEvent'
+import trackEvent from './trackEvent'
+import trackAppEvent from './trackAppEvent'
+import trackPurchase from './trackPurchase'
+import syncUserData from './syncUserData'
 
 const DEFAULT_VALS = {
   ...defaultValues(reportConversionEvent.fields)
@@ -14,13 +18,6 @@ interface RefreshTokenResponse {
 }
 
 const presets: DestinationDefinition['presets'] = [
-  {
-    name: 'Snap Browser Plugin',
-    subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
-    partnerAction: 'snapPlugin',
-    mapping: {},
-    type: 'automatic'
-  },
   {
     name: 'Add Billing',
     subscribe: 'event = "Payment Info Entered"',
@@ -174,12 +171,55 @@ const presets: DestinationDefinition['presets'] = [
       ...DEFAULT_VALS
     },
     type: 'automatic'
+  },
+  // New presets for specific actions
+  {
+    name: 'Track Standard Events',
+    subscribe: 'type = "track"',
+    partnerAction: 'trackEvent',
+    mapping: {
+      action_source: 'website',
+      ...DEFAULT_VALS
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Track App Events',
+    subscribe: 'type = "track" and context.device.type != null',
+    partnerAction: 'trackAppEvent',
+    mapping: {
+      action_source: 'app',
+      ...DEFAULT_VALS
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Track Purchase Events',
+    subscribe: 'type = "track" and event = "Order Completed"',
+    partnerAction: 'trackPurchase',
+    mapping: {
+      event_name: 'PURCHASE',
+      action_source: 'website',
+      ...DEFAULT_VALS
+    },
+    type: 'automatic'
+  },
+  {
+    name: 'Sync User Data',
+    subscribe: 'type = "identify"',
+    partnerAction: 'syncUserData',
+    mapping: {
+      event_name: 'UPDATE_PROFILE',
+      action_source: 'website',
+      ...DEFAULT_VALS
+    },
+    type: 'automatic'
   }
 ]
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Snap Conversions Api',
-  slug: 'actions-snap-conversions',
+  name: 'Snap Conversions API v3',
+  slug: 'actions-snap-conversions-v3',
   mode: 'cloud',
 
   authentication: {
@@ -227,7 +267,11 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets,
   actions: {
-    reportConversionEvent
+    reportConversionEvent,
+    trackEvent,
+    trackAppEvent,
+    trackPurchase,
+    syncUserData
   }
 }
 

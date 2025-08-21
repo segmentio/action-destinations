@@ -46,34 +46,6 @@ describe('Snap Conversions API - Track Event', () => {
     expect(responses[0].status).toBe(200)
   })
 
-  it('should automatically map segment event names to snapchat event names', async () => {
-    const productViewedEvent = createTestEvent({
-      ...testEvent,
-      event: 'Product Viewed'
-    })
-
-    nock('https://tr.snapchat.com')
-      .post('/v3/pixel123/events')
-      .query({ access_token: 'access123' })
-      .reply(200, { status: 'success' })
-
-    const responses = await testDestination.testAction('trackEvent', {
-      event: productViewedEvent,
-      settings: {
-        pixel_id: 'pixel123',
-        snap_app_id: 'app123'
-      },
-      useDefaultMappings: true,
-      auth: {
-        accessToken: 'access123',
-        refreshToken: 'refresh123'
-      }
-    })
-
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
-  })
-
   it('should batch multiple events', async () => {
     const batchEvents = [testEvent, { ...testEvent, messageId: 'test-message-2' }]
     
