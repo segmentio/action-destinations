@@ -322,8 +322,22 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         // @ts-expect-error same as above.
         subscriptions,
         deferUntilIdentified,
+        devicePropertyAllowlist,
         ...expectedConfig
       } = settings
+
+      // Remove devicePropertyAllowlist if it is ['']
+      type BrazeConfig = typeof expectedConfig & {
+        devicePropertyAllowlist?: string[] | string
+      }
+      const config: BrazeConfig = { ...expectedConfig }
+      if (Array.isArray(devicePropertyAllowlist)) {
+        if (!(devicePropertyAllowlist.length === 1 && devicePropertyAllowlist[0] === '')) {
+          config.devicePropertyAllowlist = devicePropertyAllowlist
+        }
+      } else if (devicePropertyAllowlist !== undefined) {
+        config.devicePropertyAllowlist = devicePropertyAllowlist
+      }
 
       const version = sdkVersion ?? defaultVersion
 
@@ -351,7 +365,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
           if (
             !client.instance.initialize(api_key, {
               baseUrl: window.BRAZE_BASE_URL || endpoint,
-              ...expectedConfig
+              ...config
             })
           ) {
             return false
