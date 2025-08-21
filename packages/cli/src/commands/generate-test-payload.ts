@@ -6,8 +6,9 @@ import * as path from 'path'
 import { autoPrompt } from '../lib/prompt'
 import { loadDestination } from '../lib/destinations'
 import type { JSONSchema7 } from 'json-schema'
-import { DestinationDefinition } from '@segment/actions-core'
-
+import { DestinationDefinition } from '../lib/destinations'
+import { BrowserDestinationDefinition } from '@segment/destinations-manifest'
+import type { DestinationDefinition as CloudModeDestinationDefinition, InputField } from '@segment/actions-core'
 export default class GenerateTestPayload extends Command {
   private spinner: ora.Ora = ora()
 
@@ -135,12 +136,19 @@ export default class GenerateTestPayload extends Command {
     this.spinner.start(`Generating test payload for action: ${actionSlug}`)
 
     try {
-      // Generate sample settings based on destination settings schema
-      const settings = this.generateSampleFromSchema(destination.settings || {})
+      let settings: unknown
+      if ((destination as BrowserDestinationDefinition).mode == 'device') {
+        // Generate sample settings based on destination settings schema
+        const destinationSettings = (destination as BrowserDestinationDefinition).settings
+        settings = this.generateSampleFromSchema(destinationSettings || {})
+      } else if ((destination as CloudModeDestinationDefinition).mode == 'cloud') {
+        const destinationSettings = (destination as CloudModeDestinationDefinition).authentication?.fields
+        settings = this.generateSampleFromSchema(destinationSettings || {})
+      }
 
       // Generate sample mapping based on action fields
-      const mapping = {}
-      const fields = action.fields || {}
+      const mapping = {} as Record<string, any>
+      const fields = (action.fields || {}) as Record<string, InputField>
 
       for (const [fieldKey, field] of Object.entries(fields)) {
         if (field.default) {
@@ -167,9 +175,6 @@ export default class GenerateTestPayload extends Command {
       this.log(chalk.yellow(`curl -X POST http://localhost:${port}/${actionSlug} \\`))
       this.log(chalk.yellow(`  -H "Content-Type: application/json" \\`))
       this.log(chalk.yellow(`  -d '${JSON.stringify(sampleRequest).replace(/'/g, "\\'")}'`))
-      this.log(chalk.green(`\n# Pretty version (save to a file and use with curl -d "@payload.json"):`))
-      this.log(chalk.white(JSON.stringify(sampleRequest, null, 2)))
-      this.log(`\n${chalk.grey('------------------------------------------------------')}\n`)
     } catch (error) {
       this.spinner.fail(`Failed to generate payload for ${actionSlug}: ${(error as Error).message}`)
     }
@@ -237,24 +242,28 @@ export default class GenerateTestPayload extends Command {
   }
 
   generateSamplePayloadFromMapping(mapping: Record<string, any>): Record<string, any> {
-    const payload: Record<string, any> = {}
-
-    // Basic sample with common fields
-    payload.userId = 'user123'
-    payload.anonymousId = 'anon456'
-    payload.event = 'Example Event'
-    payload.type = 'track'
-    payload.timestamp = new Date().toISOString()
-    payload.properties = {}
-    payload.context = {
-      ip: '127.0.0.1',
-      userAgent: 'Mozilla/5.0',
-      page: {
-        path: '/',
-        url: 'https://example.com/',
-        referrer: '',
-        title: 'Example Page'
+    const payload: Record<string, any> = {
+      userId: 'user123',
+      anonymousId: 'anon456',
+      event: 'Example Event',
+      type: 'track',
+      timestamp: new Date().toISOString(),
+      properties: {},
+      context: {
+        ip: '127.0.0.1',
+        userAgent: 'Mozilla/5.0',
+        page: {
+          path: '/',
+          url: 'https://example.com/',
+          referrer: '',
+          title: 'Example Page'
+        }
       }
+    }
+
+    // Add properties based on mapping
+    for (const [key, value] of Object.entries(mapping)) {
+      payload.properties[key] = value
     }
 
     // Add properties based on mapping
