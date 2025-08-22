@@ -12,11 +12,15 @@ import {
   isDirective,
   DestinationDefinition as CloudModeDestinationDefinition,
   InputField,
-  AudienceDestinationDefinition
+  AudienceDestinationDefinition,
+  BaseActionDefinition
 } from '@segment/actions-core'
 import Chance from 'chance'
 import { getRawKeys } from '@segment/actions-core/mapping-kit/value-keys'
-import { set } from 'lodash'
+import { get, set } from 'lodash'
+import { ErrorCondition, GroupCondition, parseFql } from '@segment/destination-subscriptions'
+import { reconstructSegmentEvent } from '../lib/event-generator'
+
 export default class GenerateTestPayload extends Command {
   private spinner: ora.Ora = ora()
   private chance: Chance.Chance = new Chance('Payload')
@@ -154,6 +158,7 @@ export default class GenerateTestPayload extends Command {
 
     try {
       let settings: unknown
+      let auth: unknown
       if ((destination as BrowserDestinationDefinition).mode == 'device') {
         // Generate sample settings based on destination settings schema
         const destinationSettings = (destination as BrowserDestinationDefinition).settings
@@ -162,7 +167,7 @@ export default class GenerateTestPayload extends Command {
         const destinationSettings = (destination as CloudModeDestinationDefinition).authentication?.fields
         settings = this.generateSampleFromSchema(destinationSettings || {})
         if ((destination as CloudModeDestinationDefinition).authentication?.scheme === 'oauth2') {
-          settings = {
+          auth = {
             oauth: {
               accessToken: 'YOUR_ACCESS_TOKEN',
               refreshToken: 'YOUR_REFRESH_TOKEN'
@@ -189,11 +194,13 @@ export default class GenerateTestPayload extends Command {
         }
       }
 
-      // Generate sample payload based on the fields
-      const payload = this.generateSamplePayloadFromMapping(mapping)
+      const defaultSubscription = (action as BaseActionDefinition).defaultSubscription
+
+      // Generate sample payload based on the fields.
+      const payload = this.generateSamplePayloadFromMapping(mapping, fields, defaultSubscription)
 
       // if audience settings exist, add them to the payload
-      if (audienceSettings) {
+      if (Object.keys(audienceSettings).length > 0) {
         set(payload, 'context.personas.audience_settings', this.generateSampleFromSchema(audienceSettings || {}))
       }
 
@@ -201,7 +208,18 @@ export default class GenerateTestPayload extends Command {
       const sampleRequest = {
         settings,
         mapping,
-        payload
+        payload,
+        auth,
+        features: {
+          feature1: true,
+          feature2: false
+        },
+        subscriptionMetadata: {
+          actionConfigId: 'YOUR_ACTION_CONFIG_ID',
+          destinationConfigId: 'YOUR_DESTINATION_CONFIG_ID',
+          actionId: 'YOUR_ACTION_ID',
+          sourceId: 'YOUR_SOURCE_ID'
+        }
       }
 
       this.spinner.succeed(`Generated test payload for action: ${actionSlug}`)
@@ -249,15 +267,18 @@ export default class GenerateTestPayload extends Command {
     }
   }
 
-  generateSamplePayloadFromMapping(mapping: Record<string, any>): Record<string, any> {
+  generateSamplePayloadFromMapping(
+    mapping: Record<string, any>,
+    fields: Record<string, InputField>,
+    defaultSubscription?: string
+  ): Record<string, any> {
     const chance = new Chance('payload')
+
     const payload: Record<string, any> = {
       userId: chance.guid(),
       anonymousId: chance.guid(),
       event: 'Example Event',
-      type: 'track',
       timestamp: new Date().toISOString(),
-      properties: {},
       context: {
         ip: chance.ip(),
         userAgent:
@@ -280,19 +301,120 @@ export default class GenerateTestPayload extends Command {
     }
 
     // Add properties based on mapping with better values
-    for (const [_, value] of Object.entries(mapping)) {
+    for (const [key, value] of Object.entries(mapping)) {
       if (isDirective(value)) {
-        const [key] = getRawKeys(value)
-        const path = key.replace('$.', '')
-        set(payload, path, this.generateValueByFieldName(path))
+        const [pathKey] = getRawKeys(value)
+        const path = pathKey.replace('$.', '')
+        const fieldDefinition = fields[key]
+        const existingValue = get(payload, path)
+        const newValue = this.setTestData(fieldDefinition, key)
+        if (typeof existingValue === 'object' && existingValue !== null && !Array.isArray(existingValue)) {
+          set(payload, path, { ...existingValue, ...newValue })
+        } else {
+          set(payload, path, newValue)
+        }
+      }
+    }
+
+    if (defaultSubscription) {
+      const parsed = parseFql(defaultSubscription)
+      if ((parsed as ErrorCondition).error) {
+        this.log(chalk.red(`Failed to parse FQL: ${(parsed as ErrorCondition).error}`))
+      } else {
+        const groupCondition = parsed as GroupCondition
+        return reconstructSegmentEvent(groupCondition.children, payload)
       }
     }
 
     return payload
   }
 
-  generateValueByFieldName(fieldName: string): any {
-    const lowerFieldName = fieldName.toLowerCase()
+  setTestData(fieldDefinition: Omit<InputField, 'Description'>, fieldName: string) {
+    const chance = this.chance
+    const { type, format, choices, multiple } = fieldDefinition
+
+    if (Array.isArray(choices)) {
+      if (typeof choices[0] === 'object' && 'value' in choices[0]) {
+        return choices[0].value
+      }
+
+      return choices[0]
+    }
+    let val: any
+    switch (type) {
+      case 'boolean':
+        val = chance.bool()
+        break
+      case 'datetime':
+        val = '2021-02-01T00:00:00.000Z'
+        break
+      case 'integer':
+        val = chance.integer()
+        break
+      case 'number':
+        val = chance.floating({ fixed: 2 })
+        break
+      case 'text':
+        val = chance.sentence()
+        break
+      case 'object':
+        if (fieldDefinition.properties) {
+          val = {}
+          for (const [key, prop] of Object.entries(fieldDefinition.properties)) {
+            val[key] = this.setTestData(prop as Omit<InputField, 'Description'>, key)
+          }
+        }
+        break
+      default:
+        // covers string
+        switch (format) {
+          case 'date': {
+            const d = chance.date()
+            val = [d.getFullYear(), d.getMonth() + 1, d.getDate()].map((v) => String(v).padStart(2, '0')).join('-')
+            break
+          }
+          case 'date-time':
+            val = chance.date().toISOString()
+            break
+          case 'email':
+            val = chance.email()
+            break
+          case 'hostname':
+            val = chance.domain()
+            break
+          case 'ipv4':
+            val = chance.ip()
+            break
+          case 'ipv6':
+            val = chance.ipv6()
+            break
+          case 'time': {
+            const d = chance.date()
+            val = [d.getHours(), d.getMinutes(), d.getSeconds()].map((v) => String(v).padStart(2, '0')).join(':')
+            break
+          }
+          case 'uri':
+            val = chance.url()
+            break
+          case 'uuid':
+            val = chance.guid()
+            break
+          default:
+            val = this.generateValueByFieldName(fieldName)
+            break
+        }
+        break
+    }
+
+    if (multiple) {
+      val = [val]
+    }
+
+    return val
+  }
+
+  generateValueByFieldName(fieldKey: string): any {
+    const lowerFieldName = fieldKey.toLowerCase()
 
     // Check for common field name patterns
     if (lowerFieldName.includes('email')) {
