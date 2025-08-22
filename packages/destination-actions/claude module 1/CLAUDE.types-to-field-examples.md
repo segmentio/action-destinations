@@ -597,7 +597,3 @@ export const products: InputField = {
   }
 }
 ```
-
-```
-
-```

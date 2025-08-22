@@ -10,7 +10,6 @@ The Destination platform can be any type of Marketing tool, email or communicati
 2. Field - TODO
 3. DestinationJSON - TODO
 4. Segment Input Payload - TODO
-5.
 
 # Destination folder and file structure
 
