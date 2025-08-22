@@ -4,9 +4,6 @@ import { isDirective, InputField, GlobalSetting, AudienceDestinationDefinition }
 import { getRawKeys } from '@segment/actions-core/mapping-kit/value-keys'
 import { ErrorCondition, GroupCondition, parseFql } from '@segment/destination-subscriptions'
 import { reconstructSegmentEvent } from '../event-generator'
-import { BrowserDestinationDefinition } from '@segment/destinations-manifest'
-import { DestinationDefinition as CloudModeDestinationDefinition } from '@segment/actions-core'
-
 /**
  * Generates sample settings based on schema.
  */
@@ -44,31 +41,6 @@ export function generatePlaceholderForSchema(schema: GlobalSetting): any {
     default:
       return null
   }
-}
-
-/**
- * Generates destination settings based on destination type.
- */
-export function generateDestinationSettings(destination: any): { settings: unknown; auth: unknown } {
-  let settings: unknown
-  let auth: unknown
-
-  if ((destination as BrowserDestinationDefinition).mode === 'device') {
-    // Generate sample settings based on destination settings schema
-    const destinationSettings = (destination as BrowserDestinationDefinition).settings
-    settings = generateSampleFromSchema(destinationSettings || {})
-  } else if ((destination as CloudModeDestinationDefinition).mode === 'cloud') {
-    const destinationSettings = (destination as CloudModeDestinationDefinition).authentication?.fields
-    settings = generateSampleFromSchema(destinationSettings || {})
-    if ((destination as CloudModeDestinationDefinition).authentication?.scheme === 'oauth2') {
-      auth = {
-        accessToken: 'YOUR_ACCESS_TOKEN',
-        refreshToken: 'YOUR_REFRESH_TOKEN'
-      }
-    }
-  }
-
-  return { settings, auth }
 }
 
 /**

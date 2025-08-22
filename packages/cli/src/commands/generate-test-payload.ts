@@ -9,11 +9,11 @@ import { DestinationDefinition } from '../lib/destinations'
 import { InputField, BaseActionDefinition } from '@segment/actions-core'
 import {
   generateSamplePayloadFromMapping,
-  generateDestinationSettings,
   generateAudienceSettings,
   addAudienceSettingsToPayload,
   generateSampleFromSchema
 } from '../lib/payload-generator/payload'
+import { generateDestinationSettings } from '../lib/payload-generator/settings'
 import {
   API_ENDPOINTS,
   ApiEndpoint,

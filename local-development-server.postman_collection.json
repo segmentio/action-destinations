@@ -6,273 +6,322 @@
   },
   "item": [
     {
-      "name": "Get Destination Manifest",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "http://localhost:3000/manifest",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["manifest"]
-        },
-        "description": "Get the manifest of the destination"
-      }
-    },
-    {
-      "name": "Invoke Delete Handler",
-      "request": {
-        "method": "POST",
-        "url": {
-          "raw": "http://localhost:3000/delete",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["delete"]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"payload\": {},\n  \"settings\": {}\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "description": "Invokes the delete handler of the destination"
-      }
-    },
-    {
       "name": "Authenticate",
+      "event": [],
       "request": {
         "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "Test authentication for the destination",
         "url": {
           "raw": "http://localhost:3000/authenticate",
           "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["authenticate"]
+          "host": ["localhost:3000"],
+          "path": ["authenticate"],
+          "query": [],
+          "variable": []
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"settings\": {}\n}",
+          "raw": "{\n  \"settings\": {\n    \"portalId\": \"<Hub ID>\",\n    \"oauth\": {\n      \"accessToken\": \"YOUR_ACCESS_TOKEN\",\n      \"refreshToken\": \"YOUR_REFRESH_TOKEN\"\n    }\n  }\n}",
           "options": {
             "raw": {
               "language": "json"
             }
           }
-        },
-        "description": "Test authentication for the destination"
+        }
       }
     },
     {
       "name": "Create Audience",
+      "event": [],
       "request": {
         "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "Create an audience in the destination",
         "url": {
           "raw": "http://localhost:3000/createAudience",
           "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["createAudience"]
+          "host": ["localhost:3000"],
+          "path": ["createAudience"],
+          "query": [],
+          "variable": []
         },
         "body": {
           "mode": "raw",
-          "raw": "{}",
+          "raw": "{\n  \"settings\": {\n    \"region\": \"https://advertising-api.amazon.com\",\n    \"oauth\": {\n      \"accessToken\": \"YOUR_ACCESS_TOKEN\",\n      \"refreshToken\": \"YOUR_REFRESH_TOKEN\"\n    }\n  },\n  \"audienceSettings\": {\n    \"description\": \"<Description>\",\n    \"countryCode\": \"<Country Code>\",\n    \"externalAudienceId\": \"<External Audience Id>\",\n    \"cpmCents\": 0,\n    \"currency\": \"\",\n    \"ttl\": 0,\n    \"advertiserId\": \"<Advertiser ID>\"\n  },\n  \"audienceName\": \"Example Audience\"\n}",
           "options": {
             "raw": {
               "language": "json"
             }
           }
-        },
-        "description": "Create an audience in the destination"
-      }
-    },
-    {
-      "name": "Get Audience",
-      "request": {
-        "method": "POST",
-        "url": {
-          "raw": "http://localhost:3000/getAudience",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["getAudience"]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "description": "Get an audience from the destination"
-      }
-    },
-    {
-      "name": "Refresh Access Token",
-      "request": {
-        "method": "POST",
-        "url": {
-          "raw": "http://localhost:3000/refreshAccessToken",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["refreshAccessToken"]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"settings\": {}\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "description": "Refresh access token for the destination"
+        }
       }
     },
     {
       "name": "Execute Action",
+      "event": [],
       "request": {
         "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "Execute a specific action",
         "url": {
           "raw": "http://localhost:3000/:actionSlug",
           "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
+          "host": ["localhost:3000"],
           "path": [":actionSlug"],
+          "query": [],
           "variable": [
             {
               "key": "actionSlug",
-              "value": "yourActionSlug",
-              "description": "The slug of the action to execute"
+              "value": "yourActionSlug"
             }
           ]
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"payload\": {},\n  \"settings\": {},\n  \"mapping\": {},\n  \"auth\": {},\n  \"features\": {},\n  \"subscriptionMetadata\": {}\n}",
+          "raw": "{\n  \"settings\": {\n    \"region\": \"https://advertising-api.amazon.com\",\n    \"oauth\": {\n      \"accessToken\": \"YOUR_ACCESS_TOKEN\",\n      \"refreshToken\": \"YOUR_REFRESH_TOKEN\"\n    }\n  },\n  \"mapping\": {\n    \"event_name\": {\n      \"@path\": \"$.event\"\n    },\n    \"externalUserId\": {\n      \"@path\": \"$.userId\"\n    },\n    \"email\": {\n      \"@if\": {\n        \"exists\": {\n          \"@path\": \"$.context.traits.email\"\n        },\n        \"then\": {\n          \"@path\": \"$.context.traits.email\"\n        },\n        \"else\": {\n          \"@path\": \"$.properties.email\"\n        }\n      }\n    },\n    \"firstName\": {\n      \"@path\": \"$.properties.first_name\"\n    },\n    \"lastName\": {\n      \"@path\": \"$.properties.last_name\"\n    },\n    \"phone\": {\n      \"@path\": \"$.properties.phone\"\n    },\n    \"postal\": {\n      \"@path\": \"$.properties.postal\"\n    },\n    \"state\": {\n      \"@path\": \"$.properties.state\"\n    },\n    \"city\": {\n      \"@path\": \"$.properties.city\"\n    },\n    \"address\": {\n      \"@path\": \"$.properties.address\"\n    },\n    \"audienceId\": {\n      \"@path\": \"$.context.personas.external_audience_id\"\n    },\n    \"enable_batching\": true,\n    \"batch_size\": 10000\n  },\n  \"payload\": {\n    \"userId\": \"f5b644c4-d27b-52a2-8a7a-232b04dd856e\",\n    \"anonymousId\": \"f114913c-17e3-57a7-8f20-6ccc4e808cdb\",\n    \"event\": \"Audience Exited\",\n    \"timestamp\": \"2025-08-22T09:22:03.320Z\",\n    \"context\": {\n      \"ip\": \"152.210.45.100\",\n      \"userAgent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36\",\n      \"page\": {\n        \"path\": \"/zul\",\n        \"url\": \"http://sud.sr/jipoke\",\n        \"referrer\": \"http://tazdarus.com/ebiafilo\",\n        \"title\": \"Biluz Buwloze\"\n      },\n      \"locale\": \"am\",\n      \"library\": {\n        \"name\": \"analytics.js\",\n        \"version\": \"5.13.90\"\n      },\n      \"traits\": {\n        \"email\": \"confof@cibva.ro\"\n      },\n      \"personas\": {\n        \"external_audience_id\": \"f5b644c4-d27b-52a2-8a7a-232b04dd856e\",\n        \"audience_settings\": {\n          \"description\": \"<Description>\",\n          \"countryCode\": \"<Country Code>\",\n          \"externalAudienceId\": \"<External Audience Id>\",\n          \"cpmCents\": 0,\n          \"currency\": \"\",\n          \"ttl\": 0,\n          \"advertiserId\": \"<Advertiser ID>\"\n        }\n      }\n    },\n    \"properties\": {\n      \"first_name\": \"Oscar\",\n      \"last_name\": \"Franco\",\n      \"phone\": \"+4607552531\",\n      \"postal\": \"36075\",\n      \"state\": \"KY\",\n      \"city\": \"Vasifgit\",\n      \"address\": \"682 Confof Park\"\n    },\n    \"type\": \"track\"\n  },\n  \"auth\": {\n    \"accessToken\": \"YOUR_ACCESS_TOKEN\",\n    \"refreshToken\": \"YOUR_REFRESH_TOKEN\"\n  },\n  \"features\": {\n    \"feature1\": true,\n    \"feature2\": false\n  },\n  \"subscriptionMetadata\": {\n    \"actionConfigId\": \"YOUR_ACTION_CONFIG_ID\",\n    \"destinationConfigId\": \"YOUR_DESTINATION_CONFIG_ID\",\n    \"actionId\": \"YOUR_ACTION_ID\",\n    \"sourceId\": \"YOUR_SOURCE_ID\"\n  }\n}",
           "options": {
             "raw": {
               "language": "json"
             }
           }
-        },
-        "description": "Execute a specific action"
+        }
       }
     },
     {
       "name": "Execute Dynamic Field",
+      "event": [],
       "request": {
         "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "Execute a dynamic field for a specific action",
         "url": {
           "raw": "http://localhost:3000/:actionSlug/:field",
           "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
+          "host": ["localhost:3000"],
           "path": [":actionSlug", ":field"],
+          "query": [],
           "variable": [
             {
               "key": "actionSlug",
-              "value": "yourActionSlug",
-              "description": "The slug of the action"
+              "value": "yourActionSlug"
             },
             {
               "key": "field",
-              "value": "yourDynamicField",
-              "description": "The dynamic field to execute"
+              "value": "yourDynamicField"
             }
           ]
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"settings\": {},\n  \"payload\": {},\n  \"page\": 1,\n  \"auth\": {},\n  \"audienceSettings\": {},\n  \"dynamicFieldContext\": {}\n}",
+          "raw": "{\n  \"settings\": {\n    \"ad_account_id\": \"<LinkedIn Ad Account Id>\",\n    \"send_email\": true,\n    \"send_google_advertising_id\": true\n  },\n  \"payload\": {\n    \"userId\": \"f5b644c4-d27b-52a2-8a7a-232b04dd856e\",\n    \"anonymousId\": \"f114913c-17e3-57a7-8f20-6ccc4e808cdb\",\n    \"event\": \"Example Event\",\n    \"timestamp\": \"2025-08-22T09:15:43.262Z\",\n    \"context\": {\n      \"ip\": \"152.210.45.100\",\n      \"userAgent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36\",\n      \"page\": {\n        \"path\": \"/zul\",\n        \"url\": \"http://sud.sr/jipoke\",\n        \"referrer\": \"http://tazdarus.com/ebiafilo\",\n        \"title\": \"Biluz Buwloze\"\n      },\n      \"locale\": \"am\",\n      \"library\": {\n        \"name\": \"analytics.js\",\n        \"version\": \"5.13.90\"\n      }\n    },\n    \"type\": \"track\",\n    \"traits\": {}\n  },\n  \"page\": 1,\n  \"auth\": {\n    \"accessToken\": \"YOUR_ACCESS_TOKEN\",\n    \"refreshToken\": \"YOUR_REFRESH_TOKEN\"\n  },\n  \"audienceSettings\": {},\n  \"dynamicFieldContext\": {}\n}",
           "options": {
             "raw": {
               "language": "json"
             }
           }
-        },
-        "description": "Execute a dynamic field for a specific action"
-      }
-    },
-    {
-      "name": "Execute Hook",
-      "request": {
-        "method": "POST",
-        "url": {
-          "raw": "http://localhost:3000/:actionSlug/hooks/:hookName",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": [":actionSlug", "hooks", ":hookName"],
-          "variable": [
-            {
-              "key": "actionSlug",
-              "value": "yourActionSlug",
-              "description": "The slug of the action"
-            },
-            {
-              "key": "hookName",
-              "value": "yourHookName",
-              "description": "The name of the hook to execute"
-            }
-          ]
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"settings\": {},\n  \"payload\": {},\n  \"page\": 1,\n  \"auth\": {},\n  \"audienceSettings\": {},\n  \"hookInputs\": {},\n  \"hookOutputs\": {}\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "description": "Execute a hook for a specific action"
+        }
       }
     },
     {
       "name": "Execute Dynamic Hook Input Field",
+      "event": [],
       "request": {
         "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "Execute a dynamic hook input field for a specific action",
         "url": {
           "raw": "http://localhost:3000/:actionSlug/hooks/:hookName/dynamic/:fieldKey",
           "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
+          "host": ["localhost:3000"],
           "path": [":actionSlug", "hooks", ":hookName", "dynamic", ":fieldKey"],
+          "query": [],
           "variable": [
             {
               "key": "actionSlug",
-              "value": "yourActionSlug",
-              "description": "The slug of the action"
+              "value": "yourActionSlug"
             },
             {
               "key": "hookName",
-              "value": "yourHookName",
-              "description": "The name of the hook"
+              "value": "yourHookName"
             },
             {
               "key": "fieldKey",
-              "value": "yourFieldKey",
-              "description": "The key of the dynamic field"
+              "value": "yourFieldKey"
             }
           ]
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"settings\": {},\n  \"payload\": {},\n  \"page\": 1,\n  \"auth\": {},\n  \"audienceSettings\": {},\n  \"hookInputs\": {},\n  \"dynamicFieldContext\": {}\n}",
+          "raw": "{\n  \"settings\": {\n    \"ad_account_id\": \"<LinkedIn Ad Account Id>\",\n    \"send_email\": true,\n    \"send_google_advertising_id\": true,\n    \"oauth\": {\n      \"accessToken\": \"YOUR_ACCESS_TOKEN\",\n      \"refreshToken\": \"YOUR_REFRESH_TOKEN\"\n    }\n  },\n  \"payload\": {\n    \"userId\": \"f5b644c4-d27b-52a2-8a7a-232b04dd856e\",\n    \"anonymousId\": \"f114913c-17e3-57a7-8f20-6ccc4e808cdb\",\n    \"event\": \"Example Event\",\n    \"timestamp\": \"2025-08-22T09:23:09.236Z\",\n    \"context\": {\n      \"ip\": \"152.210.45.100\",\n      \"userAgent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36\",\n      \"page\": {\n        \"path\": \"/zul\",\n        \"url\": \"http://sud.sr/jipoke\",\n        \"referrer\": \"http://tazdarus.com/ebiafilo\",\n        \"title\": \"Biluz Buwloze\"\n      },\n      \"locale\": \"am\",\n      \"library\": {\n        \"name\": \"analytics.js\",\n        \"version\": \"5.13.90\"\n      }\n    },\n    \"type\": \"track\",\n    \"traits\": {}\n  },\n  \"page\": 1,\n  \"auth\": {\n    \"accessToken\": \"YOUR_ACCESS_TOKEN\",\n    \"refreshToken\": \"YOUR_REFRESH_TOKEN\"\n  },\n  \"audienceSettings\": {},\n  \"hookInputs\": {},\n  \"dynamicFieldContext\": {}\n}",
           "options": {
             "raw": {
               "language": "json"
             }
           }
+        }
+      }
+    },
+    {
+      "name": "Execute Hook",
+      "event": [],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "noauth"
         },
-        "description": "Execute a dynamic hook input field for a specific action"
+        "description": "Execute a hook for a specific action",
+        "url": {
+          "raw": "http://localhost:3000/:actionSlug/hooks/:hookName",
+          "protocol": "http",
+          "host": ["localhost:3000"],
+          "path": [":actionSlug", "hooks", ":hookName"],
+          "query": [],
+          "variable": [
+            {
+              "key": "actionSlug",
+              "value": "yourActionSlug"
+            },
+            {
+              "key": "hookName",
+              "value": "yourHookName"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"settings\": {\n    \"ad_account_id\": \"<LinkedIn Ad Account Id>\",\n    \"send_email\": true,\n    \"send_google_advertising_id\": true,\n    \"oauth\": {\n      \"accessToken\": \"YOUR_ACCESS_TOKEN\",\n      \"refreshToken\": \"YOUR_REFRESH_TOKEN\"\n    }\n  },\n  \"payload\": {\n    \"userId\": \"f5b644c4-d27b-52a2-8a7a-232b04dd856e\",\n    \"anonymousId\": \"f114913c-17e3-57a7-8f20-6ccc4e808cdb\",\n    \"event\": \"Example Event\",\n    \"timestamp\": \"2025-08-22T09:22:49.782Z\",\n    \"context\": {\n      \"ip\": \"152.210.45.100\",\n      \"userAgent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36\",\n      \"page\": {\n        \"path\": \"/zul\",\n        \"url\": \"http://sud.sr/jipoke\",\n        \"referrer\": \"http://tazdarus.com/ebiafilo\",\n        \"title\": \"Biluz Buwloze\"\n      },\n      \"locale\": \"am\",\n      \"library\": {\n        \"name\": \"analytics.js\",\n        \"version\": \"5.13.90\"\n      }\n    },\n    \"type\": \"track\",\n    \"traits\": {}\n  },\n  \"page\": 1,\n  \"auth\": {\n    \"accessToken\": \"YOUR_ACCESS_TOKEN\",\n    \"refreshToken\": \"YOUR_REFRESH_TOKEN\"\n  },\n  \"audienceSettings\": {},\n  \"hookInputs\": {},\n  \"hookOutputs\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Get Audience",
+      "event": [],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "Get an audience from the destination",
+        "url": {
+          "raw": "http://localhost:3000/getAudience",
+          "protocol": "http",
+          "host": ["localhost:3000"],
+          "path": ["getAudience"],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"settings\": {\n    \"region\": \"https://advertising-api.amazon.com\",\n    \"oauth\": {\n      \"accessToken\": \"YOUR_ACCESS_TOKEN\",\n      \"refreshToken\": \"YOUR_REFRESH_TOKEN\"\n    }\n  },\n  \"audienceSettings\": {\n    \"description\": \"<Description>\",\n    \"countryCode\": \"<Country Code>\",\n    \"externalAudienceId\": \"<External Audience Id>\",\n    \"cpmCents\": 0,\n    \"currency\": \"\",\n    \"ttl\": 0,\n    \"advertiserId\": \"<Advertiser ID>\"\n  },\n  \"externalId\": \"AUDIENCE_ID\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Get Destination Manifest",
+      "event": [],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "Get the manifest of the destination",
+        "url": {
+          "raw": "http://localhost:3000/manifest",
+          "protocol": "http",
+          "host": ["localhost:3000"],
+          "path": ["manifest"],
+          "query": [],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "Invoke Delete Handler",
+      "event": [],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "Invokes the delete handler of the destination",
+        "url": {
+          "raw": "http://localhost:3000/delete",
+          "protocol": "http",
+          "host": ["localhost:3000"],
+          "path": ["delete"],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"payload\": {\n    \"userId\": \"f5b644c4-d27b-52a2-8a7a-232b04dd856e\",\n    \"anonymousId\": \"f114913c-17e3-57a7-8f20-6ccc4e808cdb\",\n    \"event\": \"Example Event\",\n    \"timestamp\": \"2025-08-22T09:20:39.495Z\",\n    \"context\": {\n      \"ip\": \"152.210.45.100\",\n      \"userAgent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36\",\n      \"page\": {\n        \"path\": \"/zul\",\n        \"url\": \"http://sud.sr/jipoke\",\n        \"referrer\": \"http://tazdarus.com/ebiafilo\",\n        \"title\": \"Biluz Buwloze\"\n      },\n      \"locale\": \"am\",\n      \"library\": {\n        \"name\": \"analytics.js\",\n        \"version\": \"5.13.90\"\n      }\n    },\n    \"type\": \"delete\",\n    \"traits\": {}\n  },\n  \"settings\": {\n    \"projectToken\": \"<Project Token>\",\n    \"apiSecret\": \"<Secret Key>\",\n    \"apiRegion\": \"US 🇺🇸\",\n    \"sourceName\": \"<Source Name>\",\n    \"strictMode\": \"1\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Refresh Access Token",
+      "event": [],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "description": "Refresh access token for the destination",
+        "url": {
+          "raw": "http://localhost:3000/refreshAccessToken",
+          "protocol": "http",
+          "host": ["localhost:3000"],
+          "path": ["refreshAccessToken"],
+          "query": [],
+          "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"settings\": {\n    \"region\": \"https://advertising-api.amazon.com\",\n    \"oauth\": {\n      \"accessToken\": \"YOUR_ACCESS_TOKEN\",\n      \"refreshToken\": \"YOUR_REFRESH_TOKEN\"\n    }\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
       }
     }
-  ]
+  ],
+  "variable": []
 }
