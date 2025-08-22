@@ -4,6 +4,14 @@ A Destination is a package of code that accepts Segment track(), identify(), pag
 
 The Destination platform can be any type of Marketing tool, email or communications tool, database, CRM or nearly any other type of platform that can store user profile data and user analytics data.
 
+# Some definitions
+
+1. Action - TODO
+2. Field - TODO
+3. DestinationJSON - TODO
+4. Segment Input Payload - TODO
+5.
+
 # Destination folder and file structure
 
 All the code for a Destination is stored in a folder under the destination-actions folder.
@@ -29,7 +37,7 @@ packages/destination-actions/src/destinations/<destination-name>
 
 # The Destination Definition
 
-The Destination Definition is an object named destination which implements the DestinationDefinition interface.
+The Destination Definition is an object named destination which implements the `DestinationDefinition` interface.
 The Definition Definition is defined in the root index.ts file, and should look like this:
 
 ```typescript
@@ -129,58 +137,20 @@ export default action
 
 # Input Fields
 
-For each action or authentication scheme you can define a collection of inputs as fields. Input fields are what users see in the Segment UI to configure how data gets sent to the destination platform or what data is needed for authentication. These fields (for the action only) are able to accept input from the Segment event.
+## What are Input Fields?
 
-Input fields have various properties that help define how they are rendered, how their values are parsed and more. Here’s an example:
+All Actions contain a `fields` object, which itself contains one or more Input Fields. We'll call these fields from now on.
 
-```typescript
-const destination = {
-  /* 
-    ...other properties
-  */
-  actions: {
-    /* 
-      Action name
-    */
-    postToChannel: {
-      // ...
-      fields: {
-        /* 
-          An Input Field named webhookUrl. This is how the field is referenced in the perform() and performBatch() functions. The Input Field must implement the InputField interface.
-        */
-        webhookUrl: {
-          /* 
-            The name of the Input Field which gets displayed to the user in the Segment UI
-          */
-          label: 'Webhook URL',
-          /*
-            The description of the Input Field which gets displayed to the user in the Segment UI
-          */
-          description: 'Slack webhook URL.',
-          /* 
-            The type of the Input Field. The field will reject the entire payload if the type doesn't match the value passed into the field
-          */
-          type: 'string',
-          /*
-            Indicates if the field is required or not. A required field will reject the entire payload if no value is passed into it.
-          */
-          required: true
-        },
-        text: {
-          label: 'Message',
-          description: 'The text message to post to Slack',
-          type: 'string',
-          required: true
-        }
-      }
-    }
-  }
-}
-```
+Fields are a mechanism for selecting parts of a Segment input payload. The selected field values get validated and then passed into the `perform()` and `performBatch()` functions for furhter validation, before being composed into a `DestinationJSON` payload which gets sent to the Destination platform.
+
+The Developer who designs the Destination can set a default field mapping for each field. These default mappings point to a location in the Segment input event payload.
+Each field renders in the Action user interface, allowing the end user (the customer) to override the detault mappings to provide mappings of their own. This is a powerful configuration feature which allows customers to reconfigure how Segment handles their data.
+
+Fields also have various properties that help define how they are rendered, how their values are parsed and more.
 
 ## The Input Field Interface
 
-Here's the full interface that input fields allow:
+Each field implements the `InputField` interface. Here's the full `InputField` interface:
 
 ```typescript
 interface InputField {
@@ -212,7 +182,7 @@ interface InputField {
 
   /*
     This attribute can only be used with Input Fields which are of type object.
-    It indicates if the customer can pass additional properties into the object field if those properties are not defined as sub fields the Input Field Destination.
+    It indicates if the customer can pass additional properties into the object field if those properties are not defined as child fields the Input Field Destination.
     This is useful when the Developer want to restrict the customer from sending additional data into an object above what we want to allow.
   */
   additionalProperties: boolean
@@ -311,95 +281,21 @@ interface InputField {
 }
 ```
 
-### The `default` attribute of an Input Field
+## The `default` attribute of an Input Field
 
-You can set default values for fields. These defaults are not used at run-time, however. These defaults **pre-populate the initial value of the field when users first set up an action**.
+Fields have a `default` attribute. These `default` attribute pre-populate the initial value of the field when users first set up an action. The user can then override these default values.
 
-Default values can be literal values that match the `type` of the field (e.g. a literal string: ` "``hello``" `) or they can be mapping-kit directives just like the values from Segment’s rich input in the app. Mapping Kit Directives specify a location in the Segment input payload to select the value from. It’s likely that you’ll want to use directives to the default value. Here are some examples:
+Default values can be literal values that match the `type` of the field (e.g. a literal string: ` "``hello``" `) or they can be mapping-kit directives just like the values from Segment’s rich input in the app. Mapping Kit Directives specify a location in the Segment input payload to select the value from. It’s likely that you’ll want to use directives to the default value.
 
-```typescript
-const destination = {
-  /*
-    ...other properties
-  */
-  actions: {
-    /*
-      The Action name
-    */
-    doSomething: {
-      /*
-        ...
-      */
-      fields: {
-        /*
-          An Input Field named 'name'
-        */
-        name: {
-          label: 'Name',
-          description: "The person's name",
-          /*
-            The field type is string. Any value other than string will result in the entire payload being dropped before the perform() or performBatch() function gets called
-          */
-          type: 'string',
-          /*
-            The default mapping is set to a Mapping Kit Directive pointing to the root.traits.name location in the Segment input event payload
-          */
-          default: { '@path': '$.traits.name' },
-          required: true
-        },
-        email: {
-          label: 'Email',
-          description: "The person's email address",
-          type: 'string',
-          /*
-            The default mapping is set to a Mapping Kit Directive pointing to the root.properties.email_address location in the Segment input event payload
-          */
-          default: { '@path': '$.properties.email_address' }
-        },
-        /*
-          An object field example. Defaults should be specified on the top level.
-        */
-        value: {
-          label: 'Conversion Value',
-          description:
-            'The monetary value for a conversion. This is an object with shape: {"currencyCode": "USD", "amount": "100"}',
-          type: 'object',
-          /*
-            For object fields, the default mapping should be specified at the object level, and not in the sub field levels
-            There can still be separate default mappings for currencyCode and amount, but they need to be included in the object level default field
-          */
-          default: {
-            currencyCode: { '@path': '$.properties.currency' },
-            amount: { '@path': '$.properties.revenue' }
-          },
-          properties: {
-            currencyCode: {
-              label: 'Currency Code',
-              type: 'string',
-              required: true,
-              description: 'ISO format'
-            },
-            amount: {
-              label: 'Amount',
-              type: 'string',
-              required: true,
-              description: 'Value of the conversion in decimal string. Can be dynamically set up or have a fixed value.'
-            }
-          }
-        }
-      }
-    }
-  }
-}
-```
+We often refer to the `default` field values as default mappings.
 
-#### Mapping Kit Directives for `default` attribute of an Input Field
+### Mapping Kit Directives for the `default` attribute
 
-Mapping Kit Directives are used to point to locations within a Segment input event. They allow the Developer to set default mappings for a field, and they also allow the customer to set mappings themselves. Any mapping set by the customer overrides the default mapping set by the Developer.
+`Mapping Kit Directives` are used to point to locations within a Segment input event. They allow the Developer to set default mappings for a field, and they also allow the customer to set mappings themselves. Any mapping set by the customer overrides the default mapping set by the Developer.
 
-The use of the $ symbol indicates the root of the Segment input event.
+The use of the `$` symbol indicates the root of the Segment input event.
 
-##### Valid Mapping Kit Directive examples
+#### Correct Mapping Kit Directive usage examples
 
 ```typescript
 /*
@@ -544,8 +440,8 @@ default: {
 }
 ```
 
-The following example illustrate an Input Field of type = object. The object has 2 sub fields named phone and email.
-Notice how the default Mapping Kit Directive is located at the object field (the parent field) level, and not at the level of the sub fields. The default mapping includes separate mappings for each sub field, phone and email.
+The following example illustrate an Input Field of type = object. The object has 2 child fields named phone and email.
+Notice how the default Mapping Kit Directive is located at the object field (the parent field) level, and not at the level of the child fields. The default mapping includes separate mappings for each child field, phone and email.
 
 ```typescript
 /*
@@ -559,22 +455,28 @@ userIdentifiers: {
   */
   type: 'object',
   /*
-    The object field has 2 defined sub fields. phone and email.
+    The object field has 2 defined child fields. phone and email.
   */
   properties: {
     phone: {
       label: 'Phone Number',
       description: 'The customer phone number',
       type: 'string'
+      /*
+        The default attribute for phone is not located here
+      */
     },
     email: {
       label: 'Country Code',
       description: 'The country code for the customer phone number',
-      type: 'string'
+      type: 'string',
+      /*
+        The default attribute for email is not located here
+      */
     }
   },
   /*
-    A valid mapping includes mappings for each of the 2 sub fields, phome and email.
+    The default attribute mapping is located here, in the root level of the field definision and not at the child field level. The default attribute mapping contains mappings for each of the 2 child fields, phome and email.
     In this example, each of these mappings use the '@if' Directive.
   */
   default: {
@@ -596,7 +498,7 @@ userIdentifiers: {
 }
 ```
 
-##### Invalid Mapping Kit Directive examples
+#### Incorrect Mapping Kit Directive usage examples
 
 ```typescript
 /*
@@ -631,8 +533,8 @@ default: {
 }
 ```
 
-The following illustrates an invalid use of the default mapping in an object field which has 2 sub fields named phone and email.
-The Mapping Kit Directives are incorrectly located at the sub field level instead of at the object (the parent field) level.
+The following example illustrates an invalid use of the default attribute mapping in an object field which has 2 child fields named phone and email.
+The Mapping Kit Directives are incorrectly located at the child field level instead of at the tool level of the object field.
 
 ```typescript
 /*
@@ -646,7 +548,7 @@ userIdentifiers: {
   */
   type: 'object',
   /*
-    The object field has 2 defined sub fields. phone and email.
+    The object field has 2 defined child fields. phone and email.
   */
   properties: {
     phone: {
@@ -654,7 +556,7 @@ userIdentifiers: {
       description: 'The customer phone number',
       type: 'string',
       /*
-        An invalid mapping. Sub Fields should not have their mappings defined at the sub field level. They should be defined at the level of the parent field.
+        An invalid mapping. Child Fields should not have their mappings defined at the child field level. They should be defined at the level of the parent field.
       */
       default: {
         '@if': {
@@ -669,7 +571,7 @@ userIdentifiers: {
       description: 'The country code for the customer phone number',
       type: 'string',
       /*
-        An invalid mapping. Sub Fields should not have their mappings defined at the sub field level. They should be defined at the level of the parent field.
+        An invalid mapping. Child Fields should not have their mappings defined at the child field level. They should be defined at the level of the parent field.
       */
       default: {
         '@if': {
@@ -683,11 +585,203 @@ userIdentifiers: {
 }
 ```
 
-### the `required` attribute of an Input Field
+Here is another example of an invalid use of the default attribute.
+
+```typescript
+page_context: {
+  label: 'Page Context',
+  description: 'Context for web page-related events',
+  /*
+    This is an ojbect field
+  */
+  type: 'object',
+  required: false,
+  properties: {
+    path: {
+      label: 'Page Path',
+      description: 'Path of the current page',
+      type: 'string',
+      required: false,
+      /*
+        The default attribute for the `path` child field should not be located in the `path` child field. It should be located in the parent `page_context` object field
+      */
+      default: { '@path': '$.context.page.path' }
+    },
+    referrer: {
+      label: 'Page Referrer',
+      description: 'Previous page\'s full URL',
+      type: 'string',
+      required: false,
+      /*
+        The default attribute for the `referrer` child field should not be located in the `referrer` child field. It should be located in the parent `page_context` object field
+      */
+      default: { '@path': '$.context.page.referrer' }
+    }
+  },
+  /*
+    The default attribute should be located here, at the root level of the field definition. It should include mappings for both child fields, path and referrer
+  */
+  }
+```
+
+### Correct `default` attribute usage example
+
+The following example of an Action contains multiple fields that each make correct use of the `detault` attribute.
+Note that the `$` sybmbol simply means the root level.
+
+```typescript
+const destination = {
+  /*
+    ...other properties
+  */
+  actions: {
+    /*
+      The Action name
+    */
+    doSomething: {
+      /*
+        ...
+      */
+      fields: {
+        /*
+          An Input Field named 'name'
+        */
+        name: {
+          label: 'Name',
+          description: "The person's name",
+          /*
+            The field type is string. Any value other than string will result in the entire payload being dropped before the perform() or performBatch() function gets called
+          */
+          type: 'string',
+          /*
+            The default mapping is set to a Mapping Kit Directive pointing to the root.traits.name location in the Segment input event payload
+          */
+          default: { '@path': '$.context.traits.name' },
+          required: true
+        },
+        email: {
+          label: 'Email',
+          description: "The person's email address",
+          type: 'string',
+          /*
+            The default mapping is set to a Mapping Kit Directive pointing to the root.properties.email_address location in the Segment input event payload
+          */
+          default: { '@path': '$.context.traits.email_address' }
+        },
+        /*
+          An object field example. Defaults should be specified on the top level.
+        */
+        value: {
+          label: 'Conversion Value',
+          description:
+            'The monetary value for a conversion. This is an object with shape: {"currencyCode": "USD", "amount": "100"}',
+          type: 'object',
+          properties: {
+            currencyCode: {
+              label: 'Currency Code',
+              type: 'string',
+              required: true,
+              description: 'ISO format'
+              /*
+                Note that the default attribute for currencyCode is not located within the currencyCode child field. It should be located within the parent object field, value. 
+              */
+            },
+            amount: {
+              label: 'Amount',
+              type: 'string',
+              required: true,
+              description: 'Value of the conversion in decimal string. Can be dynamically set up or have a fixed value.'
+              /*
+                Note that the default attribute for amount is not located within the amount child field. It should be located within the parent object field, value. 
+              */
+            }
+          },
+          /*
+            For object fields, the default mapping should be specified at the parent object level and not at the child field level.
+            There can still be separate default mappings for currencyCode and amount, but they need to be included in the parent object's default attribute.
+          */
+          default: {
+            currencyCode: { '@path': '$.properties.currency' },
+            amount: { '@path': '$.properties.revenue' }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Incorrect `default` attribute usage example
+
+The following examples illustrate incorrect usage of the `detault` attribute in fields.
+
+```typescript
+const destination = {
+  /*
+    ...other properties
+  */
+  actions: {
+    /*
+      The Action name
+    */
+    doSomething: {
+      /*
+        ...
+      */
+      fields: {
+        /*
+          The name of this field is value. 
+        */
+        value: {
+          label: 'Conversion Value',
+          description:
+            'The monetary value for a conversion. This is an object with shape: {"currencyCode": "USD", "amount": "100"}',
+          /*
+            value is an object field. 
+          */
+          type: 'object',
+          properties: {
+            currencyCode: {
+              label: 'Currency Code',
+              type: 'string',
+              required: true,
+              description: 'ISO format',
+              /*
+                The default attribute for the child field 'currencyCode' should not be defined in the child field. It should be defined at the parent field level.  
+              */
+              default: { '@path': '$.properties.currency' }
+            },
+            amount: {
+              label: 'Amount',
+              type: 'string',
+              required: true,
+              description:
+                'Value of the conversion in decimal string. Can be dynamically set up or have a fixed value.',
+              /*
+                The default attribute for a child field 'amount' should not be defined in the child field. It should be defined at the parent field level.  
+              */
+              default: { '@path': '$.properties.revenue' }
+            }
+          }
+          /*
+            For object fields the default mapping should be specified here, at the parent object level and not at the child field level.
+          */
+        }
+      }
+    }
+  }
+}
+```
+
+## the `required` attribute of an Input Field
 
 You may configure a field to either be always required, not required, or conditionally required. Validation for required fields is performed both when a user is configuring a mapping in the UI and when an event payload is delivered to the perform() or performBatch functions.
 
-#### Examples of each possible value for the `required` attribute
+### Correct `required` attribute usage example
+
+This Action defines fields which make use of the `required` attribute.
+There are examples of required: true, required: false and conditional required fields.
+Following this we'll look at payloads which could pass or fail validation for this Action.
 
 ```typescript
 const destination = {
@@ -773,7 +867,7 @@ const destination = {
                 conditions: [
                   {
                     /* 
-                      Dot notation may be used to address sub fields withing an object field.
+                      Dot notation may be used to address child fields withing an object field.
                     */
                     fieldKey: 'userIdentifiers.phone',
                     operator: 'is_not',
@@ -790,9 +884,9 @@ const destination = {
 }
 ```
 
-#### Example payloads which would pass field validation for the Action definition above
+#### Example payloads which would pass this field validation
 
-##### Example 1
+The below example payloads would pass validation for the Action defined above
 
 ```json
 /*
@@ -803,8 +897,6 @@ const destination = {
   "email": "read@me.com"
 }
 ```
-
-##### Example 2
 
 ```json
 /* 
@@ -818,12 +910,10 @@ const destination = {
 }
 ```
 
-##### Example 3
-
 ```json
 /* 
   This payload is valid since all conditionally required fields are included. 
-  email is undefined so the sub field phone becomes required. The countryCode field then also becomes required as phone is populated.
+  email is undefined so the child field phone becomes required. The countryCode field then also becomes required as phone is populated.
 */
 {
   "operation": "update",
@@ -834,9 +924,9 @@ const destination = {
 }
 ```
 
-#### Example payloads which would fail field validation for the Action definition above
+#### Example payloads which would fail this field validation
 
-##### Example 1
+The below example payloads would fail validation for the Action defined above
 
 ```json
 /*
@@ -852,8 +942,6 @@ const destination = {
 "message": "The root value is missing the required field 'creationName'. The root value must match \"then\" schema."
 ```
 
-##### Example 2
-
 ```json
 /*
   This payload is invalid since 'phone' is required when 'email' is missing.
@@ -866,8 +954,6 @@ const destination = {
 */
 "message": "The root value is missing the required field 'phone'. The root value must match \"then\" schema."
 ```
-
-##### Example 3
 
 ```json
 /*
@@ -883,13 +969,13 @@ const destination = {
 "message": "The root value is missing the required field 'countryCode'. The root value must match \"then\" schema."
 ```
 
-### The `choices` attribute of an Input Field
+## The `choices` attribute of an Input Field
 
-Input Fields can be set render as a dropdown list in the Segment user interface. The dropdown list will populate with the items from the choices array.
+Input Fields can be set render as a dropdown list in the Segment user interface. The dropdown list will populate with the items from the `choices` array.
 
 The Input Field will then fail validation if the customer passes any value other than an allowable choice item's value
 
-The type for the choices attribute is defined as:
+The type for the `choices` attribute is defined as:
 
 ```typescript
 choices?:
@@ -906,7 +992,7 @@ choices?:
     }>
 ```
 
-#### Valid example Input Fields with choices attribute set
+### Correct `choices` attribute usage examples
 
 In the example below the customer can only pass a value to the region field if the value is `US`, `Ireland` or `UK`. The default option is set to `Ireland`.
 
@@ -1021,10 +1107,10 @@ numberChildren: {
 }
 ```
 
-#### Invalid example Input Fields with choices attribute set
+#### Incorrect `choices` attribute usage example
 
-The following example is invalid because it attempts to set choice values as boolean.
-The correct way to handle a boolean scenario is to just remove the choices array. Segment will reject any non boolean value sent to a boolean Input Field anyway.
+The following example is incorrect because it attempts to set `choices` array value as boolean.
+The correct way to handle a boolean scenario is to just remove the `choices` array. Segment will reject any non boolean value sent to a boolean Input Field anyway.
 
 ```typescript
 /*
@@ -1066,13 +1152,13 @@ hasChildren: {
 }
 ```
 
-### The `defaultSubscription` attribute of an Input Field
+## The `defaultSubscription` attribute of an Input Field
 
-In addition to default values for input fields, you can also specify the defaultSubscription for a given action – this is the FQL query that will be automatically populated when a customer configures a new subscription triggering a given action.
+In addition to default values for input fields, you can also specify the `defaultSubscription` for a given action – this is the `FQL` query that will be automatically populated when a customer configures a new `subscription` triggering a given action.
 
-A Segment input event that matches the subscription value will trigger the Action.
+A Segment input event that matches the `subscription` value will trigger the Action.
 
-Triggering the Action means that the Segment input payload gets validated by the Action's InputFields, then the resolved payload gets passed to the Action's perform() or performBatch() functions for processing.
+Triggering the Action means that the Segment input payload gets validated by the Action's InputFields, then the resolved payload gets passed to the Action's `perform()` or `performBatch()` functions for processing.
 
 Some examples are:
 
@@ -1104,7 +1190,7 @@ defaultSubscription: 'type = "track" and event != "Order Completed"'
 defaultSubscription: 'type = "track" and event = "Signed Out"'
 ```
 
-### The `multiple` Input Field attribute
+## The `multiple` Input Field attribute
 
 The multiple Input Field attribute turns a field into an array.
 
@@ -1113,9 +1199,9 @@ The multiple Input Field attribute turns a field into an array.
 3. boolean turns into an array of booleans
 4. object turns into an array of objects
 
-#### Valid `multiple` attribute in Input Fields examples
+### Correct `multiple` attribute usage example
 
-##### Example 1 - a valid string array field
+#### Example 1 - a valid string array field
 
 ```typescript
 /*
@@ -1143,7 +1229,7 @@ email_addresses: {
 }
 ```
 
-##### Example 2 - a valid number array field
+#### Example 2 - a valid number array field
 
 ```typescript
 /*
@@ -1170,12 +1256,12 @@ product_prices: {
 }
 ```
 
-##### Example 3 - a valid object field with a string array sub field
+#### Example 3 - a valid object field with a string array child field
 
 ```typescript
 /*
-  This is an object Input Field that containing a sub field that accepts an array of strings.
-  It's OK to have objects Input Fields that have sub fields whih are arrays of strings, arrays of booleans or arrays of numbers
+  This is an object Input Field that containing a child field that accepts an array of strings.
+  It's OK to have objects Input Fields that have child fields which are arrays of strings, arrays of booleans or arrays of numbers
 */
 identifiers: {
   label: 'User Identifiers',
@@ -1221,7 +1307,7 @@ identifiers: {
 }
 ```
 
-##### Example 4 - a valid object array field
+#### Example 4 - a valid object array field
 
 ```typescript
 /*
@@ -1269,7 +1355,7 @@ products: {
       */
       '$.properties.products',
       /*
-        Individual mappings are then provided for every sub field in the object.
+        Individual mappings are then provided for every child field in the object.
       */
       {
         id: { '@path': '$.id' },
@@ -1285,7 +1371,7 @@ products: {
 ```json
 /*
   This is an example value which could be successfully passed to the products Input Field above.
-  The sub fields are all optional, so not all the values need to be popuated in the product array items
+  The child fields are all optional, so not all the values need to be popuated in the product array items
 */
 {
   "products": [
@@ -1300,15 +1386,18 @@ products: {
 }
 ```
 
-#### Invalid examples of the Input Fields with the multiple attribute
+### Incorrect `multiple` attribute usage example
 
-##### Example 1 - an invalid object field with a object array sub field
+Object fields should not have object array child fields.
 
 ```typescript
 /*
-  This is an invalid field which is an object Input Field which accepts an array of objects.
-  An object field cannot be a sub field. So an object array field can also not be a sub field.
-  The correct way to model this use-case would be to have 3 fields. One object array field for just the list of product items, one field for the order_id value, and one field for the total value. It might also be acceptable to merge the order_id and total fields into a single object field.
+  Object fields cannot have child object fields, which also means that they cannot have child object array fields.
+  The correct way to model this use-case would be to have 3 fields.
+  1. products (object array),
+  2. order_id
+  3. total
+  It would also be acceptable to merge the order_id and total fields into a single object field.
 */
 order_details: {
   label: 'Order Details',
@@ -1356,38 +1445,19 @@ order_details: {
     }
   },
   /*
-    This is a completely invalid default mapping.
+    The default attribute has been removed for brevity
   */
-  default: {
-    products: {
-      '@arrayPath': [
-        '$.properties.products',
-        {
-          id: { '@path': '$.id' },
-          price: { '@path': '$.price' },
-          name: { '@path': '$.name' },
-          quantity: { '@path': '$.quantity' }
-        }
-      ]
-    },
-    order_id: {'@path': '$.properties.order_id'},
-    total: {'@path': '$.properties.total'}
-  }
 }
 ```
 
-### Valid and invalid Field Definitions examples
+## Input Field Definition examples
 
-The following examples illustrate valid and invalid Input Field defintitions
-
-#### Valid Input Field Definition examples
-
-##### Example 1 - a valid string field
+### Example 1 - a valid string field
 
 ```typescript
 /*
   Valid Field Definintion for a field named message_id
-  The defintion includes all 3 of the required attrinutes, label, description and type.
+  The definition includes all 3 of the required attrinutes, label, description and type.
   The default Mapping Kit Directive points to the root.messageId location in a Segment payload, which is always a string
   The field is optional, as there is no required attribute
 */
@@ -1401,12 +1471,12 @@ message_id: {
 }
 ```
 
-##### Example 2 - a valid string field
+### Example 2 - a valid string field
 
 ```typescript
 /*
   Valid Field Definintion for a field named known_user_identifier
-  The defintion includes all 3 of the required attrinutes, label, description and type.
+  The definition includes all 3 of the required attrinutes, label, description and type.
   The default Mapping Kit Directive points to the root.userId location in a Segment payload, which is always a string
   The field is not a required field
 */
@@ -1419,12 +1489,12 @@ known_user_identifier: {
 }
 ```
 
-##### Example 3 - a valid string field
+### Example 3 - a valid string field
 
 ```typescript
 /*
   This is a valid Input Field Definition.
-  The defintion includes all 3 of the required attrinutes, label, description and type.
+  The definition includes all 3 of the required attrinutes, label, description and type.
   placeholder is an allowable attribute.
   format: 'ipv4' is a valid format value
   The default mapping is valid
@@ -1441,7 +1511,7 @@ ip: {
 }
 ```
 
-##### Example 1 - a valid object field
+### Example 4 - a valid object field
 
 ```typescript
 /*
@@ -1450,7 +1520,7 @@ ip: {
 */
 location: {
   /*
-    The defintion includes all 3 of the required attrinutes, label, description and type. the type of the field is object.
+    The definition includes all 3 of the required attrinutes, label, description and type. the type of the field is object.
   */
   label: 'Location',
   description: "The contact's location. Will take priority over the IP address.",
@@ -1464,13 +1534,13 @@ location: {
   */
   additionalProperties: false,
   /*
-    The field has defined 4 properties or sub fields, country, state, city and postal_code.
+    The field has defined 4 properties or child fields, country, state, city and postal_code.
   */
   properties: {
     /*
-      Each sub field has all 3 of the required attributes label, description and type.
-      While not technically a problem, it's good that each sub field relates to the parent object field. country, city, state and postal_code are all relevant to a user location.
-      If there was a sub field named age, it would be bad field design, but not a technical issue.
+      Each child field has all 3 of the required attributes label, description and type.
+      While not technically a problem, it's good that each child field relates to the parent object field. country, city, state and postal_code are all relevant to a user location.
+      If there was a child field named age, it would be bad field design, but not a technical issue.
     */
     country: {
       label: 'Country',
@@ -1494,9 +1564,9 @@ location: {
     }
   },
   /*
-    The default attribute valid and is defined in the correct location of the field, which is at the object field level (the parent field level), and not the sub field level.
+    The default attribute valid and is defined in the correct location of the field, which is at the object field level (the parent field level), and not the child field level.
     The default attribute also uses the '@if' directive correctly.
-    The default attribute sets default for all the sub fields.
+    The default attribute sets default for all the child fields.
   */
   default: {
     country: {
@@ -1531,84 +1601,153 @@ location: {
 }
 ```
 
-#### Invalid Input Field Definition examples
+### Example 3 - Object fields cannot contain child object fields
 
-##### Example 1 - an invalid object field containing an object sub field
+Object fields should not contain child object fields.
 
 ```typescript
 /*
-  There are multiple issues with this Input Field Definition. 
-  While the name of the field (additional_details) is OK, it contains sub fields which do not relate to each other in some way. For example, username is related to a user, price is related to a product, and company_details is related to an organization. It would be better to collect these types of data in completely separate fields, or to add them as sub fields of more relevant object fields. For example, price could be added as a sub field of an object field named product_details, if there were other product related values to collect. username could be added as sub field of a user object field. And company_details could become its own field. 
+  The field name is user_traits
 */
-additional_details = {
-  label: 'Additional Details',
-  description: 'Additional information to send',
+user_traits: {
+  label: 'User Traits',
+  description: 'Additional user profile information',
+  /*
+    The user_traits field is an object field
+  */
   type: 'object',
+  required: false,
+  additionalProperties: true,
+  /*
+    The user_traits field contains child fields
+  */
   properties: {
-    username: {
-      label: 'Username',
-      description: 'The username for the user',
+    /*
+      first_name is a valid child field as it is of type string
+    */
+    first_name: {
+      label: 'First Name',
+      description: 'User\'s first name',
       type: 'string',
-      /*
-        The default mapping for sub fields should not be located within the sub field.  
-      */
-      default: { '@path': '$.properties.username' }
-    },
-    ip: {
-      label: 'IP Address',
-      description: "The user's IP address",
-      type: 'string',
-      /*
-        The default mapping for sub fields should not be located within the sub field.  
-      */
-      default: { '@path': '$.context.ip' }
-    },
-    price: {
-      label: 'Product Price',
-      description: 'The price of the product',
-      type: 'number',
-      /*
-        The default mapping for sub fields should not be located within the sub field.  
-      */
-      default: { '@path': '$.properties.price' }
+      required: false
     },
     /*
-      This parent field named additional_details is an object field which has a sub field named company_details which is also an object field. This will break the Segment User Interface. Object fields should only contain sub fields which are string, number or boolean.  
+      last_name is a valid child field as it is of type string
     */
-    company_details: {
-      label: 'Custom Details',
-      description: 'Additional deetails about the company',
+    last_name: {
+      label: 'Last Name',
+      description: 'User\'s last name',
+      type: 'string',
+      required: false
+    },
+    /*
+      age is a valid child field as it is of type number
+    */
+    age: {
+      label: 'Age',
+      description: 'User\'s age',
+      type: 'integer',
+      minimum: 0,
+      required: false
+    },
+    /*
+      company is a invalid child field as it is of type object
+    */
+    company: {
+      label: 'Company',
+      description: 'User\'s company information',
       type: 'object',
+      required: false,
       properties: {
         name: {
           label: 'Company Name',
-          description: 'Company Name',
-          type: 'string'
+          description: 'Name of the user\'s company',
+          type: 'string',
+          required: false
         },
-        number_employees: {
-          label: 'Number Employees',
-          description: 'Number of employees at the company',
-          type: 'string'
+        title: {
+          label: 'Job Title',
+          description: 'User\'s job title',
+          type: 'string',
+          required: false
         }
-      },
-      /*
-        The default mapping for sub fields should not be located within the sub field.  
-      */
-      default: { '@path': '$.properties.company_details' }
+      }
     }
-  }
+  },
   /*
-    The default mapping for all sub fields should be located at the parent field level and not in the sub fields themselves.  
+    The default attribute has been deliberately omitted from this example for brevity.
   */
 }
 ```
 
-### Input Field design considerations
+The correct way to design the above field would be to split it into 2 fields
+
+```typescript
+user_traits: {
+  label: 'User Traits',
+  description: 'Additional user profile information',
+  type: 'object',
+  required: false,
+  additionalProperties: true,
+  properties: {
+    first_name: {
+      label: 'First Name',
+      description: 'User\'s first name',
+      type: 'string',
+      required: false
+    },
+    last_name: {
+      label: 'Last Name',
+      description: 'User\'s last name',
+      type: 'string',
+      required: false
+    },
+    age: {
+      label: 'Age',
+      description: 'User\'s age',
+      type: 'integer',
+      minimum: 0,
+      required: false
+    }
+  },
+  /*
+    The default attribute has been deliberately omitted from this example for brevity.
+  */
+},
+/*
+  company becomes its own object field
+*/
+company: {
+  label: 'Company',
+  description: 'User\'s company information',
+  type: 'object',
+  required: false,
+  properties: {
+    name: {
+      label: 'Company Name',
+      description: 'Name of the user\'s company',
+      type: 'string',
+      required: false
+    },
+    title: {
+      label: 'Job Title',
+      description: 'User\'s job title',
+      type: 'string',
+      required: false
+    }
+  },
+  /*
+    The default attribute has been deliberately omitted from this example for brevity.
+  */
+}
+```
+
+## Input Field design considerations
 
 1. Don't define too many fields as it will result in a cluttered user interface. Instead, try to group individual simple type fields (string, number, integer, boolean) together into object fields.
 2. When grouping fields into object fields, make sure there is a commonality between the fields that get added to each object field. For example, don't group user identifiers, user traits, product details into the same object field.
 3. Design fields with the Segment Identify and Ecommerce specs in mind. For example, if the Destination's API requires a phone number, make sure to add a default mapping to phone trait (which is documented in the Segment identify Spec). The phone trait should be located at `$.context.traits.phone` or `$.properties.phone` in track() event payloads, or `$.traits.phone` in identify() event payloads.
 4. Always specify if a field is required or optional, or specify a required condition.
-5. Always specify if a sub field is required of optional, or specify a required condition.
+5. Always specify if a child field is required of optional, or specify a required condition.
 6. For numeric fields, figure out if the field should have a type of `integer` or `number`, depending on what the field is called. For example a field named `age` should be of type `integer`, while a field named `price` should be of type `number`.
-7. When collecting user profile traits from an Action that has a detaultMapping to a track() event, always use the `@if` conditional statement to set two default paths, one to `$.context.traits.<field_name>` and the other to `$.properties.<field_name>`. If the Action is designed to handle identify() payloads then just map the user trait to `$.traits.field_name`.
+7. When collecting user profile traits from an Action that has a `defaultMapping` to a track() event, always use the `@if` conditional statement to set two default paths, one to `$.context.traits.<field_name>` and the other to `$.properties.<field_name>`. If the Action is designed to handle identify() payloads then just map the user trait to `$.traits.field_name`.
