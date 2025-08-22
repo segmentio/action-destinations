@@ -7,13 +7,9 @@ import { autoPrompt } from '../lib/prompt'
 import { loadDestination } from '../lib/destinations'
 import { DestinationDefinition } from '../lib/destinations'
 import { InputField, BaseActionDefinition } from '@segment/actions-core'
-import {
-  generateSamplePayloadFromMapping,
-  generateAudienceSettings,
-  addAudienceSettingsToPayload,
-  generateSampleFromSchema
-} from '../lib/payload-generator/payload'
-import { generateDestinationSettings } from '../lib/payload-generator/settings'
+import { generateSamplePayloadFromMapping, addAudienceSettingsToPayload } from '../lib/payload-generator/payload'
+import { generateDestinationSettings, generateSampleFromSchema } from '../lib/payload-generator/settings'
+import { generateAudienceSettings } from '../lib/payload-generator/audience'
 import {
   API_ENDPOINTS,
   ApiEndpoint,

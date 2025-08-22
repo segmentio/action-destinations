@@ -1,56 +1,11 @@
 import Chance from 'chance'
 import { get, set } from 'lodash'
-import { isDirective, InputField, GlobalSetting, AudienceDestinationDefinition } from '@segment/actions-core'
+import { isDirective, InputField } from '@segment/actions-core'
 import { getRawKeys } from '@segment/actions-core/mapping-kit/value-keys'
 import { ErrorCondition, GroupCondition, parseFql } from '@segment/destination-subscriptions'
 import { reconstructSegmentEvent } from '../event-generator'
-/**
- * Generates sample settings based on schema.
- */
-export function generateSampleFromSchema(schema: Record<string, GlobalSetting>): Record<string, any> {
-  const result: Record<string, any> = {}
-  for (const [propName, setting] of Object.entries(schema)) {
-    if (setting.default !== undefined) {
-      result[propName] = setting.default
-    } else {
-      result[propName] = generatePlaceholderForSchema(setting)
-    }
-  }
-
-  return result
-}
-
-/**
- * Generates a placeholder value based on schema type.
- */
-export function generatePlaceholderForSchema(schema: GlobalSetting): any {
-  const type = schema.type
-
-  switch (type) {
-    case 'string':
-      if (schema.choices) {
-        return schema.choices[0]
-      }
-      return `<${schema.label || 'VALUE'}>`
-    case 'number':
-      return 0
-    case 'boolean':
-      return false
-    case 'password':
-      return `<${schema.label || 'PASSWORD'}>`
-    default:
-      return null
-  }
-}
-
-/**
- * Generates audience settings based on the destination definition.
- */
-export function generateAudienceSettings(destination: any): Record<string, any> {
-  return {
-    ...(destination as AudienceDestinationDefinition)?.audienceFields
-  }
-}
+import { generateSampleFromSchema } from './settings'
+import { generateAudienceSettings } from './audience'
 
 /**
  * Adds audience settings to a payload if applicable.
