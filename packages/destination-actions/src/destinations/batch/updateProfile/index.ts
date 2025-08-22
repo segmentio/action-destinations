@@ -1,8 +1,9 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { MAX_BATCH_SIZE } from './constants'
-import { mapPayload } from './utils'
+import { API_VERSION, MAX_BATCH_SIZE, MAX_ATTRIBUTES_SIZE } from '../constants'
+import { mapPayload, handleMultiStatusResponse } from './utils'
+import { MultiStatusResponseJSON } from './type'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update User Profile',
@@ -30,7 +31,7 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: {
       label: 'Enable Batching',
       description:
-        'If enabled, the action will send multiple profiles in a single request. The maximum number of profiles in a single request is 1000.',
+      `If enabled, the action will send multiple profiles in a single request. The maximum number of profiles in a single request is ${MAX_BATCH_SIZE}.`,
       type: 'boolean',
       default: true,
       unsafe_hidden: true
@@ -45,7 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     profileAttributes: {
       label: 'Profile attributes',
-      description: 'Attributes for the user profile',
+      description: `Attributes for the user profile. Batch can accept up to ${MAX_ATTRIBUTES_SIZE} attributes per user.`,
       type: 'object',
       additionalProperties: true,
       properties: {
@@ -169,10 +170,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
 async function send(request: RequestClient, payload: Payload[]) {
   const json = payload.map(mapPayload)
-  return await request('https://api.batch.com/2.5/profiles/update', {
+  const response = await request<MultiStatusResponseJSON>(`https://api.batch.com/${API_VERSION}/profiles/update`, {
     method: 'post',
     json
   })
+
+  return handleMultiStatusResponse(response.data, payload, json)
 }
 
 export default action
