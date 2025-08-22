@@ -328,15 +328,13 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
 
       // Remove devicePropertyAllowlist if it is ['']
       type BrazeConfig = typeof expectedConfig & {
-        devicePropertyAllowlist?: string[] | string
+        devicePropertyAllowlist?: string[]
       }
       const config: BrazeConfig = { ...expectedConfig }
       if (Array.isArray(devicePropertyAllowlist)) {
         if (!(devicePropertyAllowlist.length === 1 && devicePropertyAllowlist[0] === '')) {
           config.devicePropertyAllowlist = devicePropertyAllowlist
         }
-      } else if (devicePropertyAllowlist !== undefined) {
-        config.devicePropertyAllowlist = devicePropertyAllowlist
       }
 
       const version = sdkVersion ?? defaultVersion
