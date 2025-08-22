@@ -332,7 +332,8 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
       }
       const config: BrazeConfig = { ...expectedConfig }
       if (Array.isArray(devicePropertyAllowlist)) {
-        if (!(devicePropertyAllowlist.length === 1 && devicePropertyAllowlist[0] === '')) {
+        // Check if the array contains at least one non-empty string
+        if (devicePropertyAllowlist.some((item) => item.trim() !== '')) {
           config.devicePropertyAllowlist = devicePropertyAllowlist
         }
       }
