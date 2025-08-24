@@ -136,7 +136,7 @@ describe('FullSession (actions)', () => {
   }, 10000) // Increase timeout to 10 seconds
 
   test('has correct presets configured', () => {
-    expect(destination.presets).toHaveLength(2)
+    expect(destination.presets).toHaveLength(3)
 
     const identifyPreset = destination.presets?.find((p) => p.name === 'Identify User')
     expect(identifyPreset).toBeDefined()
@@ -145,6 +145,10 @@ describe('FullSession (actions)', () => {
     const trackPreset = destination.presets?.find((p) => p.name === 'Record Event')
     expect(trackPreset).toBeDefined()
     expect(trackPreset?.partnerAction).toBe('recordEvent')
+
+    const pagePreset = destination.presets?.find((p) => p.name === 'Visit Page')
+    expect(pagePreset).toBeDefined()
+    expect(pagePreset?.partnerAction).toBe('visitPage')
   })
 
   test('has required settings defined', () => {

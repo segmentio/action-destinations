@@ -8,7 +8,7 @@ import { defaultValues } from '@segment/actions-core'
 
 import recordEvent from './recordEvent'
 
-// import visitPage from './visitPage'
+import visitPage from './visitPage'
 
 declare global {
   interface Window {
@@ -32,13 +32,13 @@ export const destination: BrowserDestinationDefinition<Settings, FUS> = {
       subscribe: 'type = "track"',
       partnerAction: 'recordEvent',
       mapping: defaultValues(recordEvent.fields)
+    },
+    {
+      name: 'Visit Page',
+      subscribe: 'type = "page"',
+      partnerAction: 'visitPage',
+      mapping: defaultValues(visitPage.fields)
     }
-    // {
-    //   name: 'Visit Page',
-    //   subscribe: 'type = "page"',
-    //   partnerAction: 'visitPage',
-    //   mapping: defaultValues(visitPage.fields)
-    // }
   ],
   settings: {
     customerId: {
@@ -57,8 +57,8 @@ export const destination: BrowserDestinationDefinition<Settings, FUS> = {
 
   actions: {
     identifyUser,
-    recordEvent
-    // visitPage
+    recordEvent,
+    visitPage
   }
 }
 
