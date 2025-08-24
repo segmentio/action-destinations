@@ -315,6 +315,51 @@ describe('Batching', () => {
     expect(batchSpy).not.toHaveBeenCalled()
     expect(spy).not.toHaveBeenCalled()
   })
+
+  test('emits stats for batch key', async () => {
+    const action = {
+      ...basicBatch,
+      actions: {
+        ...basicBatch.actions,
+        testAction: {
+          ...basicBatch.actions.testAction,
+          fields: {
+            ...basicBatch.actions.testAction.fields,
+            batch_keys: {
+              type: 'string',
+              label: 'Batch Key',
+              description: 'Batch Key',
+              required: false,
+              default: ['user_id']
+            }
+          }
+        }
+      }
+    } as DestinationDefinition<JSONObject>
+    const destination = new Destination(action)
+
+    const statsClient = {
+      incr: jest.fn(),
+      observe: jest.fn(),
+      _name: jest.fn(),
+      _tags: jest.fn(),
+      set: jest.fn,
+      histogram: jest.fn()
+    }
+    const statsContext = {
+      statsClient,
+      tags: ['test:tag']
+    }
+
+    await destination.onBatch(events, basicBatchSettings, {
+      statsContext: statsContext
+    })
+
+    expect(statsClient.histogram).toHaveBeenCalledWith('batching_destination.configurable_batch_keys.unique_keys', 2, [
+      'test:tag',
+      'test_action'
+    ])
+  })
 })
 
 describe('MultiStatus', () => {
