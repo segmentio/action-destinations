@@ -1,6 +1,6 @@
-# @segment/analytics-browser-{{slug}}
+# @segment/analytics-browser-actions-fullsession
 
-The {{name}} browser action destination for use with @segment/analytics-next.
+The FullSession browser action destination for use with @segment/analytics-next.
 
 ## License
 
