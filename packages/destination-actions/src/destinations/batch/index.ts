@@ -1,6 +1,7 @@
 import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import updateProfile from './updateProfile'
+import { API_VERSION } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Batch (Actions)',
@@ -24,7 +25,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request) => {
-      return await request('https://api.batch.com/2.5/profiles/update', {
+      return await request(`https://api.batch.com/${API_VERSION}/profiles/update`, {
         method: 'POST',
         // Sample body for test
         body: JSON.stringify([

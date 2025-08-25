@@ -1,6 +1,7 @@
 import { Payload } from './generated-types'
-import { Identifiers, ProfileAttributes, BatchJSON, SubscriptionSetting, EventAttributes, EventObject, Event } from './type'
-import { MAX_ATTRIBUTES_SIZE } from './constants'
+import { Identifiers, ProfileAttributes, BatchJSON, SubscriptionSetting, EventAttributes, EventObject, Event, MultiStatusResponseJSON } from './type'
+import { MAX_ATTRIBUTES_SIZE } from '../constants'
+import { MultiStatusResponse, JSONLikeObject } from '@segment/actions-core'
 
 export function mapPayload(payload: Payload): BatchJSON {
   const {
@@ -100,6 +101,39 @@ export function formatIdentifiers(identifiers: Payload['identifiers']): Identifi
     )
   }
   return cleanedIdentifiers
+}
+
+export function handleMultiStatusResponse(response: MultiStatusResponseJSON, payloads: Payload[], json: BatchJSON[]): MultiStatusResponse{
+  const msResponse = new MultiStatusResponse()
+  if(response.code === 'SUCCESS_WITH_PARTIAL_ERRORS') {
+    payloads.forEach((payload, index) => {
+      const matchingError = response.errors.find((error) => error.bulk_index === index)
+      if(matchingError) {
+        msResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errormessage: matchingError.reason,
+          sent: payload as object as JSONLikeObject,
+          body: JSON.stringify(json[index])
+        })
+      } else {
+        msResponse.setSuccessResponseAtIndex(index, {
+          status: 202,
+          sent: payload as object as JSONLikeObject,
+          body: JSON.stringify(json[index])
+        })
+      }
+    })
+    return msResponse
+  } else {
+    payloads.forEach((payload, index) => {
+      msResponse.setSuccessResponseAtIndex(index, {
+        status: 202,
+        sent: payload as object as JSONLikeObject,
+        body: JSON.stringify(json[index])
+        })
+      })
+    return msResponse
+  }
 }
 
 function formatEventName(eventName: string | undefined | null): string | undefined {
