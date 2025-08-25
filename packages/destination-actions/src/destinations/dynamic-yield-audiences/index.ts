@@ -21,7 +21,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Identifier Type',
       required: true,
       description:
-        'The type of Identifier to send to Dynamic Yield by Mastercard. E.g. `email`, `anonymousId`, `userId` or any other custom identifier. Make sure to configure the identifier in the `Customized Setup` below so that it is sent to Dynamic Yield by Mastercard.'
+        'The Segment identifier to send to Dynamic Yield by Mastercard. E.g. `email`, `anonymousId`, `userId` or any other custom identifier. Make sure to configure the identifier in the `Customized Setup` below so that it is sent to Dynamic Yield by Mastercard.'
+    },
+    dy_identifier_type: {
+      type: 'string',
+      label: 'Dynamic Yield Identifier Type',
+      required: false,
+      description: 'The name of the identifier in Dynamic Yield by Mastercard. You can leave this field empty if the Segment identifier name is the same as the Dynamic Yield by Mastercard identifier name.'
     }
   },
   authentication: {
