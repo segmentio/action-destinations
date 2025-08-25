@@ -2,24 +2,20 @@
 
 export interface Payload {
   /**
-   * Populates the filters field in the Algolia Insights API, a list of up to 10 facet filters. Field should be an array of strings with format ${attribute}:${value}.
+   * The viewed products. Populates the ObjectIDs field in the Algolia Insights API. Each object must contain a product_id field.
    */
-  filters: {
+  products: {
     /**
-     * The name of the Filter
+     * The unique ID of the product.
      */
-    attribute: string
-    /**
-     * The value of the Filter
-     */
-    value: string
+    product_id: string
   }[]
   /**
    * Name of the targeted search index.
    */
   index: string
   /**
-   * Query ID of the list on which the item was clicked.
+   * Query ID of the list on which the items were viewed.
    */
   queryID?: string
   /**
@@ -41,11 +37,11 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The name of the event to be send to Algolia. Defaults to 'Product List Filtered'
+   * The name of the event to be send to Algolia. Defaults to 'Product List Viewed'
    */
   eventName?: string
   /**
-   * The type of event to send to Algolia. Defaults to 'click'
+   * The type of event to send to Algolia. Defaults to 'view'
    */
   eventType?: string
 }

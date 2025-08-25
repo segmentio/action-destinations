@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination, { ALGOLIA_INSIGHTS_USER_AGENT } from '../../index'
-import { AlgoliaProductClickedEvent, BaseAlgoliaInsightsURL } from '../../algolia-insight-api'
+import { AlgoliaProductViewedEvent, BaseAlgoliaInsightsURL } from '../../algolia-insight-api'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -9,14 +9,14 @@ const algoliaDestinationActionSettings = {
   appId: 'algolia-application-id',
   apiKey: 'algolia-api-key'
 }
-const testAlgoliaDestination = async (event: SegmentEvent): Promise<AlgoliaProductClickedEvent> => {
+const testAlgoliaDestination = async (event: SegmentEvent): Promise<AlgoliaProductViewedEvent> => {
   nock(BaseAlgoliaInsightsURL).post('/1/events').reply(200, {})
   const segmentEvent = {
     event: { ...event },
     settings: algoliaDestinationActionSettings,
     useDefaultMappings: true
   }
-  const actionResponse = await testDestination.testAction('productClickedEvents', segmentEvent)
+  const actionResponse = await testDestination.testAction('productListViewedEvents', segmentEvent)
   const actionRequest = actionResponse[0].request
 
   expect(actionResponse.length).toBe(1)
@@ -28,81 +28,73 @@ const testAlgoliaDestination = async (event: SegmentEvent): Promise<AlgoliaProdu
   return JSON.parse(rawBody)['events'][0]
 }
 
-describe('AlgoliaInsights.productClickedEvents', () => {
-  it('should submit click on track "Product Clicked" event', async () => {
+describe('AlgoliaInsights.productListViewedEvents', () => {
+  it('should submit click on track "Product List Viewed" event', async () => {
     const event = createTestEvent({
       type: 'track',
-      event: 'Product Clicked',
+      event: 'Product List Viewed',
       properties: {
         query_id: '1234',
         search_index: 'fashion_1',
-        product_id: '9876',
-        position: 5
+        products: [
+          { product_id: '9876', name: 'foo', price: 10 },
+          { product_id: '5432', category: 'bar' }
+        ]
       }
     })
     const algoliaEvent = await testAlgoliaDestination(event)
 
-    expect(algoliaEvent.eventName).toBe('Product Clicked')
-    expect(algoliaEvent.eventType).toBe('click')
+    expect(algoliaEvent.eventName).toBe('Product List Viewed')
+    expect(algoliaEvent.eventType).toBe('view')
     expect(algoliaEvent.index).toBe(event.properties?.search_index)
     expect(algoliaEvent.userToken).toBe(event.anonymousId)
     expect(algoliaEvent.authenticatedUserToken).toBe(event.userId)
-    expect(algoliaEvent.queryID).toBe(event.properties?.query_id)
-    expect(algoliaEvent.objectIDs).toContain('9876')
-    expect(algoliaEvent.positions).toContain(5)
+    expect(algoliaEvent.objectIDs).toEqual(['9876', '5432'])
   })
 
   it('should pass timestamp if present', async () => {
     const event = createTestEvent({
       type: 'track',
-      event: 'Product Clicked',
+      event: 'Product List Viewed',
       properties: {
         search_index: 'fashion_1',
-        product_id: '9876'
-      }
+        products: [
+          { product_id: '9876', name: 'foo', price: 10 },
+          { product_id: '5432', category: 'bar' }
+        ]
+      },
+      userId: undefined
     })
     const algoliaEvent = await testAlgoliaDestination(event)
     expect(algoliaEvent.timestamp).toBe(new Date(event.timestamp as string).valueOf())
   })
 
-  it('should pass queryID if present', async () => {
+  it('should pass queryId if present', async () => {
     const event = createTestEvent({
       type: 'track',
-      event: 'Product Clicked',
+      event: 'Product List Viewed',
       properties: {
         query_id: '1234',
         search_index: 'fashion_1',
-        product_id: '9876'
-      }
+        products: [
+          { product_id: '9876', name: 'foo', price: 10 },
+          { product_id: '5432', category: 'bar' }
+        ]
+      },
+      userId: undefined
     })
     const algoliaEvent = await testAlgoliaDestination(event)
     expect(algoliaEvent.queryID).toBe(event.properties?.query_id)
   })
 
-  it('should pass position if present', async () => {
-    const event = createTestEvent({
-      type: 'track',
-      event: 'Product Clicked',
-      properties: {
-        query_id: '1234',
-        search_index: 'fashion_1',
-        product_id: '9876',
-        position: 5
-      }
-    })
-    const algoliaEvent = await testAlgoliaDestination(event)
-    expect(algoliaEvent.positions?.[0]).toBe(event.properties?.position)
-  })
-
   it('should pass anonymousId as user token if present', async () => {
     const event = createTestEvent({
       type: 'track',
-      event: 'Product Clicked',
+      event: 'Product List Viewed',
       properties: {
         query_id: '1234',
         search_index: 'fashion_1',
-        product_id: '9876',
-        position: 5
+        products: [{ product_id: '9876' }]
       },
       anonymousId: 'anon-user-1234'
     })
@@ -113,12 +105,11 @@ describe('AlgoliaInsights.productClickedEvents', () => {
   it('should pass userId as user token if anonymousId not present', async () => {
     const event = createTestEvent({
       type: 'track',
-      event: 'Product Clicked',
+      event: 'Product List Viewed',
       properties: {
         query_id: '1234',
         search_index: 'fashion_1',
-        product_id: '9876',
-        position: 5
+        products: [{ product_id: '9876' }]
       },
       anonymousId: undefined,
       userId: 'authed-user-1234'
@@ -130,12 +121,11 @@ describe('AlgoliaInsights.productClickedEvents', () => {
   it('should pass userId and anonymousId if present', async () => {
     const event = createTestEvent({
       type: 'track',
-      event: 'Product Clicked',
+      event: 'Product List Viewed',
       properties: {
         query_id: '1234',
         search_index: 'fashion_1',
-        product_id: '9876',
-        position: 5
+        products: [{ product_id: '9876' }]
       },
       anonymousId: 'anon-user-1234',
       userId: 'authed-user-1234'
