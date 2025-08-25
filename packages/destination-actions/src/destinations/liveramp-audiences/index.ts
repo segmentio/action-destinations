@@ -25,6 +25,13 @@ const destination: DestinationDefinition<Settings> = {
         type: 'boolean',
         required: true,
         default: true
+      },
+      __segment_internal_from_event_tester: {
+        label: 'From Event Tester',
+        description: 'Flag to indicate if the request is coming from the event tester',
+        type: 'boolean',
+        required: true,
+        default: false
       }
     }
   },
