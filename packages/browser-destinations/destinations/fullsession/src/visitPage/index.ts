@@ -36,7 +36,7 @@ const action: BrowserActionDefinition<Settings, FUS, Payload> = {
   perform: (FUS, data) => {
     const { name, properties } = data.payload
     FUS.setSessionAttributes({
-      name,
+      name: name ?? '',
       ...properties
     })
   }

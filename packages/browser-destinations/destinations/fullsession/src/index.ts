@@ -25,19 +25,22 @@ export const destination: BrowserDestinationDefinition<Settings, FUS> = {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
-      mapping: defaultValues(identifyUser.fields)
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
     },
     {
       name: 'Record Event',
       subscribe: 'type = "track"',
       partnerAction: 'recordEvent',
-      mapping: defaultValues(recordEvent.fields)
+      mapping: defaultValues(recordEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Visit Page',
       subscribe: 'type = "page"',
       partnerAction: 'visitPage',
-      mapping: defaultValues(visitPage.fields)
+      mapping: defaultValues(visitPage.fields),
+      type: 'automatic'
     }
   ],
   settings: {
