@@ -6,7 +6,7 @@ export interface Payload {
    */
   sessionLength?: number
   /**
-   * Generate session start and session end events. This is useful for tracking user sessions.
+   * Generate session start and session end events. This is useful for tracking user sessions. NOTE: This will generate a Segment track() event which will also get send to all Destinations connected to the JS Source
    */
   allowSessionTracking?: boolean
   /**
