@@ -126,14 +126,15 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
 
     const audienceName = audienceSettings?.audience_name
-    const identifierType = audienceSettings?.identifier_type ?? ''
-    const normalizedIdentifierType = identifierType.toLowerCase().replace(/_/g, '')
+    const segIdType = audienceSettings?.identifier_type ?? ''
+    const normalizedsegIdType = segIdType.toLowerCase().replace(/_/g, '')
+    const dyIdType = audienceSettings?.dy_identifier_type ?? ''
+
     const audienceValue = payload.traits_or_props[payload.segment_audience_key]
-    let sendNormalizeIdType = false
 
     let primaryIdentifier: string | undefined
 
-    switch (normalizedIdentifierType) {
+    switch (normalizedsegIdType) {
       case 'email':
         primaryIdentifier = payload.email ?? undefined
         break
@@ -144,16 +145,13 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         primaryIdentifier = payload.anonymousId ?? undefined
         break
       default: {
-        primaryIdentifier = (payload.traits_or_props[identifierType] as string) ?? undefined
-        sendNormalizeIdType = false
+        primaryIdentifier = (payload.traits_or_props[segIdType] as string) ?? undefined
       }
     }
 
     if (!primaryIdentifier) {
       throw new IntegrationError('Primary Identifier not found', 'MISSING_REQUIRED_FIELD', 400)
     }
-
-    const idTypeToSend = sendNormalizeIdType ? normalizedIdentifierType : identifierType
 
     // Receives the sectionId plain with the dev prefix if provided
     const dataCenter = getDataCenter(settings.sectionId)
@@ -167,7 +165,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       account: {
         account_settings: {
           sectionId: getSectionId(settings.sectionId),
-          identifier: idTypeToSend,
+          identifier: dyIdType ?? segIdType,
           connectionKey: settings.accessKey
         }
       },
@@ -175,9 +173,9 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         {
           user_identities: [
             {
-              type: idTypeToSend,
-              encoding: idTypeToSend === 'email' ? '"sha-256"' : 'raw',
-              value: idTypeToSend === 'email' ? hashAndEncode(primaryIdentifier) : primaryIdentifier
+              type: dyIdType ?? segIdType,
+              encoding: segIdType === 'email' ? '"sha-256"' : 'raw',
+              value: segIdType === 'email' ? hashAndEncode(primaryIdentifier) : primaryIdentifier
             }
           ],
           audiences: [
