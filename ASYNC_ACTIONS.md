@@ -21,8 +21,6 @@ The async action support introduces new types using a unified array structure th
 export type AsyncActionResponseType = {
   /** Indicates this is an async operation */
   isAsync: true
-  /** Array of context data for polling operations - 1 element for single, N for batch */
-  asyncContexts: JSONLikeObject[]
   /** Optional message about the async operation */
   message?: string
   /** Initial status code */
@@ -75,14 +73,14 @@ interface ActionDefinition<Settings, Payload, AudienceSettings> {
 
 ### Execution Context
 
-The `ExecuteInput` type now includes async context for poll operations:
+The `ExecuteInput` type uses existing `stateContext` for poll operations:
 
 ```typescript
 interface ExecuteInput<Settings, Payload, AudienceSettings> {
   // ... existing fields ...
 
-  /** Async context data for polling operations */
-  readonly asyncContext?: JSONLikeObject
+  /** State context for persisting data between requests */
+  readonly stateContext?: StateContext
 }
 ```
 
@@ -101,20 +99,20 @@ perform: async (request, { settings, payload, stateContext }) => {
   })
 
   if (response.data?.status === 'accepted' && response.data?.operation_id) {
-    // Store operation context in state for later retrieval
+    // Store operation context in state
     if (stateContext && stateContext.setResponseContext) {
-      stateContext.setResponseContext('operation_id', response.data.operation_id, { hour: 24 })
-      stateContext.setResponseContext('user_id', payload.user_id, { hour: 24 })
+      const operationContext = [
+        {
+          operation_id: response.data.operation_id,
+          user_id: payload.user_id,
+          operation_type: payload.operation_type
+        }
+      ]
+      stateContext.setResponseContext('async_operations', JSON.stringify(operationContext), { hour: 24 })
     }
 
     return {
       isAsync: true,
-      asyncContexts: [
-        {
-          operation_id: response.data.operation_id,
-          user_id: payload.user_id
-        }
-      ],
       message: `Operation ${response.data.operation_id} submitted`,
       status: 202
     }
@@ -136,18 +134,19 @@ performBatch: async (request, { settings, payload, stateContext }) => {
   })
 
   if (response.data?.status === 'accepted' && response.data?.operation_ids) {
-    // Store batch context
+    // Store batch operation contexts in state
     if (stateContext && stateContext.setResponseContext) {
-      stateContext.setResponseContext('batch_operation_ids', JSON.stringify(response.data.operation_ids), { hour: 24 })
+      const operationContexts = response.data.operation_ids.map((operationId: string, index: number) => ({
+        operation_id: operationId,
+        user_id: payload[index]?.user_id,
+        operation_type: payload[index]?.operation_type,
+        batch_index: index
+      }))
+      stateContext.setResponseContext('async_operations', JSON.stringify(operationContexts), { hour: 24 })
     }
 
     return {
       isAsync: true,
-      asyncContexts: response.data.operation_ids.map((operationId: string, index: number) => ({
-        operation_id: operationId,
-        user_id: payload[index]?.user_id,
-        batch_index: index
-      })),
       message: `Batch operations submitted: ${response.data.operation_ids.join(', ')}`,
       status: 202
     } as AsyncActionResponseType
@@ -180,16 +179,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Check if this is an async operation
     if (response.data?.status === 'accepted' && response.data?.operation_id) {
-      // Return async response with context for polling (single operation in array)
+      // Return async response - context stored in stateContext
       return {
         isAsync: true,
-        asyncContexts: [
-          {
-            operation_id: response.data.operation_id,
-            user_id: payload.user_id
-            // Include any data needed for polling
-          }
-        ],
         message: `Operation ${response.data.operation_id} submitted successfully`,
         status: 202
       } as AsyncActionResponseType
@@ -199,16 +191,26 @@ const action: ActionDefinition<Settings, Payload> = {
     return response
   },
 
-  poll: async (request, { settings, asyncContext }) => {
-    // asyncContext.asyncContexts contains array of operation contexts
-    const asyncContexts = asyncContext?.asyncContexts || []
+  poll: async (request, { settings, stateContext }) => {
+    // Read operation contexts from stateContext
+    let asyncContexts: any[] = []
+    if (stateContext?.getRequestContext) {
+      const storedContexts = stateContext.getRequestContext('async_operations')
+      if (storedContexts) {
+        try {
+          asyncContexts = JSON.parse(storedContexts)
+        } catch (error) {
+          console.error('Failed to parse stored operation contexts:', error)
+        }
+      }
+    }
 
     if (!asyncContexts || asyncContexts.length === 0) {
       return {
         results: [],
         overallStatus: 'failed',
         shouldContinuePolling: false,
-        message: 'No async contexts found for polling'
+        message: 'No async operations found for polling'
       }
     }
 
@@ -322,8 +324,8 @@ const result = await destination.executeAction('myAction', {
 
 // Check if it's an async operation
 if (result.isAsync) {
-  const asyncContexts = result.asyncContexts
-  // Store asyncContexts for later polling (handles both single and batch)
+  // Operation context is automatically stored in stateContext
+  // No need to manually handle context - polling will retrieve from stateContext
 }
 ```
 
@@ -333,10 +335,8 @@ if (result.isAsync) {
 const pollResult = await destination.executePoll('myAction', {
   event,
   mapping,
-  settings,
-  asyncContext: {
-    asyncContexts: [{ operation_id: 'op_12345', user_id: 'user123' }]
-  }
+  settings
+  // stateContext is automatically passed - no need to specify async context
 })
 
 // Check overall status and individual results

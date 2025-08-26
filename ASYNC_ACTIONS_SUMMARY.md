@@ -8,16 +8,16 @@ This implementation adds async action support to Segment's destination actions f
 
 ### Core Async Support - Unified Design
 
-- **AsyncActionResponseType**: Unified response with `asyncContexts: JSONLikeObject[]` array
-  - Single operations: array with 1 element
-  - Batch operations: array with N elements
+- **AsyncActionResponseType**: Simplified response with just `isAsync`, `message`, and `status`
+  - All operation context stored in `stateContext` with JSON serialization
+  - Works for both single and batch operations
 - **AsyncPollResponseType**: Unified polling response with `results: AsyncOperationResult[]`
 - **AsyncOperationResult**: Individual operation status with context preservation
 
 ### Action Interface Enhancements
 
 - Added single `poll` method to ActionDefinition (handles both single and batch)
-- Extended `ExecuteInput` to include `asyncContext` parameter
+- Uses existing `stateContext` for persistence - no new parameters needed
 - Updated parseResponse to handle async responses correctly
 - Eliminated complexity of separate single/batch methods
 
@@ -41,7 +41,6 @@ perform: async (request, { settings, payload, stateContext }) => {
 
   return {
     isAsync: true,
-    asyncContexts: [{ operation_id: operationId }],
     message: 'Operation submitted',
     status: 202
   }
@@ -59,13 +58,18 @@ performBatch: async (request, { settings, payload }) => {
   })
 
   if (response.data?.operation_ids) {
-    return {
-      isAsync: true,
-      asyncContexts: response.data.operation_ids.map((id, index) => ({
+    // Store batch operation contexts in stateContext
+    if (stateContext && stateContext.setResponseContext) {
+      const operationContexts = response.data.operation_ids.map((id, index) => ({
         operation_id: id,
         batch_index: index,
         user_id: payload[index]?.user_id
-      })),
+      }))
+      stateContext.setResponseContext('async_operations', JSON.stringify(operationContexts), { hour: 24 })
+    }
+
+    return {
+      isAsync: true,
       message: `${response.data.operation_ids.length} operations submitted`,
       status: 202
     }
@@ -78,8 +82,16 @@ performBatch: async (request, { settings, payload }) => {
 Single polling method handles both individual and batch operations seamlessly:
 
 ```typescript
-poll: async (request, { settings, asyncContext }) => {
-  const asyncContexts = asyncContext?.asyncContexts || []
+poll: async (request, { settings, stateContext }) => {
+  // Read operation contexts from stateContext
+  let asyncContexts: any[] = []
+  if (stateContext?.getRequestContext) {
+    const storedContexts = stateContext.getRequestContext('async_operations')
+    if (storedContexts) {
+      asyncContexts = JSON.parse(storedContexts)
+    }
+  }
+
   const results = []
 
   // Poll each operation in the array (1 for single, N for batch)
@@ -125,8 +137,8 @@ packages/
 The implementation includes comprehensive tests covering:
 
 - ✅ Synchronous operations (backward compatibility)
-- ✅ Single async operations (1 element in asyncContexts array)
-- ✅ Batch async operations (N elements in asyncContexts array)
+- ✅ Single async operations (1 element stored in stateContext)
+- ✅ Batch async operations (N elements stored in stateContext)
 - ✅ Unified polling method handling both single and batch scenarios
 - ✅ Error handling and status aggregation
 - ✅ State context integration (when available)
@@ -139,7 +151,7 @@ The implementation includes comprehensive tests covering:
 // Submit single operation
 const result = await destination.executeAction('myAction', { event, mapping, settings })
 if (result.isAsync) {
-  const asyncContexts = result.asyncContexts // Array with 1 element
+  // Operation context automatically stored in stateContext
   // Poll later using the same unified method...
 }
 
@@ -147,10 +159,8 @@ if (result.isAsync) {
 const pollResult = await destination.executePoll('myAction', {
   event,
   mapping,
-  settings,
-  asyncContext: {
-    asyncContexts: [{ operation_id: 'op_123', user_id: 'user1' }]
-  }
+  settings
+  // stateContext automatically passed with stored operation context
 })
 ```
 
@@ -160,7 +170,7 @@ const pollResult = await destination.executePoll('myAction', {
 // Submit batch operations
 const result = await destination.executeBatch('myAction', { events, mapping, settings })
 if (result.isAsync) {
-  const asyncContexts = result.asyncContexts // Array with N elements
+  // All operation contexts automatically stored in stateContext
   // Poll later using the same unified method...
 }
 
@@ -168,8 +178,8 @@ if (result.isAsync) {
 const pollResult = await destination.executePoll('myAction', {
   events,
   mapping,
-  settings,
-  asyncContext: { asyncContexts: result.asyncContexts }
+  settings
+  // stateContext automatically passed with stored operation contexts
 })
 
 // Unified response structure for both cases
@@ -183,7 +193,7 @@ pollResult.results.forEach((result, index) => {
 
 1. **Unified Design**: Single poll method handles both single and batch operations seamlessly
 2. **Simplified Architecture**: No separate pollBatch method - eliminated complexity
-3. **Flexible Context**: Array structure works for any number of operations (1 for single, N for batch)
+3. **Flexible Context**: stateContext with JSON serialization works for any number of operations (1 for single, N for batch)
 4. **Full Backward Compatibility**: Existing synchronous actions continue to work unchanged
 5. **State Context Integration**: Leverage existing state persistence mechanisms
 6. **Type Safety**: Full TypeScript support for all async operations
