@@ -24,10 +24,10 @@ import {
   SubscribeEventData,
   UnsubscribeProfile,
   UnsubscribeEventData,
-  GroupedProfiles,
   AdditionalAttributes,
   KlaviyoProfile,
-  KlaviyoAPIErrorResponse
+  KlaviyoAPIErrorResponse,
+  validateProfilePayloadResult
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 import { Payload as RemoveProfilePayload } from './removeProfile/generated-types'
@@ -425,31 +425,6 @@ export async function createList(request: RequestClient, settings: Settings, lis
   }
 }
 
-export function groupByListId(profiles: Payload[]) {
-  const grouped: GroupedProfiles = {}
-
-  for (const profile of profiles) {
-    const listId: string = profile.override_list_id || (profile.list_id as string)
-    if (!grouped[listId]) {
-      grouped[listId] = []
-    }
-    grouped[listId].push(profile)
-  }
-
-  return grouped
-}
-
-export async function processProfilesByGroup(request: RequestClient, groupedProfiles: GroupedProfiles) {
-  const importResponses = await Promise.all(
-    Object.keys(groupedProfiles).map(async (listId) => {
-      const profiles = groupedProfiles[listId]
-      const importJobPayload = createImportJobPayload(profiles, listId)
-      return await sendImportJobRequest(request, importJobPayload)
-    })
-  )
-  return importResponses
-}
-
 export function validateAndConvertPhoneNumber(phone?: string, countryCode?: string): string | undefined | null {
   if (!phone) return
 
@@ -505,7 +480,7 @@ export function processPhoneNumber(initialPhoneNumber?: string, country_code?: s
  * @param {number[]} validPayloadIndicesBitmap - An array of indices indicating which payloads were valid.
  *
  */
-async function updateMultiStatusWithKlaviyoErrors(
+export async function updateMultiStatusWithKlaviyoErrors(
   payloads: JSONLikeObject[],
   err: any,
   multiStatusResponse: MultiStatusResponse,
@@ -921,4 +896,69 @@ export function updateMultiStatusWithSuccessData(
       body: JSON.stringify(response?.data) || 'success'
     })
   })
+}
+
+/**
+ * Validates whether the given string is a properly formatted email address.
+ *
+ * Uses a regular expression to check for a standard email pattern.
+ *
+ * @param email - The email address to validate.
+ * @returns `true` if the email is valid, otherwise `false`.
+ */
+function validateEmail(email: string): boolean {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+  return emailRegex.test(email)
+}
+
+/**
+ * Validates the given profile payload for required fields and formats.
+ *
+ * Ensures that at least one of `email`, `phone_number`, or `external_id` is present.
+ * If `phone_number` is provided, it validates and converts it to E.164 format using the `country_code`.
+ * If `email` is provided, it validates the email format.
+ * Returns an object containing the validated payload or an error response if validation fails.
+ *
+ * @param payload - The profile payload to validate.
+ * @returns An object containing the validated payload or an error response if validation fails.
+ */
+export function validateProfilePayload(payload: Payload): validateProfilePayloadResult {
+  const response: validateProfilePayloadResult = {}
+
+  if (!payload.email && !payload.phone_number && !payload.external_id) {
+    response.error = {
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'One of External ID, Phone Number or Email is required.'
+    }
+    return response
+  }
+
+  if (payload.phone_number) {
+    const validPhoneNumber = validateAndConvertPhoneNumber(payload.phone_number, payload.country_code as string)
+    if (!validPhoneNumber) {
+      response.error = {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Phone number could not be converted to E.164 format.'
+      }
+      return response
+    }
+    payload.phone_number = validPhoneNumber
+    delete payload.country_code
+  }
+
+  if (payload.email) {
+    if (!validateEmail(payload.email)) {
+      response.error = {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Email is not valid.'
+      }
+      return response
+    }
+  }
+
+  response.payload = payload
+  return response
 }

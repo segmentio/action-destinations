@@ -1,5 +1,6 @@
 import { HTTPError } from '@segment/actions-core'
 import { Payload } from './upsertProfile/generated-types'
+import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kit/types'
 export class KlaviyoAPIError extends HTTPError {
   response: Response & {
     data: {
@@ -224,10 +225,6 @@ export interface UnsubscribeEventData {
   }
 }
 
-export interface GroupedProfiles {
-  [listId: string]: Payload[]
-}
-
 export interface AdditionalAttributes {
   first_name?: string
   last_name?: string
@@ -252,4 +249,9 @@ export interface KlaviyoAPIErrorResponse {
 export interface KlaviyoProfile {
   type: string
   attributes: ProfileAttributes
+}
+
+export interface validateProfilePayloadResult {
+  payload?: Payload
+  error?: ActionDestinationErrorResponseType
 }
