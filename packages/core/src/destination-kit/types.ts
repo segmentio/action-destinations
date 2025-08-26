@@ -23,11 +23,16 @@ export type MaybePromise<T> = T | Promise<T>
   Note: The Cloud Event object that we receive from Centrifuge contains an array of subscriptions,
   the result object below is the result of execution of each subscription.
 */ export interface Result {
-  output?: JSONObject | string | null | undefined
+  errormessage?: string
+  errortype?: keyof typeof ErrorCodes
+  output?: JSONObject | string | null
   error?: JSONObject | null
   // Data to be returned from action
   data?: JSONObject | null
   // Spec v2 compliant MultiStatus response
+  sent?: JSONLikeObject | string
+  status?: number
+  body?: JSONLikeObject | string
   multistatus?: ResultMultiStatusNode[]
 }
 

@@ -1,10 +1,16 @@
-import { Kafka, ProducerRecord, Partitioners, SASLOptions, KafkaConfig, KafkaJSError, Producer } from 'kafkajs'
-import { DynamicFieldResponse, IntegrationError, Features } from '@segment/actions-core'
+import { Kafka, Partitioners, SASLOptions, KafkaConfig, KafkaJSError, Producer } from 'kafkajs'
+import {
+  DynamicFieldResponse,
+  IntegrationError,
+  Features,
+  StatsContext,
+  MultiStatusResponse,
+  getErrorCodeFromHttpStatus
+} from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
 import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
-import { StatsContext } from '@segment/actions-core/destination-kit'
 
 export const producersByConfig: Record<string, CachedProducer> = {}
 
@@ -137,7 +143,10 @@ const getProducer = (settings: Settings) => {
   })
 }
 
-export const getOrCreateProducer = async (settings: Settings, statsContext: StatsContext | undefined): Promise<Producer> => {
+export const getOrCreateProducer = async (
+  settings: Settings,
+  statsContext: StatsContext | undefined
+): Promise<Producer> => {
   const key = serializeKafkaConfig(settings)
   const now = Date.now()
 
@@ -163,7 +172,9 @@ export const getOrCreateProducer = async (settings: Settings, statsContext: Stat
   }
 
   const kafka = getKafka(settings)
-  const producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner })
+  const producer = kafka.producer({
+    createPartitioner: Partitioners.DefaultPartitioner
+  })
   await producer.connect()
   statsContext?.statsClient?.incr('kafka_connection_opened', 1, statsContext?.tags)
   producersByConfig[key] = {
@@ -174,22 +185,89 @@ export const getOrCreateProducer = async (settings: Settings, statsContext: Stat
   return producer
 }
 
-export const sendData = async (settings: Settings, payload: Payload[], features: Features | undefined, statsContext: StatsContext | undefined) => {
+function kafkaErrorToHttpStatus(error: KafkaJSError | Error) {
+  // Default error response
+  let status = 400
+
+  if (!error || !error.name) return { status, code: getErrorCodeFromHttpStatus(status) }
+
+  // convert KafkaJSErrors to equivalent http status codes
+  switch (error.name) {
+    case 'KafkaJSConnectionError':
+    case 'KafkaJSRequestTimeoutError':
+    case 'KafkaJSStaleMetadata':
+      status = 503
+      break
+    case 'KafkaJSNotLeaderForPartition':
+      status = 409
+      break
+    case 'KafkaJSAuthorizationError':
+      status = 403
+      break
+    case 'KafkaJSBrokerNotFound':
+      status = 404
+      break
+    case 'KafkaJSTimeout':
+      status = 504
+      break
+    case 'KafkaJSUnknownTopicOrPartition':
+      status = 404
+      break
+    case 'KafkaJSInvalidMessage':
+      status = 422
+      break
+    case 'KafkaJSAuthenticationError':
+      status = 401
+      break
+    case 'KafkaJSUnsupportedFeature':
+      status = 501
+      break
+    case 'KafkaJSInvalidConfiguration':
+      status = 500
+      break
+    case 'KafkaJSInvalidResponse':
+      status = 502
+      break
+    case 'KafkaJSInvalidMessageSize':
+      status = 413
+      break
+    default:
+      // Retain default 400 status for unhandled errors
+      break
+  }
+
+  return { status, code: getErrorCodeFromHttpStatus(status) }
+}
+
+function fillKafkaMultiStatusErrorResponse(
+  error: Error | KafkaJSError,
+  topicMessages: TopicMessages,
+  multiStatusResponse: MultiStatusResponse
+) {
+  const { code, status } = kafkaErrorToHttpStatus(error as Error)
+  topicMessages.messages.forEach((payloadItem) =>
+    multiStatusResponse.pushErrorResponse({
+      status,
+      errortype: code,
+      errormessage: error?.message ?? 'Kafka error occurred',
+      sent: { ...payloadItem }
+    })
+  )
+}
+
+export const sendData = async (
+  settings: Settings,
+  payload: Payload[],
+  features: Features | undefined,
+  statsContext: StatsContext | undefined
+) => {
   validate(settings)
 
-  const groupedPayloads: { [topic: string]: Payload[] } = {}
+  const topic = payload[0].topic
 
-  payload.forEach((p) => {
-    const { topic } = p
-    if (!groupedPayloads[topic]) {
-      groupedPayloads[topic] = []
-    }
-    groupedPayloads[topic].push(p)
-  })
-
-  const topicMessages: TopicMessages[] = Object.keys(groupedPayloads).map((topic) => ({
+  const topicMessages: TopicMessages = {
     topic,
-    messages: groupedPayloads[topic].map(
+    messages: payload.map(
       (payload) =>
         ({
           value: JSON.stringify(payload.payload),
@@ -199,26 +277,34 @@ export const sendData = async (settings: Settings, payload: Payload[], features:
           partitionerType: DEFAULT_PARTITIONER
         } as Message)
     )
-  }))
-
-  let producer: Producer
-  if (features && features[FLAGON_NAME]) {
-    producer = await getOrCreateProducer(settings, statsContext)
-  } else {
-    producer = getProducer(settings)
-    await producer.connect()
   }
 
-  for (const data of topicMessages) {
-    try {
-      await producer.send(data as ProducerRecord)
-    } catch (error) {
-      throw new IntegrationError(
-        `Kafka Producer Error: ${(error as KafkaJSError).message}`,
-        'KAFKA_PRODUCER_ERROR',
-        400
-      )
+  let producer: Producer
+  const multiStatusResponse: MultiStatusResponse = new MultiStatusResponse()
+
+  try {
+    if (features && features[FLAGON_NAME]) {
+      producer = await getOrCreateProducer(settings, statsContext)
+    } else {
+      producer = getProducer(settings)
+      await producer.connect()
     }
+  } catch (error) {
+    fillKafkaMultiStatusErrorResponse(error as Error, topicMessages, multiStatusResponse)
+    return multiStatusResponse
+  }
+
+  try {
+    const kafkaResponse = await producer.send(topicMessages)
+    topicMessages.messages.forEach((payloadItem) =>
+      multiStatusResponse.pushSuccessResponse({
+        status: 200,
+        sent: { ...payloadItem },
+        body: { kafkaResponse }
+      })
+    )
+  } catch (error) {
+    fillKafkaMultiStatusErrorResponse(error as Error, topicMessages, multiStatusResponse)
   }
 
   if (features && features[FLAGON_NAME]) {
@@ -229,4 +315,6 @@ export const sendData = async (settings: Settings, payload: Payload[], features:
   } else {
     await producer.disconnect()
   }
+
+  return multiStatusResponse
 }
