@@ -3,12 +3,12 @@ import type { Settings } from './generated-types'
 
 import { productClickedEvents, productClickPresets } from './productClickedEvents'
 
-import { conversionEvents, purchasePreset, addToCartPreset } from './conversionEvents'
+import { conversionEvents, purchasePreset } from './conversionEvents'
 
 import { productViewedEvents, productViewedPresets } from './productViewedEvents'
 import { AlgoliaApiPermissions, algoliaApiPermissionsUrl } from './algolia-insight-api'
 
-import { productAddedEvents } from './productAddedEvents'
+import { addToCartPreset, productAddedEvents } from './productAddedEvents'
 
 import { productListFilteredEvents, productListFilteredPresets } from './productListFilteredEvents'
 
