@@ -239,7 +239,6 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   stateContext?: StateContext
   subscriptionMetadata?: SubscriptionMetadata
   signal?: AbortSignal
-  asyncContext?: JSONLikeObject
 }
 
 type FillMultiStatusResponseInput = {
@@ -637,8 +636,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       syncMode: isSyncMode(syncMode) ? syncMode : undefined,
       matchingKey: matchingKey ? String(matchingKey) : undefined,
       subscriptionMetadata: bundle.subscriptionMetadata,
-      signal: bundle?.signal,
-      asyncContext: bundle.asyncContext
+      signal: bundle?.signal
     }
 
     // Construct the request client and perform the poll operation

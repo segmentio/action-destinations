@@ -85,7 +85,6 @@ export interface ExecuteInput<
   readonly subscriptionMetadata?: SubscriptionMetadata
   readonly signal?: AbortSignal
   /** Async context data for polling operations */
-  readonly asyncContext?: JSONLikeObject
 }
 
 export interface DynamicFieldResponse {
@@ -403,8 +402,6 @@ export type ActionDestinationErrorResponseType = {
 export type AsyncActionResponseType = {
   /** Indicates this is an async operation */
   isAsync: true
-  /** Array of context data for polling operations - single element for individual operations, multiple for batch */
-  asyncContexts: JSONLikeObject[]
   /** Optional message about the async operation(s) */
   message?: string
   /** Initial status code */

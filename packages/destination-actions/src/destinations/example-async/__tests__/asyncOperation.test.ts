@@ -128,13 +128,20 @@ describe('Example Async Destination', () => {
 
       expect(result).toEqual({
         isAsync: true,
-        asyncContexts: [
-          { operation_id: 'op_1', user_id: 'user-1', operation_type: 'process_data', batch_index: 0 },
-          { operation_id: 'op_2', user_id: 'user-2', operation_type: 'process_data', batch_index: 1 },
-          { operation_id: 'op_3', user_id: 'user-3', operation_type: 'process_data', batch_index: 2 }
-        ],
         message: 'Batch operations submitted: op_1, op_2, op_3',
         status: 202
+      })
+
+      // Verify context was stored in stateContext
+      expect(mockRequest).toHaveBeenCalledWith('https://api.example.com/operations/batch', {
+        method: 'post',
+        json: {
+          operations: [
+            { user_id: 'user-1', operation_type: 'process_data', data: { name: 'User 1' } },
+            { user_id: 'user-2', operation_type: 'process_data', data: { name: 'User 2' } },
+            { user_id: 'user-3', operation_type: 'process_data', data: { name: 'User 3' } }
+          ]
+        }
       })
     })
 
@@ -153,17 +160,20 @@ describe('Example Async Destination', () => {
         api_key: 'test-key'
       }
 
-      const asyncContext = {
-        asyncContexts: [
-          {
-            operation_id: 'op_12345',
-            user_id: 'test-user-123',
-            operation_type: 'process_data'
-          }
-        ]
+      // Mock stateContext with stored operation data
+      const mockStateContext = {
+        getRequestContext: jest.fn().mockReturnValue(
+          JSON.stringify([
+            {
+              operation_id: 'op_12345',
+              user_id: 'test-user-123',
+              operation_type: 'process_data'
+            }
+          ])
+        )
       }
 
-      const result = await AsyncOperationAction.poll!(mockRequest, { settings, asyncContext })
+      const result = await AsyncOperationAction.poll!(mockRequest, { settings, stateContext: mockStateContext })
 
       expect(mockRequest).toHaveBeenCalledWith('https://api.example.com/operations/op_12345', {
         method: 'get'
@@ -211,15 +221,18 @@ describe('Example Async Destination', () => {
         api_key: 'test-key'
       }
 
-      const asyncContext = {
-        asyncContexts: [
-          { operation_id: 'op_1', user_id: 'user-1', batch_index: 0 },
-          { operation_id: 'op_2', user_id: 'user-2', batch_index: 1 },
-          { operation_id: 'op_3', user_id: 'user-3', batch_index: 2 }
-        ]
+      // Mock stateContext with stored batch operation data
+      const mockStateContext = {
+        getRequestContext: jest.fn().mockReturnValue(
+          JSON.stringify([
+            { operation_id: 'op_1', user_id: 'user-1', batch_index: 0 },
+            { operation_id: 'op_2', user_id: 'user-2', batch_index: 1 },
+            { operation_id: 'op_3', user_id: 'user-3', batch_index: 2 }
+          ])
+        )
       }
 
-      const result = await AsyncOperationAction.poll!(mockRequest, { settings, asyncContext })
+      const result = await AsyncOperationAction.poll!(mockRequest, { settings, stateContext: mockStateContext })
 
       expect(mockRequest).toHaveBeenCalledTimes(3)
       expect(result.results).toHaveLength(3)

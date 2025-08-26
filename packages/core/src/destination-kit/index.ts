@@ -737,9 +737,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       engageDestinationCache,
       transactionContext,
       stateContext,
-      signal,
-      asyncContext
-    }: EventInput<Settings> & { asyncContext?: JSONLikeObject }
+      signal
+    }: EventInput<Settings>
   ): Promise<AsyncPollResponseType> {
     const action = this.actions[actionSlug]
     if (!action) {
@@ -764,8 +763,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       transactionContext,
       stateContext,
       subscriptionMetadata,
-      signal,
-      asyncContext
+      signal
     })
   }
 
