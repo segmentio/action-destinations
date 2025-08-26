@@ -1,10 +1,4 @@
-import type {
-  ActionDefinition,
-  AsyncActionResponseType,
-  AsyncPollResponseType,
-  BatchAsyncActionResponseType,
-  BatchAsyncPollResponseType
-} from '@segment/actions-core'
+import type { ActionDefinition, AsyncActionResponseType, AsyncPollResponseType } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -58,14 +52,16 @@ const action: ActionDefinition<Settings, Payload> = {
         stateContext.setResponseContext('user_id', payload.user_id, { hour: 24 })
       }
 
-      // Return async response with context for polling
+      // Return async response with context for polling (single operation in array)
       return {
         isAsync: true,
-        asyncContext: {
-          operation_id: responseData.operation_id,
-          user_id: payload.user_id,
-          operation_type: payload.operation_type
-        },
+        asyncContexts: [
+          {
+            operation_id: responseData.operation_id,
+            user_id: payload.user_id,
+            operation_type: payload.operation_type
+          }
+        ],
         message: `Operation ${responseData.operation_id} submitted successfully`,
         status: 202
       } as AsyncActionResponseType
@@ -95,7 +91,7 @@ const action: ActionDefinition<Settings, Payload> = {
         stateContext.setResponseContext('batch_operation_ids', JSON.stringify(responseData.operation_ids), { hour: 24 })
       }
 
-      // Return batch async response with contexts for polling
+      // Return batch async response with contexts for polling (multiple operations in array)
       return {
         isAsync: true,
         asyncContexts: responseData.operation_ids.map((operationId: string, index: number) => ({
@@ -106,7 +102,7 @@ const action: ActionDefinition<Settings, Payload> = {
         })),
         message: `Batch operations submitted: ${responseData.operation_ids.join(', ')}`,
         status: 202
-      } as BatchAsyncActionResponseType
+      } as AsyncActionResponseType
     }
 
     // Return regular response for synchronous batch operations
@@ -114,70 +110,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   poll: async (request, { settings, asyncContext }) => {
-    if (!asyncContext?.operation_id) {
-      const pollResponse: AsyncPollResponseType = {
-        status: 'failed',
-        error: {
-          code: 'MISSING_CONTEXT',
-          message: 'Operation ID not found in async context'
-        },
-        shouldContinuePolling: false
-      }
-      return pollResponse
-    }
-
-    // Poll the operation status
-    const response = await request(`${settings.endpoint}/operations/${asyncContext.operation_id}`, {
-      method: 'get'
-    })
-
-    const responseData = response.data as any
-    const operationStatus = responseData?.status
-    const progress = responseData?.progress || 0
-
-    switch (operationStatus) {
-      case 'pending':
-      case 'processing':
-        return {
-          status: 'pending',
-          progress,
-          message: `Operation ${asyncContext.operation_id} is ${operationStatus}`,
-          shouldContinuePolling: true
-        } as AsyncPollResponseType
-
-      case 'completed':
-        return {
-          status: 'completed',
-          progress: 100,
-          message: `Operation ${asyncContext.operation_id} completed successfully`,
-          result: responseData?.result || {},
-          shouldContinuePolling: false
-        } as AsyncPollResponseType
-
-      case 'failed':
-        return {
-          status: 'failed',
-          error: {
-            code: responseData?.error_code || 'OPERATION_FAILED',
-            message: responseData?.error_message || 'Operation failed'
-          },
-          shouldContinuePolling: false
-        } as AsyncPollResponseType
-
-      default:
-        return {
-          status: 'failed',
-          error: {
-            code: 'UNKNOWN_STATUS',
-            message: `Unknown operation status: ${operationStatus}`
-          },
-          shouldContinuePolling: false
-        } as AsyncPollResponseType
-    }
-  },
-
-  pollBatch: async (request, { settings, asyncContext }) => {
-    // asyncContext should contain an array of operation contexts
+    // asyncContext.asyncContexts contains array of operation contexts (single element for individual operations, multiple for batch)
     const asyncContexts = (asyncContext as any)?.asyncContexts || []
 
     if (!asyncContexts || asyncContexts.length === 0) {
@@ -185,12 +118,12 @@ const action: ActionDefinition<Settings, Payload> = {
         results: [],
         overallStatus: 'failed',
         shouldContinuePolling: false,
-        message: 'No async contexts found for batch polling'
-      } as BatchAsyncPollResponseType
+        message: 'No async contexts found for polling'
+      } as AsyncPollResponseType
     }
 
-    // Poll each operation in the batch
-    const results: AsyncPollResponseType[] = []
+    // Poll each operation
+    const results = []
 
     for (const context of asyncContexts) {
       if (!context?.operation_id) {
@@ -200,7 +133,8 @@ const action: ActionDefinition<Settings, Payload> = {
             code: 'MISSING_CONTEXT',
             message: 'Operation ID not found in async context'
           },
-          shouldContinuePolling: false
+          shouldContinuePolling: false,
+          context
         })
         continue
       }
@@ -222,7 +156,8 @@ const action: ActionDefinition<Settings, Payload> = {
               status: 'pending',
               progress,
               message: `Operation ${context.operation_id} is ${operationStatus}`,
-              shouldContinuePolling: true
+              shouldContinuePolling: true,
+              context
             })
             break
 
@@ -232,7 +167,8 @@ const action: ActionDefinition<Settings, Payload> = {
               progress: 100,
               message: `Operation ${context.operation_id} completed successfully`,
               result: responseData?.result || {},
-              shouldContinuePolling: false
+              shouldContinuePolling: false,
+              context
             })
             break
 
@@ -243,7 +179,8 @@ const action: ActionDefinition<Settings, Payload> = {
                 code: responseData?.error_code || 'OPERATION_FAILED',
                 message: responseData?.error_message || 'Operation failed'
               },
-              shouldContinuePolling: false
+              shouldContinuePolling: false,
+              context
             })
             break
 
@@ -254,7 +191,8 @@ const action: ActionDefinition<Settings, Payload> = {
                 code: 'UNKNOWN_STATUS',
                 message: `Unknown operation status: ${operationStatus}`
               },
-              shouldContinuePolling: false
+              shouldContinuePolling: false,
+              context
             })
         }
       } catch (error) {
@@ -264,7 +202,8 @@ const action: ActionDefinition<Settings, Payload> = {
             code: 'POLLING_ERROR',
             message: `Failed to poll operation ${context.operation_id}: ${error}`
           },
-          shouldContinuePolling: false
+          shouldContinuePolling: false,
+          context
         })
       }
     }
@@ -289,8 +228,11 @@ const action: ActionDefinition<Settings, Payload> = {
       results,
       overallStatus,
       shouldContinuePolling: pendingCount > 0,
-      message: `Batch status: ${completedCount} completed, ${failedCount} failed, ${pendingCount} pending`
-    } as BatchAsyncPollResponseType
+      message:
+        results.length === 1
+          ? results[0].message
+          : `${results.length} operations: ${completedCount} completed, ${failedCount} failed, ${pendingCount} pending`
+    } as AsyncPollResponseType
   }
 }
 

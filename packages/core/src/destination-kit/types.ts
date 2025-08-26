@@ -403,27 +403,16 @@ export type ActionDestinationErrorResponseType = {
 export type AsyncActionResponseType = {
   /** Indicates this is an async operation */
   isAsync: true
-  /** Context data to be used for polling operations */
-  asyncContext: JSONLikeObject
-  /** Optional message about the async operation */
-  message?: string
-  /** Initial status code */
-  status?: number
-}
-
-export type BatchAsyncActionResponseType = {
-  /** Indicates this is a batch async operation */
-  isAsync: true
-  /** Array of context data for each operation */
+  /** Array of context data for polling operations - single element for individual operations, multiple for batch */
   asyncContexts: JSONLikeObject[]
-  /** Optional message about the async operations */
+  /** Optional message about the async operation(s) */
   message?: string
   /** Initial status code */
   status?: number
 }
 
-export type AsyncPollResponseType = {
-  /** The current status of the async operation */
+export type AsyncOperationResult = {
+  /** The current status of this operation */
   status: 'pending' | 'completed' | 'failed'
   /** Progress indicator (0-100) */
   progress?: number
@@ -436,13 +425,15 @@ export type AsyncPollResponseType = {
     code: string
     message: string
   }
-  /** Whether polling should continue */
+  /** Whether this operation should continue polling */
   shouldContinuePolling: boolean
+  /** Original context for this operation */
+  context?: JSONLikeObject
 }
 
-export type BatchAsyncPollResponseType = {
-  /** Array of poll results for each operation */
-  results: AsyncPollResponseType[]
+export type AsyncPollResponseType = {
+  /** Array of operation results - single element for individual operations, multiple for batch */
+  results: AsyncOperationResult[]
   /** Overall status - completed when all operations are done */
   overallStatus: 'pending' | 'completed' | 'failed' | 'partial'
   /** Whether any operations should continue polling */

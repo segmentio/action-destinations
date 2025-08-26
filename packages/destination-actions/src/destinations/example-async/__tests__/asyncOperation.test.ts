@@ -138,8 +138,97 @@ describe('Example Async Destination', () => {
       })
     })
 
+    it('should poll single operation using unified poll method', async () => {
+      const mockRequest = jest.fn().mockResolvedValue({
+        status: 200,
+        data: {
+          status: 'completed',
+          progress: 100,
+          result: { processed_records: 42 }
+        }
+      })
+
+      const settings = {
+        endpoint: 'https://api.example.com',
+        api_key: 'test-key'
+      }
+
+      const asyncContext = {
+        asyncContexts: [
+          {
+            operation_id: 'op_12345',
+            user_id: 'test-user-123',
+            operation_type: 'process_data'
+          }
+        ]
+      }
+
+      const result = await AsyncOperationAction.poll!(mockRequest, { settings, asyncContext })
+
+      expect(mockRequest).toHaveBeenCalledWith('https://api.example.com/operations/op_12345', {
+        method: 'get'
+      })
+
+      expect(result).toEqual({
+        results: [
+          {
+            status: 'completed',
+            progress: 100,
+            message: 'Operation op_12345 completed successfully',
+            result: { processed_records: 42 },
+            shouldContinuePolling: false,
+            context: {
+              operation_id: 'op_12345',
+              user_id: 'test-user-123',
+              operation_type: 'process_data'
+            }
+          }
+        ],
+        overallStatus: 'completed',
+        shouldContinuePolling: false,
+        message: 'Operation op_12345 completed successfully'
+      })
+    })
+
+    it('should poll multiple operations using unified poll method', async () => {
+      const mockRequest = jest
+        .fn()
+        .mockResolvedValueOnce({
+          status: 200,
+          data: { status: 'completed', progress: 100, result: { records: 10 } }
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          data: { status: 'pending', progress: 50 }
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          data: { status: 'failed', error_code: 'TIMEOUT', error_message: 'Operation timed out' }
+        })
+
+      const settings = {
+        endpoint: 'https://api.example.com',
+        api_key: 'test-key'
+      }
+
+      const asyncContext = {
+        asyncContexts: [
+          { operation_id: 'op_1', user_id: 'user-1', batch_index: 0 },
+          { operation_id: 'op_2', user_id: 'user-2', batch_index: 1 },
+          { operation_id: 'op_3', user_id: 'user-3', batch_index: 2 }
+        ]
+      }
+
+      const result = await AsyncOperationAction.poll!(mockRequest, { settings, asyncContext })
+
+      expect(mockRequest).toHaveBeenCalledTimes(3)
+      expect(result.results).toHaveLength(3)
+      expect(result.overallStatus).toBe('pending') // Because one is still pending
+      expect(result.shouldContinuePolling).toBe(true)
+      expect(result.message).toBe('3 operations: 1 completed, 1 failed, 1 pending')
+    })
+
     // TODO: Add proper async response testing when test framework supports it
     // The async response handling is implemented but not easily testable with current framework
-    // Poll functionality would be tested through integration tests or by calling executePoll/executePollBatch directly
   })
 })
