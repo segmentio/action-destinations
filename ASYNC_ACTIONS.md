@@ -47,11 +47,35 @@ export type AsyncPollResponseType = {
   /** Whether polling should continue */
   shouldContinuePolling: boolean
 }
+
+// Response type for batch async operations
+export type BatchAsyncActionResponseType = {
+  /** Indicates this is a batch async operation */
+  isAsync: true
+  /** Array of context data for each operation */
+  asyncContexts: JSONLikeObject[]
+  /** Optional message about the async operations */
+  message?: string
+  /** Initial status code */
+  status?: number
+}
+
+// Response type for batch polling operations
+export type BatchAsyncPollResponseType = {
+  /** Array of poll results for each operation */
+  results: AsyncPollResponseType[]
+  /** Overall status - completed when all operations are done */
+  overallStatus: 'pending' | 'completed' | 'failed' | 'partial'
+  /** Whether any operations should continue polling */
+  shouldContinuePolling: boolean
+  /** Summary message */
+  message?: string
+}
 ```
 
 ### Action Interface Changes
 
-The `ActionDefinition` interface now supports an optional `poll` method:
+The `ActionDefinition` interface now supports optional `poll` and `pollBatch` methods:
 
 ```typescript
 interface ActionDefinition<Settings, Payload, AudienceSettings> {
@@ -59,6 +83,9 @@ interface ActionDefinition<Settings, Payload, AudienceSettings> {
 
   /** The operation to poll the status of an async operation */
   poll?: RequestFn<Settings, Payload, AsyncPollResponseType, AudienceSettings>
+
+  /** The operation to poll the status of multiple async operations from a batch */
+  pollBatch?: RequestFn<Settings, Payload[], BatchAsyncPollResponseType, AudienceSettings>
 }
 ```
 
@@ -72,6 +99,75 @@ interface ExecuteInput<Settings, Payload, AudienceSettings> {
 
   /** Async context data for polling operations */
   readonly asyncContext?: JSONLikeObject
+}
+```
+
+## Key Features
+
+### State Context Integration
+
+Async actions integrate with the existing `stateContext` mechanism for persisting data between method calls:
+
+```typescript
+perform: async (request, { settings, payload, stateContext }) => {
+  // Submit operation and store context in state
+  const response = await request(`${settings.endpoint}/operations`, {
+    method: 'post',
+    json: payload
+  })
+
+  if (response.data?.status === 'accepted' && response.data?.operation_id) {
+    // Store operation context in state for later retrieval
+    if (stateContext && stateContext.setResponseContext) {
+      stateContext.setResponseContext('operation_id', response.data.operation_id, { hour: 24 })
+      stateContext.setResponseContext('user_id', payload.user_id, { hour: 24 })
+    }
+
+    return {
+      isAsync: true,
+      asyncContext: {
+        operation_id: response.data.operation_id,
+        user_id: payload.user_id
+      },
+      message: `Operation ${response.data.operation_id} submitted`,
+      status: 202
+    }
+  }
+
+  return response
+}
+```
+
+### Batch Async Operations
+
+Actions can handle batch operations that return multiple operation IDs:
+
+```typescript
+performBatch: async (request, { settings, payload, stateContext }) => {
+  const response = await request(`${settings.endpoint}/operations/batch`, {
+    method: 'post',
+    json: { operations: payload }
+  })
+
+  if (response.data?.status === 'accepted' && response.data?.operation_ids) {
+    // Store batch context
+    if (stateContext && stateContext.setResponseContext) {
+      stateContext.setResponseContext('batch_operation_ids', JSON.stringify(response.data.operation_ids), { hour: 24 })
+    }
+
+    return {
+      isAsync: true,
+      asyncContexts: response.data.operation_ids.map((operationId: string, index: number) => ({
+        operation_id: operationId,
+        user_id: payload[index]?.user_id,
+        batch_index: index
+      })),
+      message: `Batch operations submitted: ${response.data.operation_ids.join(', ')}`,
+      status: 202
+    } as BatchAsyncActionResponseType
+  }
+
+  return response
 }
 ```
 
@@ -159,6 +255,70 @@ const action: ActionDefinition<Settings, Payload> = {
           },
           shouldContinuePolling: false
         }
+    }
+  },
+
+  pollBatch: async (request, { settings, asyncContext }) => {
+    const asyncContexts = (asyncContext as any)?.asyncContexts || []
+
+    if (!asyncContexts || asyncContexts.length === 0) {
+      return {
+        results: [],
+        overallStatus: 'failed',
+        shouldContinuePolling: false,
+        message: 'No async contexts found for batch polling'
+      }
+    }
+
+    // Poll each operation in the batch
+    const results = []
+    for (const context of asyncContexts) {
+      try {
+        const response = await request(`${settings.endpoint}/operations/${context.operation_id}`)
+        const operationStatus = response.data?.status
+
+        switch (operationStatus) {
+          case 'pending':
+          case 'processing':
+            results.push({
+              status: 'pending',
+              progress: response.data?.progress || 0,
+              message: `Operation ${context.operation_id} is ${operationStatus}`,
+              shouldContinuePolling: true
+            })
+            break
+          // ... handle other statuses
+        }
+      } catch (error) {
+        results.push({
+          status: 'failed',
+          error: { code: 'POLLING_ERROR', message: `Failed to poll: ${error}` },
+          shouldContinuePolling: false
+        })
+      }
+    }
+
+    // Determine overall status
+    const pendingCount = results.filter((r) => r.status === 'pending').length
+    const completedCount = results.filter((r) => r.status === 'completed').length
+    const failedCount = results.filter((r) => r.status === 'failed').length
+
+    let overallStatus
+    if (completedCount === results.length) {
+      overallStatus = 'completed'
+    } else if (failedCount === results.length) {
+      overallStatus = 'failed'
+    } else if (pendingCount > 0) {
+      overallStatus = 'pending'
+    } else {
+      overallStatus = 'partial'
+    }
+
+    return {
+      results,
+      overallStatus,
+      shouldContinuePolling: pendingCount > 0,
+      message: `Batch status: ${completedCount} completed, ${failedCount} failed, ${pendingCount} pending`
     }
   }
 }

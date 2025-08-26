@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
+import AsyncOperationAction from '../asyncOperation'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -84,8 +85,61 @@ describe('Example Async Destination', () => {
       expect(responses[0].data.operation_id).toBe('op_12345')
     })
 
+    it('should handle batch async operations', async () => {
+      const settings = {
+        endpoint: 'https://api.example.com',
+        api_key: 'test-key'
+      }
+
+      nock('https://api.example.com')
+        .post('/operations/batch')
+        .reply(202, {
+          status: 'accepted',
+          operation_ids: ['op_1', 'op_2', 'op_3']
+        })
+
+      // Test batch operations by calling performBatch directly
+      const mockRequest = jest.fn().mockResolvedValue({
+        status: 202,
+        data: {
+          status: 'accepted',
+          operation_ids: ['op_1', 'op_2', 'op_3']
+        }
+      })
+
+      const payload = [
+        { user_id: 'user-1', operation_type: 'process_data', data: { name: 'User 1' } },
+        { user_id: 'user-2', operation_type: 'process_data', data: { name: 'User 2' } },
+        { user_id: 'user-3', operation_type: 'process_data', data: { name: 'User 3' } }
+      ]
+
+      const result = await AsyncOperationAction.performBatch!(mockRequest, { settings, payload })
+
+      expect(mockRequest).toHaveBeenCalledWith('https://api.example.com/operations/batch', {
+        method: 'post',
+        json: {
+          operations: [
+            { user_id: 'user-1', operation_type: 'process_data', data: { name: 'User 1' } },
+            { user_id: 'user-2', operation_type: 'process_data', data: { name: 'User 2' } },
+            { user_id: 'user-3', operation_type: 'process_data', data: { name: 'User 3' } }
+          ]
+        }
+      })
+
+      expect(result).toEqual({
+        isAsync: true,
+        asyncContexts: [
+          { operation_id: 'op_1', user_id: 'user-1', operation_type: 'process_data', batch_index: 0 },
+          { operation_id: 'op_2', user_id: 'user-2', operation_type: 'process_data', batch_index: 1 },
+          { operation_id: 'op_3', user_id: 'user-3', operation_type: 'process_data', batch_index: 2 }
+        ],
+        message: 'Batch operations submitted: op_1, op_2, op_3',
+        status: 202
+      })
+    })
+
     // TODO: Add proper async response testing when test framework supports it
     // The async response handling is implemented but not easily testable with current framework
-    // Poll functionality would be tested through integration tests or by calling executePoll directly
+    // Poll functionality would be tested through integration tests or by calling executePoll/executePollBatch directly
   })
 })

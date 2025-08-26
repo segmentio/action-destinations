@@ -31,7 +31,9 @@ import type {
   DynamicFieldResponse,
   ResultMultiStatusNode,
   AsyncActionResponseType,
-  AsyncPollResponseType
+  AsyncPollResponseType,
+  BatchAsyncActionResponseType,
+  BatchAsyncPollResponseType
 } from './types'
 import type { AllRequestOptions } from '../request-client'
 import { ErrorCodes, IntegrationError, InvalidAuthenticationError, MultiStatusErrorReporter } from '../errors'
@@ -50,7 +52,9 @@ export type {
   RequestFn,
   Result,
   AsyncActionResponseType,
-  AsyncPollResponseType
+  AsyncPollResponseType,
+  BatchAsyncActionResponseType,
+  BatchAsyncPollResponseType
 }
 export { AsyncActionResponse, AsyncPollResponse }
 export { hookTypeStrings }
@@ -754,6 +758,53 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     return action.executePoll({
       mapping,
       data: event as unknown as InputData,
+      settings,
+      audienceSettings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      engageDestinationCache,
+      transactionContext,
+      stateContext,
+      subscriptionMetadata,
+      signal,
+      asyncContext
+    })
+  }
+
+  public async executePollBatch(
+    actionSlug: string,
+    {
+      events,
+      mapping,
+      subscriptionMetadata,
+      settings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      engageDestinationCache,
+      transactionContext,
+      stateContext,
+      signal,
+      asyncContext
+    }: BatchEventInput<Settings> & { asyncContext?: JSONLikeObject }
+  ): Promise<BatchAsyncPollResponseType> {
+    const action = this.actions[actionSlug]
+    if (!action) {
+      throw new IntegrationError(`Action ${actionSlug} not found`, 'NotImplemented', 404)
+    }
+
+    let audienceSettings = {} as AudienceSettings
+    // All events should be batched on the same audience
+    if (events[0].context?.personas) {
+      audienceSettings = events[0].context?.personas?.audience_settings as AudienceSettings
+    }
+
+    return action.executePollBatch({
+      mapping,
+      data: events as unknown as InputData[],
       settings,
       audienceSettings,
       auth,

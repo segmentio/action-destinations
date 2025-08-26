@@ -18,7 +18,8 @@ import type {
   ActionDestinationErrorResponseType,
   ResultMultiStatusNode,
   AsyncActionResponseType,
-  AsyncPollResponseType
+  AsyncPollResponseType,
+  BatchAsyncPollResponseType
 } from './types'
 import { syncModeTypes } from './types'
 import { HTTPError, NormalizedOptions } from '../request-client'
@@ -144,6 +145,9 @@ export interface ActionDefinition<
   /** The operation to poll the status of an async operation */
   poll?: RequestFn<Settings, Payload, AsyncPollResponseType, AudienceSettings>
 
+  /** The operation to poll the status of multiple async operations from a batch */
+  pollBatch?: RequestFn<Settings, Payload[], BatchAsyncPollResponseType, AudienceSettings>
+
   /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
    * destination using the provided inputs and return a response. The response may then optionally be stored
    * in the mapping for later use in the action.
@@ -267,6 +271,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   readonly hasBatchSupport: boolean
   readonly hasHookSupport: boolean
   readonly hasPollSupport: boolean
+  readonly hasBatchPollSupport: boolean
   // Payloads may be any type so we use `any` explicitly here.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extendRequest: RequestExtension<Settings, any> | undefined
@@ -285,6 +290,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     this.hasBatchSupport = typeof definition.performBatch === 'function'
     this.hasHookSupport = definition.hooks !== undefined
     this.hasPollSupport = typeof definition.poll === 'function'
+    this.hasBatchPollSupport = typeof definition.pollBatch === 'function'
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
       this.schema = fieldsToJsonSchema(definition.fields)
@@ -646,6 +652,62 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     const pollResponse = await this.definition.poll!(requestClient, dataBundle)
 
     return pollResponse
+  }
+
+  async executePollBatch(
+    bundle: ExecuteBundle<Settings, InputData[] | undefined, AudienceSettings>
+  ): Promise<BatchAsyncPollResponseType> {
+    if (!this.hasBatchPollSupport) {
+      throw new IntegrationError('This action does not support batch polling operations.', 'NotImplemented', 501)
+    }
+
+    // Resolve/transform the mapping with the input data
+    let payloads = (bundle.data?.map((data) => transform(bundle.mapping, data, bundle.statsContext)) as Payload[]) || []
+
+    // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
+    payloads = payloads.map((payload) => removeEmptyValues(payload, this.schema, true)) as Payload[]
+
+    // Validate each resolved payload against the schema
+    if (this.schema) {
+      const schemaKey = `${this.destinationName}:${this.definition.title}:pollBatch`
+      payloads.forEach((payload, index) => {
+        validateSchema(payload, this.schema!, {
+          schemaKey: `${schemaKey}:${index}`,
+          statsContext: bundle.statsContext,
+          exempt: ['dynamicAuthSettings']
+        })
+      })
+    }
+
+    const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+    const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+
+    // Construct the data bundle to send to the pollBatch action
+    const dataBundle = {
+      rawData: bundle.data,
+      rawMapping: bundle.mapping,
+      settings: bundle.settings,
+      payload: payloads,
+      auth: bundle.auth,
+      features: bundle.features,
+      statsContext: bundle.statsContext,
+      logger: bundle.logger,
+      engageDestinationCache: bundle.engageDestinationCache,
+      transactionContext: bundle.transactionContext,
+      stateContext: bundle.stateContext,
+      audienceSettings: bundle.audienceSettings,
+      syncMode: isSyncMode(syncMode) ? syncMode : undefined,
+      matchingKey: matchingKey ? String(matchingKey) : undefined,
+      subscriptionMetadata: bundle.subscriptionMetadata,
+      signal: bundle?.signal,
+      asyncContext: bundle.asyncContext
+    }
+
+    // Construct the request client and perform the batch poll operation
+    const requestClient = this.createRequestClient(dataBundle)
+    const pollBatchResponse = await this.definition.pollBatch!(requestClient, dataBundle)
+
+    return pollBatchResponse
   }
 
   /*
