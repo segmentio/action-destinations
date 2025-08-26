@@ -90,13 +90,14 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
     userToken: {
       type: 'string',
       required: true,
-      description: 'The ID associated with the user.',
+      description:
+        'The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token',
       label: 'User Token',
       default: {
         '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
+          exists: { '@path': '$.anonymousId' },
+          then: { '@path': '$.anonymousId' },
+          else: { '@path': '$.userId' }
         }
       }
     },
