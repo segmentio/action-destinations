@@ -59,8 +59,9 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  onDelete: async (request, { payload }) => {
+  onDelete: async (request, { payload, settings }) => {
     const userId = payload.userId
+    const { apiKey } = settings
     const formattedExternalIds = `["${userId}"]`
     const syncId = sha256hash(String(userId))
 

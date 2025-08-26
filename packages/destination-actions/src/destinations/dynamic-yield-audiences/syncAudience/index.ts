@@ -2,6 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getUpsertURL, hashAndEncode, getDataCenter, getSectionId } from '../helpers'
+import { DynamicYieldRequestJSON } from './types'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync Audience',
@@ -128,8 +129,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     const audienceName = audienceSettings?.audience_name
     const segIdType = audienceSettings?.identifier_type ?? ''
     const normalizedsegIdType = segIdType.toLowerCase().replace(/_/g, '')
-    const dyIdType = audienceSettings?.dy_identifier_type ?? ''
-
+    const dyIdType = audienceSettings?.dy_identifier_type
     const audienceValue = payload.traits_or_props[payload.segment_audience_key]
 
     let primaryIdentifier: string | undefined
@@ -158,7 +158,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 
     const URL = getUpsertURL(dataCenter)
 
-    const json = {
+    const json: DynamicYieldRequestJSON = {
       type: 'audience_membership_change_request',
       id: payload.message_id,
       timestamp_ms: new Date(payload.timestamp).getTime(),
@@ -180,7 +180,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
           ],
           audiences: [
             {
-              audience_id: Number(external_audience_id), // must be sent as an integer
+              audience_id: Number(external_audience_id), 
               audience_name: audienceName,
               action: audienceValue ? 'add' : 'delete'
             }
