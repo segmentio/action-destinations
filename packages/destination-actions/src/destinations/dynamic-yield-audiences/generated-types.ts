@@ -22,7 +22,7 @@ export interface AudienceSettings {
    */
   identifier_type: string
   /**
-   * The name of the identifier in Dynamic Yield by Mastercard. You can leave this field empty if the Segment identifier name is the same as the Dynamic Yield by Mastercard identifier name.
+   * The name of the identifier in Dynamic Yield by Mastercard. If you leave this empty, Segment will assume that the name of the identifier in Dynamic Yield by Mastercard matches the value specified in the "Segment Identifier Type" field.
    */
   dy_identifier_type?: string
 }
