@@ -84,6 +84,8 @@ export interface ExecuteInput<
   readonly stateContext?: StateContext
   readonly subscriptionMetadata?: SubscriptionMetadata
   readonly signal?: AbortSignal
+  /** Async context data for polling operations */
+  readonly asyncContext?: JSONLikeObject
 }
 
 export interface DynamicFieldResponse {
@@ -396,6 +398,35 @@ export type ActionDestinationErrorResponseType = {
   errormessage: string
   sent?: JSONLikeObject | string
   body?: JSONLikeObject | string
+}
+
+export type AsyncActionResponseType = {
+  /** Indicates this is an async operation */
+  isAsync: true
+  /** Context data to be used for polling operations */
+  asyncContext: JSONLikeObject
+  /** Optional message about the async operation */
+  message?: string
+  /** Initial status code */
+  status?: number
+}
+
+export type AsyncPollResponseType = {
+  /** The current status of the async operation */
+  status: 'pending' | 'completed' | 'failed'
+  /** Progress indicator (0-100) */
+  progress?: number
+  /** Message about current state */
+  message?: string
+  /** Final result data when status is 'completed' */
+  result?: JSONLikeObject
+  /** Error information when status is 'failed' */
+  error?: {
+    code: string
+    message: string
+  }
+  /** Whether polling should continue */
+  shouldContinuePolling: boolean
 }
 
 export type ResultMultiStatusNode =

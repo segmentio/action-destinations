@@ -10,7 +10,9 @@ import {
   ActionHookResponse,
   BaseActionDefinition,
   RequestFn,
-  ExecuteDynamicFieldInput
+  ExecuteDynamicFieldInput,
+  AsyncActionResponse,
+  AsyncPollResponse
 } from './action'
 import { time, duration } from '../time'
 import { JSONLikeObject, JSONObject, JSONValue } from '../json-object'
@@ -27,7 +29,9 @@ import type {
   Deletion,
   DeletionPayload,
   DynamicFieldResponse,
-  ResultMultiStatusNode
+  ResultMultiStatusNode,
+  AsyncActionResponseType,
+  AsyncPollResponseType
 } from './types'
 import type { AllRequestOptions } from '../request-client'
 import { ErrorCodes, IntegrationError, InvalidAuthenticationError, MultiStatusErrorReporter } from '../errors'
@@ -44,8 +48,11 @@ export type {
   ActionHookType,
   ExecuteInput,
   RequestFn,
-  Result
+  Result,
+  AsyncActionResponseType,
+  AsyncPollResponseType
 }
+export { AsyncActionResponse, AsyncPollResponse }
 export { hookTypeStrings }
 export type { MinimalInputField }
 export { fieldsToJsonSchema }
@@ -714,6 +721,52 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     return action.executeDynamicField(fieldKey, data, dynamicFn)
+  }
+
+  public async executePoll(
+    actionSlug: string,
+    {
+      event,
+      mapping,
+      subscriptionMetadata,
+      settings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      engageDestinationCache,
+      transactionContext,
+      stateContext,
+      signal,
+      asyncContext
+    }: EventInput<Settings> & { asyncContext?: JSONLikeObject }
+  ): Promise<AsyncPollResponseType> {
+    const action = this.actions[actionSlug]
+    if (!action) {
+      throw new IntegrationError(`Action ${actionSlug} not found`, 'NotImplemented', 404)
+    }
+
+    let audienceSettings = {} as AudienceSettings
+    if (event.context?.personas) {
+      audienceSettings = event.context?.personas?.audience_settings as AudienceSettings
+    }
+
+    return action.executePoll({
+      mapping,
+      data: event as unknown as InputData,
+      settings,
+      audienceSettings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      engageDestinationCache,
+      transactionContext,
+      stateContext,
+      subscriptionMetadata,
+      signal,
+      asyncContext
+    })
   }
 
   private async onSubscription(
