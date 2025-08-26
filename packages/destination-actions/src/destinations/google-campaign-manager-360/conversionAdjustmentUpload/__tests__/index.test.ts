@@ -937,5 +937,249 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         })
       ).rejects.toThrowError()
     })
+
+    it('throws an error when a 200 response with errors returned', async () => {
+      const event = createTestEvent({
+        timestamp: '2023-01-01T00:00:00.000Z', // old timestamp to force a 200 response with errors
+        event: 'Test Event',
+        context: {
+          traits: {
+            email: 'daffy@warnerbros.com',
+            phone: '1234567890',
+            firstName: 'Daffy',
+            lastName: 'Duck',
+            streetAddress: '123 Daffy St',
+            city: 'Burbank',
+            state: 'CA',
+            postalCode: '98765',
+            countryCode: 'US'
+          }
+        },
+        properties: {
+          ordinal: '1',
+          quantity: '2',
+          value: '100',
+          gclid: '54321',
+          limitAdTracking: true,
+          childDirectedTreatment: true,
+          nonPersonalizedAd: true,
+          treatmentForUnderage: true
+        }
+      })
+
+      delete event.userId
+
+      const resp200WithErrors = {
+        hasFailures: true,
+        status: [
+          {
+            conversion: {
+              floodlightConfigurationId: '7327628',
+              floodlightActivityId: '11095382',
+              timestampMicros: '1752650157000',
+              value: 1,
+              quantity: '1',
+              ordinal: '123455',
+              matchId: 'b5725c01-3f29-43c4-a0d7-afdff53578bb',
+              kind: 'dfareporting#conversion'
+            },
+            errors: [
+              {
+                code: 'INVALID_ARGUMENT',
+                message: 'Conversions over 28 days old may not be updated.',
+                kind: 'dfareporting#conversionError'
+              }
+            ],
+            kind: 'dfareporting#conversionStatus'
+          }
+        ],
+        kind: 'dfareporting#conversionsBatchUpdateResponse'
+      }
+
+      nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        .post('')
+        .reply(200, resp200WithErrors)
+
+      await expect(
+        testDestination.testAction('conversionAdjustmentUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
+            },
+            limitAdTracking: {
+              '@path': '$.properties.limitAdTracking'
+            },
+            childDirectedTreatment: {
+              '@path': '$.properties.childDirectedTreatment'
+            },
+            nonPersonalizedAd: {
+              '@path': '$.properties.nonPersonalizedAd'
+            },
+            treatmentForUnderage: {
+              '@path': '$.properties.treatmentForUnderage'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+      ).rejects.toThrowError('Conversions over 28 days old may not be updated.')
+    })
+
+    it('throws an 401 response when unauthorized', async () => {
+      const tsNow = new Date().toISOString()
+      const event = createTestEvent({
+        timestamp: tsNow,
+        event: 'Test Event',
+        context: {
+          traits: {
+            email: 'daffy@warnerbros.com',
+            phone: '1234567890',
+            firstName: 'Daffy',
+            lastName: 'Duck',
+            streetAddress: '123 Daffy St',
+            city: 'Burbank',
+            state: 'CA',
+            postalCode: '98765',
+            countryCode: 'US'
+          }
+        },
+        properties: {
+          ordinal: '1',
+          quantity: '2',
+          value: '100',
+          gclid: '54321',
+          limitAdTracking: true,
+          childDirectedTreatment: true,
+          nonPersonalizedAd: true,
+          treatmentForUnderage: true
+        }
+      })
+
+      delete event.userId
+
+      nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        .post('')
+        .reply(401)
+
+      await expect(
+        testDestination.testAction('conversionAdjustmentUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
+            },
+            limitAdTracking: {
+              '@path': '$.properties.limitAdTracking'
+            },
+            childDirectedTreatment: {
+              '@path': '$.properties.childDirectedTreatment'
+            },
+            nonPersonalizedAd: {
+              '@path': '$.properties.nonPersonalizedAd'
+            },
+            treatmentForUnderage: {
+              '@path': '$.properties.treatmentForUnderage'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+      ).rejects.toThrowError('Unauthorized')
+    })
   })
 })

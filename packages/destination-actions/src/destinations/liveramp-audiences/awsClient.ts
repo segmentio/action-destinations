@@ -13,6 +13,7 @@ interface SendToAWSRequest {
   uploadType: 's3' | 'sftp'
   filename: string
   fileContents: Buffer
+  gzipCompressFile?: boolean
   sftpInfo?: {
     sftpUsername?: string
     sftpPassword?: string
@@ -31,6 +32,7 @@ interface LRMetaPayload {
   audienceKey: string
   uploadType: 's3' | 'sftp'
   filename: string
+  gzipCompressFile?: boolean
   sftpInfo?: {
     sftpHost: string
     sftpPort: number
@@ -76,7 +78,8 @@ export const sendEventToAWS = async (request: RequestClient, input: SendToAWSReq
   const metadata: LRMetaPayload = {
     audienceKey: input.audienceComputeId || '',
     uploadType: input.uploadType,
-    filename: input.filename
+    filename: input.filename,
+    gzipCompressFile: input.gzipCompressFile
   }
 
   if (input.uploadType === 'sftp') {

@@ -64,7 +64,7 @@ describe('eCommerce API - Product View, Add to Cart, Purchase', () => {
           {
             productId: 'prod_1',
             productVariantId: 'variant_1',
-            price: [19.99, 'USD'],
+            price: [{ value: 19.99, currency: 'USD' }],
             productImage: 'https://example.com/image.png',
             productUrl: 'https://example.com/product/prod_1',
             name: 'Test Product',
@@ -122,7 +122,7 @@ describe('eCommerce API - Product View, Add to Cart, Purchase', () => {
           {
             productId: 'prod_1',
             productVariantId: 'variant_1',
-            price: [19.99, 'USD'],
+            price: [{ value: 19.99, currency: 'USD' }],
             productImage: 'https://example.com/image.png',
             productUrl: 'https://example.com/product/prod_1',
             name: 'Test Product',
@@ -180,7 +180,7 @@ describe('eCommerce API - Product View, Add to Cart, Purchase', () => {
           {
             productId: 'prod_1',
             productVariantId: 'variant_1',
-            price: [19.99, 'USD'],
+            price: [{ value: 19.99, currency: 'USD' }],
             productImage: 'https://example.com/image.png',
             productUrl: 'https://example.com/product/prod_1',
             name: 'Test Product',

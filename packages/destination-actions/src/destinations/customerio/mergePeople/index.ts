@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { sendSingle, sendBatch, resolveIdentifiers } from '../utils'
+import { eventProperties } from '../customerio-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Merge People',
@@ -25,7 +26,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.previousId'
       }
-    }
+    },
+    ...eventProperties
   },
 
   performBatch: (request, { payload: payloads, settings }) => {

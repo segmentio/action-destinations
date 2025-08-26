@@ -177,6 +177,7 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
       value: data.payload.value,
       currency: data.payload.currency,
       userToken: data.payload.userToken,
+      authenticatedUserToken: data.payload.authenticatedUserToken,
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
     const insightPayload = { events: [insightEvent] }

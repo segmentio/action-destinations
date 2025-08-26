@@ -11,6 +11,7 @@ import { AlgoliaApiPermissions, algoliaApiPermissionsUrl } from './algolia-insig
 import { addToCartPreset, productAddedEvents } from './productAddedEvents'
 
 import { productListFilteredEvents, productListFilteredPresets } from './productListFilteredEvents'
+import { productListViewedEvents, productListViewedPresets } from './productListViewedEvents'
 
 export const ALGOLIA_INSIGHTS_USER_AGENT = 'algolia-segment-action-destination: 0.1'
 
@@ -67,14 +68,16 @@ const destination: DestinationDefinition<Settings> = {
     purchasePreset,
     addToCartPreset,
     productViewedPresets,
-    productListFilteredPresets
+    productListFilteredPresets,
+    productListViewedPresets
   ],
   actions: {
     productClickedEvents,
     conversionEvents,
     productViewedEvents,
     productAddedEvents,
-    productListFilteredEvents
+    productListFilteredEvents,
+    productListViewedEvents
   }
 }
 
