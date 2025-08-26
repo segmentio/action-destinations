@@ -14,24 +14,24 @@ Previously, all actions in destination frameworks were synchronous - they would 
 
 ### Core Types
 
-The async action support introduces several new types:
+The async action support introduces new types using a unified array structure that handles both single and batch operations seamlessly:
 
 ```typescript
-// Response type for async operations
+// Response type for async operations (unified for single and batch)
 export type AsyncActionResponseType = {
   /** Indicates this is an async operation */
   isAsync: true
-  /** Context data to be used for polling operations */
-  asyncContext: JSONLikeObject
+  /** Array of context data for polling operations - 1 element for single, N for batch */
+  asyncContexts: JSONLikeObject[]
   /** Optional message about the async operation */
   message?: string
   /** Initial status code */
   status?: number
 }
 
-// Response type for polling operations
-export type AsyncPollResponseType = {
-  /** The current status of the async operation */
+// Individual operation result
+export type AsyncOperationResult = {
+  /** The current status of this operation */
   status: 'pending' | 'completed' | 'failed'
   /** Progress indicator (0-100) */
   progress?: number
@@ -40,30 +40,17 @@ export type AsyncPollResponseType = {
   /** Final result data when status is 'completed' */
   result?: JSONLikeObject
   /** Error information when status is 'failed' */
-  error?: {
-    code: string
-    message: string
-  }
-  /** Whether polling should continue */
+  error?: { code: string; message: string }
+  /** Whether this operation should continue polling */
   shouldContinuePolling: boolean
+  /** The original context for this operation */
+  context?: JSONLikeObject
 }
 
-// Response type for batch async operations
-export type BatchAsyncActionResponseType = {
-  /** Indicates this is a batch async operation */
-  isAsync: true
-  /** Array of context data for each operation */
-  asyncContexts: JSONLikeObject[]
-  /** Optional message about the async operations */
-  message?: string
-  /** Initial status code */
-  status?: number
-}
-
-// Response type for batch polling operations
-export type BatchAsyncPollResponseType = {
+// Response type for polling operations (unified for single and batch)
+export type AsyncPollResponseType = {
   /** Array of poll results for each operation */
-  results: AsyncPollResponseType[]
+  results: AsyncOperationResult[]
   /** Overall status - completed when all operations are done */
   overallStatus: 'pending' | 'completed' | 'failed' | 'partial'
   /** Whether any operations should continue polling */
@@ -75,17 +62,14 @@ export type BatchAsyncPollResponseType = {
 
 ### Action Interface Changes
 
-The `ActionDefinition` interface now supports optional `poll` and `pollBatch` methods:
+The `ActionDefinition` interface now supports an optional unified `poll` method that handles both single and batch operations:
 
 ```typescript
 interface ActionDefinition<Settings, Payload, AudienceSettings> {
   // ... existing fields ...
 
-  /** The operation to poll the status of an async operation */
+  /** The operation to poll the status of async operations (handles both single and batch) */
   poll?: RequestFn<Settings, Payload, AsyncPollResponseType, AudienceSettings>
-
-  /** The operation to poll the status of multiple async operations from a batch */
-  pollBatch?: RequestFn<Settings, Payload[], BatchAsyncPollResponseType, AudienceSettings>
 }
 ```
 
@@ -125,10 +109,12 @@ perform: async (request, { settings, payload, stateContext }) => {
 
     return {
       isAsync: true,
-      asyncContext: {
-        operation_id: response.data.operation_id,
-        user_id: payload.user_id
-      },
+      asyncContexts: [
+        {
+          operation_id: response.data.operation_id,
+          user_id: payload.user_id
+        }
+      ],
       message: `Operation ${response.data.operation_id} submitted`,
       status: 202
     }
@@ -164,7 +150,7 @@ performBatch: async (request, { settings, payload, stateContext }) => {
       })),
       message: `Batch operations submitted: ${response.data.operation_ids.join(', ')}`,
       status: 202
-    } as BatchAsyncActionResponseType
+    } as AsyncActionResponseType
   }
 
   return response
@@ -194,14 +180,16 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Check if this is an async operation
     if (response.data?.status === 'accepted' && response.data?.operation_id) {
-      // Return async response with context for polling
+      // Return async response with context for polling (single operation in array)
       return {
         isAsync: true,
-        asyncContext: {
-          operation_id: response.data.operation_id,
-          user_id: payload.user_id
-          // Include any data needed for polling
-        },
+        asyncContexts: [
+          {
+            operation_id: response.data.operation_id,
+            user_id: payload.user_id
+            // Include any data needed for polling
+          }
+        ],
         message: `Operation ${response.data.operation_id} submitted successfully`,
         status: 202
       } as AsyncActionResponseType
@@ -212,96 +200,79 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   poll: async (request, { settings, asyncContext }) => {
-    if (!asyncContext?.operation_id) {
-      return {
-        status: 'failed',
-        error: {
-          code: 'MISSING_CONTEXT',
-          message: 'Operation ID not found in async context'
-        },
-        shouldContinuePolling: false
-      }
-    }
-
-    // Poll the operation status
-    const response = await request(`${settings.endpoint}/operations/${asyncContext.operation_id}`)
-    const operationStatus = response.data?.status
-
-    switch (operationStatus) {
-      case 'pending':
-      case 'processing':
-        return {
-          status: 'pending',
-          progress: response.data?.progress || 0,
-          message: `Operation is ${operationStatus}`,
-          shouldContinuePolling: true
-        }
-
-      case 'completed':
-        return {
-          status: 'completed',
-          progress: 100,
-          message: 'Operation completed successfully',
-          result: response.data?.result || {},
-          shouldContinuePolling: false
-        }
-
-      case 'failed':
-        return {
-          status: 'failed',
-          error: {
-            code: response.data?.error_code || 'OPERATION_FAILED',
-            message: response.data?.error_message || 'Operation failed'
-          },
-          shouldContinuePolling: false
-        }
-    }
-  },
-
-  pollBatch: async (request, { settings, asyncContext }) => {
-    const asyncContexts = (asyncContext as any)?.asyncContexts || []
+    // asyncContext.asyncContexts contains array of operation contexts
+    const asyncContexts = asyncContext?.asyncContexts || []
 
     if (!asyncContexts || asyncContexts.length === 0) {
       return {
         results: [],
         overallStatus: 'failed',
         shouldContinuePolling: false,
-        message: 'No async contexts found for batch polling'
+        message: 'No async contexts found for polling'
       }
     }
 
-    // Poll each operation in the batch
+    // Poll each operation in the array
     const results = []
     for (const context of asyncContexts) {
-      try {
-        const response = await request(`${settings.endpoint}/operations/${context.operation_id}`)
-        const operationStatus = response.data?.status
-
-        switch (operationStatus) {
-          case 'pending':
-          case 'processing':
-            results.push({
-              status: 'pending',
-              progress: response.data?.progress || 0,
-              message: `Operation ${context.operation_id} is ${operationStatus}`,
-              shouldContinuePolling: true
-            })
-            break
-          // ... handle other statuses
-        }
-      } catch (error) {
+      if (!context?.operation_id) {
         results.push({
           status: 'failed',
-          error: { code: 'POLLING_ERROR', message: `Failed to poll: ${error}` },
-          shouldContinuePolling: false
+          error: {
+            code: 'MISSING_CONTEXT',
+            message: 'Operation ID not found in async context'
+          },
+          shouldContinuePolling: false,
+          context
         })
+        continue
+      }
+
+      // Poll the operation status
+      const response = await request(`${settings.endpoint}/operations/${context.operation_id}`)
+      const operationStatus = response.data?.status
+
+      switch (operationStatus) {
+        case 'pending':
+        case 'processing':
+          results.push({
+            status: 'pending',
+            progress: response.data?.progress || 0,
+            message: `Operation ${context.operation_id} is ${operationStatus}`,
+            shouldContinuePolling: true,
+            context
+          })
+          break
+
+        case 'completed':
+          results.push({
+            status: 'completed',
+            progress: 100,
+            message: `Operation ${context.operation_id} completed successfully`,
+            result: response.data?.result || {},
+            shouldContinuePolling: false,
+            context
+          })
+          break
+
+        case 'failed':
+          results.push({
+            status: 'failed',
+            error: {
+              code: response.data?.error_code || 'OPERATION_FAILED',
+              message: response.data?.error_message || 'Operation failed'
+            },
+            shouldContinuePolling: false,
+            context
+          })
+          break
       }
     }
 
     // Determine overall status
-    const pendingCount = results.filter((r) => r.status === 'pending').length
     const completedCount = results.filter((r) => r.status === 'completed').length
     const failedCount = results.filter((r) => r.status === 'failed').length
+    const pendingCount = results.filter((r) => r.status === 'pending').length
 
     let overallStatus
     if (completedCount === results.length) {
@@ -318,7 +289,10 @@ const action: ActionDefinition<Settings, Payload> = {
       results,
       overallStatus,
       shouldContinuePolling: pendingCount > 0,
-      message: `Batch status: ${completedCount} completed, ${failedCount} failed, ${pendingCount} pending`
+      message:
+        results.length === 1
+          ? results[0].message
+          : `${results.length} operations: ${completedCount} completed, ${failedCount} failed, ${pendingCount} pending`
     }
   }
 }
@@ -348,8 +322,8 @@ const result = await destination.executeAction('myAction', {
 
 // Check if it's an async operation
 if (result.isAsync) {
-  const { operation_id } = result.asyncContext
-  // Store operation_id for later polling
+  const asyncContexts = result.asyncContexts
+  // Store asyncContexts for later polling (handles both single and batch)
 }
 ```
 
@@ -360,13 +334,24 @@ const pollResult = await destination.executePoll('myAction', {
   event,
   mapping,
   settings,
-  asyncContext: { operation_id: 'op_12345' }
+  asyncContext: {
+    asyncContexts: [{ operation_id: 'op_12345', user_id: 'user123' }]
+  }
 })
 
-if (pollResult.status === 'completed') {
-  console.log('Operation completed:', pollResult.result)
-} else if (pollResult.status === 'failed') {
-  console.error('Operation failed:', pollResult.error)
+// Check overall status and individual results
+if (pollResult.overallStatus === 'completed') {
+  console.log('All operations completed')
+  pollResult.results.forEach((result, index) => {
+    console.log(`Operation ${index}:`, result.result)
+  })
+} else if (pollResult.overallStatus === 'failed') {
+  console.error('Some operations failed')
+  pollResult.results.forEach((result, index) => {
+    if (result.status === 'failed') {
+      console.error(`Operation ${index} failed:`, result.error)
+    }
+  })
 } else if (pollResult.shouldContinuePolling) {
   // Schedule another poll
   setTimeout(() => poll(), 5000)
@@ -439,8 +424,8 @@ See `/packages/destination-actions/src/destinations/example-async/` for a comple
 1. **Automatic Polling:** Framework could handle polling automatically
 2. **Exponential Backoff:** Built-in retry logic with backoff
 3. **Timeout Management:** Automatic timeout handling
-4. **Batch Polling:** Support for polling multiple operations at once
-5. **Test Framework Integration:** Better support for testing async responses
+4. **Test Framework Integration:** Better support for testing async responses
+5. **Enhanced Error Recovery:** Smarter retry logic for failed operations
 
 ## Migration Guide
 

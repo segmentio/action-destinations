@@ -1,30 +1,31 @@
-# Enhanced Async Actions Implementation Summary
+# Unified Async Actions Implementation Summary
 
 ## Overview
 
-This implementation adds comprehensive async action support to Segment's destination actions framework, including full support for batch operations and proper state context integration.
+This implementation adds async action support to Segment's destination actions framework using a unified array-based approach that elegantly handles both single and batch operations with a single polling method.
 
 ## ✅ Implemented Features
 
-### Core Async Support
+### Core Async Support - Unified Design
 
-- **AsyncActionResponseType**: Single async operation response with context
-- **AsyncPollResponseType**: Polling response for single operations
-- **BatchAsyncActionResponseType**: Batch async operation response with multiple contexts
-- **BatchAsyncPollResponseType**: Batch polling response with aggregated results
+- **AsyncActionResponseType**: Unified response with `asyncContexts: JSONLikeObject[]` array
+  - Single operations: array with 1 element
+  - Batch operations: array with N elements
+- **AsyncPollResponseType**: Unified polling response with `results: AsyncOperationResult[]`
+- **AsyncOperationResult**: Individual operation status with context preservation
 
 ### Action Interface Enhancements
 
-- Added `poll` method to ActionDefinition for single operation polling
-- Added `pollBatch` method to ActionDefinition for batch operation polling
+- Added single `poll` method to ActionDefinition (handles both single and batch)
 - Extended `ExecuteInput` to include `asyncContext` parameter
 - Updated parseResponse to handle async responses correctly
+- Eliminated complexity of separate single/batch methods
 
 ### Framework Integration
 
-- **Action Class**: Added `hasPollSupport` and `hasBatchPollSupport` properties
-- **Action Class**: Added `executePoll` and `executePollBatch` methods
-- **Destination Class**: Added `executePoll` and `executePollBatch` methods
+- **Action Class**: Added `hasPollSupport` property
+- **Action Class**: Added `executePoll` method (unified for single and batch)
+- **Destination Class**: Added `executePoll` method
 - Full integration with existing error handling and validation
 
 ### State Context Integration
@@ -40,7 +41,7 @@ perform: async (request, { settings, payload, stateContext }) => {
 
   return {
     isAsync: true,
-    asyncContext: { operation_id: operationId },
+    asyncContexts: [{ operation_id: operationId }],
     message: 'Operation submitted',
     status: 202
   }
@@ -72,27 +73,30 @@ performBatch: async (request, { settings, payload }) => {
 }
 ```
 
-### Batch Polling
+### Unified Polling
 
-Comprehensive batch polling with individual operation tracking:
+Single polling method handles both individual and batch operations seamlessly:
 
 ```typescript
-pollBatch: async (request, { settings, asyncContext }) => {
-  const contexts = asyncContext?.asyncContexts || []
+poll: async (request, { settings, asyncContext }) => {
+  const asyncContexts = asyncContext?.asyncContexts || []
   const results = []
 
-  // Poll each operation individually
-  for (const context of contexts) {
+  // Poll each operation in the array (1 for single, N for batch)
+  for (const context of asyncContexts) {
     const result = await pollSingleOperation(context.operation_id)
-    results.push(result)
+    results.push({
+      ...result,
+      context
+    })
   }
 
-  // Aggregate results
+  // Aggregate results for unified response
   return {
     results,
     overallStatus: determineOverallStatus(results),
     shouldContinuePolling: results.some((r) => r.shouldContinuePolling),
-    message: generateSummaryMessage(results)
+    message: results.length === 1 ? results[0].message : `${results.length} operations: ${getStatusCounts(results)}`
   }
 }
 ```
@@ -121,9 +125,10 @@ packages/
 The implementation includes comprehensive tests covering:
 
 - ✅ Synchronous operations (backward compatibility)
-- ✅ Single async operations with context preservation
-- ✅ Batch async operations with multiple operation IDs
-- ✅ Error handling for missing contexts
+- ✅ Single async operations (1 element in asyncContexts array)
+- ✅ Batch async operations (N elements in asyncContexts array)
+- ✅ Unified polling method handling both single and batch scenarios
+- ✅ Error handling and status aggregation
 - ✅ State context integration (when available)
 
 ## 🔄 Usage Examples
@@ -131,58 +136,67 @@ The implementation includes comprehensive tests covering:
 ### Single Async Operation
 
 ```typescript
-// Submit
+// Submit single operation
 const result = await destination.executeAction('myAction', { event, mapping, settings })
 if (result.isAsync) {
-  const operationId = result.asyncContext.operation_id
-  // Poll later...
+  const asyncContexts = result.asyncContexts // Array with 1 element
+  // Poll later using the same unified method...
 }
 
-// Poll
+// Poll single operation (same method as batch!)
 const pollResult = await destination.executePoll('myAction', {
   event,
   mapping,
   settings,
-  asyncContext: { operation_id: 'op_123' }
+  asyncContext: {
+    asyncContexts: [{ operation_id: 'op_123', user_id: 'user1' }]
+  }
 })
 ```
 
 ### Batch Async Operation
 
 ```typescript
-// Submit batch
+// Submit batch operations
 const result = await destination.executeBatch('myAction', { events, mapping, settings })
 if (result.isAsync) {
-  const operationIds = result.asyncContexts.map((ctx) => ctx.operation_id)
-  // Poll later...
+  const asyncContexts = result.asyncContexts // Array with N elements
+  // Poll later using the same unified method...
 }
 
-// Poll batch
-const pollResult = await destination.executePollBatch('myAction', {
+// Poll batch operations (same method as single!)
+const pollResult = await destination.executePoll('myAction', {
   events,
   mapping,
   settings,
   asyncContext: { asyncContexts: result.asyncContexts }
 })
+
+// Unified response structure for both cases
+console.log(`Overall status: ${pollResult.overallStatus}`)
+pollResult.results.forEach((result, index) => {
+  console.log(`Operation ${index}: ${result.status}`)
+})
 ```
 
 ## 🎯 Key Benefits
 
-1. **Full Backward Compatibility**: Existing synchronous actions continue to work unchanged
-2. **Comprehensive Batch Support**: Handle APIs returning multiple operation IDs
-3. **State Context Integration**: Leverage existing state persistence mechanisms
-4. **Type Safety**: Full TypeScript support for all async operations
-5. **Error Handling**: Robust error handling for network issues, missing contexts, etc.
-6. **Flexible Polling**: Support both individual and batch polling strategies
-7. **Framework Integration**: Seamlessly integrates with existing action framework
+1. **Unified Design**: Single poll method handles both single and batch operations seamlessly
+2. **Simplified Architecture**: No separate pollBatch method - eliminated complexity
+3. **Flexible Context**: Array structure works for any number of operations (1 for single, N for batch)
+4. **Full Backward Compatibility**: Existing synchronous actions continue to work unchanged
+5. **State Context Integration**: Leverage existing state persistence mechanisms
+6. **Type Safety**: Full TypeScript support for all async operations
+7. **Comprehensive Status**: Detailed operation tracking with aggregated results
+8. **Framework Integration**: Seamlessly integrates with existing action framework
 
 ## 🔮 Future Enhancements
 
 - Automatic retry logic with exponential backoff
 - Built-in timeout management for long-running operations
-- Concurrent batch polling with configurable limits
 - Enhanced test framework support for async responses
 - Metrics and monitoring for async operation performance
+- Smart polling interval optimization based on operation types
 
 ## 🚀 Ready for Production
 
