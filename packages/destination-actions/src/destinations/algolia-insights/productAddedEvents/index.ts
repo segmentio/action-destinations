@@ -54,6 +54,12 @@ export const productAddedEvents: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    authenticatedUserToken: {
+      type: 'string',
+      description: 'The authenticated ID associated with the user.',
+      label: 'Authenticated User Token',
+      default: { '@path': '$.userId' }
+    },
     timestamp: {
       type: 'string',
       required: false,
@@ -102,6 +108,7 @@ export const productAddedEvents: ActionDefinition<Settings, Payload> = {
       queryID: data.payload.queryID,
       objectIDs: [data.payload.product],
       userToken: data.payload.userToken,
+      authenticatedUserToken: data.payload.authenticatedUserToken,
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
     const insightPayload = { events: [insightEvent] }

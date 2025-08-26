@@ -101,6 +101,12 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    authenticatedUserToken: {
+      type: 'string',
+      description: 'The authenticated ID associated with the user.',
+      label: 'Authenticated User Token',
+      default: { '@path': '$.userId' }
+    },
     timestamp: {
       type: 'string',
       required: false,
