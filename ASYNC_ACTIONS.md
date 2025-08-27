@@ -171,40 +171,41 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload, stateContext }) => {
-    // Submit the operation to the destination
     const response = await request(`${settings.endpoint}/operations`, {
       method: 'post',
       json: payload
     })
 
-    // Check if this is an async operation
     if (response.data?.status === 'accepted' && response.data?.operation_id) {
-      // Store context data for later polling (framework handles the details)
-      // Context will be made available to the poll method
+      // Set context data for polling
+      stateContext.setResponseContext('operation_id', response.data.operation_id, { hour: 24 })
 
       return {
         isAsync: true,
-        message: `Operation ${response.data.operation_id} submitted successfully`,
+        message: `Operation submitted`,
         status: 202
-      } as AsyncActionResponseType
+      }
     }
 
-    // Return regular response for synchronous operations
     return response
   },
 
   poll: async (request, { settings, stateContext }) => {
-    // Context data from perform/performBatch is available via stateContext
-    // Use this data to query operation status from your destination API
+    // Get context data from perform/performBatch
+    const operationId = stateContext.getRequestContext('operation_id')
 
-    // Example: Poll each operation and return results
-    const results = [] // Your polling logic here
+    // Use context data to query your destination API
+    const response = await request(`${settings.endpoint}/operations/${operationId}`)
 
     return {
-      results,
-      overallStatus: 'pending', // 'pending' | 'completed' | 'failed' | 'partial'
-      shouldContinuePolling: true, // Continue polling if operations are still pending
-      message: 'Polling status message'
+      results: [
+        {
+          status: response.data.status,
+          shouldContinuePolling: response.data.status === 'pending'
+        }
+      ],
+      overallStatus: response.data.status,
+      shouldContinuePolling: response.data.status === 'pending'
     }
   }
 }
