@@ -170,7 +170,7 @@ const action: ActionDefinition<Settings, Payload> = {
     // ... field definitions ...
   },
 
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, stateContext }) => {
     // Submit the operation to the destination
     const response = await request(`${settings.endpoint}/operations`, {
       method: 'post',
@@ -179,7 +179,18 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Check if this is an async operation
     if (response.data?.status === 'accepted' && response.data?.operation_id) {
-      // Return async response - context stored in stateContext
+      // Store operation context in state
+      if (stateContext && stateContext.setResponseContext) {
+        const operationContext = [
+          {
+            operation_id: response.data.operation_id,
+            user_id: payload.user_id,
+            operation_type: payload.operation_type
+          }
+        ]
+        stateContext.setResponseContext('async_operations', JSON.stringify(operationContext), { hour: 24 })
+      }
+
       return {
         isAsync: true,
         message: `Operation ${response.data.operation_id} submitted successfully`,
