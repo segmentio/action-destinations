@@ -340,6 +340,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
 
       console.log(config, 'devicePropertyAllowlist Config')
 
+      console.log({ ...expectedConfig })
       const version = sdkVersion ?? defaultVersion
 
       resetUserCache()
