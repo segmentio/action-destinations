@@ -66,7 +66,6 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       partnerAction: 'sendCustomEvent',
       mapping: {
         ...defaultValues(sendCustomEvent.fields),
-        // note that this must be `properties` to be processed by the warehouse pipeline
         ...defaultValues(journeysDefaultFields)
       },
       type: 'specificEvent',
