@@ -72,6 +72,12 @@ export async function dynamicSenderType(payload: Payload): Promise<DynamicFieldR
     }
   }
 
+  if (channel === CHANNELS.MESSENGER) {
+    return {
+      choices: [{ label: SENDER_TYPE.FACEBOOK_PAGE_ID, value: SENDER_TYPE.FACEBOOK_PAGE_ID }]
+    }
+  }
+
   return {
     choices: [
       { label: SENDER_TYPE.PHONE_NUMBER, value: SENDER_TYPE.PHONE_NUMBER },

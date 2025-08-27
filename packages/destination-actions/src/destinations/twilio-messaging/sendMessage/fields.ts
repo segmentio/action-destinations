@@ -11,7 +11,8 @@ export const fields: Record<string, InputField> = {
       { label: 'SMS', value: CHANNELS.SMS },
       { label: 'MMS', value: CHANNELS.MMS },
       { label: 'WhatsApp', value: CHANNELS.WHATSAPP },
-      { label: 'RCS', value: CHANNELS.RCS } 
+      { label: 'RCS', value: CHANNELS.RCS },
+      { label: 'Facebook Messenger', value: CHANNELS.MESSENGER }
     ]
   },
   senderType: {
@@ -47,11 +48,20 @@ export const fields: Record<string, InputField> = {
       ]
     }
   },
-  toMessengerPageUserId: {
-    label: 'To Messenger Page or User ID',
-    description: 'A valid Facebook Messenger Page Id or Messenger User Id to send the message to.',
+  toMessengerUserId: {
+    label: 'To Messenger User ID',
+    description: 'A valid Facebook Messenger User Id to send the message to.',
     type: 'string',
-    required: false,
+    required: {
+      match: 'all',
+      conditions: [
+        {
+          fieldKey: 'channel',
+          operator: 'is',
+          value: CHANNELS.MESSENGER
+        }
+      ]
+    },
     default: undefined,
     depends_on: {
       match: 'all',
@@ -83,20 +93,29 @@ export const fields: Record<string, InputField> = {
       ]
     }
   },
-  fromMessengerSenderId: {
-    label: 'From Messenger Sender ID',
+  fromFacebookPageId: {
+    label: 'From Facebook Page ID',
     description:
       'The unique identifier for your Facebook Page, used to send messages via Messenger. You can find this in your Facebook Page settings.',
     type: 'string',
-    required: false,
+    required: {
+      match: 'all',
+      conditions: [
+        {
+          fieldKey: 'channel',
+          operator: 'is',
+          value: CHANNELS.MESSENGER
+        }
+      ]
+    },
     default: undefined,
     depends_on: {
       match: 'all',
       conditions: [
         {
-          fieldKey: 'senderType',
+          fieldKey: 'channel',
           operator: 'is',
-          value: SENDER_TYPE.MESSENGER_SENDER_ID
+          value: CHANNELS.MESSENGER
         }
       ]
     }
