@@ -7,13 +7,7 @@ export const fields: Record<string, InputField> = {
     description: 'The channel to send the message on.',
     type: 'string',
     required: true,
-    choices: [
-      { label: 'SMS', value: CHANNELS.SMS },
-      { label: 'MMS', value: CHANNELS.MMS },
-      { label: 'WhatsApp', value: CHANNELS.WHATSAPP },
-      { label: 'RCS', value: CHANNELS.RCS },
-      { label: 'Facebook Messenger', value: CHANNELS.MESSENGER }
-    ]
+    dynamic: true
   },
   senderType: {
     label: 'Sender Type',

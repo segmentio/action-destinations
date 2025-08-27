@@ -1,5 +1,5 @@
 import { RequestClient } from '@segment/actions-core'
-import { DynamicFieldResponse, JSONObject } from '@segment/actions-core'
+import { DynamicFieldResponse, JSONObject, Features } from '@segment/actions-core'
 import {
   TOKEN_REGEX,
   CONTENT_SID_TOKEN,
@@ -11,7 +11,7 @@ import {
   INLINE_CONTENT_TYPES,
   PREDEFINED_CONTENT_TYPES,
   SENDER_TYPE,
-  CHANNELS
+  CHANNELS,
 } from './constants'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
@@ -57,6 +57,22 @@ async function getData<T>(request: RequestClient, url: string): Promise<T | Erro
     const error = err as ResultError
     return createErrorResponse(error.response.data.message, String(error.response.data.status))
   }
+}
+
+export async function dynamicChannel(features?: Features): Promise<DynamicFieldResponse> {
+    let choices = [
+      { label: 'SMS', value: CHANNELS.SMS },
+      { label: 'MMS', value: CHANNELS.MMS },
+      { label: 'WhatsApp', value: CHANNELS.WHATSAPP },
+      { label: 'RCS', value: CHANNELS.RCS },
+      { label: 'Facebook Messenger', value: CHANNELS.MESSENGER }
+    ]
+
+    if (features && features["actions-twilio-messenger-facebook"]) {
+      choices = choices.filter((c) => c.value !== CHANNELS.MESSENGER)
+    }
+
+  return { choices }
 }
 
 export async function dynamicSenderType(payload: Payload): Promise<DynamicFieldResponse> {
