@@ -1,9 +1,10 @@
 import type { WarehouseDestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { defaultValues } from '@segment/actions-core'
-import aududienceDefaultFields from './sendCustomEvent/audience-default-fields'
+import audienceDefaultFields from './sendCustomEvent/audience-default-fields'
 
 import sendCustomEvent from './sendCustomEvent'
+import journeysDefaultFields from './sendCustomEvent/journeys-default-fields'
 
 const destination: WarehouseDestinationDefinition<Settings> = {
   name: 'Snowflake',
@@ -25,7 +26,7 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       partnerAction: 'sendCustomEvent',
       mapping: {
         ...defaultValues(sendCustomEvent.fields),
-        ...defaultValues(aududienceDefaultFields)
+        ...defaultValues(audienceDefaultFields)
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_entity_added_track'
@@ -35,7 +36,7 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       partnerAction: 'sendCustomEvent',
       mapping: {
         ...defaultValues(sendCustomEvent.fields),
-        ...defaultValues(aududienceDefaultFields)
+        ...defaultValues(audienceDefaultFields)
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_entity_removed_track'
@@ -45,7 +46,7 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       partnerAction: 'sendCustomEvent',
       mapping: {
         ...defaultValues(sendCustomEvent.fields),
-        ...defaultValues(aududienceDefaultFields)
+        ...defaultValues(audienceDefaultFields)
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_entered_track'
@@ -55,10 +56,21 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       partnerAction: 'sendCustomEvent',
       mapping: {
         ...defaultValues(sendCustomEvent.fields),
-        ...defaultValues(aududienceDefaultFields)
+        ...defaultValues(audienceDefaultFields)
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_exited_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'sendCustomEvent',
+      mapping: {
+        ...defaultValues(sendCustomEvent.fields),
+        // note that this must be `properties` to be processed by the warehouse pipeline
+        ...defaultValues(journeysDefaultFields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ],
 
