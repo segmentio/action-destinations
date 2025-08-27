@@ -179,17 +179,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Check if this is an async operation
     if (response.data?.status === 'accepted' && response.data?.operation_id) {
-      // Store operation context in state
-      if (stateContext && stateContext.setResponseContext) {
-        const operationContext = [
-          {
-            operation_id: response.data.operation_id,
-            user_id: payload.user_id,
-            operation_type: payload.operation_type
-          }
-        ]
-        stateContext.setResponseContext('async_operations', JSON.stringify(operationContext), { hour: 24 })
-      }
+      // Store context data for later polling (framework handles the details)
+      // Context will be made available to the poll method
 
       return {
         isAsync: true,
@@ -203,109 +194,17 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   poll: async (request, { settings, stateContext }) => {
-    // Read operation contexts from stateContext
-    let asyncContexts: any[] = []
-    if (stateContext?.getRequestContext) {
-      const storedContexts = stateContext.getRequestContext('async_operations')
-      if (storedContexts) {
-        try {
-          asyncContexts = JSON.parse(storedContexts)
-        } catch (error) {
-          console.error('Failed to parse stored operation contexts:', error)
-        }
-      }
-    }
+    // Context data from perform/performBatch is available via stateContext
+    // Use this data to query operation status from your destination API
 
-    if (!asyncContexts || asyncContexts.length === 0) {
-      return {
-        results: [],
-        overallStatus: 'failed',
-        shouldContinuePolling: false,
-        message: 'No async operations found for polling'
-      }
-    }
-
-    // Poll each operation in the array
-    const results = []
-    for (const context of asyncContexts) {
-      if (!context?.operation_id) {
-        results.push({
-          status: 'failed',
-          error: {
-            code: 'MISSING_CONTEXT',
-            message: 'Operation ID not found in async context'
-          },
-          shouldContinuePolling: false,
-          context
-        })
-        continue
-      }
-
-      // Poll the operation status
-      const response = await request(`${settings.endpoint}/operations/${context.operation_id}`)
-      const operationStatus = response.data?.status
-
-      switch (operationStatus) {
-        case 'pending':
-        case 'processing':
-          results.push({
-            status: 'pending',
-            progress: response.data?.progress || 0,
-            message: `Operation ${context.operation_id} is ${operationStatus}`,
-            shouldContinuePolling: true,
-            context
-          })
-          break
-
-        case 'completed':
-          results.push({
-            status: 'completed',
-            progress: 100,
-            message: `Operation ${context.operation_id} completed successfully`,
-            result: response.data?.result || {},
-            shouldContinuePolling: false,
-            context
-          })
-          break
-
-        case 'failed':
-          results.push({
-            status: 'failed',
-            error: {
-              code: response.data?.error_code || 'OPERATION_FAILED',
-              message: response.data?.error_message || 'Operation failed'
-            },
-            shouldContinuePolling: false,
-            context
-          })
-          break
-      }
-    }
-
-    // Determine overall status
-    const completedCount = results.filter((r) => r.status === 'completed').length
-    const failedCount = results.filter((r) => r.status === 'failed').length
-    const pendingCount = results.filter((r) => r.status === 'pending').length
-
-    let overallStatus
-    if (completedCount === results.length) {
-      overallStatus = 'completed'
-    } else if (failedCount === results.length) {
-      overallStatus = 'failed'
-    } else if (pendingCount > 0) {
-      overallStatus = 'pending'
-    } else {
-      overallStatus = 'partial'
-    }
+    // Example: Poll each operation and return results
+    const results = [] // Your polling logic here
 
     return {
       results,
-      overallStatus,
-      shouldContinuePolling: pendingCount > 0,
-      message:
-        results.length === 1
-          ? results[0].message
-          : `${results.length} operations: ${completedCount} completed, ${failedCount} failed, ${pendingCount} pending`
+      overallStatus: 'pending', // 'pending' | 'completed' | 'failed' | 'partial'
+      shouldContinuePolling: true, // Continue polling if operations are still pending
+      message: 'Polling status message'
     }
   }
 }
