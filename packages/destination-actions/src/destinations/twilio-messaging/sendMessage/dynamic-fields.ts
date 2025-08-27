@@ -68,7 +68,7 @@ export async function dynamicChannel(features?: Features): Promise<DynamicFieldR
       { label: 'Facebook Messenger', value: CHANNELS.MESSENGER }
     ]
 
-    if (features && features["actions-twilio-messenger-facebook"]) {
+    if (!features || features["actions-twilio-messenger-facebook"] == false) {
       choices = choices.filter((c) => c.value !== CHANNELS.MESSENGER)
     }
 

@@ -130,6 +130,59 @@ describe('TwilioMessaging.sendMessage', () => {
     })
   })
 
+  it('should send Facebook Messenger message', async () => {
+    const body = "To=messenger%3Ato_fbuserid1234&From=messenger%3Afrom_fbpageid1234&Body=Hello+from+Facebook+Messenger%21"
+    
+    nock('https://api.twilio.com').post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`, body).reply(200, {
+      sid: 'SM1234567890abcdef1234567890abcdef',
+      status: 'sent'
+    })
+
+    await testDestination.testAction('sendMessage', {
+      settings: defaultSettings,
+      mapping: {
+        channel: CHANNELS.MESSENGER,
+        senderType: SENDER_TYPE.FACEBOOK_PAGE_ID,
+        toMessengerUserId: 'to_fbuserid1234',
+        fromFacebookPageId: 'from_fbpageid1234',
+        contentTemplateType: 'Inline',
+        inlineBody: 'Hello from Facebook Messenger!'
+      }
+    })
+  })
+
+  it('should throw error if Facebook Messenger send attempted with a phone number', async () => {
+    await expect(
+      testDestination.testAction('sendMessage', {
+        settings: defaultSettings,
+        mapping: {
+          channel: CHANNELS.MESSENGER,
+          senderType: SENDER_TYPE.PHONE_NUMBER,
+          toPhoneNumber: '+1234567890',
+          fromPhoneNumber: '+19876543210',
+          contentTemplateType: 'Inline',
+          inlineBody: 'This should fail!'
+        }
+      })
+    ).rejects.toThrow("The root value is missing the required field 'toMessengerUserId'. The root value must match \"then\" schema. The root value is missing the required field 'fromFacebookPageId'. The root value must match \"then\" schema.")
+  })
+
+  it('should throw error if Facebook Messenger send attempted with a Messaging Service', async () => {
+    await expect(
+      testDestination.testAction('sendMessage', {
+        settings: defaultSettings,
+        mapping: {
+          channel: CHANNELS.MESSENGER,
+          senderType: SENDER_TYPE.MESSAGING_SERVICE,
+          toMessengerUserId: 'to_fbuserid1234',
+          messagingServiceSid: 'SMS Service [MG1234567890abcdef1234567890abcdef]',
+          contentTemplateType: 'Inline',
+          inlineBody: 'This should fail!'
+        }
+      })
+    ).rejects.toThrow("The root value is missing the required field 'fromFacebookPageId'. The root value must match \"then\" schema.")
+  })
+
   it('should send message with content template', async () => {
     nock('https://api.twilio.com').post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`).reply(200, {
       sid: 'SM1234567890abcdef1234567890abcdef',
