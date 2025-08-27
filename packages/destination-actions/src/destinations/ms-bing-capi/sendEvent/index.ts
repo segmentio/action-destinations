@@ -9,15 +9,33 @@ import { v4 as uuidv4 } from '@lukeed/uuid'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event',
   description: '',
+  defaultSubscription: 'type = "track"',
   fields: {
     data: data
   },
-  perform: (request, data) => {
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
+  perform: (request, { payload, settings }) => {
+    if (payload.data.userData == undefined) {
+      payload.data.userData = {
+        anonymousId: uuidv4()
+      }
+    }
+    if (payload.data.userData?.em) {
+      payload.data.userData.em = processHashing(payload.data.userData.em, 'sha256', 'hex', (value) =>
+        value.trim().toLowerCase()
+      )
+    }
+    if (payload.data.userData?.ph) {
+      payload.data.userData.ph = processHashing(payload.data.userData.ph, 'sha256', 'hex', (value) =>
+        value.trim().replace(/\D/g, '')
+      )
+    }
+
+    return request(`${API_URL}${settings.UetTag}/events`, {
+      method: 'post',
+      json: {
+        data: [payload.data]
+      }
+    })
   }
 }
 

@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from '@lukeed/uuid'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page Load',
   description: 'Send a page load event to Microsoft Bing CAPI.',
+  defaultSubscription: 'type = "page"',
   fields: {
     data: pageLoadEvent
   },
@@ -18,7 +19,6 @@ const action: ActionDefinition<Settings, Payload> = {
         anonymousId: uuidv4()
       }
     }
-
     if (payload.data.userData?.em) {
       payload.data.userData.em = processHashing(payload.data.userData.em, 'sha256', 'hex', (value) =>
         value.trim().toLowerCase()
@@ -35,7 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(url, {
       method: 'post',
       json: {
-        data: [payload, { eventTime: new Date().toISOString() }]
+        data: [payload.data]
       }
     })
   }

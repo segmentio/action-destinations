@@ -149,94 +149,6 @@ export const data: InputField = {
   }
 }
 
-export const customData: InputField = {
-  label: 'Custom Data',
-  description:
-    'Custom data to be sent to the Bing API. This can include additional properties that are not covered by the standard fields.',
-  type: 'object',
-  properties: {
-    eventCategory: {
-      label: 'Event Category',
-      description: 'The category for custom conversion goals, if used.',
-      type: 'string'
-    },
-    eventLabel: {
-      label: 'Event Label',
-      description: 'The label for custom conversion goals.',
-      type: 'string'
-    },
-    eventValue: {
-      label: 'Event Value',
-      description: 'The event value for custom conversion goals.',
-      type: 'number'
-    },
-    searchTerm: {
-      label: 'Search Term',
-      description: 'The query used by the user for a search results page.',
-      type: 'string'
-    },
-    transactionId: {
-      label: 'Transaction ID',
-      description: 'The unique identifier for the transaction. Required for purchase events.',
-      type: 'string'
-    },
-    value: {
-      label: 'Value',
-      description: 'Revenue value (float) to report variable revenue for goals, if used',
-      type: 'number'
-    },
-    currency: {
-      label: 'Currency',
-      description: 'The currency of the event value, in ISO 4217 format.',
-      type: 'string',
-      choices: getCurrencyChoices()
-    },
-    itemIds: {
-      label: 'Item IDs',
-      description: 'A comma separated list of product IDs, or an array of IDs.',
-      type: 'string',
-      multiple: true
-    },
-    pageType: {
-      label: 'Page Type',
-      description: 'The type of page where the event occurred.',
-      type: 'string',
-      choices: [
-        { label: 'Home', value: 'home' },
-        { label: 'Product', value: 'product' },
-        { label: 'Category', value: 'category' },
-        { label: 'Search Results', value: 'searchresults' },
-        { label: 'Cart', value: 'cart' },
-        { label: 'Purchase', value: 'purchase' },
-        { label: 'Other', value: 'other' }
-      ]
-    },
-    ecommTotalValue: {
-      label: 'Ecomm Total Value',
-      description: 'Total value of the cart of purchase.',
-      type: 'number'
-    },
-    ecommCategory: {
-      label: 'Ecomm Category',
-      description: 'Category ID',
-      type: 'string'
-    }
-  },
-  default: {
-    eventCategory: { '@path': '$.properties.event_category' }, // ?? is this the correct default mapping?
-    eventLabel: { '@path': '$.properties.event_label' },
-    eventValue: { '@path': '$.properties.value' },
-    searchTerm: { '@path': '$.properties.query' },
-    transactionId: { '@path': '$.properties.order_id' },
-    value: { '@path': '$.properties.value' }, // TODO - does this need a default?
-    currency: { '@path': '$.properties.currency' },
-    itemIds: { '@path': '$.properties.item_ids' },
-    pageType: { '@path': '$.properties.page_type' },
-    ecommTotalValue: { '@path': '$.properties.ecomm_total_value' },
-    ecommCategory: { '@path': '$.properties.ecomm_category' }
-  }
-}
-
 export const items: InputField = {
   label: 'Items',
   description: 'The list of items associated with the event. Must contain at least one item.',
@@ -333,5 +245,95 @@ export const hotelData: InputField = {
     lengthOfStay: { '@path': '$.properties.hotel_length_of_stay' },
     partnerHotelId: { '@path': '$.properties.hotel_partner_id' },
     bookingHref: { '@path': '$.properties.hotel_booking_href' }
+  }
+}
+
+export const customData: InputField = {
+  label: 'Custom Data',
+  description:
+    'Custom data to be sent to the Bing API. This can include additional properties that are not covered by the standard fields.',
+  type: 'object',
+  properties: {
+    eventCategory: {
+      label: 'Event Category',
+      description: 'The category for custom conversion goals, if used.',
+      type: 'string'
+    },
+    eventLabel: {
+      label: 'Event Label',
+      description: 'The label for custom conversion goals.',
+      type: 'string'
+    },
+    eventValue: {
+      label: 'Event Value',
+      description: 'The event value for custom conversion goals.',
+      type: 'number'
+    },
+    searchTerm: {
+      label: 'Search Term',
+      description: 'The query used by the user for a search results page.',
+      type: 'string'
+    },
+    transactionId: {
+      label: 'Transaction ID',
+      description: 'The unique identifier for the transaction. Required for purchase events.',
+      type: 'string'
+    },
+    value: {
+      label: 'Value',
+      description: 'Revenue value (float) to report variable revenue for goals, if used',
+      type: 'number'
+    },
+    currency: {
+      label: 'Currency',
+      description: 'The currency of the event value, in ISO 4217 format.',
+      type: 'string',
+      choices: getCurrencyChoices()
+    },
+    itemIds: {
+      label: 'Item IDs',
+      description: 'A comma separated list of product IDs, or an array of IDs.',
+      type: 'string',
+      multiple: true
+    },
+    pageType: {
+      label: 'Page Type',
+      description: 'The type of page where the event occurred.',
+      type: 'string',
+      choices: [
+        { label: 'Home', value: 'home' },
+        { label: 'Product', value: 'product' },
+        { label: 'Category', value: 'category' },
+        { label: 'Search Results', value: 'searchresults' },
+        { label: 'Cart', value: 'cart' },
+        { label: 'Purchase', value: 'purchase' },
+        { label: 'Other', value: 'other' }
+      ]
+    },
+    ecommTotalValue: {
+      label: 'Ecomm Total Value',
+      description: 'Total value of the cart of purchase.',
+      type: 'number'
+    },
+    ecommCategory: {
+      label: 'Ecomm Category',
+      description: 'Category ID',
+      type: 'string'
+    },
+    items: items,
+    hotelData: hotelData
+  },
+  default: {
+    eventCategory: { '@path': '$.properties.event_category' }, // ?? is this the correct default mapping?
+    eventLabel: { '@path': '$.properties.event_label' },
+    eventValue: { '@path': '$.properties.value' },
+    searchTerm: { '@path': '$.properties.query' },
+    transactionId: { '@path': '$.properties.order_id' },
+    value: { '@path': '$.properties.value' }, // TODO - does this need a default?
+    currency: { '@path': '$.properties.currency' },
+    itemIds: { '@path': '$.properties.item_ids' },
+    pageType: { '@path': '$.properties.page_type' },
+    ecommTotalValue: { '@path': '$.properties.ecomm_total_value' },
+    ecommCategory: { '@path': '$.properties.ecomm_category' }
   }
 }
