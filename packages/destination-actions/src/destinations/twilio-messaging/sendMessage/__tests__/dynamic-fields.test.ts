@@ -1,4 +1,5 @@
 import {
+  dynamicChannel,
   dynamicSenderType,
   dynamicFromPhoneNumber,
   dynamicMessagingServiceSid,
@@ -7,7 +8,7 @@ import {
   dynamicContentVariables
 } from '../dynamic-fields'
 import { CHANNELS, SENDER_TYPE } from '../constants'
-import { RequestClient } from '@segment/actions-core'
+import { RequestClient, Features } from '@segment/actions-core'
 
 const mockSettings = {
   accountSID: 'AC1234567890abcdef1234567890abcdef',
@@ -18,6 +19,35 @@ const mockSettings = {
 }
 
 describe('Dynamic Fields', () => {
+
+  describe('dynamicChannel', () => {
+    it('channel for Facebook Messenger channel option should show when flag enabled', async () => {
+      const result = await dynamicChannel({features: {"actions-twilio-messenger-facebook": true}} as any as Features)
+
+      expect(result.choices).toHaveLength(5)
+      expect(result.choices).toEqual([
+        { label: 'SMS', value: CHANNELS.SMS },
+        { label: 'MMS', value: CHANNELS.MMS },
+        { label: 'WhatsApp', value: CHANNELS.WHATSAPP },
+        { label: 'RCS', value: CHANNELS.RCS },
+        { label: 'Facebook Messenger', value: CHANNELS.MESSENGER }
+      ])
+    })
+
+    it('channel for Facebook Messenger channel option should hidden when flag enabled', async () => {
+      const result = await dynamicChannel()
+
+      expect(result.choices).toHaveLength(4)
+      expect(result.choices).toEqual([
+        { label: 'SMS', value: CHANNELS.SMS },
+        { label: 'MMS', value: CHANNELS.MMS },
+        { label: 'WhatsApp', value: CHANNELS.WHATSAPP },
+        { label: 'RCS', value: CHANNELS.RCS }
+      ])
+    })
+  })
+
+
   describe('dynamicSenderType', () => {
     it('should return phone number and messaging service for other channels', async () => {
       const result = await dynamicSenderType({
