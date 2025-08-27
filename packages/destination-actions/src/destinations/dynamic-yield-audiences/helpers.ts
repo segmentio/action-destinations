@@ -14,36 +14,12 @@ export function hashAndEncodeToInt(property: string): number {
   return Number(integerString)
 }
 
-function getDomain(dataCenter: string): string {
-  let domain = 'dev-use1'
-  switch (dataCenter) {
-    case 'US':
-      domain = 'use1'
-      break
-    case 'EU':
-      domain = 'euc1'
-      break
-    case 'DEV':
-      domain = 'dev-use1'
-      break
-  }
-  return domain
+export function getUpsertURL(): string {
+  return `https://cdp-extensions-api.use1.dev.pub.dydy.io/cdp/segment/audiences/membership-change`
 }
 
-export function getUpsertURL(dataCenter: string): string {
-  return `https://cdp-extensions-api.${getDomain(dataCenter)}.dynamicyield.com/cdp/segment/audiences/membership-change`
-}
-
-export function getCreateAudienceURL(dataCenter: string): string {
-  return `https://cdp-extensions-api.${getDomain(dataCenter)}.dynamicyield.com/cdp/segment/audiences/subscription`
-}
-
-export function getDataCenter(sectionId: string) {
-  return sectionId.toLocaleLowerCase().startsWith('9')
-    ? 'EU'
-    : sectionId.toLocaleLowerCase().startsWith('8')
-    ? 'US'
-    : 'DEV'
+export function getCreateAudienceURL(): string {
+  return `https://cdp-extensions-api.use1.dev.pub.dydy.io/cdp/segment/audiences/subscription`
 }
 
 export function getSectionId(sectionId: string) {

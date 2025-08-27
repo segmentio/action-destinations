@@ -1,7 +1,7 @@
 import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
-import { getCreateAudienceURL, hashAndEncodeToInt, getDataCenter, getSectionId } from './helpers'
+import { getCreateAudienceURL, hashAndEncodeToInt, getSectionId } from './helpers'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
@@ -18,10 +18,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     identifier_type: {
       type: 'string',
-      label: 'Identifier Type',
+      label: 'Segment Identifier Type (required)',
       required: true,
       description:
-        'The type of Identifier to send to Dynamic Yield by Mastercard. E.g. `email`, `anonymousId`, `userId` or any other custom identifier. Make sure to configure the identifier in the `Customized Setup` below so that it is sent to Dynamic Yield by Mastercard.'
+        'The Segment identifier to send to Dynamic Yield by Mastercard. E.g. `email`, `anonymousId`, `userId` or any other custom identifier. Make sure to configure the identifier in the `Customized Setup` below so that it is sent to Dynamic Yield by Mastercard.'
+    },
+    dy_identifier_type: {
+      type: 'string',
+      label: 'Dynamic Yield Identifier Type (optional)',
+      required: false,
+      description: 'The name of the identifier in Dynamic Yield by Mastercard. If you leave this empty, Segment will assume that the name of the identifier in Dynamic Yield by Mastercard matches the value specified in the "Segment Identifier Type" field.'
     }
   },
   authentication: {
@@ -41,35 +47,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     }
   },
-  extendRequest({ settings }) {
-    let secret = undefined
-
-    const dataCenter = getDataCenter(settings.sectionId)
-
-    switch (dataCenter) {
-      case 'US':
-        secret = process.env.ACTIONS_DYNAMIC_YIELD_AUDIENCES_US_CLIENT_SECRET
-        break
-      case 'EU':
-        secret = process.env.ACTIONS_DYNAMIC_YIELD_AUDIENCES_EU_CLIENT_SECRET
-        break
-      case 'DEV':
-        secret = process.env.ACTIONS_DYNAMIC_YIELD_AUDIENCES_DEV_CLIENT_SECRET
-        break
-    }
-
-    if (secret === undefined) {
-      throw new IntegrationError(
-        'Missing Dynamic Yield by Mastercard Audiences Client Secret',
-        'MISSING_REQUIRED_FIELD',
-        400
-      )
-    }
-
+  extendRequest() {
+  
     return {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: secret
+        Authorization: process.env.ACTIONS_DYNAMIC_YIELD_AUDIENCES_DEV_CLIENT_SECRET as string
       }
     }
   },
@@ -107,9 +90,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         action: 'add'
       }
 
-      const dataCenter = getDataCenter(settings.sectionId)
-
-      const response = await request(getCreateAudienceURL(dataCenter), {
+      const response = await request(getCreateAudienceURL(), {
         method: 'POST',
         json
       })

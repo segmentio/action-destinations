@@ -1,9 +1,8 @@
-// import nock from 'nock'
-// import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-// import Destination from '../../index'
+describe('MS Bing', () => {
 
-// const testDestination = createTestIntegration(Destination)
+  it('blah', async () => {
+    
+    expect(1).toBe(1)
 
-// describe('MsBingCapi.pageLoad', () => {
-//   // TODO: Test your action
-// })
+  })
+})
