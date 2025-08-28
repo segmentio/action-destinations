@@ -126,6 +126,6 @@ jobs:
             const script = require('./scripts/github-action/assign-reviewer.js')
             await script({github, context, core})
 
-      - name: Log Skip Reviewer Assign Reason
+      - name: Log Skip Reviewer Assign Reaso
         if: steps.get-team-member.outputs.skip == 'true'
         run: echo "Skipping reviewer assignment - ${{ steps.get-team-member.outputs.reason }}"
