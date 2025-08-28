@@ -10,7 +10,7 @@ module.exports = async ({ github, context, core }) => {
         pull_number: context.payload.pull_request.number
     })
 
-    if (prDetails.data.requested_reviewers.length > 0 || prDetails.data.requested_teams.length > 0) {
+    if (prDetails.data.requested_reviewers.length > 0) {
         core.info('PR already has reviewers assigned')
         return
     }
