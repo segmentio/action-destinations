@@ -1,4 +1,4 @@
-# This workflow labels PRs based on the files that were changed. It uses a custom script to this
+# This workflow labels PRs based on the files that were changed and also assign a reviewer based on team. It uses a custom script to this
 # instead of actions/labeler as few of the tags are more than just file changes.
 
 name: Configure PR
