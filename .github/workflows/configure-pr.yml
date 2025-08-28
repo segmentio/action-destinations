@@ -1,7 +1,7 @@
 # This workflow labels PRs based on the files that were changed. It uses a custom script to this
 # instead of actions/labeler as few of the tags are more than just file changes.
 
-name: Label PRs
+name: Configure PR
 on:
   pull_request:
     types: [opened, synchronize, reopened]
