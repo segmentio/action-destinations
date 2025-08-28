@@ -35,3 +35,17 @@ export type EventObject = {
 export interface EventAttributes {
   [key: string]: string | number | boolean | null | undefined | string[] | EventObject | EventObject[]
 }
+
+
+// 202 Accepted
+export interface MultiStatusResponseJSON {
+  code: "SUCCESS" | "SUCCESS_WITH_PARTIAL_ERRORS"
+  errors: [
+    {
+      category: string 
+      bulk_index: number // starts at 0
+      reason: string
+      attribute?: string 
+    }
+  ] 
+}
