@@ -11,7 +11,7 @@ const createAudienceInput = {
     __segment_internal_engage_force_full_sync: true,
     __segment_internal_engage_batch_sync: true
   },
-  audienceName: 'trade-fair',
+  audienceName: '',
   audienceSettings: {
     region: 'US'
   }
