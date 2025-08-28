@@ -5,8 +5,8 @@ import { getAllDataSegments } from './functions'
 
 import syncAudience from './syncAudience'
 export const API_VERSION = 'v3'
-const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
-const SEGMENT_TYPE = 'targeting'
+export const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
+export const SEGMENT_TYPE = 'targeting'
 const DATA_PROVIDER_ID = 'twilio'
 
 export interface CreateApiResponse {

@@ -1,7 +1,6 @@
 import nock from 'nock'
 import { createTestIntegration, IntegrationError } from '@segment/actions-core'
-import Destination from '../index'
-import { API_VERSION } from '../index'
+import Destination, { BASE_URL, SEGMENT_TYPE } from '../index'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -12,7 +11,7 @@ const createAudienceInput = {
     __segment_internal_engage_force_full_sync: true,
     __segment_internal_engage_batch_sync: true
   },
-  audienceName: '',
+  audienceName: 'trade-fair',
   audienceSettings: {
     region: 'US'
   }
@@ -38,7 +37,7 @@ describe('The Trade Desk CRM', () => {
     })
 
     it('should create a new Trade Desk CRM Data Segment', async () => {
-      nock(`https://api.thetradedesk.com/${API_VERSION}/crmdata/segment`).post(/.*/).reply(200, {
+      nock(`${BASE_URL}/crmdata/${SEGMENT_TYPE}/segment`).post(/.*/).reply(200, {
         CrmDataId: 'test_audience'
       })
 
@@ -52,20 +51,20 @@ describe('The Trade Desk CRM', () => {
 
   describe('getAudience', () => {
     it('should fail if Trade Desk replies with an error', async () => {
-      nock(`https://api.thetradedesk.com/${API_VERSION}/crmdata/segment/advertiser_id?pagingToken=paging_token`)
+      nock(`${BASE_URL}/crmdata/segment/advertiser_id?pagingToken=paging_token`)
         .get(/.*/)
         .reply(400, { Segments: [], PagingToken: null })
       await expect(testDestination.getAudience(getAudienceInput)).rejects.toThrowError()
     })
 
     it('should succeed when Segment External ID matches Data Segment in TikTok', async () => {
-      nock(`https://api.thetradedesk.com/${API_VERSION}/crmdata/segment/advertiser_id`)
+      nock(`${BASE_URL}/crmdata/segment/advertiser_id`)
         .get(/.*/)
         .reply(200, {
           Segments: [{ SegmentName: 'not_test_audience', CrmDataId: 'crm_data_id' }],
           PagingToken: 'paging_token'
         })
-      nock(`https://api.thetradedesk.com/${API_VERSION}/crmdata/segment/advertiser_id?pagingToken=paging_token`)
+      nock(`${BASE_URL}/crmdata/segment/advertiser_id?pagingToken=paging_token`)
         .get(/.*/)
         .reply(200, { Segments: [], PagingToken: null })
 
