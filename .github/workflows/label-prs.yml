@@ -111,7 +111,6 @@ jobs:
         env:
           labelsToAdd: '${{ steps.compute-labels.outputs.add }}'
         with:
-          github-token: ${{ secrets.GH_PAT_MEMBER_AND_PULL_REQUEST_READONLY }}
           script: |
             const script = require('./scripts/github-action/assign-reviewers.js')
             await script({github, context, core})
