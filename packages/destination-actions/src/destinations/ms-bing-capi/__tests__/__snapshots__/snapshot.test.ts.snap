@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-ms-bing-capi destination: pageLoad action - all fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "eventId": "PhGSU",
+      "eventName": "PhGSU",
+      "eventSourceUrl": "PhGSU",
+      "eventTime": "PhGSU",
+      "eventType": "pageLoad",
+      "keywords": "PhGSU",
+      "pageLoadId": "PhGSU",
+      "pageTitle": "PhGSU",
+      "referrerUrl": "PhGSU",
+      "userData": Object {},
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-ms-bing-capi destination: pageLoad action - required fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "eventSourceUrl": "PhGSU",
+      "eventTime": "PhGSU",
+      "eventType": "pageLoad",
+      "userData": Object {},
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-ms-bing-capi destination: sendEvent action - all fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "eventId": "I!xun!sL*a3e9mQ",
+      "eventName": "I!xun!sL*a3e9mQ",
+      "eventSourceUrl": "I!xun!sL*a3e9mQ",
+      "eventTime": "I!xun!sL*a3e9mQ",
+      "eventType": "custom",
+      "keywords": "I!xun!sL*a3e9mQ",
+      "pageLoadId": "I!xun!sL*a3e9mQ",
+      "pageTitle": "I!xun!sL*a3e9mQ",
+      "referrerUrl": "I!xun!sL*a3e9mQ",
+      "userData": Object {},
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-ms-bing-capi destination: sendEvent action - required fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "eventSourceUrl": "I!xun!sL*a3e9mQ",
+      "eventTime": "I!xun!sL*a3e9mQ",
+      "eventType": "custom",
+      "userData": Object {},
+    },
+  ],
+}
+`;
