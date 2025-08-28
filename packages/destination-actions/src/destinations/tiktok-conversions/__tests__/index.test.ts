@@ -571,7 +571,89 @@ describe('Tiktok Conversions', () => {
         userId: 'testId123'
       })
 
-      const json = {
+      // const json = {
+      //   data: [
+      //     {
+      //       event: 'AddToCart',
+      //       event_id: 'corey123',
+      //       event_time: 1704721970,
+      //       limited_data_use: false,
+      //       page: {
+      //         referrer: 'https://google.com/',
+      //         url: 'https://segment.com/'
+      //       },
+      //       properties: {
+      //         content_type: 'product',
+      //         contents: [
+      //           {
+      //             price: 100,
+      //             quantity: 2,
+      //             content_id: 'abc123',
+      //             content_category: 'Air Force One (Size S)',
+      //             content_name: 'pname1',
+      //             brand: 'Brand X'
+      //           }
+      //         ],
+      //         currency: 'USD',
+      //         query: 'shoes',
+      //         value: 100
+      //       },
+      //       user: {
+      //         email: ['eb9869a32b532840dd6aa714f7a872d21d6f650fc5aa933d9feefc64708969c7'],
+      //         external_id: ['481f202262e9c5ccc48d24e60798fadaa5f6ff1f8369f7ab927c04c3aa682a7f'],
+      //         ip: '0.0.0.0',
+      //         phone: ['910a625c4ba147b544e6bd2f267e130ae14c591b6ba9c25cb8573322dedbebd0'],
+      //         ttclid: '12345',
+      //         user_agent:
+      //           'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57'
+      //       }
+      //     }
+      //   ],
+      //   event_source: 'web',
+      //   event_source_id: 'test',
+      //   partner_name: 'Segment',
+      //   test_event_code: 'TEST04030'
+      // }
+
+      nock('https://business-api.tiktok.com/open_api/v1.3/event/track').post('/').reply(200, {})
+      const responses = await testDestination.testAction('reportWebEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          event: 'AddToCart',
+          test_event_code: 'TEST04030',
+          contents: {
+            '@arrayPath': [
+              '$.properties',
+              {
+                price: {
+                  '@path': '$.price'
+                },
+                quantity: {
+                  '@path': '$.quantity'
+                },
+                content_category: {
+                  '@path': '$.category'
+                },
+                content_id: {
+                  '@path': '$.product_id'
+                },
+                content_name: {
+                  '@path': '$.name'
+                },
+                brand: {
+                  '@path': '$.brand'
+                }
+              }
+            ]
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
         data: [
           {
             event: 'AddToCart',
@@ -613,46 +695,90 @@ describe('Tiktok Conversions', () => {
         event_source_id: 'test',
         partner_name: 'Segment',
         test_event_code: 'TEST04030'
-      }
+      })
+    })
 
-      nock('https://business-api.tiktok.com/open_api/v1.3/event/track').post('/', json).reply(200, {})
+    it('should send a successful CRM event to reportWebEvent', async () => {
+      const event = createTestEvent({
+        timestamp: timestamp,
+        event: 'Checkout Started',
+        messageId: 'corey123',
+        type: 'track',
+        properties: {
+          event_source: 'crm',
+          lead_fields: {
+            lead_id: 'test_lead_id',
+            lead_event_source: 'test_lead_event_source'
+          },
+          email: 'coreytest1231@gmail.com',
+          phone: '+1555-555-5555',
+          ttclid: '12345',
+          currency: 'USD',
+          value: 100,
+          query: 'shoes'
+        },
+        context: {
+          page: {
+            url: 'https://segment.com/',
+            referrer: 'https://google.com/'
+          },
+          userAgent:
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57',
+          ip: '0.0.0.0'
+        },
+        userId: 'testId123'
+      })
+
+      nock('https://business-api.tiktok.com/open_api/v1.3/event/track').post('/').reply(200, {})
       const responses = await testDestination.testAction('reportWebEvent', {
         event,
         settings,
         useDefaultMappings: true,
         mapping: {
-          event: 'AddToCart',
-          test_event_code: 'TEST04030',
-          contents: {
-            '@arrayPath': [
-              '$.properties',
-              {
-                price: {
-                  '@path': '$.price'
-                },
-                quantity: {
-                  '@path': '$.quantity'
-                },
-                content_category: {
-                  '@path': '$.category'
-                },
-                content_id: {
-                  '@path': '$.product_id'
-                },
-                content_name: {
-                  '@path': '$.name'
-                },
-                brand: {
-                  '@path': '$.brand'
-                }
-              }
-            ]
-          }
+          event: 'InitiateCheckout',
+          event_source: 'crm'
         }
       })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        data: [
+          {
+            event: 'InitiateCheckout',
+            event_id: 'corey123',
+            event_time: 1704721970,
+            limited_data_use: false,
+            page: {
+              referrer: 'https://google.com/',
+              url: 'https://segment.com/'
+            },
+            properties: {
+              content_type: 'product',
+              contents: [],
+              currency: 'USD',
+              query: 'shoes',
+              value: 100
+            },
+            user: {
+              email: ['eb9869a32b532840dd6aa714f7a872d21d6f650fc5aa933d9feefc64708969c7'],
+              external_id: ['481f202262e9c5ccc48d24e60798fadaa5f6ff1f8369f7ab927c04c3aa682a7f'],
+              ip: '0.0.0.0',
+              phone: ['910a625c4ba147b544e6bd2f267e130ae14c591b6ba9c25cb8573322dedbebd0'],
+              ttclid: '12345',
+              user_agent:
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57'
+            },
+            lead: {
+              lead_id: 'test_lead_id',
+              lead_event_source: 'test_lead_event_source'
+            }
+          }
+        ],
+        event_source: 'crm',
+        event_source_id: 'test',
+        partner_name: 'Segment'
+      })
     })
   })
 })
