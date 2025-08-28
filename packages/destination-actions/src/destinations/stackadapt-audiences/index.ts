@@ -1,10 +1,10 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, InvalidAuthenticationError } from '@segment/actions-core'
 import forwardProfile from './forwardProfile'
 import forwardAudienceEvent from './forwardAudienceEvent'
 import { AdvertiserScopesResponse } from './types'
-import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash } from './functions'
+import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, advertiserIdFieldImplementation } from './functions'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'StackAdapt Audiences',
@@ -19,6 +19,14 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Your StackAdapt GQL API Token',
         type: 'string',
         required: true
+      },
+      advertiser_id: {
+        label: "Advertiser ID",
+        description: "The StackAdapt advertiser ID to add the profile to. The value in this field field can also be overridden at the Action level via the Action field of the same name.",
+        type: 'string', 
+        required: true,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
+        dynamic: advertiserIdFieldImplementation
       }
     },
     testAuthentication: async (request) => {
@@ -59,16 +67,23 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  onDelete: async (request, { payload }) => {
+  onDelete: async (request, { payload, settings }) => {
     const userId = payload.userId
     const formattedExternalIds = `["${userId}"]`
     const syncId = sha256hash(String(userId))
+    const advertiserId = settings.advertiser_id
+    if(!advertiserId) {
+      throw new InvalidAuthenticationError("Advertiser value must be provided in either the main Settings Advertiser field or at the Action level Advertiser field.")
+    }
 
     const mutation = `mutation {
       deleteProfilesWithExternalIds(
-        externalIds: ${formattedExternalIds},
-        externalProvider: "${EXTERNAL_PROVIDER}",
-        syncId: "${syncId}"
+        input: {
+          externalIds: ${formattedExternalIds},
+          externalProvider: "${EXTERNAL_PROVIDER}",
+          syncId: "${syncId}",
+          advertiserIds: [${parseInt(advertiserId, 10)}]
+        }
       ) {
         userErrors {
           message
