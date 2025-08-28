@@ -4,8 +4,6 @@ import { TaguchiJSON, JSONItem, ResponseJSON } from './types'
 import { Payload  } from './generated-types'
 
 export function validate(payloads: Payload[]): Payload[] {
-  console.log(payloads.length)
-  console.log(payloads[0].identifiers)
   if (payloads.length === 1) {
     const p = payloads[0]
     if (!p.identifiers || Object.keys(p.identifiers).length === 0) {

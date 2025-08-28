@@ -176,7 +176,8 @@ describe('Taguchi.syncAudience', () => {
       userId: 'test-user-123',
       traits: {
         email: 'test@example.com'
-      }
+      },
+      timestamp: "2025-08-28T12:00:25.282Z"
     })
 
     const json = [
@@ -188,7 +189,7 @@ describe('Taguchi.syncAudience', () => {
           lists: [
             { listId: 123, unsubscribedTimestamp: null },
             { listId: 456, unsubscribedTimestamp: null },
-            { listId: 789, unsubscribedTimestamp: "2025-08-28T11:53:59.773Z" }
+            { listId: 789, unsubscribedTimestamp: "2025-08-28T12:00:25.282Z" }
           ]
         }
       }
@@ -246,8 +247,28 @@ describe('Taguchi.syncAudience', () => {
       }
     })
 
+    const json = [
+      {
+        profile: {
+          organizationId: 123,
+          ref: "test-user-123",
+          email: "test@example.com",
+          title: "Mr",
+          firstname: "John",
+          lastname: "Doe",
+          dob: "1990-01-01T00:00:00.000Z",
+          address: "123 Main St",
+          suburb: "Test City",
+          state: "Test State",
+          country: "Test Country",
+          postcode: "12345",
+          gender: "Male"
+        }
+      }
+    ]
+
     nock('https://api.taguchi.com.au')
-      .post('/subscriber')
+      .post('/subscriber', json)
       .reply(200, [
         {
           code: 200,
@@ -256,7 +277,7 @@ describe('Taguchi.syncAudience', () => {
         }
       ])
 
-    const responses = await testDestination.testAction('syncAudience', {
+    const responses = await testDestination.testAction('syncUserProfile', {
       event,
       settings: {
         apiKey: 'test-api-key',

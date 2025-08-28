@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'syncAudience'
+const actionSlug = 'syncUserProfile'
 const destinationSlug = 'Taguchi'
 const seedName = `${destinationSlug}#${actionSlug}`
 
