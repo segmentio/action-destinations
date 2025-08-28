@@ -22,7 +22,11 @@ module.exports = async ({ github, context, core }) => {
         const allLabels = [...(labelsToAdd ? labelsToAdd.split(',') : []), ...existingLabels]
 
         // Priority-based team assignment
-        if (allLabels.includes('actions:core') || allLabels.includes('actions:mappingkit')) {
+        if (allLabels.includes('actions:core')) {
+            return 'strategic-connections-team'
+        }
+
+        if (allLabels.includes('actions:mappingkit')) {
             return 'libraries-web-team'
         }
 
@@ -32,7 +36,7 @@ module.exports = async ({ github, context, core }) => {
 
         // If team:segment-core label is present, assign to libraries-web-team
         if (allLabels.includes('team:segment-core')) {
-            return 'libraries-web-team'
+            return 'strategic-connections-team'
         }
 
         // Default fallback for internal contributors
