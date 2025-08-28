@@ -7,7 +7,7 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  pr-labeler:
+  configure-pr:
     runs-on: ubuntu-22.04
     permissions:
       contents: read
