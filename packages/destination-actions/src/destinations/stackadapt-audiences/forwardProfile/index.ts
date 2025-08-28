@@ -170,21 +170,21 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     advertiser_id: {
       label: 'Advertiser',
-      description: 'The StackAdapt advertiser to add the profile to.',
+      description: 'The StackAdapt advertiser to add the profile to. Either this field or the main Settings Advertiser field is required.',
       type: 'string',
       disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
-      required: true,
+      required: false,
       dynamic: true
     }
   },
   dynamicFields: {
     advertiser_id: advertiserIdFieldImplementation
   },
-  perform: async (request, { payload }) => {
-    return await performForwardProfiles(request, [payload])
+  perform: async (request, { settings, payload }) => {
+    return await performForwardProfiles(request, [payload], settings)
   },
-  performBatch: async (request, { payload }) => {
-    return await performForwardProfiles(request, payload)
+  performBatch: async (request, { settings, payload }) => {
+    return await performForwardProfiles(request, payload, settings)
   }
 }
 

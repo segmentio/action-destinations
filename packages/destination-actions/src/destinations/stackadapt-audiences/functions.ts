@@ -28,8 +28,20 @@ export const EXTERNAL_PROVIDER = 'segment_io'
 export const GQL_ENDPOINT = 'https://api.stackadapt.com/graphql'
 
 export async function advertiserIdFieldImplementation(
-  request: ReturnType<typeof createRequestClient>
+  request: ReturnType<typeof createRequestClient>,
+  { settings }: any
 ): Promise<DynamicFieldResponse> {
+  if (!settings?.apiKey) {
+    return {
+      choices: [],
+      nextPage: '',
+      error: {
+        message: 'Please configure the API Key field before setting the Advertiser field value',
+        code: 'API Key Missing'
+      }
+    }
+  }
+
   try {
     const query = `query {
         tokenInfo {
