@@ -600,24 +600,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       throw new IntegrationError('This action does not support polling operations.', 'NotImplemented', 501)
     }
 
-    // Resolve/transform the mapping with the input data
-    let payload = transform(bundle.mapping, bundle.data, bundle.statsContext) as Payload
-
-    // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
-    payload = removeEmptyValues(payload, this.schema, true) as Payload
-
-    // Validate the resolved payload against the schema
-    if (this.schema) {
-      const schemaKey = `${this.destinationName}:${this.definition.title}:poll`
-      validateSchema(payload, this.schema, {
-        schemaKey,
-        statsContext: bundle.statsContext,
-        exempt: ['dynamicAuthSettings']
-      })
-    }
-
-    const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
-    const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+    // Note: Polling operations typically use data from stateContext rather than transforming the event payload
+    // Since we're checking the status of async operations, not processing new event data
+    const payload = {} as Payload
 
     // Construct the data bundle to send to the poll action
     const dataBundle = {
@@ -633,8 +618,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       transactionContext: bundle.transactionContext,
       stateContext: bundle.stateContext,
       audienceSettings: bundle.audienceSettings,
-      syncMode: isSyncMode(syncMode) ? syncMode : undefined,
-      matchingKey: matchingKey ? String(matchingKey) : undefined,
       subscriptionMetadata: bundle.subscriptionMetadata,
       signal: bundle?.signal
     }

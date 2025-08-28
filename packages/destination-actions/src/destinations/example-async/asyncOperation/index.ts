@@ -126,7 +126,6 @@ const action: ActionDefinition<Settings, Payload> = {
       return {
         results: [],
         overallStatus: 'failed',
-        shouldContinuePolling: false,
         message: 'No async operations found for polling'
       } as AsyncPollResponseType
     }
@@ -142,7 +141,6 @@ const action: ActionDefinition<Settings, Payload> = {
             code: 'MISSING_CONTEXT',
             message: 'Operation ID not found in async context'
           },
-          shouldContinuePolling: false,
           context
         })
         continue
@@ -156,16 +154,13 @@ const action: ActionDefinition<Settings, Payload> = {
 
         const responseData = response.data as any
         const operationStatus = responseData?.status
-        const progress = responseData?.progress || 0
 
         switch (operationStatus) {
           case 'pending':
           case 'processing':
             results.push({
               status: 'pending',
-              progress,
               message: `Operation ${context.operation_id} is ${operationStatus}`,
-              shouldContinuePolling: true,
               context
             })
             break
@@ -173,10 +168,8 @@ const action: ActionDefinition<Settings, Payload> = {
           case 'completed':
             results.push({
               status: 'completed',
-              progress: 100,
               message: `Operation ${context.operation_id} completed successfully`,
               result: responseData?.result || {},
-              shouldContinuePolling: false,
               context
             })
             break
@@ -184,11 +177,11 @@ const action: ActionDefinition<Settings, Payload> = {
           case 'failed':
             results.push({
               status: 'failed',
+              message: `Operation ${context.operation_id} failed`,
               error: {
                 code: responseData?.error_code || 'OPERATION_FAILED',
                 message: responseData?.error_message || 'Operation failed'
               },
-              shouldContinuePolling: false,
               context
             })
             break
@@ -200,7 +193,6 @@ const action: ActionDefinition<Settings, Payload> = {
                 code: 'UNKNOWN_STATUS',
                 message: `Unknown operation status: ${operationStatus}`
               },
-              shouldContinuePolling: false,
               context
             })
         }
@@ -211,7 +203,6 @@ const action: ActionDefinition<Settings, Payload> = {
             code: 'POLLING_ERROR',
             message: `Failed to poll operation ${context.operation_id}: ${error}`
           },
-          shouldContinuePolling: false,
           context
         })
       }
@@ -236,7 +227,6 @@ const action: ActionDefinition<Settings, Payload> = {
     return {
       results,
       overallStatus,
-      shouldContinuePolling: pendingCount > 0,
       message:
         results.length === 1
           ? results[0].message

@@ -170,10 +170,18 @@ describe('Example Async Destination', () => {
               operation_type: 'process_data'
             }
           ])
-        )
+        ),
+        setResponseContext: jest.fn()
       }
 
-      const result = await AsyncOperationAction.poll!(mockRequest, { settings, stateContext: mockStateContext })
+      const result = await AsyncOperationAction.poll!(mockRequest, {
+        settings,
+        stateContext: mockStateContext,
+        payload: {
+          user_id: 'test-user-123',
+          operation_type: 'process_data'
+        } // Minimal payload required by type, but polling uses stateContext data
+      })
 
       expect(mockRequest).toHaveBeenCalledWith('https://api.example.com/operations/op_12345', {
         method: 'get'
@@ -183,10 +191,8 @@ describe('Example Async Destination', () => {
         results: [
           {
             status: 'completed',
-            progress: 100,
             message: 'Operation op_12345 completed successfully',
             result: { processed_records: 42 },
-            shouldContinuePolling: false,
             context: {
               operation_id: 'op_12345',
               user_id: 'test-user-123',
@@ -195,7 +201,6 @@ describe('Example Async Destination', () => {
           }
         ],
         overallStatus: 'completed',
-        shouldContinuePolling: false,
         message: 'Operation op_12345 completed successfully'
       })
     })
@@ -229,15 +234,22 @@ describe('Example Async Destination', () => {
             { operation_id: 'op_2', user_id: 'user-2', batch_index: 1 },
             { operation_id: 'op_3', user_id: 'user-3', batch_index: 2 }
           ])
-        )
+        ),
+        setResponseContext: jest.fn()
       }
 
-      const result = await AsyncOperationAction.poll!(mockRequest, { settings, stateContext: mockStateContext })
+      const result = await AsyncOperationAction.poll!(mockRequest, {
+        settings,
+        stateContext: mockStateContext,
+        payload: {
+          user_id: 'test-user',
+          operation_type: 'process_data'
+        } // Minimal payload required by type, but polling uses stateContext data
+      })
 
       expect(mockRequest).toHaveBeenCalledTimes(3)
       expect(result.results).toHaveLength(3)
       expect(result.overallStatus).toBe('pending') // Because one is still pending
-      expect(result.shouldContinuePolling).toBe(true)
       expect(result.message).toBe('3 operations: 1 completed, 1 failed, 1 pending')
     })
 

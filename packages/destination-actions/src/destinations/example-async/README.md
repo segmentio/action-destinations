@@ -31,7 +31,6 @@ The async action support allows destinations to:
 {
   results: AsyncOperationResult[],      // Results for each operation
   overallStatus: 'pending' | 'completed' | 'failed' | 'partial',
-  shouldContinuePolling: boolean,
   message?: string
 }
 ```
@@ -95,9 +94,7 @@ poll: async (request, { settings, stateContext }) => {
 
     results.push({
       status: response.data.status === 'completed' ? 'completed' : 'pending',
-      progress: response.data.progress || 0,
       message: `Operation ${context.operation_id} is ${response.data.status}`,
-      shouldContinuePolling: response.data.status !== 'completed',
       context
     })
   }
@@ -109,7 +106,6 @@ poll: async (request, { settings, stateContext }) => {
   return {
     results,
     overallStatus: pendingCount > 0 ? 'pending' : 'completed',
-    shouldContinuePolling: pendingCount > 0,
     message:
       results.length === 1
         ? results[0].message

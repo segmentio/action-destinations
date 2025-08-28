@@ -107,7 +107,6 @@ poll: async (request, { settings, stateContext }) => {
   return {
     results,
     overallStatus: determineOverallStatus(results),
-    shouldContinuePolling: results.some((r) => r.shouldContinuePolling),
     message: results.length === 1 ? results[0].message : `${results.length} operations: ${getStatusCounts(results)}`
   }
 }

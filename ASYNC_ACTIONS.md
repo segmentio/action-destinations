@@ -31,16 +31,12 @@ export type AsyncActionResponseType = {
 export type AsyncOperationResult = {
   /** The current status of this operation */
   status: 'pending' | 'completed' | 'failed'
-  /** Progress indicator (0-100) */
-  progress?: number
   /** Message about current state */
   message?: string
   /** Final result data when status is 'completed' */
   result?: JSONLikeObject
   /** Error information when status is 'failed' */
   error?: { code: string; message: string }
-  /** Whether this operation should continue polling */
-  shouldContinuePolling: boolean
   /** The original context for this operation */
   context?: JSONLikeObject
 }
@@ -51,8 +47,6 @@ export type AsyncPollResponseType = {
   results: AsyncOperationResult[]
   /** Overall status - completed when all operations are done */
   overallStatus: 'pending' | 'completed' | 'failed' | 'partial'
-  /** Whether any operations should continue polling */
-  shouldContinuePolling: boolean
   /** Summary message */
   message?: string
 }
@@ -204,8 +198,7 @@ const action: ActionDefinition<Settings, Payload> = {
           shouldContinuePolling: response.data.status === 'pending'
         }
       ],
-      overallStatus: response.data.status,
-      shouldContinuePolling: response.data.status === 'pending'
+      overallStatus: response.data.status
     }
   }
 }
