@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for MsBingCapi's sendEvent destination action: all fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "eventId": "k)R4$fnW",
+      "eventName": "k)R4$fnW",
+      "eventSourceUrl": "k)R4$fnW",
+      "eventTime": "k)R4$fnW",
+      "eventType": "pageLoad",
+      "keywords": "k)R4$fnW",
+      "pageLoadId": "k)R4$fnW",
+      "pageTitle": "k)R4$fnW",
+      "referrerUrl": "k)R4$fnW",
+      "userData": Object {},
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for MsBingCapi's sendEvent destination action: required fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "eventSourceUrl": "k)R4$fnW",
+      "eventTime": "k)R4$fnW",
+      "eventType": "pageLoad",
+      "userData": Object {},
+    },
+  ],
+}
+`;
