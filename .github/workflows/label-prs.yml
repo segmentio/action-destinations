@@ -104,11 +104,125 @@ jobs:
                 })
             }
 
-      - name: Assign Reviewers
+      - name: Get Team Member
+        id: get-team-member
         uses: actions/github-script@v7
         env:
           labelsToAdd: '${{ steps.compute-labels.outputs.add }}'
         with:
+          github-token: ${{ secrets.GH_PAT_MEMBER_AND_PULL_REQUEST_READONLY }}
           script: |
-            const script = require('./scripts/github-action/assign-reviewers.js')
-            await script({github, context, core})
+            const { labelsToAdd } = process.env
+
+            // Check if team:external label is being added
+            if (labelsToAdd && labelsToAdd.split(',').includes('team:external')) {
+              core.setOutput('skip', 'true')
+              core.setOutput('reason', 'external contributor')
+              return
+            }
+
+            // Check if team:external label already exists on the PR
+            const existingLabels = context.payload.pull_request.labels.map((label) => label.name)
+            if (existingLabels.includes('team:external')) {
+              core.setOutput('skip', 'true')
+              core.setOutput('reason', 'external contributor (existing label)')
+              return
+            }
+
+            // Determine which team should review based on the labels being added
+            function determineReviewingTeam(labelsToAdd, existingLabels) {
+              const allLabels = [...(labelsToAdd ? labelsToAdd.split(',') : []), ...existingLabels]
+              
+              // Priority-based team assignment
+              if (allLabels.includes('actions:core') || allLabels.includes('actions:mappingkit')) {
+                return 'libraries-web-team'
+              }
+              
+              if (allLabels.includes('mode:cloud') || allLabels.includes('mode:device')) {
+                return 'strategic-connections-team'
+              }
+              
+              // If team:segment-core label is present, assign to libraries-web-team
+              if (allLabels.includes('team:segment-core')) {
+                return 'libraries-web-team'
+              }
+              
+              // Default fallback for internal contributors
+              if (allLabels.includes('team:segment')) {
+                return 'strategic-connections-team'
+              }
+              
+              return null
+            }
+
+            const teamToAssign = determineReviewingTeam(labelsToAdd, existingLabels)
+
+            // Only proceed for strategic-connections-team
+            if (teamToAssign !== 'strategic-connections-team') {
+              core.setOutput('skip', 'true')
+              core.setOutput('reason', `only assigning for strategic-connections-team, found ${teamToAssign || 'none'}`)
+              return
+            }
+
+            // Get a random team member
+            try {
+              const team = await github.rest.teams.listMembersInOrg({
+                team_slug: teamToAssign,
+                org: context.repo.owner
+              })
+              
+              if (team.data.length === 0) {
+                core.setOutput('skip', 'true')
+                core.setOutput('reason', 'no team members found')
+                return
+              }
+              
+              // Get a random member from the team
+              const randomIndex = Math.floor(Math.random() * team.data.length)
+              const selectedMember = team.data[randomIndex]
+              
+              core.setOutput('reviewer', selectedMember.login)
+              core.setOutput('team', teamToAssign)
+              core.setOutput('skip', 'false')
+              core.info(`Selected ${selectedMember.login} from ${team.data.length} members in ${teamToAssign}`)
+              
+            } catch (error) {
+              core.setOutput('skip', 'true')
+              core.setOutput('reason', `failed to get team members: ${error.message}`)
+            }
+
+      - name: Assign Reviewers
+        if: steps.get-team-member.outputs.skip != 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const reviewer = '${{ steps.get-team-member.outputs.reviewer }}'
+            const team = '${{ steps.get-team-member.outputs.team }}'
+
+            // Check if PR already has reviewers assigned
+            const prDetails = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            })
+
+            if (prDetails.data.requested_reviewers.length > 0) {
+              core.info('PR already has reviewers assigned')
+              return
+            }
+
+            try {
+              await github.rest.pulls.requestReviewers({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                reviewers: [reviewer]
+              })
+              core.info(`Assigned ${reviewer} from ${team} team as reviewer`)
+            } catch (error) {
+              core.error(`Failed to assign ${reviewer} as reviewer: ${error.message}`)
+            }
+
+      - name: Log Skip Reason
+        if: steps.get-team-member.outputs.skip == 'true'
+        run: echo "Skipping reviewer assignment - ${{ steps.get-team-member.outputs.reason }}"
