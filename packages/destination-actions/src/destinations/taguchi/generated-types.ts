@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Taguchi API Key used to authenticate requests to the Taguchi API.
+   * Taguchi API Key used to authenticate requests to the Taguchi platform.
    */
   apiKey: string
   /**
