@@ -41,6 +41,7 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destinatio
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().head(/.*/).reply(200)
 
     const events = new Array(25).fill(0).map(() =>
       createTestEvent({
@@ -86,6 +87,7 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destinatio
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().head(/.*/).reply(200)
 
     const events = new Array(25).fill(0).map(() =>
       createTestEvent({
@@ -123,6 +125,7 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destinatio
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().head(/.*/).reply(200)
 
     const event = createTestEvent({
       properties: eventData
@@ -165,6 +168,7 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredSFTP destinat
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().head(/.*/).reply(200)
 
     const events = new Array(25).fill(0).map(() =>
       createTestEvent({
@@ -197,6 +201,7 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredSFTP destinat
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().head(/.*/).reply(200)
 
     const events = new Array(25).fill(0).map(() =>
       createTestEvent({
@@ -225,6 +230,7 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredSFTP destinat
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
+    nock(/.*/).persist().head(/.*/).reply(200)
 
     const event = createTestEvent({
       properties: eventData

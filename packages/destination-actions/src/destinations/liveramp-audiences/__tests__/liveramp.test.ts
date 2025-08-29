@@ -76,8 +76,11 @@ describe('Liveramp Audiences', () => {
       })
       .reply(200)
 
-    // Mock S3 HeadBucket request for permission validation
-    nock('https://s3-aws-bucket-name.s3.amazonaws.com').persist().head('/').reply(200)
+    // Mock S3 HeadBucket requests for permission validation (all bucket names)
+    nock(/https:\/\/.*\.s3\.amazonaws\.com/)
+      .persist()
+      .head('/')
+      .reply(200)
   })
   describe('audienceEnteredS3', () => {
     it('should send events with valid payload size and events', async () => {
