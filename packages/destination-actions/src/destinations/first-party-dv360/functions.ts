@@ -3,7 +3,7 @@ import { Payload } from './addToAudContactInfo/generated-types'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
 
-const DV360API = `https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences`
+const DV360API = `https://displayvideo.googleapis.com/v4/firstPartyAndPartnerAudiences`
 const CONSENT_STATUS_GRANTED = 'CONSENT_STATUS_GRANTED' // Define consent status
 
 interface createAudienceRequestParams {
@@ -23,7 +23,7 @@ interface getAudienceParams {
 }
 
 interface DV360editCustomerMatchResponse {
-  firstAndThirdPartyAudienceId: string
+  firstPartyAndPartnerAudienceId: string
   error: [
     {
       code: string
@@ -53,7 +53,7 @@ export const createAudienceRequest = (
       membershipDurationDays: membershipDurationDays,
       description: description,
       audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',
-      firstAndThirdPartyAudienceType: 'FIRST_AND_THIRD_PARTY_AUDIENCE_TYPE_FIRST_PARTY',
+      firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY',
       appId: appId
     }
   })
@@ -112,7 +112,7 @@ export async function editDeviceMobileIds(
     },
     body: requestPayload
   })
-  if (!response.data || !response.data.firstAndThirdPartyAudienceId) {
+  if (!response.data || !response.data.firstPartyAndPartnerAudienceId) {
     statsContext?.statsClient?.incr('addCustomerMatchMembers.error', 1, statsContext?.tags)
     throw new IntegrationError(
       `API returned error: ${response.data?.error || 'Unknown error'}`,

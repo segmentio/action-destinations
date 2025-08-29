@@ -27,7 +27,7 @@ const event = createTestEvent({
 
 describe('First-Party-dv360.addToAudContactInfo', () => {
   it('should hash pii data if not already hashed', async () => {
-    nock('https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences')
+    nock('https://displayvideo.googleapis.com/v4/firstPartyAndPartnerAudiences')
       .post('/1234567890:editCustomerMatchMembers')
       .reply(200, { success: true })
 
@@ -53,7 +53,7 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
   })
 
   it('should not hash pii data if already hashed', async () => {
-    nock('https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences')
+    nock('https://displayvideo.googleapis.com/v4/firstPartyAndPartnerAudiences')
       .post('/1234567890:editCustomerMatchMembers')
       .reply(200, { success: true })
 
@@ -79,7 +79,7 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
   })
 
   it('should batch multiple payloads into a single request when enable_batching is true', async () => {
-    nock('https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences')
+    nock('https://displayvideo.googleapis.com/v4/firstPartyAndPartnerAudiences')
       .post('/1234567890:editCustomerMatchMembers')
       .reply(200, { success: true })
 
