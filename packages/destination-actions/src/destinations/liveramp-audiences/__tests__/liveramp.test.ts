@@ -75,6 +75,12 @@ describe('Liveramp Audiences', () => {
         return true
       })
       .reply(200)
+
+    // Mock S3 HeadBucket requests for permission validation (all bucket names)
+    nock(/https:\/\/.*\.s3\.amazonaws\.com/)
+      .persist()
+      .head('/')
+      .reply(200)
   })
   describe('audienceEnteredS3', () => {
     it('should send events with valid payload size and events', async () => {
@@ -326,6 +332,107 @@ describe('Liveramp Audiences', () => {
           `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: 3`
         )
         expect(e.status).toEqual(400)
+      }
+    })
+  })
+
+  describe('S3 Permissions Validation', () => {
+    it('should throw PayloadValidationError if required S3 credentials are missing', async () => {
+      try {
+        await testDestination.executeBatch('audienceEnteredS3', {
+          events: mockedEvents,
+          mapping: {
+            s3_aws_region: 'us-west-2',
+            audience_key: 'audience_key',
+            delimiter: ',',
+            filename: 'filename.csv',
+            enable_batching: true
+          },
+          subscriptionMetadata: {
+            destinationConfigId: 'destinationConfigId',
+            actionConfigId: 'actionConfigId'
+          },
+          settings: {
+            __segment_internal_engage_force_full_sync: true,
+            __segment_internal_engage_batch_sync: true
+          }
+        })
+        // Should not reach here
+        expect(true).toBe(false)
+      } catch (e) {
+        expect(e.message).toEqual('Missing required S3 credentials.')
+      }
+    })
+
+    it('should throw InvalidAuthenticationError if IAM credentials are invalid (403)', async () => {
+      // Clear persistent mocks and set up specific 403 mock
+      nock.cleanAll()
+      nock('https://test-bucket.s3.amazonaws.com').head('/').reply(403)
+
+      try {
+        await testDestination.executeBatch('audienceEnteredS3', {
+          events: mockedEvents,
+          mapping: {
+            s3_aws_access_key: 'invalid-access-key',
+            s3_aws_secret_key: 'invalid-secret-key',
+            s3_aws_bucket_name: 'test-bucket',
+            s3_aws_region: 'us-west-2',
+            audience_key: 'audience_key',
+            delimiter: ',',
+            filename: 'filename.csv',
+            enable_batching: true
+          },
+          subscriptionMetadata: {
+            destinationConfigId: 'destinationConfigId',
+            actionConfigId: 'actionConfigId'
+          },
+          settings: {
+            __segment_internal_engage_force_full_sync: true,
+            __segment_internal_engage_batch_sync: true
+          }
+        })
+        // Should not reach here
+        expect(true).toBe(false)
+      } catch (e) {
+        expect(e.message).toEqual(
+          'AWS IAM credentials are invalid or do not have permission to access S3 bucket "test-bucket". Please verify your access key, secret key, and bucket permissions.'
+        )
+      }
+    })
+
+    it('should throw InvalidAuthenticationError if S3 bucket does not exist (404)', async () => {
+      // Clear persistent mocks and set up specific 404 mock
+      nock.cleanAll()
+      nock('https://nonexistent-bucket.s3.amazonaws.com').head('/').reply(404)
+
+      try {
+        await testDestination.executeBatch('audienceEnteredS3', {
+          events: mockedEvents,
+          mapping: {
+            s3_aws_access_key: 's3_aws_access_key',
+            s3_aws_secret_key: 's3_aws_secret_key',
+            s3_aws_bucket_name: 'nonexistent-bucket',
+            s3_aws_region: 'us-west-2',
+            audience_key: 'audience_key',
+            delimiter: ',',
+            filename: 'filename.csv',
+            enable_batching: true
+          },
+          subscriptionMetadata: {
+            destinationConfigId: 'destinationConfigId',
+            actionConfigId: 'actionConfigId'
+          },
+          settings: {
+            __segment_internal_engage_force_full_sync: true,
+            __segment_internal_engage_batch_sync: true
+          }
+        })
+        // Should not reach here
+        expect(true).toBe(false)
+      } catch (e) {
+        expect(e.message).toContain(
+          'S3 bucket "nonexistent-bucket" does not exist or is not accessible with the provided credentials.'
+        )
       }
     })
   })

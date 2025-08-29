@@ -1,5 +1,5 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { isValidS3Path, isValidS3BucketName, normalizeS3Path, uploadS3 } from './s3'
+import { isValidS3Path, isValidS3BucketName, normalizeS3Path, uploadS3, validateS3Permissions } from './s3'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
 import {
@@ -141,6 +141,11 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     throw new PayloadValidationError(
       `Invalid S3 bucket name: "${input.payloads[0].s3_aws_bucket_name}". Bucket names cannot contain '/' characters, must be lowercase, and follow AWS naming conventions.`
     )
+  }
+
+  // skip for legacy flow to avoid snapshot issues
+  if (!(input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true)) {
+    await validateS3Permissions(input.payloads[0], input.request)
   }
 
   // validate s3 path
