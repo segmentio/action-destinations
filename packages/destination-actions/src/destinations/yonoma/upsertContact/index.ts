@@ -1,7 +1,7 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { UPSERT_CONTACT_URL, TAG_CONTACT_URL, UNTAG_CONTACT_URL } from './constants'
+import { UPSERT_CONTACT_URL } from './constants'
 import { UpsertContactJSON } from './types'
 import { formatDate } from './functions'
 
@@ -124,14 +124,16 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       multiple: true,
       description: 'List of tags to add to the Contact. Can be a single string or array of tags. Tags must already exist in Yonoma.',
-      required: false
+      required: false, 
+      default: {'@path': '$.traits.tags_to_add'}
     },
     tags_to_remove: {
       label: 'Tags to Remove',
       type: 'string',
       multiple: true,
       description: 'List of tags to remove from the Contact. Can be a single string or array of strings. Tags must already exist in Yonoma.',
-      required: false
+      required: false,
+      default: {'@path': '$.traits.tags_to_remove'}
     }
   },
   perform: async (request, {payload}) => {
@@ -181,37 +183,19 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
+    if(typeof tags_to_add === 'string' || ( (Array.isArray(tags_to_add) && tags_to_add.length > 0))) {
+      jsonUpsertContact.properties.tags_to_add = Array.isArray(tags_to_add) ? tags_to_add : [tags_to_add]
+    }
+
+    if(typeof tags_to_remove === 'string' || ( (Array.isArray(tags_to_remove) && tags_to_remove.length > 0))) {
+      jsonUpsertContact.properties.tags_to_remove = Array.isArray(tags_to_remove) ? tags_to_remove : [tags_to_remove]
+    }
+
     await request(UPSERT_CONTACT_URL, {
       method: 'POST',
       json: jsonUpsertContact
     })
 
-    if(typeof tags_to_add === 'string' || ( (Array.isArray(tags_to_add) && tags_to_add.length > 0))) {
-      const jsonAddTags = {
-        ...(userId ? { userId } : {}),
-        ...(email ? { email } : {}),
-        listId,
-        tags: Array.isArray(tags_to_add) ? tags_to_add : [tags_to_add]
-      }
-      await request(TAG_CONTACT_URL, {
-        method: 'POST',
-        json: jsonAddTags
-      })
-    }
-
-    if(typeof tags_to_remove === 'string' || ( (Array.isArray(tags_to_remove) && tags_to_remove.length > 0))) {
-      const jsonRemoveTags = {
-        ...(userId ? { userId } : {}),
-        ...(email ? { email } : {}),
-        listId,
-        tags: Array.isArray(tags_to_remove) ? tags_to_remove : [tags_to_remove]
-      }
-      await request(UNTAG_CONTACT_URL, {
-        method: 'POST',
-        json: jsonRemoveTags
-      })
-    }
-  
   }
 }
 
