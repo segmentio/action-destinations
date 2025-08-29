@@ -1,4 +1,4 @@
-import { Kafka, KafkaConfig } from 'kafkajs'
+import { Kafka, KafkaConfig, KafkaJSError } from 'kafkajs'
 import { MultiStatusResponse, getErrorCodeFromHttpStatus } from '@segment/actions-core'
 import { sendData, validate, producersByConfig, serializeKafkaConfig, getOrCreateProducer } from '../utils'
 import type { Settings } from '../generated-types'
@@ -14,9 +14,18 @@ jest.mock('kafkajs', () => {
     producer: jest.fn(() => mockProducer)
   }
 
+  class MockKafkaJSError extends Error {
+    retriable?: boolean
+    constructor(message?: string, retriable?: boolean) {
+      super(message)
+      this.retriable = retriable ?? false
+    }
+  }
+
   return {
     Kafka: jest.fn(() => mockKafka),
     Producer: jest.fn(() => mockProducer),
+    KafkaJSError: MockKafkaJSError,
     Partitioners: {
       LegacyPartitioner: jest.fn(),
       DefaultPartitioner: jest.fn()
@@ -89,9 +98,9 @@ describe('kafka utils: sendData and validation', () => {
     expect(res.length()).toBe(1)
     const r = res.getResponseAtIndex(0)
     // @ts-expect-error test-time inspection of response payload
-    expect(r.value().status).toBe(503)
+    expect(r.value().status).toBe(400)
     // @ts-expect-error test-time inspection of response payload
-    expect(r.value().errortype).toBe(getErrorCodeFromHttpStatus(503))
+    expect(r.value().errortype).toBe(getErrorCodeFromHttpStatus(400))
     // Should not attempt to send
     expect(mockProducer.send).not.toHaveBeenCalled()
   })
@@ -109,46 +118,45 @@ describe('kafka utils: sendData and validation', () => {
     expect(res.length()).toBe(1)
     const r = res.getResponseAtIndex(0)
     // @ts-expect-error test-time inspection of response payload
-    expect(r.value().status).toBe(422)
+    expect(r.value().status).toBe(400)
     // @ts-expect-error test-time inspection of response payload
-    expect(r.value().errortype).toBe(getErrorCodeFromHttpStatus(422))
+    expect(r.value().errortype).toBe(getErrorCodeFromHttpStatus(400))
     // Disconnect should be called when feature flag is off
     expect(mockProducer.disconnect).toHaveBeenCalled()
   })
 
-  it('maps many KafkaJS errors to expected statuses', async () => {
-    const cases: Array<{ name: string; status: number }> = [
-      { name: 'KafkaJSConnectionError', status: 503 },
-      { name: 'KafkaJSRequestTimeoutError', status: 503 },
-      { name: 'KafkaJSStaleMetadata', status: 503 },
-      { name: 'KafkaJSAuthorizationError', status: 403 },
-      { name: 'KafkaJSBrokerNotFound', status: 404 },
-      { name: 'KafkaJSTimeout', status: 504 },
-      { name: 'KafkaJSUnknownTopicOrPartition', status: 404 },
-      { name: 'KafkaJSAuthenticationError', status: 401 },
-      { name: 'KafkaJSUnsupportedFeature', status: 501 },
-      { name: 'KafkaJSInvalidConfiguration', status: 500 },
-      { name: 'KafkaJSInvalidResponse', status: 502 },
-      { name: 'KafkaJSInvalidMessageSize', status: 413 },
-      { name: 'KafkaJSNotLeaderForPartition', status: 409 }
-    ]
+  it('returns 500 when retriable KafkaJSError occurs', async () => {
+    const mockProducer = getMockProducer()
+    ;(mockProducer.connect as jest.Mock).mockResolvedValue(undefined)
+    ;(mockProducer.send as jest.Mock).mockImplementation(() => {
+      const err = new (KafkaJSError as any)('boom', true)
+      err.retriable = true
+      throw err
+    })
 
-    for (const c of cases) {
-      const mockProducer = getMockProducer()
-      ;(mockProducer.connect as jest.Mock).mockResolvedValue(undefined)
-      ;(mockProducer.send as jest.Mock).mockImplementation(() => {
-        const err = new Error('boom')
-        err.name = c.name
-        throw err
-      })
+    const res = await sendData(baseSettings, [payloadItem], undefined, undefined)
+    const r = res.getResponseAtIndex(0)
+    // @ts-expect-error reading test fields
+    expect(r.value().status).toBe(500)
+    // @ts-expect-error reading test fields
+    expect(r.value().errortype).toBe(getErrorCodeFromHttpStatus(500))
+  })
 
-      const res = await sendData(baseSettings, [payloadItem], undefined, undefined)
-      const r = res.getResponseAtIndex(0)
-      // @ts-expect-error reading test fields
-      expect(r.value().status).toBe(c.status)
-      // reset mocks for next iteration
-      jest.clearAllMocks()
-    }
+  it('returns 400 when non-retriable KafkaJSError occurs', async () => {
+    const mockProducer = getMockProducer()
+    ;(mockProducer.connect as jest.Mock).mockResolvedValue(undefined)
+    ;(mockProducer.send as jest.Mock).mockImplementation(() => {
+      const err = new (KafkaJSError as any)('no retry', false)
+      err.retriable = false
+      throw err
+    })
+
+    const res = await sendData(baseSettings, [payloadItem], undefined, undefined)
+    const r = res.getResponseAtIndex(0)
+    // @ts-expect-error reading test fields
+    expect(r.value().status).toBe(400)
+    // @ts-expect-error reading test fields
+    expect(r.value().errortype).toBe(getErrorCodeFromHttpStatus(400))
   })
 
   it('builds SSL config when ssl_ca is provided', async () => {
