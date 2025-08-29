@@ -28,6 +28,12 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           description: 'Unique user identifier from your app.'
         },
+        anonymousId: {
+          label: 'Anonymous ID',
+          type: 'string',
+          description: 'Anonymous identifier from Segment.',
+          readOnly: false
+        },
         email: {
           label: 'Email',
           type: 'string',
