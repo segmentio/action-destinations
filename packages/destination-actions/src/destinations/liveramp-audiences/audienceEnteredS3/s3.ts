@@ -1,6 +1,7 @@
 import generateS3RequestOptions from '../../../lib/AWS/s3'
 import { InvalidAuthenticationError, ModifiedResponse, RequestOptions } from '@segment/actions-core'
 import { Payload } from './generated-types'
+import { PayloadValidationError } from '@segment/actions-core/*'
 
 function validateS3(payload: Payload) {
   if (!payload.s3_aws_access_key) {
@@ -147,14 +148,13 @@ async function validateS3Permissions(
   payload: Payload,
   request: <Data = unknown>(url: string, options?: RequestOptions) => Promise<ModifiedResponse<Data>>
 ) {
-  // Only validate if all required S3 credentials are provided
   if (
     !payload.s3_aws_access_key ||
     !payload.s3_aws_secret_key ||
     !payload.s3_aws_bucket_name ||
     !payload.s3_aws_region
   ) {
-    return
+    throw new PayloadValidationError('Missing required S3 credentials.')
   }
 
   try {
