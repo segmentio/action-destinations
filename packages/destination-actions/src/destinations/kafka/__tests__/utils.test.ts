@@ -207,7 +207,7 @@ describe('kafka utils: sendData and validation', () => {
 
   it('returns success MultiStatusResponse with body on success', async () => {
     const mockProducer = getMockProducer()
-    const fakeKafkaResponse = [{ partition: 0, offset: '1' }]
+    const fakeKafkaResponse = 'success'
     ;(mockProducer.connect as jest.Mock).mockResolvedValue(undefined)
     ;(mockProducer.send as jest.Mock).mockResolvedValue(fakeKafkaResponse)
 
@@ -217,7 +217,7 @@ describe('kafka utils: sendData and validation', () => {
     // @ts-expect-error test-time inspection of response payload
     expect(r.value().status).toBe(200)
     // @ts-expect-error test-time inspection of response payload
-    expect(r.value().body.kafkaResponse).toEqual(fakeKafkaResponse)
+    expect(r.value().body).toEqual(fakeKafkaResponse)
     // @ts-expect-error inspect 'sent' content mapping
     expect(r.value().sent).toMatchObject({
       value: JSON.stringify(payloadItem.payload),
