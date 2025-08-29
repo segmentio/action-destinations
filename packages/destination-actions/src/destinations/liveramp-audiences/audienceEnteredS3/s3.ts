@@ -29,7 +29,7 @@ async function uploadS3(
   const method = 'PUT'
   const opts = await generateS3RequestOptions(
     payload.s3_aws_bucket_name as string,
-    payload.s3_aws_region as string,
+    payload.s3_aws_region,
     filename,
     method,
     fileContent,
@@ -143,4 +143,62 @@ function isValidS3BucketName(bucketName: string): boolean {
   return true
 }
 
-export { validateS3, uploadS3, isValidS3Path, normalizeS3Path, isValidS3BucketName }
+async function validateS3Permissions(
+  payload: Payload,
+  request: <Data = unknown>(url: string, options?: RequestOptions) => Promise<ModifiedResponse<Data>>
+) {
+  // Only validate if all required S3 credentials are provided
+  if (
+    !payload.s3_aws_access_key ||
+    !payload.s3_aws_secret_key ||
+    !payload.s3_aws_bucket_name ||
+    !payload.s3_aws_region
+  ) {
+    return
+  }
+
+  try {
+    const method = 'HEAD'
+    const opts = await generateS3RequestOptions(
+      payload.s3_aws_bucket_name,
+      payload.s3_aws_region,
+      '',
+      method,
+      '',
+      payload.s3_aws_access_key,
+      payload.s3_aws_secret_key
+    )
+
+    if (!opts.headers || !opts.method || !opts.host) {
+      throw new InvalidAuthenticationError('Unable to generate signature header for AWS S3 permission check.')
+    }
+
+    await request(`https://${opts.host}`, {
+      headers: opts.headers as Record<string, string>,
+      method
+    })
+  } catch (error: any) {
+    const status = error?.response?.status || error?.status
+
+    if (status === 403 || status === 401) {
+      throw new InvalidAuthenticationError(
+        `AWS IAM credentials are invalid or do not have permission to access S3 bucket "${payload.s3_aws_bucket_name}". Please verify your access key, secret key, and bucket permissions.`
+      )
+    }
+
+    if (status === 404) {
+      throw new InvalidAuthenticationError(
+        `S3 bucket "${payload.s3_aws_bucket_name}" does not exist or is not accessible with the provided credentials.`
+      )
+    }
+
+    if (status === 400) {
+      throw new InvalidAuthenticationError(
+        `Bad request when accessing S3 bucket "${payload.s3_aws_bucket_name}". Please verify your AWS region and bucket configuration.`
+      )
+    }
+    throw error
+  }
+}
+
+export { validateS3, uploadS3, isValidS3Path, normalizeS3Path, isValidS3BucketName, validateS3Permissions }

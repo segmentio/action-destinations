@@ -1,5 +1,5 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { isValidS3Path, isValidS3BucketName, normalizeS3Path, uploadS3 } from './s3'
+import { isValidS3Path, isValidS3BucketName, normalizeS3Path, uploadS3, validateS3Permissions } from './s3'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
 import {
@@ -142,6 +142,9 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
       `Invalid S3 bucket name: "${input.payloads[0].s3_aws_bucket_name}". Bucket names cannot contain '/' characters, must be lowercase, and follow AWS naming conventions.`
     )
   }
+
+  // validate IAM permissions for S3 access
+  await validateS3Permissions(input.payloads[0], input.request)
 
   // validate s3 path
   input.payloads[0].s3_aws_bucket_path = normalizeS3Path(input.payloads[0].s3_aws_bucket_path)
