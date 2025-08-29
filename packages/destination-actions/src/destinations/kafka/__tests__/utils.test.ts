@@ -207,7 +207,7 @@ describe('kafka utils: sendData and validation', () => {
 
   it('returns success MultiStatusResponse with body on success', async () => {
     const mockProducer = getMockProducer()
-    const fakeKafkaResponse = [{ partition: 0, offset: '1' }]
+    const fakeKafkaResponse = 'success'
     ;(mockProducer.connect as jest.Mock).mockResolvedValue(undefined)
     ;(mockProducer.send as jest.Mock).mockResolvedValue(fakeKafkaResponse)
 

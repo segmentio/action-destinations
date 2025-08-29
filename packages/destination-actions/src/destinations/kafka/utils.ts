@@ -255,12 +255,12 @@ export const sendData = async (
   }
 
   try {
-    const kafkaResponse = await producer.send(topicMessages)
+    await producer.send(topicMessages)
     topicMessages.messages.forEach((payloadItem, index) =>
       multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: 200,
         sent: { ...payloadItem },
-        body: { kafkaResponse }
+        body: 'success'
       })
     )
   } catch (error) {
