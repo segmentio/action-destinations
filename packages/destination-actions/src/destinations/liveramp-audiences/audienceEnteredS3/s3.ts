@@ -1,7 +1,11 @@
 import generateS3RequestOptions from '../../../lib/AWS/s3'
-import { InvalidAuthenticationError, ModifiedResponse, RequestOptions } from '@segment/actions-core'
+import {
+  InvalidAuthenticationError,
+  PayloadValidationError,
+  ModifiedResponse,
+  RequestOptions
+} from '@segment/actions-core'
 import { Payload } from './generated-types'
-import { PayloadValidationError } from '@segment/actions-core/*'
 
 function validateS3(payload: Payload) {
   if (!payload.s3_aws_access_key) {
