@@ -337,6 +337,33 @@ describe('Liveramp Audiences', () => {
   })
 
   describe('S3 Permissions Validation', () => {
+    it('should throw PayloadValidationError if required S3 credentials are missing', async () => {
+      try {
+        await testDestination.executeBatch('audienceEnteredS3', {
+          events: mockedEvents,
+          mapping: {
+            s3_aws_region: 'us-west-2',
+            audience_key: 'audience_key',
+            delimiter: ',',
+            filename: 'filename.csv',
+            enable_batching: true
+          },
+          subscriptionMetadata: {
+            destinationConfigId: 'destinationConfigId',
+            actionConfigId: 'actionConfigId'
+          },
+          settings: {
+            __segment_internal_engage_force_full_sync: true,
+            __segment_internal_engage_batch_sync: true
+          }
+        })
+        // Should not reach here
+        expect(true).toBe(false)
+      } catch (e) {
+        expect(e.message).toEqual('Missing required S3 credentials.')
+      }
+    })
+
     it('should throw InvalidAuthenticationError if IAM credentials are invalid (403)', async () => {
       // Clear persistent mocks and set up specific 403 mock
       nock.cleanAll()

@@ -143,7 +143,7 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     )
   }
 
-  // validate IAM permissions for S3 access (skip for legacy flow to avoid snapshot issues)
+  // skip for legacy flow to avoid snapshot issues
   if (!(input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true)) {
     await validateS3Permissions(input.payloads[0], input.request)
   }
