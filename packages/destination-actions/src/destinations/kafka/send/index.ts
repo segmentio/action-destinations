@@ -66,7 +66,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (_request, { settings, payload, features, statsContext }) => {
-    return (await sendData(settings, [payload], features, statsContext)).getFirstResponse()
+    // disabled stream mode for kafka
+    await sendData(settings, [payload], features, statsContext)
   },
   performBatch: async (_request, { settings, payload, features, statsContext }) => {
     return await sendData(settings, payload, features, statsContext)

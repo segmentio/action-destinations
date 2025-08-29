@@ -191,49 +191,8 @@ function kafkaErrorToHttpStatus(error: KafkaJSError | Error) {
 
   if (!error || !error.name) return { status, code: getErrorCodeFromHttpStatus(status) }
 
-  // convert KafkaJSErrors to equivalent http status codes
-  switch (error.name) {
-    case 'KafkaJSConnectionError':
-    case 'KafkaJSRequestTimeoutError':
-    case 'KafkaJSStaleMetadata':
-      status = 503
-      break
-    case 'KafkaJSNotLeaderForPartition':
-      status = 409
-      break
-    case 'KafkaJSAuthorizationError':
-      status = 403
-      break
-    case 'KafkaJSBrokerNotFound':
-      status = 404
-      break
-    case 'KafkaJSTimeout':
-      status = 504
-      break
-    case 'KafkaJSUnknownTopicOrPartition':
-      status = 404
-      break
-    case 'KafkaJSInvalidMessage':
-      status = 422
-      break
-    case 'KafkaJSAuthenticationError':
-      status = 401
-      break
-    case 'KafkaJSUnsupportedFeature':
-      status = 501
-      break
-    case 'KafkaJSInvalidConfiguration':
-      status = 500
-      break
-    case 'KafkaJSInvalidResponse':
-      status = 502
-      break
-    case 'KafkaJSInvalidMessageSize':
-      status = 413
-      break
-    default:
-      // Retain default 400 status for unhandled errors
-      break
+  if (error instanceof KafkaJSError && error.retriable) {
+    status = 500
   }
 
   return { status, code: getErrorCodeFromHttpStatus(status) }
@@ -245,12 +204,13 @@ function fillKafkaMultiStatusErrorResponse(
   multiStatusResponse: MultiStatusResponse
 ) {
   const { code, status } = kafkaErrorToHttpStatus(error as Error)
-  topicMessages.messages.forEach((payloadItem) =>
-    multiStatusResponse.pushErrorResponse({
+  topicMessages.messages.forEach((payloadItem, index) =>
+    multiStatusResponse.setErrorResponseAtIndex(index, {
       status,
       errortype: code,
       errormessage: error?.message ?? 'Kafka error occurred',
-      sent: { ...payloadItem }
+      sent: { ...payloadItem },
+      body: error.message
     })
   )
 }
@@ -296,8 +256,8 @@ export const sendData = async (
 
   try {
     const kafkaResponse = await producer.send(topicMessages)
-    topicMessages.messages.forEach((payloadItem) =>
-      multiStatusResponse.pushSuccessResponse({
+    topicMessages.messages.forEach((payloadItem, index) =>
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: 200,
         sent: { ...payloadItem },
         body: { kafkaResponse }

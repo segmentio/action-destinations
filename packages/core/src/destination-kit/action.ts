@@ -92,9 +92,6 @@ type IsArray<T> = T extends (infer U)[] ? U : never
 
 // Multi-status response from a batch request
 type PerformBatchResponse = MaybePromise<MultiStatusResponse> | MaybePromise<unknown>
-type PerformResponse =
-  | MaybePromise<ActionDestinationErrorResponse | ActionDestinationSuccessResponse>
-  | MaybePromise<unknown>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ActionDefinition<
@@ -137,7 +134,7 @@ export interface ActionDefinition<
   }
 
   /** The operation to perform when this action is triggered */
-  perform: RequestFn<Settings, Payload, PerformResponse, AudienceSettings>
+  perform: RequestFn<Settings, Payload, any, AudienceSettings>
 
   /** The operation to perform when this action is triggered for a batch of events */
   performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings>
@@ -378,18 +375,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
     // Construct the request client and perform the action
     const output = await this.performRequest(this.definition.perform, dataBundle)
-    let result: Result = {
-      output: 'Action Executed'
-    }
-    if (output instanceof ActionDestinationSuccessResponse || output instanceof ActionDestinationErrorResponse) {
-      result = {
-        ...result,
-        ...output?.value()
-      }
-    } else {
-      result.data = output as JSONObject
-    }
-    results.push(result)
+    results.push({ data: output as JSONObject, output: 'Action Executed' })
 
     return results
   }
@@ -698,7 +684,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
    * and given data bundle
    */
   private async performRequest<T extends Payload | Payload[]>(
-    requestFn: RequestFn<Settings, T, PerformResponse, AudienceSettings>,
+    requestFn: RequestFn<Settings, T, any, AudienceSettings>,
     data: ExecuteInput<Settings, T, AudienceSettings>
   ): Promise<unknown> {
     const requestClient = this.createRequestClient(data)
@@ -868,9 +854,5 @@ export class MultiStatusResponse {
 
   public getAllResponses(): (ActionDestinationSuccessResponse | ActionDestinationErrorResponse)[] {
     return this.responses
-  }
-
-  public getFirstResponse(): ActionDestinationSuccessResponse | ActionDestinationErrorResponse | undefined {
-    return this.responses?.[0]
   }
 }
