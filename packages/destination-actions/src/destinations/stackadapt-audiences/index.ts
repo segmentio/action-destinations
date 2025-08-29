@@ -24,8 +24,7 @@ const destination: DestinationDefinition<Settings> = {
         label: "Advertiser ID",
         description: "The StackAdapt advertiser ID to add the profile to. The value in this field field can also be overridden at the Action level via the Action field of the same name.",
         type: 'string', 
-        required: true,
-        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
+        required: false,
         dynamic: advertiserIdFieldImplementation
       }
     },
@@ -73,7 +72,7 @@ const destination: DestinationDefinition<Settings> = {
     const syncId = sha256hash(String(userId))
     const advertiserId = settings.advertiser_id
     if(!advertiserId) {
-      throw new InvalidAuthenticationError("Advertiser value must be provided in either the main Settings Advertiser field or at the Action level Advertiser field.")
+      throw new InvalidAuthenticationError("To delete a user, the Advertiser field in Settings should be populated.")
     }
 
     const mutation = `mutation {
