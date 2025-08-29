@@ -2,23 +2,15 @@
 
 export interface Payload {
   /**
-   * The user's id
+   * The user's unique identifier.
    */
   userId?: string
   /**
-   * The user's anonymous id
+   * The user's anonymous identifier when no user ID is available.
    */
   anonymousId?: string
   /**
-   * The user's name
-   */
-  name?: string
-  /**
-   * The user's email
-   */
-  email?: string
-  /**
-   * The Segment traits to be forwarded to FullSession
+   * User traits and properties to be sent to FullSession.
    */
   traits?: {
     [k: string]: unknown

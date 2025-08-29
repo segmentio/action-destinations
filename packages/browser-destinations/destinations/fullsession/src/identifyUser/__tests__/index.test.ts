@@ -33,12 +33,6 @@ const identifySubscription: Subscription = {
     anonymousId: {
       '@path': '$.anonymousId'
     },
-    name: {
-      '@path': '$.traits.name'
-    },
-    email: {
-      '@path': '$.traits.email'
-    },
     traits: {
       '@path': '$.traits'
     }
@@ -71,6 +65,7 @@ describe('FullSession identifyUser action', () => {
       new Context({
         type: 'identify',
         userId: 'user123',
+        anonymousId: 'anon123',
         traits: {
           name: 'John Doe',
           email: 'john@example.com'
@@ -83,8 +78,9 @@ describe('FullSession identifyUser action', () => {
       email: 'john@example.com'
     })
 
-    // No additional traits to set as session attributes
-    expect(fullSessionTracker.setSessionAttributes).not.toHaveBeenCalled()
+    expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
+      segmentAnonymousId: 'anon123'
+    })
   })
 
   test('should identify user with userId and additional traits', async () => {
@@ -101,6 +97,7 @@ describe('FullSession identifyUser action', () => {
       new Context({
         type: 'identify',
         userId: 'user123',
+        anonymousId: 'anon123',
         traits: {
           name: 'John Doe',
           email: 'john@example.com',
@@ -119,7 +116,8 @@ describe('FullSession identifyUser action', () => {
     expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
       company: 'Test Corp',
       role: 'Developer',
-      age: 30
+      age: 30,
+      segmentAnonymousId: 'anon123'
     })
   })
 
@@ -204,6 +202,7 @@ describe('FullSession identifyUser action', () => {
       new Context({
         type: 'identify',
         userId: 'user123',
+        anonymousId: 'anon123',
         traits: {
           company: 'Test Corp'
         }
@@ -216,11 +215,12 @@ describe('FullSession identifyUser action', () => {
     })
 
     expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
-      company: 'Test Corp'
+      company: 'Test Corp',
+      segmentAnonymousId: 'anon123'
     })
   })
 
-  test('should not call identify when neither userId nor anonymousId is present', async () => {
+  test('should call setSessionAttributes with empty object when only name and email are present', async () => {
     const { fullSessionTracker } = await import('fullsession')
 
     const [event] = await fullSessionDestination({
@@ -233,22 +233,26 @@ describe('FullSession identifyUser action', () => {
     await event.identify?.(
       new Context({
         type: 'identify',
+        userId: 'user123',
+        anonymousId: 'anon123',
         traits: {
           name: 'John Doe',
-          email: 'john@example.com',
-          company: 'Test Corp'
+          email: 'john@example.com'
         }
       })
     )
 
-    expect(fullSessionTracker.identify).not.toHaveBeenCalled()
-    // Should still set session attributes for additional traits
+    expect(fullSessionTracker.identify).toHaveBeenCalledWith('user123', {
+      name: 'John Doe',
+      email: 'john@example.com'
+    })
+
     expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
-      company: 'Test Corp'
+      segmentAnonymousId: 'anon123'
     })
   })
 
-  test('should not call setSessionAttributes when only name and email are present', async () => {
+  test('should handle case without anonymousId', async () => {
     const { fullSessionTracker } = await import('fullsession')
 
     const [event] = await fullSessionDestination({
@@ -264,7 +268,8 @@ describe('FullSession identifyUser action', () => {
         userId: 'user123',
         traits: {
           name: 'John Doe',
-          email: 'john@example.com'
+          email: 'john@example.com',
+          company: 'Test Corp'
         }
       })
     )
@@ -274,7 +279,9 @@ describe('FullSession identifyUser action', () => {
       email: 'john@example.com'
     })
 
-    expect(fullSessionTracker.setSessionAttributes).not.toHaveBeenCalled()
+    expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
+      company: 'Test Corp'
+    })
   })
 
   test('should handle null or undefined traits', async () => {
@@ -290,7 +297,8 @@ describe('FullSession identifyUser action', () => {
     await event.identify?.(
       new Context({
         type: 'identify',
-        userId: 'user123'
+        userId: 'user123',
+        anonymousId: 'anon123'
         // traits is undefined
       })
     )
@@ -300,6 +308,8 @@ describe('FullSession identifyUser action', () => {
       email: ''
     })
 
-    expect(fullSessionTracker.setSessionAttributes).not.toHaveBeenCalled()
+    expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
+      segmentAnonymousId: 'anon123'
+    })
   })
 })

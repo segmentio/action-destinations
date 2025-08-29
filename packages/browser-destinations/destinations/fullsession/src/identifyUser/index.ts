@@ -5,14 +5,14 @@ import { FUS } from '../types'
 
 const action: BrowserActionDefinition<Settings, FUS, Payload> = {
   title: 'Identify User',
-  description: 'Describe your users',
+  description: 'Identify users and set their properties in FullSession.',
   platform: 'web',
   defaultSubscription: 'type = "identify"',
   fields: {
     userId: {
       type: 'string',
       required: false,
-      description: "The user's id",
+      description: "The user's unique identifier.",
       label: 'User ID',
       default: {
         '@path': '$.userId'
@@ -21,55 +21,34 @@ const action: BrowserActionDefinition<Settings, FUS, Payload> = {
     anonymousId: {
       type: 'string',
       required: false,
-      description: "The user's anonymous id",
+      description: "The user's anonymous identifier when no user ID is available.",
       label: 'Anonymous ID',
       default: {
         '@path': '$.anonymousId'
       }
     },
-    name: {
-      type: 'string',
-      required: false,
-      description: "The user's name",
-      label: 'Name',
-      default: {
-        '@path': '$.traits.name'
-      }
-    },
-    email: {
-      type: 'string',
-      required: false,
-      description: "The user's email",
-      label: 'Email',
-      default: {
-        '@path': '$.traits.email'
-      }
-    },
     traits: {
       type: 'object',
       required: false,
-      description: 'The Segment traits to be forwarded to FullSession',
-      label: 'Traits',
+      description: 'User traits and properties to be sent to FullSession.',
+      label: 'User Traits',
       default: {
         '@path': '$.traits'
       }
     }
   },
   perform: (FUS, data) => {
-    const { userId, anonymousId, name, email, traits = {} } = data.payload
+    const { userId, anonymousId, traits = {} } = data.payload
 
     // Build the user traits object for identify
     const identifyTraits = {
-      name: name ?? '',
-      email: email ?? ''
+      name: (traits.name as string) ?? '',
+      email: (traits.email as string) ?? ''
     }
 
-    // Only call identify if we have a userId or anonymousId
-    if (userId) {
-      FUS.identify(userId, identifyTraits)
-    } else if (anonymousId) {
-      FUS.identify(anonymousId, identifyTraits)
-    }
+    // call the identify function on either the userId or anonymousId
+
+    FUS.identify(userId ?? (anonymousId as string), identifyTraits)
 
     // Remove name and email from traits before sending to setSessionAttributes
     const { name: _ignoredName, email: _ignoredEmail, ...restTraits } = traits || {}
@@ -80,10 +59,7 @@ const action: BrowserActionDefinition<Settings, FUS, Payload> = {
       ...(anonymousId ? { segmentAnonymousId: anonymousId } : {})
     }
 
-    // Only call if we have something to set
-    if (Object.keys(sessionAttributes).length > 0) {
-      FUS.setSessionAttributes(sessionAttributes)
-    }
+    FUS.setSessionAttributes(sessionAttributes)
   }
 }
 

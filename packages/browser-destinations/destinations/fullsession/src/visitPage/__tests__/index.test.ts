@@ -16,7 +16,7 @@ jest.mock('fullsession', () => ({
   fullSessionTracker: {
     initialize: jest.fn(),
     identify: jest.fn(),
-    setSessionAttributes: jest.fn(),
+    setPageAttributes: jest.fn(),
     event: jest.fn()
   }
 }))
@@ -27,13 +27,6 @@ const pageSubscription: Subscription = {
   enabled: true,
   subscribe: 'type = "page"',
   mapping: {
-    name: {
-      '@if': {
-        exists: { '@path': '$.category' },
-        then: { '@path': '$.category' },
-        else: { '@path': '$.name' }
-      }
-    },
     properties: {
       '@path': '$.properties'
     }
@@ -52,7 +45,7 @@ describe('FullSession visitPage action', () => {
     }
   })
 
-  test('should set session attributes with page name and properties', async () => {
+  test('should set session attributes with page properties', async () => {
     const { fullSessionTracker } = await import('fullsession')
 
     const [event] = await fullSessionDestination({
@@ -62,7 +55,6 @@ describe('FullSession visitPage action', () => {
 
     await event.load(Context.system(), {} as Analytics)
 
-    const pageName = 'Home Page'
     const properties = {
       title: 'Welcome to Our Site',
       url: 'https://example.com',
@@ -74,18 +66,17 @@ describe('FullSession visitPage action', () => {
     await event.page?.(
       new Context({
         type: 'page',
-        name: pageName,
+        name: 'Home Page',
         properties
       })
     )
 
-    expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
-      name: pageName,
+    expect(fullSessionTracker.setPageAttributes).toHaveBeenCalledWith({
       ...properties
     })
   })
 
-  test('should use category as name when present', async () => {
+  test('should handle page with category and properties', async () => {
     const { fullSessionTracker } = await import('fullsession')
 
     const [event] = await fullSessionDestination({
@@ -95,8 +86,6 @@ describe('FullSession visitPage action', () => {
 
     await event.load(Context.system(), {} as Analytics)
 
-    const pageName = 'Product Details'
-    const category = 'Products'
     const properties = {
       title: 'Amazing Product',
       url: 'https://example.com/products/amazing-product',
@@ -106,20 +95,18 @@ describe('FullSession visitPage action', () => {
     await event.page?.(
       new Context({
         type: 'page',
-        name: pageName,
-        category: category,
+        name: 'Product Details',
+        category: 'Products',
         properties
       })
     )
 
-    // Should use category as name when present
-    expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
-      name: category,
+    expect(fullSessionTracker.setPageAttributes).toHaveBeenCalledWith({
       ...properties
     })
   })
 
-  test('should use page name when category is not present', async () => {
+  test('should handle page with properties', async () => {
     const { fullSessionTracker } = await import('fullsession')
 
     const [event] = await fullSessionDestination({
@@ -129,7 +116,6 @@ describe('FullSession visitPage action', () => {
 
     await event.load(Context.system(), {} as Analytics)
 
-    const pageName = 'About Us'
     const properties = {
       title: 'About Our Company',
       url: 'https://example.com/about',
@@ -139,13 +125,12 @@ describe('FullSession visitPage action', () => {
     await event.page?.(
       new Context({
         type: 'page',
-        name: pageName,
+        name: 'About Us',
         properties
       })
     )
 
-    expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
-      name: pageName,
+    expect(fullSessionTracker.setPageAttributes).toHaveBeenCalledWith({
       ...properties
     })
   })
@@ -160,19 +145,15 @@ describe('FullSession visitPage action', () => {
 
     await event.load(Context.system(), {} as Analytics)
 
-    const pageName = 'Simple Page'
-
     await event.page?.(
       new Context({
         type: 'page',
-        name: pageName,
+        name: 'Simple Page',
         properties: {}
       })
     )
 
-    expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
-      name: pageName
-    })
+    expect(fullSessionTracker.setPageAttributes).toHaveBeenCalledWith({})
   })
 
   test('should handle page with null properties', async () => {
@@ -185,19 +166,15 @@ describe('FullSession visitPage action', () => {
 
     await event.load(Context.system(), {} as Analytics)
 
-    const pageName = 'Null Properties Page'
-
     await event.page?.(
       new Context({
         type: 'page',
-        name: pageName,
+        name: 'Null Properties Page',
         properties: undefined
       })
     )
 
-    expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
-      name: pageName
-    })
+    expect(fullSessionTracker.setPageAttributes).toHaveBeenCalledWith({})
   })
 
   test('should handle page without name and category', async () => {
@@ -223,8 +200,7 @@ describe('FullSession visitPage action', () => {
       })
     )
 
-    expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
-      name: undefined,
+    expect(fullSessionTracker.setPageAttributes).toHaveBeenCalledWith({
       ...properties
     })
   })
@@ -239,7 +215,6 @@ describe('FullSession visitPage action', () => {
 
     await event.load(Context.system(), {} as Analytics)
 
-    const pageName = 'Complex Page'
     const properties = {
       title: 'Complex Page Title',
       url: 'https://example.com/complex',
@@ -257,13 +232,12 @@ describe('FullSession visitPage action', () => {
     await event.page?.(
       new Context({
         type: 'page',
-        name: pageName,
+        name: 'Complex Page',
         properties
       })
     )
 
-    expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
-      name: pageName,
+    expect(fullSessionTracker.setPageAttributes).toHaveBeenCalledWith({
       ...properties
     })
   })
@@ -287,8 +261,7 @@ describe('FullSession visitPage action', () => {
       })
     )
 
-    expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
-      name: 'Home',
+    expect(fullSessionTracker.setPageAttributes).toHaveBeenCalledWith({
       url: 'https://example.com'
     })
 
@@ -301,15 +274,14 @@ describe('FullSession visitPage action', () => {
       })
     )
 
-    expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
-      name: 'Products',
+    expect(fullSessionTracker.setPageAttributes).toHaveBeenCalledWith({
       url: 'https://example.com/products'
     })
 
-    expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledTimes(2)
+    expect(fullSessionTracker.setPageAttributes).toHaveBeenCalledTimes(2)
   })
 
-  test('should handle page visit with special characters in name and properties', async () => {
+  test('should handle page visit with special characters in properties', async () => {
     const { fullSessionTracker } = await import('fullsession')
 
     const [event] = await fullSessionDestination({
@@ -319,7 +291,6 @@ describe('FullSession visitPage action', () => {
 
     await event.load(Context.system(), {} as Analytics)
 
-    const pageName = 'Page with "Special" Characters & Symbols'
     const properties = {
       title: 'Title with émojis 🚀 and symbols!',
       url: 'https://example.com/special-chars?q=test&lang=en',
@@ -329,13 +300,12 @@ describe('FullSession visitPage action', () => {
     await event.page?.(
       new Context({
         type: 'page',
-        name: pageName,
+        name: 'Page with "Special" Characters & Symbols',
         properties
       })
     )
 
-    expect(fullSessionTracker.setSessionAttributes).toHaveBeenCalledWith({
-      name: pageName,
+    expect(fullSessionTracker.setPageAttributes).toHaveBeenCalledWith({
       ...properties
     })
   })

@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * The Customer ID for FullSession.
+   * Your FullSession Customer ID. You can find this in your FullSession dashboard under Settings .
    */
   customerId: string
 }

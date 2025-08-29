@@ -29,14 +29,14 @@ export const destination: BrowserDestinationDefinition<Settings, FUS> = {
       type: 'automatic'
     },
     {
-      name: 'Record Event',
+      name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'recordEvent',
       mapping: defaultValues(recordEvent.fields),
       type: 'automatic'
     },
     {
-      name: 'Visit Page',
+      name: 'Page View',
       subscribe: 'type = "page"',
       partnerAction: 'visitPage',
       mapping: defaultValues(visitPage.fields),
@@ -45,8 +45,8 @@ export const destination: BrowserDestinationDefinition<Settings, FUS> = {
   ],
   settings: {
     customerId: {
-      description: 'The Customer ID for FullSession.',
-      label: 'FullSession Customer',
+      description: 'Your FullSession Customer ID. You can find this in your FullSession dashboard under Settings .',
+      label: 'Customer ID',
       type: 'string',
       required: true
     }

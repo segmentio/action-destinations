@@ -2,11 +2,7 @@
 
 export interface Payload {
   /**
-   * the page visited
-   */
-  name?: string
-  /**
-   * properties associated with the page visited
+   * Properties and metadata associated with the page being viewed
    */
   properties?: {
     [k: string]: unknown
