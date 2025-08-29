@@ -338,7 +338,8 @@ describe('Liveramp Audiences', () => {
 
   describe('S3 Permissions Validation', () => {
     it('should throw InvalidAuthenticationError if IAM credentials are invalid (403)', async () => {
-      // Mock S3 HeadBucket request to return 403 Forbidden
+      // Clear existing nock mocks and set up specific 403 mock
+      nock.cleanAll()
       nock('https://test-bucket.s3.amazonaws.com').head('/').reply(403)
 
       try {
@@ -374,7 +375,8 @@ describe('Liveramp Audiences', () => {
     })
 
     it('should throw InvalidAuthenticationError if S3 bucket does not exist (404)', async () => {
-      // Mock S3 HeadBucket request to return 404 Not Found
+      // Clear existing nock mocks and set up specific 404 mock
+      nock.cleanAll()
       nock('https://nonexistent-bucket.s3.amazonaws.com').head('/').reply(404)
 
       try {
