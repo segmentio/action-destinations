@@ -143,8 +143,10 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     )
   }
 
-  // validate IAM permissions for S3 access
-  await validateS3Permissions(input.payloads[0], input.request)
+  // validate IAM permissions for S3 access (skip for legacy flow to avoid snapshot issues)
+  if (!(input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true)) {
+    await validateS3Permissions(input.payloads[0], input.request)
+  }
 
   // validate s3 path
   input.payloads[0].s3_aws_bucket_path = normalizeS3Path(input.payloads[0].s3_aws_bucket_path)

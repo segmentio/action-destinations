@@ -338,7 +338,7 @@ describe('Liveramp Audiences', () => {
 
   describe('S3 Permissions Validation', () => {
     it('should throw InvalidAuthenticationError if IAM credentials are invalid (403)', async () => {
-      // Clear existing nock mocks and set up specific 403 mock
+      // Clear persistent mocks and set up specific 403 mock
       nock.cleanAll()
       nock('https://test-bucket.s3.amazonaws.com').head('/').reply(403)
 
@@ -362,8 +362,7 @@ describe('Liveramp Audiences', () => {
           settings: {
             __segment_internal_engage_force_full_sync: true,
             __segment_internal_engage_batch_sync: true
-          },
-          features: { 'liveramp-legacy-flow': true }
+          }
         })
         // Should not reach here
         expect(true).toBe(false)
@@ -375,7 +374,7 @@ describe('Liveramp Audiences', () => {
     })
 
     it('should throw InvalidAuthenticationError if S3 bucket does not exist (404)', async () => {
-      // Clear existing nock mocks and set up specific 404 mock
+      // Clear persistent mocks and set up specific 404 mock
       nock.cleanAll()
       nock('https://nonexistent-bucket.s3.amazonaws.com').head('/').reply(404)
 
@@ -399,8 +398,7 @@ describe('Liveramp Audiences', () => {
           settings: {
             __segment_internal_engage_force_full_sync: true,
             __segment_internal_engage_batch_sync: true
-          },
-          features: { 'liveramp-legacy-flow': true }
+          }
         })
         // Should not reach here
         expect(true).toBe(false)
