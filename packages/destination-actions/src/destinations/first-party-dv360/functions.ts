@@ -40,6 +40,17 @@ export const createAudienceRequest = (
   const { advertiserId, audienceName, description, membershipDurationDays, audienceType, appId, token } = params
 
   const endpoint = DV360API + `?advertiserId=${advertiserId}`
+  console.log(
+    'Create Audience Endpoint:params',
+    endpoint,
+    advertiserId,
+    audienceName,
+    description,
+    membershipDurationDays,
+    audienceType,
+    appId,
+    token
+  )
 
   return request(endpoint, {
     method: 'POST',
@@ -63,6 +74,8 @@ export const getAudienceRequest = (request: RequestClient, params: getAudiencePa
   const { advertiserId, audienceId, token } = params
 
   const endpoint = DV360API + `/${audienceId}?advertiserId=${advertiserId}`
+
+  console.log('Get Audience Endpoint:', endpoint)
 
   return request(endpoint, {
     method: 'GET',
@@ -105,6 +118,7 @@ export async function editDeviceMobileIds(
     ...(operation === 'add' ? { addedMobileDeviceIdList: mobileDeviceIdList } : {}),
     ...(operation === 'remove' ? { removedMobileDeviceIdList: mobileDeviceIdList } : {})
   })
+  console.log('Edit Device Mobile Ids Endpoint:requestPayload', endpoint, requestPayload)
   const response = await request<DV360editCustomerMatchResponse>(endpoint, {
     method: 'POST',
     headers: {
@@ -122,6 +136,7 @@ export async function editDeviceMobileIds(
   }
 
   statsContext?.statsClient?.incr('addCustomerMatchMembers.success', 1, statsContext?.tags)
+  console.log('Edit Device Mobile Ids Response:', response.data)
   return response.data
 }
 
@@ -189,12 +204,14 @@ export async function editContactInfo(
     const contactInfoList = buildContactInfoList(contactInfos)
     const requestPayload = buildRequestPayload(advertiserId, contactInfoList, operation)
     const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
+    console.log('Edit Contact Info batch Endpoint:requestPayload', endpoint, requestPayload)
     const response = await request<DV360editCustomerMatchResponse>(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json; charset=utf-8' },
       body: requestPayload
     })
     statsContext?.statsClient?.incr('addCustomerMatchMembers.success', contactInfos.length, statsContext?.tags)
+    console.log('Edit Contact Info batch Response:', response.data)
     return response.data
   }
 
@@ -212,6 +229,7 @@ export async function editContactInfo(
     const contactInfoList = buildContactInfoList([processPayload(payload)])
     const requestPayload = buildRequestPayload(advertiserId, contactInfoList, operation)
     const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
+    console.log('Edit Contact Info non batch Endpoint:requestPayload', endpoint, requestPayload)
     const response = await request<DV360editCustomerMatchResponse>(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json; charset=utf-8' },
@@ -220,6 +238,7 @@ export async function editContactInfo(
     statsContext?.statsClient?.incr('addCustomerMatchMembers.success', 1, statsContext?.tags)
     results.push(response.data)
   }
+  console.log('Edit Contact Info non batch Response:', results)
   return results
 }
 
