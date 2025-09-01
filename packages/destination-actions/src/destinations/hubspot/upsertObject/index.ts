@@ -13,7 +13,8 @@ import { sendFromRecords } from './functions/hubspot-record-functions'
 import {
   sendAssociatedRecords,
   createAssociationPayloads,
-  sendAssociations
+  sendAssociations,
+  readAssociatedRecords
 } from './functions/hubspot-association-functions'
 import { getSchemaFromHubspot, createProperties } from './functions/hubspot-properties-functions'
 
@@ -77,50 +78,39 @@ const send = async (
   const cacheSchemaDiff = compareSchemas(schema, cachedSchema, statsContext)
   statsContext?.statsClient?.incr(`cache.diff.${cacheSchemaDiff.match}`, 1, statsContext?.tags)
 
-  switch (cacheSchemaDiff.match) {
-    case SchemaMatch.FullMatch: {
-      const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
-      const associationPayloads = createAssociationPayloads(fromRecordPayloads)
-      const associatedRecords = await sendAssociatedRecords(
-        client,
-        associationPayloads,
-        assocationSyncMode as AssociationSyncMode
-      )
-      await sendAssociations(client, associatedRecords)
-      return
-    }
 
-    case SchemaMatch.PropertiesMissing:
-    case SchemaMatch.NoMatch: {
-      const hubspotSchema = await getSchemaFromHubspot(client, schema)
-      const hubspotSchemaDiff = compareSchemas(schema, hubspotSchema, statsContext)
+  if (cacheSchemaDiff.match === SchemaMatch.PropertiesMissing || cacheSchemaDiff.match === SchemaMatch.NoMatch) {
+    const hubspotSchema = await getSchemaFromHubspot(client, schema)
+    const hubspotSchemaDiff = compareSchemas(schema, hubspotSchema, statsContext)
 
-      switch (hubspotSchemaDiff.match) {
-        case SchemaMatch.FullMatch: {
-          await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
-          break
-        }
-        case SchemaMatch.PropertiesMissing: {
-          await createProperties(client, hubspotSchemaDiff, propertyGroup)
-          await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
-          break
-        }
-        case SchemaMatch.NoMatch: {
-          throw new IntegrationError('Object Type missing', 'Object Type missing', 400)
-        }
+    switch (hubspotSchemaDiff.match) {
+      case SchemaMatch.FullMatch: {
+        await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
+        break
       }
-
-      const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
-      const associationPayloads = createAssociationPayloads(fromRecordPayloads)
-      const associatedRecords = await sendAssociatedRecords(
-        client,
-        associationPayloads,
-        assocationSyncMode as AssociationSyncMode
-      )
-      await sendAssociations(client, associatedRecords)
-      return
+      case SchemaMatch.PropertiesMissing: {
+        await createProperties(client, hubspotSchemaDiff, propertyGroup)
+        await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
+        break
+      }
+      case SchemaMatch.NoMatch: {
+        throw new IntegrationError('Object Type missing', 'Object Type missing', 400)
+      }
     }
   }
+
+  const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
+  
+  const associationPayloads = createAssociationPayloads(fromRecordPayloads, 'associations')
+  const associatedRecords = await sendAssociatedRecords(client, associationPayloads, assocationSyncMode as AssociationSyncMode)
+
+  const disassociationPayloads = createAssociationPayloads(fromRecordPayloads, 'disassociations')
+  const disassociatedRecords = await readAssociatedRecords(client, disassociationPayloads)
+
+  await sendAssociations(client, associatedRecords, 'create')
+  await sendAssociations(client, disassociatedRecords, 'archive')
+
+  return
 }
 
 export default action

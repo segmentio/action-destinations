@@ -138,6 +138,11 @@ function returnRecordsWithIds(payloads: Payload[], response: ModifiedResponse<Ba
             association.from_record_id = matchingResult.id
           })
         }
+        if (payloadWithIds.disassociations) {
+          payloadWithIds.disassociations.forEach((association) => {
+            association.from_record_id = matchingResult.id
+          })
+        }
 
         return payloadWithIds
       }

@@ -9,6 +9,7 @@ import {
   ReadPropsResp,
   BatchObjResp,
   UpsertReq
+  AssociationsAction
 } from './types'
 
 export class Client {
@@ -52,9 +53,9 @@ export class Client {
     return response
   }
 
-  async batchAssociationsRequest(json: AssociationsReq, toObjectType: string) {
+  async batchAssociationsRequest(json: AssociationsReq, toObjectType: string, action: AssociationsAction) {
     const response = await this.request(
-      `${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/create`,
+      `${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/${action}`,
       {
         method: 'POST',
         json

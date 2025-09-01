@@ -33,8 +33,17 @@ export function validate(payloads: Payload[]): Payload[] {
       ]
       return fieldsToCheck.every((field) => field !== null && field !== '')
     })
-  })
 
+    payload.disassociations = payload.disassociations?.filter((association) => {
+      const fieldsToCheck = [
+        association.id_field_name,
+        association.object_type,
+        association.id_field_value,
+        association.association_label
+      ]
+      return fieldsToCheck.every((field) => field !== null && field !== '')
+    })
+  })
   return cleaned
 }
 

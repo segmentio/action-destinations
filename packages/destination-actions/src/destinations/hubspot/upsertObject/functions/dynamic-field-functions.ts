@@ -103,6 +103,52 @@ export const dynamicFields = {
 
       return await dynamicReadIdFields(request, toObjectType)
     }
+  },
+  disassociations: {
+    object_type: async (request: RequestClient) => {
+      return await dynamicReadObjectTypes(request)
+    },
+    association_label: async (
+      request: RequestClient,
+      { dynamicFieldContext, payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
+    ) => {
+      const selectedIndex = dynamicFieldContext?.selectedArrayIndex
+
+      if (selectedIndex === undefined) {
+        throw new Error('Selected array index is missing')
+      }
+
+      const fromObjectType = payload?.object_details?.object_type
+      const toObjectType = payload?.associations?.[selectedIndex]?.object_type
+
+      if (!fromObjectType) {
+        throw new Error("Select a value from the from 'Object Type' field")
+      }
+
+      if (!toObjectType) {
+        throw new Error("Select a value from the 'To Object Type' field")
+      }
+
+      return await dynamicReadAssociationLabels(request, fromObjectType, toObjectType)
+    },
+    id_field_name: async (
+      request: RequestClient,
+      { dynamicFieldContext, payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
+    ) => {
+      const selectedIndex = dynamicFieldContext?.selectedArrayIndex
+
+      if (selectedIndex === undefined) {
+        throw new Error('Selected array index is missing')
+      }
+
+      const toObjectType = payload?.associations?.[selectedIndex]?.object_type
+
+      if (!toObjectType) {
+        throw new Error("Select a value from the 'To Object Type' field")
+      }
+
+      return await dynamicReadIdFields(request, toObjectType)
+    }
   }
 }
 

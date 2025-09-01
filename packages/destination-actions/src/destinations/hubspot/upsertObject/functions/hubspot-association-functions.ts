@@ -8,13 +8,15 @@ import {
   AssociationType,
   GroupableFields,
   PayloadWithFromId,
-  BatchObjResp
+  BatchObjResp,
+  AssociationsKey,
+  AssociationsAction
 } from '../types'
 
-export function createAssociationPayloads(payloads: PayloadWithFromId[]): AssociationPayload[][] {
+export function createAssociationPayloads(payloads: PayloadWithFromId[], key: AssociationsKey): AssociationPayload[][] {
   const associationPayloads: AssociationPayload[] = payloads.flatMap((payload) =>
-    Array.isArray(payload.associations)
-      ? payload.associations
+    Array.isArray(payload[key])
+      ? payload[key]
           .filter(
             (association) =>
               association.id_field_value !== undefined &&
@@ -75,7 +77,7 @@ export async function sendAssociatedRecords(
   }
 }
 
-async function readAssociatedRecords(
+export async function readAssociatedRecords(
   client: Client,
   groupedPayloads: AssociationPayload[][]
 ): Promise<AssociationPayloadWithId[]> {
@@ -140,7 +142,7 @@ function returnAssociatedRecordsWithIds(
     .filter((payload) => (payload as AssociationPayloadWithId).object_details.record_id) as AssociationPayloadWithId[]
 }
 
-export async function sendAssociations(client: Client, payloads: AssociationPayloadWithId[]) {
+export async function sendAssociations(client: Client, payloads: AssociationPayloadWithId[], action: AssociationsAction) {
   const groupedPayloads: AssociationPayloadWithId[][] = groupPayloads(payloads as AssociationPayload[], [
     'object_type'
   ]) as AssociationPayloadWithId[][]
@@ -168,7 +170,7 @@ export async function sendAssociations(client: Client, payloads: AssociationPayl
       }
       return input
     })
-    return client.batchAssociationsRequest({ inputs }, toObjectType)
+    return client.batchAssociationsRequest({ inputs }, toObjectType, action)
   })
 
   await Promise.all(requests)

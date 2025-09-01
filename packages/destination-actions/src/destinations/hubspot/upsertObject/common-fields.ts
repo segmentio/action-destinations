@@ -79,7 +79,7 @@ export const commonFields: Record<string, InputField> = {
     disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   },
   associations: {
-    label: 'Associations',
+    label: 'Associations to add',
     description: 'Associations to create between the record and other records.',
     type: 'object',
     multiple: true,
@@ -98,7 +98,7 @@ export const commonFields: Record<string, InputField> = {
       },
       association_label: {
         label: 'Association Label',
-        description: 'The type of Association between the two records. The Association must already exist in Hubspot.',
+        description: 'The Association label to apply between the two records. The Association label must already exist in Hubspot.',
         type: 'string',
         required: true,
         dynamic: true,
@@ -118,6 +118,51 @@ export const commonFields: Record<string, InputField> = {
       id_field_value: {
         label: 'To Object ID Field Value',
         description: 'The value of the identifier for the record to be associated with',
+        type: 'string',
+        required: false
+      }
+    }
+  },
+  disassociations: {
+    label: 'Associations to remove',
+    description: 'Remove Association Labels from an Association between two records. Removing the default association label will delete the entire Association.',
+    type: 'object',
+    multiple: true,
+    required: false,
+    defaultObjectUI: 'arrayeditor',
+    additionalProperties: false,
+    properties: {
+      object_type: {
+        label: 'To Object Type',
+        description: 'The type of associated Hubspot Object.',
+        type: 'string',
+        required: true,
+        dynamic: true,
+        allowNull: false,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+      },
+      association_label: {
+        label: 'Association Label',
+        description: 'The Association label to remove between the two records. The Association label must already exist in Hubspot. Removing the default Association label will delete the entire Association between the two records.',
+        type: 'string',
+        required: true,
+        dynamic: true,
+        allowNull: false,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+      },
+      id_field_name: {
+        label: 'To Object ID Field Name',
+        description:
+          'The name of the unique field Segment will use as an identifier when disassociating the record from another record. The unique field name must already exist on the Object in Hubspot.',
+        type: 'string',
+        required: true,
+        dynamic: true,
+        allowNull: false,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+      },
+      id_field_value: {
+        label: 'To Object ID Field Value',
+        description: 'The value of the identifier for the record to be disassociated with',
         type: 'string',
         required: false
       }

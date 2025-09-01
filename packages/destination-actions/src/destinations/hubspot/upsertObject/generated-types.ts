@@ -47,7 +47,7 @@ export interface Payload {
      */
     object_type: string
     /**
-     * The type of Association between the two records. The Association must already exist in Hubspot.
+     * The Association label to apply between the two records. The Association label must already exist in Hubspot.
      */
     association_label: string
     /**
@@ -56,6 +56,27 @@ export interface Payload {
     id_field_name: string
     /**
      * The value of the identifier for the record to be associated with
+     */
+    id_field_value?: string
+  }[]
+  /**
+   * Remove Association Labels from an Association between two records. Removing the default association label will delete the entire Association.
+   */
+  disassociations?: {
+    /**
+     * The type of associated Hubspot Object.
+     */
+    object_type: string
+    /**
+     * The Association label to remove between the two records. The Association label must already exist in Hubspot. Removing the default Association label will delete the entire Association between the two records.
+     */
+    association_label: string
+    /**
+     * The name of the unique field Segment will use as an identifier when disassociating the record from another record. The unique field name must already exist on the Object in Hubspot.
+     */
+    id_field_name: string
+    /**
+     * The value of the identifier for the record to be disassociated with
      */
     id_field_value?: string
   }[]
