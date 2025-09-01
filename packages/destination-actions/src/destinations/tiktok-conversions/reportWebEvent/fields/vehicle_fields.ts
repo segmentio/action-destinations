@@ -154,9 +154,7 @@ export const vehicle_fields: InputField = {
       description: 'Optional for ViewContent. Use viewcontent_type to differentiate between soft lead landing pages.',
       depends_on: {
         match: 'any',
-        conditions:[
-          { fieldKey: 'event', operator: 'is', value: 'ViewContent' }
-        ]
+        conditions: [{ fieldKey: 'event', operator: 'is', value: 'ViewContent' }]
       }
     },
     search_type: {
@@ -166,9 +164,7 @@ export const vehicle_fields: InputField = {
         'Optional for Search. Use search_type to differentiate other user searches (such as dealer lookup) from inventory search.',
       depends_on: {
         match: 'any',
-        conditions:[
-          { fieldKey: 'event', operator: 'is', value: 'Search' }
-        ]
+        conditions: [{ fieldKey: 'event', operator: 'is', value: 'Search' }]
       }
     },
     registration_type: {
@@ -178,9 +174,7 @@ export const vehicle_fields: InputField = {
         'Optional for CompleteRegistration. Use registration_type to differentiate between different types of customer registration on websites.',
       depends_on: {
         match: 'any',
-        conditions:[
-          { fieldKey: 'event', operator: 'is', value: 'CompleteRegistration' }
-        ]
+        conditions: [{ fieldKey: 'event', operator: 'is', value: 'CompleteRegistration' }]
       }
     }
   },
@@ -198,7 +192,7 @@ export const vehicle_fields: InputField = {
       '@path': '$.properties.year'
     },
     state_of_vehicle: {
-      '@path': '$.properties.travel_class'
+      '@path': '$.properties.state_of_vehicle'
     },
     mileage_value: {
       '@path': '$.properties.mileage_value'
