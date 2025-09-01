@@ -229,12 +229,12 @@ export const sendData = async (
   const topicMessages: TopicMessages = {
     topic,
     messages: payload.map(
-      (payload) =>
+      (body) =>
         ({
-          value: JSON.stringify(payload.payload),
-          key: payload.key,
-          headers: payload?.headers ?? undefined,
-          partition: payload?.partition ?? payload?.default_partition ?? undefined,
+          value: JSON.stringify(body.payload),
+          key: body.key,
+          headers: body?.headers ?? undefined,
+          partition: body?.partition ?? body?.default_partition ?? undefined,
           partitionerType: DEFAULT_PARTITIONER
         } as Message)
     )
@@ -242,9 +242,9 @@ export const sendData = async (
 
   if (statsContext) {
     const { statsClient, tags } = statsContext
-    const set = new Set()
-    for (const p of topicMessages.messages) {
-      set.add(`${p.partition}`)
+    const set = new Set<string>()
+    for (const p of payload) {
+      set.add(`${p.partition}-${p.default_partition}`)
     }
     // Add stats to track batch keys for kafka
     statsClient?.histogram('kafka.configurable_batch_keys.unique_keys', set.size, tags)
