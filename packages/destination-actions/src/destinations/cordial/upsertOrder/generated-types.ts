@@ -32,7 +32,7 @@ export interface Payload {
    */
   totalAmount: number
   /**
-   * Discount application data
+   * Discount application data, allowed fields: type (only 'fixed' as of now), amount (float discount amount, e.g. 10.45)
    */
   discountApplication?: {
     /**

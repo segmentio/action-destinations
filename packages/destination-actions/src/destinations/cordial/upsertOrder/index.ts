@@ -48,9 +48,13 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     discountApplication: {
       label: 'Discount application',
-      description: 'Discount application data',
+      description: 'Discount application data, allowed fields: type (only \'fixed\' as of now), amount (float discount amount, e.g. 10.45)',
       type: 'object',
       required: false,
+      default: {
+        type: 'fixed',
+        amount: { '@path': '$.properties.discount' }
+      },
       properties: {
         type: {
           label: 'Type',
