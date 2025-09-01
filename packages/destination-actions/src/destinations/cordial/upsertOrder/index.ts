@@ -60,14 +60,14 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Type',
           description: 'Type of discount applied to the order (e.g. fixed)',
           type: 'string',
-          required: false,
+          required: true,
           placeholder: 'fixed'
         },
         amount: {
           label: 'Amount',
           description: 'Amount of the discount applied to the order',
           type: 'number',
-          required: false,
+          required: true,
           placeholder: '0.0'
         }
       }

@@ -38,11 +38,11 @@ export interface Payload {
     /**
      * Type of discount applied to the order (e.g. fixed)
      */
-    type?: string
+    type: string
     /**
      * Amount of the discount applied to the order
      */
-    amount?: number
+    amount: number
   }
   /**
    * Additional order properties (e.g. affiliation/tax/revenue)
