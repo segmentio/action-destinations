@@ -129,7 +129,8 @@ class CordialClient {
         status: payload.status,
         totalAmount: payload.totalAmount,
         properties: payload.properties,
-        items: payload.items
+        items: payload.items,
+        discountApplication: payload.discountApplication
       }
     })
   }

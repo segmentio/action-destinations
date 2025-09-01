@@ -46,6 +46,28 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.total'
       }
     },
+    discountApplication: {
+      label: 'Discount application',
+      description: 'Discount application data',
+      type: 'object',
+      required: false,
+      properties: {
+        type: {
+          label: 'Type',
+          description: 'Type of discount applied to the order (e.g. fixed)',
+          type: 'string',
+          required: false,
+          placeholder: 'fixed'
+        },
+        amount: {
+          label: 'Amount',
+          description: 'Amount of the discount applied to the order',
+          type: 'number',
+          required: false,
+          placeholder: '0.0'
+        }
+      }
+    },
     properties: {
       label: 'Order properties',
       description: 'Additional order properties (e.g. affiliation/tax/revenue)',
