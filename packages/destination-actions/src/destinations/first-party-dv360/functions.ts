@@ -163,9 +163,7 @@ export async function editContactInfo(
 ) {
   if (!payloads || payloads.length === 0) return
 
-  const batchingEnabled = payloads.some((p) => p.enable_batching)
-
-  // Filter valid payloads
+  // TODO: remove this check, the framework should handle this
   const validPayloads = payloads.filter(
     (payload) =>
       payload.emails !== undefined ||
@@ -175,52 +173,22 @@ export async function editContactInfo(
   )
   if (validPayloads.length === 0) return
 
-  if (batchingEnabled) {
-    // Assume all payloads are for the same audience/advertiser (use first)
-    const { external_id: audienceId, advertiser_id: advertiserId } = validPayloads[0]
-    if (!audienceId || !advertiserId) {
-      throw new IntegrationError(
-        'Missing required audience or advertiser ID for batch request',
-        'MISSING_REQUIRED_FIELD',
-        400
-      )
-    }
-    const contactInfos = validPayloads.map(processPayload)
-    const contactInfoList = buildContactInfoList(contactInfos)
-    const requestPayload = buildRequestPayload(advertiserId, contactInfoList, operation)
-    const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
-    const response = await request<DV360editCustomerMatchResponse>(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json; charset=utf-8' },
-      body: requestPayload
-    })
-    statsContext?.statsClient?.incr('addCustomerMatchMembers.success', contactInfos.length, statsContext?.tags)
-    return response.data
+  // Assume all payloads are for the same audience/advertiser (use first)
+  const { external_id: audienceId, advertiser_id: advertiserId } = validPayloads[0]
+  if (!audienceId || !advertiserId) {
+    throw new IntegrationError('Missing required audience or advertiser ID', 'MISSING_REQUIRED_FIELD', 400)
   }
-
-  // Non-batching: process each payload individually
-  const results = []
-  for (const payload of validPayloads) {
-    const { external_id: audienceId, advertiser_id: advertiserId } = payload
-    if (!audienceId || !advertiserId) {
-      throw new IntegrationError(
-        'Missing required audience or advertiser ID for request',
-        'MISSING_REQUIRED_FIELD',
-        400
-      )
-    }
-    const contactInfoList = buildContactInfoList([processPayload(payload)])
-    const requestPayload = buildRequestPayload(advertiserId, contactInfoList, operation)
-    const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
-    const response = await request<DV360editCustomerMatchResponse>(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json; charset=utf-8' },
-      body: requestPayload
-    })
-    statsContext?.statsClient?.incr('addCustomerMatchMembers.success', 1, statsContext?.tags)
-    results.push(response.data)
-  }
-  return results
+  const contactInfos = validPayloads.map(processPayload)
+  const contactInfoList = buildContactInfoList(contactInfos)
+  const requestPayload = buildRequestPayload(advertiserId, contactInfoList, operation)
+  const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
+  const response = await request<DV360editCustomerMatchResponse>(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: requestPayload
+  })
+  statsContext?.statsClient?.incr('addCustomerMatchMembers.success', contactInfos.length, statsContext?.tags)
+  return response.data
 }
 
 function normalizeAndHash(data: string) {
