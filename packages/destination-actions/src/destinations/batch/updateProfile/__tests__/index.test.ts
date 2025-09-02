@@ -2,11 +2,12 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { BatchJSON } from '../type'
+import { API_VERSION } from '../../constants'
 
 const settings = {
   apiToken: '<REST_API_KEY>', // = REST API Key
   projectKey: '<PROJECT_KEY>',
-  endpoint: 'https://api.batch.com/2.3/profiles/update' as const
+  endpoint: `https://api.batch.com/${API_VERSION}/profiles/update` as const
 }
 
 const testDestination = createTestIntegration(Destination)
@@ -74,7 +75,7 @@ describe('Batch.updateProfile', () => {
       }
     ]
 
-    nock('https://api.batch.com').post('/2.5/profiles/update', JSON.stringify(json)).reply(200, {})
+    nock('https://api.batch.com').post(`/${API_VERSION}/profiles/update`, JSON.stringify(json)).reply(200, {})
 
     const responses = await testDestination.testAction('updateProfile', {
       event: event,
