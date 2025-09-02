@@ -56,23 +56,33 @@ module.exports = async ({ github, context, core }) => {
             return
         }
 
-        // Get 2 consecutive members from the team (or all members if less than 2)
-        const numReviewers = Math.min(2, team.data.length)
+        // Filter out the PR author from potential reviewers
+        const prAuthor = context.payload.pull_request.user.login
+        const eligibleMembers = team.data.filter(member => member.login !== prAuthor)
+
+        if (eligibleMembers.length === 0) {
+            core.setOutput('skip', 'true')
+            core.setOutput('reason', `only PR author (${prAuthor}) found in team`)
+            return
+        }
+
+        // Get 2 consecutive members from the eligible team members (or all eligible if less than 2)
+        const numReviewers = Math.min(2, eligibleMembers.length)
 
         // Select a random starting position and take consecutive members
-        const startIndex = Math.floor(Math.random() * team.data.length)
+        const startIndex = Math.floor(Math.random() * eligibleMembers.length)
         const selectedMembers = []
 
         for (let i = 0; i < numReviewers; i++) {
-            const index = (startIndex + i) % team.data.length
-            selectedMembers.push(team.data[index])
+            const index = (startIndex + i) % eligibleMembers.length
+            selectedMembers.push(eligibleMembers[index])
         }
 
         const reviewerLogins = selectedMembers.map(member => member.login)
         core.setOutput('reviewers', reviewerLogins.join(','))
         core.setOutput('team', teamToAssign)
         core.setOutput('skip', 'false')
-        core.info(`Selected ${reviewerLogins.join(', ')} (consecutive from index ${startIndex}) from ${team.data.length} members in ${teamToAssign}`)
+        core.info(`Selected ${reviewerLogins.join(', ')} (consecutive from index ${startIndex}) from ${eligibleMembers.length} eligible members in ${teamToAssign} (excluded PR author: ${prAuthor})`)
 
     } catch (error) {
         core.setOutput('skip', 'true')
