@@ -104,28 +104,28 @@ jobs:
                 })
             }
 
-      - name: Get Team Member
-        id: get-team-member
+      - name: Get Reviewers
+        id: get-reviewers
         uses: actions/github-script@v7
         env:
           labelsToAdd: '${{ steps.compute-labels.outputs.add }}'
         with:
           github-token: ${{ secrets.GH_PAT_MEMBER_AND_PULL_REQUEST_READONLY }}
           script: |
-            const script = require('./scripts/github-action/get-team-member.js')
+            const script = require('./scripts/github-action/get-reviewers.js')
             await script({github, context, core})
 
       - name: Assign Reviewers
-        if: steps.get-team-member.outputs.skip != 'true'
+        if: steps.get-reviewers.outputs.skip != 'true'
         uses: actions/github-script@v7
         env:
-          REVIEWERS: '${{ steps.get-team-member.outputs.reviewers }}'
-          TEAM: '${{ steps.get-team-member.outputs.team }}'
+          REVIEWERS: '${{ steps.get-reviewers.outputs.reviewers }}'
+          TEAM: '${{ steps.get-reviewers.outputs.team }}'
         with:
           script: |
             const script = require('./scripts/github-action/assign-reviewer.js')
             await script({github, context, core})
 
       - name: Log Skip Reviewer Assignment Reason
-        if: steps.get-team-member.outputs.skip == 'true'
-        run: echo "Skipping reviewer assignment - ${{ steps.get-team-member.outputs.reason }}"
+        if: steps.get-reviewers.outputs.skip == 'true'
+        run: echo "Skipping reviewer assignment - ${{ steps.get-reviewers.outputs.reason }}"
