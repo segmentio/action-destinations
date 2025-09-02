@@ -3,7 +3,7 @@
 
 name: Configure PR
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
@@ -119,13 +119,13 @@ jobs:
         if: steps.get-team-member.outputs.skip != 'true'
         uses: actions/github-script@v7
         env:
-          REVIEWER: '${{ steps.get-team-member.outputs.reviewer }}'
+          REVIEWERS: '${{ steps.get-team-member.outputs.reviewers }}'
           TEAM: '${{ steps.get-team-member.outputs.team }}'
         with:
           script: |
             const script = require('./scripts/github-action/assign-reviewer.js')
             await script({github, context, core})
 
-      - name: Log Skip Reviewer Assign Reaso
+      - name: Log Skip Reviewer Assignment Reason
         if: steps.get-team-member.outputs.skip == 'true'
         run: echo "Skipping reviewer assignment - ${{ steps.get-team-member.outputs.reason }}"

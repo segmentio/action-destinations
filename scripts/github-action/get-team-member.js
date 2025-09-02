@@ -56,14 +56,23 @@ module.exports = async ({ github, context, core }) => {
             return
         }
 
-        // Get a random member from the team
-        const randomIndex = Math.floor(Math.random() * team.data.length)
-        const selectedMember = team.data[randomIndex]
+        // Get 2 consecutive members from the team (or all members if less than 2)
+        const numReviewers = Math.min(2, team.data.length)
 
-        core.setOutput('reviewer', selectedMember.login)
+        // Select a random starting position and take consecutive members
+        const startIndex = Math.floor(Math.random() * team.data.length)
+        const selectedMembers = []
+
+        for (let i = 0; i < numReviewers; i++) {
+            const index = (startIndex + i) % team.data.length
+            selectedMembers.push(team.data[index])
+        }
+
+        const reviewerLogins = selectedMembers.map(member => member.login)
+        core.setOutput('reviewers', reviewerLogins.join(','))
         core.setOutput('team', teamToAssign)
         core.setOutput('skip', 'false')
-        core.info(`Selected ${selectedMember.login} from ${team.data.length} members in ${teamToAssign}`)
+        core.info(`Selected ${reviewerLogins.join(', ')} (consecutive from index ${startIndex}) from ${team.data.length} members in ${teamToAssign}`)
 
     } catch (error) {
         core.setOutput('skip', 'true')

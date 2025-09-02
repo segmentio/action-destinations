@@ -1,6 +1,6 @@
 // This is a github action script and can be run only from github actions. To run this script locally, you need to mock the github object and context object.
 module.exports = async ({ github, context, core }) => {
-    const reviewer = process.env.REVIEWER
+    const reviewers = process.env.REVIEWERS
     const team = process.env.TEAM
 
     // Check if PR already has reviewers assigned
@@ -16,14 +16,15 @@ module.exports = async ({ github, context, core }) => {
     }
 
     try {
+        const reviewerList = reviewers.split(',')
         await github.rest.pulls.requestReviewers({
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: context.payload.pull_request.number,
-            reviewers: [reviewer]
+            reviewers: reviewerList
         })
-        core.info(`Assigned ${reviewer} from ${team} team as reviewer`)
+        core.info(`Assigned ${reviewerList.join(', ')} from ${team} team as reviewers`)
     } catch (error) {
-        core.error(`Failed to assign ${reviewer} as reviewer: ${error.message}`)
+        core.error(`Failed to assign ${reviewers} as reviewers: ${error.message}`)
     }
 }
