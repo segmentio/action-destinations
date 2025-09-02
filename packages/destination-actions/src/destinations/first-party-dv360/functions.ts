@@ -3,7 +3,7 @@ import { Payload } from './addToAudContactInfo/generated-types'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
 
-const DV360API = `https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences`
+const DV360API = `https://displayvideo.googleapis.com/v4/firstPartyAndPartnerAudiences`
 const CONSENT_STATUS_GRANTED = 'CONSENT_STATUS_GRANTED' // Define consent status
 
 interface createAudienceRequestParams {
@@ -23,7 +23,7 @@ interface getAudienceParams {
 }
 
 interface DV360editCustomerMatchResponse {
-  firstAndThirdPartyAudienceId: string
+  firstPartyAndPartnerAudienceId: string
   error: [
     {
       code: string
@@ -53,7 +53,7 @@ export const createAudienceRequest = (
       membershipDurationDays: membershipDurationDays,
       description: description,
       audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',
-      firstAndThirdPartyAudienceType: 'FIRST_AND_THIRD_PARTY_AUDIENCE_TYPE_FIRST_PARTY',
+      firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY',
       appId: appId
     }
   })
@@ -112,7 +112,7 @@ export async function editDeviceMobileIds(
     },
     body: requestPayload
   })
-  if (!response.data || !response.data.firstAndThirdPartyAudienceId) {
+  if (!response.data || !response.data.firstPartyAndPartnerAudienceId) {
     statsContext?.statsClient?.incr('addCustomerMatchMembers.error', 1, statsContext?.tags)
     throw new IntegrationError(
       `API returned error: ${response.data?.error || 'Unknown error'}`,
@@ -125,54 +125,102 @@ export async function editDeviceMobileIds(
   return response.data
 }
 
+// Helper to build contactInfoList
+function buildContactInfoList(contactInfos: Record<string, string>[]): {
+  contactInfos: Record<string, string>[]
+  consent: { adUserData: string; adPersonalization: string }
+} {
+  return {
+    contactInfos,
+    consent: {
+      adUserData: CONSENT_STATUS_GRANTED,
+      adPersonalization: CONSENT_STATUS_GRANTED
+    }
+  }
+}
+
+// Helper to build request payload
+function buildRequestPayload(
+  advertiserId: string,
+  contactInfoList: {
+    contactInfos: Record<string, string>[]
+    consent: { adUserData: string; adPersonalization: string }
+  },
+  operation: 'add' | 'remove'
+) {
+  return JSON.stringify({
+    advertiserId,
+    ...(operation === 'add' ? { addedContactInfoList: contactInfoList } : {}),
+    ...(operation === 'remove' ? { removedContactInfoList: contactInfoList } : {})
+  })
+}
+
 export async function editContactInfo(
   request: RequestClient,
   payloads: Payload[],
   operation: 'add' | 'remove',
   statsContext?: StatsContext
 ) {
-  const payload = payloads[0]
-  const audienceId = payloads[0].external_id
+  if (!payloads || payloads.length === 0) return
 
-  //Check if one of the required identifiers exists otherwise drop the event
-  if (
-    payload.emails === undefined &&
-    payload.phoneNumbers === undefined &&
-    payload.firstName === undefined &&
-    payload.lastName === undefined
-  ) {
-    return
-  }
+  const batchingEnabled = payloads.some((p) => p.enable_batching)
 
-  //Format the endpoint
-  const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
+  // Filter valid payloads
+  const validPayloads = payloads.filter(
+    (payload) =>
+      payload.emails !== undefined ||
+      payload.phoneNumbers !== undefined ||
+      payload.firstName !== undefined ||
+      payload.lastName !== undefined
+  )
+  if (validPayloads.length === 0) return
 
-  // Prepare the request payload
-  const contactInfoList = {
-    contactInfos: [processPayload(payload)],
-    consent: {
-      adUserData: CONSENT_STATUS_GRANTED,
-      adPersonalization: CONSENT_STATUS_GRANTED
+  if (batchingEnabled) {
+    // Assume all payloads are for the same audience/advertiser (use first)
+    const { external_id: audienceId, advertiser_id: advertiserId } = validPayloads[0]
+    if (!audienceId || !advertiserId) {
+      throw new IntegrationError(
+        'Missing required audience or advertiser ID for batch request',
+        'MISSING_REQUIRED_FIELD',
+        400
+      )
     }
+    const contactInfos = validPayloads.map(processPayload)
+    const contactInfoList = buildContactInfoList(contactInfos)
+    const requestPayload = buildRequestPayload(advertiserId, contactInfoList, operation)
+    const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
+    const response = await request<DV360editCustomerMatchResponse>(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: requestPayload
+    })
+    statsContext?.statsClient?.incr('addCustomerMatchMembers.success', contactInfos.length, statsContext?.tags)
+    return response.data
   }
 
-  // Convert the payload to string if needed
-  const requestPayload = JSON.stringify({
-    advertiserId: payload.advertiser_id,
-    ...(operation === 'add' ? { addedContactInfoList: contactInfoList } : {}),
-    ...(operation === 'remove' ? { removedContactInfoList: contactInfoList } : {})
-  })
-
-  const response = await request<DV360editCustomerMatchResponse>(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8'
-    },
-    body: requestPayload
-  })
-
-  statsContext?.statsClient?.incr('addCustomerMatchMembers.success', 1, statsContext?.tags)
-  return response.data
+  // Non-batching: process each payload individually
+  const results = []
+  for (const payload of validPayloads) {
+    const { external_id: audienceId, advertiser_id: advertiserId } = payload
+    if (!audienceId || !advertiserId) {
+      throw new IntegrationError(
+        'Missing required audience or advertiser ID for request',
+        'MISSING_REQUIRED_FIELD',
+        400
+      )
+    }
+    const contactInfoList = buildContactInfoList([processPayload(payload)])
+    const requestPayload = buildRequestPayload(advertiserId, contactInfoList, operation)
+    const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
+    const response = await request<DV360editCustomerMatchResponse>(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: requestPayload
+    })
+    statsContext?.statsClient?.incr('addCustomerMatchMembers.success', 1, statsContext?.tags)
+    results.push(response.data)
+  }
+  return results
 }
 
 function normalizeAndHash(data: string) {
