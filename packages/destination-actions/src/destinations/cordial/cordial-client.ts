@@ -8,6 +8,7 @@ import { Payload as AddProductToCartPayload } from './addProductToCart/generated
 import { Payload as RemoveProductFromCartPayload } from './removeProductFromCart/generated-types'
 import { Payload as UpsertOrder } from './upsertOrder/generated-types'
 import { Payload as MergeContacts } from './mergeContacts/generated-types'
+import isEmpty from 'lodash/isEmpty'
 
 export interface IdentifiableRequest {
   segmentId?: string | null,
@@ -130,7 +131,9 @@ class CordialClient {
         totalAmount: payload.totalAmount,
         properties: payload.properties,
         items: payload.items,
-        discountApplication: payload.discountApplication
+        discountApplication: (!isEmpty(payload.discountApplication) && payload?.discountApplication?.type === 'fixed' && payload?.discountApplication?.amount)
+          ? payload.discountApplication
+          : null
       }
     })
   }
