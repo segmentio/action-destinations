@@ -10,9 +10,7 @@ import {
   ActionHookResponse,
   BaseActionDefinition,
   RequestFn,
-  ExecuteDynamicFieldInput,
-  AsyncActionResponse,
-  AsyncPollResponse
+  ExecuteDynamicFieldInput
 } from './action'
 import { time, duration } from '../time'
 import { JSONLikeObject, JSONObject, JSONValue } from '../json-object'
@@ -52,7 +50,6 @@ export type {
   AsyncActionResponseType,
   AsyncPollResponseType
 }
-export { AsyncActionResponse, AsyncPollResponse }
 export { hookTypeStrings }
 export type { MinimalInputField }
 export { fieldsToJsonSchema }

@@ -17,7 +17,6 @@ import type {
   ActionDestinationSuccessResponseType,
   ActionDestinationErrorResponseType,
   ResultMultiStatusNode,
-  AsyncActionResponseType,
   AsyncPollResponseType
 } from './types'
 import { syncModeTypes } from './types'
@@ -902,25 +901,5 @@ export class MultiStatusResponse {
 
   public getAllResponses(): (ActionDestinationSuccessResponse | ActionDestinationErrorResponse)[] {
     return this.responses
-  }
-}
-
-export class AsyncActionResponse {
-  private data: AsyncActionResponseType
-  public constructor(data: AsyncActionResponseType) {
-    this.data = data
-  }
-  public value(): AsyncActionResponseType {
-    return this.data
-  }
-}
-
-export class AsyncPollResponse {
-  private data: AsyncPollResponseType
-  public constructor(data: AsyncPollResponseType) {
-    this.data = data
-  }
-  public value(): AsyncPollResponseType {
-    return this.data
   }
 }
