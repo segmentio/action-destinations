@@ -104,11 +104,11 @@ const send = async (
   const associationPayloads = createAssociationPayloads(fromRecordPayloads, 'associations')
   const associatedRecords = await sendAssociatedRecords(client, associationPayloads, assocationSyncMode as AssociationSyncMode)
 
-  const disassociationPayloads = createAssociationPayloads(fromRecordPayloads, 'disassociations')
-  const disassociatedRecords = await readAssociatedRecords(client, disassociationPayloads)
+  const dissociationPayloads = createAssociationPayloads(fromRecordPayloads, 'dissociations')
+  const dissociatedRecords = await readAssociatedRecords(client, dissociationPayloads)
 
   await sendAssociations(client, associatedRecords, 'create')
-  await sendAssociations(client, disassociatedRecords, 'archive')
+  await sendAssociations(client, dissociatedRecords, 'archive')
 
   return
 }
