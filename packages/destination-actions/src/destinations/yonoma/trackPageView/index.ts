@@ -64,7 +64,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         userId: { '@path': '$.userId' },
         anonymousId: { '@path': '$.anonymousId' },
-        email: { '@path': '$.traits.email' }
+        email: {
+          '@if': {
+            exists: { '@path': '$.context.traits.email' },
+            then: { '@path': '$.context.traits.email' },
+            else: { '@path': '$.properties.email' }
+          }
+        }
       }
     },
     listId: {
@@ -72,7 +78,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: "The Yonoma list to add the contact to.",
       required: true,
-      default: { '@path': '$.traits.list_id' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.traits.list_id' },
+          then: { '@path': '$.context.traits.list_id' },
+          else: { '@path': '$.properties.list_id' }
+        }
+      }
     },
     properties: {
       label: 'Event Properties',

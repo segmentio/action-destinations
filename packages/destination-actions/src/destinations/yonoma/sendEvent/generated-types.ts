@@ -14,6 +14,10 @@ export interface Payload {
      */
     userId?: string
     /**
+     * Anonymous identifier from Segment.
+     */
+    anonymousId?: string
+    /**
      * Contact's email address. Required if userId is not provided.
      */
     email?: string
