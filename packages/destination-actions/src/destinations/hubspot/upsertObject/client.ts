@@ -8,7 +8,7 @@ import {
   ReadReq,
   ReadPropsResp,
   BatchObjResp,
-  UpsertReq
+  UpsertReq,
   AssociationsAction
 } from './types'
 

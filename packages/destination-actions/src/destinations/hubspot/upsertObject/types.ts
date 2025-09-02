@@ -152,7 +152,7 @@ export interface PayloadWithFromId extends OmitPayload {
     id_field_value: string
     from_record_id: string
   }>
-  disassociations?: Array<{
+  dissociations?: Array<{
     object_type: string
     association_label: string
     id_field_name: string
@@ -235,6 +235,6 @@ export interface Association {
   from_record_id?: string
 }
 
-export type AssociationsKey = 'associations' | 'disassociations'
+export type AssociationsKey = 'associations' | 'dissociations'
 
 export type AssociationsAction = 'create' | 'archive'
