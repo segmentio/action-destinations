@@ -81,6 +81,24 @@ export interface Payload {
     id_field_value?: string
   }[]
   /**
+   * Add the record to one or more Lists, up to a maximum of 3 Lists.
+   */
+  lists_add?: {
+    /**
+     * The ID of the List to add the record to.
+     */
+    list_id: string
+  }
+  /**
+   * Remove the record from one or more Lists, up to a maximum of 3 Lists.
+   */
+  lists_remove?: {
+    /**
+     * The ID of the List to add the record to.
+     */
+    list_id: string
+  }
+  /**
    * By default Segment batches events to Hubspot.
    */
   enable_batching?: boolean

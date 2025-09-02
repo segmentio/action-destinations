@@ -18,3 +18,8 @@ export const SUPPORTED_HUBSPOT_OBJECT_TYPES = [
 ]
 
 export const MAX_HUBSPOT_BATCH_SIZE = 100
+
+export const MAX_LIST_ADD = 3
+
+export const MAX_LIST_REMOVE = 3
+

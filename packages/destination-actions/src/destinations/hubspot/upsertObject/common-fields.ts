@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core'
-import { MAX_HUBSPOT_BATCH_SIZE } from './constants'
+import { MAX_HUBSPOT_BATCH_SIZE, MAX_LIST_ADD, MAX_LIST_REMOVE } from './constants'
 
 export const commonFields: Record<string, InputField> = {
   object_details: {
@@ -165,6 +165,44 @@ export const commonFields: Record<string, InputField> = {
         description: 'The value of the identifier for the record to be disassociated with',
         type: 'string',
         required: false
+      }
+    }
+  },
+  lists_add: {
+    label: 'Add to List',
+    description: `Add the record to one or more Lists, up to a maximum of ${MAX_LIST_ADD} Lists.`,
+    type: 'object',
+    required: false,
+    defaultObjectUI: 'keyvalue:only',
+    additionalProperties: false,
+    properties: {
+      list_id: {
+        label: 'List ID',
+        description: 'The ID of the List to add the record to.',
+        type: 'string',
+        required: true,
+        allowNull: false,
+        dynamic: true,
+        disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+      }
+    }
+  },
+  lists_remove: {
+    label: 'Remove from List',
+    description: `Remove the record from one or more Lists, up to a maximum of ${MAX_LIST_REMOVE} Lists.`,
+    type: 'object',
+    required: false,
+    defaultObjectUI: 'keyvalue:only',
+    additionalProperties: false,
+    properties: {
+      list_id: {
+        label: 'List ID',
+        description: 'The ID of the List to add the record to.',
+        type: 'string',
+        required: true,
+        allowNull: false,
+        dynamic: true,
+        disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
       }
     }
   },

@@ -149,6 +149,29 @@ export const dynamicFields = {
 
       return await dynamicReadIdFields(request, toObjectType)
     }
+  },
+  lists_add: {
+    list_id: async (
+      request: RequestClient,
+      { dynamicFieldContext, payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
+    ) => {
+      const selectedIndex = dynamicFieldContext?.selectedArrayIndex
+
+      if (selectedIndex === undefined) {
+        throw new Error('Selected array index is missing')
+      }
+
+      const toObjectType = payload?.associations?.[selectedIndex]?.object_type
+
+      if (!toObjectType) {
+        throw new Error("Select a value from the 'To Object Type' field")
+      }
+
+      return await dynamicReadIdFields(request, toObjectType)
+    }
+  },
+  lists_remove: {
+
   }
 }
 
