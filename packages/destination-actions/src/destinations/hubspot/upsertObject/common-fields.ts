@@ -123,7 +123,7 @@ export const commonFields: Record<string, InputField> = {
       }
     }
   },
-  disassociations: {
+  dissociations: {
     label: 'Associations to remove',
     description: 'Remove Association Labels from an Association between two records. Removing the default association label will delete the entire Association.',
     type: 'object',

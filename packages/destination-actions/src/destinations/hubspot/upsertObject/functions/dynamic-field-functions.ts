@@ -104,7 +104,7 @@ export const dynamicFields = {
       return await dynamicReadIdFields(request, toObjectType)
     }
   },
-  disassociations: {
+  dissociations: {
     object_type: async (request: RequestClient) => {
       return await dynamicReadObjectTypes(request)
     },

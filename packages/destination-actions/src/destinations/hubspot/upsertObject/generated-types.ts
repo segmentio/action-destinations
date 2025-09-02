@@ -62,7 +62,7 @@ export interface Payload {
   /**
    * Remove Association Labels from an Association between two records. Removing the default association label will delete the entire Association.
    */
-  disassociations?: {
+  dissociations?: {
     /**
      * The type of associated Hubspot Object.
      */
