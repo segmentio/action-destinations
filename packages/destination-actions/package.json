@@ -80,7 +80,6 @@
       "@bufbuild/protobuf/codegenv1": "<rootDir>/../../node_modules/@bufbuild/protobuf/dist/cjs/codegenv1"
     },
     "setupFilesAfterEnv": [
-      "<rootDir>/jest.setup.js",
       "<rootDir>/test/setup-after-env.ts"
     ],
     "coverageReporters": [
