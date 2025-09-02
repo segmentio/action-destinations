@@ -96,7 +96,11 @@ const getKafka = (settings: Settings) => {
         return settings.ssl_enabled
       }
       return undefined
-    })()
+    })(),
+    retry: {
+      retries: 0
+      // disable retries as centrifuge already takes care of that.
+    }
   } as unknown as KafkaConfig
 
   try {
