@@ -2,16 +2,27 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
+import { VEHICLE_FIELDS, TRAVEL_FIELDS } from '../reportWebEvent/constants'
 
-const testDestination = createTestIntegration(Definition)
+let testDestination = createTestIntegration(Definition)
 const timestamp = '2024-01-08T13:52:50.212Z'
 const settings: Settings = {
   accessToken: 'test',
   pixelCode: 'test'
 }
 
+
+
 describe('Tiktok Conversions', () => {
+
   describe('reportWebEvent', () => {
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+      nock.cleanAll()
+      testDestination = createTestIntegration(Definition)
+    })
+
     it('should send a successful InitiateCheckout event to reportWebEvent', async () => {
       const event = createTestEvent({
         timestamp: timestamp,
@@ -757,8 +768,6 @@ describe('Tiktok Conversions', () => {
         messageId: 'corey123',
         type: 'track',
         properties: {
-          event_source: 'web',
-          event_spec_type: 'Vehicle Fields',
           email: 'coreytest1231@gmail.com',
           phone: '+1555-555-5555',
           ttclid: '12345',
@@ -794,53 +803,60 @@ describe('Tiktok Conversions', () => {
       })
 
       const json = {
-        event_source: 'web',
-        event_source_id: 'test',
-        partner_name: 'Segment',
+        event_source: "web",
+        event_source_id: "test",
+        partner_name: "Segment",
         data: [
           {
-            event: 'InitiateCheckout',
+            event: "InitiateCheckout",
             event_time: 1704721970,
-            event_id: 'corey123',
+            event_id: "corey123",
             user: {
-              external_id: ['481f202262e9c5ccc48d24e60798fadaa5f6ff1f8369f7ab927c04c3aa682a7f'],
-              phone: ['910a625c4ba147b544e6bd2f267e130ae14c591b6ba9c25cb8573322dedbebd0'],
-              email: ['eb9869a32b532840dd6aa714f7a872d21d6f650fc5aa933d9feefc64708969c7'],
-              first_name: '',
-              last_name: '',
-              city: '',
-              state: '',
-              country: '',
-              zip_code: '',
-              ttclid: '12345',
-              ip: '0.0.0.0',
+              external_id: [
+                "481f202262e9c5ccc48d24e60798fadaa5f6ff1f8369f7ab927c04c3aa682a7f"
+              ],
+              phone: [
+                "910a625c4ba147b544e6bd2f267e130ae14c591b6ba9c25cb8573322dedbebd0"
+              ],
+              email: [
+                "eb9869a32b532840dd6aa714f7a872d21d6f650fc5aa933d9feefc64708969c7"
+              ],
+              first_name: "",
+              last_name: "",
+              city: "",
+              state: "",
+              country: "",
+              zip_code: "",
+              ttclid: "12345",
+              ip: "0.0.0.0",
               user_agent:
-                'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57'
+                "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57"
             },
             properties: {
               contents: [],
-              content_type: 'product',
-              postal_code: 'test_postal_code',
-              make: 'test_make',
-              model: 'test_model',
+              content_type: "product",
+              postal_code: "test_postal_code",
+              make: "test_make",
+              model: "test_model",
               year: 2020,
-              state_of_vehicle: 'New',
-              mileage_value: 12345,
-              mileage_unit: 'MI',
-              exterior_color: 'test_exterior_color',
-              transmission: 'Automatic',
-              body_style: 'Coupe',
-              fuel_type: 'Diesel',
-              drivetrain: 'AWD',
-              preferred_price_range: [1000, 2000],
-              trim: 'test_trim',
-              vin: 'test_vin',
-              interior_color: 'test_interior_color',
-              condition_of_vehicle: 'Good'
+              state_of_vehicle: "New",
+              exterior_color: "test_exterior_color",
+              transmission: "Automatic",
+              body_style: "Coupe",
+              fuel_type: "Diesel",
+              trim: "test_trim",
+              vin: "test_vin",
+              interior_color: "test_interior_color",
+              condition_of_vehicle: "Good",
+              mileage: {
+                unit: "MI",
+                value: 12345
+              },
+              preferred_price_range: [1000, 2000]
             },
             page: {
-              url: 'https://segment.com/',
-              referrer: 'https://google.com/'
+              url: "https://segment.com/",
+              referrer: "https://google.com/"
             },
             limited_data_use: false
           }
@@ -856,7 +872,7 @@ describe('Tiktok Conversions', () => {
         mapping: {
           event: 'InitiateCheckout',
           event_source: 'web',
-          event_spec_type: 'Vehicle Fields'
+          event_spec_type: VEHICLE_FIELDS
         }
       })
 
@@ -871,8 +887,6 @@ describe('Tiktok Conversions', () => {
         messageId: 'corey123',
         type: 'track',
         properties: {
-          event_source: 'web',
-          event_spec_type: 'Travel Fields',
           email: 'coreytest1231@gmail.com',
           phone: '+1555-555-5555',
           ttclid: '12345',
@@ -912,64 +926,78 @@ describe('Tiktok Conversions', () => {
       })
 
       const json = {
-        event_source: 'web',
-        event_source_id: 'test',
-        partner_name: 'Segment',
+        event_source: "web",
+        event_source_id: "test",
+        partner_name: "Segment",
         data: [
           {
-            event: 'InitiateCheckout',
+            event: "InitiateCheckout",
             event_time: 1704721970,
-            event_id: 'corey123',
+            event_id: "corey123",
             user: {
-              external_id: ['481f202262e9c5ccc48d24e60798fadaa5f6ff1f8369f7ab927c04c3aa682a7f'],
-              phone: ['910a625c4ba147b544e6bd2f267e130ae14c591b6ba9c25cb8573322dedbebd0'],
-              email: ['eb9869a32b532840dd6aa714f7a872d21d6f650fc5aa933d9feefc64708969c7'],
-              first_name: '',
-              last_name: '',
-              city: '',
-              state: '',
-              country: '',
-              zip_code: '',
-              ttclid: '12345',
-              ip: '0.0.0.0',
+              external_id: [
+                "481f202262e9c5ccc48d24e60798fadaa5f6ff1f8369f7ab927c04c3aa682a7f"
+              ],
+              phone: [
+                "910a625c4ba147b544e6bd2f267e130ae14c591b6ba9c25cb8573322dedbebd0"
+              ],
+              email: [
+                "eb9869a32b532840dd6aa714f7a872d21d6f650fc5aa933d9feefc64708969c7"
+              ],
+              first_name: "",
+              last_name: "",
+              city: "",
+              state: "",
+              country: "",
+              zip_code: "",
+              ttclid: "12345",
+              ip: "0.0.0.0",
               user_agent:
-                'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57'
+                "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57"
             },
             properties: {
               contents: [],
-              content_type: 'product',
-              postal_code: 'test_postal_code',
-              city: 'test_city',
-              region: 'test_region',
-              country: 'test_country',
-              checkin_date: 'test_checkin_date',
-              checkout_date: 'test_checkout_date',
+              content_type: "product",
+              city: "test_city",
+              region: "test_region",
+              country: "test_country",
+              checkin_date: "test_checkin_date",
+              checkout_date: "test_checkout_date",
               num_adults: 1,
               num_children: 1,
               num_infants: 1,
-              suggested_hotels: ['test_suggested_hotels_1', 'test_suggested_hotels_2'],
-              departing_departure_date: '20250901',
-              returning_departure_date: '20250901',
-              origin_airport: 'test_origin_airport',
-              destination_airport: 'test_destination_airport',
-              destination_ids: ['destination_ids_1', 'destination_ids_2'],
-              departing_arrival_date: '20250901',
-              returning_arrival_date: '20250901',
-              travel_class: 'eco',
+              suggested_hotels: [
+                "test_suggested_hotels_1",
+                "test_suggested_hotels_2"
+              ],
+              departing_departure_date: "20250901",
+              returning_departure_date: "20250901",
+              origin_airport: "test_origin_airport",
+              destination_ids: [
+                "destination_ids_1",
+                "destination_ids_2"
+              ],
+              departing_arrival_date: "20250901",
+              returning_arrival_date: "20250901",
+              travel_class: "eco",
               user_score: 1,
               preferred_num_stops: 0,
-              travel_start: '20250901',
-              travel_end: '20250901',
-              suggested_destinations: ['suggested_destinations_1', 'suggested_destinations_2']
+              travel_start: "20250901",
+              travel_end: "20250901",
+              suggested_destinations: [
+                "suggested_destinations_1",
+                "suggested_destinations_2"
+              ]
             },
             page: {
-              url: 'https://segment.com/',
-              referrer: 'https://google.com/'
+              url: "https://segment.com/",
+              referrer: "https://google.com/"
             },
             limited_data_use: false
           }
         ]
       }
+
 
       nock('https://business-api.tiktok.com/open_api/v1.3/event/track').post('/', json).reply(200, {})
 
@@ -980,7 +1008,7 @@ describe('Tiktok Conversions', () => {
         mapping: {
           event: 'InitiateCheckout',
           event_source: 'web',
-          event_spec_type: 'Travel Fields'
+          event_spec_type: TRAVEL_FIELDS
         }
       })
 

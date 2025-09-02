@@ -213,7 +213,7 @@ export const vehicle_fields: InputField = {
       '@path': '$.properties.fuel_type'
     },
     drivetrain: {
-      '@path': '$.properties.travel_class'
+      '@path': '$.properties.drive_train'
     },
     preferred_price_range_min: {
       '@path': '$.properties.preferred_price_range_min'
@@ -231,7 +231,7 @@ export const vehicle_fields: InputField = {
       '@path': '$.properties.interior_color'
     },
     condition_of_vehicle: {
-      '@path': '$.properties.travel_class'
+      '@path': '$.properties.condition_of_vehicle'
     },
     viewcontent_type: {
       '@path': '$.properties.viewcontent_type'
