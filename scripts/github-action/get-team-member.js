@@ -4,16 +4,20 @@ module.exports = async ({ github, context, core }) => {
 
     // Check if team:external label is being added
     if (labelsToAdd && labelsToAdd.split(',').includes('team:external')) {
-        core.setOutput('skip', 'true')
-        core.setOutput('reason', 'external contributor')
+        core.setOutput('reviewers', 'joe-ayoub-segment')
+        core.setOutput('team', 'external')
+        core.setOutput('skip', 'false')
+        core.info('Assigned joe-ayoub-segment for external contributor PR')
         return
     }
 
     // Check if team:external label already exists on the PR
     const existingLabels = context.payload.pull_request.labels.map((label) => label.name)
     if (existingLabels.includes('team:external')) {
-        core.setOutput('skip', 'true')
-        core.setOutput('reason', 'external contributor (existing label)')
+        core.setOutput('reviewers', 'joe-ayoub-segment')
+        core.setOutput('team', 'external')
+        core.setOutput('skip', 'false')
+        core.info('Assigned joe-ayoub-segment for external contributor PR (existing label)')
         return
     }
 
@@ -36,23 +40,53 @@ module.exports = async ({ github, context, core }) => {
 
     const teamToAssign = determineReviewingTeam(labelsToAdd, existingLabels)
 
-    // Only proceed for strategic-connections-team
-    if (teamToAssign !== 'strategic-connections-team') {
+    // Check if PR author is a member of strategic-connections-team
+    let isAuthorInStratConn = false
+    try {
+        const stratConnTeam = await github.rest.teams.listMembersInOrg({
+            team_slug: 'strategic-connections-team',
+            org: context.repo.owner
+        })
+        const prAuthor = context.payload.pull_request.user.login
+        isAuthorInStratConn = stratConnTeam.data.some(member => member.login === prAuthor)
+        core.info(`PR author ${prAuthor} is ${isAuthorInStratConn ? 'in' : 'not in'} strategic-connections-team`)
+    } catch (error) {
+        core.info(`Failed to check team membership: ${error.message}`)
+    }
+
+    // Decision logic:
+    // 1. If mappingkit changes -> assign to libraries-web-team (existing logic)
+    // 2. If author is from strategic-connections-team -> assign 2 from strategic-connections-team
+    // 3. Otherwise -> assign to joe-ayoub-segment
+
+    if (teamToAssign === 'libraries-web-team') {
         core.setOutput('skip', 'true')
-        core.setOutput('reason', `only assigning for strategic-connections-team, found ${teamToAssign || 'none'}`)
+        core.setOutput('reason', `mappingkit changes should be handled by ${teamToAssign}`)
         return
     }
 
-    // Get a random team member
+    if (isAuthorInStratConn) {
+        // PR from strategic-connections-team member -> assign 2 from same team
+        core.info('PR from strategic-connections-team member, assigning 2 reviewers from same team')
+    } else {
+        // PR from other team or external -> assign to joe-ayoub-segment
+        core.setOutput('reviewers', 'joe-ayoub-segment')
+        core.setOutput('team', 'other')
+        core.setOutput('skip', 'false')
+        core.info('PR from non-strategic-connections-team member, assigned to joe-ayoub-segment')
+        return
+    }
+
+    // Get strategic-connections-team members (we only reach here if author is in strategic-connections-team)
     try {
         const team = await github.rest.teams.listMembersInOrg({
-            team_slug: teamToAssign,
+            team_slug: 'strategic-connections-team',
             org: context.repo.owner
         })
 
         if (team.data.length === 0) {
             core.setOutput('skip', 'true')
-            core.setOutput('reason', 'no team members found')
+            core.setOutput('reason', 'no team members found in strategic-connections-team')
             return
         }
 
@@ -62,7 +96,7 @@ module.exports = async ({ github, context, core }) => {
 
         if (eligibleMembers.length === 0) {
             core.setOutput('skip', 'true')
-            core.setOutput('reason', `only PR author (${prAuthor}) found in team`)
+            core.setOutput('reason', `only PR author (${prAuthor}) found in strategic-connections-team`)
             return
         }
 
@@ -80,12 +114,12 @@ module.exports = async ({ github, context, core }) => {
 
         const reviewerLogins = selectedMembers.map(member => member.login)
         core.setOutput('reviewers', reviewerLogins.join(','))
-        core.setOutput('team', teamToAssign)
+        core.setOutput('team', 'strategic-connections-team')
         core.setOutput('skip', 'false')
-        core.info(`Selected ${reviewerLogins.join(', ')} (consecutive from index ${startIndex}) from ${eligibleMembers.length} eligible members in ${teamToAssign} (excluded PR author: ${prAuthor})`)
+        core.info(`Selected ${reviewerLogins.join(', ')} (consecutive from index ${startIndex}) from ${eligibleMembers.length} eligible members in strategic-connections-team (excluded PR author: ${prAuthor})`)
 
     } catch (error) {
         core.setOutput('skip', 'true')
-        core.setOutput('reason', `failed to get team members: ${error.message}`)
+        core.setOutput('reason', `failed to get strategic-connections-team members: ${error.message}`)
     }
 }
