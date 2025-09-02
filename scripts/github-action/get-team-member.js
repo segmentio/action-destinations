@@ -55,7 +55,7 @@ module.exports = async ({ github, context, core }) => {
     }
 
     // Decision logic:
-    // 1. If mappingkit changes -> assign to libraries-web-team (existing logic)
+    // 1. If mappingkit changes -> assign to libraries-web-team
     // 2. If author is from strategic-connections-team -> assign 2 from strategic-connections-team
     // 3. Otherwise -> assign to joe-ayoub-segment
 
