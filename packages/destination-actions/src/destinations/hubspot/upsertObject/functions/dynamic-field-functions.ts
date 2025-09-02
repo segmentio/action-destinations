@@ -301,7 +301,7 @@ async function dynamicReadAssociationLabels(
       choices: response?.data?.results
         ?.map((res) => ({
           label: !res.label
-            ? `${fromObjectType} to ${toObjectType} (Type ${res.typeId})`
+            ? `${fromObjectType} to ${toObjectType} (Default label: typeId ${res.typeId})`
             : `${fromObjectType} to ${toObjectType} ${res.label}`,
           value: `${res.category}:${res.typeId}`
         }))
