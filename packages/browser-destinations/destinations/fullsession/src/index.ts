@@ -29,14 +29,14 @@ export const destination: BrowserDestinationDefinition<Settings, FUS> = {
       type: 'automatic'
     },
     {
-      name: 'Track Event',
+      name: 'Record Event',
       subscribe: 'type = "track"',
       partnerAction: 'recordEvent',
       mapping: defaultValues(recordEvent.fields),
       type: 'automatic'
     },
     {
-      name: 'Page View',
+      name: 'Visit Page',
       subscribe: 'type = "page"',
       partnerAction: 'visitPage',
       mapping: defaultValues(visitPage.fields),
