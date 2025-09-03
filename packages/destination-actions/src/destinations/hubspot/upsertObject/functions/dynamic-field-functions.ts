@@ -471,7 +471,7 @@ async function dynamicReadProperties(
   }
 }
 
-async function dynamicReadLists(request: RequestClient, objectType: string) {
+async function dynamicReadLists(request: RequestClient, objectType: string): Promise<DynamicFieldResponse> {
 
   interface ResultItem {
       listId: string
@@ -543,7 +543,7 @@ async function dynamicReadLists(request: RequestClient, objectType: string) {
         value: `${item.listId} : [${item.name}]`,
       }))
     
-    return choices
+    return { choices }
   }
   catch (err) {
     const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
@@ -571,4 +571,3 @@ async function readObjectSchema(request: RequestClient, objectType: string): Pro
   })
   return response.data.objectTypeId
 }
-

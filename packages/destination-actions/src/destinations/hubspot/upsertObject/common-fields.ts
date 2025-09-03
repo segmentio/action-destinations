@@ -172,8 +172,9 @@ export const commonFields: Record<string, InputField> = {
     label: 'Add to List',
     description: `Add the record to one or more Lists, up to a maximum of ${MAX_LIST_ADD} Lists.`,
     type: 'object',
+    multiple: true,
     required: false,
-    defaultObjectUI: 'keyvalue:only',
+    defaultObjectUI: 'arrayeditor',
     additionalProperties: false,
     properties: {
       list_id: {
@@ -191,8 +192,9 @@ export const commonFields: Record<string, InputField> = {
     label: 'Remove from List',
     description: `Remove the record from one or more Lists, up to a maximum of ${MAX_LIST_REMOVE} Lists.`,
     type: 'object',
+    multiple: true,
     required: false,
-    defaultObjectUI: 'keyvalue:only',
+    defaultObjectUI: 'arrayeditor',
     additionalProperties: false,
     properties: {
       list_id: {
