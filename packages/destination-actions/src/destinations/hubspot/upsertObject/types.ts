@@ -238,18 +238,3 @@ export interface Association {
 export type AssociationsKey = 'associations' | 'dissociations'
 
 export type AssociationsAction = 'create' | 'archive'
-
-export interface ListSearchReq {
-  processingTypes: ["MANUAL"]
-}
-
-export interface ListSearchResp {
-  offset: number
-  hasMore: boolean
-  lists: Array<{
-    listId: string
-    processingType: "MANUAL"
-    objectTypeId: string
-    name: string
-  }>
-}

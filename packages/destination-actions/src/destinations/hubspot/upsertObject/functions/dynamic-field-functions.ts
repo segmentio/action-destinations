@@ -153,21 +153,16 @@ export const dynamicFields = {
   lists_add: {
     list_id: async (
       request: RequestClient,
-      { dynamicFieldContext, payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
+      { payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
     ) => {
-      const selectedIndex = dynamicFieldContext?.selectedArrayIndex
 
-      if (selectedIndex === undefined) {
-        throw new Error('Selected array index is missing')
+      const objectType = payload?.object_details?.object_type
+
+      if (!objectType) {
+        throw new Error("Select a value from the 'Object Type' field")
       }
 
-      const toObjectType = payload?.associations?.[selectedIndex]?.object_type
-
-      if (!toObjectType) {
-        throw new Error("Select a value from the 'To Object Type' field")
-      }
-
-      return await dynamicReadIdFields(request, toObjectType)
+      return await dynamicReadLists(request, objectType)
     }
   },
   lists_remove: {
@@ -458,6 +453,52 @@ async function dynamicReadProperties(
       choices: [],
       error: {
         message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadProperties',
+        code: code
+      }
+    }
+  }
+}
+
+async function dynamicReadLists(request: RequestClient, objectType: string) {
+  interface ResultItem {
+      listId: string
+      processingType: "MANUAL"
+      objectTypeId: string
+      name: string
+  }
+
+  interface ResponseType {
+    data: {
+      offset: number
+      hasMore: boolean
+      lists: ResultItem[]
+    }
+  }
+
+  interface RequestType {
+    processingTypes: ["MANUAL"]
+    offset?: number
+  }
+
+  const json: RequestType = {
+    processingTypes: ["MANUAL"],
+    offset: 0
+  }
+  try {
+    const url = `${HUBSPOT_BASE_URL}/crm/v3/lists/search`
+    const response: ResponseType = await request(url, {
+      method: 'POST',
+      skipResponseCloning: true,
+      json
+    })
+  }
+  catch (err) {
+    const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
+
+    return {
+      choices: [],
+      error: {
+        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadLists',
         code: code
       }
     }
