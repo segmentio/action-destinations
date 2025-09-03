@@ -1,10 +1,11 @@
-import { IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
+import { Features, IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
 import { Payload } from './addToAudContactInfo/generated-types'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
 
-const DV360API = `https://displayvideo.googleapis.com/v4/firstPartyAndPartnerAudiences`
+const DV360API = `https://displayvideo.googleapis.com/`
 const CONSENT_STATUS_GRANTED = 'CONSENT_STATUS_GRANTED' // Define consent status
+export const FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE = 'actions-first-party-dv360-version-update'
 
 interface createAudienceRequestParams {
   advertiserId: string
@@ -14,16 +15,19 @@ interface createAudienceRequestParams {
   audienceType: string
   appId?: string
   token?: string
+  features?: Features
 }
 
 interface getAudienceParams {
   advertiserId: string
   audienceId: string
   token?: string
+  features?: Features
 }
 
 interface DV360editCustomerMatchResponse {
-  firstPartyAndPartnerAudienceId: string
+  firstAndThirdPartyAudienceId?: string
+  firstPartyAndPartnerAudienceId?: string
   error: [
     {
       code: string
@@ -37,9 +41,16 @@ export const createAudienceRequest = (
   request: RequestClient,
   params: createAudienceRequestParams
 ): Promise<Response> => {
-  const { advertiserId, audienceName, description, membershipDurationDays, audienceType, appId, token } = params
+  const { advertiserId, audienceName, description, membershipDurationDays, audienceType, appId, token, features } =
+    params
 
-  const endpoint = DV360API + `?advertiserId=${advertiserId}`
+  let endpoint
+  if (features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]) {
+    // Handle version update logic
+    endpoint = DV360API + 'v4/firstPartyAndPartnerAudiences' + `?advertiserId=${advertiserId}`
+  } else {
+    endpoint = DV360API + 'v3/firstAndThirdPartyAudiences' + `?advertiserId=${advertiserId}`
+  }
   console.log(
     'Create Audience Endpoint:params',
     endpoint,
@@ -64,16 +75,27 @@ export const createAudienceRequest = (
       membershipDurationDays: membershipDurationDays,
       description: description,
       audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',
-      firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY',
+      // If the feature flag is enabled, use v4 and set firstPartyAndPartnerAudienceType, otherwise use v3 and set firstAndThirdPartyAudienceType
+      firstAndThirdPartyAudienceType:
+        features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]
+          ? undefined
+          : 'FIRST_AND_THIRD_PARTY_AUDIENCE_TYPE_FIRST_PARTY',
+      firstPartyAndPartnerAudienceType:
+        features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE] ? 'TYPE_FIRST_PARTY' : undefined,
       appId: appId
     }
   })
 }
 
 export const getAudienceRequest = (request: RequestClient, params: getAudienceParams): Promise<Response> => {
-  const { advertiserId, audienceId, token } = params
-
-  const endpoint = DV360API + `/${audienceId}?advertiserId=${advertiserId}`
+  const { advertiserId, audienceId, token, features } = params
+  let endpoint
+  if (features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]) {
+    // Handle version update logic
+    endpoint = DV360API + 'v4/firstPartyAndPartnerAudiences' + `/${audienceId}?advertiserId=${advertiserId}`
+  } else {
+    endpoint = DV360API + 'v3/firstAndThirdPartyAudiences' + `/${audienceId}?advertiserId=${advertiserId}`
+  }
 
   console.log('Get Audience Endpoint:', endpoint)
 
@@ -90,7 +112,8 @@ export async function editDeviceMobileIds(
   request: RequestClient,
   payloads: DeviceIdPayload[],
   operation: 'add' | 'remove',
-  statsContext?: StatsContext // Adjust type based on actual stats context
+  statsContext?: StatsContext, // Adjust type based on actual stats context,
+  features?: Features
 ) {
   const payload = payloads[0]
   const audienceId = payload.external_id
@@ -99,9 +122,13 @@ export async function editDeviceMobileIds(
   if (payload.mobileDeviceIds === undefined) {
     return
   }
-
-  //Format the endpoint
-  const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
+  let endpoint
+  if (features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]) {
+    // Handle version update logic
+    endpoint = DV360API + 'v4/firstPartyAndPartnerAudiences/' + audienceId + ':editCustomerMatchMembers'
+  } else {
+    endpoint = DV360API + 'v3/firstAndThirdPartyAudiences/' + audienceId + ':editCustomerMatchMembers'
+  }
 
   // Prepare the request payload
   const mobileDeviceIdList = {
@@ -126,7 +153,11 @@ export async function editDeviceMobileIds(
     },
     body: requestPayload
   })
-  if (!response.data || !response.data.firstPartyAndPartnerAudienceId) {
+  const responseAudienceId =
+    features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]
+      ? response.data.firstPartyAndPartnerAudienceId
+      : response.data.firstAndThirdPartyAudienceId
+  if (!response.data || !responseAudienceId) {
     statsContext?.statsClient?.incr('addCustomerMatchMembers.error', 1, statsContext?.tags)
     throw new IntegrationError(
       `API returned error: ${response.data?.error || 'Unknown error'}`,
@@ -174,7 +205,8 @@ export async function editContactInfo(
   request: RequestClient,
   payloads: Payload[],
   operation: 'add' | 'remove',
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  features?: Features
 ) {
   if (!payloads || payloads.length === 0) return
 
@@ -203,7 +235,13 @@ export async function editContactInfo(
     const contactInfos = validPayloads.map(processPayload)
     const contactInfoList = buildContactInfoList(contactInfos)
     const requestPayload = buildRequestPayload(advertiserId, contactInfoList, operation)
-    const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
+    let endpoint
+    if (features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]) {
+      // Handle version update logic
+      endpoint = DV360API + 'v4/firstPartyAndPartnerAudiences/' + audienceId + ':editCustomerMatchMembers'
+    } else {
+      endpoint = DV360API + 'v3/firstAndThirdPartyAudiences/' + audienceId + ':editCustomerMatchMembers'
+    }
     console.log('Edit Contact Info batch Endpoint:requestPayload', endpoint, requestPayload)
     const response = await request<DV360editCustomerMatchResponse>(endpoint, {
       method: 'POST',
@@ -228,7 +266,13 @@ export async function editContactInfo(
     }
     const contactInfoList = buildContactInfoList([processPayload(payload)])
     const requestPayload = buildRequestPayload(advertiserId, contactInfoList, operation)
-    const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
+    let endpoint
+    if (features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]) {
+      // Handle version update logic
+      endpoint = DV360API + 'v4/firstPartyAndPartnerAudiences/' + audienceId + ':editCustomerMatchMembers'
+    } else {
+      endpoint = DV360API + 'v3/firstAndThirdPartyAudiences/' + audienceId + ':editCustomerMatchMembers'
+    }
     console.log('Edit Contact Info non batch Endpoint:requestPayload', endpoint, requestPayload)
     const response = await request<DV360editCustomerMatchResponse>(endpoint, {
       method: 'POST',

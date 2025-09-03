@@ -11,6 +11,7 @@ import removeFromAudMobileDeviceId from './removeFromAudMobileDeviceId'
 import addToAudContactInfo from './addToAudContactInfo'
 import addToAudMobileDeviceId from './addToAudMobileDeviceId'
 import { _CreateAudienceInput, _GetAudienceInput } from './types'
+import { FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE } from './functions'
 
 export interface RefreshTokenResponse {
   access_token: string
@@ -98,7 +99,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
     createAudience: async (_request, _CreateAudienceInput: _CreateAudienceInput) => {
       // Extract values from input
-      const { audienceName, audienceSettings, statsContext } = _CreateAudienceInput
+      const { audienceName, audienceSettings, statsContext, features } = _CreateAudienceInput
       const auth = _CreateAudienceInput.settings.oauth
       const advertiserId = audienceSettings?.advertiserId?.trim()
       const description = audienceSettings?.description
@@ -165,7 +166,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         membershipDurationDays,
         audienceType,
         appId,
-        token
+        token,
+        features
       })
 
       // Parse and return the externalId
@@ -173,13 +175,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       console.log('Create Audience Response:', r)
       statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
-        externalId: r.firstPartyAndPartnerAudienceId
+        externalId:
+          features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]
+            ? r.firstPartyAndPartnerAudienceId
+            : r.firstAndThirdPartyAudienceId
       }
     },
 
     getAudience: async (_request, _GetAudienceInput: _GetAudienceInput) => {
       // Extract values from input
-      const { audienceSettings, statsContext } = _GetAudienceInput
+      const { audienceSettings, statsContext, features } = _GetAudienceInput
       const auth = _GetAudienceInput.settings.oauth
       const audienceId = _GetAudienceInput.externalId
       const advertiserId = audienceSettings?.advertiserId?.trim()
@@ -224,7 +229,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       // Make API request to get audience details
-      const response = await getAudienceRequest(_request, { advertiserId, audienceId, token })
+      const response = await getAudienceRequest(_request, { advertiserId, audienceId, token, features })
 
       if (!response.ok) {
         // Handle non-OK responses
@@ -238,7 +243,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       console.log('Get Audience Response:', audienceData)
       statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
-        externalId: audienceData.firstPartyAndPartnerAudienceId
+        externalId:
+          features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]
+            ? audienceData.firstPartyAndPartnerAudienceId
+            : audienceData.firstAndThirdPartyAudienceId
       }
     }
   },
