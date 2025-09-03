@@ -14,7 +14,7 @@ export interface Subscriber {
 export interface IterableUnsubscribePayload {
   listId: number
   subscribers: Array<Unsubscriber>
-  campaignId?: string
+  campaignId?: number
   channelUnsubscribe?: boolean
 }
 

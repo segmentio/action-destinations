@@ -6,8 +6,10 @@ Object {
     Object {
       "name": "Test Product",
       "price": Array [
-        100,
-        "USD",
+        Object {
+          "currency": "USD",
+          "value": 100,
+        },
       ],
       "productId": "test-product-id",
       "productImage": "https://example.com/image.jpg",
@@ -33,8 +35,10 @@ Object {
     Object {
       "name": "Test Product",
       "price": Array [
-        100,
-        "USD",
+        Object {
+          "currency": "USD",
+          "value": 100,
+        },
       ],
       "productId": "test-product-id",
       "productImage": "https://example.com/image.jpg",

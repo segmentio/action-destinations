@@ -3,12 +3,8 @@
 exports[`Testing snapshot for Attentive's subscribeUser destination action: all fields 1`] = `
 Object {
   "externalEventId": "*Cc5M#wXxFe",
-  "locale": Object {
-    "country": "US",
-    "language": "en",
-  },
   "occurredAt": "*Cc5M#wXxFe",
-  "signUpSourceId": "*Cc5M#wXxFe",
+  "signUpSourceId": "test-signup-source-id",
   "singleOptIn": true,
   "subscriptionType": "MARKETING",
   "user": Object {
@@ -27,7 +23,6 @@ Object {
     "country": "US",
     "language": "en",
   },
-  "signUpSourceId": "*Cc5M#wXxFe",
   "subscriptionType": "MARKETING",
   "user": Object {
     "externalIdentifiers": Object {

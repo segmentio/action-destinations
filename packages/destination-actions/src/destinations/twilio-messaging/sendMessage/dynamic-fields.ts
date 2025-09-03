@@ -66,6 +66,12 @@ export async function dynamicSenderType(payload: Payload): Promise<DynamicFieldR
     return createErrorResponse("Select from 'Channel' field first.")
   }
 
+  if (channel === CHANNELS.RCS) {
+    return {
+      choices: [{ label: SENDER_TYPE.MESSAGING_SERVICE, value: SENDER_TYPE.MESSAGING_SERVICE }]
+    }
+  }
+
   return {
     choices: [
       { label: SENDER_TYPE.PHONE_NUMBER, value: SENDER_TYPE.PHONE_NUMBER },

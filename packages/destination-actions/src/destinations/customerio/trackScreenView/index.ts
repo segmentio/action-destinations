@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { sendBatch, sendSingle } from '../utils'
+import { eventProperties } from '../customerio-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Screen View',
@@ -65,7 +66,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Convert dates to Unix timestamps (seconds since Epoch).',
       type: 'boolean',
       default: true
-    }
+    },
+    ...eventProperties
   },
 
   performBatch: (request, { payload: payloads, settings }) => {

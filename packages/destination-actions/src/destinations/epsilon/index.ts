@@ -17,6 +17,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Your Company ID. Contact Epsilon support for assistance.',
         type: 'string',
         required: true
+      },
+      dtm_cmagic: {
+        label: 'Company Magic',
+        description: 'Company Magic. Contact Epsilon support for assistance.',
+        type: 'string',
+        required: true
       }
     }
   },

@@ -2,17 +2,9 @@
 
 export interface Payload {
   /**
-   * Name of column for the unique identifier for the message.
-   */
-  messageId: string
-  /**
-   * Name of the table. This will be the event name.
+   * The name of the table.
    */
   event: string
-  /**
-   * The type of event
-   */
-  type: string
   /**
    * Additional columns to write to Snowflake.
    */
@@ -20,19 +12,15 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Timestamp of the event
+   * Name of column for the unique identifier for the message.
    */
-  timestamp: string | number
+  messageId: string
   /**
-   * Time on the client device when call was invoked.
+   * The type of event.
    */
-  originalTimestamp: string | number
+  type: string
   /**
-   * Time on client device when call was sent.
+   * Time when event was received.
    */
-  sentAt?: string | number
-  /**
-   * Time on Segment server clock when call was received.
-   */
-  receivedAt?: string | number
+  receivedAt: string | number
 }

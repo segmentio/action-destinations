@@ -5,7 +5,8 @@ import { Settings } from '../../generated-types'
 
 let testDestination = createTestIntegration(Definition)
 const settings: Settings = {
-  dtm_cid: 'test_cid'
+  dtm_cid: 'test_cid',
+  dtm_cmagic: 'test_cmagic'
 }
 
 const domain = 'https://login.dotomi.com'
@@ -123,7 +124,7 @@ describe('Epsilon.send', () => {
         eventData: {
           dtmc_tms: 9,
           dtm_cid: 'test_cid',
-          dtm_cmagic: 'c4b91e',
+          dtm_cmagic: 'test_cmagic',
           dtm_fid: 'test_fid',
           dtm_promo_id: 'test_promo_id',
           idfa: 'advertising_id_1',
@@ -173,7 +174,7 @@ describe('Epsilon.send', () => {
         eventData: {
           dtmc_tms: 9,
           dtm_cid: 'test_cid',
-          dtm_cmagic: 'c4b91e',
+          dtm_cmagic: 'test_cmagic',
           dtm_fid: 'test_fid',
           dtm_promo_id: 'test_promo_id',
           idfa: 'advertising_id_1',
@@ -224,7 +225,7 @@ describe('Epsilon.send', () => {
         eventData: {
           dtmc_tms: 9,
           dtm_cid: 'test_cid',
-          dtm_cmagic: 'c4b91e',
+          dtm_cmagic: 'test_cmagic',
           dtm_fid: 'test_fid',
           dtm_promo_id: 'test_promo_id',
           idfa: 'advertising_id_1',
@@ -281,7 +282,7 @@ describe('Epsilon.send', () => {
         eventData: {
           dtmc_tms: 9,
           dtm_cid: 'test_cid',
-          dtm_cmagic: 'c4b91e',
+          dtm_cmagic: 'test_cmagic',
           dtm_fid: 'test_fid',
           dtm_promo_id: 'test_promo_id',
           idfa: 'advertising_id_1',
@@ -358,7 +359,7 @@ describe('Epsilon.send', () => {
         eventData: {
           dtmc_tms: 9,
           dtm_cid: 'test_cid',
-          dtm_cmagic: 'c4b91e',
+          dtm_cmagic: 'test_cmagic',
           dtm_fid: 'test_fid',
           dtm_promo_id: 'test_promo_id',
           google_play_id: 'advertising_id_1',

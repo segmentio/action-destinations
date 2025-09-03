@@ -24,8 +24,8 @@ export const common_fields: Record<string, InputField> = {
     type: 'string',
     description: 'Include fields for travel or vehicle events.',
     choices: [
-      { value: 'Travel Fields', label: TRAVEL_FIELDS },
-      { value: 'Vehicle Fields', label: VEHICLE_FIELDS }
+      { value: TRAVEL_FIELDS, label: 'Travel Fields' },
+      { value: VEHICLE_FIELDS, label: 'Vehicle Fields' }
     ]
   },
   event: {

@@ -10,7 +10,7 @@ Object {
     "dtm_event": "subcategory",
     "eventData": Object {
       "dtm_cid": "q05uljg*(jGG",
-      "dtm_cmagic": "80f256",
+      "dtm_cmagic": "q05uljg*(jGG",
       "dtm_email_hash": "2c3c44d1707148b8f84fd598e4eedd8c07c9fda884627048282510b958f48d68",
       "dtm_fid": "q05uljg*(jGG",
       "dtm_mobile_hash": "2c3c44d1707148b8f84fd598e4eedd8c07c9fda884627048282510b958f48d68",
@@ -37,7 +37,7 @@ Object {
     "dtm_event": "subcategory",
     "eventData": Object {
       "dtm_cid": "q05uljg*(jGG",
-      "dtm_cmagic": "80f256",
+      "dtm_cmagic": "q05uljg*(jGG",
       "dtm_fid": "q05uljg*(jGG",
       "dtm_promo_id": "q05uljg*(jGG",
       "dtmc_tms": 9,

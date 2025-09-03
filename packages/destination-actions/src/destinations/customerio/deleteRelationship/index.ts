@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { resolveIdentifiers, sendBatch, sendSingle } from '../utils'
+import { eventProperties } from '../customerio-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Delete Relationship',
@@ -46,7 +47,8 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.objectTypeId' }
         }
       }
-    }
+    },
+    ...eventProperties
   },
 
   performBatch: (request, { payload: payloads, settings }) => {

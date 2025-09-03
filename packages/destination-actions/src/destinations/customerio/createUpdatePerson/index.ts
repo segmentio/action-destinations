@@ -2,6 +2,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { ActionDefinition } from '@segment/actions-core'
 import { sendBatch, sendSingle } from '../utils'
+import { eventProperties } from '../customerio-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Person',
@@ -95,7 +96,8 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.traits.objectTypeId' }
         }
       }
-    }
+    },
+    ...eventProperties
   },
 
   performBatch: (request, { payload: payloads, settings }) => {
