@@ -21,6 +21,25 @@ module.exports = async ({ github, context, core }) => {
         return
     }
 
+    // Check if there are already reviewers assigned to the PR
+    try {
+        const existingReviewers = await github.rest.pulls.listRequestedReviewers({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.payload.pull_request.number
+        })
+
+        if (existingReviewers.data.users && existingReviewers.data.users.length > 0) {
+            core.setOutput('skip', 'true')
+            core.setOutput('reason', `PR already has ${existingReviewers.data.users.length} user reviewer(s) assigned: ${existingReviewers.data.users.map(u => u.login).join(', ')}`)
+            core.info(`Skipping reviewer assignment - users already assigned: ${existingReviewers.data.users.map(u => u.login).join(', ')}`)
+            return
+        }
+    } catch (error) {
+        core.info(`Failed to check existing reviewers: ${error.message}`)
+        return
+    }
+
     // Function to get teams from existing reviewers
     async function getTeamFromGitHub() {
         try {
