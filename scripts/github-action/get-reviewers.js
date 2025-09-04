@@ -21,34 +21,34 @@ module.exports = async ({ github, context, core }) => {
         return
     }
 
-    // Function to get teams using GitHub's CODEOWNERS evaluation
+    // Function to get teams from existing reviewers
     async function getTeamFromGitHub() {
         try {
-            // Use GitHub's suggested reviewers API (this uses CODEOWNERS internally)
-            const suggestedReviewers = await github.rest.pulls.listSuggestedReviewers({
+            // Get the list of requested reviewers (teams and individuals)
+            const requestedReviewers = await github.rest.pulls.listRequestedReviewers({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: context.payload.pull_request.number
             })
 
-            core.info(`GitHub suggested reviewers: ${JSON.stringify(suggestedReviewers.data)}`)
+            core.info(`GitHub requested reviewers: ${JSON.stringify(requestedReviewers.data)}`)
 
-            // Extract teams from GitHub's suggestions
+            // Extract teams from requested reviewers
             const teams = []
-            if (suggestedReviewers.data.teams && suggestedReviewers.data.teams.length > 0) {
-                for (const team of suggestedReviewers.data.teams) {
+            if (requestedReviewers.data.teams && requestedReviewers.data.teams.length > 0) {
+                for (const team of requestedReviewers.data.teams) {
                     teams.push(team.slug)
                 }
             }
 
             if (teams.length > 0) {
-                // Return the first team (GitHub orders by relevance)
+                // Return the first team
                 const selectedTeam = teams[0]
-                core.info(`Selected team from GitHub suggestions: ${selectedTeam}`)
+                core.info(`Selected team from requested reviewers: ${selectedTeam}`)
                 return selectedTeam
             }
 
-            core.info('No teams found in GitHub suggestions')
+            core.info('No teams found in requested reviewers')
             return null
 
         } catch (error) {
