@@ -26,7 +26,7 @@ core/ @segmentio/strategic-connections-team
 
 # Destination definitions and their actions
 
-destination-actions/ @segmentio/strategic-connections-team
+/packages/destination-actions/ @segmentio/strategic-connections-team
 
 # Utilities for event payload validation against an action's subscription AST.
 

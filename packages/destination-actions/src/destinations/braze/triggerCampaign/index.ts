@@ -206,7 +206,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     // Validate that either broadcast OR recipients is provided (both are required, but mutually exclusive)
     if (!payload.broadcast && (!payload.recipients || payload.recipients.length === 0)) {
-      throw new PayloadValidationError('Either "broadcast" must be true or "recipients" list must be provided.')
+      throw new PayloadValidationError('Either "broadcast" must be true or "recipients" list must be provide')
     }
 
     // If broadcast is true, recipients list cannot be included
