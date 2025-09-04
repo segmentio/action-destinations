@@ -79,20 +79,30 @@ export async function editDeviceMobileIds(
   operation: 'add' | 'remove',
   statsContext?: StatsContext // Adjust type based on actual stats context
 ) {
-  const payload = payloads[0]
-  const audienceId = payload.external_id
+  if (payloads.length === 0) {
+    return
+  }
 
-  //Check if mobile device id exists otherwise drop the event
-  if (payload.mobileDeviceIds === undefined) {
+  const firstPayload = payloads[0]
+  const audienceId = firstPayload.external_id
+  const advertiserId = firstPayload.advertiser_id
+
+  // Filter out payloads that don't have mobile device ids
+  const validPayloads = payloads.filter(payload => payload.mobileDeviceIds !== undefined)
+
+  if (validPayloads.length === 0) {
     return
   }
 
   //Format the endpoint
   const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
 
+  // Collect all mobile device ids from valid payloads
+  const mobileDeviceIds = validPayloads.map(payload => payload.mobileDeviceIds).filter(Boolean)
+
   // Prepare the request payload
   const mobileDeviceIdList = {
-    mobileDeviceIds: [payload.mobileDeviceIds],
+    mobileDeviceIds: mobileDeviceIds,
     consent: {
       adUserData: CONSENT_STATUS_GRANTED,
       adPersonalization: CONSENT_STATUS_GRANTED
@@ -101,7 +111,7 @@ export async function editDeviceMobileIds(
 
   // Convert the payload to string if needed
   const requestPayload = JSON.stringify({
-    advertiserId: payload.advertiser_id,
+    advertiserId: advertiserId,
     ...(operation === 'add' ? { addedMobileDeviceIdList: mobileDeviceIdList } : {}),
     ...(operation === 'remove' ? { removedMobileDeviceIdList: mobileDeviceIdList } : {})
   })
@@ -131,25 +141,35 @@ export async function editContactInfo(
   operation: 'add' | 'remove',
   statsContext?: StatsContext
 ) {
-  const payload = payloads[0]
-  const audienceId = payloads[0].external_id
+  if (payloads.length === 0) {
+    return
+  }
 
-  //Check if one of the required identifiers exists otherwise drop the event
-  if (
-    payload.emails === undefined &&
-    payload.phoneNumbers === undefined &&
-    payload.firstName === undefined &&
-    payload.lastName === undefined
-  ) {
+  const firstPayload = payloads[0]
+  const audienceId = firstPayload.external_id
+  const advertiserId = firstPayload.advertiser_id
+
+  // Filter out payloads that don't have any required identifiers
+  const validPayloads = payloads.filter(payload => 
+    payload.emails !== undefined ||
+    payload.phoneNumbers !== undefined ||
+    payload.firstName !== undefined ||
+    payload.lastName !== undefined
+  )
+
+  if (validPayloads.length === 0) {
     return
   }
 
   //Format the endpoint
   const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
 
+  // Process all valid payloads into contact infos
+  const contactInfos = validPayloads.map(payload => processPayload(payload))
+
   // Prepare the request payload
   const contactInfoList = {
-    contactInfos: [processPayload(payload)],
+    contactInfos: contactInfos,
     consent: {
       adUserData: CONSENT_STATUS_GRANTED,
       adPersonalization: CONSENT_STATUS_GRANTED
@@ -158,7 +178,7 @@ export async function editContactInfo(
 
   // Convert the payload to string if needed
   const requestPayload = JSON.stringify({
-    advertiserId: payload.advertiser_id,
+    advertiserId: advertiserId,
     ...(operation === 'add' ? { addedContactInfoList: contactInfoList } : {}),
     ...(operation === 'remove' ? { removedContactInfoList: contactInfoList } : {})
   })
