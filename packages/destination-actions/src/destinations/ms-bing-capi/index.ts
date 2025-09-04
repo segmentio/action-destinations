@@ -2,7 +2,6 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendEvent from './sendEvent'
 import pageLoad from './pageLoad'
-import { API_URL } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Ms Bing Capi',
@@ -24,10 +23,12 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request, { settings }) => {
-      return request(`${API_URL}/${settings.UetTag}/events`, {
-        method: 'get'
-      })
+    testAuthentication: (_, { settings }) => {
+      if (settings.UetTag.length && settings.ApiToken.length) {
+        return true
+      } else {
+        throw new Error('Invalid AccountID. Please check your AccountID')
+      }
     }
   },
   extendRequest: ({ settings }) => {
