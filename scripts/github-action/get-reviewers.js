@@ -18,6 +18,8 @@ module.exports = async ({ github, context, core }) => {
         }
     } catch (error) {
         core.info(`Failed to check existing reviewers: ${error.message}`)
+        core.setOutput('skip', 'true')
+        core.setOutput('reason', `Failed to check existing reviewers: ${error.message}`)
         return
     }
 
