@@ -79,20 +79,23 @@ export async function editDeviceMobileIds(
   operation: 'add' | 'remove',
   statsContext?: StatsContext // Adjust type based on actual stats context
 ) {
-  const payload = payloads[0]
-  const audienceId = payload.external_id
-
-  //Check if mobile device id exists otherwise drop the event
-  if (payload.mobileDeviceIds === undefined) {
-    return
+  // Assume all payloads are for the same audience/advertiser (use first)
+  const { external_id: audienceId, advertiser_id: advertiserId } = payloads[0]
+  if (!audienceId || !advertiserId) {
+    throw new IntegrationError('Missing required audience or advertiser ID', 'MISSING_REQUIRED_FIELD', 400)
   }
+
+  // Collect all mobileDeviceIds into a flat array
+  const allMobileDeviceIds = payloads.flatMap((p) =>
+    Array.isArray(p.mobileDeviceIds) ? p.mobileDeviceIds : [p.mobileDeviceIds]
+  )
 
   //Format the endpoint
   const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
 
   // Prepare the request payload
   const mobileDeviceIdList = {
-    mobileDeviceIds: [payload.mobileDeviceIds],
+    mobileDeviceIds: allMobileDeviceIds,
     consent: {
       adUserData: CONSENT_STATUS_GRANTED,
       adPersonalization: CONSENT_STATUS_GRANTED
@@ -101,7 +104,7 @@ export async function editDeviceMobileIds(
 
   // Convert the payload to string if needed
   const requestPayload = JSON.stringify({
-    advertiserId: payload.advertiser_id,
+    advertiserId: advertiserId,
     ...(operation === 'add' ? { addedMobileDeviceIdList: mobileDeviceIdList } : {}),
     ...(operation === 'remove' ? { removedMobileDeviceIdList: mobileDeviceIdList } : {})
   })
@@ -113,7 +116,7 @@ export async function editDeviceMobileIds(
     body: requestPayload
   })
   if (!response.data || !response.data.firstAndThirdPartyAudienceId) {
-    statsContext?.statsClient?.incr('addCustomerMatchMembers.error', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('addCustomerMatchMembers.error', allMobileDeviceIds.length, statsContext?.tags)
     throw new IntegrationError(
       `API returned error: ${response.data?.error || 'Unknown error'}`,
       'API_REQUEST_ERROR',
@@ -121,7 +124,7 @@ export async function editDeviceMobileIds(
     )
   }
 
-  statsContext?.statsClient?.incr('addCustomerMatchMembers.success', 1, statsContext?.tags)
+  statsContext?.statsClient?.incr('addCustomerMatchMembers.success', allMobileDeviceIds.length, statsContext?.tags)
   return response.data
 }
 
