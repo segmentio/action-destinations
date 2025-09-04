@@ -227,7 +227,7 @@ export const sendData = async (
 ) => {
   validate(settings)
 
-  // There can be only one topic per batch. topic cant be derived from event properties.
+  // There can be only one topic per batch.
   const topic = payload[0].topic
 
   const topicMessages: TopicMessages = {
@@ -248,7 +248,7 @@ export const sendData = async (
     const { statsClient, tags } = statsContext
     const set = new Set<string>()
     for (const p of payload) {
-      set.add(`${p.partition}-${p.default_partition}`)
+      set.add(`${p.topic}-${p.partition}-${p.default_partition}`)
     }
     // Add stats to track batch keys for kafka
     statsClient?.histogram('kafka.configurable_batch_keys.unique_keys', set.size, tags)
