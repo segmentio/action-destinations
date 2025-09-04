@@ -211,7 +211,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // If broadcast is true, recipients list cannot be included
     if (payload.broadcast && payload.recipients && payload.recipients.length > 0) {
-      throw new PayloadValidationError('When "broadcast" is true, "recipients" list cannot be included.')
+      throw new PayloadValidationError('When "broadcast" is true, "recipients" list cannot be included')
     }
 
     // Apply the top-level prioritization to each recipient if recipients are provided
