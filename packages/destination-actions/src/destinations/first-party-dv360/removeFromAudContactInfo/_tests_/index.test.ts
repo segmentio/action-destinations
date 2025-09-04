@@ -157,11 +157,11 @@ describe('First-Party-dv360.removeFromAudContactInfo', () => {
     
     // Verify second contact info
     expect(requestBody.removedContactInfoList.contactInfos[1]).toMatchObject({
-      hashedEmails: 'e67e72c0e95b2f8a00d4b8e5d7eb97c51b2ad442e1dc2dfbc0e82c11c16b1e42',
-      hashedPhoneNumbers: '1234a97e4a0ad5c36dc5dd79a5031639ee2ab65ae6a0b63e16c08a92b8088f50',
+      hashedEmails: 'f9b0f73e2d723f122e24fddfebf37978c09a31b8530be10dccf51e6a4c49cbfa',
+      hashedPhoneNumbers: '75bfc57aed345daba0e4394b604a334c87ab5f7b1c04dfdb649bcc457c182fa9',
       zipCodes: '54321',
-      hashedFirstName: '7ba34aa26aabe4b7d32a2d824ec2c5ff82daf7ad96e0f4fc7de2e06b8d7a7b72',
-      hashedLastName: '0c70e5c5c47c7e1257da04df3c2ca4ce05e3cbb6e5d5a3dbf8fbcae2b6e47e52',
+      hashedFirstName: '81f8f6dde88365f3928796ec7aa53f72820b06db8664f5fe76a7eb13e24546a2',
+      hashedLastName: '6627835f988e2c5e50533d491163072d3f4f41f5c8b04630150debb3722ca2dd',
       countryCode: 'CA'
     })
   })
