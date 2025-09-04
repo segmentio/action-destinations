@@ -270,7 +270,7 @@ exports[`Testing snapshot for actions-klaviyo destination: upsertProfile action 
 Object {
   "data": Object {
     "attributes": Object {
-      "email": "embivbe@edebemto.ga",
+      "email": "rob@cagtud.eu",
       "external_id": "$Fd4HHQmxNI0jTCTt(t",
       "first_name": "$Fd4HHQmxNI0jTCTt(t",
       "image": "$Fd4HHQmxNI0jTCTt(t",
