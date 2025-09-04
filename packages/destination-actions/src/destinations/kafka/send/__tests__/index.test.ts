@@ -64,19 +64,18 @@ describe('Kafka.send', () => {
   it('kafka library is initialized correctly for SASL plain auth', async () => {
     await testDestination.testAction('send', testData as any)
 
-    expect(Kafka).toHaveBeenCalledWith(
-     {
-        clientId: 'yourClientId',
-        brokers: ['yourBroker'],
-        requestTimeout: 10000,
-        ssl: true,
-        sasl: {
-          mechanism: 'plain',
-          username: 'yourUsername',
-          password: 'yourPassword'
-        }
-      }
-    )
+    expect(Kafka).toHaveBeenCalledWith({
+      clientId: 'yourClientId',
+      brokers: ['yourBroker'],
+      requestTimeout: 10000,
+      sasl: {
+        mechanism: 'plain',
+        username: 'yourUsername',
+        password: 'yourPassword'
+      },
+      ssl: true,
+      retry: { retries: 0 }
+    })
   })
 
   it('kafka library is initialized correctly for SASL scram-sha-256 auth', async () => {
@@ -87,22 +86,21 @@ describe('Kafka.send', () => {
         mechanism: 'scram-sha-256'
       }
     }
-    
+
     await testDestination.testAction('send', testData1 as any)
 
-    expect(Kafka).toHaveBeenCalledWith(
-     {
-        clientId: 'yourClientId',
-        brokers: ['yourBroker'],
-        requestTimeout: 10000,
-        ssl: true,
-        sasl: {
-          mechanism: 'scram-sha-256',
-          username: 'yourUsername',
-          password: 'yourPassword'
-        }
-      }
-    )
+    expect(Kafka).toHaveBeenCalledWith({
+      clientId: 'yourClientId',
+      brokers: ['yourBroker'],
+      requestTimeout: 10000,
+      sasl: {
+        mechanism: 'scram-sha-256',
+        username: 'yourUsername',
+        password: 'yourPassword'
+      },
+      ssl: true,
+      retry: { retries: 0 }
+    })
   })
 
   it('kafka library is initialized correctly for SASL scram-sha-512 auth', async () => {
@@ -113,22 +111,21 @@ describe('Kafka.send', () => {
         mechanism: 'scram-sha-512'
       }
     }
-    
+
     await testDestination.testAction('send', testData1 as any)
 
-    expect(Kafka).toHaveBeenCalledWith(
-     {
-        clientId: 'yourClientId',
-        brokers: ['yourBroker'],
-        requestTimeout: 10000,
-        ssl: true,
-        sasl: {
-          mechanism: 'scram-sha-512',
-          username: 'yourUsername',
-          password: 'yourPassword'
-        }
-      }
-    )
+    expect(Kafka).toHaveBeenCalledWith({
+      clientId: 'yourClientId',
+      brokers: ['yourBroker'],
+      requestTimeout: 10000,
+      sasl: {
+        mechanism: 'scram-sha-512',
+        username: 'yourUsername',
+        password: 'yourPassword'
+      },
+      ssl: true,
+      retry: { retries: 0 }
+    })
   })
 
   it('kafka library is initialized correctly for SASL aws auth', async () => {
@@ -142,23 +139,22 @@ describe('Kafka.send', () => {
         authorizationIdentity: 'testAuthorizationIdentity'
       }
     }
-    
+
     await testDestination.testAction('send', testData3 as any)
 
-    expect(Kafka).toHaveBeenCalledWith(
-     {
-        clientId: 'yourClientId',
-        brokers: ['yourBroker'],
-        requestTimeout: 10000,
-        ssl: true,
-        sasl: {
-          mechanism: 'aws',
-          accessKeyId: 'testAccessKeyId',
-          secretAccessKey: 'testSecretAccessKey',
-          authorizationIdentity: 'testAuthorizationIdentity'
-        }
-      }
-    )
+    expect(Kafka).toHaveBeenCalledWith({
+      clientId: 'yourClientId',
+      brokers: ['yourBroker'],
+      requestTimeout: 10000,
+      sasl: {
+        mechanism: 'aws',
+        accessKeyId: 'testAccessKeyId',
+        secretAccessKey: 'testSecretAccessKey',
+        authorizationIdentity: 'testAuthorizationIdentity'
+      },
+      ssl: true,
+      retry: { retries: 0 }
+    })
   })
 
   it('kafka library is initialized correctly when SSL_CA provided', async () => {
@@ -170,25 +166,24 @@ describe('Kafka.send', () => {
         ssl_reject_unauthorized_ca: true
       }
     }
-    
+
     await testDestination.testAction('send', testData4 as any)
 
-    expect(Kafka).toHaveBeenCalledWith(
-     {
-        clientId: 'yourClientId',
-        brokers: ['yourBroker'],
-        requestTimeout: 10000,
-        ssl: {
-          ca: ['-----BEGIN CERTIFICATE-----\nyourCACert\n-----END CERTIFICATE-----'],
-          rejectUnauthorized: true
-        },
-        sasl: {
-          mechanism: 'plain',
-          username: 'yourUsername',
-          password: 'yourPassword'
-        }
-      }
-    )
+    expect(Kafka).toHaveBeenCalledWith({
+      clientId: 'yourClientId',
+      brokers: ['yourBroker'],
+      requestTimeout: 10000,
+      sasl: {
+        mechanism: 'plain',
+        username: 'yourUsername',
+        password: 'yourPassword'
+      },
+      ssl: {
+        ca: ['-----BEGIN CERTIFICATE-----\nyourCACert\n-----END CERTIFICATE-----'],
+        rejectUnauthorized: true
+      },
+      retry: { retries: 0 }
+    })
   })
 
   it('kafka library is initialized correctly when SSL_CA provided and mechanism is client-cert-auth', async () => {
@@ -203,25 +198,24 @@ describe('Kafka.send', () => {
         ssl_ca: 'yourCACert',
         ssl_reject_unauthorized_ca: true,
         ssl_key: 'yourKey',
-        ssl_cert: 'yourCert',
+        ssl_cert: 'yourCert'
       }
     }
-    
+
     await testDestination.testAction('send', testData5 as any)
 
-    expect(Kafka).toHaveBeenCalledWith(
-     {
-        clientId: 'yourClientId',
-        brokers: ['yourBroker'],
-        requestTimeout: 10000,
-        ssl: {
-          ca: ['-----BEGIN CERTIFICATE-----\nyourCACert\n-----END CERTIFICATE-----'],
-          rejectUnauthorized: true,
-          key: '-----BEGIN PRIVATE KEY-----\nyourKey\n-----END PRIVATE KEY-----',
-          cert: '-----BEGIN CERTIFICATE-----\nyourCert\n-----END CERTIFICATE-----'
-        }
-      }
-    )
+    expect(Kafka).toHaveBeenCalledWith({
+      clientId: 'yourClientId',
+      brokers: ['yourBroker'],
+      requestTimeout: 10000,
+      ssl: {
+        ca: ['-----BEGIN CERTIFICATE-----\nyourCACert\n-----END CERTIFICATE-----'],
+        rejectUnauthorized: true,
+        key: '-----BEGIN PRIVATE KEY-----\nyourKey\n-----END PRIVATE KEY-----',
+        cert: '-----BEGIN CERTIFICATE-----\nyourCert\n-----END CERTIFICATE-----'
+      },
+      retry: { retries: 0 }
+    })
   })
 
   it('kafka producer is initialized correctly', async () => {
@@ -269,7 +263,9 @@ describe('Kafka.send', () => {
 
     const key = serializeKafkaConfig(settings)
     expect(typeof key).toBe('string')
-    expect(key).toBe('{"clientId":"testClientId","brokers":["https://broker1:9092","https://broker2:9092"],"mechanism":"plain","username":"testUsername","password":"testPassword","accessKeyId":"testAccessKeyId","secretAccessKey":"testSecretAccessKey","authorizationIdentity":"testAuthorizationIdentity","ssl_ca":"testCACert","ssl_cert":"testCert","ssl_key":"testKey","ssl_reject_unauthorized_ca":true,"ssl_enabled":true}')
+    expect(key).toBe(
+      '{"clientId":"testClientId","brokers":["https://broker1:9092","https://broker2:9092"],"mechanism":"plain","username":"testUsername","password":"testPassword","accessKeyId":"testAccessKeyId","secretAccessKey":"testSecretAccessKey","authorizationIdentity":"testAuthorizationIdentity","ssl_ca":"testCACert","ssl_cert":"testCert","ssl_key":"testKey","ssl_reject_unauthorized_ca":true,"ssl_enabled":true}'
+    )
   })
 
   it('serializeKafkaConfig generates the correct producer connection cache key', async () => {
@@ -291,7 +287,9 @@ describe('Kafka.send', () => {
 
     const key = serializeKafkaConfig(settings)
     expect(typeof key).toBe('string')
-    expect(key).toBe('{"clientId":"testClientId","brokers":["https://broker1:9092","https://broker2:9092"],"mechanism":"plain","username":"testUsername","password":"testPassword","accessKeyId":"testAccessKeyId","secretAccessKey":"testSecretAccessKey","authorizationIdentity":"testAuthorizationIdentity","ssl_ca":"testCACert","ssl_cert":"testCert","ssl_key":"testKey","ssl_reject_unauthorized_ca":true,"ssl_enabled":true}')
+    expect(key).toBe(
+      '{"clientId":"testClientId","brokers":["https://broker1:9092","https://broker2:9092"],"mechanism":"plain","username":"testUsername","password":"testPassword","accessKeyId":"testAccessKeyId","secretAccessKey":"testSecretAccessKey","authorizationIdentity":"testAuthorizationIdentity","ssl_ca":"testCACert","ssl_cert":"testCert","ssl_key":"testKey","ssl_reject_unauthorized_ca":true,"ssl_enabled":true}'
+    )
   })
 })
 
@@ -348,7 +346,7 @@ describe('getOrCreateProducer', () => {
 
   it('getOrCreateProducer replaces expired connections and creates a new connection', async () => {
     const now = Date.now()
-    const expiredTime = now - (31 * 60 * 1000) // 31 minutes ago
+    const expiredTime = now - 31 * 60 * 1000 // 31 minutes ago
     const key = serializeKafkaConfig(settings)
 
     const oldProducer = {
