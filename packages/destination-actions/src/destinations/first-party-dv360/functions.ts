@@ -81,9 +81,6 @@ export async function editDeviceMobileIds(
 ) {
   // Assume all payloads are for the same audience/advertiser (use first)
   const { external_id: audienceId, advertiser_id: advertiserId } = payloads[0]
-  if (!audienceId || !advertiserId) {
-    throw new IntegrationError('Missing required audience or advertiser ID', 'MISSING_REQUIRED_FIELD', 400)
-  }
 
   // Collect all mobileDeviceIds into a flat array
   const allMobileDeviceIds = payloads.flatMap((p) =>
