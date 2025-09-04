@@ -172,7 +172,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const r = await response.json()
       statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
-        externalId: r.firstAndThirdPartyAudienceId
+        externalId: r.firstPartyAndPartnerAudienceId
       }
     },
 
@@ -236,7 +236,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audienceData = await response.json()
       statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
-        externalId: audienceData.firstAndThirdPartyAudienceId
+        externalId: audienceData.firstPartyAndPartnerAudienceId
       }
     }
   },

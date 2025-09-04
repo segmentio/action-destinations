@@ -55,16 +55,16 @@ describe('Audience Destination', () => {
   describe('createAudience', () => {
     it('creates an audience successfully', async () => {
       nock('https://displayvideo.googleapis.com')
-        .post('/v3/firstAndThirdPartyAudiences?advertiserId=12345', {
+        .post('/v4/firstPartyAndPartnerAudiences?advertiserId=12345', {
           displayName: audienceName,
           audienceType: 'CUSTOMER_MATCH_CONTACT_INFO',
           membershipDurationDays: '30',
           description: 'Test description',
           audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',
-          firstAndThirdPartyAudienceType: 'FIRST_AND_THIRD_PARTY_AUDIENCE_TYPE_FIRST_PARTY'
+          firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY'
         })
         .matchHeader('Authorization', 'Bearer temp-token')
-        .reply(200, { firstAndThirdPartyAudienceId: 'audience-id-123' })
+        .reply(200, { firstPartyAndPartnerAudienceId: 'audience-id-123' })
 
       const result = await testDestination.createAudience(createAudienceInput)
       expect(result).toEqual({ externalId: 'audience-id-123' })
@@ -81,10 +81,10 @@ describe('Audience Destination', () => {
   describe('getAudience', () => {
     it('should succeed when provided with a valid audience ID', async () => {
       nock('https://displayvideo.googleapis.com')
-        .get(`/v3/firstAndThirdPartyAudiences/audience-id-123?advertiserId=12345`)
+        .get(`/v4/firstPartyAndPartnerAudiences/audience-id-123?advertiserId=12345`)
         .matchHeader('Authorization', 'Bearer temp-token')
         .reply(200, {
-          firstAndThirdPartyAudienceId: 'audience-id-123'
+          firstPartyAndPartnerAudienceId: 'audience-id-123'
         })
 
       const result = await testDestination.getAudience(getAudienceInput)
@@ -132,7 +132,7 @@ describe('Audience Destination', () => {
 
     it('should add customer match members successfully', async () => {
       nock('https://displayvideo.googleapis.com')
-        .post('/v3/firstAndThirdPartyAudiences/audience-id-123:editCustomerMatchMembers', {
+        .post('/v4/firstPartyAndPartnerAudiences/audience-id-123:editCustomerMatchMembers', {
           advertiserId: '12345',
           addedContactInfoList: {
             contactInfos: [
@@ -151,7 +151,7 @@ describe('Audience Destination', () => {
             }
           }
         })
-        .reply(200, { firstAndThirdPartyAudienceId: 'audience-id-123' })
+        .reply(200, { firstPartyAndPartnerAudienceId: 'audience-id-123' })
 
       const result = await testDestination.testAction('addToAudContactInfo', {
         event,
@@ -160,7 +160,7 @@ describe('Audience Destination', () => {
       expect(result).toContainEqual(
         expect.objectContaining({
           data: expect.objectContaining({
-            firstAndThirdPartyAudienceId: 'audience-id-123'
+            firstPartyAndPartnerAudienceId: 'audience-id-123'
           })
         })
       )
@@ -168,7 +168,7 @@ describe('Audience Destination', () => {
 
     it('should remove customer match members successfully', async () => {
       nock('https://displayvideo.googleapis.com')
-        .post('/v3/firstAndThirdPartyAudiences/audience-id-123:editCustomerMatchMembers', {
+        .post('/v4/firstPartyAndPartnerAudiences/audience-id-123:editCustomerMatchMembers', {
           advertiserId: '12345',
           removedContactInfoList: {
             contactInfos: [
@@ -187,7 +187,7 @@ describe('Audience Destination', () => {
             }
           }
         })
-        .reply(200, { firstAndThirdPartyAudienceId: 'audience-id-123' })
+        .reply(200, { firstPartyAndPartnerAudienceId: 'audience-id-123' })
 
       const result = await testDestination.testAction('removeFromAudContactInfo', {
         event,
@@ -196,7 +196,7 @@ describe('Audience Destination', () => {
       expect(result).toContainEqual(
         expect.objectContaining({
           data: expect.objectContaining({
-            firstAndThirdPartyAudienceId: 'audience-id-123'
+            firstPartyAndPartnerAudienceId: 'audience-id-123'
           })
         })
       )
@@ -227,7 +227,7 @@ describe('Audience Destination', () => {
 
     it('should add customer match members successfully', async () => {
       nock('https://displayvideo.googleapis.com')
-        .post('/v3/firstAndThirdPartyAudiences/audience-id-123:editCustomerMatchMembers', {
+        .post('/v4/firstPartyAndPartnerAudiences/audience-id-123:editCustomerMatchMembers', {
           advertiserId: '12345',
           addedMobileDeviceIdList: {
             mobileDeviceIds: ['123'],
@@ -237,7 +237,7 @@ describe('Audience Destination', () => {
             }
           }
         })
-        .reply(200, { firstAndThirdPartyAudienceId: 'audience-id-123' })
+        .reply(200, { firstPartyAndPartnerAudienceId: 'audience-id-123' })
 
       const result = await testDestination.testAction('addToAudMobileDeviceId', {
         event,
@@ -246,7 +246,7 @@ describe('Audience Destination', () => {
       expect(result).toContainEqual(
         expect.objectContaining({
           data: expect.objectContaining({
-            firstAndThirdPartyAudienceId: 'audience-id-123'
+            firstPartyAndPartnerAudienceId: 'audience-id-123'
           })
         })
       )
@@ -254,7 +254,7 @@ describe('Audience Destination', () => {
 
     it('should remove customer match members successfully', async () => {
       nock('https://displayvideo.googleapis.com')
-        .post('/v3/firstAndThirdPartyAudiences/audience-id-123:editCustomerMatchMembers', {
+        .post('/v4/firstPartyAndPartnerAudiences/audience-id-123:editCustomerMatchMembers', {
           advertiserId: '12345',
           removedMobileDeviceIdList: {
             mobileDeviceIds: ['123'],
@@ -264,7 +264,7 @@ describe('Audience Destination', () => {
             }
           }
         })
-        .reply(200, { firstAndThirdPartyAudienceId: 'audience-id-123' })
+        .reply(200, { firstPartyAndPartnerAudienceId: 'audience-id-123' })
 
       const result = await testDestination.testAction('removeFromAudMobileDeviceId', {
         event,
@@ -273,7 +273,7 @@ describe('Audience Destination', () => {
       expect(result).toContainEqual(
         expect.objectContaining({
           data: expect.objectContaining({
-            firstAndThirdPartyAudienceId: 'audience-id-123'
+            firstPartyAndPartnerAudienceId: 'audience-id-123'
           })
         })
       )
