@@ -57,7 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true,
       required: false,
       multiple: true,
-      default: ['partition', 'default_partition']
+      default: ['topic', 'partition', 'default_partition']
     }
   },
   dynamicFields: {
