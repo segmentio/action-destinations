@@ -28,6 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Email',
       description: `Individual's email address. One of External ID, Phone Number and Email required.`,
       type: 'string',
+      format: 'email',
       default: { '@path': '$.traits.email' }
     },
     enable_batching: {
