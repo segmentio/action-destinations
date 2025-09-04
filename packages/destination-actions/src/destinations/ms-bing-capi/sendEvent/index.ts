@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from '@lukeed/uuid'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event',
-  description: '',
+  description: 'Send a track event to Microsoft Bing CAPI.',
   defaultSubscription: 'type = "track"',
   fields: {
     data: data
