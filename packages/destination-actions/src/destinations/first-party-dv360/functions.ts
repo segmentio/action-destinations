@@ -87,18 +87,11 @@ export async function editDeviceMobileIds(
   const audienceId = firstPayload.external_id
   const advertiserId = firstPayload.advertiser_id
 
-  // Filter out payloads that don't have mobile device ids
-  const validPayloads = payloads.filter(payload => payload.mobileDeviceIds !== undefined)
-
-  if (validPayloads.length === 0) {
-    return
-  }
-
   //Format the endpoint
   const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
 
-  // Collect all mobile device ids from valid payloads
-  const mobileDeviceIds = validPayloads.map(payload => payload.mobileDeviceIds).filter(Boolean)
+  // Collect all mobile device ids from payloads
+  const mobileDeviceIds = payloads.map(payload => payload.mobileDeviceIds)
 
   // Prepare the request payload
   const mobileDeviceIdList = {
@@ -149,23 +142,11 @@ export async function editContactInfo(
   const audienceId = firstPayload.external_id
   const advertiserId = firstPayload.advertiser_id
 
-  // Filter out payloads that don't have any required identifiers
-  const validPayloads = payloads.filter(payload => 
-    payload.emails !== undefined ||
-    payload.phoneNumbers !== undefined ||
-    payload.firstName !== undefined ||
-    payload.lastName !== undefined
-  )
-
-  if (validPayloads.length === 0) {
-    return
-  }
-
   //Format the endpoint
   const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
 
-  // Process all valid payloads into contact infos
-  const contactInfos = validPayloads.map(payload => processPayload(payload))
+  // Process all payloads into contact infos
+  const contactInfos = payloads.map(payload => processPayload(payload))
 
   // Prepare the request payload
   const contactInfoList = {
