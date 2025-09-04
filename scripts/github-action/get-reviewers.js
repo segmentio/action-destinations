@@ -2,6 +2,25 @@
 module.exports = async ({ github, context, core }) => {
     const { labelsToAdd } = process.env
 
+    // Check if there are already reviewers assigned to the PR
+    try {
+        const existingReviewers = await github.rest.pulls.listRequestedReviewers({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.payload.pull_request.number
+        })
+
+        if (existingReviewers.data.users && existingReviewers.data.users.length > 0) {
+            core.setOutput('skip', 'true')
+            core.setOutput('reason', `PR already has ${existingReviewers.data.users.length} user reviewer(s) assigned: ${existingReviewers.data.users.map(u => u.login).join(', ')}`)
+            core.info(`Skipping reviewer assignment - users already assigned: ${existingReviewers.data.users.map(u => u.login).join(', ')}`)
+            return
+        }
+    } catch (error) {
+        core.info(`Failed to check existing reviewers: ${error.message}`)
+        return
+    }
+
     // Check if team:external label is being added
     if (labelsToAdd && labelsToAdd.split(',').includes('team:external')) {
         core.setOutput('reviewers', 'joe-ayoub-segment')
@@ -21,26 +40,52 @@ module.exports = async ({ github, context, core }) => {
         return
     }
 
-    // Determine which team should review based on the labels being added
-    function determineReviewingTeam(labelsToAdd, existingLabels) {
-        const allLabels = [...(labelsToAdd ? labelsToAdd.split(',') : []), ...existingLabels]
+    // Function to get teams from existing reviewers
+    async function getTeamFromGitHub() {
+        try {
+            // Get the list of requested reviewers (teams and individuals)
+            const requestedReviewers = await github.rest.pulls.listRequestedReviewers({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number
+            })
 
-        // Priority-based team assignment
-        if (allLabels.includes('actions:mappingkit')) {
-            return 'libraries-web-team'
+            core.info(`GitHub requested reviewers: ${JSON.stringify(requestedReviewers.data)}`)
+
+            // Extract teams from requested reviewers
+            const teams = []
+            if (requestedReviewers.data.teams && requestedReviewers.data.teams.length > 0) {
+                for (const team of requestedReviewers.data.teams) {
+                    teams.push(team.slug)
+                }
+            }
+
+            if (teams.length > 0) {
+                // Return the first team
+                const selectedTeam = teams[0]
+                core.info(`Selected team from requested reviewers: ${selectedTeam}`)
+                return selectedTeam
+            }
+
+            core.info('No teams found in requested reviewers')
+            return null
+
+        } catch (error) {
+            core.info(`Failed to get teams from GitHub: ${error.message}`)
+            return null
         }
-
-        const stratConnLabels = ['actions:core', 'mode:cloud', 'mode:device', 'team:segment-core', 'team:segment']
-        if (stratConnLabels.some(label => allLabels.includes(label))) {
-            return 'strategic-connections-team'
-        }
-
-        return null
     }
 
-    const teamToAssign = determineReviewingTeam(labelsToAdd, existingLabels)
+    // Get team assignment from GitHub's CODEOWNERS evaluation
+    const teamToAssign = await getTeamFromGitHub()
 
-    const teamsNeedReviewers = ['strategic-connections-team', 'libraries-web-team']
+    if (!teamToAssign) {
+        core.setOutput('reviewers', 'joe-ayoub-segment')
+        core.setOutput('team', 'other')
+        core.setOutput('skip', 'false')
+        core.info('No team assigned, defaulting to joe-ayoub-segment')
+        return
+    }
 
     // Special handling for strategic-connections-team: only assign joe-ayoub-segment if author is not in team
     if (teamToAssign === 'strategic-connections-team') {
@@ -67,19 +112,6 @@ module.exports = async ({ github, context, core }) => {
             return
         }
         // If author is in team, continue to team assignment logic below
-    }
-
-    // Check if we should assign reviewers from a specific team
-    if (teamsNeedReviewers.includes(teamToAssign)) {
-        core.info(`PR targeting ${teamToAssign}, assigning 2 reviewers from same team`)
-        // Continue to team assignment logic below
-    } else {
-        // No specific team assignment -> assign to joe-ayoub-segment
-        core.setOutput('reviewers', 'joe-ayoub-segment')
-        core.setOutput('team', 'other')
-        core.setOutput('skip', 'false')
-        core.info('No specific team assignment, assigned to joe-ayoub-segment')
-        return
     }
 
     // Get team members (assign from target team regardless of author's team membership)
