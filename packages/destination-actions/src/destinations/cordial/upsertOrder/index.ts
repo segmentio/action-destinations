@@ -46,6 +46,35 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.total'
       }
     },
+    discountApplication: {
+      label: 'Discount application',
+      description: 'Discount application data, allowed fields: type (only \'fixed\' as of now), amount (float discount amount, e.g. 10.45)',
+      type: 'object',
+      required: false,
+      default: {
+        type: 'fixed',
+        amount: { '@path': '$.properties.discount' }
+      },
+      properties: {
+        type: {
+          label: 'Type',
+          description: 'Type of discount applied to the order (e.g. fixed)',
+          type: 'string',
+          required: false,
+          placeholder: 'fixed',
+          choices: [
+            {value: 'fixed', label: 'fixed'}
+          ]
+        },
+        amount: {
+          label: 'Amount',
+          description: 'Amount of the discount applied to the order',
+          type: 'number',
+          required: false,
+          placeholder: '0.0'
+        }
+      }
+    },
     properties: {
       label: 'Order properties',
       description: 'Additional order properties (e.g. affiliation/tax/revenue)',
