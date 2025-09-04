@@ -2,19 +2,7 @@
 module.exports = async ({ github, context, core }) => {
     const reviewers = process.env.REVIEWERS
     const team = process.env.TEAM
-
-    // Check if PR already has reviewers assigned
-    const prDetails = await github.rest.pulls.get({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        pull_number: context.payload.pull_request.number
-    })
-
-    if (prDetails.data.requested_reviewers.length > 0) {
-        core.info('PR already has reviewers assigned')
-        return
-    }
-
+    
     try {
         const reviewerList = reviewers.split(',')
         await github.rest.pulls.requestReviewers({
