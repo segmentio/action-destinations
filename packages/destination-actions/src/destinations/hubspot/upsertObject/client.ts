@@ -9,7 +9,12 @@ import {
   ReadPropsResp,
   BatchObjResp,
   UpsertReq,
-  AssociationsAction
+  AssociationsAction,
+  ReadListsReq,
+  ReadListsResp,
+  ReadObjectSchemaResp,
+  CreateListReq,
+  CreateListResp
 } from './types'
 
 export class Client {
@@ -59,6 +64,40 @@ export class Client {
       {
         method: 'POST',
         json
+      }
+    )
+    return response
+  }
+
+  async readLists(json: ReadListsReq) {
+    const response = await this.request<ReadListsResp>(
+      `${HUBSPOT_BASE_URL}/crm/v3/lists/search`,
+      {
+        method: 'POST',
+        skipResponseCloning: true,
+        json
+      }
+    )
+    return response
+  }
+
+  async readObjectSchema() {
+    const response = await this.request<ReadObjectSchemaResp>(
+      `${HUBSPOT_BASE_URL}/crm/v3/schemas/${this.objectType}`, 
+      {
+        method: 'GET'
+      }
+    )
+    return response
+  }
+
+  async createList(json: CreateListReq) {
+    const response = await this.request<CreateListResp>(
+      `${HUBSPOT_BASE_URL}/crm/v3/lists`, 
+      {
+        method: 'POST',
+        json,
+        throwHttpErrors: false
       }
     )
     return response

@@ -10,6 +10,7 @@ import { getSchemaFromCache, saveSchemaToCache } from './functions/cache-functio
 import { ensureValidTimestamps, mergeAndDeduplicateById, validate } from './functions/validation-functions'
 import { objectSchema, compareSchemas } from './functions/schema-functions'
 import { sendFromRecords } from './functions/hubspot-record-functions'
+import { getLists } from './functions/hubspot-list-functions'
 import {
   sendAssociatedRecords,
   createAssociationPayloads,
@@ -109,6 +110,10 @@ const send = async (
 
   await sendAssociations(client, associatedRecords, 'create')
   await sendAssociations(client, dissociatedRecords, 'archive')
+
+  
+
+
 
   return
 }

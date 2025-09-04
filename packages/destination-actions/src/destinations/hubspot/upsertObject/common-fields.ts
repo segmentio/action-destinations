@@ -170,41 +170,41 @@ export const commonFields: Record<string, InputField> = {
   },
   lists_add: {
     label: 'Add to List',
-    description: `Add the record to one or more Lists, up to a maximum of ${MAX_LIST_ADD} Lists.`,
+    description: `Add the record to one or more Lists (up to a maximum of ${MAX_LIST_ADD} Lists).`,
     type: 'object',
     multiple: true,
     required: false,
     defaultObjectUI: 'arrayeditor',
     additionalProperties: false,
+    disabledInputMethods: ['variable', 'function', 'enrichment'],
     properties: {
-      list_id: {
-        label: 'List ID',
-        description: 'The ID of the List to add the record to.',
+      list_name: {
+        label: 'List Name',
+        description: 'The name of the List to add the record to. Specify a new list name if you want Segment to create a new List on Hubspot.',
         type: 'string',
         required: true,
         allowNull: false,
-        dynamic: true,
-        disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+        dynamic: true
       }
     }
   },
   lists_remove: {
     label: 'Remove from List',
-    description: `Remove the record from one or more Lists, up to a maximum of ${MAX_LIST_REMOVE} Lists.`,
+    description: `Remove the record from one or more Lists (up to a maximum of ${MAX_LIST_REMOVE} Lists).`,
     type: 'object',
     multiple: true,
     required: false,
     defaultObjectUI: 'arrayeditor',
     additionalProperties: false,
+    disabledInputMethods: ['variable', 'function', 'enrichment'],
     properties: {
-      list_id: {
-        label: 'List ID',
-        description: 'The ID of the List to add the record to.',
+      list_name: {
+        label: 'List Name',
+        description: 'The name of the List to remove the record from. Segment will not attempt to create the list on Hubspot if it does not already exist.',
         type: 'string',
         required: true,
         allowNull: false,
-        dynamic: true,
-        disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+        dynamic: true
       }
     }
   },

@@ -238,3 +238,37 @@ export interface Association {
 export type AssociationsKey = 'associations' | 'dissociations'
 
 export type AssociationsAction = 'create' | 'archive'
+
+export interface ReadListsResp {
+  offset: number
+  hasMore: boolean
+  lists: Array<{
+    listId: string
+    processingType: string
+    objectTypeId: string
+    name: string
+  }>
+}
+
+export interface ReadListsReq {
+  processingTypes: ["MANUAL"]
+  offset?: number
+}
+
+export interface ReadObjectSchemaResp {
+  objectTypeId: string
+}
+
+export interface CreateListReq {
+  name: string
+  objectTypeId: string,
+  processingType: "MANUAL"
+}
+
+export interface CreateListResp {
+  list: {
+    listId: string
+    objectTypeId: string
+    name: string
+  }
+}
