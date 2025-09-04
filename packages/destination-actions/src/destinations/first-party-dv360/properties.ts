@@ -84,9 +84,9 @@ export const mobileDeviceIds: InputField = {
   type: 'string',
   default: {
     '@path': '$.context.traits.mobileDeviceIds'
-  },
-  required: true
+  }
 }
+
 export const enable_batching: InputField = {
   label: 'Enable Batching',
   description: 'Enable batching of requests.',
