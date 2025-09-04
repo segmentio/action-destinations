@@ -42,22 +42,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Message Key',
       description: 'The key for the message (optional)',
       type: 'string'
-    },
-    enable_batching: {
-      type: 'boolean',
-      label: 'Batch Data to Kafka?',
-      description: 'If true, Segment will batch events before sending to Kafka.',
-      default: true,
-      unsafe_hidden: true
-    },
-    batch_keys: {
-      label: 'Batch Keys',
-      description: 'The keys to use for batching the events.',
-      type: 'string',
-      unsafe_hidden: true,
-      required: false,
-      multiple: true,
-      default: ['topic', 'partition', 'default_partition']
     }
   },
   dynamicFields: {
@@ -66,11 +50,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (_request, { settings, payload, features, statsContext }) => {
-    // disabled stream mode for kafka
     await sendData(settings, [payload], features, statsContext)
   },
   performBatch: async (_request, { settings, payload, features, statsContext }) => {
-    return await sendData(settings, payload, features, statsContext)
+    await sendData(settings, payload, features, statsContext)
   }
 }
 
