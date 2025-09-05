@@ -92,16 +92,6 @@ export class Client {
     return response
   }
 
-  async readObjectSchema() {
-    const response = await this.request<ReadObjectSchemaResp>(
-      `${HUBSPOT_BASE_URL}/crm/v3/schemas/${this.objectType}`, 
-      {
-        method: 'GET'
-      }
-    )
-    return response
-  }
-
   async createList(json: CreateListReq) {
     const response = await this.request<CreateListResp>(
       `${HUBSPOT_BASE_URL}/crm/v3/lists`, 

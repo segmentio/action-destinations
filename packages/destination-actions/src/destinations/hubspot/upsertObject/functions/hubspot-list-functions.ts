@@ -1,5 +1,5 @@
 import { Client } from '../client'
-import { ReadListsResp, ReadListsReq, ReadObjectSchemaResp, CachableList } from '../types'
+import { CachableList } from '../types'
 import { StatsContext, RetryableError, PayloadValidationError } from '@segment/actions-core'
 import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import { getListFromCache, saveListToCache } from '../functions/cache-functions'
@@ -75,39 +75,4 @@ async function createListInHubspot(client: Client, name: string, objectType: str
     }
     throw err
   }
-}
-
-export async function getLists(client: Client): Promise<ReadListsResp['lists']> {
-    const objectTypeId = (await readObjectSchema(client)).objectTypeId
-    const allLists = await readLists(client)
-    return allLists.filter(item => item.processingType === "MANUAL" && item.objectTypeId === objectTypeId)
-}
-
-export async function readLists(client: Client): Promise<ReadListsResp['lists']> {
-    const json: ReadListsReq = {
-        processingTypes: ["MANUAL"]
-    }
-  
-    let allLists: ReadListsResp['lists'] = []
-    let hasMore = true
-    let offset: number | undefined = undefined
-
-    while (hasMore) {
-      if (offset !== undefined) {
-        json.offset = offset
-      }
-
-      const response = await client.readLists(json)
-
-      allLists = [...allLists, ...response.data.lists]
-      hasMore = response.data.hasMore
-      offset = response.data.offset
-    }
-    
-    return allLists
-}
-
-export async function readObjectSchema(client: Client): Promise<ReadObjectSchemaResp> {
-  const response = await client.readObjectSchema()
-  return response.data
 }
