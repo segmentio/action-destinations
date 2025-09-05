@@ -83,6 +83,11 @@ export const fields: Record<string, InputField> = {
           fieldKey: 'senderType',
           operator: 'is',
           value: SENDER_TYPE.PHONE_NUMBER
+        },
+        {
+          fieldKey: 'channels',
+          operator: 'is_not',
+          value: CHANNELS.MESSENGER
         }
       ]
     }
@@ -121,7 +126,7 @@ export const fields: Record<string, InputField> = {
     dynamic: true,
     required: {
       conditions: [
-        { 
+        {
           fieldKey: 'channel',
           operator: 'is',
           value: CHANNELS.RCS
@@ -138,6 +143,11 @@ export const fields: Record<string, InputField> = {
           fieldKey: 'senderType',
           operator: 'is',
           value: SENDER_TYPE.MESSAGING_SERVICE
+        },
+        {
+          fieldKey: 'channels',
+          operator: 'is_not',
+          value: CHANNELS.MESSENGER
         }
       ]
     }

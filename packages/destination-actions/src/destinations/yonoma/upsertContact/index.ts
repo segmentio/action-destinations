@@ -1,7 +1,7 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { UPSERT_CONTACT_URL, TAG_CONTACT_URL, UNTAG_CONTACT_URL } from './constants'
+import { UPSERT_CONTACT_URL } from './constants'
 import { UpsertContactJSON } from './types'
 import { formatDate } from './functions'
 
@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
     listId: {
       label: 'List ID',
       type: 'string',
-      description: "The Yonoma list to add the contact to.",
+      description: 'The Yonoma list to add the contact to.',
       required: true,
       default: { '@path': '$.traits.list_id' }
     },
@@ -115,7 +115,8 @@ const action: ActionDefinition<Settings, Payload> = {
     status: {
       label: 'Email subscription status',
       type: 'boolean',
-      description: 'Indicates if the Contact is subscribed or unsubscribed from marketing emails. Set to true to subscribe, false to unsubscribe.',
+      description:
+        'Indicates if the Contact is subscribed or unsubscribed from marketing emails. Set to true to subscribe, false to unsubscribe.',
       required: true,
       default: true
     },
@@ -123,42 +124,32 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Tags to Add',
       type: 'string',
       multiple: true,
-      description: 'List of tags to add to the Contact. Can be a single string or array of tags. Tags must already exist in Yonoma.',
-      required: false
+      description:
+        'List of tags to add to the Contact. Can be a single string or array of tags. Tags must already exist in Yonoma.',
+      required: false,
+      default: { '@path': '$.traits.tags_to_add' }
     },
     tags_to_remove: {
       label: 'Tags to Remove',
       type: 'string',
       multiple: true,
-      description: 'List of tags to remove from the Contact. Can be a single string or array of strings. Tags must already exist in Yonoma.',
-      required: false
+      description:
+        'List of tags to remove from the Contact. Can be a single string or array of strings. Tags must already exist in Yonoma.',
+      required: false,
+      default: { '@path': '$.traits.tags_to_remove' }
     }
   },
-  perform: async (request, {payload}) => {
+  perform: async (request, { payload }) => {
     const {
       listId,
-      properties: {
-        firstName,
-        lastName,
-        phone,
-        dateOfBirth,
-        address,
-        city,
-        state,
-        country,
-        zipcode
-      } = {},
+      properties: { firstName, lastName, phone, dateOfBirth, address, city, state, country, zipcode } = {},
       status,
       tags_to_add,
       tags_to_remove,
-      identifiers: {
-        userId,
-        email,
-        anonymousId
-      } = {}
+      identifiers: { userId, email, anonymousId } = {}
     } = payload
 
-    if(!userId && !email && !anonymousId) {
+    if (!userId && !email && !anonymousId) {
       throw new PayloadValidationError('At least one identifier (userId, email, or anonymousId) is required.')
     }
 
@@ -168,7 +159,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...(email ? { email } : {}),
       listId,
       ...(typeof status === 'boolean' ? { status } : {}),
-      properties: { 
+      properties: {
         ...(firstName ? { firstName } : {}),
         ...(lastName ? { lastName } : {}),
         ...(phone ? { phone } : {}),
@@ -181,37 +172,18 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
+    if (typeof tags_to_add === 'string' || (Array.isArray(tags_to_add) && tags_to_add.length > 0)) {
+      jsonUpsertContact.properties.tags_to_add = Array.isArray(tags_to_add) ? tags_to_add : [tags_to_add]
+    }
+
+    if (typeof tags_to_remove === 'string' || (Array.isArray(tags_to_remove) && tags_to_remove.length > 0)) {
+      jsonUpsertContact.properties.tags_to_remove = Array.isArray(tags_to_remove) ? tags_to_remove : [tags_to_remove]
+    }
+
     await request(UPSERT_CONTACT_URL, {
       method: 'POST',
       json: jsonUpsertContact
     })
-
-    if(typeof tags_to_add === 'string' || ( (Array.isArray(tags_to_add) && tags_to_add.length > 0))) {
-      const jsonAddTags = {
-        ...(userId ? { userId } : {}),
-        ...(email ? { email } : {}),
-        listId,
-        tags: Array.isArray(tags_to_add) ? tags_to_add : [tags_to_add]
-      }
-      await request(TAG_CONTACT_URL, {
-        method: 'POST',
-        json: jsonAddTags
-      })
-    }
-
-    if(typeof tags_to_remove === 'string' || ( (Array.isArray(tags_to_remove) && tags_to_remove.length > 0))) {
-      const jsonRemoveTags = {
-        ...(userId ? { userId } : {}),
-        ...(email ? { email } : {}),
-        listId,
-        tags: Array.isArray(tags_to_remove) ? tags_to_remove : [tags_to_remove]
-      }
-      await request(UNTAG_CONTACT_URL, {
-        method: 'POST',
-        json: jsonRemoveTags
-      })
-    }
-  
   }
 }
 

@@ -1,11 +1,9 @@
-
-
 export interface UpsertContactJSON {
   userId?: string
   anonymousId?: string
   email?: string
   listId: string
-  status?: boolean,
+  status?: boolean
   properties: {
     firstName?: string
     lastName?: string
@@ -16,12 +14,7 @@ export interface UpsertContactJSON {
     state?: string
     country?: string
     zipcode?: string
+    tags_to_add?: string[]
+    tags_to_remove?: string[]
   }
-}
-
-export interface UpdateTagsJSON {
-  userId?: string
-  email?: string
-  listId: string
-  tags: string[]
 }

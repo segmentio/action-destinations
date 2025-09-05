@@ -177,7 +177,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
           ],
           audiences: [
             {
-              audience_id: Number(external_audience_id), 
+              audience_id: Number(external_audience_id),
               audience_name: audienceName,
               action: audienceValue ? 'add' : 'delete'
             }

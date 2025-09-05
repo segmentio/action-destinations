@@ -64,15 +64,27 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         userId: { '@path': '$.userId' },
         anonymousId: { '@path': '$.anonymousId' },
-        email: { '@path': '$.traits.email' }
+        email: {
+          '@if': {
+            exists: { '@path': '$.context.traits.email' },
+            then: { '@path': '$.context.traits.email' },
+            else: { '@path': '$.properties.email' }
+          }
+        }
       }
     },
     listId: {
       label: 'List ID',
       type: 'string',
-      description: "The Yonoma list to add the contact to.",
+      description: 'The Yonoma list to add the contact to.',
       required: true,
-      default: { '@path': '$.traits.list_id' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.traits.list_id' },
+          then: { '@path': '$.context.traits.list_id' },
+          else: { '@path': '$.properties.list_id' }
+        }
+      }
     },
     properties: {
       label: 'Event Properties',
@@ -82,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue',
       default: { '@path': '$.properties' }
     },
-    timestamp: {  
+    timestamp: {
       label: 'Timestamp',
       type: 'string',
       description: 'The timestamp of the event. Defaults to the current time if not provided.',
@@ -90,24 +102,16 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.timestamp' }
     }
   },
-  perform: async (request, {payload}) => {
+  perform: async (request, { payload }) => {
     const {
-      pageDetails: {
-        title,
-        url,
-        referrer
-      } = {},
+      pageDetails: { title, url, referrer } = {},
       listId,
       properties,
-      identifiers: {
-        userId,
-        email,
-        anonymousId
-      } = {},
+      identifiers: { userId, email, anonymousId } = {},
       timestamp
     } = payload
 
-    if(!userId && !email && !anonymousId) {
+    if (!userId && !email && !anonymousId) {
       throw new PayloadValidationError('At least one identifier (userId, email, or anonymousId) is required.')
     }
 
@@ -121,7 +125,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...(userId ? { userId } : {}),
       ...(anonymousId ? { anonymousId } : {}),
       ...(email ? { email } : {}),
-      listId, 
+      listId,
       properties,
       timestamp
     }
@@ -130,7 +134,6 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json
     })
-  
   }
 }
 

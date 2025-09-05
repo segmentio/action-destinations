@@ -115,7 +115,6 @@
     }
   },
   "dependencies": {
-    "@aws-sdk/client-sts": "3.614.0",
     "chance": "^1.1.8",
     "liquidjs": "^10.21.0",
     "xml-js": "^1.6.11"

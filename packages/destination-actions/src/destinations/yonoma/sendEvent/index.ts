@@ -28,6 +28,12 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           description: 'Unique user identifier from your app.'
         },
+        anonymousId: {
+          label: 'Anonymous ID',
+          type: 'string',
+          description: 'Anonymous identifier from Segment.',
+          readOnly: false
+        },
         email: {
           label: 'Email',
           type: 'string',
@@ -37,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         userId: { '@path': '$.userId' },
         anonymousId: { '@path': '$.anonymousId' },
-        email: { 
+        email: {
           '@if': {
             exists: { '@path': '$.context.traits.email' },
             then: { '@path': '$.context.traits.email' },
@@ -49,9 +55,9 @@ const action: ActionDefinition<Settings, Payload> = {
     listId: {
       label: 'List ID',
       type: 'string',
-      description: "The Yonoma list to add the contact to.",
+      description: 'The Yonoma list to add the contact to.',
       required: true,
-      default: { 
+      default: {
         '@if': {
           exists: { '@path': '$.context.traits.list_id' },
           then: { '@path': '$.context.traits.list_id' },
@@ -67,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue',
       default: { '@path': '$.properties' }
     },
-    timestamp: {  
+    timestamp: {
       label: 'Timestamp',
       type: 'string',
       description: 'The timestamp of the event. Defaults to the current time if not provided.',
@@ -75,24 +81,15 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.timestamp' }
     }
   },
-  perform: async (request, {payload}) => {
-    const {
-      event,
-      properties,
-      identifiers: {
-        userId,
-        email,
-      } = {},
-      listId,
-      timestamp
-    } = payload
+  perform: async (request, { payload }) => {
+    const { event, properties, identifiers: { userId, email } = {}, listId, timestamp } = payload
 
-    if(!userId && !email) {
+    if (!userId && !email) {
       throw new PayloadValidationError('At least one identifier (userId or email) is required.')
     }
 
     delete properties?.email
-    delete properties?.list_id 
+    delete properties?.list_id
 
     const json: SendEventJSON = {
       event,
@@ -106,7 +103,6 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json
     })
-  
   }
 }
 
