@@ -242,12 +242,19 @@ export type AssociationsAction = 'create' | 'archive'
 export interface ReadListsResp {
   offset: number
   hasMore: boolean
-  lists: Array<{
-    listId: string
-    processingType: string
-    objectTypeId: string
-    name: string
-  }>
+  lists: Array<ReadListRespItem>
+}
+
+export interface ReadListResp {
+  list: ReadListRespItem
+}
+
+export interface ReadListRespItem {
+  listId: string
+  processingType: string
+  objectTypeId: string
+  name: string
+  processingTypes: string
 }
 
 export interface ReadListsReq {
@@ -271,4 +278,11 @@ export interface CreateListResp {
     objectTypeId: string
     name: string
   }
+}
+
+export interface CachableList {
+  listId: string
+  objectType: string 
+  objectTypeId: string
+  name: string
 }

@@ -152,35 +152,31 @@ export const dynamicFields = {
       return await dynamicReadIdFields(request, toObjectType)
     }
   },
-  lists_add: {
-    list_name_or_id: async (
-      request: RequestClient,
-      { payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
-    ) => {
+  add_to_list_name: async (
+    request: RequestClient,
+    { payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
+  ) => {
 
-      const objectType = payload?.object_details?.object_type
+    const objectType = payload?.object_details?.object_type
 
-      if (!objectType) {
-        throw new Error("Select a value from the 'Object Type' field")
-      }
-
-      return await dynamicReadLists(request, objectType)
+    if (!objectType) {
+      throw new Error("Select a value from the 'Object Type' field")
     }
+
+    return await dynamicReadLists(request, objectType)
   },
-  lists_remove: {
-    list_name_or_id: async (
-      request: RequestClient,
-      { payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
-    ) => {
+  remove_from_list_name: async (
+    request: RequestClient,
+    { payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
+  ) => {
 
-      const objectType = payload?.object_details?.object_type
+    const objectType = payload?.object_details?.object_type
 
-      if (!objectType) {
-        throw new Error("Select a value from the 'Object Type' field")
-      }
-
-      return await dynamicReadLists(request, objectType)
+    if (!objectType) {
+      throw new Error("Select a value from the 'Object Type' field")
     }
+
+    return await dynamicReadLists(request, objectType)
   }
 }
 

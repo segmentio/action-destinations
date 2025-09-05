@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core'
-import { MAX_HUBSPOT_BATCH_SIZE, MAX_LIST_ADD, MAX_LIST_REMOVE } from './constants'
+import { MAX_HUBSPOT_BATCH_SIZE } from './constants'
 
 export const commonFields: Record<string, InputField> = {
   object_details: {
@@ -168,45 +168,21 @@ export const commonFields: Record<string, InputField> = {
       }
     }
   },
-  lists_add: {
+  add_to_list_name: {
     label: 'Add to List',
-    description: `Add the record to one or more Lists (up to a maximum of ${MAX_LIST_ADD} Lists).`,
-    type: 'object',
-    multiple: true,
+    description: `The name of the Hubspot List to add the record to. Segment will create the List if it does not already exist.`,
+    type: 'string',
     required: false,
-    defaultObjectUI: 'arrayeditor',
-    additionalProperties: false,
     disabledInputMethods: ['variable', 'function', 'enrichment'],
-    properties: {
-      list_name: {
-        label: 'List Name',
-        description: 'The name of the List to add the record to. Specify a new list name if you want Segment to create a new List on Hubspot.',
-        type: 'string',
-        required: true,
-        allowNull: false,
-        dynamic: true
-      }
-    }
+    dynamic: true
   },
-  lists_remove: {
+  remove_from_list_name: {
     label: 'Remove from List',
-    description: `Remove the record from one or more Lists (up to a maximum of ${MAX_LIST_REMOVE} Lists).`,
-    type: 'object',
-    multiple: true,
+    description: `The name of the Hubspot List to remove the record from. Segment will not attempt to create the List on Hubspot if it does not already exist.`,
+    type: 'string',
     required: false,
-    defaultObjectUI: 'arrayeditor',
-    additionalProperties: false,
     disabledInputMethods: ['variable', 'function', 'enrichment'],
-    properties: {
-      list_name: {
-        label: 'List Name',
-        description: 'The name of the List to remove the record from. Segment will not attempt to create the list on Hubspot if it does not already exist.',
-        type: 'string',
-        required: true,
-        allowNull: false,
-        dynamic: true
-      }
-    }
+    dynamic: true
   },
   enable_batching: {
     type: 'boolean',

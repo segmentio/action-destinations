@@ -14,7 +14,8 @@ import {
   ReadListsResp,
   ReadObjectSchemaResp,
   CreateListReq,
-  CreateListResp
+  CreateListResp,
+  ReadListResp
 } from './types'
 
 export class Client {
@@ -81,6 +82,16 @@ export class Client {
     return response
   }
 
+  async readList(name: string) {
+    const response = await this.request<ReadListResp>(
+      `${HUBSPOT_BASE_URL}/crm/v3/lists/object-type-id/${this.objectType}/name/${name}`,
+      {
+        method: 'GET'
+      }
+    )
+    return response
+  }
+
   async readObjectSchema() {
     const response = await this.request<ReadObjectSchemaResp>(
       `${HUBSPOT_BASE_URL}/crm/v3/schemas/${this.objectType}`, 
@@ -96,8 +107,7 @@ export class Client {
       `${HUBSPOT_BASE_URL}/crm/v3/lists`, 
       {
         method: 'POST',
-        json,
-        throwHttpErrors: false
+        json
       }
     )
     return response

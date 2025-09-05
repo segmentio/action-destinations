@@ -1,38 +1,80 @@
 import { Client } from '../client'
-import { ReadListsResp, ReadListsReq, ReadObjectSchemaResp, CreateListReq, CreateListResp} from '../types'
-import { PayloadWithFromId } from '../types'
-import { ModifiedResponse } from '@segment/actions-core'
+import { ReadListsResp, ReadListsReq, ReadObjectSchemaResp, CachableList } from '../types'
+import { StatsContext, RetryableError, PayloadValidationError } from '@segment/actions-core'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
+import { getListFromCache, saveListToCache } from '../functions/cache-functions'
+import { HubSpotError } from '../../errors'
 
-export async function createListsPayloads(client: Client, payloads: PayloadWithFromId[], objectType: string): Promise<CreateListReq[]> {
-  const payloadsLists = payloadListNames(payloads, 'lists_add')
-  const hubspotLists = await getLists(client)
-  const missingLists = payloadsLists.filter(name => !hubspotLists.some(l => l.name === name))
-  return missingLists.map(name => ({
-    name,
-    objectTypeId: objectType,
-    processingType: "MANUAL"
-  }))
+
+export async function ensureList(client: Client, objectType: string, name?: string, subscriptionMetadata?: SubscriptionMetadata, statsContext?: StatsContext): Promise<CachableList | undefined> {
+  if(!name) {
+    return undefined
+  }
+
+  let cacheableList = getListFromCache(name, objectType, subscriptionMetadata, statsContext)
+
+  if(cacheableList){
+    return cacheableList
+  } else {
+    cacheableList = await getListFromHubspot(client, name, objectType) 
+
+    if(!cacheableList) {
+      cacheableList = await createListInHubspot(client, name, objectType)
+    }
+    
+    if (cacheableList) {
+      await saveListToCache(cacheableList, subscriptionMetadata, statsContext)
+      return cacheableList
+    }
+  }
+  throw new PayloadValidationError(`Failed to ensure list with name ${name} in HubSpot`)
 }
 
-async function createLists(client: Client, missingLists: string[]): Promise<ModifiedResponse<CreateListResp>[]> {
-  const requests = missingLists.map(async (name) => {
-    return client.createList({
+async function getListFromHubspot(client: Client, listName: string, objectType: string): Promise<CachableList | undefined> {
+  try{
+    const response = await client.readList(listName)
+    const { listId, name, objectTypeId, processingTypes } = response?.data?.list
+    if (processingTypes != "MANUAL") {
+      return undefined
+    }
+    else {
+      return {
+        listId,
+        name,
+        objectType,
+        objectTypeId
+      }
+    }
+  } catch (err) {
+    return undefined  
+  }
+}
+
+
+async function createListInHubspot(client: Client, name: string, objectType: string): Promise<CachableList | undefined> {
+  try{
+    const response = await client.createList({
       name,
-      objectTypeId: client.objectType,
+      objectTypeId: objectType,
       processingType: "MANUAL"
     })
-  })
-  return await Promise.all(requests)
-}
-
-function payloadListNames(payloads: PayloadWithFromId[], key: 'lists_add' | 'lists_remove'): string[] {
-  return [
-    ...new Set(
-      payloads.flatMap((p) =>
-        p[key]?.map((l) => l.list_name.trim()) || []
-      )
-    )
-  ]  
+    if(response?.data.list){
+      const { listId, name, objectTypeId } = response.data.list
+      return {
+        listId,
+        name,
+        objectType: objectType,
+        objectTypeId
+      }
+    }
+    return undefined
+  }
+  catch(err){
+    if((err as HubSpotError)?.response?.data?.subCategory === 'ILS.DUPLICATE_LIST_NAMES'){
+      throw new RetryableError('Failed to create list: a list with this name already exists.')
+    }
+    throw err
+  }
 }
 
 export async function getLists(client: Client): Promise<ReadListsResp['lists']> {
