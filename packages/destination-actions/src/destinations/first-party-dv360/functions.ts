@@ -125,53 +125,69 @@ export async function editDeviceMobileIds(
   return response.data
 }
 
+// Helper to build contactInfoList
+function buildContactInfoList(contactInfos: Record<string, string>[]): {
+  contactInfos: Record<string, string>[]
+  consent: { adUserData: string; adPersonalization: string }
+} {
+  return {
+    contactInfos,
+    consent: {
+      adUserData: CONSENT_STATUS_GRANTED,
+      adPersonalization: CONSENT_STATUS_GRANTED
+    }
+  }
+}
+
+// Helper to build request payload
+function buildRequestPayload(
+  advertiserId: string,
+  contactInfoList: {
+    contactInfos: Record<string, string>[]
+    consent: { adUserData: string; adPersonalization: string }
+  },
+  operation: 'add' | 'remove'
+) {
+  return JSON.stringify({
+    advertiserId,
+    ...(operation === 'add' ? { addedContactInfoList: contactInfoList } : {}),
+    ...(operation === 'remove' ? { removedContactInfoList: contactInfoList } : {})
+  })
+}
+
 export async function editContactInfo(
   request: RequestClient,
   payloads: Payload[],
   operation: 'add' | 'remove',
   statsContext?: StatsContext
 ) {
-  const payload = payloads[0]
-  const audienceId = payloads[0].external_id
+  if (!payloads || payloads.length === 0) return
 
-  //Check if one of the required identifiers exists otherwise drop the event
-  if (
-    payload.emails === undefined &&
-    payload.phoneNumbers === undefined &&
-    payload.firstName === undefined &&
-    payload.lastName === undefined
-  ) {
-    return
+  // TODO: remove this check, the framework should handle this
+  const validPayloads = payloads.filter(
+    (payload) =>
+      payload.emails !== undefined ||
+      payload.phoneNumbers !== undefined ||
+      payload.firstName !== undefined ||
+      payload.lastName !== undefined
+  )
+  if (validPayloads.length === 0) return
+
+  // Assume all payloads are for the same audience/advertiser (use first)
+  const { external_id: audienceId, advertiser_id: advertiserId } = validPayloads[0]
+  if (!audienceId || !advertiserId) {
+    throw new IntegrationError('Missing required audience or advertiser ID', 'MISSING_REQUIRED_FIELD', 400)
   }
-
-  //Format the endpoint
+  const contactInfos = validPayloads.map(processPayload)
+  const contactInfoList = buildContactInfoList(contactInfos)
+  const requestPayload = buildRequestPayload(advertiserId, contactInfoList, operation)
   const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
-
-  // Prepare the request payload
-  const contactInfoList = {
-    contactInfos: [processPayload(payload)],
-    consent: {
-      adUserData: CONSENT_STATUS_GRANTED,
-      adPersonalization: CONSENT_STATUS_GRANTED
-    }
-  }
-
-  // Convert the payload to string if needed
-  const requestPayload = JSON.stringify({
-    advertiserId: payload.advertiser_id,
-    ...(operation === 'add' ? { addedContactInfoList: contactInfoList } : {}),
-    ...(operation === 'remove' ? { removedContactInfoList: contactInfoList } : {})
-  })
-
   const response = await request<DV360editCustomerMatchResponse>(endpoint, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8'
-    },
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: requestPayload
   })
-
-  statsContext?.statsClient?.incr('addCustomerMatchMembers.success', 1, statsContext?.tags)
+  statsContext?.statsClient?.incr('addCustomerMatchMembers.success', contactInfos.length, statsContext?.tags)
   return response.data
 }
 
