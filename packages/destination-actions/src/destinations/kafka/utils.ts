@@ -137,7 +137,10 @@ const getProducer = (settings: Settings) => {
   })
 }
 
-export const getOrCreateProducer = async (settings: Settings, statsContext: StatsContext | undefined): Promise<Producer> => {
+export const getOrCreateProducer = async (
+  settings: Settings,
+  statsContext: StatsContext | undefined
+): Promise<Producer> => {
   const key = serializeKafkaConfig(settings)
   const now = Date.now()
 
@@ -174,17 +177,29 @@ export const getOrCreateProducer = async (settings: Settings, statsContext: Stat
   return producer
 }
 
-export const sendData = async (settings: Settings, payload: Payload[], features: Features | undefined, statsContext: StatsContext | undefined) => {
+export const sendData = async (
+  settings: Settings,
+  payload: Payload[],
+  features: Features | undefined,
+  statsContext: StatsContext | undefined
+) => {
   validate(settings)
 
   const groupedPayloads: { [topic: string]: Payload[] } = {}
+  const set = new Set<string>()
 
   payload.forEach((p) => {
-    const { topic } = p
+    const { topic, partition, default_partition } = p
     if (!groupedPayloads[topic]) {
       groupedPayloads[topic] = []
     }
     groupedPayloads[topic].push(p)
+    if (statsContext) {
+      const { statsClient, tags } = statsContext
+      set.add(`${topic}-${partition}-${default_partition}`)
+      // Add stats to track batch keys for kafka
+      statsClient?.histogram('kafka.configurable_batch_keys.unique_keys', set.size, tags)
+    }
   })
 
   const topicMessages: TopicMessages[] = Object.keys(groupedPayloads).map((topic) => ({
