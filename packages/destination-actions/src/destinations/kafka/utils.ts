@@ -194,13 +194,13 @@ export const sendData = async (
       groupedPayloads[topic] = []
     }
     groupedPayloads[topic].push(p)
-    if (statsContext) {
-      const { statsClient, tags } = statsContext
-      set.add(`${topic}-${partition}-${default_partition}`)
-      // Add stats to track batch keys for kafka
-      statsClient?.histogram('kafka.configurable_batch_keys.unique_keys', set.size, tags)
-    }
+    set.add(`${topic}-${partition}-${default_partition}`)
   })
+  if (statsContext) {
+    const { statsClient, tags } = statsContext
+    statsClient?.histogram('kafka.configurable_batch_keys.unique_keys', set.size, tags)
+    // Add stats to track batch keys for kafka
+  }
 
   const topicMessages: TopicMessages[] = Object.keys(groupedPayloads).map((topic) => ({
     topic,
