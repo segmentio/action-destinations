@@ -81,13 +81,18 @@ export interface Payload {
     id_field_value?: string
   }[]
   /**
-   * Add the record to one or more Lists, up to a maximum of 3 Lists.
+   * Details of the list to add or remove the record from
    */
-  add_to_list_name?: string
-  /**
-   * Remove the record from one or more Lists, up to a maximum of 3 Lists.
-   */
-  remove_from_list_name?: string
+  list_details?: {
+    /**
+     * The name of the Hubspot List to add or remove the record from. Segment will create the List if it does not already exist.
+     */
+    list_name?: string
+    /**
+     * Specify if the record should be added or removed from the list. true = add to list, false = remove from list.
+     */
+    list_action: boolean
+  }
   /**
    * By default Segment batches events to Hubspot.
    */

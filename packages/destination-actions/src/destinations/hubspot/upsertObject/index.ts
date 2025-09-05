@@ -10,7 +10,7 @@ import { getSchemaFromCache, saveSchemaToCache } from './functions/cache-functio
 import { ensureValidTimestamps, mergeAndDeduplicateById, validate } from './functions/validation-functions'
 import { objectSchema, compareSchemas } from './functions/schema-functions'
 import { sendFromRecords } from './functions/hubspot-record-functions'
-import { ensureList } from './functions/hubspot-list-functions'
+import { ensureList, sendLists } from './functions/hubspot-list-functions'
 import {
   sendAssociatedRecords,
   createAssociationPayloads,
@@ -64,8 +64,8 @@ const send = async (
 
   const {
     object_details: { object_type: objectType, property_group: propertyGroup },
-    association_sync_mode: assocationSyncMode,
-    add_to_list_name: listName
+    association_sync_mode: associationSyncMode,
+    list_details: { list_name: listName } = {}
   } = payloads[0]
 
   const client = new Client(request, objectType)
@@ -79,7 +79,6 @@ const send = async (
 
   const cacheSchemaDiff = compareSchemas(schema, cachedSchema, statsContext)
   statsContext?.statsClient?.incr(`cache.diff.${cacheSchemaDiff.match}`, 1, statsContext?.tags)
-
 
   if (cacheSchemaDiff.match === SchemaMatch.PropertiesMissing || cacheSchemaDiff.match === SchemaMatch.NoMatch) {
     const hubspotSchema = await getSchemaFromHubspot(client, schema)
@@ -104,15 +103,23 @@ const send = async (
   const cachableList = await ensureList(client, objectType, listName, subscriptionMetadata, statsContext)
 
   const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
-  
+
   const associationPayloads = createAssociationPayloads(fromRecordPayloads, 'associations')
-  const associatedRecords = await sendAssociatedRecords(client, associationPayloads, assocationSyncMode as AssociationSyncMode)
+  const associatedRecords = await sendAssociatedRecords(
+    client,
+    associationPayloads,
+    associationSyncMode as AssociationSyncMode
+  )
 
   const dissociationPayloads = createAssociationPayloads(fromRecordPayloads, 'dissociations')
   const dissociatedRecords = await readAssociatedRecords(client, dissociationPayloads)
 
   await sendAssociations(client, associatedRecords, 'create')
   await sendAssociations(client, dissociatedRecords, 'archive')
+
+  if (cachableList) {
+    await sendLists(client, cachableList, fromRecordPayloads)
+  }
 
   return
 }

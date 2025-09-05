@@ -98,7 +98,8 @@ export const commonFields: Record<string, InputField> = {
       },
       association_label: {
         label: 'Association Label',
-        description: 'The Association label to apply between the two records. The Association label must already exist in Hubspot.',
+        description:
+          'The Association label to apply between the two records. The Association label must already exist in Hubspot.',
         type: 'string',
         required: true,
         dynamic: true,
@@ -125,7 +126,8 @@ export const commonFields: Record<string, InputField> = {
   },
   dissociations: {
     label: 'Associations to remove',
-    description: 'Remove Association Labels from an Association between two records. Removing the default association label will delete the entire Association.',
+    description:
+      'Remove Association Labels from an Association between two records. Removing the default association label will delete the entire Association.',
     type: 'object',
     multiple: true,
     required: false,
@@ -143,7 +145,8 @@ export const commonFields: Record<string, InputField> = {
       },
       association_label: {
         label: 'Association Label',
-        description: 'The Association label to remove between the two records. The Association label must already exist in Hubspot. Removing the default Association label will delete the entire Association between the two records.',
+        description:
+          'The Association label to remove between the two records. The Association label must already exist in Hubspot. Removing the default Association label will delete the entire Association between the two records.',
         type: 'string',
         required: true,
         dynamic: true,
@@ -168,21 +171,29 @@ export const commonFields: Record<string, InputField> = {
       }
     }
   },
-  add_to_list_name: {
-    label: 'Add to List',
-    description: `The name of the Hubspot List to add the record to. Segment will create the List if it does not already exist.`,
-    type: 'string',
+  list_details: {
+    label: 'List Details',
+    description: 'Details of the list to add or remove the record from',
+    type: 'object',
     required: false,
-    disabledInputMethods: ['variable', 'function', 'enrichment'],
-    dynamic: true
-  },
-  remove_from_list_name: {
-    label: 'Remove from List',
-    description: `The name of the Hubspot List to remove the record from. Segment will not attempt to create the List on Hubspot if it does not already exist.`,
-    type: 'string',
-    required: false,
-    disabledInputMethods: ['variable', 'function', 'enrichment'],
-    dynamic: true
+    defaultObjectUI: 'keyvalue:only',
+    additionalProperties: false,
+    properties: {
+      list_name: {
+        label: 'List Name',
+        description: `The name of the Hubspot List to add or remove the record from. Segment will create the List if it does not already exist.`,
+        type: 'string',
+        required: false,
+        disabledInputMethods: ['variable', 'function', 'enrichment'],
+        dynamic: true
+      },
+      list_action: {
+        label: 'List Action',
+        description: `Specify if the record should be added or removed from the list. true = add to list, false = remove from list.`,
+        type: 'boolean',
+        required: true
+      }
+    }
   },
   enable_batching: {
     type: 'boolean',

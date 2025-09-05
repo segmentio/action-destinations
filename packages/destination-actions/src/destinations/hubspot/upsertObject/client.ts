@@ -10,12 +10,10 @@ import {
   BatchObjResp,
   UpsertReq,
   AssociationsAction,
-  ReadListsReq,
-  ReadListsResp,
-  ReadObjectSchemaResp,
   CreateListReq,
   CreateListResp,
-  ReadListResp
+  ReadListResp,
+  AddRemoveFromListReq
 } from './types'
 
 export class Client {
@@ -70,18 +68,6 @@ export class Client {
     return response
   }
 
-  async readLists(json: ReadListsReq) {
-    const response = await this.request<ReadListsResp>(
-      `${HUBSPOT_BASE_URL}/crm/v3/lists/search`,
-      {
-        method: 'POST',
-        skipResponseCloning: true,
-        json
-      }
-    )
-    return response
-  }
-
   async readList(name: string) {
     const response = await this.request<ReadListResp>(
       `${HUBSPOT_BASE_URL}/crm/v3/lists/object-type-id/${this.objectType}/name/${name}`,
@@ -93,10 +79,18 @@ export class Client {
   }
 
   async createList(json: CreateListReq) {
+    const response = await this.request<CreateListResp>(`${HUBSPOT_BASE_URL}/crm/v3/lists`, {
+      method: 'POST',
+      json
+    })
+    return response
+  }
+
+  async addRemoveFromList(listId: string, json: AddRemoveFromListReq) {
     const response = await this.request<CreateListResp>(
-      `${HUBSPOT_BASE_URL}/crm/v3/lists`, 
+      `${HUBSPOT_BASE_URL}/crm/v3/lists/${listId}/memberships/add-and-remove`,
       {
-        method: 'POST',
+        method: 'PUT',
         json
       }
     )

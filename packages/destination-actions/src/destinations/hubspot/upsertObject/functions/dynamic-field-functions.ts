@@ -5,8 +5,6 @@ import { SUPPORTED_HUBSPOT_OBJECT_TYPES } from '../constants'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { Payload } from '../generated-types'
 import { DynamicFieldContext } from '@segment/actions-core/destination-kittypes'
-import { Client } from '../client'
-import { ReadListsResp, ReadListsReq, ReadObjectSchemaResp } from '../types'
 
 enum AssociationCategory {
   HUBSPOT_DEFINED = 'HUBSPOT_DEFINED',
@@ -152,31 +150,19 @@ export const dynamicFields = {
       return await dynamicReadIdFields(request, toObjectType)
     }
   },
-  add_to_list_name: async (
-    request: RequestClient,
-    { payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
-  ) => {
+  list_details: {
+    list_name: async (
+      request: RequestClient,
+      { payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
+    ) => {
+      const objectType = payload?.object_details?.object_type
 
-    const objectType = payload?.object_details?.object_type
+      if (!objectType) {
+        throw new Error("Select a value from the 'Object Type' field")
+      }
 
-    if (!objectType) {
-      throw new Error("Select a value from the 'Object Type' field")
+      return await dynamicReadLists(request, objectType)
     }
-
-    return await dynamicReadLists(request, objectType)
-  },
-  remove_from_list_name: async (
-    request: RequestClient,
-    { payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
-  ) => {
-
-    const objectType = payload?.object_details?.object_type
-
-    if (!objectType) {
-      throw new Error("Select a value from the 'Object Type' field")
-    }
-
-    return await dynamicReadLists(request, objectType)
   }
 }
 
@@ -472,7 +458,7 @@ async function dynamicReadProperties(
 async function dynamicReadLists(request: RequestClient, objectType: string) {
   interface ResultItem {
     listId: string
-    processingType: "MANUAL"
+    processingType: 'MANUAL'
     objectTypeId: string
     name: string
   }
@@ -486,7 +472,7 @@ async function dynamicReadLists(request: RequestClient, objectType: string) {
   }
 
   interface RequestType {
-    processingTypes: ["MANUAL"]
+    processingTypes: ['MANUAL']
     offset?: number
   }
 
@@ -494,23 +480,20 @@ async function dynamicReadLists(request: RequestClient, objectType: string) {
 
   try {
     objectTypeId = await readObjectSchema(request, objectType)
-  } 
-  catch (err) {
-    const code: string = (err as HubSpotError)?.response?.status
-      ? String((err as HubSpotError).response.status)
-      : "500"
+  } catch (err) {
+    const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
 
     return {
       choices: [],
       error: {
-        message: (err as HubSpotError)?.response?.data?.message ?? "Unknown error: readObjectSchema",
+        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: readObjectSchema',
         code: code
       }
     }
   }
 
   const json: RequestType = {
-    processingTypes: ["MANUAL"]
+    processingTypes: ['MANUAL']
   }
 
   try {
@@ -525,9 +508,9 @@ async function dynamicReadLists(request: RequestClient, objectType: string) {
       }
 
       const response: ResponseType = await request(url, {
-        method: "POST",
+        method: 'POST',
         skipResponseCloning: true,
-        json,
+        json
       })
 
       allLists = [...allLists, ...response.data.lists]
@@ -536,26 +519,20 @@ async function dynamicReadLists(request: RequestClient, objectType: string) {
     }
 
     const choices = allLists
-      .filter(
-        (item) =>
-          item.processingType === "MANUAL" &&
-          item.objectTypeId === objectTypeId
-      )
+      .filter((item) => item.processingType === 'MANUAL' && item.objectTypeId === objectTypeId)
       .map((item) => ({
         label: `${item.name}`,
-        value: `${item.name}`,
+        value: `${item.name}`
       }))
 
     return choices
   } catch (err) {
-    const code: string = (err as HubSpotError)?.response?.status
-      ? String((err as HubSpotError).response.status)
-      : "500"
+    const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
 
     return {
       choices: [],
       error: {
-        message:(err as HubSpotError)?.response?.data?.message ?? "Unknown error: dynamicReadLists",
+        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadLists',
         code: code
       }
     }
@@ -571,7 +548,7 @@ async function readObjectSchema(request: RequestClient, objectType: string): Pro
 
   const url = `${HUBSPOT_BASE_URL}/crm/v3/schemas/${objectType}`
   const response: ResponseType = await request(url, {
-    method: "GET",
+    method: 'GET'
   })
 
   return response.data.objectTypeId

@@ -239,12 +239,6 @@ export type AssociationsKey = 'associations' | 'dissociations'
 
 export type AssociationsAction = 'create' | 'archive'
 
-export interface ReadListsResp {
-  offset: number
-  hasMore: boolean
-  lists: Array<ReadListRespItem>
-}
-
 export interface ReadListResp {
   list: ReadListRespItem
 }
@@ -257,19 +251,10 @@ export interface ReadListRespItem {
   processingTypes: string
 }
 
-export interface ReadListsReq {
-  processingTypes: ["MANUAL"]
-  offset?: number
-}
-
-export interface ReadObjectSchemaResp {
-  objectTypeId: string
-}
-
 export interface CreateListReq {
   name: string
-  objectTypeId: string,
-  processingType: "MANUAL"
+  objectTypeId: string
+  processingType: 'MANUAL'
 }
 
 export interface CreateListResp {
@@ -282,7 +267,12 @@ export interface CreateListResp {
 
 export interface CachableList {
   listId: string
-  objectType: string 
+  objectType: string
   objectTypeId: string
   name: string
+}
+
+export interface AddRemoveFromListReq {
+  recordIdsToAdd?: string[]
+  recordIdsToRemove?: string[]
 }
