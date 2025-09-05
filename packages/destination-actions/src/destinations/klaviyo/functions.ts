@@ -903,7 +903,6 @@ export function updateMultiStatusWithSuccessData(
  *
  * Ensures that at least one of `email`, `phone_number`, or `external_id` is present.
  * If `phone_number` is provided, it validates and converts it to E.164 format using the `country_code`.
- * If `email` is provided, it validates the email format.
  * Returns an object containing the validated payload or an error response if validation fails.
  *
  * @param payload - The profile payload to validate.
