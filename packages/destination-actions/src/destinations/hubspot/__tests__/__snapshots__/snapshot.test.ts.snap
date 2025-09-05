@@ -91,6 +91,6 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for actions-hubspot-cloud destination: upsertObject action - all fields 1`] = `[TypeError: Cannot read properties of undefined (reading 'flatMap')]`;
+exports[`Testing snapshot for actions-hubspot-cloud destination: upsertObject action - all fields 1`] = `[PayloadValidationError: Failed to ensure list with name Hy[[d(kX$ in HubSpot]`;
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: upsertObject action - required fields 1`] = `[TypeError: Cannot read properties of undefined (reading 'flatMap')]`;
