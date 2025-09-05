@@ -22,14 +22,16 @@ export async function ensureList(
     return cacheableList
   } else {
     cacheableList = await getListFromHubspot(client, name, objectType)
-
-    if (!cacheableList) {
-      cacheableList = await createListInHubspot(client, name, objectType)
-    }
-
     if (cacheableList) {
       await saveListToCache(cacheableList, subscriptionMetadata, statsContext)
       return cacheableList
+    }
+    else {
+      cacheableList = await createListInHubspot(client, name, objectType)
+      if(cacheableList) {
+        await saveListToCache(cacheableList, subscriptionMetadata, statsContext)
+        return cacheableList
+      }
     }
   }
   throw new PayloadValidationError(`Failed to ensure list with name ${name} in HubSpot`)
@@ -40,10 +42,16 @@ async function getListFromHubspot(
   listName: string,
   objectType: string
 ): Promise<CachableList | undefined> {
+
+  console.log('Getting list from HubSpot', listName, objectType)
+
   try {
     const response = await client.readList(listName)
-    const { listId, name, objectTypeId, processingTypes } = response?.data?.list
-    if (processingTypes != 'MANUAL') {
+    const { listId, name, objectTypeId, processingType } = response?.data?.list
+
+    console.log('List response from HubSpot', response?.data?.list)
+
+    if (processingType != 'MANUAL') {
       return undefined
     } else {
       return {

@@ -70,10 +70,12 @@ export async function saveListToCache(
   statsContext?: StatsContext
 ) {
   if (!subscriptionMetadata || !subscriptionMetadata?.actionConfigId) {
+    console.log("ERROR saving to cache")
     statsContext?.statsClient?.incr('cache.saveList.error', 1, statsContext?.tags)
     return
   }
 
+  console.log("Saving to cache")
   listCache.set(getListCacheKey(cachableList.name, cachableList.objectType, subscriptionMetadata), cachableList)
   statsContext?.statsClient?.incr('cache.saveList.success', 1, statsContext?.tags)
 }
