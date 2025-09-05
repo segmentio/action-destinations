@@ -60,7 +60,7 @@ export interface Payload {
     id_field_value?: string
   }[]
   /**
-   * Remove Association Labels from an Association between two records. Removing the default association label will delete the entire Association.
+   * Remove Association Labels from an Association between two records. Removing the default association label will dissociate both records from each other completely.
    */
   dissociations?: {
     /**
@@ -101,6 +101,10 @@ export interface Payload {
    * Maximum number of events to include in each batch.
    */
   batch_size: number
+  /**
+   * The keys to use for batching the events.
+   */
+  batch_keys?: string[]
   /**
    * The time the event occurred. This will be used to de-duplicate the events before sending them to hubspot.
    */

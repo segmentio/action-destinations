@@ -127,7 +127,7 @@ export const commonFields: Record<string, InputField> = {
   dissociations: {
     label: 'Associations to remove',
     description:
-      'Remove Association Labels from an Association between two records. Removing the default association label will delete the entire Association.',
+      'Remove Association Labels from an Association between two records. Removing the default association label will dissociate both records from each other completely.',
     type: 'object',
     multiple: true,
     required: false,
@@ -209,6 +209,15 @@ export const commonFields: Record<string, InputField> = {
     required: true,
     unsafe_hidden: true,
     default: MAX_HUBSPOT_BATCH_SIZE
+  },
+  batch_keys: {
+    label: 'Batch Keys',
+    description: 'The keys to use for batching the events.',
+    type: 'string',
+    unsafe_hidden: true,
+    required: false,
+    multiple: true,
+    default: ['list_details']
   },
   timestamp: {
     label: 'Timestamp',
