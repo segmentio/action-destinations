@@ -150,8 +150,6 @@ export const dynamicFields = {
       return await dynamicReadIdFields(request, toObjectType)
     }
   },
-
-
   list_details: {
     list_name: async (request: RequestClient, { payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }) => {
 
