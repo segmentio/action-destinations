@@ -3,7 +3,7 @@ import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/a
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 import { HUBSPOT_BASE_URL } from '../../properties'
-import { cache } from '../functions/cache-functions'
+import { schemaCache } from '../functions/cache-functions'
 
 let testDestination = createTestIntegration(Definition)
 const subscriptionMetadata = {
@@ -224,7 +224,7 @@ const upsertObjectResp = {
 beforeEach((done) => {
   testDestination = createTestIntegration(Definition)
   nock.cleanAll()
-  cache.clear()
+  schemaCache.clear()
   done()
 })
 
