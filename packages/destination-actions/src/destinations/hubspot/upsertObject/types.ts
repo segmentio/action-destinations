@@ -139,7 +139,7 @@ export interface BatchObjResp {
   }>
 }
 
-interface OmitPayload extends Omit<Payload, 'enable_batching' | 'batch_size' | 'association_sync_mode'> {}
+interface OmitPayload extends Omit<Payload, 'enable_batching' | 'batch_size' | 'association_sync_mode' | 'list_details' | 'batch_keys'> {}
 
 export interface PayloadWithFromId extends OmitPayload {
   object_details: OmitPayload['object_details'] & {
@@ -159,6 +159,10 @@ export interface PayloadWithFromId extends OmitPayload {
     id_field_value: string
     from_record_id: string
   }>
+  list_details?: {
+    list_name: string
+    list_action: boolean
+  }
 }
 
 export interface AssociationPayload extends OmitPayload {

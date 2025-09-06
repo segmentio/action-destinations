@@ -81,15 +81,15 @@ export interface Payload {
     id_field_value?: string
   }[]
   /**
-   * Details of the list to add or remove the record from
+   * Details of the object to associate the record with
    */
-  list_details?: {
+  list_details: {
     /**
-     * The name of the Hubspot List to add or remove the record from. Segment will create the List if it does not already exist.
+     * The type of Hubspot Object to add/update a record for.
      */
-    list_name?: string
+    list_name: string
     /**
-     * Specify if the record should be added or removed from the list. true = add to list, false = remove from list.
+     * The name of the ID field for the record.
      */
     list_action: boolean
   }

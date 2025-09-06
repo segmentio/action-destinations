@@ -119,7 +119,7 @@ export const dynamicFields = {
       }
 
       const fromObjectType = payload?.object_details?.object_type
-      const toObjectType = payload?.associations?.[selectedIndex]?.object_type
+      const toObjectType = payload?.dissociations?.[selectedIndex]?.object_type
 
       if (!fromObjectType) {
         throw new Error("Select a value from the from 'Object Type' field")
@@ -150,18 +150,18 @@ export const dynamicFields = {
       return await dynamicReadIdFields(request, toObjectType)
     }
   },
+
+
   list_details: {
-    list_name: async (
-      request: RequestClient,
-      { payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
-    ) => {
+    list_name: async (request: RequestClient, { payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }) => {
+
       const objectType = payload?.object_details?.object_type
 
       if (!objectType) {
         throw new Error("Select a value from the 'Object Type' field")
       }
 
-      return await dynamicReadLists(request, objectType)
+      return await dynamicReadLists(request, "contact")
     }
   }
 }
@@ -525,7 +525,7 @@ async function dynamicReadLists(request: RequestClient, objectType: string) {
         value: `${item.name}`
       }))
 
-    return choices
+    return { choices }
   } catch (err) {
     const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
 

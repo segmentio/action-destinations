@@ -171,30 +171,60 @@ export const commonFields: Record<string, InputField> = {
       }
     }
   },
+
+
   list_details: {
-    label: 'List Details',
-    description: 'Details of the list to add or remove the record from',
+    label: 'XXX',
+    description: 'YYYY',
     type: 'object',
-    required: false,
+    required: true,
     defaultObjectUI: 'keyvalue:only',
     additionalProperties: false,
     properties: {
       list_name: {
-        label: 'List Name',
-        description: `The name of the Hubspot List to add or remove the record from. Segment will create the List if it does not already exist.`,
+        label: 'AAAAA',
+        description: 'BBBBB',
         type: 'string',
-        required: false,
-        disabledInputMethods: ['variable', 'function', 'enrichment'],
-        dynamic: true
+        required: true,
+        allowNull: false,
+        dynamic: true,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       },
       list_action: {
-        label: 'List Action',
-        description: `Specify if the record should be added or removed from the list. true = add to list, false = remove from list.`,
+        label: 'Akshun name',
+        description: 'The name of the Akshun.',
         type: 'boolean',
-        required: true
+        required: true,
+        allowNull: false,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       }
     }
   },
+
+  // list_details: {
+  //   label: 'List Details',
+  //   description: 'Details of the list to add or remove the record from',
+  //   type: 'object',
+  //   required: false,
+  //   defaultObjectUI: 'keyvalue:only',
+  //   additionalProperties: false,
+  //   properties: {
+  //     list_name: {
+  //       label: 'List Name',
+  //       description: `The name of the Hubspot List to add or remove the record from. Segment will create the List if it does not already exist.`,
+  //       type: 'string',
+  //       required: true,
+  //       disabledInputMethods: ['variable', 'function', 'enrichment'],
+  //       dynamic: true
+  //     },
+  //     list_action: {
+  //       label: 'List Action',
+  //       description: `Specify if the record should be added or removed from the list. true = add to list, false = remove from list.`,
+  //       type: 'boolean',
+  //       required: true
+  //     }
+  //   }
+  // },
   enable_batching: {
     type: 'boolean',
     label: 'Batch Data to Hubspot by default',
