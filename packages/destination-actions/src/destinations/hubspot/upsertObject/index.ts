@@ -111,7 +111,7 @@ const send = async (
   const dissociatedRecords = await readAssociatedRecords(client, dissociationPayloads)
   await sendAssociations(client, associatedRecords, 'create')
   await sendAssociations(client, dissociatedRecords, 'archive')
-  
+
   if (cachableList) {
     await sendLists(client, cachableList, fromRecordPayloads)
   }

@@ -2,6 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import { HUBSPOT_BASE_URL } from '../properties'
 import {
   AssociationsReq,
+  DissociationsReq,
   ObjReqType,
   CreateReq,
   CreatePropsReq,
@@ -9,7 +10,6 @@ import {
   ReadPropsResp,
   BatchObjResp,
   UpsertReq,
-  AssociationsAction,
   CreateListReq,
   CreateListResp,
   ReadListResp,
@@ -57,9 +57,20 @@ export class Client {
     return response
   }
 
-  async batchAssociationsRequest(json: AssociationsReq, toObjectType: string, action: AssociationsAction) {
+  async batchAssociationsRequest(json: AssociationsReq, toObjectType: string) {
     const response = await this.request(
-      `${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/${action}`,
+      `${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/create`,
+      {
+        method: 'POST',
+        json
+      }
+    )
+    return response
+  }
+
+  async batchDissociationsRequest(json: DissociationsReq, toObjectType: string) {
+    const response = await this.request(
+      `${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/archive`,
       {
         method: 'POST',
         json

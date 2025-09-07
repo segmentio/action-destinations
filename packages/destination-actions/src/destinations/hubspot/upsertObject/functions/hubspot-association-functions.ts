@@ -164,15 +164,24 @@ export async function sendAssociations(client: Client, payloads: AssociationPayl
         from: {
           id: payload.object_details.from_record_id
         },
-        to: {
+        to: [{
           id: payload.object_details.record_id
-        }
+        }]
       }
       return input
     })
-    return client.batchAssociationsRequest({ inputs }, toObjectType, action)
+    if(action === 'archive') {
+      return client.batchDissociationsRequest({ inputs }, toObjectType)
+    }
+    if(action === 'create') {
+      // create JSON does not take an array for the 'to' field
+      return client.batchAssociationsRequest({ inputs: inputs.map((input) => ({
+        ...input,
+        to: input.to[0]
+      })) }, toObjectType)
+    }
   })
-
+console.log("Sending associations to HubSpot", { action, requests })
   await Promise.all(requests)
 }
 
