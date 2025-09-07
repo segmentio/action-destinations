@@ -162,6 +162,7 @@ export interface PayloadWithFromId extends OmitPayload {
   list_details?: {
     list_name: string
     list_action: boolean
+    should_create_list: boolean
   }
 }
 

@@ -181,7 +181,7 @@ export const commonFields: Record<string, InputField> = {
     properties: {
       list_name: {
         label: 'List Name',
-        description: `The name of the Hubspot List to add or remove the record from. Segment will create the List if it does not already exist.`,
+        description: "The name of the Hubspot List to add or remove the record from. If the 'Create List' field is set to true, Segment will create the List if it does not already exist.",
         type: 'string',
         required: true,
         allowNull: false,
@@ -195,6 +195,13 @@ export const commonFields: Record<string, InputField> = {
         required: true,
         allowNull: false,
         disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+      },
+      should_create_list: {
+        label: 'Create List',
+        description: 'If true, Segment will create the list in Hubspot if it does not already exist.',
+        type: 'boolean',
+        required: true,
+        default: true
       }
     }
   },

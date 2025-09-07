@@ -92,6 +92,10 @@ export interface Payload {
      * Specify if the record should be added or removed from the list. true = add to list, false = remove from list.
      */
     list_action: boolean
+     /**
+     * If true, Segment will create the list in Hubspot if it does not already exist.
+     */
+    should_create_list: boolean
   }
   /**
    * By default Segment batches events to Hubspot.

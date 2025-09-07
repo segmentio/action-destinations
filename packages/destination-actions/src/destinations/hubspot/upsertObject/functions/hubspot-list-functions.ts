@@ -9,10 +9,15 @@ export async function ensureList(
   client: Client,
   objectType: string,
   name?: string,
+  shouldCreateList?: boolean,
   subscriptionMetadata?: SubscriptionMetadata,
   statsContext?: StatsContext
 ): Promise<CachableList | undefined> {
   if (!name) {
+    return undefined
+  }
+
+  if(typeof shouldCreateList !== 'boolean'){
     return undefined
   }
 
@@ -27,10 +32,14 @@ export async function ensureList(
       return cacheableList
     }
     else {
-      cacheableList = await createListInHubspot(client, name, objectType)
-      if(cacheableList) {
-        await saveListToCache(cacheableList, subscriptionMetadata, statsContext)
-        return cacheableList
+      if(shouldCreateList){
+        cacheableList = await createListInHubspot(client, name, objectType)
+        if(cacheableList) {
+          await saveListToCache(cacheableList, subscriptionMetadata, statsContext)
+          return cacheableList
+        }
+      } else {
+        throw new PayloadValidationError(`List with name ${name} does not exist in HubSpot. To create the list, set the 'Create List' field to true.`)
       }
     }
   }
@@ -43,13 +52,9 @@ async function getListFromHubspot(
   objectType: string
 ): Promise<CachableList | undefined> {
 
-  console.log('Getting list from HubSpot', listName, objectType)
-
   try {
     const response = await client.readList(listName)
     const { listId, name, objectTypeId, processingType } = response?.data?.list
-
-    console.log('List response from HubSpot', response?.data?.list)
 
     if (processingType != 'MANUAL') {
       return undefined
@@ -77,6 +82,7 @@ async function createListInHubspot(
       objectTypeId: objectType,
       processingType: 'MANUAL'
     })
+    
     if (response?.data.list) {
       const { listId, name, objectTypeId } = response.data.list
       return {
@@ -104,6 +110,5 @@ export async function sendLists(client: Client, cachableList: CachableList, from
       .filter((p) => p.list_details?.list_action == false)
       .map((p) => p.object_details.record_id)
   }
-
   await client.addRemoveFromList(cachableList.listId, json)
 }

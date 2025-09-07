@@ -65,7 +65,7 @@ const send = async (
   const {
     object_details: { object_type: objectType, property_group: propertyGroup },
     association_sync_mode: associationSyncMode,
-    list_details: { list_name: listName } = {}
+    list_details: { list_name: listName, should_create_list: shouldCreateList } = {}
   } = payloads[0]
 
   const client = new Client(request, objectType)
@@ -100,23 +100,18 @@ const send = async (
     }
   }
 
-  const cachableList = await ensureList(client, objectType, listName, subscriptionMetadata, statsContext)
+  const cachableList = await ensureList(client, objectType, listName, shouldCreateList, subscriptionMetadata, statsContext)
 
   const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
 
   const associationPayloads = createAssociationPayloads(fromRecordPayloads, 'associations')
-  const associatedRecords = await sendAssociatedRecords(
-    client,
-    associationPayloads,
-    associationSyncMode as AssociationSyncMode
-  )
+  const associatedRecords = await sendAssociatedRecords(client, associationPayloads, associationSyncMode as AssociationSyncMode)
 
   const dissociationPayloads = createAssociationPayloads(fromRecordPayloads, 'dissociations')
   const dissociatedRecords = await readAssociatedRecords(client, dissociationPayloads)
-
   await sendAssociations(client, associatedRecords, 'create')
   await sendAssociations(client, dissociatedRecords, 'archive')
-
+  
   if (cachableList) {
     await sendLists(client, cachableList, fromRecordPayloads)
   }
