@@ -3,8 +3,9 @@ import { DynamicFieldResponse, IntegrationError, Features } from '@segment/actio
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
-import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
+import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME, CONNECTIONS_CACHE_SIZE } from './constants'
 import { StatsContext } from '@segment/actions-core/destination-kit'
+import { LRUCache } from 'lru-cache'
 
 export const producersByConfig: Record<string, CachedProducer> = {}
 
@@ -174,6 +175,40 @@ export const getOrCreateProducer = async (
     isConnected: true,
     lastUsed: now
   }
+  return producer
+}
+
+const connectionsCache = new LRUCache<string, boolean>({
+  max: CONNECTIONS_CACHE_SIZE,
+  ttl: PRODUCER_TTL_MS
+})
+
+const kafkaProducerCache = new Map<string, Producer>()
+
+export const getOrCreateProducerLRU = async (
+  settings: Settings,
+  statsContext: StatsContext | undefined
+): Promise<Producer> => {
+  const key = serializeKafkaConfig(settings)
+  const isCachedProducer = connectionsCache.get(key)
+  const cached = producersByConfig[key]
+
+  if (isCachedProducer && cached) {
+    statsContext?.statsClient?.incr('kafka_connection_reused', 1, statsContext?.tags)
+    await cached.producer.connect() // this is idempotent, so is safe
+    return cached.producer
+  } else {
+    statsContext?.statsClient?.incr('kafka_connection_closed', 1, statsContext?.tags)
+    kafkaProducerCache.delete(key)
+    await cached?.producer?.disconnect()
+  }
+
+  const kafka = getKafka(settings)
+  const producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner })
+  await producer.connect()
+  statsContext?.statsClient?.incr('kafka_connection_opened', 1, statsContext?.tags)
+  kafkaProducerCache.set(key, producer)
+  connectionsCache.set(key, true)
   return producer
 }
 
