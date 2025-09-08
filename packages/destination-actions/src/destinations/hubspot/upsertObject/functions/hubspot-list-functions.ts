@@ -24,16 +24,18 @@ export async function ensureList(
   let cacheableList = getListFromCache(name, objectType, subscriptionMetadata, statsContext)
 
   if (cacheableList) {
+    statsContext?.statsClient?.incr('cache.getListFromCache.success', 1, statsContext?.tags)
     return cacheableList
   } else {
-    cacheableList = await getListFromHubspot(client, name, objectType)
+    statsContext?.statsClient?.incr('cache.getListFromCache.miss', 1, statsContext?.tags)
+    cacheableList = await getListFromHubspot(client, name, objectType, statsContext)
     if (cacheableList) {
       await saveListToCache(cacheableList, subscriptionMetadata, statsContext)
       return cacheableList
     }
     else {
       if(shouldCreateList){
-        cacheableList = await createListInHubspot(client, name, objectType)
+        cacheableList = await createListInHubspot(client, name, objectType, statsContext)
         if(cacheableList) {
           await saveListToCache(cacheableList, subscriptionMetadata, statsContext)
           return cacheableList
@@ -49,7 +51,8 @@ export async function ensureList(
 async function getListFromHubspot(
   client: Client,
   listName: string,
-  objectType: string
+  objectType: string,
+  statsContext?: StatsContext | undefined
 ): Promise<CachableList | undefined> {
 
   try {
@@ -57,8 +60,10 @@ async function getListFromHubspot(
     const { listId, name, objectTypeId, processingType } = response?.data?.list
 
     if (processingType != 'MANUAL') {
+      statsContext?.statsClient?.incr('cache.getListFromHubspot.fail', 1, statsContext?.tags)
       return undefined
     } else {
+      statsContext?.statsClient?.incr('cache.getListFromHubspot.success', 1, statsContext?.tags)
       return {
         listId,
         name,
@@ -67,6 +72,7 @@ async function getListFromHubspot(
       }
     }
   } catch (err) {
+    statsContext?.statsClient?.incr('cache.getListFromHubspot.error', 1, statsContext?.tags)
     return undefined
   }
 }
@@ -74,7 +80,8 @@ async function getListFromHubspot(
 async function createListInHubspot(
   client: Client,
   name: string,
-  objectType: string
+  objectType: string,
+  statsContext: StatsContext | undefined
 ): Promise<CachableList | undefined> {
   try {
     const response = await client.createList({
@@ -85,6 +92,7 @@ async function createListInHubspot(
     
     if (response?.data.list) {
       const { listId, name, objectTypeId } = response.data.list
+      statsContext?.statsClient?.incr('cache.createListInHubspot.success', 1, statsContext?.tags)
       return {
         listId,
         name,
@@ -92,8 +100,10 @@ async function createListInHubspot(
         objectTypeId
       }
     }
+    statsContext?.statsClient?.incr('cache.createListInHubspot.fail', 1, statsContext?.tags)
     return undefined
   } catch (err) {
+    statsContext?.statsClient?.incr('cache.createListInHubspot.error', 1, statsContext?.tags)
     if ((err as HubSpotError)?.response?.data?.subCategory === 'ILS.DUPLICATE_LIST_NAMES') {
       throw new RetryableError('Failed to create list: a list with this name already exists.')
     }

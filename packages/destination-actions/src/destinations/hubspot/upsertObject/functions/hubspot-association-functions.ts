@@ -181,7 +181,6 @@ export async function sendAssociations(client: Client, payloads: AssociationPayl
       })) }, toObjectType)
     }
   })
-console.log("Sending associations to HubSpot", { action, requests })
   await Promise.all(requests)
 }
 

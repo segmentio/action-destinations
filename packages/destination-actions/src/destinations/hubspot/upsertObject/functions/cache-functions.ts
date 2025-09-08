@@ -56,7 +56,7 @@ export function getListFromCache(
   statsContext?: StatsContext
 ): CachableList | undefined {
   if (!subscriptionMetadata || !subscriptionMetadata?.actionConfigId) {
-    statsContext?.statsClient?.incr('cache.getList.error', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('cache.getListFromCache.error', 1, statsContext?.tags)
     return undefined
   }
 
@@ -70,11 +70,11 @@ export async function saveListToCache(
   statsContext?: StatsContext
 ) {
   if (!subscriptionMetadata || !subscriptionMetadata?.actionConfigId) {
-    statsContext?.statsClient?.incr('cache.saveList.error', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('cache.saveListToCache.error', 1, statsContext?.tags)
     return
   }
 
   listCache.set(getListCacheKey(cachableList.name, cachableList.objectType, subscriptionMetadata), cachableList)
-  statsContext?.statsClient?.incr('cache.saveList.success', 1, statsContext?.tags)
+  statsContext?.statsClient?.incr('cache.saveListToCache.success', 1, statsContext?.tags)
 }
 
