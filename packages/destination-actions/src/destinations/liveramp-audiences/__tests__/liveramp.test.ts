@@ -361,6 +361,7 @@ describe('Liveramp Audiences', () => {
         expect(true).toBe(false)
       } catch (e) {
         expect(e.message).toEqual('Missing required S3 credentials.')
+        expect(e.status).toEqual(400)
       }
     })
 
@@ -397,6 +398,7 @@ describe('Liveramp Audiences', () => {
         expect(e.message).toEqual(
           'AWS IAM credentials are invalid or do not have permission to access S3 bucket "test-bucket". Please verify your access key, secret key, and bucket permissions.'
         )
+        expect(e.status).toEqual(401)
       }
     })
 
@@ -433,6 +435,44 @@ describe('Liveramp Audiences', () => {
         expect(e.message).toContain(
           'S3 bucket "nonexistent-bucket" does not exist or is not accessible with the provided credentials.'
         )
+        expect(e.status).toEqual(401)
+      }
+    })
+
+    it('should throw InvalidAuthenticationError for bad request (400)', async () => {
+      // Clear persistent mocks and set up specific 400 mock
+      nock.cleanAll()
+      nock('https://invalid-config-bucket.s3.amazonaws.com').head('/').reply(400)
+
+      try {
+        await testDestination.executeBatch('audienceEnteredS3', {
+          events: mockedEvents,
+          mapping: {
+            s3_aws_access_key: 's3_aws_access_key',
+            s3_aws_secret_key: 's3_aws_secret_key',
+            s3_aws_bucket_name: 'invalid-config-bucket',
+            s3_aws_region: 'us-west-2',
+            audience_key: 'audience_key',
+            delimiter: ',',
+            filename: 'filename.csv',
+            enable_batching: true
+          },
+          subscriptionMetadata: {
+            destinationConfigId: 'destinationConfigId',
+            actionConfigId: 'actionConfigId'
+          },
+          settings: {
+            __segment_internal_engage_force_full_sync: true,
+            __segment_internal_engage_batch_sync: true
+          }
+        })
+        // Should not reach here
+        expect(true).toBe(false)
+      } catch (e) {
+        expect(e.message).toEqual(
+          'Bad request when accessing S3 bucket "invalid-config-bucket". Please verify your AWS region and bucket configuration.'
+        )
+        expect(e.status).toEqual(401)
       }
     })
   })
