@@ -337,6 +337,10 @@ describe('Liveramp Audiences', () => {
   })
 
   describe('S3 Permissions Validation', () => {
+    beforeEach(() => {
+      // Reset to default mock before each test
+      nock.cleanAll()
+    })
     it('should throw PayloadValidationError if required S3 credentials are missing', async () => {
       try {
         await testDestination.executeBatch('audienceEnteredS3', {
@@ -367,7 +371,6 @@ describe('Liveramp Audiences', () => {
 
     it('should throw InvalidAuthenticationError if IAM credentials are invalid (403)', async () => {
       // Clear persistent mocks and set up specific 403 mock
-      nock.cleanAll()
       nock('https://test-bucket.s3.amazonaws.com').head('/').reply(403)
 
       try {
@@ -403,8 +406,6 @@ describe('Liveramp Audiences', () => {
     })
 
     it('should throw InvalidAuthenticationError if S3 bucket does not exist (404)', async () => {
-      // Clear persistent mocks and set up specific 404 mock
-      nock.cleanAll()
       nock('https://nonexistent-bucket.s3.amazonaws.com').head('/').reply(404)
 
       try {
@@ -440,8 +441,6 @@ describe('Liveramp Audiences', () => {
     })
 
     it('should throw InvalidAuthenticationError for bad request (400)', async () => {
-      // Clear persistent mocks and set up specific 400 mock
-      nock.cleanAll()
       nock('https://invalid-config-bucket.s3.amazonaws.com').head('/').reply(400)
 
       try {
