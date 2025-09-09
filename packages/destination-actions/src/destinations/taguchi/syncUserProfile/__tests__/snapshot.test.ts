@@ -64,6 +64,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const event = createTestEvent({
       properties: eventData
     })
+    const eventTraits = (event?.properties?.traits as Record<string, unknown>) || {}
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
@@ -72,7 +73,11 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         identifiers: {
           ref: 'test-user-123',
           email: 'test@example.com'
-        }, 
+        },
+        traits: {
+          ...eventTraits,
+          dob: '2024-06-10T10:00:00.000Z'
+        },
         timestamp: '2024-06-10T10:00:00.000Z'
       },
       settings: {
