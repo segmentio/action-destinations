@@ -191,16 +191,18 @@ export const getOrCreateProducerLRU = async (
 ): Promise<Producer> => {
   const key = serializeKafkaConfig(settings)
   const isCachedProducer = connectionsCache.get(key)
-  const cached = producersByConfig[key]
+  const cached = kafkaProducerCache.get(key)
+
+  statsContext?.statsClient?.histogram('kafka_connection_cache_size', connectionsCache.size, statsContext?.tags)
 
   if (isCachedProducer && cached) {
     statsContext?.statsClient?.incr('kafka_connection_reused', 1, statsContext?.tags)
-    await cached.producer.connect() // this is idempotent, so is safe
-    return cached.producer
+    await cached?.connect() // this is idempotent, so is safe
+    return cached
   } else {
     statsContext?.statsClient?.incr('kafka_connection_closed', 1, statsContext?.tags)
     kafkaProducerCache.delete(key)
-    await cached?.producer?.disconnect()
+    await cached?.disconnect()
   }
 
   const kafka = getKafka(settings)
@@ -253,7 +255,7 @@ export const sendData = async (
 
   let producer: Producer
   if (features && features[FLAGON_NAME]) {
-    producer = await getOrCreateProducer(settings, statsContext)
+    producer = await getOrCreateProducerLRU(settings, statsContext)
   } else {
     producer = getProducer(settings)
     await producer.connect()
