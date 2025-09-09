@@ -4,8 +4,8 @@ import syncAudiences from './syncAudiences'
 
 // For an example audience destination, refer to webhook-audiences. The Readme section is under 'Audience Support'
 const destination: AudienceDestinationDefinition<Settings> = {
-  name: 'Bing Ads Audiences',
-  slug: 'actions-bing-ads-audiences',
+  name: 'Ms Bing Ads Audiences',
+  slug: 'actions-ms-bing-ads-audiences',
   mode: 'cloud',
 
   authentication: {
