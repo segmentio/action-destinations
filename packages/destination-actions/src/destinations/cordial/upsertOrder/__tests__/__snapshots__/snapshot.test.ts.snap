@@ -5,7 +5,7 @@ Object {
   "anonymousId": "5)FqhW#w85$",
   "discountApplication": Object {
     "amount": -17352532573552.64,
-    "type": "5)FqhW#w85$",
+    "type": "fixed",
   },
   "items": Array [
     Object {
@@ -40,6 +40,7 @@ Object {
 
 exports[`Testing snapshot for Cordial's upsertOrder destination action: required fields 1`] = `
 Object {
+  "discountApplication": null,
   "items": Array [
     Object {
       "name": "5)FqhW#w85$",
