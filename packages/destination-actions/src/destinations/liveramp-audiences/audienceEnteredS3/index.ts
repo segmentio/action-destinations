@@ -5,7 +5,8 @@ import { sendEventToAWS } from '../awsClient'
 import {
   LIVERAMP_MIN_RECORD_COUNT,
   LIVERAMP_LEGACY_FLOW_FLAG_NAME,
-  LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME
+  LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME,
+  LIVERAMP_S3_IAM_VALIDATION_FLAG_NAME
 } from '../properties'
 
 import type { Settings } from '../generated-types'
@@ -145,7 +146,10 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
 
   // skip for legacy flow to avoid snapshot issues
   if (!(input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true)) {
-    await validateS3Permissions(input.payloads[0], input.request)
+    // only validate S3 permissions when the validation flag is enabled
+    if (input.features && input.features[LIVERAMP_S3_IAM_VALIDATION_FLAG_NAME] === true) {
+      await validateS3Permissions(input.payloads[0], input.request)
+    }
   }
 
   // validate s3 path

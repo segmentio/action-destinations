@@ -152,12 +152,7 @@ async function validateS3Permissions(
   payload: Payload,
   request: <Data = unknown>(url: string, options?: RequestOptions) => Promise<ModifiedResponse<Data>>
 ) {
-  if (
-    !payload.s3_aws_access_key ||
-    !payload.s3_aws_secret_key ||
-    !payload.s3_aws_bucket_name ||
-    !payload.s3_aws_region
-  ) {
+  if (!payload.s3_aws_access_key || !payload.s3_aws_secret_key || !payload.s3_aws_bucket_name) {
     throw new PayloadValidationError('Missing required S3 credentials.')
   }
 

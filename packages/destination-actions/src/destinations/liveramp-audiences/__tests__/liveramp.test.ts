@@ -2,7 +2,11 @@ import nock from 'nock'
 import { createTestIntegration, PayloadValidationError, SegmentEvent } from '@segment/actions-core'
 import Destination from '../index'
 import fs from 'fs'
-import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME } from '../properties'
+import {
+  LIVERAMP_MIN_RECORD_COUNT,
+  LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME,
+  LIVERAMP_S3_IAM_VALIDATION_FLAG_NAME
+} from '../properties'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -359,6 +363,9 @@ describe('Liveramp Audiences', () => {
           settings: {
             __segment_internal_engage_force_full_sync: true,
             __segment_internal_engage_batch_sync: true
+          },
+          features: {
+            [LIVERAMP_S3_IAM_VALIDATION_FLAG_NAME]: true
           }
         })
         // Should not reach here
@@ -393,6 +400,9 @@ describe('Liveramp Audiences', () => {
           settings: {
             __segment_internal_engage_force_full_sync: true,
             __segment_internal_engage_batch_sync: true
+          },
+          features: {
+            [LIVERAMP_S3_IAM_VALIDATION_FLAG_NAME]: true
           }
         })
         // Should not reach here
@@ -428,6 +438,9 @@ describe('Liveramp Audiences', () => {
           settings: {
             __segment_internal_engage_force_full_sync: true,
             __segment_internal_engage_batch_sync: true
+          },
+          features: {
+            [LIVERAMP_S3_IAM_VALIDATION_FLAG_NAME]: true
           }
         })
         // Should not reach here
@@ -463,6 +476,9 @@ describe('Liveramp Audiences', () => {
           settings: {
             __segment_internal_engage_force_full_sync: true,
             __segment_internal_engage_batch_sync: true
+          },
+          features: {
+            [LIVERAMP_S3_IAM_VALIDATION_FLAG_NAME]: true
           }
         })
         // Should not reach here
