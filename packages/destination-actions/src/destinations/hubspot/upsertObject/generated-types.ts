@@ -85,14 +85,14 @@ export interface Payload {
    */
   list_details?: {
     /**
-     * The name of the Hubspot List to add or remove the record from. Segment will create the List if it does not already exist.
+     * The name of the Hubspot List to add or remove the record from. If the 'Create List' field is set to true, Segment will create the List if it does not already exist.
      */
     list_name: string
     /**
      * Specify if the record should be added or removed from the list. true = add to list, false = remove from list.
      */
     list_action: boolean
-     /**
+    /**
      * If true, Segment will create the list in Hubspot if it does not already exist.
      */
     should_create_list: boolean
