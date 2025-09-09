@@ -185,16 +185,14 @@ export const commonFields: Record<string, InputField> = {
         type: 'string',
         required: true,
         allowNull: false,
-        dynamic: true,
-        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+        dynamic: true
       },
       list_action: {
         label: 'List Action',
         description: `Specify if the record should be added or removed from the list. true = add to list, false = remove from list.`,
         type: 'boolean',
         required: true,
-        allowNull: false,
-        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+        allowNull: false
       },
       should_create_list: {
         label: 'Create List',
