@@ -28,7 +28,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         identifiers: {
           ref: 'test-user-123',
           email: 'test@example.com'
-        }
+        }, 
+       // timestamp: '2024-06-10T10:00:00.000Z'
       },
       settings: {
         ...settingsData,
@@ -72,7 +73,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         identifiers: {
           ref: 'test-user-123',
           email: 'test@example.com'
-        }
+        }, 
+        timestamp: '2024-06-10T10:00:00.000Z'
       },
       settings: {
         ...settingsData,
