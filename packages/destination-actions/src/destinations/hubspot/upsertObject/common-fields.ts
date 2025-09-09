@@ -79,7 +79,7 @@ export const commonFields: Record<string, InputField> = {
     disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   },
   associations: {
-    label: 'Associations',
+    label: 'Associations to add',
     description: 'Associations to create between the record and other records.',
     type: 'object',
     multiple: true,
@@ -98,7 +98,8 @@ export const commonFields: Record<string, InputField> = {
       },
       association_label: {
         label: 'Association Label',
-        description: 'The type of Association between the two records. The Association must already exist in Hubspot.',
+        description:
+          'The Association label to apply between the two records. The Association label must already exist in Hubspot.',
         type: 'string',
         required: true,
         dynamic: true,
@@ -123,6 +124,87 @@ export const commonFields: Record<string, InputField> = {
       }
     }
   },
+  dissociations: {
+    label: 'Associations to remove',
+    description:
+      'Remove Association Labels from an Association between two records. Removing the default association label will dissociate both records from each other completely.',
+    type: 'object',
+    multiple: true,
+    required: false,
+    defaultObjectUI: 'arrayeditor',
+    additionalProperties: false,
+    properties: {
+      object_type: {
+        label: 'To Object Type',
+        description: 'The type of associated Hubspot Object.',
+        type: 'string',
+        required: true,
+        dynamic: true,
+        allowNull: false,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+      },
+      association_label: {
+        label: 'Association Label',
+        description:
+          'The Association label to remove between the two records. The Association label must already exist in Hubspot. Removing the default Association label will delete the entire Association between the two records.',
+        type: 'string',
+        required: true,
+        dynamic: true,
+        allowNull: false,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+      },
+      id_field_name: {
+        label: 'To Object ID Field Name',
+        description:
+          'The name of the unique field Segment will use as an identifier when disassociating the record from another record. The unique field name must already exist on the Object in Hubspot.',
+        type: 'string',
+        required: true,
+        dynamic: true,
+        allowNull: false,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+      },
+      id_field_value: {
+        label: 'To Object ID Field Value',
+        description: 'The value of the identifier for the record to be disassociated with',
+        type: 'string',
+        required: false
+      }
+    }
+  },
+  list_details: {
+    label: 'List Details',
+    description: 'Details of the list to add or remove the record from',
+    type: 'object',
+    required: false,
+    defaultObjectUI: 'keyvalue:only',
+    additionalProperties: false,
+    properties: {
+      list_name: {
+        label: 'List Name',
+        description: "The name of the Hubspot List to add or remove the record from. If the 'Create List' field is set to true, Segment will create the List if it does not already exist.",
+        type: 'string',
+        required: true,
+        allowNull: false,
+        dynamic: true,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+      },
+      list_action: {
+        label: 'List Action',
+        description: `Specify if the record should be added or removed from the list. true = add to list, false = remove from list.`,
+        type: 'boolean',
+        required: true,
+        allowNull: false,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+      },
+      should_create_list: {
+        label: 'Create List',
+        description: 'If true, Segment will create the list in Hubspot if it does not already exist.',
+        type: 'boolean',
+        required: true,
+        default: true
+      }
+    }
+  },
   enable_batching: {
     type: 'boolean',
     label: 'Batch Data to Hubspot by default',
@@ -137,6 +219,15 @@ export const commonFields: Record<string, InputField> = {
     required: true,
     unsafe_hidden: true,
     default: MAX_HUBSPOT_BATCH_SIZE
+  },
+  batch_keys: {
+    label: 'Batch Keys',
+    description: 'The keys to use for batching the events.',
+    type: 'string',
+    unsafe_hidden: true,
+    required: false,
+    multiple: true,
+    default: ['list_details']
   },
   timestamp: {
     label: 'Timestamp',

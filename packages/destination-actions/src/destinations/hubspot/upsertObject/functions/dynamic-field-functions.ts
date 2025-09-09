@@ -103,6 +103,64 @@ export const dynamicFields = {
 
       return await dynamicReadIdFields(request, toObjectType)
     }
+  },
+  dissociations: {
+    object_type: async (request: RequestClient) => {
+      return await dynamicReadObjectTypes(request)
+    },
+    association_label: async (
+      request: RequestClient,
+      { dynamicFieldContext, payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
+    ) => {
+      const selectedIndex = dynamicFieldContext?.selectedArrayIndex
+
+      if (selectedIndex === undefined) {
+        throw new Error('Selected array index is missing')
+      }
+
+      const fromObjectType = payload?.object_details?.object_type
+      const toObjectType = payload?.dissociations?.[selectedIndex]?.object_type
+
+      if (!fromObjectType) {
+        throw new Error("Select a value from the from 'Object Type' field")
+      }
+
+      if (!toObjectType) {
+        throw new Error("Select a value from the 'To Object Type' field")
+      }
+
+      return await dynamicReadAssociationLabels(request, fromObjectType, toObjectType)
+    },
+    id_field_name: async (
+      request: RequestClient,
+      { dynamicFieldContext, payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
+    ) => {
+      const selectedIndex = dynamicFieldContext?.selectedArrayIndex
+
+      if (selectedIndex === undefined) {
+        throw new Error('Selected array index is missing')
+      }
+
+      const toObjectType = payload?.associations?.[selectedIndex]?.object_type
+
+      if (!toObjectType) {
+        throw new Error("Select a value from the 'To Object Type' field")
+      }
+
+      return await dynamicReadIdFields(request, toObjectType)
+    }
+  },
+  list_details: {
+    list_name: async (request: RequestClient, { payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }) => {
+
+      const objectType = payload?.object_details?.object_type
+
+      if (!objectType) {
+        throw new Error("Select a value from the 'Object Type' field")
+      }
+
+      return await dynamicReadLists(request, "contact")
+    }
   }
 }
 
@@ -255,7 +313,7 @@ async function dynamicReadAssociationLabels(
       choices: response?.data?.results
         ?.map((res) => ({
           label: !res.label
-            ? `${fromObjectType} to ${toObjectType} (Type ${res.typeId})`
+            ? `${fromObjectType} to ${toObjectType} (Default label: typeId ${res.typeId})`
             : `${fromObjectType} to ${toObjectType} ${res.label}`,
           value: `${res.category}:${res.typeId}`
         }))
@@ -393,4 +451,103 @@ async function dynamicReadProperties(
       }
     }
   }
+}
+
+async function dynamicReadLists(request: RequestClient, objectType: string) {
+  interface ResultItem {
+    listId: string
+    processingType: 'MANUAL'
+    objectTypeId: string
+    name: string
+  }
+
+  interface ResponseType {
+    data: {
+      offset: number
+      hasMore: boolean
+      lists: ResultItem[]
+    }
+  }
+
+  interface RequestType {
+    processingTypes: ['MANUAL']
+    offset?: number
+  }
+
+  let objectTypeId: string | undefined = undefined
+
+  try {
+    objectTypeId = await readObjectSchema(request, objectType)
+  } catch (err) {
+    const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
+
+    return {
+      choices: [],
+      error: {
+        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: readObjectSchema',
+        code: code
+      }
+    }
+  }
+
+  const json: RequestType = {
+    processingTypes: ['MANUAL']
+  }
+
+  try {
+    const url = `${HUBSPOT_BASE_URL}/crm/v3/lists/search`
+    let allLists: ResultItem[] = []
+    let hasMore = true
+    let offset: number | undefined = undefined
+
+    while (hasMore) {
+      if (offset !== undefined) {
+        json.offset = offset
+      }
+
+      const response: ResponseType = await request(url, {
+        method: 'POST',
+        skipResponseCloning: true,
+        json
+      })
+
+      allLists = [...allLists, ...response.data.lists]
+      hasMore = response.data.hasMore
+      offset = response.data.offset
+    }
+
+    const choices = allLists
+      .filter((item) => item.processingType === 'MANUAL' && item.objectTypeId === objectTypeId)
+      .map((item) => ({
+        label: `${item.name}`,
+        value: `${item.name}`
+      }))
+
+    return { choices }
+  } catch (err) {
+    const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
+
+    return {
+      choices: [],
+      error: {
+        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadLists',
+        code: code
+      }
+    }
+  }
+}
+
+async function readObjectSchema(request: RequestClient, objectType: string): Promise<string> {
+  interface ResponseType {
+    data: {
+      objectTypeId: string
+    }
+  }
+
+  const url = `${HUBSPOT_BASE_URL}/crm/v3/schemas/${objectType}`
+  const response: ResponseType = await request(url, {
+    method: 'GET'
+  })
+
+  return response.data.objectTypeId
 }

@@ -8,13 +8,15 @@ import {
   AssociationType,
   GroupableFields,
   PayloadWithFromId,
-  BatchObjResp
+  BatchObjResp,
+  AssociationsKey,
+  AssociationsAction
 } from '../types'
 
-export function createAssociationPayloads(payloads: PayloadWithFromId[]): AssociationPayload[][] {
+export function createAssociationPayloads(payloads: PayloadWithFromId[], key: AssociationsKey): AssociationPayload[][] {
   const associationPayloads: AssociationPayload[] = payloads.flatMap((payload) =>
-    Array.isArray(payload.associations)
-      ? payload.associations
+    Array.isArray(payload[key])
+      ? payload[key]
           .filter(
             (association) =>
               association.id_field_value !== undefined &&
@@ -75,7 +77,7 @@ export async function sendAssociatedRecords(
   }
 }
 
-async function readAssociatedRecords(
+export async function readAssociatedRecords(
   client: Client,
   groupedPayloads: AssociationPayload[][]
 ): Promise<AssociationPayloadWithId[]> {
@@ -140,7 +142,7 @@ function returnAssociatedRecordsWithIds(
     .filter((payload) => (payload as AssociationPayloadWithId).object_details.record_id) as AssociationPayloadWithId[]
 }
 
-export async function sendAssociations(client: Client, payloads: AssociationPayloadWithId[]) {
+export async function sendAssociations(client: Client, payloads: AssociationPayloadWithId[], action: AssociationsAction) {
   const groupedPayloads: AssociationPayloadWithId[][] = groupPayloads(payloads as AssociationPayload[], [
     'object_type'
   ]) as AssociationPayloadWithId[][]
@@ -162,15 +164,23 @@ export async function sendAssociations(client: Client, payloads: AssociationPayl
         from: {
           id: payload.object_details.from_record_id
         },
-        to: {
+        to: [{
           id: payload.object_details.record_id
-        }
+        }]
       }
       return input
     })
-    return client.batchAssociationsRequest({ inputs }, toObjectType)
+    if(action === 'archive') {
+      return client.batchDissociationsRequest({ inputs }, toObjectType)
+    }
+    if(action === 'create') {
+      // create JSON does not take an array for the 'to' field
+      return client.batchAssociationsRequest({ inputs: inputs.map((input) => ({
+        ...input,
+        to: input.to[0]
+      })) }, toObjectType)
+    }
   })
-
   await Promise.all(requests)
 }
 
