@@ -41,38 +41,147 @@ export interface Payload {
      * Page keywords - SEO meta keyworls.
      */
     keywords?: string
-    /**
-     * A list of user identifiers associated with the event.
-     */
     userData?: {
+      [k: string]: unknown
+    }
+    customData?: {
+      [k: string]: unknown
+    }
+  }
+  /**
+   * A list of user identifiers associated with the event.
+   */
+  userData: {
+    /**
+     * User agent string of the client device.
+     */
+    clientUserAgent?: string
+    /**
+     * Guest user anonymous ID.
+     */
+    anonymousId?: string
+    /**
+     * Authenticated user id (anonymized) if user is logged in. Also used for ID sync
+     */
+    externalId?: string
+    /**
+     * Email address of the user. Accepts a clear text or hashed email address. Segment will ensure the email address is hashed before sending to Bing Ads.
+     */
+    em?: string
+    /**
+     * Phone number of the user. Accepts a clear text or hashed phone number. Segment will ensure the phone number is hashed before sending to Bing Ads.
+     */
+    ph?: string
+    /**
+     * IP address of the client device.
+     */
+    clientIpAddress?: string
+    /**
+     * Microsoft Last Click ID.
+     */
+    msclkid?: string
+  }
+  /**
+   * Custom data to be sent to the Bing API. This can include additional properties that are not covered by the standard fields.
+   */
+  customData?: {
+    /**
+     * The category for custom conversion goals, if used.
+     */
+    eventCategory?: string
+    /**
+     * The label for custom conversion goals.
+     */
+    eventLabel?: string
+    /**
+     * The event value for custom conversion goals.
+     */
+    eventValue?: number
+    /**
+     * The query used by the user for a search results page.
+     */
+    searchTerm?: string
+    /**
+     * The unique identifier for the transaction. Required for purchase events.
+     */
+    transactionId?: string
+    /**
+     * Revenue value (float) to report variable revenue for goals, if used
+     */
+    value?: number
+    /**
+     * The currency of the event value, in ISO 4217 format.
+     */
+    currency?: string
+    /**
+     * A comma separated list of product IDs, or an array of IDs.
+     */
+    itemIds?: string[]
+    /**
+     * The type of page where the event occurred.
+     */
+    pageType?: string
+    /**
+     * Total value of the cart of purchase.
+     */
+    ecommTotalValue?: number
+    /**
+     * Category ID
+     */
+    ecommCategory?: string
+    /**
+     * The list of items associated with the event. Must contain at least one item.
+     */
+    items?: {
       /**
-       * User agent string of the client device.
+       * The unique identifier for the item.
        */
-      clientUserAgent?: string
+      id?: string
       /**
-       * Guest user anonymous ID.
+       * The name of the item.
        */
-      anonymousId?: string
+      name?: string
       /**
-       * Authenticated user id (anonymized) if user is logged in. Also used for ID sync
+       * The price of the item, after discounts.
        */
-      externalId?: string
+      price?: number
       /**
-       * Email address of the user. Accepts a clear text or hashed email address. Segment will ensure the email address is hashed before sending to Bing Ads.
+       * The quantity of the item.
        */
-      em?: string
+      quantity?: number
+    }[]
+    /**
+     * Data specific to hotel events.
+     */
+    hotelData?: {
       /**
-       * Phone number of the user. Accepts a clear text or hashed phone number. Segment will ensure the phone number is hashed before sending to Bing Ads.
+       * Total price of the booking, including taxes and fees.
        */
-      ph?: string
+      totalPrice?: number
       /**
-       * IP address of the client device.
+       * Price of the booking, not including taxes or fees.
        */
-      clientIpAddress?: string
+      basePrice?: number
       /**
-       * Microsoft Last Click ID.
+       * The date of check-in for the hotel booking in the format YYYY-MM-DD
        */
-      msclkid?: string
+      checkInDate?: string
+      /**
+       * The date of check-out for the hotel booking in the format YYYY-MM-DD
+       */
+      checkOutDate?: string
+      /**
+       * The number of nights the booking is for. Not required if you specify hct_checkout_date.
+       */
+      lengthOfStay?: number
+      /**
+       * The ID of the hotel as provided by the partner.
+       */
+      partnerHotelId?: string
+      /**
+       * Encrypted or obfuscated booking refrence number
+       */
+      bookingHref?: string
     }
   }
 }
