@@ -145,11 +145,12 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
   }
 
   // skip for legacy flow to avoid snapshot issues
-  if (!(input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true)) {
-    // only validate S3 permissions when the validation flag is enabled
-    if (input.features && input.features[LIVERAMP_S3_IAM_VALIDATION_FLAG_NAME] === true) {
-      await validateS3Permissions(input.payloads[0], input.request)
-    }
+  if (
+    input.features &&
+    input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] !== true &&
+    input.features[LIVERAMP_S3_IAM_VALIDATION_FLAG_NAME] === true
+  ) {
+    await validateS3Permissions(input.payloads[0], input.request)
   }
 
   // validate s3 path
