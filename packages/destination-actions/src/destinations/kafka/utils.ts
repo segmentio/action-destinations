@@ -3,8 +3,9 @@ import { DynamicFieldResponse, IntegrationError, Features } from '@segment/actio
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
-import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
-import { StatsContext } from '@segment/actions-core/destination-kit'
+import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME, CONNECTIONS_CACHE_SIZE } from './constants'
+import { StatsContext, SubscriptionMetadata } from '@segment/actions-core/destination-kit'
+import { LRUCache } from 'lru-cache'
 
 export const producersByConfig: Record<string, CachedProducer> = {}
 
@@ -177,11 +178,49 @@ export const getOrCreateProducer = async (
   return producer
 }
 
+const connectionsCache = new LRUCache<string, boolean>({
+  max: CONNECTIONS_CACHE_SIZE,
+  ttl: PRODUCER_TTL_MS
+})
+
+const kafkaProducerCache = new Map<string, Producer>()
+
+export const getOrCreateProducerLRU = async (
+  settings: Settings,
+  statsContext: StatsContext | undefined,
+  subscriptionMetadata?: SubscriptionMetadata
+): Promise<Producer> => {
+  const key = subscriptionMetadata?.destinationConfigId ?? '<unknown>'
+  const isCachedProducer = connectionsCache.get(key)
+  const cached = kafkaProducerCache.get(key)
+
+  statsContext?.statsClient?.incr('kafka_connection_cache_size', connectionsCache.size, statsContext?.tags)
+
+  if (isCachedProducer && cached) {
+    statsContext?.statsClient?.incr('kafka_connection_reused', 1, statsContext?.tags)
+    await cached?.connect() // this is idempotent, so is safe
+    return cached
+  } else {
+    statsContext?.statsClient?.incr('kafka_connection_closed', 1, statsContext?.tags)
+    kafkaProducerCache.delete(key)
+    await cached?.disconnect()
+  }
+
+  const kafka = getKafka(settings)
+  const producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner })
+  await producer.connect()
+  statsContext?.statsClient?.incr('kafka_connection_opened', 1, statsContext?.tags)
+  kafkaProducerCache.set(key, producer)
+  connectionsCache.set(key, true)
+  return producer
+}
+
 export const sendData = async (
   settings: Settings,
   payload: Payload[],
   features: Features | undefined,
-  statsContext: StatsContext | undefined
+  statsContext: StatsContext | undefined,
+  subscriptionMetadata?: SubscriptionMetadata
 ) => {
   validate(settings)
 
@@ -218,7 +257,7 @@ export const sendData = async (
 
   let producer: Producer
   if (features && features[FLAGON_NAME]) {
-    producer = await getOrCreateProducer(settings, statsContext)
+    producer = await getOrCreateProducerLRU(settings, statsContext, subscriptionMetadata)
   } else {
     producer = getProducer(settings)
     await producer.connect()
@@ -236,12 +275,7 @@ export const sendData = async (
     }
   }
 
-  if (features && features[FLAGON_NAME]) {
-    const key = serializeKafkaConfig(settings)
-    if (producersByConfig[key]) {
-      producersByConfig[key].lastUsed = Date.now()
-    }
-  } else {
+  if (!features || !features?.[FLAGON_NAME]) {
     await producer.disconnect()
   }
 }

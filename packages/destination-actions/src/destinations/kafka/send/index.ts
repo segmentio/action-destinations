@@ -65,12 +65,11 @@ const action: ActionDefinition<Settings, Payload> = {
       return getTopics(settings)
     }
   },
-  perform: async (_request, { settings, payload, features, statsContext }) => {
-    // disabled stream mode for kafka
-    await sendData(settings, [payload], features, statsContext)
+  perform: async (_request, { settings, payload, features, statsContext, subscriptionMetadata }) => {
+    await sendData(settings, [payload], features, statsContext, subscriptionMetadata)
   },
-  performBatch: async (_request, { settings, payload, features, statsContext }) => {
-    return await sendData(settings, payload, features, statsContext)
+  performBatch: async (_request, { settings, payload, features, statsContext, subscriptionMetadata }) => {
+    await sendData(settings, payload, features, statsContext, subscriptionMetadata)
   }
 }
 
