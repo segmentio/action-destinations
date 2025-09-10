@@ -1,13 +1,14 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import CordialClient from "../cordial-client";
-import userIdentityFields from "../identities-fields";
+import CordialClient from '../cordial-client'
+import userIdentityFields from '../identities-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Order',
   description: 'Upserts order to Cordial',
-  defaultSubscription: 'event = "Order Completed" or event = "Order Updated" or event = "Order Refunded" or event = "Order Cancelled"',
+  defaultSubscription:
+    'event = "Order Completed" or event = "Order Updated" or event = "Order Refunded" or event = "Order Cancelled"',
   fields: {
     ...userIdentityFields,
     orderID: {
@@ -44,6 +45,34 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: {
         '@path': '$.properties.total'
+      }
+    },
+    discountApplication: {
+      label: 'Discount application',
+      description:
+        "Discount application data, allowed fields: type (only 'fixed' as of now), amount (float discount amount, e.g. 10.45)",
+      type: 'object',
+      required: false,
+      default: {
+        type: 'fixed',
+        amount: { '@path': '$.properties.discount' }
+      },
+      properties: {
+        type: {
+          label: 'Type',
+          description: 'Type of discount applied to the order (e.g. fixed)',
+          type: 'string',
+          required: false,
+          placeholder: 'fixed',
+          choices: [{ value: 'fixed', label: 'fixed' }]
+        },
+        amount: {
+          label: 'Amount',
+          description: 'Amount of the discount applied to the order',
+          type: 'number',
+          required: false,
+          placeholder: '0.0'
+        }
       }
     },
     properties: {
@@ -95,32 +124,32 @@ const action: ActionDefinition<Settings, Payload> = {
         manufacturerName: {
           label: 'Manufacturer name',
           description: 'Manufacturer name of the purchased item.',
-          type: 'string',
+          type: 'string'
         },
         itemPrice: {
           label: 'Price',
           description: 'Price of the purchased item.',
-          type: 'number',
+          type: 'number'
         },
         qty: {
           label: 'Quantity',
           description: 'Quantity of the purchased item.',
-          type: 'integer',
+          type: 'integer'
         },
         url: {
           label: 'URL',
           description: 'URL of the purchased item.',
-          type: 'string',
+          type: 'string'
         },
         imageUrl: {
           label: 'Image URL',
           description: 'Image URL of the purchased item.',
-          type: 'string',
+          type: 'string'
         },
         properties: {
           label: 'Properties',
           description: 'Additional properties of the purchased item.',
-          type: 'object',
+          type: 'object'
         }
       },
       default: {
@@ -157,12 +186,12 @@ const action: ActionDefinition<Settings, Payload> = {
             properties: {
               variant: { '@path': '$.variant' },
               coupon: { '@path': '$.coupon' }
-            },
+            }
           }
         ]
       },
       defaultObjectUI: 'keyvalue:only'
-    },
+    }
   },
   perform: (request, { settings, payload }) => {
     const client = new CordialClient(settings, request)

@@ -178,40 +178,41 @@ export const getOrCreateProducer = async (
   return producer
 }
 
-const connectionsCache = new LRUCache<string, boolean>({
+const connectionsCache = new LRUCache<string, Producer>({
   max: CONNECTIONS_CACHE_SIZE,
-  ttl: PRODUCER_TTL_MS
+  ttl: PRODUCER_TTL_MS,
+  dispose: (value, _key, _reason) => {
+    if (value) {
+      void value.disconnect().then(() => console.log('Kafka producer disconnected from cache eviction'))
+    }
+  }
 })
 
-const kafkaProducerCache = new Map<string, Producer>()
+// const kafkaProducerCache = new Map<string, Producer>()
 
 export const getOrCreateProducerLRU = async (
   settings: Settings,
   statsContext: StatsContext | undefined,
-  subscriptionMetadata?: SubscriptionMetadata
+  subscriptionMetadata: SubscriptionMetadata | undefined
 ): Promise<Producer> => {
   const key = subscriptionMetadata?.destinationConfigId ?? '<unknown>'
-  const isCachedProducer = connectionsCache.get(key)
-  const cached = kafkaProducerCache.get(key)
+  const cachedProducer = connectionsCache.get(key)
+  // const cached = kafkaProducerCache.get(key)
 
   statsContext?.statsClient?.incr('kafka_connection_cache_size', connectionsCache.size, statsContext?.tags)
 
-  if (isCachedProducer && cached) {
+  if (cachedProducer) {
     statsContext?.statsClient?.incr('kafka_connection_reused', 1, statsContext?.tags)
-    await cached?.connect() // this is idempotent, so is safe
-    return cached
-  } else {
-    statsContext?.statsClient?.incr('kafka_connection_closed', 1, statsContext?.tags)
-    kafkaProducerCache.delete(key)
-    await cached?.disconnect()
+    await cachedProducer.connect() // this is idempotent, so is safe
+    return cachedProducer
   }
 
   const kafka = getKafka(settings)
   const producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner })
   await producer.connect()
   statsContext?.statsClient?.incr('kafka_connection_opened', 1, statsContext?.tags)
-  kafkaProducerCache.set(key, producer)
-  connectionsCache.set(key, true)
+  // kafkaProducerCache.set(key, producer)
+  connectionsCache.set(key, producer)
   return producer
 }
 

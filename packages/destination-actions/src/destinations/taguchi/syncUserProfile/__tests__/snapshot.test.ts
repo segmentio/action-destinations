@@ -72,6 +72,22 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         identifiers: {
           ref: 'test-user-123',
           email: 'test@example.com'
+        },
+        timestamp: '2024-06-10T10:00:00.000Z',
+        traits: {
+          title: 'DR',
+          firstname: 'Test',
+          lastname: 'User',
+          dob: '2024-06-10',
+          gender: 'M',
+          address: '123 Test St',
+          address2: 'Testville',
+          address3: 'TS',
+          suburb: 'Test Suburb',
+          state: 'Test State',
+          postcode: '12345',
+          country: 'Test Country',
+          phone: '+1234567890'
         }
       },
       settings: {

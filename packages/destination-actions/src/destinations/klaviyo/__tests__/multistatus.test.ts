@@ -883,7 +883,7 @@ describe('MultiStatus', () => {
       expect(response[1]).toMatchObject({
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Email is not valid.',
+        errormessage: 'Email must be a valid email address string but it was not.',
         errorreporter: 'INTEGRATIONS'
       })
     })

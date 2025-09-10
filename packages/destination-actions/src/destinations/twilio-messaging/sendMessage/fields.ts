@@ -135,7 +135,6 @@ export const fields: Record<string, InputField> = {
     },
     default: undefined,
     allowNull: false,
-    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
     depends_on: {
       match: 'all',
       conditions: [
@@ -159,7 +158,6 @@ export const fields: Record<string, InputField> = {
     dynamic: true,
     required: false,
     allowNull: false,
-    disabledInputMethods: ['variable', 'function'],
     depends_on: {
       match: 'all',
       conditions: [

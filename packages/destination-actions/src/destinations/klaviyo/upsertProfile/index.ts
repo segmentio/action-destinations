@@ -308,7 +308,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: async (request, { payload, hookOutputs, statsContext }) => {
+  performBatch: async (request, { payload, hookOutputs }) => {
     const multiStatusResponse = new MultiStatusResponse()
     const filteredPayloads: JSONLikeObject[] = []
     const validPayloadIndicesBitmap: number[] = []
@@ -325,13 +325,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (filteredPayloads.length === 0) {
       return multiStatusResponse
-    }
-
-    if (statsContext) {
-      const { tags, statsClient } = statsContext
-      const set = new Set()
-      payload.forEach((x) => set.add(`${x.list_id}-${x.override_list_id}`))
-      statsClient?.histogram('actions-klaviyo.remove_profile_from_list.unique_list_id', set.size, tags)
     }
 
     payload.forEach((profile) => {

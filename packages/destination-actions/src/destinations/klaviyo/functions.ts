@@ -899,24 +899,10 @@ export function updateMultiStatusWithSuccessData(
 }
 
 /**
- * Validates whether the given string is a properly formatted email address.
- *
- * Uses a regular expression to check for a standard email pattern.
- *
- * @param email - The email address to validate.
- * @returns `true` if the email is valid, otherwise `false`.
- */
-function validateEmail(email: string): boolean {
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-  return emailRegex.test(email)
-}
-
-/**
  * Validates the given profile payload for required fields and formats.
  *
  * Ensures that at least one of `email`, `phone_number`, or `external_id` is present.
  * If `phone_number` is provided, it validates and converts it to E.164 format using the `country_code`.
- * If `email` is provided, it validates the email format.
  * Returns an object containing the validated payload or an error response if validation fails.
  *
  * @param payload - The profile payload to validate.
@@ -946,17 +932,6 @@ export function validateProfilePayload(payload: Payload): validateProfilePayload
     }
     payload.phone_number = validPhoneNumber
     delete payload.country_code
-  }
-
-  if (payload.email) {
-    if (!validateEmail(payload.email)) {
-      response.error = {
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Email is not valid.'
-      }
-      return response
-    }
   }
 
   response.payload = payload

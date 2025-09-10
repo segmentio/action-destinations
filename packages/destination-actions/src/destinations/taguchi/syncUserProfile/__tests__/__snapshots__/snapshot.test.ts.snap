@@ -4,18 +4,18 @@ exports[`Testing snapshot for Taguchi's syncUserProfile destination action: all 
 Array [
   Object {
     "profile": Object {
-      "address": "jty#[Z$zVf",
-      "address2": "jty#[Z$zVf",
-      "address3": "jty#[Z$zVf",
-      "country": "jty#[Z$zVf",
+      "address": "123 Test St",
+      "address2": "Testville",
+      "address3": "TS",
+      "country": "Test Country",
       "custom": Object {
-        "phone": "jty#[Z$zVf",
+        "phone": "+1234567890",
       },
-      "dob": "2037-05-09T03:22:58.693Z",
+      "dob": "2024-06-10",
       "email": "test@example.com",
-      "firstname": "jty#[Z$zVf",
-      "gender": "jty#[Z$zVf",
-      "lastname": "jty#[Z$zVf",
+      "firstname": "Test",
+      "gender": "M",
+      "lastname": "User",
       "lists": Array [
         Object {
           "listId": -26199024730112,
@@ -23,15 +23,15 @@ Array [
         },
         Object {
           "listId": -26199024730112,
-          "unsubscribedTimestamp": "2037-05-09T03:22:58.693Z",
+          "unsubscribedTimestamp": "2024-06-10T10:00:00.000Z",
         },
       ],
       "organizationId": 123,
-      "postcode": "jty#[Z$zVf",
+      "postcode": "12345",
       "ref": "test-user-123",
-      "state": "jty#[Z$zVf",
-      "suburb": "jty#[Z$zVf",
-      "title": "jty#[Z$zVf",
+      "state": "Test State",
+      "suburb": "Test Suburb",
+      "title": "DR",
     },
   },
 ]

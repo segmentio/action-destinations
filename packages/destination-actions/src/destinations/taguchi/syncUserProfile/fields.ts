@@ -60,7 +60,7 @@ export const traits: InputField = {
       label: 'Date of Birth',
       description: 'Date of birth of the Subscriber in ISO 8601 format (YYYY-MM-DD).',
       type: 'string',
-      format: 'date-time',
+      format: 'date',
       required: false
     },
     address: {

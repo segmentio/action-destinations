@@ -8,10 +8,11 @@ import { Payload as AddProductToCartPayload } from './addProductToCart/generated
 import { Payload as RemoveProductFromCartPayload } from './removeProductFromCart/generated-types'
 import { Payload as UpsertOrder } from './upsertOrder/generated-types'
 import { Payload as MergeContacts } from './mergeContacts/generated-types'
+import isEmpty from 'lodash/isEmpty'
 
 export interface IdentifiableRequest {
-  segmentId?: string | null,
-  anonymousId?: string | null,
+  segmentId?: string | null
+  anonymousId?: string | null
   userIdentities?: {
     [k: string]: unknown
   }
@@ -26,7 +27,7 @@ class CordialClient {
     this.apiUrl = `${settings.endpoint}/api/segment`
     this.request = request
     this.identityKeys = {
-      segmentIdKey: settings.segmentIdKey,
+      segmentIdKey: settings.segmentIdKey
     }
   }
 
@@ -34,7 +35,7 @@ class CordialClient {
     return {
       segmentId: payload.segmentId,
       anonymousId: payload.anonymousId,
-      userIdentities: payload.userIdentities,
+      userIdentities: payload.userIdentities
     }
   }
 
@@ -129,7 +130,13 @@ class CordialClient {
         status: payload.status,
         totalAmount: payload.totalAmount,
         properties: payload.properties,
-        items: payload.items
+        items: payload.items,
+        discountApplication:
+          !isEmpty(payload.discountApplication) &&
+          payload?.discountApplication?.type === 'fixed' &&
+          payload?.discountApplication?.amount
+            ? payload.discountApplication
+            : null
       }
     })
   }
