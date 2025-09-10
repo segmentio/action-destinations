@@ -4,7 +4,7 @@ import sendEvent from './sendEvent'
 import pageLoad from './pageLoad'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Microsoft Bing Conversion API',
+  name: 'Ms Bing Capi',
   slug: 'actions-ms-bing-capi',
   mode: 'cloud',
   authentication: {
