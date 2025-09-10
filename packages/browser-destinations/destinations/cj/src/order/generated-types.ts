@@ -14,7 +14,7 @@ export interface Payload {
    */
   enterpriseId: number
   /**
-   * Page type to be sent to CJ.
+   * Page type to be sent to CJ. Must be set to "conversionConfirmation" for order events.
    */
   pageType: string
   /**
