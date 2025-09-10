@@ -180,7 +180,7 @@ export const getOrCreateProducer = async (
 
 const connectionsCache = new LRUCache<string, Producer>({
   max: CONNECTIONS_CACHE_SIZE,
-  ttl: 500,
+  ttl: PRODUCER_TTL_MS,
   dispose: (value, _key, _reason) => {
     if (value) {
       void value.disconnect().then(() => console.log('Kafka producer disconnected from cache eviction'))
