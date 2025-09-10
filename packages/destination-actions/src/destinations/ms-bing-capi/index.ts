@@ -1,31 +1,47 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
 import sendEvent from './sendEvent'
+import pageLoad from './pageLoad'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Ms Bing Capi',
+  name: 'Microsoft Bing Conversion API',
   slug: 'actions-ms-bing-capi',
   mode: 'cloud',
-
-  // authentication: {
-  //   scheme: 'custom',
-  //   fields: {},
-  //   testAuthentication: (request) => {
-  //     // Return a request that tests/validates the user's credentials.
-  //     // If you do not have a way to validate the authentication fields safely,
-  //     // you can remove the `testAuthentication` function, though discouraged.
-  //   }
-  // },
-
-  // onDelete: async (request, { settings, payload }) => {
-  //   // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-  //   // provided in the payload. If your destination does not support GDPR deletion you should not
-  //   // implement this function and should remove it completely.
-  // },
-
+  authentication: {
+    scheme: 'basic',
+    fields: {
+      UetTag: {
+        label: 'Bing UetTag',
+        description: 'Your Bing UetTag.',
+        type: 'string',
+        required: true
+      },
+      ApiToken: {
+        label: 'Bing ApiToken',
+        description: 'Your Bing API Token.',
+        type: 'string',
+        required: true
+      }
+    },
+    testAuthentication: (_, { settings }) => {
+      if (settings.UetTag.length && settings.ApiToken.length) {
+        return true
+      } else {
+        throw new Error('Invalid AccountID. Please check your AccountID')
+      }
+    }
+  },
+  extendRequest: ({ settings }) => {
+    return {
+      headers: {
+        Authorization: `Bearer ${settings.ApiToken}`,
+        'Content-Type': 'application/json'
+      }
+    }
+  },
   actions: {
-    sendEvent
+    sendEvent,
+    pageLoad
   }
 }
 

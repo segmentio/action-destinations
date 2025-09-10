@@ -1,23 +1,23 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { data, customData, userData } from '../fields'
+import { customData, data as pageLoadEvent, userData } from '../fields'
 import { API_URL } from '../constants'
 import { processHashing } from '../../../lib/hashing-utils'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send Event',
-  description: 'Send a track event to Microsoft Bing CAPI.',
-  defaultSubscription: 'type = "track"',
+  title: 'Page Load',
+  description: 'Send a page load event to Microsoft Bing CAPI.',
+  defaultSubscription: 'type = "page"',
   fields: {
-    data: data,
+    data: pageLoadEvent,
     userData: userData,
     customData: customData
   },
   perform: (request, { payload, settings }) => {
-    if (payload.userData == undefined) {
-      payload.userData = {
+    if (payload.data.userData == undefined) {
+      payload.data.userData = {
         anonymousId: uuidv4()
       }
     }
@@ -39,7 +39,9 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.data.userData = payload.userData
     }
 
-    return request(`${API_URL}${settings.UetTag}/events`, {
+    const url = `${API_URL}${settings.UetTag}/events`
+
+    return request(url, {
       method: 'post',
       json: {
         data: [payload.data]
