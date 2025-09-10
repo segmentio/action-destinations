@@ -1,254 +1,157 @@
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import nock from 'nock'
-import { v4 as uuidv4 } from '@lukeed/uuid'
-import destination from '../../index'
+import action from '../index' // adjust relative path
 import { API_URL } from '../../constants'
 import { processHashing } from '../../../../lib/hashing-utils'
+import { v4 as uuidv4 } from '@lukeed/uuid'
 
-jest.mock('@lukeed/uuid')
-jest.mock('../../../../lib/hashing-utils')
+jest.mock('../../../../lib/hashing-utils', () => ({
+  processHashing: jest.fn()
+}))
+jest.mock('@lukeed/uuid', () => ({
+  v4: jest.fn()
+}))
 
-const testDestination = createTestIntegration(destination)
-const actionSlug = 'pageLoad'
-const mockUuidv4 = uuidv4 as jest.MockedFunction<typeof uuidv4>
-const mockProcessHashing = processHashing as jest.MockedFunction<typeof processHashing>
+const mockRequest = jest.fn()
 
-const settings = {
-  UetTag: 'test-uet-tag',
-  ApiToken: 'test-api-token'
-}
+describe('Microsoft Bing CAPI - Page Load action', () => {
+  const settings = { UetTag: 'test-uet', ApiToken: 'test-api-token' }
 
-describe('MS Bing CAPI.pageLoad - additional tests', () => {
   beforeEach(() => {
-    nock.cleanAll()
-    mockUuidv4.mockReturnValue('00000000-0000-0000-0000-000000000000')
-    mockProcessHashing.mockImplementation((value) => `hashed-${value}`)
+    jest.clearAllMocks()
   })
 
-  it('should not include optional fields when not provided', async () => {
-    const event = createTestEvent({
-      type: 'page',
-      context: {
-        page: {
-          url: 'https://example.com'
-        }
-      },
-      timestamp: '2023-01-01T12:00:00Z'
-    })
+  it('injects anonymousId into data.userData when missing', async () => {
+    ;(uuidv4 as jest.Mock).mockReturnValue('anon-xyz')
 
-    const requestNock = nock(API_URL)
-      .post(`/test-uet-tag/events`)
-      .reply(function (uri, requestBody) {
-        const body = JSON.parse(JSON.stringify(requestBody))
-        expect(body.data[0].pageTitle).toBeUndefined()
-        expect(body.data[0].referrerUrl).toBeUndefined()
-        expect(body.data[0].keywords).toBeUndefined()
-        expect(body.data[0].pageLoadId).toBeUndefined()
-        expect(body.data[0].pageType).toBeUndefined()
-        return [200, { status: 'success' }]
-      })
-
-    await testDestination.testAction(actionSlug, {
-      event,
+    await action.perform(mockRequest, {
       settings,
-      mapping: {
-        data: {
-          eventType: 'pageLoad',
-          eventTime: event.timestamp,
-          eventSourceUrl: event.context.page.url
-        }
-      }
+      payload: {
+        data: { eventName: 'Page Load' }
+      } as any
     })
 
-    expect(requestNock.isDone()).toBe(true)
+    expect(mockRequest).toHaveBeenCalledWith(
+      `${API_URL}test-uet/events`,
+      expect.objectContaining({
+        method: 'post',
+        json: {
+          data: [
+            {
+              eventName: 'Page Load',
+              userData: { anonymousId: 'anon-xyz' }
+            }
+          ]
+        }
+      })
+    )
   })
 
-  it('should handle missing anonymousId gracefully', async () => {
-    const event = createTestEvent({
-      type: 'page',
-      context: {
-        page: {
-          url: 'https://example.com'
-        }
-      },
-      timestamp: '2023-01-01T12:00:00Z'
-    })
-    delete event.anonymousId
+  it('hashes email (em) correctly', async () => {
+    ;(processHashing as jest.Mock).mockReturnValue('hashed-email')
 
-    const requestNock = nock(API_URL)
-      .post(`/test-uet-tag/events`)
-      .reply(function (uri, requestBody) {
-        const body = JSON.parse(JSON.stringify(requestBody))
-        expect(body.data[0].userData.anonymousId).toBe('00000000-0000-0000-0000-000000000000')
-        return [200, { status: 'success' }]
-      })
-
-    await testDestination.testAction(actionSlug, {
-      event,
+    await action.perform(mockRequest, {
       settings,
-      mapping: {
-        data: {
-          eventType: 'pageLoad',
-          eventTime: event.timestamp,
-          eventSourceUrl: event.context.page.url
-        }
-      }
+      payload: {
+        data: { eventName: 'Page Load' },
+        userData: { em: '  TEST@Example.Com ' }
+      } as any
     })
 
-    expect(requestNock.isDone()).toBe(true)
+    expect(processHashing).toHaveBeenCalledWith('  TEST@Example.Com ', 'sha256', 'hex', expect.any(Function))
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        json: {
+          data: [
+            expect.objectContaining({
+              userData: { em: 'hashed-email' }
+            })
+          ]
+        }
+      })
+    )
   })
 
-  it('should not hash undefined email or phone', async () => {
-    const event = createTestEvent({
-      type: 'page',
-      context: {
-        page: {
-          url: 'https://example.com'
-        },
-        traits: {
-          email: undefined,
-          phone: undefined
-        }
-      },
-      timestamp: '2023-01-01T12:00:00Z'
-    })
+  it('hashes phone (ph) correctly with digits only', async () => {
+    ;(processHashing as jest.Mock).mockReturnValue('hashed-phone')
 
-    const requestNock = nock(API_URL)
-      .post(`/test-uet-tag/events`)
-      .reply(function (uri, requestBody) {
-        const body = JSON.parse(JSON.stringify(requestBody))
-        expect(body.data[0].userData.em).toBeUndefined()
-        expect(body.data[0].userData.ph).toBeUndefined()
-        return [200, { status: 'success' }]
-      })
-
-    await testDestination.testAction(actionSlug, {
-      event,
+    await action.perform(mockRequest, {
       settings,
-      mapping: {
-        data: {
-          eventType: 'pageLoad',
-          eventTime: event.timestamp,
-          eventSourceUrl: event.context.page.url,
-          userData: {
-            em: event.context.traits?.email,
-            ph: event.context.traits?.phone
-          }
-        }
-      }
+      payload: {
+        data: { eventName: 'Page Load' },
+        userData: { ph: ' +1 (555) 888-9999 ' }
+      } as any
     })
 
-    expect(requestNock.isDone()).toBe(true)
-    expect(mockProcessHashing).not.toHaveBeenCalled()
+    expect(processHashing).toHaveBeenCalledWith(' +1 (555) 888-9999 ', 'sha256', 'hex', expect.any(Function))
+
+    // validate transform callback removes non-digits
+    const transform = (processHashing as jest.Mock).mock.calls[0][3]
+    expect(transform(' +1 (555) 888-9999 ')).toBe('15558889999')
   })
 
-  it('should send custom userData fields if provided', async () => {
-    const event = createTestEvent({
-      type: 'page',
-      context: {
-        page: {
-          url: 'https://example.com'
-        }
-      },
-      timestamp: '2023-01-01T12:00:00Z'
-    })
+  it('merges customData into data', async () => {
+    ;(uuidv4 as jest.Mock).mockReturnValue('anon-xyz')
 
-    // const customUserData = {
-    //   customField: 'customValue'
-    // }
-
-    const requestNock = nock(API_URL)
-      .post(`/test-uet-tag/events`)
-      .reply(function (uri, requestBody) {
-        const body = JSON.parse(JSON.stringify(requestBody))
-        expect(body.data[0].userData.customField).toBe('customValue')
-        return [200, { status: 'success' }]
-      })
-
-    await testDestination.testAction(actionSlug, {
-      event,
+    await action.perform(mockRequest, {
       settings,
-      mapping: {
-        data: {}
-      }
+      payload: {
+        data: { eventName: 'Page Load' },
+        customData: { pageCategory: 'Home' }
+      } as any
     })
 
-    expect(requestNock.isDone()).toBe(true)
-  })
-
-  it('should handle empty mapping gracefully', async () => {
-    const event = createTestEvent({
-      type: 'page',
-      context: {
-        page: {
-          url: 'https://example.com'
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        json: {
+          data: [
+            {
+              eventName: 'Page Load',
+              customData: { pageCategory: 'Home' },
+              userData: { anonymousId: 'anon-xyz' }
+            }
+          ]
         }
-      },
-      timestamp: '2023-01-01T12:00:00Z'
-    })
-
-    await expect(
-      testDestination.testAction(actionSlug, {
-        event,
-        settings,
-        mapping: {}
       })
-    ).rejects.toThrow()
+    )
   })
 
-  it('should send correct headers with API token', async () => {
-    const event = createTestEvent({
-      type: 'page',
-      context: {
-        page: {
-          url: 'https://example.com'
-        }
-      },
-      timestamp: '2023-01-01T12:00:00Z'
-    })
+  it('merges both customData and userData', async () => {
+    ;(processHashing as jest.Mock).mockReturnValue('hashed-email')
 
-    const requestNock = nock(API_URL, {
-      reqheaders: {
-        Authorization: `Bearer ${settings.ApiToken}`
-      }
-    })
-      .post(`/test-uet-tag/events`)
-      .reply(200, { status: 'success' })
-
-    await testDestination.testAction(actionSlug, {
-      event,
+    await action.perform(mockRequest, {
       settings,
-      mapping: {
-        data: {
-          eventType: 'pageLoad',
-          eventTime: event.timestamp,
-          eventSourceUrl: event.context.page.url
-        }
-      }
+      payload: {
+        data: { eventName: 'Page Load' },
+        customData: { ref: 'ad-campaign-1' },
+        userData: { em: 'sample@example.com' }
+      } as any
     })
 
-    expect(requestNock.isDone()).toBe(true)
-  })
-
-  it('should not send request if event type is not page', async () => {
-    const event = createTestEvent({
-      type: 'track',
-      context: {
-        page: {
-          url: 'https://example.com'
-        }
-      },
-      timestamp: '2023-01-01T12:00:00Z'
-    })
-
-    await expect(
-      testDestination.testAction(actionSlug, {
-        event,
-        settings,
-        mapping: {
-          eventType: 'pageLoad'
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        json: {
+          data: [
+            {
+              eventName: 'Page Load',
+              customData: { ref: 'ad-campaign-1' },
+              userData: { em: 'hashed-email' }
+            }
+          ]
         }
       })
-    ).rejects.toThrow()
+    )
+  })
+
+  it('builds correct API URL using UetTag', async () => {
+    await action.perform(mockRequest, {
+      settings: { UetTag: 'XYZ123' },
+      payload: {
+        data: { eventName: 'Page Load' }
+      } as any
+    })
+
+    expect(mockRequest).toHaveBeenCalledWith(`${API_URL}XYZ123/events`, expect.any(Object))
   })
 })

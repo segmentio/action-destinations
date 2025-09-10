@@ -4,6 +4,25 @@ exports[`Testing snapshot for MsBingCapi's pageLoad destination action: all fiel
 Object {
   "data": Array [
     Object {
+      "customData": Object {
+        "currency": "HUF",
+        "ecommCategory": "O)Dl2[lI&A",
+        "ecommTotalValue": -26578782970183.68,
+        "eventCategory": "O)Dl2[lI&A",
+        "eventLabel": "O)Dl2[lI&A",
+        "eventValue": -26578782970183.68,
+        "hotelData": Object {},
+        "itemIds": Array [
+          "O)Dl2[lI&A",
+        ],
+        "items": Array [
+          Object {},
+        ],
+        "pageType": "category",
+        "searchTerm": "O)Dl2[lI&A",
+        "transactionId": "O)Dl2[lI&A",
+        "value": -26578782970183.68,
+      },
       "eventId": "O)Dl2[lI&A",
       "eventName": "O)Dl2[lI&A",
       "eventSourceUrl": "O)Dl2[lI&A",
@@ -13,7 +32,15 @@ Object {
       "pageLoadId": "O)Dl2[lI&A",
       "pageTitle": "O)Dl2[lI&A",
       "referrerUrl": "O)Dl2[lI&A",
-      "userData": Object {},
+      "userData": Object {
+        "anonymousId": "O)Dl2[lI&A",
+        "clientIpAddress": "O)Dl2[lI&A",
+        "clientUserAgent": "O)Dl2[lI&A",
+        "em": "78b89684452b4e1adbf26bcae460830678ba10cfce1e9583d948acb7ae3ade3a",
+        "externalId": "O)Dl2[lI&A",
+        "msclkid": "O)Dl2[lI&A",
+        "ph": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+      },
     },
   ],
 }

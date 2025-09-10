@@ -134,13 +134,19 @@ export const data: InputField = {
       description: 'Page keywords - SEO meta keyworls.',
       type: 'string'
     },
-    userData: userData
+    userData: {
+      label: 'User Data',
+      type: 'object'
+    },
+    customData: {
+      label: 'Custom Data',
+      type: 'object'
+    }
   },
   default: {
     eventType: { '@path': '$.properties.event_type' },
     eventId: { '@path': '$.messageId' },
     eventName: { '@path': '$.event' },
-    eventTime: { '@path': '$.timestamp' },
     eventSourceUrl: { '@path': '$.context.page.url' },
     pageLoadId: { '@path': '$.properties.page_load_id' },
     referrerUrl: { '@path': '$.context.page.referrer' },
@@ -159,26 +165,22 @@ export const items: InputField = {
     id: {
       label: 'Item ID',
       description: 'The unique identifier for the item.',
-      type: 'string',
-      required: true
+      type: 'string'
     },
     name: {
       label: 'Item Name',
       description: 'The name of the item.',
-      type: 'string',
-      required: true
+      type: 'string'
     },
     price: {
       label: 'Item Price',
       description: 'The price of the item, after discounts.',
-      type: 'integer',
-      required: true
+      type: 'integer'
     },
     quantity: {
       label: 'Item Quantity',
       description: 'The quantity of the item.',
-      type: 'integer',
-      required: true
+      type: 'integer'
     }
   },
   default: {

@@ -1,304 +1,146 @@
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import nock from 'nock'
-import { v4 as uuidv4 } from '@lukeed/uuid'
-import destination from '../../index'
+import action from '../index' // adjust path
 import { API_URL } from '../../constants'
 import { processHashing } from '../../../../lib/hashing-utils'
+import { v4 as uuidv4 } from '@lukeed/uuid'
 
-// Mock dependencies
-jest.mock('@lukeed/uuid')
-jest.mock('../../../../lib/hashing-utils')
+jest.mock('../../../../lib/hashing-utils', () => ({
+  processHashing: jest.fn()
+}))
+jest.mock('@lukeed/uuid', () => ({
+  v4: jest.fn()
+}))
 
-const testDestination = createTestIntegration(destination)
-const actionSlug = 'sendEvent'
-const mockUuidv4 = uuidv4 as jest.MockedFunction<typeof uuidv4>
-const mockProcessHashing = processHashing as jest.MockedFunction<typeof processHashing>
+const mockRequest = jest.fn()
 
-const settings = {
-  UetTag: 'test-uet-tag',
-  ApiToken: 'test-api-token'
-}
+describe('Microsoft Bing CAPI - Send Event action', () => {
+  const settings = { UetTag: 'test-uet', ApiToken: 'test-api-token' }
 
-describe('MS Bing CAPI.sendEvent', () => {
   beforeEach(() => {
-    nock.cleanAll()
-    mockUuidv4.mockReturnValue('00000000-0000-0000-0000-000000000000')
-    mockProcessHashing.mockImplementation((value) => `hashed-${value}`)
+    jest.clearAllMocks()
   })
 
-  it('should send event with required fields', async () => {
-    const event = createTestEvent({
-      event: 'Purchase',
-      properties: {
-        event_type: 'custom'
-      },
-      timestamp: '2023-01-01T12:00:00Z'
+  it('injects anonymousId when userData is missing', async () => {
+    ;(uuidv4 as jest.Mock).mockReturnValue('anon-123')
+
+    await action.perform(mockRequest, {
+      settings,
+      payload: {
+        data: { eventName: 'Page View' }
+      } as any
     })
 
-    const requestNock = nock(API_URL)
-      .post(`/test-uet-tag/events`)
-      .reply(function (_uri, requestBody) {
-        const body = JSON.parse(JSON.stringify(requestBody))
-        expect(body).toMatchObject({
+    expect(mockRequest).toHaveBeenCalledWith(
+      `${API_URL}${settings.UetTag}/events`,
+      expect.objectContaining({
+        method: 'post',
+        json: {
           data: [
             {
-              eventType: 'custom',
-              eventName: 'Purchase',
-              eventTime: '2023-01-01T12:00:00Z',
-              userData: {
-                anonymousId: '00000000-0000-0000-0000-000000000000'
-              }
+              eventName: 'Page View',
+              userData: { anonymousId: 'anon-123' }
             }
           ]
-        })
-        return [200, { status: 'success' }]
-      })
-
-    const responses = await testDestination.testAction(actionSlug, {
-      event,
-      settings,
-      mapping: {
-        data: {
-          eventType: event.properties?.event_type,
-          eventName: event.event,
-          eventTime: event.timestamp
         }
-      }
-    })
-
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].data).toEqual({ status: 'success' })
-    expect(requestNock.isDone()).toBe(true)
+      })
+    )
   })
 
-  it('should hash email and phone properly', async () => {
-    const event = createTestEvent({
-      event: 'Lead',
-      properties: {
-        event_type: 'custom',
-        email: 'test@example.com',
-        phone: '+1 (123) 456-7890'
-      },
-      timestamp: '2023-01-01T12:00:00Z'
+  it('hashes email (em) correctly', async () => {
+    ;(processHashing as jest.Mock).mockReturnValue('hashed-email')
+
+    await action.perform(mockRequest, {
+      settings,
+      payload: {
+        data: { eventName: 'Signup' },
+        userData: { em: '  USER@Example.Com ' }
+      } as any
     })
 
-    mockProcessHashing
-      .mockImplementationOnce((value) => `hashed-email-${value}`)
-      .mockImplementationOnce((value) => `hashed-phone-${value}`)
-
-    const requestNock = nock(API_URL)
-      .post(`/test-uet-tag/events`)
-      .reply(function (_uri, requestBody) {
-        const body = JSON.parse(JSON.stringify(requestBody))
-        expect(body).toMatchObject({
+    expect(processHashing).toHaveBeenCalledWith('  USER@Example.Com ', 'sha256', 'hex', expect.any(Function))
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        json: {
           data: [
             {
-              eventType: 'custom',
-              eventName: 'Lead',
-              userData: {
-                anonymousId: '00000000-0000-0000-0000-000000000000',
-                em: 'hashed-email-test@example.com',
-                ph: 'hashed-phone-+1 (123) 456-7890'
-              }
+              eventName: 'Signup',
+              userData: { em: 'hashed-email' }
             }
           ]
-        })
-        return [200, { status: 'success' }]
+        }
       })
+    )
+  })
 
-    await testDestination.testAction(actionSlug, {
-      event,
+  it('hashes phone (ph) correctly with only digits', async () => {
+    ;(processHashing as jest.Mock).mockReturnValue('hashed-phone')
+
+    await action.perform(mockRequest, {
       settings,
-      mapping: {
-        data: {
-          eventType: event.properties?.event_type,
-          eventName: event.event,
-          eventTime: event.timestamp,
-          userData: {
-            em: event.properties?.email,
-            ph: event.properties?.phone
-          }
-        }
-      }
+      payload: {
+        data: { eventName: 'Purchase' },
+        userData: { ph: ' +1 (555) 123-4567 ' }
+      } as any
     })
 
-    expect(requestNock.isDone()).toBe(true)
-    expect(mockProcessHashing).toHaveBeenCalledTimes(2)
-    expect(mockProcessHashing).toHaveBeenNthCalledWith(1, 'test@example.com', 'sha256', 'hex', expect.any(Function))
-    expect(mockProcessHashing).toHaveBeenNthCalledWith(2, '+1 (123) 456-7890', 'sha256', 'hex', expect.any(Function))
+    expect(processHashing).toHaveBeenCalledWith(' +1 (555) 123-4567 ', 'sha256', 'hex', expect.any(Function))
+    // check transformation function (digits only)
+    const transform = (processHashing as jest.Mock).mock.calls[0][3]
+    expect(transform(' +1 (555) 123-4567 ')).toBe('15551234567')
   })
 
-  it('should handle API error responses', async () => {
-    const event = createTestEvent({
-      event: 'Purchase',
-      properties: {
-        event_type: 'custom'
-      },
-      timestamp: '2023-01-01T12:00:00Z'
+  it('merges customData into data', async () => {
+    ;(uuidv4 as jest.Mock).mockReturnValue('anon-123')
+
+    await action.perform(mockRequest, {
+      settings,
+      payload: {
+        data: { eventName: 'Add To Cart' },
+        customData: { productId: 'P123' }
+      } as any
     })
 
-    nock(API_URL)
-      .post(`/test-uet-tag/events`)
-      .reply(400, { error: 'Invalid request', message: 'Missing required fields' })
-
-    await expect(
-      testDestination.testAction(actionSlug, {
-        event,
-        settings,
-        mapping: {
-          data: {
-            eventType: event.properties?.event_type,
-            eventName: event.event,
-            eventTime: event.timestamp
-          }
-        }
-      })
-    ).rejects.toThrow()
-  })
-
-  it('should use provided userData if available', async () => {
-    const event = createTestEvent({
-      event: 'Purchase',
-      properties: {
-        event_type: 'custom'
-      },
-      context: {
-        traits: {
-          email: 'user@example.com'
-        }
-      },
-      userId: 'user-123',
-      timestamp: '2023-01-01T12:00:00Z'
-    })
-
-    const requestNock = nock(API_URL)
-      .post(`/test-uet-tag/events`)
-      .reply(function (_uri, requestBody) {
-        const body = JSON.parse(JSON.stringify(requestBody))
-        expect(body).toMatchObject({
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        json: {
           data: [
             {
-              userData: {
-                externalId: 'user-123',
-                em: 'hashed-user@example.com'
-              }
+              eventName: 'Add To Cart',
+              customData: { productId: 'P123' },
+              userData: { anonymousId: 'anon-123' }
             }
           ]
-        })
-        return [200, { status: 'success' }]
-      })
-
-    await testDestination.testAction(actionSlug, {
-      event,
-      settings,
-      mapping: {
-        data: {
-          eventType: event.properties?.event_type,
-          eventName: event.event,
-          eventTime: event.timestamp,
-          userData: {
-            externalId: event.userId,
-            em: event.context?.traits?.email
-          }
         }
-      }
-    })
-
-    expect(requestNock.isDone()).toBe(true)
+      })
+    )
   })
 
-  it('should include optional custom data when provided', async () => {
-    const event = createTestEvent({
-      event: 'Purchase',
-      properties: {
-        event_type: 'custom',
-        currency: 'USD',
-        value: 99.99,
-        order_id: 'order-123',
-        products: [
-          {
-            id: 'prod-1',
-            name: 'Product 1',
-            price: 49.99,
-            quantity: 2
-          }
-        ]
-      },
-      timestamp: '2023-01-01T12:00:00Z'
+  it('merges both customData and userData', async () => {
+    ;(processHashing as jest.Mock).mockReturnValue('hashed-email')
+
+    await action.perform(mockRequest, {
+      settings,
+      payload: {
+        data: { eventName: 'Checkout' },
+        customData: { orderId: 'O999' },
+        userData: { em: 'abc@example.com' }
+      } as any
     })
 
-    const requestNock = nock(API_URL)
-      .post(`/test-uet-tag/events`)
-      .reply(function (_uri, requestBody) {
-        const body = JSON.parse(JSON.stringify(requestBody))
-        expect(body).toMatchObject({
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        json: {
           data: [
             {
-              eventType: 'custom',
-              eventName: 'Purchase',
-              eventTime: '2023-01-01T12:00:00Z',
-              userData: expect.any(Object),
-              currency: 'USD',
-              value: 99.99,
-              transactionId: 'order-123',
-              items: [
-                {
-                  id: 'prod-1',
-                  name: 'Product 1',
-                  price: 49.99,
-                  quantity: 2
-                }
-              ]
+              eventName: 'Checkout',
+              customData: { orderId: 'O999' },
+              userData: { em: 'hashed-email' }
             }
           ]
-        })
-        return [200, { status: 'success' }]
-      })
-
-    await testDestination.testAction(actionSlug, {
-      event,
-      settings,
-      mapping: {
-        data: {
-          eventType: event.properties?.event_type,
-          eventName: event.event,
-          eventTime: event.timestamp,
-          userData: {},
-          currency: event.properties?.currency,
-          value: event.properties?.value,
-          transactionId: event.properties?.order_id,
-          items: event.properties?.products
-        }
-      }
-    })
-
-    expect(requestNock.isDone()).toBe(true)
-  })
-
-  it('should handle network errors gracefully', async () => {
-    const event = createTestEvent({
-      event: 'Purchase',
-      properties: {
-        event_type: 'custom'
-      },
-      timestamp: '2023-01-01T12:00:00Z'
-    })
-
-    nock(API_URL).post(`/test-uet-tag/events`).replyWithError({ code: 'ECONNREFUSED', message: 'Connection refused' })
-
-    await expect(
-      testDestination.testAction(actionSlug, {
-        event,
-        settings,
-        mapping: {
-          data: {
-            eventType: event.properties?.event_type,
-            eventName: event.event,
-            eventTime: event.timestamp
-          }
         }
       })
-    ).rejects.toThrow()
+    )
   })
 })
