@@ -4462,7 +4462,7 @@
   dependencies:
     unfetch "^3.1.1"
 
-"@segment/browser-destination-runtime@^1.6.0", "@segment/browser-destination-runtime@^1.88.0":
+"@segment/browser-destination-runtime@^1.4.0", "@segment/browser-destination-runtime@^1.6.0", "@segment/browser-destination-runtime@^1.88.0":
   version "1.88.0"
   resolved "https://registry.yarnpkg.com/@segment/browser-destination-runtime/-/browser-destination-runtime-1.88.0.tgz#41ecfb4405101b235dcc8b2088c84567461a4abe"
   integrity sha512-4K+mxCxr9in+bI8IpI7e6bguhhKi5IPxcZHdepbPdnbx647nBvO7znD8qd2NUsztt3cWvclR9ibvH/epAt7WEw==
