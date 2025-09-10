@@ -55,6 +55,12 @@ const action: ActionDefinition<Settings, Payload> = {
         'The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14.',
       type: 'string'
     },
+    session_attributes_encoded: {
+      label: 'Session Attributes (Encoded)',
+      description:
+        "A base64url-encoded JSON string containing session attributes collected from the user's browser. This provides additional attribution context if gclid, gbraid, or user identifiers are missing.",
+      type: 'string'
+    },
     conversion_timestamp: {
       label: 'Conversion Timestamp',
       description:
@@ -279,6 +285,7 @@ const action: ActionDefinition<Settings, Payload> = {
       gclid: payload.gclid,
       gbraid: payload.gbraid,
       wbraid: payload.wbraid,
+      sessionAttributesEncoded: payload.session_attributes_encoded,
       orderId: payload.order_id,
       conversionValue: payload.value,
       currencyCode: payload.currency,
@@ -385,6 +392,7 @@ const action: ActionDefinition<Settings, Payload> = {
           gclid: payload.gclid,
           gbraid: payload.gbraid,
           wbraid: payload.wbraid,
+          sessionAttributesEncoded: payloadItem.session_attributes_encoded,
           orderId: payload.order_id,
           conversionValue: payload.value,
           currencyCode: payload.currency,
