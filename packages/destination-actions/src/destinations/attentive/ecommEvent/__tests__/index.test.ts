@@ -55,37 +55,31 @@ describe('eCommerce API - Product View, Add to Cart, Purchase', () => {
         clientUserId: { '@path': '$.userId' }
       }
     }
-    
-    const event = createTestEvent(
-      basePayload
-    )
+
+    const event = createTestEvent(basePayload)
 
     nock('https://api.attentivemobile.com')
-      .post('/v1/events/ecommerce/product-view',
-        {
-          items: [
-            {
-              productId: 'prod_1',
-              productVariantId: 'variant_1',
-              price: { 
-                value: 19.99,
-                currency: 'USD'
-              },
-              productImage: 'https://example.com/image.png',
-              productUrl: 'https://example.com/product/prod_1',
-              name: 'Test Product',
-              quantity: 1
-            }
-          ],
-          user: {
-            phone: '+12345556789',
-            email: 'user@example.com',
-            externalIdentifiers: {
-              clientUserId: 'testuser123'
-            }
-          },
-          occurredAt: '2024-01-08T13:52:50.212Z'
-        })
+      .post('/v1/events/ecommerce/product-view', {
+        items: [
+          {
+            productId: 'prod_1',
+            productVariantId: 'variant_1',
+            price: [{ value: 19.99, currency: 'USD' }],
+            productImage: 'https://example.com/image.png',
+            productUrl: 'https://example.com/product/prod_1',
+            name: 'Test Product',
+            quantity: 1
+          }
+        ],
+        user: {
+          phone: '+12345556789',
+          email: 'user@example.com',
+          externalIdentifiers: {
+            clientUserId: 'testuser123'
+          }
+        },
+        occurredAt: '2024-01-08T13:52:50.212Z'
+      })
       .reply(200, {})
 
     const responses = await testDestination.testAction('ecommEvent', {
@@ -119,37 +113,31 @@ describe('eCommerce API - Product View, Add to Cart, Purchase', () => {
         clientUserId: { '@path': '$.userId' }
       }
     }
-    
-    const event = createTestEvent(
-      basePayload
-    )
+
+    const event = createTestEvent(basePayload)
 
     nock('https://api.attentivemobile.com')
-      .post('/v1/events/ecommerce/add-to-cart',
-        {
-          items: [
-            {
-              productId: 'prod_1',
-              productVariantId: 'variant_1',
-              price: { 
-                value: 19.99,
-                currency: 'USD'
-              },
-              productImage: 'https://example.com/image.png',
-              productUrl: 'https://example.com/product/prod_1',
-              name: 'Test Product',
-              quantity: 1
-            }
-          ],
-          user: {
-            phone: '+12345556789',
-            email: 'user@example.com',
-            externalIdentifiers: {
-              clientUserId: 'testuser123'
-            }
-          },
-          occurredAt: '2024-01-08T13:52:50.212Z'
-        })
+      .post('/v1/events/ecommerce/add-to-cart', {
+        items: [
+          {
+            productId: 'prod_1',
+            productVariantId: 'variant_1',
+            price: [{ value: 19.99, currency: 'USD' }],
+            productImage: 'https://example.com/image.png',
+            productUrl: 'https://example.com/product/prod_1',
+            name: 'Test Product',
+            quantity: 1
+          }
+        ],
+        user: {
+          phone: '+12345556789',
+          email: 'user@example.com',
+          externalIdentifiers: {
+            clientUserId: 'testuser123'
+          }
+        },
+        occurredAt: '2024-01-08T13:52:50.212Z'
+      })
       .reply(200, {})
 
     const responses = await testDestination.testAction('ecommEvent', {
@@ -183,37 +171,31 @@ describe('eCommerce API - Product View, Add to Cart, Purchase', () => {
         clientUserId: { '@path': '$.userId' }
       }
     }
-    
-    const event = createTestEvent(
-      basePayload
-    )
+
+    const event = createTestEvent(basePayload)
 
     nock('https://api.attentivemobile.com')
-      .post('/v1/events/ecommerce/purchase',
-        {
-          items: [
-            {
-              productId: 'prod_1',
-              productVariantId: 'variant_1',
-              price: { 
-                value: 19.99,
-                currency: 'USD'
-              },
-              productImage: 'https://example.com/image.png',
-              productUrl: 'https://example.com/product/prod_1',
-              name: 'Test Product',
-              quantity: 1
-            }
-          ],
-          user: {
-            phone: '+12345556789',
-            email: 'user@example.com',
-            externalIdentifiers: {
-              clientUserId: 'testuser123'
-            }
-          },
-          occurredAt: '2024-01-08T13:52:50.212Z'
-        })
+      .post('/v1/events/ecommerce/purchase', {
+        items: [
+          {
+            productId: 'prod_1',
+            productVariantId: 'variant_1',
+            price: [{ value: 19.99, currency: 'USD' }],
+            productImage: 'https://example.com/image.png',
+            productUrl: 'https://example.com/product/prod_1',
+            name: 'Test Product',
+            quantity: 1
+          }
+        ],
+        user: {
+          phone: '+12345556789',
+          email: 'user@example.com',
+          externalIdentifiers: {
+            clientUserId: 'testuser123'
+          }
+        },
+        occurredAt: '2024-01-08T13:52:50.212Z'
+      })
       .reply(200, {})
 
     const responses = await testDestination.testAction('ecommEvent', {

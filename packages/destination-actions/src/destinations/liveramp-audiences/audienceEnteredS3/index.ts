@@ -1,8 +1,12 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { isValidS3Path, normalizeS3Path, uploadS3 } from './s3'
+import { isValidS3Path, isValidS3BucketName, normalizeS3Path, uploadS3 } from './s3'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
-import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
+import {
+  LIVERAMP_MIN_RECORD_COUNT,
+  LIVERAMP_LEGACY_FLOW_FLAG_NAME,
+  LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME
+} from '../properties'
 
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -32,7 +36,8 @@ const action: ActionDefinition<Settings, Payload> = {
     s3_aws_region: {
       label: 'AWS Region (S3 only)',
       description: 'Region where the S3 bucket is hosted.',
-      type: 'string'
+      type: 'string',
+      required: true
     },
     audience_key: {
       label: 'LiveRamp Audience Key',
@@ -84,7 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number',
       unsafe_hidden: true,
       required: false,
-      default: 170000
+      default: 50000
     },
     s3_aws_bucket_path: {
       label: 'AWS Bucket Path [optional]',
@@ -131,6 +136,13 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     )
   }
 
+  // validate s3 bucket name
+  if (input.payloads[0].s3_aws_bucket_name && !isValidS3BucketName(input.payloads[0].s3_aws_bucket_name)) {
+    throw new PayloadValidationError(
+      `Invalid S3 bucket name: "${input.payloads[0].s3_aws_bucket_name}". Bucket names cannot contain '/' characters, must be lowercase, and follow AWS naming conventions.`
+    )
+  }
+
   // validate s3 path
   input.payloads[0].s3_aws_bucket_path = normalizeS3Path(input.payloads[0].s3_aws_bucket_path)
   if (input.payloads[0].s3_aws_bucket_path && !isValidS3Path(input.payloads[0].s3_aws_bucket_path)) {
@@ -150,6 +162,7 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     //------------
     // AWS FLOW
     // -----------
+    const shouldEnableGzipCompression = input.features && input.features[LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME] === true
     return sendEventToAWS(input.request, {
       audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
       uploadType: 's3',
@@ -157,6 +170,7 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
       destinationInstanceID: subscriptionMetadata?.destinationConfigId,
       subscriptionId: subscriptionMetadata?.actionConfigId,
       fileContents,
+      gzipCompressFile: shouldEnableGzipCompression,
       s3Info: {
         s3BucketName: input.payloads[0].s3_aws_bucket_name,
         s3Region: input.payloads[0].s3_aws_region,

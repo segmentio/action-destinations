@@ -7,12 +7,7 @@ export const fields: Record<string, InputField> = {
     description: 'The channel to send the message on.',
     type: 'string',
     required: true,
-    choices: [
-      { label: 'SMS', value: CHANNELS.SMS },
-      { label: 'MMS', value: CHANNELS.MMS },
-      { label: 'WhatsApp', value: CHANNELS.WHATSAPP },
-      //{ label: 'RCS', value: CHANNELS.RCS } Will be hidden for private beta
-    ]
+    dynamic: true
   },
   senderType: {
     label: 'Sender Type',
@@ -47,11 +42,20 @@ export const fields: Record<string, InputField> = {
       ]
     }
   },
-  toMessengerPageUserId: {
-    label: 'To Messenger Page or User ID',
-    description: 'A valid Facebook Messenger Page Id or Messenger User Id to send the message to.',
+  toMessengerUserId: {
+    label: 'To Messenger User ID',
+    description: 'A valid Facebook Messenger User Id to send the message to.',
     type: 'string',
-    required: false,
+    required: {
+      match: 'all',
+      conditions: [
+        {
+          fieldKey: 'channel',
+          operator: 'is',
+          value: CHANNELS.MESSENGER
+        }
+      ]
+    },
     default: undefined,
     depends_on: {
       match: 'all',
@@ -79,24 +83,38 @@ export const fields: Record<string, InputField> = {
           fieldKey: 'senderType',
           operator: 'is',
           value: SENDER_TYPE.PHONE_NUMBER
+        },
+        {
+          fieldKey: 'channels',
+          operator: 'is_not',
+          value: CHANNELS.MESSENGER
         }
       ]
     }
   },
-  fromMessengerSenderId: {
-    label: 'From Messenger Sender ID',
+  fromFacebookPageId: {
+    label: 'From Facebook Page ID',
     description:
       'The unique identifier for your Facebook Page, used to send messages via Messenger. You can find this in your Facebook Page settings.',
     type: 'string',
-    required: false,
+    required: {
+      match: 'all',
+      conditions: [
+        {
+          fieldKey: 'channel',
+          operator: 'is',
+          value: CHANNELS.MESSENGER
+        }
+      ]
+    },
     default: undefined,
     depends_on: {
       match: 'all',
       conditions: [
         {
-          fieldKey: 'senderType',
+          fieldKey: 'channel',
           operator: 'is',
-          value: SENDER_TYPE.MESSENGER_SENDER_ID
+          value: CHANNELS.MESSENGER
         }
       ]
     }
@@ -106,10 +124,18 @@ export const fields: Record<string, InputField> = {
     description: 'The SID of the messaging service to use. If not in the dropdown, enter it directly.',
     type: 'string',
     dynamic: true,
-    required: false,
+    disabledInputMethods: [],
+    required: {
+      conditions: [
+        { 
+          fieldKey: 'channel',
+          operator: 'is',
+          value: CHANNELS.RCS
+        }
+      ]
+    },
     default: undefined,
     allowNull: false,
-    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
     depends_on: {
       match: 'all',
       conditions: [
@@ -117,6 +143,11 @@ export const fields: Record<string, InputField> = {
           fieldKey: 'senderType',
           operator: 'is',
           value: SENDER_TYPE.MESSAGING_SERVICE
+        },
+        {
+          fieldKey: 'channels',
+          operator: 'is_not',
+          value: CHANNELS.MESSENGER
         }
       ]
     }
@@ -126,9 +157,9 @@ export const fields: Record<string, InputField> = {
     description: 'The SID of the Content Template to use.',
     type: 'string',
     dynamic: true,
+    disabledInputMethods: [],
     required: false,
     allowNull: false,
-    disabledInputMethods: ['variable', 'function'],
     depends_on: {
       match: 'all',
       conditions: [
@@ -213,5 +244,12 @@ export const fields: Record<string, InputField> = {
     format: 'date-time',
     required: false,
     default: undefined
+  },
+  tags: {
+    label: 'Tags',
+    description: 'Custom tags to be included in the message. Key:value pairs of strings are allowed.',
+    type: 'object',
+    required: false,
+    defaultObjectUI: 'keyvalue'
   }
 }

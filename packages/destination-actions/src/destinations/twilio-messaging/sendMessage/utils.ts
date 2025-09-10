@@ -10,20 +10,31 @@ import {
   MESSAGING_SERVICE_SID_REGEX,
   CONTENT_SID_REGEX,
   SENDER_TYPE,
-  CHANNELS
+  CHANNELS,
+  ALL_CONTENT_TYPES
 } from './constants'
 import { TwilioPayload, Sender, Content } from './types'
 
 export async function send(request: RequestClient, payload: Payload, settings: Settings) {
-  let { toPhoneNumber, fromPhoneNumber, messagingServiceSid, contentSid } = payload
+  let { toPhoneNumber, fromPhoneNumber, messagingServiceSid, contentSid, toMessengerUserId, fromFacebookPageId, } = payload
 
-  const { channel, senderType, contentVariables, validityPeriod, sendAt, inlineMediaUrls, inlineBody } = payload
+  const {
+    channel,
+    senderType,
+    contentVariables,
+    validityPeriod,
+    sendAt,
+    inlineMediaUrls,
+    inlineBody,
+    contentTemplateType,
+    tags
+  } = payload
 
   const getTo = (): string => {
     switch (channel) {
-      case 'SMS':
-      case 'MMS':
-      case 'RCS': {
+      case CHANNELS.SMS:
+      case CHANNELS.MMS:
+      case CHANNELS.RCS: {
         toPhoneNumber = toPhoneNumber?.trim() ?? ''
         if (!(E164_REGEX.test(toPhoneNumber) || TWILIO_SHORT_CODE_REGEX.test(toPhoneNumber))) {
           throw new PayloadValidationError(
@@ -32,12 +43,16 @@ export async function send(request: RequestClient, payload: Payload, settings: S
         }
         return toPhoneNumber
       }
-      case 'Whatsapp': {
+      case CHANNELS.WHATSAPP: {
         toPhoneNumber = toPhoneNumber?.trim() ?? ''
         if (!E164_REGEX.test(toPhoneNumber)) {
           throw new PayloadValidationError("'To' field should be a valid phone number in E.164 format")
         }
         return `whatsapp:${toPhoneNumber}`
+      }
+      case CHANNELS.MESSENGER: {
+        toMessengerUserId = toMessengerUserId?.trim() ?? ''
+        return `messenger:${toMessengerUserId}`
       }
       default: {
         throw new PayloadValidationError('Unsupported Channel')
@@ -61,6 +76,13 @@ export async function send(request: RequestClient, payload: Payload, settings: S
       }
       return channel === CHANNELS.WHATSAPP ? { From: `whatsapp:${fromPhoneNumber}` } : { From: fromPhoneNumber }
     }
+    if (senderType === SENDER_TYPE.FACEBOOK_PAGE_ID) {
+      fromFacebookPageId = fromFacebookPageId?.trim()
+      if (!fromFacebookPageId) {
+        throw new PayloadValidationError("'From Facebook Page ID' field is required when sending from a Facebook Page.")
+      }
+      return { From: `messenger:${fromFacebookPageId}` }
+    }
     if (senderType === SENDER_TYPE.MESSAGING_SERVICE) {
       messagingServiceSid = parseFieldValue(messagingServiceSid)
       if (!messagingServiceSid) {
@@ -79,31 +101,42 @@ export async function send(request: RequestClient, payload: Payload, settings: S
   }
 
   const getContent = (): Content => {
+    if (contentTemplateType === ALL_CONTENT_TYPES.INLINE.friendly_name) {
+      return {
+        Body: inlineBody || ''
+      }
+    }
+
     contentSid = parseFieldValue(contentSid)
 
-    // If we have a contentSid, this is a ContentTemplateMessage
-    if (contentSid) {
-      if (!CONTENT_SID_REGEX.test(contentSid)) {
-        throw new PayloadValidationError("Content SID should start with 'HX' followed by 32 hexadecimal characters.")
-      }
-
-      const contentTemplate: { ContentSid: string; ContentVariables?: string } = {
-        ContentSid: contentSid
-      }
-
-      if (Object.keys(contentVariables ?? {}).length > 0) {
-        contentTemplate.ContentVariables = JSON.stringify(contentVariables)
-      }
-
-      return contentTemplate
+    if (!contentSid) {
+      throw new PayloadValidationError(
+        "'Content Template SID' field value is required when sending a content template message."
+      )
     }
 
-    return {
-      Body: inlineBody || ''
+    if (!CONTENT_SID_REGEX.test(contentSid)) {
+      throw new PayloadValidationError(
+        "'Content Template SID' field value should start with 'HX' followed by 32 hexadecimal characters."
+      )
     }
+
+    const contentTemplate: { ContentSid: string; ContentVariables?: string } = {
+      ContentSid: contentSid
+    }
+
+    if (Object.keys(contentVariables ?? {}).length > 0) {
+      contentTemplate.ContentVariables = JSON.stringify(contentVariables)
+    }
+
+    return contentTemplate
   }
 
   const getInlineMediaUrls = (): { MediaUrl: string[] } | {} => {
+    if (contentTemplateType !== ALL_CONTENT_TYPES.INLINE.friendly_name) {
+      return {}
+    }
+
     if (!inlineMediaUrls || inlineMediaUrls.length === 0) {
       return {}
     }
@@ -125,13 +158,66 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     return urls.length > 0 ? { MediaUrl: urls } : {}
   }
 
+  const getTags = (): { [k: string]: string } | undefined => {
+    if (!tags || typeof tags !== 'object') return undefined
+
+    const allowedPattern = /^[a-zA-Z0-9 _-]+$/
+
+    for (const k in tags) {
+      const v = tags[k]
+
+      if (v === null || String(v).trim() === '') {
+        delete tags[k]
+        continue
+      }
+
+      if (typeof v === 'object') {
+        throw new PayloadValidationError(`Tag value for key "${k}" cannot be an object or array.`)
+      }
+
+      if (k.length > 128) {
+        throw new PayloadValidationError(`Tag key "${k}" exceeds the maximum tag key length of 128 characters.`)
+      }
+
+      const trimmedValue = String(v).trim()
+
+      // Validate allowed characters in key and value
+      if (!allowedPattern.test(k)) {
+        throw new PayloadValidationError(
+          `Tag key "${k}" contains invalid characters. Only alphanumeric, space, hyphen (-), and underscore (_) are allowed.`
+        )
+      }
+
+      if (!allowedPattern.test(trimmedValue)) {
+        throw new PayloadValidationError(
+          `Tag value "${trimmedValue}" for key "${k}" contains invalid characters. Only alphanumeric, space, hyphen (-), and underscore (_) are allowed.`
+        )
+      }
+
+      if (trimmedValue.length > 128) {
+        throw new PayloadValidationError(
+          `Tag value for key "${k}" exceeds the maximum tag value length of 128 characters.`
+        )
+      }
+
+      tags[k] = trimmedValue
+    }
+
+    if (Object.keys(tags as { [k: string]: string }).length > 10) {
+      throw new PayloadValidationError('Tags cannot contain more than 10 key-value pairs.')
+    }
+
+    return Object.keys(tags as { [k: string]: string }).length > 0 ? { Tags: JSON.stringify(tags) } : undefined
+  }
+
   const twilioPayload: TwilioPayload = (() => ({
     To: getTo(),
     ...getSendAt(),
     ...getValidityPeriod(),
     ...getSender(),
     ...getContent(),
-    ...getInlineMediaUrls()
+    ...getInlineMediaUrls(),
+    ...getTags()
   }))()
 
   const encodedBody = encode(twilioPayload)
@@ -165,6 +251,7 @@ function encode(twilioPayload: TwilioPayload): string {
 
   return encodedSmsBody.toString()
 }
+
 export function validateContentSid(contentSid: string) {
   return /^HX[0-9a-fA-F]{32}$/.test(contentSid)
 }

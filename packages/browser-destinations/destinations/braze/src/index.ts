@@ -131,7 +131,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         { label: 'US-06	(https://dashboard-06.braze.com)', value: 'sdk.iad-06.braze.com' },
         { label: 'US-07	(https://dashboard-07.braze.com)', value: 'sdk.iad-07.braze.com' },
         { label: 'US-08	(https://dashboard-08.braze.com)', value: 'sdk.iad-08.braze.com' },
-        { label: 'US-09	(https://dashboard-09.braze.com)', value: 'sdk.iad-09.braze.com' },
+        { label: 'US-09	(https://dashboard-09.braze.com)', value: 'sdk.us-09.braze.com' },
         { label: 'US-10 (https://dashboard-10.braze.com)', value: 'sdk.us-10.braze.com' },
         { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'sdk.fra-01.braze.eu' },
         { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'sdk.fra-02.braze.eu' },
@@ -322,10 +322,18 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         // @ts-expect-error same as above.
         subscriptions,
         deferUntilIdentified,
+        devicePropertyAllowlist,
         ...expectedConfig
       } = settings
-
-      console.log({ ...expectedConfig })
+      type BrazeConfig = typeof expectedConfig & {
+        devicePropertyAllowlist?: string[]
+      }
+      const config: BrazeConfig = { ...expectedConfig }
+      if (Array.isArray(devicePropertyAllowlist)) {
+        if (devicePropertyAllowlist.some((item) => item.trim() !== '')) {
+          config.devicePropertyAllowlist = devicePropertyAllowlist
+        }
+      }
       const version = sdkVersion ?? defaultVersion
 
       resetUserCache()
@@ -352,7 +360,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
           if (
             !client.instance.initialize(api_key, {
               baseUrl: window.BRAZE_BASE_URL || endpoint,
-              ...expectedConfig
+              ...config
             })
           ) {
             return false

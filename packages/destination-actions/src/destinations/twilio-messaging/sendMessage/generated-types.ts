@@ -18,9 +18,9 @@ export interface Payload {
    */
   toPhoneNumber?: string
   /**
-   * A valid Facebook Messenger Page Id or Messenger User Id to send the message to.
+   * A valid Facebook Messenger User Id to send the message to.
    */
-  toMessengerPageUserId?: string
+  toMessengerUserId?: string
   /**
    * The Twilio phone number (E.164 format) or Short Code. If not in the dropdown, enter it directly. Please ensure the number supports the selected 'Channel' type.
    */
@@ -28,7 +28,7 @@ export interface Payload {
   /**
    * The unique identifier for your Facebook Page, used to send messages via Messenger. You can find this in your Facebook Page settings.
    */
-  fromMessengerSenderId?: string
+  fromFacebookPageId?: string
   /**
    * The SID of the messaging service to use. If not in the dropdown, enter it directly.
    */
@@ -59,4 +59,10 @@ export interface Payload {
    * The time that Twilio will send the message. Must be in ISO 8601 format.
    */
   sendAt?: string
+  /**
+   * Custom tags to be included in the message. Key:value pairs of strings are allowed.
+   */
+  tags?: {
+    [k: string]: unknown
+  }
 }

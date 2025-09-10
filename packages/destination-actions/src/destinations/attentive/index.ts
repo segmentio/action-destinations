@@ -5,7 +5,6 @@ import ecommEvent from './ecommEvent'
 import upsertUserAttributes from './upsertUserAttributes'
 import subscribeUser from './subscribeUser'
 
-
 const destination: DestinationDefinition<Settings> = {
   name: 'Attentive',
   slug: 'actions-attentive',
@@ -58,9 +57,19 @@ const destination: DestinationDefinition<Settings> = {
       name: 'View Item',
       subscribe: 'event = "Product Viewed"',
       partnerAction: 'ecommEvent',
-      mapping: { 
+      mapping: {
         ...defaultValues(ecommEvent.fields),
-        eventType: 'view_item', 
+        eventType: 'view-item',
+        items: {
+          productId: { '@path': '$.properties.product_id' },
+          productVariantId: { '@path': '$.properties.variant' },
+          value: { '@path': '$.properties.price' },
+          productImage: { '@path': '$.properties.image_url' },
+          productUrl: { '@path': '$.properties.url' },
+          name: { '@path': '$.properties.name' },
+          currency: { '@path': '$.properties.currency' },
+          quantity: { '@path': '$.properties.quantity' }
+        }
       },
       type: 'automatic'
     },
@@ -68,9 +77,19 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Add to Cart',
       subscribe: 'event = "Product Added"',
       partnerAction: 'ecommEvent',
-      mapping: { 
+      mapping: {
         ...defaultValues(ecommEvent.fields),
-        eventType: 'add_to_cart', 
+        eventType: 'add-to-cart',
+        items: {
+          productId: { '@path': '$.properties.product_id' },
+          productVariantId: { '@path': '$.properties.variant' },
+          value: { '@path': '$.properties.price' },
+          productImage: { '@path': '$.properties.image_url' },
+          productUrl: { '@path': '$.properties.url' },
+          name: { '@path': '$.properties.name' },
+          currency: { '@path': '$.properties.currency' },
+          quantity: { '@path': '$.properties.quantity' }
+        }
       },
       type: 'automatic'
     },
@@ -78,9 +97,9 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Purchase',
       subscribe: 'event = "Order Completed"',
       partnerAction: 'ecommEvent',
-      mapping: { 
+      mapping: {
         ...defaultValues(ecommEvent.fields),
-        eventType: 'purchase', 
+        eventType: 'purchase'
       },
       type: 'automatic'
     }

@@ -17,11 +17,10 @@ import type {
   EventDataSuccessResponseV1,
   EventDataErrorResponseV1,
   MatchKeyV1,
-  ConversionTypeV2,
   CurrencyCodeV1,
   CustomAttributeV1
 } from '../types'
-import { MatchKeyTypeV1, Region } from '../types'
+import { MatchKeyTypeV1, Region, ConversionTypeV2 } from '../types'
 import type { Payload } from './generated-types'
 
 /**
@@ -262,8 +261,10 @@ export function handleBatchResponse(
 }
 
 export function prepareEventData(payload: Payload, settings: Settings): EventData {
-  const { email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId } =
-    payload.matchKeys || {}
+  const {
+    customAttributes,
+    matchKeys: { email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId } = {}
+  } = payload
 
   // Process match keys
   let matchKeys: MatchKeyV1[] = []
@@ -363,6 +364,17 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     throw new IntegrationError('At least one valid match key must be provided.', 'MISSING_MATCH_KEY', 400)
   }
 
+  // Process custom attributes
+  const customAttributeArray: CustomAttributeV1[] = []
+  Object.entries(customAttributes ?? {}).forEach(([key, value]) => {
+    if (value === undefined || value === null) return
+
+    customAttributeArray.push({
+      name: key,
+      value: typeof value === 'object' ? JSON.stringify(value) : String(value)
+    })
+  })
+
   // Prepare event data
   const eventData: EventData = {
     name: payload.name,
@@ -380,14 +392,18 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
 
   Object.assign(eventData, {
     ...(payload.value !== undefined && { value: payload.value }),
-    ...(payload.currencyCode && { currencyCode: payload.currencyCode as CurrencyCodeV1 }),
-    ...(payload.unitsSold !== undefined && { unitsSold: payload.unitsSold }),
+    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.currencyCode && {
+      currencyCode: payload.currencyCode as CurrencyCodeV1
+    }),
+    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.unitsSold !== undefined && {
+      unitsSold: payload.unitsSold
+    }),
     ...(payload.clientDedupeId && { clientDedupeId: payload.clientDedupeId }),
     ...(payload.dataProcessingOptions && { dataProcessingOptions: payload.dataProcessingOptions }),
     ...(consent && { consent }),
-    ...(payload.customAttributes && { customAttributes: payload.customAttributes as CustomAttributeV1[] }),
-    ...(payload.amazonImpressionId && { amazonImpressionId: payload.amazonImpressionId }),
-    ...(payload.amazonClickId && { amazonClickId: payload.amazonClickId })
+    ...(payload.customAttributes && {
+      customAttributes: customAttributeArray.length > 0 ? customAttributeArray : undefined
+    })
   })
 
   return eventData

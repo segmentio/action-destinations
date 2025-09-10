@@ -1,7 +1,7 @@
 import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 
 import { Settings, AudienceSettings } from '../generated-types'
-import { Unsubscriber, Subscriber } from '../types'
+import { Unsubscriber, Subscriber, IterableSubscribePayload, IterableUnsubscribePayload } from '../types'
 import { Payload } from './generated-types'
 
 import { CONSTANTS } from '../constants'
@@ -65,30 +65,32 @@ export class IterableListsClient {
     const unSubcribeRequests = []
 
     subscribersGroup.forEach((subscribers, listId) => {
+      const json: IterableSubscribePayload = {
+        listId: Number(listId),
+        subscribers,
+        updateExistingUsersOnly: this.updateExistingUsersOnly
+      }
       subcribeRequests.push(
         this.request(`${CONSTANTS.API_BASE_URL}/lists/subscribe`, {
           method: 'post',
           skipResponseCloning: true,
-          json: {
-            listId: Number(listId),
-            subscribers,
-            updateExistingUsersOnly: this.updateExistingUsersOnly
-          }
+          json
         })
       )
     })
 
     unsubscribersGroup.forEach((subscribers, listId) => {
+      const json: IterableUnsubscribePayload = {
+        listId: Number(listId),
+        subscribers,
+        campaignId: typeof this.campaignId === 'number' ? this.campaignId : undefined,
+        channelUnsubscribe: this.globalUnsubscribe
+      }
       unSubcribeRequests.push(
         this.request(`${CONSTANTS.API_BASE_URL}/lists/unsubscribe`, {
           method: 'post',
           skipResponseCloning: true,
-          json: {
-            listId: Number(listId),
-            subscribers,
-            campaignId: typeof this.campaignId === 'number' ? this.campaignId : undefined,
-            channelUnsubscribe: this.updateExistingUsersOnly
-          }
+          json
         })
       )
     })
