@@ -179,8 +179,8 @@ export const createBatchTestEvents = (batchContactList: BatchContactListItem[]) 
       type: 'identify',
       traits: {
         email: contact.email,
-        firstName: contact.firstname,
-        lastName: contact.lastname,
+        firstname: contact.firstname,
+        lastname: contact.lastname,
         address: {
           city: 'San Francisco',
           country: 'USA',
@@ -190,9 +190,8 @@ export const createBatchTestEvents = (batchContactList: BatchContactListItem[]) 
         },
         graduation_date: 1664533942262,
         company: 'Some Company',
-        phoneNumbers: '+13134561129',
-        website: 'somecompany.com',
-        countryCode: 'US'
+        phone: '+13134561129',
+        website: 'somecompany.com'
       }
     })
   )

@@ -172,7 +172,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       // Parse and return the externalId
       const r = await response.json()
-      console.log('Create Audience Response:', r)
       statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
         externalId:
@@ -240,7 +239,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       // Parse and return the response
       const audienceData = await response.json()
-      console.log('Get Audience Response:', audienceData)
       statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
         externalId:
