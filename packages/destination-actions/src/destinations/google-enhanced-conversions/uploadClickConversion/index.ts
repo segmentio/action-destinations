@@ -392,7 +392,7 @@ const action: ActionDefinition<Settings, Payload> = {
           gclid: payload.gclid,
           gbraid: payload.gbraid,
           wbraid: payload.wbraid,
-          sessionAttributesEncoded: payloadItem.session_attributes_encoded,
+          sessionAttributesEncoded: payload.session_attributes_encoded,
           orderId: payload.order_id,
           conversionValue: payload.value,
           currencyCode: payload.currency,
