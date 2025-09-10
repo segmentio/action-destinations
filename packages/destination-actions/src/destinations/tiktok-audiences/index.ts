@@ -99,7 +99,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const r = await response.json()
       if (r['message'] !== 'OK') {
         statsClient?.incr('createAudience.error', 1, statsTags)
-        throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
+        throw new IntegrationError(r['message'], 'INVALID_RESPONSE', 400)
       }
 
       statsClient?.incr('createAudience.success', 1, statsTags)
