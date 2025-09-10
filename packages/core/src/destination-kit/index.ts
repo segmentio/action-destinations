@@ -231,10 +231,9 @@ export interface RefreshAccessTokenResult {
   refreshToken?: string
 }
 
-interface AuthSettings<Settings, AudienceSettings = unknown> {
+interface AuthSettings<Settings> {
   settings: Settings
   auth: AuthTokens
-  audienceSettings: AudienceSettings
 }
 
 interface RefreshAuthSettings<Settings> {
@@ -242,24 +241,20 @@ interface RefreshAuthSettings<Settings> {
   auth: OAuth2ClientCredentials
 }
 
-interface Authentication<Settings, AudienceSettings = unknown> {
+interface Authentication<Settings> {
   /** The authentication scheme */
   scheme: 'basic' | 'custom' | 'oauth2' | 'oauth-managed'
   /** The fields related to authentication */
   fields: Record<string, GlobalSetting>
   /** A function that validates the user's authentication inputs. It is highly encouraged to define this whenever possible. */
-  testAuthentication?: (
-    request: RequestClient,
-    input: AuthSettings<Settings, AudienceSettings>
-  ) => Promise<unknown> | unknown
+  testAuthentication?: (request: RequestClient, input: AuthSettings<Settings>) => Promise<unknown> | unknown
 }
 
 /**
  * Custom authentication scheme
  * Typically used for "API Key" authentication.
  */
-export interface CustomAuthentication<Settings, AudienceSettings = unknown>
-  extends Authentication<Settings, AudienceSettings> {
+export interface CustomAuthentication<Settings> extends Authentication<Settings> {
   scheme: 'custom'
 }
 
@@ -267,16 +262,14 @@ export interface CustomAuthentication<Settings, AudienceSettings = unknown>
  * Basic authentication scheme
  * @see {@link https://datatracker.ietf.org/doc/html/rfc7617}
  */
-export interface BasicAuthentication<Settings, AudienceSettings = unknown>
-  extends Authentication<Settings, AudienceSettings> {
+export interface BasicAuthentication<Settings> extends Authentication<Settings> {
   scheme: 'basic'
 }
 
 /**
  * OAuth2 authentication scheme
  */
-export interface OAuth2Authentication<Settings, AudienceSettings = unknown>
-  extends Authentication<Settings, AudienceSettings> {
+export interface OAuth2Authentication<Settings> extends Authentication<Settings> {
   scheme: 'oauth2'
   /** A function that is used to refresh the access token
    * @todo look into merging input and oauthConfig so we can keep all the request functions with the same method signature (2 arguments)
@@ -290,8 +283,7 @@ export interface OAuth2Authentication<Settings, AudienceSettings = unknown>
 /**
  * OAuth2 authentication scheme where the credentials and settings are managed by the partner.
  */
-export interface OAuthManagedAuthentication<Settings, AudienceSettings = unknown>
-  extends Authentication<Settings, AudienceSettings> {
+export interface OAuthManagedAuthentication<Settings> extends Authentication<Settings> {
   scheme: 'oauth-managed'
   /** A function that is used to refresh the access token
    */
@@ -302,11 +294,11 @@ export interface OAuthManagedAuthentication<Settings, AudienceSettings = unknown
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AuthenticationScheme<Settings = any, AudienceSettings = unknown> =
-  | BasicAuthentication<Settings, AudienceSettings>
-  | CustomAuthentication<Settings, AudienceSettings>
-  | OAuth2Authentication<Settings, AudienceSettings>
-  | OAuthManagedAuthentication<Settings, AudienceSettings>
+export type AuthenticationScheme<Settings = any> =
+  | BasicAuthentication<Settings>
+  | CustomAuthentication<Settings>
+  | OAuth2Authentication<Settings>
+  | OAuthManagedAuthentication<Settings>
 
 export type SubscriptionMetadata = {
   actionConfigId?: string
