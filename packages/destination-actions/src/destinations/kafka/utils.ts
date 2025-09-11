@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
 import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
-import { StatsContext } from '@segment/actions-core/destination-kit'
+import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
 
 export const producersByConfig: Record<string, CachedProducer> = {}
 
@@ -181,7 +181,8 @@ export const sendData = async (
   settings: Settings,
   payload: Payload[],
   features: Features | undefined,
-  statsContext: StatsContext | undefined
+  statsContext: StatsContext | undefined,
+  logger: Logger | undefined
 ) => {
   validate(settings)
 
@@ -227,6 +228,7 @@ export const sendData = async (
   } catch (error) {
     const tags = [...(statsContext?.tags ?? []), `kafka_error:${error.name}`]
     statsContext?.statsClient.incr('kafka_connection_error', 1, tags)
+    logger?.crit(`Kafka Connection Error: ${(error as Error).stack}`)
     throw error
   }
 
@@ -236,6 +238,7 @@ export const sendData = async (
     } catch (error) {
       const tags = [...(statsContext?.tags ?? []), `kafka_error:${error.name}`]
       statsContext?.statsClient.incr('kafka_send_error', 1, tags)
+      logger?.crit(`Kafka Send Error: ${(error as Error).stack}`)
       throw new IntegrationError(
         `Kafka Producer Error: ${(error as KafkaJSError).message}`,
         'KAFKA_PRODUCER_ERROR',
