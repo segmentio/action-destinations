@@ -166,7 +166,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async getAudience(request, { statsContext, settings, audienceSettings, externalId }) {
       const { statsClient, tags: statsTags = [] } = statsContext || {}
-      const advertiserId = settings?.advertiserAccountId.trim()
+      const advertiserId = settings?.advertiserAccountId?.trim()
       const statsName = 'getAudience'
       statsTags.push(`slug:${destination.slug}`)
       statsClient?.incr(`${statsName}.call`, 1, statsTags)
@@ -188,9 +188,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const r = await response.json()
         const foundId = r[0]?.results[0]?.userList?.resourceName
         if (foundId !== externalId) {
+          statsTags.push('error:id-mismatch')
           statsClient?.incr(`${statsName}.error`, 1, statsTags)
           throw new IntegrationError(
-            "Unable to verify ownership over audience. Segment Audience ID doesn't match Googles Audience ID.",
+            "Unable to verify ownership over audience. Segment Audience ID doesn't match Google's Audience ID.",
             'INVALID_REQUEST_DATA',
             400
           )
@@ -198,6 +199,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         statsClient?.incr(`${statsName}.success`, 1, statsTags)
         return { externalId: foundId }
       } catch (error) {
+        if (error instanceof IntegrationError) {
+          throw error
+        }
         throw handleRequestError(error, statsName, statsContext)
       }
     }
