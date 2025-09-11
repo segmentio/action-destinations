@@ -28,7 +28,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Enable Batching',
       description: 'Enable batching of requests to the LinkedIn DMP Segment.',
       type: 'boolean',
-      default: true
+      default: true,
+      unsafe_hidden: true
     },
     email: {
       label: 'User Email',

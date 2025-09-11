@@ -17,6 +17,7 @@ import {
   dtm_conv_curr,
   dtmc_conv_type,
   dtmc_conv_store_location,
+  customProperties,
   customEventName
 } from './fields'
 import { URL } from './constants'
@@ -41,7 +42,8 @@ const action: ActionDefinition<Settings, Payload> = {
     dtm_conv_curr,
     dtmc_conv_type,
     dtmc_conv_store_location,
-    customEventName
+    customEventName,
+    customProperties
   },
   perform: (request, { payload, settings }) => {
     const {
@@ -66,6 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
       dtmc_conv_type,
       dtmc_conv_store_location,
       customEventName,
+      customProperties,
       identifiers: {
         deviceID,
         advertisingId,
@@ -77,12 +80,13 @@ const action: ActionDefinition<Settings, Payload> = {
       } = {}
     } = payload
 
-    const { dtm_cid } = settings
+    const { dtm_cid, dtm_cmagic } = settings
 
     let eventData: BaseEventData | NonTransactionEventData | TransactionEventData = {
+      ...customProperties, // Spread customProperties first so it can't override more important attributes
       dtmc_tms: 9,
       dtm_cid: dtm_cid.trim(),
-      dtm_cmagic: processHashing(dtm_cid, 'md5', 'hex', (value: string) => value?.trim()).substring(0, 6),
+      dtm_cmagic,
       dtm_fid,
       dtm_promo_id,
       idfa: deviceType === 'ios' ? advertisingId : undefined,
@@ -97,7 +101,7 @@ const action: ActionDefinition<Settings, Payload> = {
       dtm_mobile_hash: dtm_mobile_hash
         ? processHashing(dtm_mobile_hash, 'sha256', 'hex', (value: string) => value?.trim().toLowerCase())
         : undefined,
-      dtm_user_id
+      dtm_user_id,
     }
 
     switch (dtm_event) {

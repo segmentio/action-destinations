@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
 import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
-import { StatsContext } from '@segment/actions-core/destination-kit'
+import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
 
 export const producersByConfig: Record<string, CachedProducer> = {}
 
@@ -137,7 +137,10 @@ const getProducer = (settings: Settings) => {
   })
 }
 
-export const getOrCreateProducer = async (settings: Settings, statsContext: StatsContext | undefined): Promise<Producer> => {
+export const getOrCreateProducer = async (
+  settings: Settings,
+  statsContext: StatsContext | undefined
+): Promise<Producer> => {
   const key = serializeKafkaConfig(settings)
   const now = Date.now()
 
@@ -174,18 +177,31 @@ export const getOrCreateProducer = async (settings: Settings, statsContext: Stat
   return producer
 }
 
-export const sendData = async (settings: Settings, payload: Payload[], features: Features | undefined, statsContext: StatsContext | undefined) => {
+export const sendData = async (
+  settings: Settings,
+  payload: Payload[],
+  features: Features | undefined,
+  statsContext: StatsContext | undefined,
+  logger: Logger | undefined
+) => {
   validate(settings)
 
   const groupedPayloads: { [topic: string]: Payload[] } = {}
+  const set = new Set<string>()
 
   payload.forEach((p) => {
-    const { topic } = p
+    const { topic, partition, default_partition } = p
     if (!groupedPayloads[topic]) {
       groupedPayloads[topic] = []
     }
     groupedPayloads[topic].push(p)
+    set.add(`${topic}-${partition}-${default_partition}`)
   })
+  if (statsContext) {
+    const { statsClient, tags } = statsContext
+    statsClient?.histogram('kafka.configurable_batch_keys.unique_keys', set.size, tags)
+    // Add stats to track batch keys for kafka
+  }
 
   const topicMessages: TopicMessages[] = Object.keys(groupedPayloads).map((topic) => ({
     topic,
@@ -202,17 +218,27 @@ export const sendData = async (settings: Settings, payload: Payload[], features:
   }))
 
   let producer: Producer
-  if (features && features[FLAGON_NAME]) {
-    producer = await getOrCreateProducer(settings, statsContext)
-  } else {
-    producer = getProducer(settings)
-    await producer.connect()
+  try {
+    if (features && features[FLAGON_NAME]) {
+      producer = await getOrCreateProducer(settings, statsContext)
+    } else {
+      producer = getProducer(settings)
+      await producer.connect()
+    }
+  } catch (error) {
+    const tags = [...(statsContext?.tags ?? []), `kafka_error:${error.name}`]
+    statsContext?.statsClient.incr('kafka_connection_error', 1, tags)
+    logger?.crit(`Kafka Connection Error: ${(error as Error).stack}`)
+    throw error
   }
 
   for (const data of topicMessages) {
     try {
       await producer.send(data as ProducerRecord)
     } catch (error) {
+      const tags = [...(statsContext?.tags ?? []), `kafka_error:${error.name}`]
+      statsContext?.statsClient.incr('kafka_send_error', 1, tags)
+      logger?.crit(`Kafka Send Error: ${(error as Error).stack}`)
       throw new IntegrationError(
         `Kafka Producer Error: ${(error as KafkaJSError).message}`,
         'KAFKA_PRODUCER_ERROR',

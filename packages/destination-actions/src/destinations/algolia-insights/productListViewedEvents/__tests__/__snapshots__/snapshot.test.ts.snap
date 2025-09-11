@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for AlgoliaInsights's productListViewedEvents destination action: all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "authenticatedUserToken": "lx7Lx",
+      "eventName": "lx7Lx",
+      "eventType": "view",
+      "index": "lx7Lx",
+      "objectIDs": Array [
+        "lx7Lx",
+      ],
+      "queryID": "lx7Lx",
+      "testType": "lx7Lx",
+      "timestamp": null,
+      "userToken": "lx7Lx",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for AlgoliaInsights's productListViewedEvents destination action: required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "authenticatedUserToken": "user1234",
+      "eventName": "Product List Viewed",
+      "eventType": "view",
+      "index": "lx7Lx",
+      "objectIDs": Array [
+        "lx7Lx",
+      ],
+      "products": Array [
+        Object {
+          "product_id": "lx7Lx",
+        },
+      ],
+      "timestamp": 1674843786677,
+      "userToken": "lx7Lx",
+    },
+  ],
+}
+`;

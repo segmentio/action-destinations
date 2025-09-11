@@ -95,8 +95,8 @@ describe('forwardAudienceEvent', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{\\\\\\"incomingKey\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false,\\\\\\"label\\\\\\":\\\\\\"External Profile ID\\\\\\"}],
-                mappableType: \\"segment_io\\",
+                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",type:STRING,isPii:false,label:\\"External Profile ID\\"}],
+                mappableType: \\"segment_io\\"
               }
             ) {
               userErrors {
@@ -106,7 +106,7 @@ describe('forwardAudienceEvent', () => {
             upsertExternalAudienceMapping(
               input: {
                 advertiserId: 23,
-                mappingSchema: [{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience ID\\\\\\",\\\\\\"isPii\\\\\\":false},{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"name\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience Name\\\\\\",\\\\\\"isPii\\\\\\":false}],
+                mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
                 mappableType: \\"segment_io\\"
               }
             ) {
@@ -169,8 +169,8 @@ describe('forwardAudienceEvent', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{\\\\\\"incomingKey\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false,\\\\\\"label\\\\\\":\\\\\\"External Profile ID\\\\\\"}],
-                mappableType: \\"segment_io\\",
+                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",type:STRING,isPii:false,label:\\"External Profile ID\\"}],
+                mappableType: \\"segment_io\\"
               }
             ) {
               userErrors {
@@ -180,7 +180,7 @@ describe('forwardAudienceEvent', () => {
             upsertExternalAudienceMapping(
               input: {
                 advertiserId: 23,
-                mappingSchema: [{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience ID\\\\\\",\\\\\\"isPii\\\\\\":false},{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"name\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience Name\\\\\\",\\\\\\"isPii\\\\\\":false}],
+                mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
                 mappableType: \\"segment_io\\"
               }
             ) {
@@ -228,8 +228,8 @@ describe('forwardAudienceEvent', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{\\\\\\"incomingKey\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"isPii\\\\\\":false,\\\\\\"label\\\\\\":\\\\\\"External Profile ID\\\\\\"}],
-                mappableType: \\"segment_io\\",
+                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",type:STRING,isPii:false,label:\\"External Profile ID\\"}],
+                mappableType: \\"segment_io\\"
               }
             ) {
               userErrors {
@@ -239,7 +239,7 @@ describe('forwardAudienceEvent', () => {
             upsertExternalAudienceMapping(
               input: {
                 advertiserId: 23,
-                mappingSchema: [{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience ID\\\\\\",\\\\\\"isPii\\\\\\":false},{\\\\\\"incomingKey\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destinationKey\\\\\\":\\\\\\"name\\\\\\",\\\\\\"type\\\\\\":STRING,\\\\\\"label\\\\\\":\\\\\\"External Audience Name\\\\\\",\\\\\\"isPii\\\\\\":false}],
+                mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
                 mappableType: \\"segment_io\\"
               }
             ) {
