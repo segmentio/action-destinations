@@ -136,4 +136,10 @@ export interface Payload {
    * The name of the custom event to send to Epsilon.
    */
   customEventName?: string
+  /**
+   * Add custom properties to the event.
+   */
+  customProperties?: {
+    [k: string]: unknown
+  }
 }

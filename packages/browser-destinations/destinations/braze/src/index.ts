@@ -322,9 +322,18 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         // @ts-expect-error same as above.
         subscriptions,
         deferUntilIdentified,
+        devicePropertyAllowlist,
         ...expectedConfig
       } = settings
-
+      type BrazeConfig = typeof expectedConfig & {
+        devicePropertyAllowlist?: string[]
+      }
+      const config: BrazeConfig = { ...expectedConfig }
+      if (Array.isArray(devicePropertyAllowlist)) {
+        if (devicePropertyAllowlist.some((item) => item.trim() !== '')) {
+          config.devicePropertyAllowlist = devicePropertyAllowlist
+        }
+      }
       const version = sdkVersion ?? defaultVersion
 
       resetUserCache()
@@ -351,7 +360,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
           if (
             !client.instance.initialize(api_key, {
               baseUrl: window.BRAZE_BASE_URL || endpoint,
-              ...expectedConfig
+              ...config
             })
           ) {
             return false

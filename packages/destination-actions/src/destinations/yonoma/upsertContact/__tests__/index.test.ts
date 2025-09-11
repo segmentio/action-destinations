@@ -89,28 +89,12 @@ describe('Yonoma', () => {
           city: 'Anytown',
           state: 'CA',
           country: 'USA',
-          zipcode: '12345'
+          zipcode: '12345',
+          tags_to_add: ['tag1', 'tag2'],
+          tags_to_remove: ['tag3']
         }
       }
-      nock('https://api.yonoma.io').post('/integration/segment/upsertcontact', jsonUpsertContact).reply(200, {})
-
-      const jsonTag = {
-        userId: 'x_id',
-        email: 'test@test.com',
-        listId: 'list_id',
-        tags: ['tag1', 'tag2']
-      }
-
-      nock('https://api.yonoma.io').post('/integration/segment/tagcontact', jsonTag).reply(200, {})
-
-      const jsonUntagContact = {
-        userId: 'x_id',
-        email: 'test@test.com',
-        listId: 'list_id',
-        tags: ['tag3']
-      }
-
-      nock('https://api.yonoma.io').post('/integration/segment/untagcontact', jsonUntagContact).reply(200, {})
+      nock('https://api.yonoma.io').post('/integration/segment/upsertcontact', jsonUpsertContact).reply(200, {})  
 
       const response = await testDestination.testAction('upsertContact', {
         event,
@@ -119,7 +103,7 @@ describe('Yonoma', () => {
         mapping
       })
 
-      expect(response.length).toBe(3)
+      expect(response.length).toBe(1)
     })
 
     it('upsertContact should handle birthday with ISO8601 format', async () => {
@@ -148,28 +132,12 @@ describe('Yonoma', () => {
           city: 'Anytown',
           state: 'CA',
           country: 'USA',
-          zipcode: '12345'
+          zipcode: '12345',
+          tags_to_add: ['tag1', 'tag2'],
+          tags_to_remove: ['tag3']
         }
       }
       nock('https://api.yonoma.io').post('/integration/segment/upsertcontact', jsonUpsertContact).reply(200, {})
-
-      const jsonTag = {
-        userId: 'x_id',
-        email: 'test@test.com',
-        listId: 'list_id',
-        tags: ['tag1', 'tag2']
-      }
-
-      nock('https://api.yonoma.io').post('/integration/segment/tagcontact', jsonTag).reply(200, {})
-
-      const jsonUntagContact = {
-        userId: 'x_id',
-        email: 'test@test.com',
-        listId: 'list_id',
-        tags: ['tag3']
-      }
-
-      nock('https://api.yonoma.io').post('/integration/segment/untagcontact', jsonUntagContact).reply(200, {})
 
       const response = await testDestination.testAction('upsertContact', {
         event,
@@ -178,7 +146,7 @@ describe('Yonoma', () => {
         mapping
       })
 
-      expect(response.length).toBe(3)
+      expect(response.length).toBe(1)
     })
   })
 })
