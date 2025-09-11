@@ -124,6 +124,7 @@ export const fields: Record<string, InputField> = {
     description: 'The SID of the messaging service to use. If not in the dropdown, enter it directly.',
     type: 'string',
     dynamic: true,
+    disabledInputMethods: [],
     required: {
       conditions: [
         {
@@ -156,6 +157,7 @@ export const fields: Record<string, InputField> = {
     description: 'The SID of the Content Template to use.',
     type: 'string',
     dynamic: true,
+    disabledInputMethods: [],
     required: false,
     allowNull: false,
     depends_on: {
