@@ -226,7 +226,7 @@ export const sendData = async (
     }
   } catch (error) {
     const tags = [...(statsContext?.tags ?? []), `kafka_error:${error.name}`]
-    statsContext?.statsClient.incr('kafka.connection.error', 1, tags)
+    statsContext?.statsClient.incr('kafka_connection_error', 1, tags)
     throw error
   }
 
@@ -235,7 +235,7 @@ export const sendData = async (
       await producer.send(data as ProducerRecord)
     } catch (error) {
       const tags = [...(statsContext?.tags ?? []), `kafka_error:${error.name}`]
-      statsContext?.statsClient.incr('kafka.send.error', 1, tags)
+      statsContext?.statsClient.incr('kafka_send_error', 1, tags)
       throw new IntegrationError(
         `Kafka Producer Error: ${(error as KafkaJSError).message}`,
         'KAFKA_PRODUCER_ERROR',
