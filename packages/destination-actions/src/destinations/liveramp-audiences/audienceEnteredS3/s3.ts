@@ -143,4 +143,4 @@ function isValidS3BucketName(bucketName: string): boolean {
   return true
 }
 
-export { validateS3, uploadS3, isValidS3Path, normalizeS3Path, isValidS3BucketName, validateS3Permissions }
+export { validateS3, uploadS3, isValidS3Path, normalizeS3Path, isValidS3BucketName }
