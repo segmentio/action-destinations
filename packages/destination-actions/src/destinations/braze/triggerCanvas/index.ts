@@ -12,7 +12,7 @@ const prioritizationChoices = [
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Canvas',
-  description: 'Trigger a Braze Canvas to deliver a cross-channel message to the specified user.',
+  description: 'Trigger a Braze Canvas to delive a cross-channel message to the specified user.',
   defaultSubscription: 'type = "track"',
   fields: {
     canvas_id: {
