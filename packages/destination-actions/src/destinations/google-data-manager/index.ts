@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, GlobalSetting, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, GlobalSetting, IntegrationError, RequestClient } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 import syncUserData from './syncUserData'
 import { buildHeaders, getAuthSettings, getAuthToken } from './shared'
@@ -206,7 +206,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 }
 
 function refreshAccessTokenRequest(
-  request: any,
+  request: RequestClient,
   auth: { refreshToken: string; clientId: string; clientSecret: string }
 ) {
   return request('https://www.googleapis.com/oauth2/v4/token', {

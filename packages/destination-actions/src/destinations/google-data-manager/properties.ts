@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core'
-import { DependsOnConditions } from '@segment/actions-core/destination-kittypes'
+import { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 
 export const external_id: InputField = {
   label: 'External ID',

@@ -45,7 +45,6 @@ export const buildHeaders = (
   }
 
   return {
-    // @ts-ignore - TS doesn't know about the oauth property
     Authorization: `Bearer ${accessToken}`,
     'Content-Type': 'application/json',
     'login-customer-Id': `products/DATA_PARTNER/customers/${SEGMENT_DATA_PARTNER_ID}`, // this is the Segment account id
