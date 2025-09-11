@@ -1,4 +1,4 @@
-import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import type { Payload } from './syncUserData/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
 import type { AudienceSettings, Settings } from './generated-types'
@@ -54,7 +54,7 @@ function buildAudienceMember(payload: Payload) {
 }
 
 export async function ingestAudienceMembers(
-  request: (url: string, options: Record<string, unknown>) => Promise<unknown>,
+  request: RequestClient,
   settings: Settings,
   payloads: Payload[],
   audienceSettings: AudienceSettings,
