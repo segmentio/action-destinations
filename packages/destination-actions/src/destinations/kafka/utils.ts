@@ -217,17 +217,25 @@ export const sendData = async (
   }))
 
   let producer: Producer
-  if (features && features[FLAGON_NAME]) {
-    producer = await getOrCreateProducer(settings, statsContext)
-  } else {
-    producer = getProducer(settings)
-    await producer.connect()
+  try {
+    if (features && features[FLAGON_NAME]) {
+      producer = await getOrCreateProducer(settings, statsContext)
+    } else {
+      producer = getProducer(settings)
+      await producer.connect()
+    }
+  } catch (error) {
+    const tags = [...(statsContext?.tags ?? []), `kafka_error:${error.name}`]
+    statsContext?.statsClient.incr('kafka.connection.error', 1, tags)
+    throw error
   }
 
   for (const data of topicMessages) {
     try {
       await producer.send(data as ProducerRecord)
     } catch (error) {
+      const tags = [...(statsContext?.tags ?? []), `kafka_error:${error.name}`]
+      statsContext?.statsClient.incr('kafka.send.error', 1, tags)
       throw new IntegrationError(
         `Kafka Producer Error: ${(error as KafkaJSError).message}`,
         'KAFKA_PRODUCER_ERROR',
