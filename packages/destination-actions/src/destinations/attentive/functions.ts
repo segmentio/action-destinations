@@ -78,10 +78,6 @@ export function formatEcommEventJSON(payload: EcommEvent): EcommEventJSON {
 export function formatCustomEventJSON(payload: CustomEvent): CustomEventJSON {
   const { externalEventId, type, properties, occurredAt, userIdentifiers } = payload
 
-  if (Object.values(properties ?? {}).some((value) => Array.isArray(value))) {
-    throw new PayloadValidationError('Properties cannot contain arrays.')
-  }
-
   return {
     type,
     properties,
