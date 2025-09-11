@@ -18,6 +18,10 @@ export interface Payload {
    */
   wbraid?: string
   /**
+   * A base64url-encoded JSON string containing session attributes collected from the user's browser. This provides additional attribution context if gclid, gbraid, or user identifiers are missing.
+   */
+  session_attributes_encoded?: string
+  /**
    * The date time at which the conversion occurred. Must be after the click time. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00".
    */
   conversion_timestamp: string

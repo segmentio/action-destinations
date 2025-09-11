@@ -1,9 +1,9 @@
-import type { ActionDefinition, DynamicFieldResponse, IntegrationError } from '@segment/actions-core'
+import type { ActionDefinition, DynamicFieldResponse, IntegrationError, JSONLikeObject } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { API_URL } from '../config'
-import { PayloadValidationError } from '@segment/actions-core'
+import { HTTPError, MultiStatusResponse, PayloadValidationError } from '@segment/actions-core'
 import { KlaviyoAPIError, ProfileData } from '../types'
 import {
   addProfileToList,
@@ -12,10 +12,10 @@ import {
   sendImportJobRequest,
   getList,
   createList,
-  groupByListId,
-  processProfilesByGroup,
-  validateAndConvertPhoneNumber,
-  processPhoneNumber
+  processPhoneNumber,
+  validateProfilePayload,
+  updateMultiStatusWithSuccessData,
+  updateMultiStatusWithKlaviyoErrors
 } from '../functions'
 import { batch_size, country_code } from '../properties'
 
@@ -309,61 +309,50 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: async (request, { payload, hookOutputs, statsContext }) => {
-    payload = payload.filter((profile) => {
-      // Validate and convert the phone number using the provided country code
-      const validPhoneNumber = validateAndConvertPhoneNumber(profile.phone_number, profile.country_code)
+  performBatch: async (request, { payload, hookOutputs }) => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const filteredPayloads: JSONLikeObject[] = []
+    const validPayloadIndicesBitmap: number[] = []
 
-      // If the phone number is valid, update the profile's phone number with the validated format
-      if (validPhoneNumber) {
-        profile.phone_number = validPhoneNumber
+    payload.forEach((payload, originalBatchIndex) => {
+      const { payload: validPayload, error } = validateProfilePayload(payload)
+      if (error) {
+        multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, error)
+      } else {
+        filteredPayloads.push(validPayload as JSONLikeObject)
+        validPayloadIndicesBitmap.push(originalBatchIndex)
       }
-      // If the phone number is invalid (null), exclude this profile
-      else if (validPhoneNumber === null) {
-        return false
-      }
-      return profile.email || profile.phone_number || profile.external_id
     })
 
-    if (statsContext) {
-      const { tags, statsClient } = statsContext
-      const set = new Set()
-      payload.forEach((x) => set.add(`${x.list_id}-${x.override_list_id}`))
-      statsClient?.histogram('actions-klaviyo.remove_profile_from_list.unique_list_id', set.size, tags)
+    if (filteredPayloads.length === 0) {
+      return multiStatusResponse
     }
-
-    const profilesWithList: Payload[] = []
-    const profilesWithoutList: Payload[] = []
 
     payload.forEach((profile) => {
       if (hookOutputs?.retlOnMappingSave?.outputs?.id) {
         profile.list_id = hookOutputs.retlOnMappingSave.outputs.id
       }
-      if (profile.list_id || profile.override_list_id) {
-        profilesWithList.push(profile)
-      } else {
-        profilesWithoutList.push(profile)
-      }
     })
 
-    let importResponseWithList
-    let importResponseWithoutList
-
-    if (profilesWithList.length > 0) {
-      // Group profiles based on list_id
-      const groupedByListId = groupByListId(profilesWithList)
-      importResponseWithList = await processProfilesByGroup(request, groupedByListId)
+    const listId: string = (filteredPayloads[0]?.override_list_id as string) || (filteredPayloads[0]?.list_id as string)
+    const importJobPayload = createImportJobPayload(filteredPayloads, listId)
+    try {
+      const response = await sendImportJobRequest(request, importJobPayload)
+      updateMultiStatusWithSuccessData(filteredPayloads, validPayloadIndicesBitmap, multiStatusResponse, response)
+    } catch (error) {
+      // If one of the payloads causes a HTTPError, we want to capture the error for each payload in the batch
+      if (error instanceof HTTPError) {
+        await updateMultiStatusWithKlaviyoErrors(
+          filteredPayloads,
+          error,
+          multiStatusResponse,
+          validPayloadIndicesBitmap
+        )
+      } else {
+        throw error
+      }
     }
-
-    if (profilesWithoutList.length > 0) {
-      const importJobPayload = createImportJobPayload(profilesWithoutList)
-      importResponseWithoutList = await sendImportJobRequest(request, importJobPayload)
-    }
-
-    return {
-      withList: importResponseWithList,
-      withoutList: importResponseWithoutList
-    }
+    return multiStatusResponse
   }
 }
 

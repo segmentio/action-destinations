@@ -1,23 +1,26 @@
 import { RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
-import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes } from '../functions'
+import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes, stringifyMappingSchemaForGraphQL } from '../functions'
 
-const audienceMapping = stringifyJsonWithEscapedQuotes([
+const audienceMapping = stringifyMappingSchemaForGraphQL([
   {
     incomingKey: 'audienceId',
     destinationKey: 'external_id',
     type: 'string',
-    label: 'External Audience ID'
+    label: 'External Audience ID',
+    isPii: false,
   },
   {
     incomingKey: 'audienceName',
     destinationKey: 'name',
     type: 'string',
-    label: 'External Audience Name'
+    label: 'External Audience Name',
+    isPii: false,
+
   }
 ])
 
-const profileMapping = stringifyJsonWithEscapedQuotes([
+const profileMapping = stringifyMappingSchemaForGraphQL([
   {
     incomingKey: 'userId',
     destinationKey: 'external_id',
@@ -59,7 +62,7 @@ export async function performForwardAudienceEvents(request: RequestClient, event
         input: {
           advertiserId: ${advertiserId},
           mappingSchemaV2: ${profileMapping},
-          mappableType: "${EXTERNAL_PROVIDER}",
+          mappableType: "${EXTERNAL_PROVIDER}"
         }
       ) {
         userErrors {

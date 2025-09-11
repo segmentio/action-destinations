@@ -1,4 +1,4 @@
-import { DestinationDefinition, IntegrationError } from '@segment/actions-core'
+import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import identifyContact from './identifyContact'
 import groupIdentifyContact from './groupIdentifyContact'
@@ -42,8 +42,6 @@ const destination: DestinationDefinition<Settings> = {
       return request(`https://api.intercom.io/contacts/${payload.userId}`, {
         method: 'DELETE'
       })
-    } else {
-      throw new IntegrationError('No unique contact found', 'Contact not found', 404)
     }
   },
 

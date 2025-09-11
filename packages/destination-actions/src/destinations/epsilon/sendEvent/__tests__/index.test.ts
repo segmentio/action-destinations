@@ -5,7 +5,8 @@ import { Settings } from '../../generated-types'
 
 let testDestination = createTestIntegration(Definition)
 const settings: Settings = {
-  dtm_cid: 'test_cid'
+  dtm_cid: 'test_cid',
+  dtm_cmagic: 'test_cmagic'
 }
 
 const domain = 'https://login.dotomi.com'
@@ -123,7 +124,7 @@ describe('Epsilon.send', () => {
         eventData: {
           dtmc_tms: 9,
           dtm_cid: 'test_cid',
-          dtm_cmagic: 'c4b91e',
+          dtm_cmagic: 'test_cmagic',
           dtm_fid: 'test_fid',
           dtm_promo_id: 'test_promo_id',
           idfa: 'advertising_id_1',
@@ -173,7 +174,7 @@ describe('Epsilon.send', () => {
         eventData: {
           dtmc_tms: 9,
           dtm_cid: 'test_cid',
-          dtm_cmagic: 'c4b91e',
+          dtm_cmagic: 'test_cmagic',
           dtm_fid: 'test_fid',
           dtm_promo_id: 'test_promo_id',
           idfa: 'advertising_id_1',
@@ -224,7 +225,7 @@ describe('Epsilon.send', () => {
         eventData: {
           dtmc_tms: 9,
           dtm_cid: 'test_cid',
-          dtm_cmagic: 'c4b91e',
+          dtm_cmagic: 'test_cmagic',
           dtm_fid: 'test_fid',
           dtm_promo_id: 'test_promo_id',
           idfa: 'advertising_id_1',
@@ -281,7 +282,7 @@ describe('Epsilon.send', () => {
         eventData: {
           dtmc_tms: 9,
           dtm_cid: 'test_cid',
-          dtm_cmagic: 'c4b91e',
+          dtm_cmagic: 'test_cmagic',
           dtm_fid: 'test_fid',
           dtm_promo_id: 'test_promo_id',
           idfa: 'advertising_id_1',
@@ -358,7 +359,7 @@ describe('Epsilon.send', () => {
         eventData: {
           dtmc_tms: 9,
           dtm_cid: 'test_cid',
-          dtm_cmagic: 'c4b91e',
+          dtm_cmagic: 'test_cmagic',
           dtm_fid: 'test_fid',
           dtm_promo_id: 'test_promo_id',
           google_play_id: 'advertising_id_1',
@@ -379,6 +380,87 @@ describe('Epsilon.send', () => {
       settings,
       useDefaultMappings: true,
       mapping
+    })
+
+    expect(response.length).toBe(1)
+    expect(response[0].status).toBe(200)
+  })
+
+  it('Should include customProperties field data correctly', async () => {
+    const payload2 = {
+      ...payload,
+      event: 'Custom Event 1',
+      properties: {
+        ...payload.properties,
+        dtm_event: 'custom',
+        custom_properties: {
+          str: "string",
+          num: 203,
+          bool: true
+        }
+      }
+    }
+
+    const event = createTestEvent(payload2)
+
+    const requestBody = {
+      id: 'msg_123',
+      jsonrpc: '2.0',
+      method: 'syncEvent',
+      params: {
+        appId: 'com.test.app',
+        dtm_event: 'Custom Event 1',
+        version: '1.0.0',
+        eventData: {
+          str: "string",
+          num: 203,
+          bool: true,
+          dtmc_tms: 9,
+          dtm_cid: 'test_cid',
+          dtm_cmagic: 'test_cmagic',
+          dtm_fid: 'test_fid',
+          dtm_promo_id: 'test_promo_id',
+          idfa: 'advertising_id_1',
+          idfv: 'device_id_1',
+          dtm_user_agent: 'dtm_user_agent_1',
+          dtm_user_ip: '8.8.8.8',
+          dtm_email_hash: 'f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a',
+          dtm_mobile_hash: '4cc4f148d2a6e6d5def6cf6e1205b5b4701f7ff63e298ce5104e0cd6b86b97aa',
+          dtm_user_id: 'user_id_1',
+          dtmc_department: 'Test Product Department',
+          dtmc_category: 'test_product_category_1',
+          dtmc_sub_category: 'test_product_sub_category_1',
+          dtmc_product_id: 'test_product_id_1',
+          dtmc_brand: 'test_product_brand_1',
+          dtmc_upc: 'test_upc_1',
+          dtmc_mpn: 'test_mpn_1',
+          dtmc_transaction_id: 'test_order_id_1',
+          dtm_conv_val: 100,
+          dtm_items: [
+            {
+              product_id: 'test_product_id_1',
+              item_amount: 100,
+              item_quantity: 1,
+              item_discount: 20
+            }
+          ],
+          dtm_conv_curr: 'USD',
+          dtmc_conv_type: 'test_order_type_1',
+          dtmc_conv_store_location: 'test_store_location_1'
+        }
+      }
+    }
+
+    nock(domain).post(path, requestBody).reply(200)
+
+    const response = await testDestination.testAction('sendEvent', {
+      event,
+      settings,
+      useDefaultMappings: true,
+      mapping: {
+        ...mapping, 
+        customProperties: {'@path': '$.properties.custom_properties'}
+      }
     })
 
     expect(response.length).toBe(1)

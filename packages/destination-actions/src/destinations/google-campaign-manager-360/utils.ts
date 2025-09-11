@@ -42,8 +42,7 @@ export async function send(
         'Content-Type': 'application/json',
         Host: 'dfareporting.googleapis.com'
       },
-      json,
-      throwHttpErrors: false
+      json
     }
   )
 

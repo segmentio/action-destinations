@@ -4,8 +4,9 @@ export const dtm_fid: InputField = {
   label: 'Form ID',
   description: 'Form ID used in Epsilon’s system to identify app visits vs. conversions.',
   type: 'string',
-  required: true
-} 
+  required: true,
+  default: { '@path': '$.properties.form_id' }
+}
 
 export const dtm_promo_id: InputField = {
   label: 'Promo ID',
@@ -84,12 +85,14 @@ export const identifiers: InputField = {
     },
     dtm_email_hash: {
       label: 'Email address',
-      description: 'Accepts hashed or unhashed emails. Segment will ensure that a non hashed email is hashed before being sent to Epsilon',
+      description:
+        'Accepts hashed or unhashed emails. Segment will ensure that a non hashed email is hashed before being sent to Epsilon',
       type: 'string'
     },
     dtm_mobile_hash: {
       label: 'Mobile Hash',
-      description: 'Accepts hashed or unhashed mobile numbers. Segment will ensure that a non hashed mobile number is hashed before being sent to Epsilon',
+      description:
+        'Accepts hashed or unhashed mobile numbers. Segment will ensure that a non hashed mobile number is hashed before being sent to Epsilon',
       type: 'string'
     },
     dtm_user_id: {
@@ -128,11 +131,12 @@ export const dtmc_department: InputField = {
   default: { '@path': '$.properties.department' },
   depends_on: {
     conditions: [
-    {
-      fieldKey: 'dtm_event',
-      operator: 'is',
-      value: ['custom', 'department', 'category', 'subcategory', 'product', 'addFavorites', 'addSavedList', 'cart']
-    }]
+      {
+        fieldKey: 'dtm_event',
+        operator: 'is',
+        value: ['custom', 'department', 'category', 'subcategory', 'product', 'addFavorites', 'addSavedList', 'cart']
+      }
+    ]
   }
 }
 
@@ -143,11 +147,12 @@ export const dtmc_category: InputField = {
   default: { '@path': '$.properties.category' },
   depends_on: {
     conditions: [
-    {
-      fieldKey: 'dtm_event',
-      operator: 'is',
-      value: ['custom', 'category', 'subcategory', 'product', 'addFavorites', 'addSavedList', 'cart']
-    }]
+      {
+        fieldKey: 'dtm_event',
+        operator: 'is',
+        value: ['custom', 'category', 'subcategory', 'product', 'addFavorites', 'addSavedList', 'cart']
+      }
+    ]
   }
 }
 
@@ -158,26 +163,28 @@ export const dtmc_sub_category: InputField = {
   default: { '@path': '$.properties.sub_category' },
   depends_on: {
     conditions: [
-    {
-      fieldKey: 'dtm_event',
-      operator: 'is',
-      value: ['custom', 'subcategory', 'product', 'addFavorites', 'addSavedList', 'cart']
-    }]
+      {
+        fieldKey: 'dtm_event',
+        operator: 'is',
+        value: ['custom', 'subcategory', 'product', 'addFavorites', 'addSavedList', 'cart']
+      }
+    ]
   }
 }
 
 export const dtmc_product_id: InputField = {
-  label: 'Product ID',  
+  label: 'Product ID',
   description: 'Unique identifier for the product',
   type: 'string',
   default: { '@path': '$.properties.product_id' },
   depends_on: {
     conditions: [
-    {
-      fieldKey: 'dtm_event',
-      operator: 'is',
-      value: ['custom', 'product', 'addFavorites', 'addSavedList', 'cart']
-    }]
+      {
+        fieldKey: 'dtm_event',
+        operator: 'is',
+        value: ['custom', 'product', 'addFavorites', 'addSavedList', 'cart']
+      }
+    ]
   }
 }
 
@@ -188,11 +195,12 @@ export const dtmc_brand: InputField = {
   default: { '@path': '$.properties.brand' },
   depends_on: {
     conditions: [
-    {
-      fieldKey: 'dtm_event',
-      operator: 'is',
-      value: ['custom', 'product', 'addFavorites', 'addSavedList', 'cart']
-    }]
+      {
+        fieldKey: 'dtm_event',
+        operator: 'is',
+        value: ['custom', 'product', 'addFavorites', 'addSavedList', 'cart']
+      }
+    ]
   }
 }
 
@@ -203,11 +211,12 @@ export const dtmc_upc: InputField = {
   default: { '@path': '$.properties.upc' },
   depends_on: {
     conditions: [
-    {
-      fieldKey: 'dtm_event',
-      operator: 'is',
-      value: ['custom', 'product', 'addFavorites', 'addSavedList', 'cart']
-    }]
+      {
+        fieldKey: 'dtm_event',
+        operator: 'is',
+        value: ['custom', 'product', 'addFavorites', 'addSavedList', 'cart']
+      }
+    ]
   }
 }
 
@@ -218,11 +227,12 @@ export const dtmc_mpn: InputField = {
   default: { '@path': '$.properties.mpn' },
   depends_on: {
     conditions: [
-    {
-      fieldKey: 'dtm_event',
-      operator: 'is',
-      value: ['custom', 'product', 'addFavorites', 'addSavedList', 'cart']
-    }]
+      {
+        fieldKey: 'dtm_event',
+        operator: 'is',
+        value: ['custom', 'product', 'addFavorites', 'addSavedList', 'cart']
+      }
+    ]
   }
 }
 
@@ -233,11 +243,12 @@ export const dtmc_transaction_id: InputField = {
   default: { '@path': '$.properties.order_id' },
   depends_on: {
     conditions: [
-    {
-      fieldKey: 'dtm_event',
-      operator: 'is',
-      value: ['custom', 'conversion']
-    }]
+      {
+        fieldKey: 'dtm_event',
+        operator: 'is',
+        value: ['custom', 'conversion']
+      }
+    ]
   }
 }
 
@@ -251,45 +262,47 @@ export const dtm_conv_val: InputField = {
   },
   depends_on: {
     conditions: [
-    {
-      fieldKey: 'dtm_event',
-      operator: 'is',
-      value: ['custom', 'conversion']
-    }]
+      {
+        fieldKey: 'dtm_event',
+        operator: 'is',
+        value: ['custom', 'conversion']
+      }
+    ]
   }
 }
 
-export const dtm_items : InputField = {
+export const dtm_items: InputField = {
   label: 'Items Purchased',
   description: 'An array of all items in the conversion.',
-  type: 'object', 
+  type: 'object',
   multiple: true,
   additionalProperties: true,
   properties: {
-      product_id: {
-        label: 'Product ID',
-        description: 'Unique identifier / SKU for the product.',
-        type: 'string'
-      },
-      item_amount: {
-        label: 'Item Amount',
-        description: 'Unit cost / price for 1 unit of the item.',
-        type: 'number'
-      },
-      item_quantity: {
-        label: 'Item Quantity',
-        description: 'number of SKU items in the transaction.',
-        type: 'integer'
-      },
-      item_discount: {
-        label: 'Item Discount',
-        description: 'Discount value from the original amount.',
-        type: 'number'
-      }
+    product_id: {
+      label: 'Product ID',
+      description: 'Unique identifier / SKU for the product.',
+      type: 'string'
+    },
+    item_amount: {
+      label: 'Item Amount',
+      description: 'Unit cost / price for 1 unit of the item.',
+      type: 'number'
+    },
+    item_quantity: {
+      label: 'Item Quantity',
+      description: 'number of SKU items in the transaction.',
+      type: 'integer'
+    },
+    item_discount: {
+      label: 'Item Discount',
+      description: 'Discount value from the original amount.',
+      type: 'number'
+    }
   },
   default: {
     '@arrayPath': [
-      '$.properties.products', {
+      '$.properties.products',
+      {
         product_id: { '@path': '$.product_id' },
         price: { '@path': '$.price' },
         quantity: { '@path': '$.quantity' },
@@ -299,11 +312,12 @@ export const dtm_items : InputField = {
   },
   depends_on: {
     conditions: [
-    {
-      fieldKey: 'dtm_event',
-      operator: 'is',
-      value: ['custom', 'conversion']
-    }]
+      {
+        fieldKey: 'dtm_event',
+        operator: 'is',
+        value: ['custom', 'conversion']
+      }
+    ]
   }
 }
 
@@ -317,16 +331,17 @@ export const dtm_conv_curr: InputField = {
   },
   depends_on: {
     conditions: [
-    {
-      fieldKey: 'dtm_event',
-      operator: 'is',
-      value: ['custom', 'conversion']
-    }]
+      {
+        fieldKey: 'dtm_event',
+        operator: 'is',
+        value: ['custom', 'conversion']
+      }
+    ]
   }
 }
 
 export const dtmc_conv_type: InputField = {
-  label: 'Order Type',  
+  label: 'Order Type',
   description: 'Differentiate between types of online purchases (Delivery, Pickup, etc.)',
   type: 'string',
   default: { '@path': '$.properties.order_type' },
@@ -335,11 +350,12 @@ export const dtmc_conv_type: InputField = {
   },
   depends_on: {
     conditions: [
-    {
-      fieldKey: 'dtm_event',
-      operator: 'is',
-      value: ['custom', 'conversion']
-    }]
+      {
+        fieldKey: 'dtm_event',
+        operator: 'is',
+        value: ['custom', 'conversion']
+      }
+    ]
   }
 }
 
@@ -353,11 +369,12 @@ export const dtmc_conv_store_location: InputField = {
   },
   depends_on: {
     conditions: [
-    {
-      fieldKey: 'dtm_event',
-      operator: 'is',
-      value: ['custom', 'conversion']
-    }]
+      {
+        fieldKey: 'dtm_event',
+        operator: 'is',
+        value: ['custom', 'conversion']
+      }
+    ]
   }
 }
 
@@ -389,7 +406,7 @@ export const deviceType: InputField = {
   label: 'Device Type',
   description: 'Type of the device (e.g., iOS, Android).',
   type: 'string',
-  required: true,  
+  required: true,
   choices: [
     { label: 'iOS', value: 'ios' },
     { label: 'Android', value: 'android' }
@@ -397,11 +414,19 @@ export const deviceType: InputField = {
   default: { '@path': '$.context.device.type' }
 }
 
+export const customProperties: InputField = {
+  label: 'Custom Properties',
+  description: 'Add custom properties to the event.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  required: false
+}
+
 export const standardFields = {
-  id, 
+  id,
   appId,
   dtm_event,
-  version, 
+  version,
   dtm_fid,
   dtm_promo_id,
   identifiers,

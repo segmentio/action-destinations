@@ -548,6 +548,347 @@ describe('MultiStatus', () => {
       })
     })
   })
+
+  describe('upsertProfile', () => {
+    beforeEach(() => {
+      nock.cleanAll()
+      jest.resetAllMocks()
+    })
+
+    it('should handle multistatus response when some profiles have validation errors', async () => {
+      const events = [
+        // Valid profile with email
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            email: 'valid@example.com',
+            first_name: 'John',
+            last_name: 'Doe'
+          }
+        }),
+        // Invalid profile - no identifiers
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            first_name: 'Jane',
+            last_name: 'Smith'
+          }
+        }),
+        // Invalid profile - invalid phone number
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            phone_number: 'invalid-phone',
+            first_name: 'Bob'
+          }
+        }),
+        // Valid profile with phone
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            phone_number: '+17702126011',
+            first_name: 'Alice'
+          }
+        })
+      ]
+
+      const mapping = {
+        email: { '@path': '$.traits.email' },
+        phone_number: { '@path': '$.traits.phone_number' },
+        first_name: { '@path': '$.traits.first_name' },
+        last_name: { '@path': '$.traits.last_name' }
+      }
+
+      // Mock successful response for valid profiles
+      nock(API_URL)
+        .post('/profile-bulk-import-jobs/')
+        .reply(202, { data: { id: 'job123' } })
+
+      const response = await testDestination.executeBatch('upsertProfile', {
+        events,
+        settings,
+        mapping
+      })
+
+      // First profile: valid - should succeed
+      expect(response[0]).toMatchObject({
+        status: 200,
+        sent: expect.objectContaining({
+          email: 'valid@example.com',
+          first_name: 'John',
+          last_name: 'Doe'
+        })
+      })
+
+      // Second profile: invalid - no identifiers
+      expect(response[1]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'One of External ID, Phone Number or Email is required.',
+        errorreporter: 'INTEGRATIONS'
+      })
+
+      // Third profile: invalid - bad phone number
+      expect(response[2]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Phone number could not be converted to E.164 format.',
+        errorreporter: 'INTEGRATIONS'
+      })
+
+      // Fourth profile: valid - should succeed
+      expect(response[3]).toMatchObject({
+        status: 200,
+        sent: expect.objectContaining({
+          phone_number: '+17702126011',
+          first_name: 'Alice'
+        })
+      })
+    })
+
+    it('should handle multistatus response when phone number validation fails with country code', async () => {
+      const events = [
+        // Valid profile with email
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            email: 'valid@example.com'
+          }
+        }),
+        // Invalid phone with country code
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            phone_number: '123', // invalid
+            country_code: 'US'
+          }
+        })
+      ]
+
+      const mapping = {
+        email: { '@path': '$.traits.email' },
+        phone_number: { '@path': '$.traits.phone_number' },
+        country_code: { '@path': '$.traits.country_code' }
+      }
+
+      nock(API_URL)
+        .post('/profile-bulk-import-jobs/')
+        .reply(202, { data: { id: 'job123' } })
+
+      const response = await testDestination.executeBatch('upsertProfile', {
+        events,
+        settings,
+        mapping
+      })
+
+      // First profile: valid
+      expect(response[0]).toMatchObject({
+        status: 200,
+        sent: expect.objectContaining({
+          email: 'valid@example.com'
+        })
+      })
+
+      // Second profile: invalid phone
+      expect(response[1]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Phone number could not be converted to E.164 format.',
+        errorreporter: 'INTEGRATIONS'
+      })
+    })
+
+    it('should handle multistatus response when all profiles are invalid', async () => {
+      const events = [
+        // No identifiers
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            first_name: 'John'
+          }
+        }),
+        // Invalid phone
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            phone_number: 'not-a-number'
+          }
+        })
+      ]
+
+      const mapping = {
+        phone_number: { '@path': '$.traits.phone_number' },
+        first_name: { '@path': '$.traits.first_name' }
+      }
+
+      // No API call should be made since all profiles are invalid
+      const response = await testDestination.executeBatch('upsertProfile', {
+        events,
+        settings,
+        mapping
+      })
+
+      // All profiles should have validation errors
+      expect(response[0]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'One of External ID, Phone Number or Email is required.',
+        errorreporter: 'INTEGRATIONS'
+      })
+
+      expect(response[1]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Phone number could not be converted to E.164 format.',
+        errorreporter: 'INTEGRATIONS'
+      })
+    })
+
+    it('should handle multistatus response with list_id assignment', async () => {
+      const events = [
+        // Valid profile with list assignment
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            email: 'user@example.com',
+            first_name: 'Test'
+          }
+        }),
+        // Invalid profile
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            first_name: 'NoEmail'
+          }
+        })
+      ]
+
+      const mapping = {
+        email: { '@path': '$.traits.email' },
+        first_name: { '@path': '$.traits.first_name' },
+        list_id: listId
+      }
+
+      nock(API_URL)
+        .post('/profile-bulk-import-jobs/')
+        .reply(202, { data: { id: 'job123' } })
+
+      const response = await testDestination.executeBatch('upsertProfile', {
+        events,
+        settings,
+        mapping
+      })
+
+      // First profile: valid - should succeed with list_id
+      expect(response[0]).toMatchObject({
+        status: 200,
+        sent: expect.objectContaining({
+          email: 'user@example.com',
+          first_name: 'Test'
+        })
+      })
+
+      // Second profile: invalid
+      expect(response[1]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'One of External ID, Phone Number or Email is required.',
+        errorreporter: 'INTEGRATIONS'
+      })
+    })
+
+    it('should handle Klaviyo API errors in multistatus response', async () => {
+      const events = [
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            email: 'valid@example.com'
+          }
+        })
+      ]
+
+      const mapping = {
+        email: { '@path': '$.traits.email' }
+      }
+
+      // Mock API error response
+      nock(API_URL)
+        .post('/profile-bulk-import-jobs/')
+        .reply(400, {
+          errors: [
+            {
+              code: 'invalid',
+              detail: 'Invalid request data'
+            }
+          ]
+        })
+
+      const response = await testDestination.executeBatch('upsertProfile', {
+        events,
+        settings,
+        mapping
+      })
+
+      // Should handle API error
+      expect(response[0]).toMatchObject({
+        status: 400,
+        errormessage: 'Bad Request',
+        sent: expect.objectContaining({
+          email: 'valid@example.com'
+        })
+      })
+    })
+
+    it('should handle email validation errors', async () => {
+      const events = [
+        // Valid email
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            email: 'valid@example.com'
+          }
+        }),
+        // Invalid email format
+        createTestEvent({
+          type: 'identify',
+          traits: {
+            email: 'invalid-email'
+          }
+        })
+      ]
+
+      const mapping = {
+        email: { '@path': '$.traits.email' }
+      }
+
+      nock(API_URL)
+        .post('/profile-bulk-import-jobs/')
+        .reply(202, { data: { id: 'job123' } })
+
+      const response = await testDestination.executeBatch('upsertProfile', {
+        events,
+        settings,
+        mapping
+      })
+
+      // First profile: valid email
+      expect(response[0]).toMatchObject({
+        status: 200,
+        sent: expect.objectContaining({
+          email: 'valid@example.com'
+        })
+      })
+
+      // Second profile: invalid email format
+      expect(response[1]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Email must be a valid email address string but it was not.',
+        errorreporter: 'INTEGRATIONS'
+      })
+    })
+  })
+
   describe('removeProfile', () => {
     beforeEach(() => {
       nock.cleanAll()
