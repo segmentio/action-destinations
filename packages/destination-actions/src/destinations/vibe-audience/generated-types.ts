@@ -10,11 +10,3 @@ export interface Settings {
    */
   authToken: string
 }
-// Generated file. DO NOT MODIFY IT BY HAND.
-
-export interface AudienceSettings {
-  /**
-   * A brief description about your audience.
-   */
-  audienceDescription?: string
-}

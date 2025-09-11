@@ -23,7 +23,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: { ...event.properties, __segment_internal_sync_mode: 'upsert' },
+        mapping: eventData,
         settings: settingsData,
         auth: undefined
       })
@@ -32,11 +32,11 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const rawBody = await request.text()
 
       try {
-        const json = JSON.parse(rawBody)
+        const json = JSON.parse(rawBody as string)
         expect(json).toMatchSnapshot()
         return
       } catch (err) {
-        expect(rawBody).toMatchSnapshot()
+        expect(rawBody as string).toMatchSnapshot()
       }
 
       expect(request.headers).toMatchSnapshot()
@@ -57,7 +57,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: { ...event.properties, __segment_internal_sync_mode: 'upsert' },
+        mapping: eventData,
         settings: settingsData,
         auth: undefined
       })
@@ -66,11 +66,11 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const rawBody = await request.text()
 
       try {
-        const json = JSON.parse(rawBody)
+        const json = JSON.parse(rawBody as string)
         expect(json).toMatchSnapshot()
         return
       } catch (err) {
-        expect(rawBody).toMatchSnapshot()
+        expect(rawBody as string).toMatchSnapshot()
       }
     })
   }

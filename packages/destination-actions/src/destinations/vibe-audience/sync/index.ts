@@ -1,202 +1,137 @@
-import { IntegrationError, ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import VibeClient from '../vibe-operations'
-import { batch_size, enable_batching } from '../vibe-properties'
+import { syncAudience } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
   description: 'Sync data to Vibe Audience.',
-  hooks: {
-    retlOnMappingSave: {
-      label: 'Select or create an audience in Vibe',
-      description:
-        'When saving this mapping, Segment will either create a new audience in Vibe or connect to an existing one. To create a new audience, enter the name of the audience. To connect to an existing audience, select the audience ID from the dropdown.',
-      inputFields: {
-        operation: {
-          type: 'string',
-          label: 'Create a new audience or connect to an existing one?',
-          description:
-            'Choose to either create a new audience or use an existing one. If you opt to create a new audience, we will display the required fields for audience creation. If you opt to use an existing audience, a drop-down menu will appear, allowing you to select from all the audiences in your advertiser account.',
-          choices: [
-            { label: 'Create New Audience', value: 'create' },
-            { label: 'Connect to Existing Audience', value: 'existing' }
-          ],
-          default: 'create'
-        },
-        audienceName: {
-          type: 'string',
-          label: 'Audience Creation Name',
-          description: 'The name of the audience in Vibe.',
-          default: 'TODO: Model Name by default',
-          depends_on: {
-            conditions: [
-              {
-                fieldKey: 'operation',
-                operator: 'is',
-                value: 'create'
-              }
-            ]
-          }
-        },
-        existingAudienceId: {
-          type: 'string',
-          label: 'Existing Audience ID',
-          description: 'The ID of the audience in Vibe.',
-          depends_on: {
-            conditions: [
-              {
-                fieldKey: 'operation',
-                operator: 'is',
-                value: 'existing'
-              }
-            ]
-          },
-          dynamic: async (request, { settings }) => {
-            const vibeClient = new VibeClient(request, settings.advertiserId, settings.authToken)
-            const { choices, error } = await vibeClient.getAllAudiences()
-
-            if (error) {
-              return { error, choices: [] }
-            }
-
-            return {
-              choices
-            }
-          }
-        }
-      },
-      outputTypes: {
-        audienceName: {
-          type: 'string',
-          label: 'Audience Name',
-          description: 'The name of the audience in Vibe this mapping is connected to.',
-          required: true
-        },
-        audienceId: {
-          type: 'string',
-          label: 'Audience ID',
-          description: 'The ID of the audience in Vibe.',
-          required: true
-        }
-      },
-      performHook: async (request, { settings, hookInputs }) => {
-        const vibeClient = new VibeClient(request, settings.advertiserId, settings.authToken)
-
-        if (hookInputs.operation === 'create' && !hookInputs.audienceName) {
-          return {
-            error: {
-              message: 'Missing audience name value',
-              code: 'MISSING_REQUIRED_FIELD'
-            }
-          }
-        }
-
-        if (hookInputs.operation === 'existing' && !hookInputs.existingAudienceId) {
-          return {
-            error: {
-              message: 'Missing audience ID value',
-              code: 'MISSING_REQUIRED_FIELD'
-            }
-          }
-        }
-
-        if (hookInputs.operation === 'existing' && hookInputs.existingAudienceId) {
-          const { data, error } = await vibeClient.getSingleAudience(hookInputs.existingAudienceId)
-
-          if (error) {
-            return {
-              error: {
-                message: error.error.message,
-                code: error.error.code
-              }
-            }
-          }
-
-          return {
-            successMessage: `Connected to audience with ID: ${hookInputs.existingAudienceId}`,
-            savedData: {
-              audienceId: hookInputs.existingAudienceId,
-              audienceName: data?.name
-            }
-          }
-        }
-
-        if (hookInputs.operation === 'create' && hookInputs.audienceName) {
-          const { data } = await vibeClient.createAudience(hookInputs.audienceName)
-
-          return {
-            successMessage: `Audience created with ID: ${data.id}`,
-            savedData: {
-              audienceId: data.id,
-              audienceName: hookInputs.audienceName
-            }
-          }
-        }
-
-        return {
-          error: {
-            message: 'Invalid operation',
-            code: 'INVALID_OPERATION'
-          }
-        }
-      }
-    }
-  },
-  syncMode: {
-    label: 'Sync Mode',
-    description: 'The sync mode to use when syncing data to Vibe.',
-    default: 'upsert',
-    choices: [
-      { value: 'upsert', label: 'Upsert' },
-      { value: 'delete', label: 'Delete' }
-    ]
-  },
   fields: {
     email: {
       type: 'string',
       required: true,
       label: 'Email',
-      description: "User's email (ex: foo@bar.com)"
-    },
-    external_audience_id: {
-      label: 'Vibe Audience ID',
-      description:
-        'The ID representing the Vibe audience identifier. This is the identifier that is returned during audience creation.',
-      type: 'string',
+      format: 'email',
+      description: "User's email (ex: foo@bar.com)",
       default: {
-        '@path': '$.context.personas.external_audience_id'
-      },
-      unsafe_hidden: true
+        '@if': {
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.properties.email' }
+        }
+      }
     },
-    enable_batching,
-    batch_size
-  },
-  perform: async (request, { settings, payload, hookOutputs, syncMode }) => {
-    const vibeClient = new VibeClient(request, settings.advertiserId, settings.authToken)
-
-    if (syncMode && ['upsert', 'delete'].includes(syncMode)) {
-      return await vibeClient.syncAudience({
-        audienceId: hookOutputs?.retlOnMappingSave?.outputs?.audienceId ?? payload.external_audience_id,
-        payloads: [payload],
-        deleteUsers: syncMode === 'delete' ? true : false
-      })
+    audience_name: {
+      label: 'Audience Name',
+      description: 'The name of the audience to which you want to add users.',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.context.personas.computation_key'
+      }
+    },
+    audience_id: {
+      label: 'Audience ID',
+      description: 'The ID of the audience to which you want to add users.',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.context.personas.computation_id'
+      },
+      readOnly: true
+    },
+    traits_or_props: {
+      label: 'Traits or properties object',
+      description: 'A computed object for track and identify events. This field should not need to be edited.',
+      type: 'object',
+      required: true,
+      unsafe_hidden: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties' },
+          then: { '@path': '$.properties' },
+          else: { '@path': '$.traits' }
+        }
+      }
+    },
+    personal_information: {
+      label: 'Personal Information',
+      description:
+        'Additional user profile details to send to Vibe. This information is used to improve the match rate.',
+      type: 'object',
+      defaultObjectUI: 'keyvalue',
+      properties: {
+        first_name: {
+          type: 'string',
+          label: 'First Name',
+          description: "User's first name"
+        },
+        last_name: {
+          type: 'string',
+          label: 'Last Name',
+          description: "User's last name"
+        },
+        phone: {
+          type: 'string',
+          label: 'Phone number',
+          description: "User's phone number"
+        }
+      },
+      default: {
+        first_name: {
+          '@if': {
+            exists: { '@path': '$.traits.first_name' },
+            then: { '@path': '$.traits.first_name' },
+            else: { '@path': '$.properties.first_name' }
+          }
+        },
+        last_name: {
+          '@if': {
+            exists: { '@path': '$.traits.last_name' },
+            then: { '@path': '$.traits.last_name' },
+            else: { '@path': '$.properties.last_name' }
+          }
+        },
+        phone: {
+          '@if': {
+            exists: { '@path': '$.traits.phone' },
+            then: { '@path': '$.traits.phone' },
+            else: { '@path': '$.properties.phone' }
+          }
+        }
+      }
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'Enable batching of requests.',
+      type: 'boolean',
+      default: true,
+      unsafe_hidden: true,
+      required: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      default: 1000,
+      unsafe_hidden: true,
+      required: true
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['audience_id', 'audience_name']
     }
-
-    throw new IntegrationError('Sync mode is required for perform', 'MISSING_REQUIRED_FIELD', 400)
   },
-  performBatch: async (request, { settings, payload, hookOutputs, syncMode }) => {
-    const vibeClient = new VibeClient(request, settings.advertiserId, settings.authToken)
-
-    if (syncMode && ['upsert', 'delete'].includes(syncMode)) {
-      return await vibeClient.syncAudience({
-        audienceId: hookOutputs?.retlOnMappingSave?.outputs?.audienceId ?? payload[0].external_audience_id,
-        payloads: payload,
-        deleteUsers: syncMode === 'delete' ? true : false
-      })
-    }
-
-    throw new IntegrationError('Sync mode is required for performBatch', 'MISSING_REQUIRED_FIELD', 400)
+  perform: async (request, { settings, payload }) => {
+    return await syncAudience(request, [payload], settings)
+  },
+  performBatch: async (request, { settings, payload }) => {
+    return await syncAudience(request, payload, settings)
   }
 }
 
