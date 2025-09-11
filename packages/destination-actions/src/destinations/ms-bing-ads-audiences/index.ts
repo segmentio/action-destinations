@@ -50,7 +50,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
 
       return {
         accessToken: res?.data?.access_token,
-        refreshToken: res?.data?.refresh_token
+        refreshToken: res?.data?.refresh_token || auth.refreshToken
       }
     }
   },
