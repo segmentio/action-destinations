@@ -222,7 +222,7 @@ export const sendData = async (
   features: Features | undefined,
   statsContext: StatsContext | undefined,
   subscriptionMetadata?: SubscriptionMetadata,
-  logger: Logger | undefined
+  logger?: Logger
 ) => {
   validate(settings)
 
