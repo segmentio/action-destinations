@@ -84,10 +84,10 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     advertiser_id: {
       label: 'Advertiser',
-      description: 'The StackAdapt advertiser to add the profile to.',
+      description: 'The StackAdapt advertiser to add the profile to. Either this field or the main Settings Advertiser field is required.',
       type: 'string',
       disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
-      required: true,
+      required: false,
       dynamic: true
     }
   },
