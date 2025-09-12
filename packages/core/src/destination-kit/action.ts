@@ -16,7 +16,8 @@ import type {
   DynamicFieldContext,
   ActionDestinationSuccessResponseType,
   ActionDestinationErrorResponseType,
-  ResultMultiStatusNode
+  ResultMultiStatusNode,
+  AsyncPollResponseType
 } from './types'
 import { syncModeTypes } from './types'
 import { HTTPError, NormalizedOptions } from '../request-client'
@@ -139,6 +140,9 @@ export interface ActionDefinition<
   /** The operation to perform when this action is triggered for a batch of events */
   performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings>
 
+  /** The operation to poll the status of async operation(s) - handles both single and batch operations */
+  poll?: RequestFn<Settings, Payload, AsyncPollResponseType, AudienceSettings>
+
   /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
    * destination using the provided inputs and return a response. The response may then optionally be stored
    * in the mapping for later use in the action.
@@ -260,6 +264,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   readonly hookSchemas?: Record<string, JSONSchema4>
   readonly hasBatchSupport: boolean
   readonly hasHookSupport: boolean
+  readonly hasPollSupport: boolean
   // Payloads may be any type so we use `any` explicitly here.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extendRequest: RequestExtension<Settings, any> | undefined
@@ -277,6 +282,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     this.extendRequest = extendRequest
     this.hasBatchSupport = typeof definition.performBatch === 'function'
     this.hasHookSupport = definition.hooks !== undefined
+    this.hasPollSupport = typeof definition.poll === 'function'
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
       this.schema = fieldsToJsonSchema(definition.fields)
@@ -586,6 +592,42 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     return multiStatusResponse
   }
 
+  async executePoll(
+    bundle: ExecuteBundle<Settings, InputData | undefined, AudienceSettings>
+  ): Promise<AsyncPollResponseType> {
+    if (!this.hasPollSupport) {
+      throw new IntegrationError('This action does not support polling operations.', 'NotImplemented', 501)
+    }
+
+    // Note: Polling operations typically use data from stateContext rather than transforming the event payload
+    // Since we're checking the status of async operations, not processing new event data
+    const payload = {} as Payload
+
+    // Construct the data bundle to send to the poll action
+    const dataBundle = {
+      rawData: bundle.data,
+      rawMapping: bundle.mapping,
+      settings: bundle.settings,
+      payload,
+      auth: bundle.auth,
+      features: bundle.features,
+      statsContext: bundle.statsContext,
+      logger: bundle.logger,
+      engageDestinationCache: bundle.engageDestinationCache,
+      transactionContext: bundle.transactionContext,
+      stateContext: bundle.stateContext,
+      audienceSettings: bundle.audienceSettings,
+      subscriptionMetadata: bundle.subscriptionMetadata,
+      signal: bundle?.signal
+    }
+
+    // Construct the request client and perform the poll operation
+    const requestClient = this.createRequestClient(dataBundle)
+    const pollResponse = await this.definition.poll!(requestClient, dataBundle)
+
+    return pollResponse
+  }
+
   /*
    * Extract the dynamic field context and handler path from a field string. Examples:
    * - "structured.first_name" => { dynamicHandlerPath: "structured.first_name" }
@@ -716,6 +758,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   }
 
   private parseResponse(response: unknown): unknown {
+    // Handle async action responses by returning them as-is
+    if (response && typeof response === 'object' && (response as any).isAsync === true) {
+      return response
+    }
+
     /**
      * Try to use the parsed response `.data` or `.content` string
      * @see {@link ../middleware/after-response/prepare-response.ts}
