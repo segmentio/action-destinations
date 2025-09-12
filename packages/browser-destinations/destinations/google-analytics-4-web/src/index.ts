@@ -202,6 +202,12 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       label: 'Page Views',
       type: 'boolean',
       default: true
+    },
+    domain: {
+      description: 'A custom domain to load the Google Analytics script from.',
+      label: 'Domain',
+      type: 'string',
+      default: 'www.googletagmanager.com'
     }
   },
 
@@ -233,7 +239,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       }
       gtag('consent', 'default', consent)
     }
-    const script = `https://www.googletagmanager.com/gtag/js?id=${settings.measurementID}`
+    const script = `https://${settings.domain ?? 'www.googletagmanager.com'}/gtag/js?id=${settings.measurementID}`
     await deps.loadScript(script)
     return window.gtag
   },
