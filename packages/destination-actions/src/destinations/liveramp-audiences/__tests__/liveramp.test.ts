@@ -2,7 +2,11 @@ import nock from 'nock'
 import { createTestIntegration, PayloadValidationError, SegmentEvent } from '@segment/actions-core'
 import Destination from '../index'
 import fs from 'fs'
-import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME } from '../properties'
+import {
+  LIVERAMP_MIN_RECORD_COUNT,
+  LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME,
+  LIVERAMP_S3_IAM_VALIDATION_FLAG_NAME
+} from '../properties'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -74,6 +78,12 @@ describe('Liveramp Audiences', () => {
         s3MetadataPayload = reqbody
         return true
       })
+      .reply(200)
+
+    // Mock S3 HeadBucket requests for permission validation (all bucket names)
+    nock(/https:\/\/.*\.s3\.amazonaws\.com/)
+      .persist()
+      .head('/')
       .reply(200)
   })
   describe('audienceEnteredS3', () => {
@@ -326,6 +336,158 @@ describe('Liveramp Audiences', () => {
           `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: 3`
         )
         expect(e.status).toEqual(400)
+      }
+    })
+  })
+
+  describe('S3 Permissions Validation', () => {
+    beforeEach(() => {
+      // Reset to default mock before each test
+      nock.cleanAll()
+    })
+    it('should throw PayloadValidationError if required S3 credentials are missing', async () => {
+      try {
+        await testDestination.executeBatch('audienceEnteredS3', {
+          events: mockedEvents,
+          mapping: {
+            s3_aws_region: 'us-west-2',
+            audience_key: 'audience_key',
+            delimiter: ',',
+            filename: 'filename.csv',
+            enable_batching: true
+          },
+          subscriptionMetadata: {
+            destinationConfigId: 'destinationConfigId',
+            actionConfigId: 'actionConfigId'
+          },
+          settings: {
+            __segment_internal_engage_force_full_sync: true,
+            __segment_internal_engage_batch_sync: true
+          },
+          features: {
+            [LIVERAMP_S3_IAM_VALIDATION_FLAG_NAME]: true
+          }
+        })
+        // Should not reach here
+        expect(true).toBe(false)
+      } catch (e) {
+        expect(e.message).toEqual('Missing required S3 credentials.')
+        expect(e.status).toEqual(400)
+      }
+    })
+
+    it('should throw InvalidAuthenticationError if IAM credentials are invalid (403)', async () => {
+      // Clear persistent mocks and set up specific 403 mock
+      nock('https://test-bucket.s3.amazonaws.com').head('/').reply(403)
+
+      try {
+        await testDestination.executeBatch('audienceEnteredS3', {
+          events: mockedEvents,
+          mapping: {
+            s3_aws_access_key: 'invalid-access-key',
+            s3_aws_secret_key: 'invalid-secret-key',
+            s3_aws_bucket_name: 'test-bucket',
+            s3_aws_region: 'us-west-2',
+            audience_key: 'audience_key',
+            delimiter: ',',
+            filename: 'filename.csv',
+            enable_batching: true
+          },
+          subscriptionMetadata: {
+            destinationConfigId: 'destinationConfigId',
+            actionConfigId: 'actionConfigId'
+          },
+          settings: {
+            __segment_internal_engage_force_full_sync: true,
+            __segment_internal_engage_batch_sync: true
+          },
+          features: {
+            [LIVERAMP_S3_IAM_VALIDATION_FLAG_NAME]: true
+          }
+        })
+        // Should not reach here
+        expect(true).toBe(false)
+      } catch (e) {
+        expect(e.message).toEqual(
+          'AWS IAM credentials are invalid or do not have permission to access S3 bucket "test-bucket". Please verify your access key, secret key, and bucket permissions.'
+        )
+        expect(e.status).toEqual(401)
+      }
+    })
+
+    it('should throw InvalidAuthenticationError if S3 bucket does not exist (404)', async () => {
+      nock('https://nonexistent-bucket.s3.amazonaws.com').head('/').reply(404)
+
+      try {
+        await testDestination.executeBatch('audienceEnteredS3', {
+          events: mockedEvents,
+          mapping: {
+            s3_aws_access_key: 's3_aws_access_key',
+            s3_aws_secret_key: 's3_aws_secret_key',
+            s3_aws_bucket_name: 'nonexistent-bucket',
+            s3_aws_region: 'us-west-2',
+            audience_key: 'audience_key',
+            delimiter: ',',
+            filename: 'filename.csv',
+            enable_batching: true
+          },
+          subscriptionMetadata: {
+            destinationConfigId: 'destinationConfigId',
+            actionConfigId: 'actionConfigId'
+          },
+          settings: {
+            __segment_internal_engage_force_full_sync: true,
+            __segment_internal_engage_batch_sync: true
+          },
+          features: {
+            [LIVERAMP_S3_IAM_VALIDATION_FLAG_NAME]: true
+          }
+        })
+        // Should not reach here
+        expect(true).toBe(false)
+      } catch (e) {
+        expect(e.message).toContain(
+          'S3 bucket "nonexistent-bucket" does not exist or is not accessible with the provided credentials.'
+        )
+        expect(e.status).toEqual(401)
+      }
+    })
+
+    it('should throw InvalidAuthenticationError for bad request (400)', async () => {
+      nock('https://invalid-config-bucket.s3.amazonaws.com').head('/').reply(400)
+
+      try {
+        await testDestination.executeBatch('audienceEnteredS3', {
+          events: mockedEvents,
+          mapping: {
+            s3_aws_access_key: 's3_aws_access_key',
+            s3_aws_secret_key: 's3_aws_secret_key',
+            s3_aws_bucket_name: 'invalid-config-bucket',
+            s3_aws_region: 'us-west-2',
+            audience_key: 'audience_key',
+            delimiter: ',',
+            filename: 'filename.csv',
+            enable_batching: true
+          },
+          subscriptionMetadata: {
+            destinationConfigId: 'destinationConfigId',
+            actionConfigId: 'actionConfigId'
+          },
+          settings: {
+            __segment_internal_engage_force_full_sync: true,
+            __segment_internal_engage_batch_sync: true
+          },
+          features: {
+            [LIVERAMP_S3_IAM_VALIDATION_FLAG_NAME]: true
+          }
+        })
+        // Should not reach here
+        expect(true).toBe(false)
+      } catch (e) {
+        expect(e.message).toEqual(
+          'Bad request when accessing S3 bucket "invalid-config-bucket". Please verify your AWS region and bucket configuration.'
+        )
+        expect(e.status).toEqual(401)
       }
     })
   })
