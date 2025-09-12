@@ -139,7 +139,7 @@ export interface BatchObjResp {
   }>
 }
 
-interface OmitPayload extends Omit<Payload, 'enable_batching' | 'batch_size' | 'association_sync_mode'> {}
+interface OmitPayload extends Omit<Payload, 'enable_batching' | 'batch_size' | 'association_sync_mode' | 'list_details' | 'batch_keys'> {}
 
 export interface PayloadWithFromId extends OmitPayload {
   object_details: OmitPayload['object_details'] & {
@@ -152,6 +152,18 @@ export interface PayloadWithFromId extends OmitPayload {
     id_field_value: string
     from_record_id: string
   }>
+  dissociations?: Array<{
+    object_type: string
+    association_label: string
+    id_field_name: string
+    id_field_value: string
+    from_record_id: string
+  }>
+  list_details?: {
+    list_name: string
+    list_action: boolean
+    should_create_list: boolean
+  }
 }
 
 export interface AssociationPayload extends OmitPayload {
@@ -180,6 +192,19 @@ export interface AssociationsReq {
     }
   }[]
 }
+
+export interface DissociationsReq {
+  inputs: {
+    types: AssociationType[]
+    from: {
+      id: string
+    }
+    to: Array<{
+      id: string
+    }>
+  }[]
+}
+
 
 export interface AssociationType {
   associationCategory: AssociationCategory
@@ -226,4 +251,46 @@ export interface Association {
   id_field_name?: string
   id_field_value?: string
   from_record_id?: string
+}
+
+export type AssociationsKey = 'associations' | 'dissociations'
+
+export type AssociationsAction = 'create' | 'archive'
+
+export interface ReadListResp {
+  list: ReadListRespItem
+}
+
+export interface ReadListRespItem {
+  listId: string
+  processingType: string
+  objectTypeId: string
+  name: string
+  processingTypes: string
+}
+
+export interface CreateListReq {
+  name: string
+  objectTypeId: string
+  processingType: 'MANUAL'
+}
+
+export interface CreateListResp {
+  list: {
+    listId: string
+    objectTypeId: string
+    name: string
+  }
+}
+
+export interface CachableList {
+  listId: string
+  objectType: string
+  objectTypeId: string
+  name: string
+}
+
+export interface AddRemoveFromListReq {
+  recordIdsToAdd?: string[]
+  recordIdsToRemove?: string[]
 }

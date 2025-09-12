@@ -10,10 +10,12 @@ import { getSchemaFromCache, saveSchemaToCache } from './functions/cache-functio
 import { ensureValidTimestamps, mergeAndDeduplicateById, validate } from './functions/validation-functions'
 import { objectSchema, compareSchemas } from './functions/schema-functions'
 import { sendFromRecords } from './functions/hubspot-record-functions'
+import { ensureList, sendLists } from './functions/hubspot-list-functions'
 import {
   sendAssociatedRecords,
   createAssociationPayloads,
-  sendAssociations
+  sendAssociations,
+  readAssociatedRecords
 } from './functions/hubspot-association-functions'
 import { getSchemaFromHubspot, createProperties } from './functions/hubspot-properties-functions'
 
@@ -62,7 +64,8 @@ const send = async (
 
   const {
     object_details: { object_type: objectType, property_group: propertyGroup },
-    association_sync_mode: assocationSyncMode
+    association_sync_mode: associationSyncMode,
+    list_details: { list_name: listName, should_create_list: shouldCreateList } = {}
   } = payloads[0]
 
   const client = new Client(request, objectType)
@@ -77,50 +80,43 @@ const send = async (
   const cacheSchemaDiff = compareSchemas(schema, cachedSchema, statsContext)
   statsContext?.statsClient?.incr(`cache.diff.${cacheSchemaDiff.match}`, 1, statsContext?.tags)
 
-  switch (cacheSchemaDiff.match) {
-    case SchemaMatch.FullMatch: {
-      const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
-      const associationPayloads = createAssociationPayloads(fromRecordPayloads)
-      const associatedRecords = await sendAssociatedRecords(
-        client,
-        associationPayloads,
-        assocationSyncMode as AssociationSyncMode
-      )
-      await sendAssociations(client, associatedRecords)
-      return
-    }
+  if (cacheSchemaDiff.match === SchemaMatch.PropertiesMissing || cacheSchemaDiff.match === SchemaMatch.NoMatch) {
+    const hubspotSchema = await getSchemaFromHubspot(client, schema)
+    const hubspotSchemaDiff = compareSchemas(schema, hubspotSchema, statsContext)
 
-    case SchemaMatch.PropertiesMissing:
-    case SchemaMatch.NoMatch: {
-      const hubspotSchema = await getSchemaFromHubspot(client, schema)
-      const hubspotSchemaDiff = compareSchemas(schema, hubspotSchema, statsContext)
-
-      switch (hubspotSchemaDiff.match) {
-        case SchemaMatch.FullMatch: {
-          await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
-          break
-        }
-        case SchemaMatch.PropertiesMissing: {
-          await createProperties(client, hubspotSchemaDiff, propertyGroup)
-          await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
-          break
-        }
-        case SchemaMatch.NoMatch: {
-          throw new IntegrationError('Object Type missing', 'Object Type missing', 400)
-        }
+    switch (hubspotSchemaDiff.match) {
+      case SchemaMatch.FullMatch: {
+        await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
+        break
       }
-
-      const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
-      const associationPayloads = createAssociationPayloads(fromRecordPayloads)
-      const associatedRecords = await sendAssociatedRecords(
-        client,
-        associationPayloads,
-        assocationSyncMode as AssociationSyncMode
-      )
-      await sendAssociations(client, associatedRecords)
-      return
+      case SchemaMatch.PropertiesMissing: {
+        await createProperties(client, hubspotSchemaDiff, propertyGroup)
+        await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
+        break
+      }
+      case SchemaMatch.NoMatch: {
+        throw new IntegrationError('Object Type missing', 'Object Type missing', 400)
+      }
     }
   }
+
+  const cachableList = await ensureList(client, objectType, listName, shouldCreateList, subscriptionMetadata, statsContext)
+
+  const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
+
+  const associationPayloads = createAssociationPayloads(fromRecordPayloads, 'associations')
+  const associatedRecords = await sendAssociatedRecords(client, associationPayloads, associationSyncMode as AssociationSyncMode)
+
+  const dissociationPayloads = createAssociationPayloads(fromRecordPayloads, 'dissociations')
+  const dissociatedRecords = await readAssociatedRecords(client, dissociationPayloads)
+  await sendAssociations(client, associatedRecords, 'create')
+  await sendAssociations(client, dissociatedRecords, 'archive')
+
+  if (cachableList) {
+    await sendLists(client, cachableList, fromRecordPayloads)
+  }
+
+  return
 }
 
 export default action
