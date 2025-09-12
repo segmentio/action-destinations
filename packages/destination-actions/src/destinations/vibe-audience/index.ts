@@ -7,7 +7,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Vibe Audience',
   slug: 'actions-vibe-audience',
   mode: 'cloud',
-  description: 'The Vibe Audience destination.',
+  description: 'Sync Segment Engage Audiences to Vibe',
 
   authentication: {
     scheme: 'custom',
