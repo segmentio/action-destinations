@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { advertiser_id, external_id, mobileDeviceIds, enable_batching, batch_size } from '../properties'
+import { advertiser_id, batch_size, enable_batching, external_id, mobileDeviceIds } from '../properties'
 import { editDeviceMobileIds } from '../functions'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
@@ -9,9 +9,9 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   description: 'Remove customer match members in Google Display & Video 360 Mobile Device Id List Audience.',
   defaultSubscription: 'event = "Audience Entered"',
   fields: {
-    mobileDeviceIds: { ...mobileDeviceIds },
-    external_id: { ...external_id },
-    advertiser_id: { ...advertiser_id },
+    mobileDeviceIds: { ...mobileDeviceIds, required: true },
+    external_id: { ...external_id, required: true },
+    advertiser_id: { ...advertiser_id, required: true },
     enable_batching: { ...enable_batching },
     batch_size: { ...batch_size }
   },
