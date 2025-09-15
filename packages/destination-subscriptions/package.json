@@ -1,6 +1,6 @@
 {
   "name": "@segment/destination-subscriptions",
-  "version": "3.37.1-staging-81dcc83e5.0",
+  "version": "3.37.1-staging-fb8bbedd8.0",
   "description": "Validate event payload using subscription AST",
   "license": "MIT",
   "repository": {
