@@ -76,25 +76,29 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'sendEvent',
-      mapping: defaultVals
+      mapping: defaultVals,
+      type: 'automatic'
     },
     {
       name: 'Group User',
       subscribe: 'type = "group"',
       partnerAction: 'sendEvent',
-      mapping: defaultVals
+      mapping: defaultVals,
+      type: 'automatic'
     },
     {
       name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'sendEvent',
-      mapping: defaultVals
+      mapping: defaultVals,
+      type: 'automatic'
     },
     {
       name: 'Track Page View',
       subscribe: 'type = "page"',
       partnerAction: 'sendEvent',
-      mapping: defaultVals
+      mapping: defaultVals,
+      type: 'automatic'
     }
   ]
 }

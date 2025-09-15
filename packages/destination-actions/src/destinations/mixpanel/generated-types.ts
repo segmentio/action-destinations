@@ -10,7 +10,7 @@ export interface Settings {
    */
   apiSecret: string
   /**
-   * Learn about [EU data residency](https://help.mixpanel.com/hc/en-us/articles/360039135652-Data-Residency-in-EU)
+   * Learn about [EU data residency](https://docs.mixpanel.com/docs/privacy/eu-residency) and [India data residency](https://docs.mixpanel.com/docs/privacy/in-residency)
    */
   apiRegion?: string
   /**

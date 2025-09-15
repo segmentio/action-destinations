@@ -3,6 +3,9 @@ import type { Settings } from './generated-types'
 import receiveEvents from './receiveEvents'
 import { getAccessToken } from './Utility/tablemaintutilities'
 
+const mod = `
+Last-Modified: 06.28.2023 16.15.37
+`
 //May 30th, refactor for additional Customers
 export interface refreshTokenResult {
   access_token: string
@@ -26,7 +29,8 @@ const presets: DestinationDefinition['presets'] = [
           else: { '@path': '$.context.traits.email' }
         }
       }
-    }
+    },
+    type: 'automatic'
   },
   {
     name: 'Identify Calls',
@@ -41,7 +45,8 @@ const presets: DestinationDefinition['presets'] = [
           else: { '@path': '$.context.traits.email' }
         }
       }
-    }
+    },
+    type: 'automatic'
   }
 ]
 
@@ -54,14 +59,14 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       pod: {
         label: 'Pod',
-        description: 'Pod Number of Campaign Instance',
+        description: 'Pod Number for API Endpoint',
         default: '2',
         type: 'string',
         required: true
       },
       region: {
         label: 'Region',
-        description: 'Region where Pod is hosted, either US, EU, AP, or CA',
+        description: 'Region for API Endpoint, either US, EU, AP, or CA',
         choices: [
           { label: 'US', value: 'US' },
           { label: 'EU', value: 'EU' },
@@ -74,27 +79,27 @@ const destination: DestinationDefinition<Settings> = {
       },
       tableName: {
         label: 'Acoustic Segment Table Name',
-        description: 'The Segment Table Name in Acoustic Campaign Data dialog.',
-        default: 'Segment Events Table',
+        description: `The Segment Table Name in Acoustic Campaign Data dialog.`,
+        default: 'Segment Events Table Name',
         type: 'string',
         required: true
       },
       tableListId: {
         label: 'Acoustic Segment Table List Id',
         description: 'The Segment Table List Id from the Database-Relational Table dialog in Acoustic Campaign',
-        default: ' ',
+        default: '',
         type: 'string',
         required: true
       },
       a_clientId: {
-        label: 'Acoustic app definition ClientId',
+        label: 'Acoustic App Definition ClientId',
         description: 'The Client Id from the App definition dialog in Acoustic Campaign',
         default: '',
         type: 'string',
         required: true
       },
       a_clientSecret: {
-        label: 'Acoustic App definition ClientSecret',
+        label: 'Acoustic App Definition ClientSecret',
         description: 'The Client Secret from the App definition dialog in Acoustic Campaign',
         default: '',
         type: 'password',
@@ -110,9 +115,16 @@ const destination: DestinationDefinition<Settings> = {
       attributesMax: {
         label: 'Properties Max',
         description:
-          'A safety against mapping too many attributes into the Event, ignore Event if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
-        default: 30,
+          'A safety against mapping too many attributes into the Event, Event will be ignored if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
+        default: 15,
         type: 'number',
+        required: false
+      },
+      version: {
+        label: `Version:`,
+        description: `${mod}`,
+        default: `Version 3.1   (nodeJS: ${process.version})`,
+        type: 'string',
         required: false
       }
     },

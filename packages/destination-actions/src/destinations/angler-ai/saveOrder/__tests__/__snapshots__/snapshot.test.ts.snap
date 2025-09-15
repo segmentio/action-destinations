@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for AnglerAi's saveOrder destination action: all fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "id": "UIbymzz8amIPzalS-UIbymzz8amIPzalS",
+      "order_id": "UIbymzz8amIPzalS",
+      "price": 43575821310361.6,
+      "product_id": "UIbymzz8amIPzalS",
+      "quantity": 43575821310361.6,
+      "sku": "UIbymzz8amIPzalS",
+      "title": "UIbymzz8amIPzalS",
+      "variant_id": "UIbymzz8amIPzalS",
+      "vendor": "UIbymzz8amIPzalS",
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for AnglerAi's saveOrder destination action: required fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "checkout_id": "UIbymzz8amIPzalS",
+      "customer_id": "UIbymzz8amIPzalS",
+      "id": "UIbymzz8amIPzalS",
+      "source_identifier": "UIbymzz8amIPzalS",
+      "user_id": "UIbymzz8amIPzalS",
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;

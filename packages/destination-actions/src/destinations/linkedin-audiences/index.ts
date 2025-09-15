@@ -1,9 +1,11 @@
-import type { DestinationDefinition } from '@segment/actions-core'
-import { InvalidAuthenticationError } from '@segment/actions-core'
+import https from 'https'
+
+import type { DestinationDefinition, ModifiedResponse } from '@segment/actions-core'
+import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
+
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
 import { LINKEDIN_API_VERSION } from './constants'
-import https from 'https'
 import { LinkedInAudiences } from './api'
 import type {
   RefreshTokenResponse,
@@ -12,8 +14,6 @@ import type {
   LinkedInRefreshTokenError,
   LinkedInTestAuthenticationError
 } from './types'
-import type { ModifiedResponse } from '@segment/actions-core'
-import { IntegrationError, ErrorCodes } from '@segment/actions-core'
 
 const destination: DestinationDefinition<Settings> = {
   // We  need to match `name` with the creationName in the db. The name used in the UI is "LinkedIn Audiences".

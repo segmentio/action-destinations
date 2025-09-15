@@ -9,4 +9,8 @@ export interface Settings {
    * VWO Fullstack SDK Key. It is mandatory when using the VWO Fullstack suite.
    */
   apikey?: string
+  /**
+   * VWO Region to sync data to. Default is US
+   */
+  region?: string
 }

@@ -185,4 +185,60 @@ describe(removeEmptyValues.name, () => {
       }
     })
   })
+
+  it('null values with different schema types', () => {
+    const input = {
+      product: {
+        product_id: null, // string that doesn't allow null
+        name: null, // string that allows null
+        address: null, // object that doesn't allow null
+        traits: null, // object that allow null
+        age: null, // number that doesn't allow null
+        accountsCount: null, // integer that allows null
+        isPremium: null, // boolean that doesn't allow null
+        hasSubscription: null, // boolean that allows null
+        location: null, // no explicit type specified
+        nested: {
+          foo: null,
+          bar: ''
+        }
+      }
+    }
+
+    const schema: JSONSchema4 = {
+      type: 'object',
+      properties: {
+        product: {
+          type: 'object',
+          properties: {
+            product_id: { type: 'string' },
+            name: { type: ['null', 'string'] },
+            address: { type: 'object' },
+            traits: { type: ['null', 'object'] },
+            age: { type: 'number' },
+            accountsCount: { type: ['null', 'integer'] },
+            isPremium: { type: 'boolean' },
+            hasSubscription: { type: ['null', 'boolean'] },
+            nested: {
+              type: 'object'
+            }
+          }
+        }
+      }
+    }
+
+    expect(removeEmptyValues(input, schema, true)).toEqual({
+      product: {
+        name: null,
+        traits: null,
+        location: null,
+        accountsCount: null,
+        hasSubscription: null,
+        nested: {
+          foo: null,
+          bar: ''
+        }
+      }
+    })
+  })
 })

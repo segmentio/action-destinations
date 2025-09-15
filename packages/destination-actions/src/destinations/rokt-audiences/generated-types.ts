@@ -2,7 +2,15 @@
 
 export interface Settings {
   /**
-   * APIKey used for Rokt API authorization before sending custom audiences data
+   * Rokt public key, starts with `rpub-`
    */
-  apiKey: string
+  rpub: string
+  /**
+   * Rokt secret key, starts with `rsec-`
+   */
+  rsec: string
+  /**
+   * Rokt ID assigned to your particular account.
+   */
+  accountid: string
 }

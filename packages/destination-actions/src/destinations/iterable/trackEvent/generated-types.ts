@@ -35,4 +35,12 @@ export interface Payload {
    * Iterable template the event can be attributed to.
    */
   templateId?: number
+  /**
+   * When enabled, Segment will send data to Iterable in batches of up to 1001
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }

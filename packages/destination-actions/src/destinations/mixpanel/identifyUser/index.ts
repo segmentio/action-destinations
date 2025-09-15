@@ -2,7 +2,7 @@ import { ActionDefinition, IntegrationError, omit } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { getApiServerUrl, getConcatenatedName } from '../utils'
+import { getApiServerUrl, getConcatenatedName } from '../common/utils'
 import { MixpanelEngageProperties, MixpanelEngageSet } from '../mixpanel-types'
 
 const action: ActionDefinition<Settings, Payload> = {

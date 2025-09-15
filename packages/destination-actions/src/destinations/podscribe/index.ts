@@ -12,7 +12,8 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...defaultValues(track.fields),
       podscribeEvent: 'purchase'
-    }
+    },
+    type: 'automatic'
   },
   {
     name: 'Signed Up Calls',
@@ -21,13 +22,15 @@ const presets: DestinationDefinition['presets'] = [
     mapping: {
       ...defaultValues(track.fields),
       podscribeEvent: 'signup'
-    }
+    },
+    type: 'automatic'
   },
   {
     name: 'Page Calls',
     subscribe: 'type = "page"',
     partnerAction: 'page',
-    mapping: defaultValues(page.fields)
+    mapping: defaultValues(page.fields),
+    type: 'automatic'
   }
 ]
 
@@ -44,6 +47,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Podscribe advertiser lookup key',
         type: 'string',
         required: true
+      },
+      userId: {
+        label: 'User ID',
+        description: 'Podscribe user ID',
+        type: 'string',
+        required: false
       }
     }
   },

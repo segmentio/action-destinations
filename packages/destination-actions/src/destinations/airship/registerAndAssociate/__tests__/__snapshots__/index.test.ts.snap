@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Airship's registerAndAssociate destination action: required fields 1`] = `
+Object {
+  "channel": Object {
+    "address": "f%VfPi0]O9eIkSaU",
+    "type": "email",
+  },
+}
+`;

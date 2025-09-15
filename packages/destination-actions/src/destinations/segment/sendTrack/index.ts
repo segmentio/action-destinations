@@ -19,10 +19,13 @@ import {
   user_agent,
   timezone,
   group_id,
-  properties
+  properties,
+  traits,
+  message_id,
+  consent,
+  validateConsentObject
 } from '../segment-properties'
-import { SEGMENT_ENDPOINTS } from '../properties'
-import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../errors'
+import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Track',
@@ -46,21 +49,30 @@ const action: ActionDefinition<Settings, Payload> = {
     user_agent,
     timezone,
     group_id,
-    properties
+    properties,
+    traits,
+    message_id,
+    consent
   },
-  perform: (request, { payload, settings }) => {
+  perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
+    const isValidConsentObject = validateConsentObject(payload?.consent)
 
     const trackPayload: Object = {
       userId: payload?.user_id,
       anonymousId: payload?.anonymous_id,
       timestamp: payload?.timestamp,
       event: payload?.event_name,
+      messageId: payload?.message_id,
       context: {
+        traits: {
+          ...payload?.traits
+        },
         app: payload?.application,
         campaign: payload?.campaign_parameters,
+        consent: isValidConsentObject ? { ...payload?.consent } : {},
         device: payload?.device,
         ip: payload?.ip_address,
         locale: payload?.locale,
@@ -75,19 +87,12 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       properties: {
         ...payload?.properties
-      }
+      },
+      type: 'track'
     }
 
-    // Throw an error if endpoint is not defined or invalid
-    if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-      throw InvalidEndpointSelectedThrowableError
-    }
-
-    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-    return request(`${selectedSegmentEndpoint}/track`, {
-      method: 'POST',
-      json: trackPayload
-    })
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendTrack'])
+    return { batch: [trackPayload] }
   }
 }
 

@@ -26,19 +26,19 @@ export interface Payload {
     [k: string]: unknown
   }[]
   /**
-   * Deprecated - Parses all properties provided via a Context Section
+   * All properties provided via a Context Section
    */
   context?: {
     [k: string]: unknown
   }
   /**
-   * Deprecated - Parses all properties provided via a Properties Section
+   * All properties provided via a Properties Section
    */
   properties?: {
     [k: string]: unknown
   }
   /**
-   * Deprecated - Parses all properties provided via a Traits Section
+   * All properties provided via a Traits Section
    */
   traits?: {
     [k: string]: unknown

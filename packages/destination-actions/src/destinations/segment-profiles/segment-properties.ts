@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 
 export const user_id: InputField = {
   label: 'User ID',
@@ -34,4 +34,63 @@ export const engage_space: InputField = {
   type: 'string',
   required: true,
   dynamic: true
+}
+
+export const timestamp: InputField = {
+  label: 'Timestamp',
+  description: 'The timestamp of the event.',
+  type: 'datetime',
+  default: {
+    '@path': '$.timestamp'
+  }
+}
+
+export const message_id: InputField = {
+  type: 'string',
+  label: 'MessageId',
+  description: 'The Segment messageId.',
+  default: { '@path': '$.messageId' },
+  unsafe_hidden: true
+}
+
+export const event_name: InputField = {
+  label: 'Event Name',
+  description: 'Name of the action that a user has performed.',
+  type: 'string',
+  required: true
+}
+
+export const properties: InputField = {
+  label: 'Properties',
+  description: 'Free-form dictionary of properties that describe the event.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  additionalProperties: true
+}
+
+export const consent: InputField = {
+  label: 'Consent',
+  description: 'Segment event consent category preferences.',
+  type: 'object',
+  default: { '@path': '$.context.consent' },
+  unsafe_hidden: true
+}
+
+function isCategoryPreferences(obj: unknown): boolean {
+  if (typeof obj !== 'object' || obj === null) {
+    return false
+  }
+
+  return Object.values(obj).every((value) => typeof value === 'boolean')
+}
+export const validateConsentObject = (obj: { [k: string]: unknown } | undefined): boolean => {
+  if (obj == undefined) {
+    return true
+  }
+
+  if (typeof obj !== 'object' || obj === null) {
+    throw false
+  }
+
+  return 'categoryPreferences' in obj && isCategoryPreferences(obj['categoryPreferences'])
 }

@@ -1,11 +1,17 @@
-import { DestinationDefinition } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import postConversion from './postConversion'
 import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
+import { CreateAudienceInput, GetAudienceInput, UserListResponse } from './types'
+import { createGoogleAudience, getGoogleAudience, verifyCustomerId } from './functions'
+import uploadCallConversion2 from './uploadCallConversion2'
+import userList from './userList'
+import uploadClickConversion2 from './uploadClickConversion2'
+import uploadConversionAdjustment2 from './uploadConversionAdjustment2'
 
-interface RefreshTokenResponse {
+export interface RefreshTokenResponse {
   access_token: string
   scope: string
   expires_in: number
@@ -18,7 +24,7 @@ interface UserInfoResponse {
 }
 */
 
-const destination: DestinationDefinition<Settings> = {
+const destination: AudienceDestinationDefinition<Settings> = {
   // NOTE: We need to match the name with the creation name in DB.
   // This is not the value used in the UI.
   name: 'Google Ads Conversions',
@@ -71,12 +77,186 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
+  audienceFields: {
+    supports_conversions: {
+      type: 'boolean',
+      label: 'Supports Conversions',
+      description:
+        'Mark true if you are using uploadCallConversion, uploadClickConversion or uploadConversionAdjustment. If you plan to use userLists alone or in combination with the others, mark as false.',
+      default: false
+    },
+    external_id_type: {
+      type: 'string',
+      label: 'External ID Type',
+      description:
+        'Customer match upload key types. Required if you are using UserLists. Not used by the other actions.',
+      choices: [
+        { label: 'CONTACT INFO', value: 'CONTACT_INFO' },
+        { label: 'CRM ID', value: 'CRM_ID' },
+        { label: 'MOBILE ADVERTISING ID', value: 'MOBILE_ADVERTISING_ID' }
+      ]
+    },
+    app_id: {
+      label: 'App ID',
+      description:
+        'A string that uniquely identifies a mobile application from which the data was collected. Required if external ID type is mobile advertising ID',
+      type: 'string',
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'external_id_type',
+            operator: 'is',
+            value: 'MOBILE_ADVERTISING_ID'
+          }
+        ]
+      }
+    }
+  },
+  audienceConfig: {
+    mode: {
+      type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
+      full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
+    },
+    async createAudience(request, createAudienceInput: CreateAudienceInput) {
+      // When supports_conversions is enabled streaming mode is forced for this destination.
+      // This guarantees that uploadCallConversion, uploadClickConversion and uploadConversionAdjustment actions are usable with Engage sources.
+      if (createAudienceInput.audienceSettings.supports_conversions) {
+        return {
+          externalId: 'segment'
+        }
+      }
+
+      createAudienceInput.settings.customerId = verifyCustomerId(createAudienceInput.settings.customerId)
+      const auth = createAudienceInput.settings.oauth
+
+      let userListId
+      try {
+        userListId = await createGoogleAudience(
+          request,
+          createAudienceInput,
+          auth,
+          createAudienceInput.features,
+          createAudienceInput.statsContext
+        )
+      } catch (err) {
+        let status = err.status || err.code
+        if (!status && err.response && err.response.status) {
+          status = Number(err.response.status)
+        }
+        // NOTE:
+        // We are embedding the entire error message here.
+        // This is not ideal as we should properly parse it and assemble the respective error message.
+        // For now, this and its counterpart in EAMS will parse the error and show it to the user but
+        // ultimately destinations should own this.
+        const message = err.response?.content || err.message
+
+        throw new IntegrationError(message, 'CREATE_AUDIENCE_FAILED', status || 400)
+      }
+
+      return {
+        externalId: userListId
+      }
+    },
+
+    async getAudience(request, getAudienceInput: GetAudienceInput) {
+      // The connections that were created before the audience methods
+      // were added will have the externalId field as segment.
+      if (getAudienceInput.externalId === 'segment') {
+        return {
+          externalId: getAudienceInput.externalId
+        }
+      }
+      getAudienceInput.settings.customerId = verifyCustomerId(getAudienceInput.settings.customerId)
+      const response: UserListResponse = await getGoogleAudience(
+        request,
+        getAudienceInput.settings,
+        getAudienceInput.externalId,
+        getAudienceInput.settings.oauth,
+        getAudienceInput.features,
+        getAudienceInput.statsContext
+      )
+
+      return {
+        externalId: response.results[0].userList.id
+      }
+    }
+  },
   actions: {
     postConversion,
     uploadClickConversion,
     uploadCallConversion,
-    uploadConversionAdjustment
-  }
+    uploadConversionAdjustment,
+    uploadConversionAdjustment2,
+    uploadClickConversion2,
+    uploadCallConversion2,
+    userList
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'userList',
+      mapping: defaultValues(userList.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'userList',
+      mapping: defaultValues(userList.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'postConversion',
+      mapping: defaultValues(postConversion.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadClickConversion',
+      mapping: defaultValues(uploadClickConversion.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadCallConversion',
+      mapping: defaultValues(uploadCallConversion.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadConversionAdjustment',
+      mapping: defaultValues(uploadConversionAdjustment.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadConversionAdjustment2',
+      mapping: defaultValues(uploadConversionAdjustment2.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadClickConversion2',
+      mapping: defaultValues(uploadClickConversion2.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadCallConversion2',
+      mapping: defaultValues(uploadCallConversion2.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    }
+  ]
 }
 
 export default destination

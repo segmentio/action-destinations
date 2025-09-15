@@ -1,6 +1,7 @@
 import type { Settings } from './generated-types'
 import type { RequestClient } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
+// eslint-disable-next-line no-restricted-syntax
 import { randomBytes, createHash } from 'crypto'
 
 export const API_HOST = 'https://api.emarsys.net'

@@ -16,6 +16,12 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * Optional attributes for the relationship between the object and the user. When updating an relationship, attributes are added or updated, not removed.
+   */
+  relationship_attributes?: {
+    [k: string]: unknown
+  }
+  /**
    * The ID used to relate a user to an object in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).
    */
   user_id?: string
@@ -31,4 +37,12 @@ export interface Payload {
    * Convert dates to Unix timestamps (seconds since Epoch).
    */
   convert_timestamp?: boolean
+  /**
+   * Set as true to ensure Segment sends data to Customer.io in batches.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }

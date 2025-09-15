@@ -4,7 +4,7 @@ import type { RequestClient } from '@segment/actions-core'
 export interface Organization {
   name?: string
   add_time?: string
-  visible_to?: number
+  visible_to?: string
 }
 
 export async function createOrUpdateOrganizationById(

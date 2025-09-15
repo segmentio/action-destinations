@@ -53,6 +53,17 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-airship destination: registerAndAssociate action - all fields 1`] = `""`;
+
+exports[`Testing snapshot for actions-airship destination: registerAndAssociate action - required fields 1`] = `
+Object {
+  "channel": Object {
+    "address": "$D%LNw)2",
+    "type": "email",
+  },
+}
+`;
+
 exports[`Testing snapshot for actions-airship destination: setAttributes action - all fields 1`] = `
 Object {
   "attributes": Array [
@@ -114,7 +125,7 @@ Object {
       "action": "set",
       "key": "birthdate",
       "timestamp": false,
-      "value": "2021-02-01T00:00:00.000Z",
+      "value": "2021-02-01T00:00:00",
     },
     Object {
       "action": "set",
@@ -126,19 +137,19 @@ Object {
       "action": "set",
       "key": "mobile_phone",
       "timestamp": false,
-      "value": -8736782938013696,
+      "value": 75,
     },
     Object {
       "action": "set",
       "key": "home_phone",
       "timestamp": false,
-      "value": -8736782938013696,
+      "value": 75,
     },
     Object {
       "action": "set",
       "key": "work_phone",
       "timestamp": false,
-      "value": -8736782938013696,
+      "value": 75,
     },
     Object {
       "action": "set",
@@ -162,7 +173,7 @@ Object {
       "action": "set",
       "key": "account_creation",
       "timestamp": false,
-      "value": "2021-02-01T00:00:00.000Z",
+      "value": "2021-02-01T00:00:00",
     },
     Object {
       "action": "set",

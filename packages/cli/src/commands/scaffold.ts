@@ -8,8 +8,12 @@ import { renderTemplates } from '../lib/templates'
 import fs from 'fs-extra'
 import { camelCase, startCase } from 'lodash'
 import { fieldsToJsonSchema } from '@segment/actions-core'
-import type { InputField, DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
-import type { BrowserDestinationDefinition } from '@segment/browser-destinations'
+import type {
+  InputField,
+  DestinationDefinition as CloudDestinationDefinition,
+  GlobalSetting
+} from '@segment/actions-core'
+import type { BrowserDestinationDefinition } from '@segment/destinations-manifest'
 import { JSONSchema4 } from 'json-schema'
 import { compile } from 'json-schema-to-typescript'
 import prettier from 'prettier'
@@ -58,7 +62,7 @@ export default class Init extends Command {
     return integrationDirs
   }
 
-  parseFlags() {
+  parseFlags(): flags.Output {
     return this.parse(Init)
   }
 
@@ -122,11 +126,17 @@ export default class Init extends Command {
       const actionsTargetDirectory = `${targetDirectory}/${action.key}`
 
       action.fields.forEach((field: any) => {
-        const hasDefault = field.hasDefault && field.default
+        const hasDefault = field.hasDefault && field.defaultValue
         if (hasDefault) {
-          field.hasDefaultValue = field.default.type !== 'directive'
-          field.hasDirective = field.default.type === 'directive'
-          field.isString = ['string', 'text', 'datetime', 'password'].includes(field.type)
+          const defaultValue = JSON.stringify(field.defaultValue)
+          if (defaultValue.includes('@template')) {
+            field.isTemplate = true
+            field.directiveType = '@template'
+            const templateValue: string = field.defaultValue['@template']
+            // Replace double curly braces with square brackets so that it can be properly rendered in Mustache template
+            field.value = templateValue.replace(/\{\{([^{}]+)\}\}/g, '[[$1]]')
+          }
+          field.defaultValue = defaultValue
         }
       })
 
@@ -137,6 +147,8 @@ export default class Init extends Command {
           {
             name: action.name,
             description: action.description,
+            hasDefaultSubscription: action.hasDefaultSubscription,
+            trigger: action.trigger,
             slug,
             destination,
             fields: action.fields,
@@ -166,6 +178,19 @@ export default class Init extends Command {
         this.spinner.succeed(chalk`Creating snapshot tests for action {magenta ${action.name}}`)
       } catch (err: any) {
         this.spinner.fail(chalk`Snapshot test creation failed {magenta ${action.name}}: ${chalk.red(err.message)}`)
+        this.exit()
+      }
+
+      // In order to generate templates, we had to replace curly braces with square brackets. This reverts them back to curly braces.
+      const entryFile = `${actionsTargetDirectory}/index.ts`
+      try {
+        this.spinner.start(chalk`Updating action field templates for action: ${action.name}`)
+        const actionsStr = fs.readFileSync(entryFile, 'utf8')
+        const result = actionsStr.replace(/\[\[([^[\]]+)\]\]/g, '{{$1}}')
+        fs.writeFileSync(entryFile, result, 'utf8')
+        this.spinner.succeed()
+      } catch (err) {
+        this.spinner.fail(chalk`Failed to update your action field templates for action: ${action.name}`)
         this.exit()
       }
     }
@@ -232,7 +257,7 @@ export default class Init extends Command {
   }
 }
 
-async function generateTypes(fields: Record<string, InputField> = {}, name: string) {
+async function generateTypes(fields: Record<string, InputField | GlobalSetting> = {}, name: string) {
   const schema = prepareSchema(fields)
 
   return compile(schema, name, {
@@ -241,7 +266,7 @@ async function generateTypes(fields: Record<string, InputField> = {}, name: stri
   })
 }
 
-function prepareSchema(fields: Record<string, InputField>): JSONSchema4 {
+function prepareSchema(fields: Record<string, InputField | GlobalSetting>): JSONSchema4 {
   let schema = fieldsToJsonSchema(fields, { tsType: true })
   // Remove extra properties so it produces cleaner output
   schema = removeExtra(schema)

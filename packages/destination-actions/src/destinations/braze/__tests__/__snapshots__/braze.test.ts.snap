@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Braze Cloud Mode (Actions) trackEvent should require one of braze_id, user_alias, or external_id 1`] = `"One of \\"external_id\\" or \\"user_alias\\" or \\"braze_id\\" is required."`;
+exports[`Braze Cloud Mode (Actions) trackEvent should require one of braze_id, user_alias, or external_id 1`] = `"One of \\"external_id\\" or \\"user_alias\\" or \\"braze_id\\" or \\"email\\" is required."`;
 
 exports[`Braze Cloud Mode (Actions) trackEvent should work with batched events 1`] = `
 Headers {
@@ -51,6 +51,7 @@ Object {
       "_update_existing_only": false,
       "app_id": "my-app-id",
       "braze_id": undefined,
+      "email": undefined,
       "external_id": "user1234",
       "name": "Test Event",
       "properties": Object {},
@@ -74,7 +75,7 @@ Headers {
 }
 `;
 
-exports[`Braze Cloud Mode (Actions) trackPurchase should require one of braze_id, user_alias, or external_id 1`] = `"One of \\"external_id\\" or \\"user_alias\\" or \\"braze_id\\" is required."`;
+exports[`Braze Cloud Mode (Actions) trackPurchase should require one of braze_id, user_alias, or external_id 1`] = `"One of \\"external_id\\" or \\"user_alias\\" or \\"braze_id\\" or \\"email\\" is required."`;
 
 exports[`Braze Cloud Mode (Actions) trackPurchase should work with default mappings 1`] = `
 Headers {
@@ -89,7 +90,7 @@ Headers {
 }
 `;
 
-exports[`Braze Cloud Mode (Actions) updateUserProfile should require one of braze_id, user_alias, or external_id 1`] = `"One of \\"external_id\\" or \\"user_alias\\" or \\"braze_id\\" is required."`;
+exports[`Braze Cloud Mode (Actions) updateUserProfile should require one of braze_id, user_alias, external_id or email 1`] = `"One of \\"external_id\\" or \\"user_alias\\" or \\"braze_id\\" or \\"email\\" is required."`;
 
 exports[`Braze Cloud Mode (Actions) updateUserProfile should work with default mappings 1`] = `
 Headers {

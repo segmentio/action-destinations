@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Pushwoosh's updateUserProfile destination action: all fields 1`] = `
+Object {
+  "app_version": "CbYLWanPxPu8BsjtevH)",
+  "attributes": Object {
+    "testType": "CbYLWanPxPu8BsjtevH)",
+  },
+  "city": "CbYLWanPxPu8BsjtevH)",
+  "country": "CbYLWanPxPu8BsjtevH)",
+  "current_location": Object {
+    "latitude": 81416201091153.92,
+    "longitude": 81416201091153.92,
+  },
+  "device_id": "CbYLWanPxPu8BsjtevH)",
+  "device_model": "CbYLWanPxPu8BsjtevH)",
+  "device_os_version": "CbYLWanPxPu8BsjtevH)",
+  "device_platform": "CbYLWanPxPu8BsjtevH)",
+  "device_token": "CbYLWanPxPu8BsjtevH)",
+  "email": "to@keb.br",
+  "language": "CbYLWanPxPu8BsjtevH)",
+  "timezone": "CbYLWanPxPu8BsjtevH)",
+  "user_agent": "CbYLWanPxPu8BsjtevH)",
+  "user_id": "CbYLWanPxPu8BsjtevH)",
+}
+`;
+
+exports[`Testing snapshot for Pushwoosh's updateUserProfile destination action: required fields 1`] = `
+Object {
+  "attributes": Object {},
+  "device_id": "CbYLWanPxPu8BsjtevH)",
+  "user_id": "CbYLWanPxPu8BsjtevH)",
+}
+`;

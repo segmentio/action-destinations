@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError, DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -8,9 +8,10 @@ import {
   EMAIL_FIELD,
   USER_DATA_FIELDS,
   USER_PHONE_NUMBER_FIELD,
-  CommerceItem
+  CommerceItem,
+  DataCenterLocation
 } from '../shared-fields'
-import { transformItems, convertDatesInObject } from '../utils'
+import { transformItems, convertDatesInObject, getRegionalEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Cart Updates',
@@ -59,7 +60,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...ITEMS_FIELD
     }
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, settings }) => {
     const { user, items } = payload
     if (!user.email && !user.userId) {
       throw new PayloadValidationError('Must include email or userId.')
@@ -94,9 +95,11 @@ const action: ActionDefinition<Settings, Payload> = {
       items: transformItems(items)
     }
 
-    return request('https://api.iterable.com/api/commerce/updateCart', {
+    const endpoint = getRegionalEndpoint('updateCart', settings.dataCenterLocation as DataCenterLocation)
+    return request(endpoint, {
       method: 'post',
-      json: updateCartRequest
+      json: updateCartRequest,
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     })
   }
 }

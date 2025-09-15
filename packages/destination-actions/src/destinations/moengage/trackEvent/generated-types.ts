@@ -39,4 +39,8 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * If set to true, events from the Segment will only trigger updates for users who already exist in Moengage.
+   */
+  update_existing_only?: boolean
 }

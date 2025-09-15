@@ -1,7 +1,7 @@
-import { ActionDefinition } from '@segment/actions-core';
-import type { Settings } from '../generated-types';
-import type { Payload } from './generated-types';
-import { getEndpoint } from '../utils';
+import { ActionDefinition } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import { getEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Forward identify event',
@@ -9,14 +9,16 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify"',
   fields: {
     action: {
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       description: 'Indicates which action was triggered',
       label: 'Action name',
       default: 'identify'
     },
     user_id: {
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       description: 'The identifier of the user',
       label: 'User ID',
       default: {
@@ -24,7 +26,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     anonymous_id: {
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       description: 'Anonymous ID of the user',
       label: 'Anonymous ID',
       default: {
@@ -41,7 +44,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     timestamp: {
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       description: 'The time the event occured in UTC',
       label: 'Event timestamp',
@@ -68,12 +72,12 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload }) => {
-    const endpoint = getEndpoint(settings.userId);
+    const endpoint = getEndpoint(settings.userId)
 
     return request(endpoint, {
       method: 'POST',
       json: payload
-    });
+    })
   }
 }
 

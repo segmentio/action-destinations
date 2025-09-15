@@ -48,6 +48,18 @@ export type MixpanelEventProperties = {
   utm_medium?: string // 'email'
   utm_source?: string // 'Newsletter'
   utm_term?: string // 'tps reports'
+  advertising_id?: string
+  ad_tracking_enabled?: string
+  timezone?: string
+  app_platform?: string
+  event_original_name?: string
+  $mobile?: boolean
+  $platform?: string
+  $architecture?: string
+  $bitness?: string
+  $platformVersion?: string
+  $uaFullVersion?: string
+  $wow64?: boolean
 }
 
 export type MixpanelEvent = {
@@ -70,4 +82,7 @@ export type MixpanelEngageProperties = {
   $distinct_id?: string | null
   $ip?: string
   $set?: MixpanelEngageSet
+  $add?: MixpanelIncrementPropertiesObject
 }
+
+export type MixpanelIncrementPropertiesObject = { [key: string]: number }

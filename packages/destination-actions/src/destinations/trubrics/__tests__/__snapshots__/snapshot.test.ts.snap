@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-trubrics destination: track action - all fields 1`] = `
+Object {
+  "event": "In9syz",
+  "properties": Object {
+    "testType": "In9syz",
+  },
+  "timestamp": "2070-02-06T20:15:19.338Z",
+  "traits": Object {
+    "testType": "In9syz",
+  },
+  "user_id": "In9syz",
+}
+`;
+
+exports[`Testing snapshot for actions-trubrics destination: track action - required fields 1`] = `
+Object {
+  "event": "In9syz",
+  "properties": Object {},
+  "timestamp": "2070-02-06T20:15:19.338Z",
+  "user_id": "In9syz",
+}
+`;

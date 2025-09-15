@@ -13,4 +13,8 @@ export interface Settings {
    * Your Criteo Advertiser ID
    */
   advertiser_id: string
+  /**
+   * Important: This setting should remain enabled!
+   */
+  enable_batching?: boolean
 }

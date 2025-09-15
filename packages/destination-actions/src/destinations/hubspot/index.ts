@@ -5,6 +5,8 @@ import sendCustomBehavioralEvent from './sendCustomBehavioralEvent'
 import upsertContact from './upsertContact'
 import upsertCompany from './upsertCompany'
 import upsertCustomObjectRecord from './upsertCustomObjectRecord'
+import upsertObject from './upsertObject'
+import customEvent from './customEvent'
 import { HUBSPOT_BASE_URL } from './properties'
 interface RefreshTokenResponse {
   access_token: string
@@ -17,7 +19,13 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'oauth2',
-    fields: {},
+    fields: {
+      portalId: {
+        description: 'The Hub ID of your HubSpot account.',
+        label: 'Hub ID',
+        type: 'string'
+      }
+    },
     testAuthentication: (request) => {
       // HubSpot doesn't have a test authentication endpoint, so we using a lightweight CRM API to validate access token
       return request(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts?limit=1`)
@@ -39,6 +47,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   extendRequest({ auth }) {
     return {
+      skipResponseCloning: true,
       headers: {
         authorization: `Bearer ${auth?.accessToken}`
       }
@@ -49,7 +58,9 @@ const destination: DestinationDefinition<Settings> = {
     sendCustomBehavioralEvent,
     upsertContact,
     upsertCompany,
-    upsertCustomObjectRecord
+    upsertCustomObjectRecord,
+    upsertObject,
+    customEvent
   }
 }
 

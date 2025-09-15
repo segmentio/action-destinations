@@ -113,18 +113,14 @@ const action: ActionDefinition<Settings, Payload> = {
     visible_to: {
       label: 'Visible To',
       description:
-        'Visibility of the Lead. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user.',
-      type: 'integer',
+        "Visibility of the Lead. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans",
+      type: 'string',
       choices: [
-        { label: 'Owner & followers (private)', value: 1 },
-        { label: 'Entire company (shared)', value: 3 }
+        { label: 'Owner & followers (private)', value: '1' },
+        { label: 'Entire company (shared)', value: '3' },
+        { label: "Owner's visibility group and sub-groups", value: '5' },
+        { label: 'Entire company', value: '7' }
       ],
-      required: false
-    },
-    add_time: {
-      label: 'Created At',
-      description: 'If the lead is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS',
-      type: 'datetime',
       required: false
     }
   },
@@ -156,8 +152,7 @@ const action: ActionDefinition<Settings, Payload> = {
       visible_to: payload.visible_to,
       person_id: personId || undefined,
       organization_id: organizationId || undefined,
-      value: payload.amount && payload.currency ? leadValue : undefined,
-      add_time: payload.add_time ? `${payload.add_time}` : undefined
+      value: payload.amount && payload.currency ? leadValue : undefined
     }
 
     if (!lead.id && !lead.person_id && !lead.organization_id) {

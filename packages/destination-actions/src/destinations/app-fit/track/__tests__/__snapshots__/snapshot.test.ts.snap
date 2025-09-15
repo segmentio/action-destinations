@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for AppFit's track destination action: all fields 1`] = `
+Object {
+  "eventSource": "segment",
+  "occurredAt": "2021-02-01T00:00:00.000Z",
+  "payload": Object {
+    "anonymousId": "M$xwt#p",
+    "eventName": "M$xwt#p",
+    "properties": Object {
+      "testType": "M$xwt#p",
+    },
+    "sourceEventId": "M$xwt#p",
+    "systemProperties": Object {
+      "appVersion": "M$xwt#p",
+      "device": Object {
+        "advertisingId": "M$xwt#p",
+        "id": "M$xwt#p",
+        "manufacturer": "M$xwt#p",
+        "model": "M$xwt#p",
+      },
+      "ipAddress": "M$xwt#p",
+      "os": Object {
+        "name": "M$xwt#p",
+        "version": "M$xwt#p",
+      },
+    },
+    "userId": "M$xwt#p",
+  },
+  "version": "2",
+}
+`;
+
+exports[`Testing snapshot for AppFit's track destination action: required fields 1`] = `
+Object {
+  "eventSource": "segment",
+  "occurredAt": "2021-02-01T00:00:00.000Z",
+  "payload": Object {
+    "eventName": "M$xwt#p",
+    "sourceEventId": "M$xwt#p",
+    "systemProperties": Object {
+      "device": Object {},
+      "os": Object {},
+    },
+  },
+  "version": "2",
+}
+`;

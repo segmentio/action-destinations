@@ -58,7 +58,7 @@ const action: ActionDefinition<Settings> = {
   perform: (request, { payload, settings }) => {
     const { traits, anonymousId, userId, email, displayName } = payload
 
-    const normalizedTraits = normalizePropertyNames(traits, { camelCase: true })
+    const normalizedTraits = normalizePropertyNames(traits, { camelCase: true, typeSuffix: true })
 
     if (anonymousId) {
       normalizedTraits.segmentAnonymousId_str = anonymousId

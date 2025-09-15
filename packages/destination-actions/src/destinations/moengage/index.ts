@@ -46,6 +46,10 @@ const destination: DestinationDefinition<Settings> = {
           {
             label: 'DataCenter-04',
             value: 'DC_04'
+          },
+          {
+            label: 'DataCenter-05',
+            value: 'DC_05'
           }
         ],
         default: 'DC_01'

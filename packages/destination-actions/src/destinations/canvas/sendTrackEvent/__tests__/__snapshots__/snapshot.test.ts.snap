@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Canvas's sendTrackEvent destination action: all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "RGBF)J@&xDlluJcefcN9",
+    "context": Object {
+      "testType": "RGBF)J@&xDlluJcefcN9",
+    },
+    "enable_batching": false,
+    "event": "RGBF)J@&xDlluJcefcN9",
+    "message_id": "RGBF)J@&xDlluJcefcN9",
+    "properties": Object {
+      "testType": "RGBF)J@&xDlluJcefcN9",
+    },
+    "received_at": "2021-02-01T00:00:00.000Z",
+    "sent_at": "2021-02-01T00:00:00.000Z",
+    "timestamp": "RGBF)J@&xDlluJcefcN9",
+    "user_id": "RGBF)J@&xDlluJcefcN9",
+  },
+]
+`;
+
+exports[`Testing snapshot for Canvas's sendTrackEvent destination action: required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "RGBF)J@&xDlluJcefcN9",
+    "enable_batching": false,
+    "event": "RGBF)J@&xDlluJcefcN9",
+    "message_id": "RGBF)J@&xDlluJcefcN9",
+    "received_at": "2021-02-01T00:00:00.000Z",
+    "sent_at": "2021-02-01T00:00:00.000Z",
+    "user_id": "RGBF)J@&xDlluJcefcN9",
+  },
+]
+`;

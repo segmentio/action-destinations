@@ -1,11 +1,12 @@
-import { ActionDefinition, RequestClient, omit } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, omit, JSONLikeObject } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { MixpanelEvent } from '../mixpanel-types'
-import { getApiServerUrl, cheapGuid } from '../utils'
+import { getApiServerUrl, cheapGuid, MixpanelTrackApiResponseType, handleMixPanelApiResponse } from '../common/utils'
 import { getEventProperties } from '../trackEvent/functions'
 import { eventProperties, productsProperties } from '../mixpanel-properties'
 import dayjs from '../../../lib/dayjs'
+import { Features } from '@segment/actions-core/mapping-kit'
 
 const topLevelKeys = [
   'affiliation',
@@ -49,15 +50,41 @@ const getPurchaseEventsFromPayload = (payload: Payload, settings: Settings): Mix
   return [orderCompletedEvent, ...purchaseEvents]
 }
 
-const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
-  const events = payload.map((value) => getPurchaseEventsFromPayload(value, settings)).flat()
-  return request(`${ getApiServerUrl(settings.apiRegion) }/import?strict=${ settings.strictMode ?? `1` }`, {
-    method: 'post',
-    json: events,
-    headers: {
-      authorization: `Basic ${ Buffer.from(`${ settings.apiSecret }:`).toString('base64') }`
-    }
+const processData = async (request: RequestClient, settings: Settings, payload: Payload[], features?: Features) => {
+  const events: MixpanelEvent[] = []
+  const sentEvents: JSONLikeObject[] = []
+  payload.forEach((value) => {
+    const purchaseEvents = getPurchaseEventsFromPayload(value, settings).flat()
+    sentEvents.push(purchaseEvents as object as JSONLikeObject)
+    events.push(...purchaseEvents)
+    return purchaseEvents
   })
+  const throwHttpErrors = features && features['mixpanel-multistatus'] ? false : true
+
+  const response = await callMixpanelApi(request, settings, events, throwHttpErrors)
+  if (features && features['mixpanel-multistatus']) {
+    return handleMixPanelApiResponse(payload.length, response, sentEvents)
+  }
+  return response
+}
+
+const callMixpanelApi = async (
+  request: RequestClient,
+  settings: Settings,
+  events: MixpanelEvent[],
+  throwHttpErrors: boolean
+) => {
+  return await request<MixpanelTrackApiResponseType>(
+    `${getApiServerUrl(settings.apiRegion)}/import?strict=${settings.strictMode ?? `1`}`,
+    {
+      method: 'post',
+      json: events,
+      headers: {
+        authorization: `Basic ${Buffer.from(`${settings.apiSecret}:`).toString('base64')}`
+      },
+      throwHttpErrors: throwHttpErrors
+    }
+  )
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -84,12 +111,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { settings, payload }) => {
-    return processData(request, settings, [payload])
+  perform: async (request, { settings, payload, features }) => {
+    return processData(request, settings, [payload], features)
   },
 
-  performBatch: async (request, { settings, payload }) => {
-    return processData(request, settings, payload)
+  performBatch: async (request, { settings, payload, features }) => {
+    return processData(request, settings, payload, features)
   }
 }
 

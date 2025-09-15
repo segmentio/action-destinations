@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Antavo's profile destination action: all fields 1`] = `
+Object {
+  "account": "x7T1S",
+  "action": "profile",
+  "api_key": "x7T1S",
+  "customer": "x7T1S",
+  "data": Object {
+    "birth_date": "x7T1S",
+    "email": "kukaspot@te.al",
+    "first_name": "x7T1S",
+    "gender": "x7T1S",
+    "language": "x7T1S",
+    "last_name": "x7T1S",
+    "mobile_phone": "x7T1S",
+    "phone": "x7T1S",
+  },
+}
+`;
+
+exports[`Testing snapshot for Antavo's profile destination action: required fields 1`] = `
+Object {
+  "action": "profile",
+  "api_key": "x7T1S",
+  "customer": "x7T1S",
+  "data": Object {},
+}
+`;

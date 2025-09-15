@@ -1,9 +1,10 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, StatsContext } from '@segment/actions-core'
 import { RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createHash } from 'crypto'
 import { LinkedInAudiences } from '../api'
+import { LinkedInAudiencePayload } from '../types'
+import { processHashing } from '../../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To LinkedIn DMP Segment',
@@ -16,27 +17,79 @@ const action: ActionDefinition<Settings, Payload> = {
         'The display name of the LinkedIn DMP Segment. This field is set only when Segment creates a new audience. Updating this field after Segment has created an audience will not update the audience name in LinkedIn.',
       type: 'string',
       default: {
-        '@path': '$.properties.audience_key'
+        '@if': {
+          exists: { '@path': '$.properties.audience_key' },
+          then: { '@path': '$.properties.audience_key' },
+          else: { '@path': '$.context.personas.computation_key' }
+        }
       }
     },
     enable_batching: {
       label: 'Enable Batching',
       description: 'Enable batching of requests to the LinkedIn DMP Segment.',
       type: 'boolean',
-      default: true
+      default: true,
+      unsafe_hidden: true
     },
     email: {
       label: 'User Email',
       description: "The user's email address to send to LinkedIn.",
-      type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.traits.email' in Personas events.
+      type: 'string',
       default: {
-        '@path': '$.context.traits.email'
+        '@if': {
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.traits.email' }
+        }
+      },
+      category: 'hashedPII'
+    },
+    first_name: {
+      label: 'User First Name',
+      description: "The user's first name to send to LinkedIn.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.firstName'
+      }
+    },
+    last_name: {
+      label: 'User Last Name',
+      description: "The user's last name to send to LinkedIn.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.lastName'
+      }
+    },
+    title: {
+      label: 'User Title',
+      description: "The user's title to send to LinkedIn.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.title'
+      }
+    },
+    company: {
+      label: 'User Company',
+      description: "The user's company to send to LinkedIn.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.company'
+      }
+    },
+    country: {
+      label: 'User Country',
+      description:
+        "The user's country to send to LinkedIn. This field accepts an ISO standardized two letter country code e.g. US.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.country'
       }
     },
     google_advertising_id: {
       label: 'User Google Advertising ID',
       description: "The user's Google Advertising ID to send to LinkedIn.",
-      type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
+      type: 'string',
+      unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
       default: {
         '@path': '$.context.device.advertisingId'
       }
@@ -45,9 +98,14 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'LinkedIn Source Segment ID',
       description:
         "A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.",
-      type: 'hidden', // This field is hidden from customers because the desired value always appears at '$.properties.audience_key' in Personas events.
+      type: 'string',
+      unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at '$.properties.audience_key' in Personas events and at '$.context.personas.computation_key' for events coming from Journeys v2.
       default: {
-        '@path': '$.properties.audience_key'
+        '@if': {
+          exists: { '@path': '$.properties.audience_key' },
+          then: { '@path': '$.properties.audience_key' },
+          else: { '@path': '$.context.personas.computation_key' }
+        }
       }
     },
     personas_audience_key: {
@@ -60,26 +118,43 @@ const action: ActionDefinition<Settings, Payload> = {
     event_name: {
       label: 'Event Name',
       description: 'The name of the current Segment event.',
-      type: 'hidden', // This field is hidden from customers because the desired value always appears at path '$.event' in Personas events.
+      type: 'string',
+      unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at path '$.event' in Personas events.
       default: {
         '@path': '$.event'
       }
+    },
+    dmp_user_action: {
+      label: 'DMP User Action',
+      description: 'A Segment specific key used to define action type.',
+      type: 'string',
+      choices: [
+        { label: `Auto Detect`, value: 'AUTO' },
+        { label: `Add`, value: 'ADD' },
+        { label: 'Remove', value: 'REMOVE' }
+      ],
+      default: 'AUTO'
     }
   },
-  perform: async (request, { settings, payload }) => {
-    return processPayload(request, settings, [payload])
+  perform: async (request, { settings, payload, statsContext }) => {
+    return processPayload(request, settings, [payload], statsContext)
   },
-  performBatch: async (request, { settings, payload }) => {
-    return processPayload(request, settings, payload)
+  performBatch: async (request, { settings, payload, statsContext }) => {
+    return processPayload(request, settings, payload, statsContext)
   }
 }
 
-async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
+async function processPayload(
+  request: RequestClient,
+  settings: Settings,
+  payloads: Payload[],
+  statsContext: StatsContext | undefined
+) {
   validate(settings, payloads)
 
   const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
 
-  const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0])
+  const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0], statsContext)
   const elements = extractUsers(settings, payloads)
 
   // We should never hit this condition because at least an email or a
@@ -91,6 +166,11 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
   if (elements.length < 1) {
     return
   }
+
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
+    ...statsContext?.tags,
+    `endpoint:add-or-remove-users-from-dmpSegment`
+  ])
 
   const res = await linkedinApiClient.batchUpdate(dmpSegmentId, elements)
 
@@ -106,7 +186,8 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
 }
 
 function validate(settings: Settings, payloads: Payload[]): void {
-  if (payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
+  const isAutoOrUndefined = ['AUTO', undefined].includes(payloads[0]?.dmp_user_action)
+  if (isAutoOrUndefined && payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
     throw new IntegrationError(
       'The value of `source_segment_id` and `personas_audience_key` must match.',
       'INVALID_SETTINGS',
@@ -123,7 +204,13 @@ function validate(settings: Settings, payloads: Payload[]): void {
   }
 }
 
-async function getDmpSegmentId(linkedinApiClient: LinkedInAudiences, settings: Settings, payload: Payload) {
+async function getDmpSegmentId(
+  linkedinApiClient: LinkedInAudiences,
+  settings: Settings,
+  payload: Payload,
+  statsContext: StatsContext | undefined
+): Promise<string> {
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:get-dmpSegment`])
   const res = await linkedinApiClient.getDmpSegment(settings, payload)
   const body = await res.json()
 
@@ -131,58 +218,102 @@ async function getDmpSegmentId(linkedinApiClient: LinkedInAudiences, settings: S
     return body.elements[0].id
   }
 
-  return createDmpSegment(linkedinApiClient, settings, payload)
+  return createDmpSegment(linkedinApiClient, settings, payload, statsContext)
 }
 
-async function createDmpSegment(linkedinApiClient: LinkedInAudiences, settings: Settings, payload: Payload) {
+async function createDmpSegment(
+  linkedinApiClient: LinkedInAudiences,
+  settings: Settings,
+  payload: Payload,
+  statsContext: StatsContext | undefined
+): Promise<string> {
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:create-dmpSegment`])
   const res = await linkedinApiClient.createDmpSegment(settings, payload)
   const headers = res.headers.toJSON()
   return headers['x-linkedin-id']
 }
 
-function extractUsers(settings: Settings, payloads: Payload[]) {
-  const elements: Record<string, any>[] = []
+function extractUsers(settings: Settings, payloads: Payload[]): LinkedInAudiencePayload[] {
+  const elements: LinkedInAudiencePayload[] = []
 
   payloads.forEach((payload: Payload) => {
     if (!payload.email && !payload.google_advertising_id) {
       return
     }
 
-    elements.push({
+    const linkedinAudiencePayload: LinkedInAudiencePayload = {
       action: getAction(payload),
       userIds: getUserIds(settings, payload)
-    })
+    }
+
+    if (payload.first_name) {
+      linkedinAudiencePayload.firstName = payload.first_name
+    }
+
+    if (payload.last_name) {
+      linkedinAudiencePayload.lastName = payload.last_name
+    }
+
+    if (payload.title) {
+      linkedinAudiencePayload.title = payload.title
+    }
+
+    if (payload.company) {
+      linkedinAudiencePayload.company = payload.company
+    }
+
+    if (payload.country) {
+      linkedinAudiencePayload.country = payload.country
+    }
+
+    elements.push(linkedinAudiencePayload)
   })
 
   return elements
 }
 
-function getAction(payload: Payload) {
-  if (payload.event_name === 'Audience Entered') {
+function getAction(payload: Payload): 'ADD' | 'REMOVE' {
+  const { dmp_user_action = 'AUTO' } = payload
+
+  if (dmp_user_action === 'ADD') {
     return 'ADD'
-  } else if (payload.event_name === 'Audience Exited') {
+  }
+
+  if (dmp_user_action === 'REMOVE') {
     return 'REMOVE'
   }
+
+  if (dmp_user_action === 'AUTO' || !dmp_user_action) {
+    if (payload.event_name === 'Audience Entered') {
+      return 'ADD'
+    }
+
+    if (payload.event_name === 'Audience Exited') {
+      return 'REMOVE'
+    }
+  }
+
+  return 'ADD'
 }
 
 function getUserIds(settings: Settings, payload: Payload): Record<string, string>[] {
-  const users = []
+  const userIds = []
 
   if (payload.email && settings.send_email === true) {
-    users.push({
+    userIds.push({
       idType: 'SHA256_EMAIL',
-      idValue: createHash('sha256').update(payload.email).digest('hex')
+      idValue: processHashing(payload.email, 'sha256', 'hex')
     })
   }
 
   if (payload.google_advertising_id && settings.send_google_advertising_id === true) {
-    users.push({
+    userIds.push({
       idType: 'GOOGLE_AID',
       idValue: payload.google_advertising_id
     })
   }
 
-  return users
+  return userIds
 }
 
 export default action

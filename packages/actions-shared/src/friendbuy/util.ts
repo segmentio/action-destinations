@@ -51,7 +51,7 @@ type NotUndefined<T> = T extends undefined ? never : T
 /**
  * Returns true if the argument is undefined or an empty string, object, or array.
  */
-export function isNonEmpty<T extends unknown>(o: T): o is NotUndefined<T> {
+export function isNonEmpty<T extends string | object | unknown>(o: T): o is NotUndefined<T> {
   if (o === undefined || o === '') {
     return false
   }

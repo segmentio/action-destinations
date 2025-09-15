@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.
+   * The ID of the conversion action associated with this conversion.
    */
   conversion_action: number
   /**
@@ -34,19 +34,23 @@ export interface Payload {
    */
   restatement_currency_code?: string
   /**
-   * Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.
+   * Email address of the individual who triggered the conversion event.
    */
   email_address?: string
   /**
-   * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.
+   * The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.
+   */
+  phone_country_code?: string
+  /**
+   * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000
    */
   phone_number?: string
   /**
-   * First name of the user who performed the conversion. Segment will hash this value before sending to Google.
+   * First name of the user who performed the conversion
    */
   first_name?: string
   /**
-   * Last name of the user who performed the conversion. Segment will hash this value before sending to Google.
+   * Last name of the user who performed the conversion
    */
   last_name?: string
   /**
@@ -66,11 +70,19 @@ export interface Payload {
    */
   postal_code?: string
   /**
-   * Street address of the user who performed the conversion. Segment will hash this value before sending to Google.
+   * Street address of the user who performed the conversion
    */
   street_address?: string
   /**
    * The user agent to enhance the original conversion. User agent can only be specified in enhancements with user identifiers. This should match the user agent of the request that sent the original conversion so the conversion and its enhancement are either both attributed as same-device or both attributed as cross-device.
    */
   user_agent?: string
+  /**
+   * If true, Segment will batch events before sending to Google’s APIs. Google accepts batches of up to 2000 events.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch.
+   */
+  batch_size?: number
 }

@@ -1,6 +1,6 @@
 import { ActionDefinition, IntegrationError, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { apiBaseUrl } from '../properties'
+import { apiBaseUrl } from '../constants'
 import type { Payload } from './generated-types'
 
 const processData = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {
@@ -67,7 +67,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Segment Anonymous ID',
       description: 'Segment Anonymous ID.',
       required: false,
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       default: {
         '@path': '$.anonymousId'
       }

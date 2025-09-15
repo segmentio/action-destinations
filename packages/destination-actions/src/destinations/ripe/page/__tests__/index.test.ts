@@ -7,10 +7,10 @@ const testDestination = createTestIntegration(Ripe)
 describe('Ripe', () => {
   describe('page', () => {
     it('should validate action fields', async () => {
-      nock('https://api.getripe.com/core-backend').post('/page').reply(200, {})
+      nock('https://api.getripe.com/event').post('/page').reply(200, {})
       try {
         await testDestination.testAction('page', {
-          settings: { apiKey: 'api-key', endpoint: 'https://api.getripe.com/core-backend' }
+          settings: { apiKey: 'api-key', endpoint: 'https://api.getripe.com/event' }
         })
       } catch (err) {
         expect(err.message).toContain("missing the required field 'properties'.")
@@ -19,11 +19,11 @@ describe('Ripe', () => {
     })
 
     it('should work', async () => {
-      nock('https://api.getripe.com/core-backend').post('/page').reply(200, {})
+      nock('https://api.getripe.com/event').post('/page').reply(200, {})
 
       const responses = await testDestination.testAction('page', {
         mapping: { anonymousId: 'my-id', properties: {}, name: 'page-name' },
-        settings: { apiKey: 'api-key', endpoint: 'https://api.getripe.com/core-backend' }
+        settings: { apiKey: 'api-key', endpoint: 'https://api.getripe.com/event' }
       })
 
       expect(responses.length).toBe(1)

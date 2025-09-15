@@ -60,15 +60,15 @@ export interface Payload {
     /**
      * The user's mobile phone number.
      */
-    mobile_phone?: number
+    mobile_phone?: string
     /**
      * The user's home phone number.
      */
-    home_phone?: number
+    home_phone?: string
     /**
      * The user's work phone number.
      */
-    work_phone?: number
+    work_phone?: string
     /**
      * The user's loyalty tier.
      */

@@ -4,20 +4,28 @@ exports[`Testing snapshot for AlgoliaInsights's conversionEvents destination act
 Object {
   "events": Array [
     Object {
-      "eventName": "Conversion Event",
-      "eventType": "conversion",
+      "authenticatedUserToken": ")j)vR5%1AP*epuo8A%R",
+      "currency": "CUC",
+      "eventName": ")j)vR5%1AP*epuo8A%R",
+      "eventSubtype": "addToCart",
+      "eventType": "click",
       "index": ")j)vR5%1AP*epuo8A%R",
+      "objectData": Array [
+        Object {
+          "discount": 76163635352698.88,
+          "price": 76163635352698.88,
+          "quantity": 76163635352698.88,
+          "queryID": ")j)vR5%1AP*epuo8A%R",
+        },
+      ],
       "objectIDs": Array [
         ")j)vR5%1AP*epuo8A%R",
       ],
-      "products": Array [
-        Object {
-          "product_id": ")j)vR5%1AP*epuo8A%R",
-        },
-      ],
       "queryID": ")j)vR5%1AP*epuo8A%R",
+      "testType": ")j)vR5%1AP*epuo8A%R",
       "timestamp": null,
       "userToken": ")j)vR5%1AP*epuo8A%R",
+      "value": 76163635352698.88,
     },
   ],
 }
@@ -27,7 +35,9 @@ exports[`Testing snapshot for AlgoliaInsights's conversionEvents destination act
 Object {
   "events": Array [
     Object {
+      "authenticatedUserToken": "user1234",
       "eventName": "Conversion Event",
+      "eventSubtype": "purchase",
       "eventType": "conversion",
       "index": ")j)vR5%1AP*epuo8A%R",
       "objectIDs": Array [
@@ -38,7 +48,6 @@ Object {
           "product_id": ")j)vR5%1AP*epuo8A%R",
         },
       ],
-      "queryID": ")j)vR5%1AP*epuo8A%R",
       "timestamp": 1674843786677,
       "userToken": ")j)vR5%1AP*epuo8A%R",
     },

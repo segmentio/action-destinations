@@ -1,8 +1,8 @@
 import type { DestinationDefinition, InputField } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import sendSms from './sendSms'
-import sendWhatsApp from './sendWhatsApp'
-import sendMobilePush from './sendMobilePush'
+import { actionDefinition as sendSms } from './sendSms'
+import { actionDefinition as sendWhatsApp } from './sendWhatsApp'
+import { actionDefinition as sendMobilePush } from './sendMobilePush'
 
 const getRange = (val: number): { value: number; label: string }[] => {
   return Array(val)
@@ -78,7 +78,7 @@ const ConnectionOverridesProperties: Record<string, InputField> = {
   }
 }
 
-const destination: DestinationDefinition<Settings> = {
+export const destinationDefinition: DestinationDefinition<Settings> = {
   //The name below is creation name however in partner portal this is Actions Personas Messaging Twilio
   //This is due to integrations-consumer fetches the creation name instead of current name
   name: 'Engage Messaging Twilio',
@@ -186,4 +186,4 @@ const destination: DestinationDefinition<Settings> = {
   }
 }
 
-export default destination
+export default destinationDefinition

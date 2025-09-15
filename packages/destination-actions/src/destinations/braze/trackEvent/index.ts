@@ -32,6 +32,18 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    email: {
+      label: 'Email',
+      description: 'The user email',
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.properties.email' }
+        }
+      }
+    },
     braze_id: {
       label: 'Braze User Identifier',
       description: 'The unique user identifier',
@@ -79,7 +91,14 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Data to Braze',
       description:
         'If true, Segment will batch events before sending to Braze’s user track endpoint. Braze accepts batches of up to 75 events.',
-      default: false
+      default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      default: 75,
+      unsafe_hidden: true
     }
   },
   perform: (request, { settings, payload }) => {

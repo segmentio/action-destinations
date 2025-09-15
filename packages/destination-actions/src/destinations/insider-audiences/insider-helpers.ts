@@ -30,7 +30,9 @@ const computedTraitsPayloadForIdentifyCall = function (
         identifiers,
         attributes
       }
-    ]
+    ],
+    not_append: !data.append_arrays,
+    platform: 'segment'
   }
 
   return request(API_BASE + UPSERT_ENDPOINT, {
@@ -53,7 +55,9 @@ const computedTraitsPayloadForTrackCall = function (
         identifiers,
         events
       }
-    ]
+    ],
+    not_append: !data.append_arrays,
+    platform: 'segment'
   }
 
   return request(API_BASE + UPSERT_ENDPOINT, {
@@ -83,7 +87,9 @@ const computedAudiencesPayloadForIdentifyCall = function (
         identifiers,
         attributes
       }
-    ]
+    ],
+    not_append: !data.append_arrays,
+    platform: 'segment'
   }
 
   return request(API_BASE + UPSERT_ENDPOINT, {
@@ -106,7 +112,9 @@ const computedAudiencePayloadForTrackCall = function (
         identifiers,
         events
       }
-    ]
+    ],
+    not_append: !data.append_arrays,
+    platform: 'segment'
   }
 
   return request(API_BASE + UPSERT_ENDPOINT, {
@@ -130,14 +138,18 @@ const deleteAttributePartial = function (data: Payload) {
           }
         }
       }
-    ]
+    ],
+    not_append: !data.append_arrays,
+    platform: 'segment'
   }
 }
 
 // It will return the identifiers for the user
 const getIdentifiers = function (data: Payload) {
-  const identifiers: { [x: string]: string | object } = {
-    email: data.email
+  const identifiers: { [x: string]: string | object } = {}
+
+  if (data.email) {
+    identifiers['email'] = data.email
   }
 
   if (data.user_id) {
@@ -160,12 +172,11 @@ const getIdentifiers = function (data: Payload) {
 // It will return the attributes for the user
 const getAttributes = function (data: Payload) {
   const computationKey = data.custom_audience_name
-  const attributes = {
+  return {
     custom: {
       segment_audience_name: [computationKey]
     }
   }
-  return attributes
 }
 
 const getTraitAttributes = function (data: Payload) {

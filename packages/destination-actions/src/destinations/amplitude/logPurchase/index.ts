@@ -10,6 +10,7 @@ import { mergeUserProperties } from '../merge-user-properties'
 import { parseUserAgentProperties } from '../user-agent'
 import { getEndpointByRegion } from '../regional-endpoints'
 import { formatSessionId } from '../convert-timestamp'
+import { userAgentData } from '../properties'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'trackRevenuePerProduct' | 'time' | 'session_id'> {
   library?: string
@@ -84,7 +85,22 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Revenue',
           type: 'number',
           description:
-            'Revenue = price * quantity. If you send all 3 fields of price, quantity, and revenue, then (price * quantity) will be used as the revenue value. You can use negative values to indicate refunds.'
+            'Revenue = price * quantity. If you send all 3 fields of price, quantity, and revenue, then (price * quantity) will be used as the revenue value. You can use negative values to indicate refunds.',
+          depends_on: {
+            match: 'any',
+            conditions: [
+              {
+                fieldKey: 'price',
+                operator: 'is',
+                value: ''
+              },
+              {
+                fieldKey: 'quantity',
+                operator: 'is',
+                value: ''
+              }
+            ]
+          }
         },
         productId: {
           label: 'Product ID',
@@ -144,6 +160,13 @@ const action: ActionDefinition<Settings, Payload> = {
         'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field',
       default: true
     },
+    includeRawUserAgent: {
+      label: 'Include Raw User Agent',
+      type: 'boolean',
+      description:
+        'Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field',
+      default: false
+    },
     utm_properties: {
       label: 'UTM Properties',
       type: 'object',
@@ -193,7 +216,8 @@ const action: ActionDefinition<Settings, Payload> = {
         'Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
       allowNull: true,
       type: 'integer'
-    }
+    },
+    userAgentData
   },
   perform: (request, { payload, settings }) => {
     // Omit revenue properties initially because we will manually stitch those into events as prescribed
@@ -204,6 +228,8 @@ const action: ActionDefinition<Settings, Payload> = {
       session_id,
       userAgent,
       userAgentParsing,
+      includeRawUserAgent,
+      userAgentData,
       utm_properties,
       referrer,
       min_id_length,
@@ -217,8 +243,8 @@ const action: ActionDefinition<Settings, Payload> = {
       properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
     }
 
-    if (library) {
-      if (library === 'analytics.js') properties.platform = 'Web'
+    if (library === 'analytics.js' && !properties.platform) {
+      properties.platform = 'Web'
     }
 
     if (time && dayjs.utc(time).isValid()) {
@@ -244,7 +270,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const events: AmplitudeEvent[] = [
       {
         // Conditionally parse user agent using amplitude's library
-        ...(userAgentParsing && parseUserAgentProperties(userAgent)),
+        ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
+        ...(includeRawUserAgent && { user_agent: userAgent }),
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
         // Conditionally track revenue with main event

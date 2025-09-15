@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 
 export const formatUserProperties = (userProperties: object | undefined): object | undefined => {
   if (!userProperties) {

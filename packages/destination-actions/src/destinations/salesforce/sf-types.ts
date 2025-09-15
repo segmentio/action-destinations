@@ -1,4 +1,5 @@
 import type { Payload as LeadPayload } from './lead/generated-types'
+import type { Payload as Lead2Payload } from './lead2/generated-types'
 import type { Payload as CustomPayload } from './customObject/generated-types'
 import type { Payload as CasePayload } from './cases/generated-types'
 import type { Payload as ContactPayload } from './contact/generated-types'
@@ -6,7 +7,7 @@ import type { Payload as OpportunityPayload } from './opportunity/generated-type
 import type { Payload as AccountPayload } from './account/generated-types'
 
 export type GenericPayload = Partial<
-  LeadPayload & CustomPayload & CasePayload & AccountPayload & OpportunityPayload & ContactPayload
+  LeadPayload & CustomPayload & CasePayload & AccountPayload & OpportunityPayload & ContactPayload & Lead2Payload
 >
 
 export type LeadBaseShapeType = {

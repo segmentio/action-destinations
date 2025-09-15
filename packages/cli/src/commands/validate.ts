@@ -1,13 +1,9 @@
 import { Command, flags } from '@oclif/command'
-import type { BaseActionDefinition } from '@segment/actions-core'
+import type { BaseActionDefinition, InputField } from '@segment/actions-core'
 import { ErrorCondition, parseFql } from '@segment/destination-subscriptions'
 import ora from 'ora'
 import { getManifest, DestinationDefinition } from '../lib/destinations'
 import type { DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
-
-const isDefined = (value: any): boolean => {
-  return value !== null && value !== undefined
-}
 
 export default class Validate extends Command {
   private spinner: ora.Ora = ora()
@@ -84,7 +80,37 @@ export default class Validate extends Command {
         if (!field.description) {
           errors.push(new Error(`The action "${actionKey}" is missing a description for the field "${fieldKey}".`))
         }
+        if (fieldKey == 'batch_keys') {
+          errors.push(...this.validateBatchKeysField(field, actionKey, action))
+        }
       }
+    }
+
+    return errors
+  }
+
+  validateBatchKeysField(field: InputField, actionKey: string, action: BaseActionDefinition): Error[] {
+    const errors: Error[] = []
+    const batchKeys = field.default as string[]
+    if (batchKeys.length > 3) {
+      errors.push(
+        new Error(`The action "${actionKey}" has a "batch_keys" field that has more than 3 keys. Max allowed is 3.`)
+      )
+    }
+    const unknownKeys = batchKeys.filter((key) => action.fields[key] === undefined)
+    if (unknownKeys.length > 0) {
+      errors.push(
+        new Error(
+          `The action "${actionKey}" has a "batch_keys" field that has unknown keys: ${unknownKeys.join(
+            ', '
+          )}. only allowed keys are: ${Object.keys(action.fields).join(', ')}`
+        )
+      )
+    }
+    if (batchKeys.includes('batch_keys')) {
+      errors.push(
+        new Error(`The action "${actionKey}" has a "batch_keys" field that includes itself. This is not allowed.`)
+      )
     }
 
     return errors
@@ -105,10 +131,12 @@ export default class Validate extends Command {
       const actionFields = Object.keys(destination.actions[preset.partnerAction].fields ?? {})
 
       // Validate the FQL
-      const fqlError = this.validateFQL(preset.subscribe)
-      if (fqlError) {
-        this.isInvalid = true
-        errors.push(new Error(`The preset "${preset.name}" has an invalid \`subscribe\` query: ${fqlError.message}`))
+      if (preset.type === 'automatic') {
+        const fqlError = this.validateFQL(preset.subscribe)
+        if (fqlError) {
+          this.isInvalid = true
+          errors.push(new Error(`The preset "${preset.name}" has an invalid \`subscribe\` query: ${fqlError.message}`))
+        }
       }
 
       // Validate that the fields match defined fields
@@ -142,14 +170,7 @@ export default class Validate extends Command {
         // this.isInvalid = true
         const typ = fieldValues?.type
 
-        if (typ === 'boolean' || typ === 'number') {
-          if (!isDefined(fieldValues?.default)) {
-            errors.push(
-              new Error(
-                `The authentication field "${field}" of type "${fieldValues?.type}" does not contain a default value. It is recommended to choose a sane default to avoid validation issues.`
-              )
-            )
-          }
+        if ((typ === 'boolean' || typ === 'number') && typeof fieldValues?.default != 'undefined') {
           if (typeof fieldValues?.default !== typ) {
             errors.push(
               new Error(

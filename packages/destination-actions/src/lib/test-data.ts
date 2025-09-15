@@ -77,6 +77,7 @@ function setTestData(seedName: string, type: string, fieldName?: string, format?
 
   if (fieldName === 'email') val = chance.email()
   if (fieldName === 'currency') val = chance.currency().code
+  if (fieldName === 'phone_number') val = '+' + chance.phone({ formatted: false })
 
   return val
 }
@@ -110,7 +111,7 @@ export function generateTestData(
   }
 
   for (const [name, field] of Object.entries(action.fields)) {
-    if (isRequiredOnly && !(field.required || name.includes('id'))) {
+    if (isRequiredOnly && !(field.required || name.includes('id') || name.includes('consent'))) {
       continue
     }
 
@@ -133,6 +134,16 @@ export function generateTestData(
       continue
     }
 
+    if (name == 'consent') {
+      const consent = {
+        categoryPreferences: {
+          analytics: true,
+          marketing: false
+        }
+      }
+      eventData = setData(eventData, seedName, name, field, consent)
+      continue
+    }
     eventData = setData(eventData, seedName, name, field)
   }
 

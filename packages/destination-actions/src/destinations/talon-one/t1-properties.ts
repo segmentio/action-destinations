@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 
 export const customerProfileId: InputField = {
   label: 'Customer Profile ID',
@@ -224,4 +224,13 @@ export const cartItems: InputField = {
       type: 'object'
     }
   }
+}
+
+export const identifier: InputField = {
+  label: 'Identifier',
+  description:
+    'Session custom identifier that you can set limits on or use inside your rules. For example, you can use IP addresses as identifiers to potentially identify devices and limit discounts abuse in case of customers creating multiple accounts.',
+  type: 'string',
+  multiple: true,
+  required: false
 }

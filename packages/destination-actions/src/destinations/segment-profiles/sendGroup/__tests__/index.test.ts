@@ -1,8 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../../errors'
-import { SEGMENT_ENDPOINTS, DEFAULT_SEGMENT_ENDPOINT } from '../../properties'
+import { MissingUserOrAnonymousIdThrowableError } from '../../errors'
+import { DEFAULT_SEGMENT_ENDPOINT } from '../../properties'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -22,7 +22,10 @@ const defaultGroupMapping = {
   traits: {
     '@path': '$.traits'
   },
-  engage_space: 'engage-space-writekey'
+  engage_space: 'engage-space-writekey',
+  timestamp: {
+    '@path': '$.timestamp'
+  }
 }
 
 describe('SegmentProfiles.sendGroup', () => {
@@ -47,7 +50,8 @@ describe('SegmentProfiles.sendGroup', () => {
       })
     ).rejects.toThrowError(MissingUserOrAnonymousIdThrowableError)
   })
-  test('Should throw an error if Segment Endpoint is incorrectly defined', async () => {
+
+  test('Should return transformed event', async () => {
     const event = createTestEvent({
       traits: {
         name: 'Example Corp',
@@ -55,33 +59,8 @@ describe('SegmentProfiles.sendGroup', () => {
       },
       userId: 'test-user-ufi5bgkko5',
       anonymousId: 'arky4h2sh7k',
-      groupId: 'test-group-ks2i7e'
-    })
-
-    await expect(
-      testDestination.testAction('sendGroup', {
-        event,
-        mapping: defaultGroupMapping,
-        settings: {
-          endpoint: 'incorrect-endpoint'
-        }
-      })
-    ).rejects.toThrowError(InvalidEndpointSelectedThrowableError)
-  })
-
-  test('Should send an group event to Segment', async () => {
-    // Mock: Segment Group Call
-    const segmentEndpoint = SEGMENT_ENDPOINTS[DEFAULT_SEGMENT_ENDPOINT].url
-    nock(segmentEndpoint).post('/group').reply(200, { success: true })
-
-    const event = createTestEvent({
-      traits: {
-        name: 'Example Corp',
-        industry: 'Technology'
-      },
-      userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k',
-      groupId: 'test-group-ks2i7e'
+      groupId: 'test-group-ks2i7e',
+      timestamp: '2023-09-26T09:46:28.290Z'
     })
 
     const responses = await testDestination.testAction('sendGroup', {
@@ -92,9 +71,10 @@ describe('SegmentProfiles.sendGroup', () => {
       }
     })
 
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toEqual(200)
-    expect(responses[0].options.headers).toMatchSnapshot()
-    expect(responses[0].options.json).toMatchSnapshot()
+    const results = testDestination.results
+
+    expect(responses.length).toBe(0)
+    expect(results.length).toBe(3)
+    expect(results[2].data).toMatchSnapshot()
   })
 })

@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "namedInputs": {
+    "sharedGlobals": ["{workspaceRoot}/nx.json", "{workspaceRoot}/tsconfig.json"],
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "production": [
+      "default",
+      "{projectRoot}/tsconfig.json",
+      "{projectRoot}/tsconfig.build.json",
+      "{projectRoot}/webpack.config*",
+      "{projectRoot}/babel.config*",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/**/test/**/*"
+    ]
+  },
+  "targetDefaults": {
+    "build": {
+      "inputs": ["production", "^production"],
+      "dependsOn": ["^build"],
+      "cache": true
+    },
+    "test": {
+      "inputs": ["default", "^production"],
+      "dependsOn": ["build"],
+      "cache": true
+    }
+  },
+  "defaultBase": "main"
+}

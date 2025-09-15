@@ -18,3 +18,11 @@ export interface Settings {
    */
   __segment_internal_engage_batch_sync: boolean
 }
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface AudienceSettings {
+  /**
+   * The geographical region of the CRM data segment based on the origin of PII. Can be US (United States and Canada), EU (European Union and the UK), or APAC (Asia-Pacific)
+   */
+  region: string
+}

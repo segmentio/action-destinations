@@ -7,6 +7,7 @@ import { getEndpointByRegion } from '../regional-endpoints'
 import { parseUserAgentProperties } from '../user-agent'
 import type { Payload } from './generated-types'
 import { formatSessionId } from '../convert-timestamp'
+import { userAgentData } from '../properties'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'time' | 'session_id'> {
   library?: string
@@ -87,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     setOnce: {
       label: 'Set Once',
-      description: 'The following fields will be set only once per session when using AJS2 as the source.',
+      description: 'The following fields will only be set as user properties if they do not already have a value.',
       type: 'object',
       additionalProperties: true,
       properties: {
@@ -128,7 +129,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     setAlways: {
       label: 'Set Always',
-      description: 'The following fields will be set every session when using AJS2 as the source.',
+      description: 'The following fields will be set as user properties for every event.',
       type: 'object',
       additionalProperties: true,
       properties: {
@@ -196,17 +197,37 @@ const action: ActionDefinition<Settings, Payload> = {
         'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field.',
       default: true
     },
+    includeRawUserAgent: {
+      label: 'Include Raw User Agent',
+      type: 'boolean',
+      description:
+        'Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field',
+      default: false
+    },
     min_id_length: {
       label: 'Minimum ID Length',
       description:
         'Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
       allowNull: true,
       type: 'integer'
-    }
+    },
+    userAgentData
   },
   perform: (request, { payload, settings }) => {
-    const { time, session_id, userAgent, userAgentParsing, min_id_length, library, setOnce, setAlways, add, ...rest } =
-      omit(payload, revenueKeys)
+    const {
+      time,
+      session_id,
+      userAgent,
+      userAgentParsing,
+      includeRawUserAgent,
+      userAgentData,
+      min_id_length,
+      library,
+      setOnce,
+      setAlways,
+      add,
+      ...rest
+    } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
     let options
 
@@ -214,10 +235,8 @@ const action: ActionDefinition<Settings, Payload> = {
       properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
     }
 
-    if (library) {
-      if (library === 'analytics.js') {
-        properties.platform = 'Web'
-      }
+    if (library === 'analytics.js' && !properties.platform) {
+      properties.platform = 'Web'
     }
 
     if (time && dayjs.utc(time).isValid()) {
@@ -248,7 +267,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const events: AmplitudeEvent[] = [
       {
         // Conditionally parse user agent using amplitude's library
-        ...(userAgentParsing && parseUserAgentProperties(userAgent)),
+        ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
+        ...(includeRawUserAgent && { user_agent: userAgent }),
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
         library: 'segment'

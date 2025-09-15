@@ -56,23 +56,19 @@ const action: ActionDefinition<Settings, Payload> = {
       type: "string",
       label: "Discount Code",
       description: "Discount code, if any, used on purchase. Will be used in addition to per-product coupons in Segment v2commerce events spec.",
-      format: "text",
       required: false
     },
     transaction_id: {
       type: "string",
       label: "Transaction ID",
       description: "Optional Identifier for transaction.",
-      format: "text",
       required: false,
       default: { '@path': '$.properties.order_id' }
-
     },
     spend: {
       type: "number",
       label: "Amount",
       description: "Total order amount.",
-      format: "text",
       required: false,
       default: { '@path': '$.properties.total' }
     },
@@ -81,22 +77,18 @@ const action: ActionDefinition<Settings, Payload> = {
       multiple: true,
       label: "Products Purchased",
       description: "product(s) purchased in transaction. This value should be an array of objects which at the minimum contains a Product ID or SKU per-product.",
-      format: "text",
       required: true,
       default: { '@path': '$.properties.products' }
-
     },
     purchase_datetime: {
       type: "datetime",
       label: "Timestamp",
       description: "timestamp of when transaction event occurred.",
-      format: "date-time",
       required: true,
       default: { '@path': '$.timestamp' }
     },
     stream_key: {
       type: "string",
-      format: "text",
       label: "Stream Key",
       description: "Dataset label, should be left as default unless directed otherwise.",
       required: true,

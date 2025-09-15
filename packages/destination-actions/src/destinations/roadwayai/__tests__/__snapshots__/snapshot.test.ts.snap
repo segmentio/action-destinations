@@ -1,0 +1,134 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-roadwayai destination: groupUser action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "Gr3mlwQm[[m$r7XK",
+    "context": Object {
+      "testType": "Gr3mlwQm[[m$r7XK",
+    },
+    "enable_batching": false,
+    "group_id": "Gr3mlwQm[[m$r7XK",
+    "group_name": "Gr3mlwQm[[m$r7XK",
+    "timestamp": "Gr3mlwQm[[m$r7XK",
+    "traits": Object {
+      "testType": "Gr3mlwQm[[m$r7XK",
+    },
+    "user_id": "Gr3mlwQm[[m$r7XK",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-roadwayai destination: groupUser action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "Gr3mlwQm[[m$r7XK",
+    "group_id": "Gr3mlwQm[[m$r7XK",
+    "timestamp": "Gr3mlwQm[[m$r7XK",
+    "user_id": "Gr3mlwQm[[m$r7XK",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-roadwayai destination: identifyUser action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "cObWMVnZeFD",
+    "enable_batching": true,
+    "ip": "cObWMVnZeFD",
+    "timestamp": "cObWMVnZeFD",
+    "traits": Object {
+      "testType": "cObWMVnZeFD",
+    },
+    "user_id": "cObWMVnZeFD",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-roadwayai destination: identifyUser action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "cObWMVnZeFD",
+    "user_id": "cObWMVnZeFD",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-roadwayai destination: trackEvent action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "WWk*FRhPkWQi",
+    "app_name": "WWk*FRhPkWQi",
+    "app_version": "WWk*FRhPkWQi",
+    "batch_size": -8568075683102.72,
+    "context": Object {
+      "testType": "WWk*FRhPkWQi",
+    },
+    "country": "WWk*FRhPkWQi",
+    "enable_batching": true,
+    "event": "WWk*FRhPkWQi",
+    "event_properties": Object {
+      "testType": "WWk*FRhPkWQi",
+    },
+    "group_id": "WWk*FRhPkWQi",
+    "insert_id": "WWk*FRhPkWQi",
+    "language": "WWk*FRhPkWQi",
+    "name": "WWk*FRhPkWQi",
+    "referrer": "WWk*FRhPkWQi",
+    "region": "WWk*FRhPkWQi",
+    "timestamp": "2021-02-01T00:00:00.000Z",
+    "url": "WWk*FRhPkWQi",
+    "user_id": "WWk*FRhPkWQi",
+    "utm_campaign": "WWk*FRhPkWQi",
+    "utm_content": "WWk*FRhPkWQi",
+    "utm_medium": "WWk*FRhPkWQi",
+    "utm_source": "WWk*FRhPkWQi",
+    "utm_term": "WWk*FRhPkWQi",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-roadwayai destination: trackEvent action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "WWk*FRhPkWQi",
+    "event": "WWk*FRhPkWQi",
+    "group_id": "WWk*FRhPkWQi",
+    "insert_id": "WWk*FRhPkWQi",
+    "user_id": "WWk*FRhPkWQi",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-roadwayai destination: trackPageView action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "(cZiDS416J(NpIYlkEs",
+    "data": Object {
+      "testType": "(cZiDS416J(NpIYlkEs",
+    },
+    "enable_batching": false,
+    "event_id": "(cZiDS416J(NpIYlkEs",
+    "id": "(cZiDS416J(NpIYlkEs",
+    "referrer": "(cZiDS416J(NpIYlkEs",
+    "timestamp": "(cZiDS416J(NpIYlkEs",
+    "url": "(cZiDS416J(NpIYlkEs",
+    "utm_campaign": "(cZiDS416J(NpIYlkEs",
+    "utm_content": "(cZiDS416J(NpIYlkEs",
+    "utm_medium": "(cZiDS416J(NpIYlkEs",
+    "utm_source": "(cZiDS416J(NpIYlkEs",
+    "utm_term": "(cZiDS416J(NpIYlkEs",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-roadwayai destination: trackPageView action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "(cZiDS416J(NpIYlkEs",
+    "event_id": "(cZiDS416J(NpIYlkEs",
+    "id": "(cZiDS416J(NpIYlkEs",
+    "url": "(cZiDS416J(NpIYlkEs",
+  },
+]
+`;

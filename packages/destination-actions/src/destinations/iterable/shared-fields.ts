@@ -38,6 +38,7 @@ export const USER_PHONE_NUMBER_FIELD: InputField = {
   label: 'User Phone Number',
   description: 'User phone number. Must be a valid phone number including country code. e.g. +14158675309',
   type: 'string',
+  allowNull: true,
   required: false,
   default: { '@path': '$.traits.phone' }
 }
@@ -192,3 +193,5 @@ export type CommerceItem = {
     [k: string]: unknown
   }
 }
+
+export type DataCenterLocation = 'united_states' | 'europe'

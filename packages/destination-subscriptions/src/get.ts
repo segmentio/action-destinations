@@ -8,7 +8,7 @@ export function get<T = unknown, Default = unknown>(
 	path: string | string[],
 	defValue?: Default
 ): T | undefined | Default {
-	// If path is not defined or it has false value
+	// If path is not defined or it has false value.
 	if (!path) return defValue
 
 	// Check if path is string or array. Regex : ensure that we do not have '.' and brackets.

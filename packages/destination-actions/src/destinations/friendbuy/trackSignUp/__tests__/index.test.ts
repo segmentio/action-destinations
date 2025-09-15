@@ -61,7 +61,6 @@ describe('Friendbuy.trackSignUp', () => {
       // auth,
     })
 
-    // console.log(JSON.stringify(r, null, 2))
     expect(r.length).toBe(2) // auth request + trackSignUp request
     expect(r[1].options.json).toEqual({
       customerId: userId,

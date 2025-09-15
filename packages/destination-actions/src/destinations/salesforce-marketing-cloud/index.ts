@@ -5,6 +5,11 @@ import dataExtension from './dataExtension'
 import contactDataExtension from './contactDataExtension'
 import apiEvent from './apiEvent'
 
+// These actions include an actions hook which handles configuring the connected
+// data extension. They are independent from the original actions to support a slow rollout.
+import dataExtensionV2 from './dataExtensionV2'
+import contactDataExtensionV2 from './contactDataExtensionV2'
+
 interface RefreshTokenResponse {
   access_token: string
 }
@@ -71,7 +76,9 @@ const destination: DestinationDefinition<Settings> = {
     contact,
     dataExtension,
     contactDataExtension,
-    apiEvent
+    apiEvent,
+    dataExtensionV2,
+    contactDataExtensionV2
   }
 }
 

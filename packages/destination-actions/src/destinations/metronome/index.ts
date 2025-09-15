@@ -44,7 +44,8 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Send track events to Metronome',
       subscribe: 'type = "track"',
       partnerAction: 'sendEvent',
-      mapping: defaultValues(sendEvent.fields)
+      mapping: defaultValues(sendEvent.fields),
+      type: 'automatic'
     }
   ]
 }

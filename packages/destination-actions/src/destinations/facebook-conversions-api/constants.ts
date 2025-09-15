@@ -1,5 +1,5 @@
-export const API_VERSION = '16.0'
-export const CANARY_API_VERSION = '16.0'
+export const API_VERSION = '21.0'
+export const CANARY_API_VERSION = '21.0'
 export const CURRENCY_ISO_CODES = new Set([
   'AED',
   'AFN',
@@ -404,6 +404,7 @@ export const COUNTRY_CODES = new Map<string, string>([
   ['pakistan', 'pk'],
   ['palau', 'pw'],
   ['palestinianterritory,occupied', 'ps'],
+  ['palestine', 'ps'],
   ['panama', 'pa'],
   ['papuanewguinea', 'pg'],
   ['paraguay', 'py'],

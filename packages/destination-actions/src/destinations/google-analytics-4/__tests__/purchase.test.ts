@@ -875,4 +875,97 @@ describe('GA4', () => {
       ).rejects.toThrowError('Client ID is required for web streams')
     })
   })
+
+  it('should append user_properties correctly', async () => {
+    nock('https://www.google-analytics.com/mp/collect')
+      .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+      .reply(201, {})
+
+    const event = createTestEvent({
+      event: 'Order Completed',
+      userId: 'abc123',
+      timestamp: '2022-06-22T22:20:58.905Z',
+      anonymousId: 'anon-2134',
+      type: 'track',
+      properties: {
+        affiliation: 'TI Online Store',
+        order_number: '5678dd9087-78',
+        coupon: 'SUMMER_FEST',
+        currency: 'EUR',
+        products: [
+          {
+            product_id: 'pid-123456',
+            sku: 'SKU-123456',
+            name: 'Tour t-shirt',
+            quantity: 2,
+            coupon: 'MOUNTAIN',
+            brand: 'Canvas',
+            category: 'T-Shirt',
+            variant: 'Black',
+            price: 19.98
+          }
+        ],
+        revenue: 5.99,
+        shipping: 1.5,
+        tax: 3.0,
+        total: 24.48
+      }
+    })
+    const responses = await testDestination.testAction('purchase', {
+      event,
+      settings: {
+        apiSecret,
+        measurementId
+      },
+      mapping: {
+        transaction_id: {
+          '@path': '$.properties.order_number'
+        },
+        client_id: {
+          '@path': '$.anonymousId'
+        },
+        user_properties: {
+          hello: 'world',
+          a: '1',
+          b: '2',
+          c: '3'
+        },
+        items: [
+          {
+            item_name: {
+              '@path': `$.properties.products.0.name`
+            },
+            item_id: {
+              '@path': `$.properties.products.0.product_id`
+            },
+            quantity: {
+              '@path': `$.properties.products.0.quantity`
+            },
+            coupon: {
+              '@path': `$.properties.products.0.coupon`
+            },
+            item_brand: {
+              '@path': `$.properties.products.0.brand`
+            },
+            item_category: {
+              '@path': `$.properties.products.0.category`
+            },
+            item_variant: {
+              '@path': `$.properties.products.0.variant`
+            },
+            price: {
+              '@path': `$.properties.products.0.price`
+            }
+          }
+        ],
+        ad_user_data_consent: 'GRANTED',
+        ad_personalization_consent: 'GRANTED'
+      },
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"purchase\\",\\"params\\":{\\"affiliation\\":\\"TI Online Store\\",\\"coupon\\":\\"SUMMER_FEST\\",\\"currency\\":\\"EUR\\",\\"items\\":[{\\"item_name\\":\\"Tour t-shirt\\",\\"item_id\\":\\"pid-123456\\",\\"quantity\\":2,\\"coupon\\":\\"MOUNTAIN\\",\\"item_brand\\":\\"Canvas\\",\\"item_category\\":\\"T-Shirt\\",\\"item_variant\\":\\"Black\\",\\"price\\":19.98}],\\"transaction_id\\":\\"5678dd9087-78\\",\\"shipping\\":1.5,\\"value\\":24.48,\\"tax\\":3,\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}},\\"timestamp_micros\\":1655936458905000,\\"consent\\":{\\"ad_user_data\\":\\"GRANTED\\",\\"ad_personalization\\":\\"GRANTED\\"}}"`
+    )
+  })
 })

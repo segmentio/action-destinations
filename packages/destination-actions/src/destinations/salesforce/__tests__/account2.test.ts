@@ -1,0 +1,495 @@
+import nock from 'nock'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import Destination from '../index'
+import { API_VERSION } from '../sf-operations'
+
+const testDestination = createTestIntegration(Destination)
+
+const settings = {
+  instanceUrl: 'https://test.salesforce.com/'
+}
+const auth = {
+  refreshToken: 'xyz321',
+  accessToken: 'abc123'
+}
+
+describe('Salesforce', () => {
+  describe('Account', () => {
+    it('should create a account record', async () => {
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Account').reply(201, {})
+
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Create Account',
+        properties: {
+          name: "John's Test Acccount"
+        }
+      })
+
+      const responses = await testDestination.testAction('account2', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          __segment_internal_sync_mode: 'add',
+          name: {
+            '@path': '$.properties.name'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+        Headers {
+          Symbol(map): Object {
+            "authorization": Array [
+              "Bearer abc123",
+            ],
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        }
+      `)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(`"{\\"Name\\":\\"John's Test Acccount\\"}"`)
+    })
+
+    it('should delete an account record given an Id', async () => {
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).delete('/Account/123').reply(204, {})
+
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Delete',
+        userId: '123'
+      })
+
+      const responses = await testDestination.testAction('account2', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          __segment_internal_sync_mode: 'delete',
+          traits: {
+            Id: { '@path': '$.userId' }
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(204)
+    })
+
+    it('should delete an account record given some lookup traits', async () => {
+      const query = encodeURIComponent(`SELECT Id FROM Account WHERE Email = 'bob@bobsburgers.net'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
+        .reply(201, {
+          totalSize: 1,
+          records: [{ Id: 'abc123' }]
+        })
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).delete('/Account/abc123').reply(201, {})
+
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Delete',
+        properties: {
+          email: 'bob@bobsburgers.net'
+        }
+      })
+
+      const responses = await testDestination.testAction('account2', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          __segment_internal_sync_mode: 'delete',
+          traits: {
+            Email: { '@path': '$.properties.email' }
+          }
+        }
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
+      expect(responses[1].status).toBe(201)
+    })
+
+    it('should create a account record with default mappings', async () => {
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Account').reply(201, {})
+
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Create Account',
+        properties: {
+          name: 'John TA',
+          account_number: '123',
+          employees: 1000000,
+          address: {
+            city: 'San Fran',
+            postal_code: '94107',
+            country: 'United States',
+            street: 'Super Legit Street',
+            state: 'CA'
+          },
+          phone: '6786786789',
+          description: 'John Test Acccount',
+          website: 'https://google.com'
+        }
+      })
+
+      const responses = await testDestination.testAction('account2', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          __segment_internal_sync_mode: 'add',
+          name: {
+            '@path': '$.properties.name'
+          },
+          account_number: {
+            '@path': '$.properties.account_number'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+            Headers {
+              Symbol(map): Object {
+                "authorization": Array [
+                  "Bearer abc123",
+                ],
+                "content-type": Array [
+                  "application/json",
+                ],
+                "user-agent": Array [
+                  "Segment (Actions)",
+                ],
+              },
+            }
+          `)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"Name\\":\\"John TA\\",\\"AccountNumber\\":\\"123\\",\\"NumberOfEmployees\\":1000000,\\"BillingCity\\":\\"San Fran\\",\\"BillingPostalCode\\":\\"94107\\",\\"BillingCountry\\":\\"United States\\",\\"BillingStreet\\":\\"Super Legit Street\\",\\"BillingState\\":\\"CA\\",\\"Phone\\":\\"6786786789\\",\\"Description\\":\\"John Test Acccount\\",\\"Website\\":\\"https://google.com\\"}"`
+      )
+    })
+
+    it('should create a account record with custom fields', async () => {
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Account').reply(201, {})
+
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Create Account',
+        properties: {
+          name: 'John TA'
+        }
+      })
+
+      const responses = await testDestination.testAction('account2', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          __segment_internal_sync_mode: 'add',
+          name: {
+            '@path': '$.properties.name'
+          },
+          customFields: {
+            A: '1',
+            B: '2',
+            C: '3'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+            Headers {
+              Symbol(map): Object {
+                "authorization": Array [
+                  "Bearer abc123",
+                ],
+                "content-type": Array [
+                  "application/json",
+                ],
+                "user-agent": Array [
+                  "Segment (Actions)",
+                ],
+              },
+            }
+          `)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"Name\\":\\"John TA\\",\\"A\\":\\"1\\",\\"B\\":\\"2\\",\\"C\\":\\"3\\"}"`
+      )
+    })
+
+    it('should update a account record', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Update Account',
+        properties: {
+          name: 'John Updated TA',
+          phone: '6786786789',
+          description: 'John Test Acccount',
+          website: 'https://google.com'
+        }
+      })
+
+      const query = encodeURIComponent(`SELECT Id FROM Account WHERE name = 'John TA'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
+        .reply(201, {
+          Id: 'abc123',
+          totalSize: 1,
+          records: [{ Id: '123456' }]
+        })
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Account/123456').reply(201, {})
+
+      const responses = await testDestination.testAction('account2', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          __segment_internal_sync_mode: 'update',
+          traits: {
+            name: 'John TA'
+          },
+          name: {
+            '@path': '$.properties.name'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
+      expect(responses[1].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+            Headers {
+              Symbol(map): Object {
+                "authorization": Array [
+                  "Bearer abc123",
+                ],
+                "user-agent": Array [
+                  "Segment (Actions)",
+                ],
+              },
+            }
+          `)
+
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        `"{\\"Name\\":\\"John Updated TA\\",\\"Phone\\":\\"6786786789\\",\\"Description\\":\\"John Test Acccount\\",\\"Website\\":\\"https://google.com\\"}"`
+      )
+    })
+
+    it('should upsert an existing record', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Upsert existing Account',
+        properties: {
+          name: 'John Updated TA',
+          phone: '6786786789',
+          description: 'John Test Acccount',
+          website: 'https://google.com'
+        }
+      })
+
+      const query = encodeURIComponent(`SELECT Id FROM Account WHERE name = 'John TA'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
+        .reply(201, {
+          Id: 'abc123',
+          totalSize: 1,
+          records: [{ Id: '123456' }]
+        })
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Account/123456').reply(201, {})
+
+      const responses = await testDestination.testAction('account2', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          __segment_internal_sync_mode: 'upsert',
+          traits: {
+            name: 'John TA'
+          },
+          name: {
+            '@path': '$.properties.name'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
+      expect(responses[1].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+            Headers {
+              Symbol(map): Object {
+                "authorization": Array [
+                  "Bearer abc123",
+                ],
+                "user-agent": Array [
+                  "Segment (Actions)",
+                ],
+              },
+            }
+          `)
+
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        `"{\\"Name\\":\\"John Updated TA\\",\\"Phone\\":\\"6786786789\\",\\"Description\\":\\"John Test Acccount\\",\\"Website\\":\\"https://google.com\\"}"`
+      )
+    })
+
+    it('should upsert a nonexistent record', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Upsert non existing Account',
+        properties: {
+          name: 'John Updated TA',
+          phone: '6786786789',
+          description: 'John Test Acccount',
+          website: 'https://google.com'
+        }
+      })
+
+      const query = encodeURIComponent(`SELECT Id FROM Account WHERE name = 'John TA'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+        Id: 'abc123',
+        totalSize: 0
+      })
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Account').reply(201, {})
+
+      const responses = await testDestination.testAction('account2', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          __segment_internal_sync_mode: 'upsert',
+          traits: {
+            name: 'John TA'
+          },
+          name: {
+            '@path': '$.properties.name'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
+      expect(responses[1].status).toBe(201)
+
+      expect(responses[0].request.headers).toMatchInlineSnapshot(`
+                Headers {
+                  Symbol(map): Object {
+                    "authorization": Array [
+                      "Bearer abc123",
+                    ],
+                    "user-agent": Array [
+                      "Segment (Actions)",
+                    ],
+                  },
+                }
+              `)
+
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        `"{\\"Name\\":\\"John Updated TA\\",\\"Phone\\":\\"6786786789\\",\\"Description\\":\\"John Test Acccount\\",\\"Website\\":\\"https://google.com\\"}"`
+      )
+    })
+
+    describe('batching', () => {
+      it('should fail if delete is set as syncMode', async () => {
+        const event = createTestEvent({
+          type: 'track',
+          event: 'Create Account',
+          properties: {
+            name: "John's Test Acccount"
+          }
+        })
+
+        await expect(async () => {
+          await testDestination.testBatchAction('account2', {
+            events: [event],
+            settings,
+            auth,
+            mapping: {
+              enable_batching: true,
+              __segment_internal_sync_mode: 'delete',
+              name: {
+                '@path': '$.properties.name'
+              }
+            }
+          })
+        }).rejects.toThrowErrorMatchingInlineSnapshot(
+          `"Unsupported operation: Bulk API does not support the delete operation"`
+        )
+      })
+    })
+
+    it('should fail if syncMode is undefined', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Create Account',
+        properties: {
+          name: "John's Test Acccount"
+        }
+      })
+
+      await expect(async () => {
+        await testDestination.testBatchAction('account2', {
+          events: [event],
+          settings,
+          auth,
+          mapping: {
+            enable_batching: true,
+            name: {
+              '@path': '$.properties.name'
+            }
+          }
+        })
+      }).rejects.toThrowErrorMatchingInlineSnapshot(`"syncMode is required"`)
+    })
+
+    it('should fail if the operation does not have a name and sync mode is upsert', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Create Account',
+        properties: {}
+      })
+
+      await expect(async () => {
+        await testDestination.testBatchAction('account2', {
+          events: [event],
+          settings,
+          auth,
+          mapping: {
+            enable_batching: true,
+            __segment_internal_sync_mode: 'upsert',
+            name: {
+              '@path': '$.properties.name'
+            }
+          }
+        })
+      }).rejects.toThrowErrorMatchingInlineSnapshot(`"Missing name value"`)
+    })
+  })
+})

@@ -2,6 +2,7 @@
 
 exports[`Testing snapshot for Insider's orderCompletedEvent destination action: all fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -49,11 +50,13 @@ Object {
       "identifiers": Object {
         "custom": Object {
           "segment_anonymous_id": "^nSY[JM",
+          "testType": "^nSY[JM",
         },
         "email": "ciboba@duzehoc.lt",
         "phone_number": "^nSY[JM",
         "uuid": "^nSY[JM",
       },
+      "not_append": false,
     },
   ],
 }
@@ -61,6 +64,7 @@ Object {
 
 exports[`Testing snapshot for Insider's orderCompletedEvent destination action: required fields 1`] = `
 Object {
+  "platform": "segment",
   "users": Array [
     Object {
       "attributes": Object {
@@ -78,9 +82,11 @@ Object {
       "identifiers": Object {
         "custom": Object {
           "segment_anonymous_id": "^nSY[JM",
+          "testType": "^nSY[JM",
         },
         "uuid": "^nSY[JM",
       },
+      "not_append": true,
     },
   ],
 }

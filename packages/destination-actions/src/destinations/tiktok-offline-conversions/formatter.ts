@@ -1,5 +1,4 @@
-import { createHash } from 'crypto'
-
+import { processHashing } from '../../lib/hashing-utils'
 /**
  * Convert emails to lower case, and hash in SHA256.
  */
@@ -23,19 +22,37 @@ export const formatPhones = (phone_numbers: string[] | undefined): string[] => {
   if (!phone_numbers) return result
 
   phone_numbers.forEach((phone: string) => {
-    const validatedPhone = phone.match(/[0-9]{0,14}/g)
-    if (validatedPhone === null) {
-      throw new Error(`${phone} is not a valid E.164 phone number.`)
-    }
-    // Remove spaces and non-digits; append + to the beginning
-    const formattedPhone = `+${phone.replace(/[^0-9]/g, '')}`
     // Limit length to 15 characters
-    result.push(hashAndEncode(formattedPhone.substring(0, 15)))
+    result.push(hashAndEncode(phone, cleaningFunction))
   })
-
   return result
 }
 
-function hashAndEncode(property: string) {
-  return createHash('sha256').update(property).digest('hex')
+const cleaningFunction = (phone: string): string => {
+  const validatedPhone = phone.match(/[0-9]{0,14}/g)
+  if (validatedPhone === null) {
+    throw new Error(`${phone} is not a valid E.164 phone number.`)
+  }
+  // Remove spaces and non-digits; append + to the beginning
+  const formattedPhone = `+${phone.replace(/[^0-9]/g, '')}`
+  return formattedPhone.substring(0, 15)
+}
+
+/**
+ *
+ * @param userId
+ * @returns Leading/Trailing spaces are trimmed and then userId is hashed.
+ */
+export function formatUserIds(userIds: string[] | undefined): string[] {
+  const result: string[] = []
+  if (userIds) {
+    userIds.forEach((userId: string) => {
+      result.push(hashAndEncode(userId.toLowerCase()))
+    })
+  }
+  return result
+}
+
+function hashAndEncode(property: string, cleaningFunction?: (value: string) => string): string {
+  return processHashing(property, 'sha256', 'hex', cleaningFunction)
 }

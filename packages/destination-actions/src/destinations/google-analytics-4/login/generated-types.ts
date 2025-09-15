@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android).
+   * The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: "Web" (default) and "Mobile App".
    */
   data_stream_type?: string
   /**
@@ -41,4 +41,12 @@ export interface Payload {
   params?: {
     [k: string]: unknown
   }
+  /**
+   * Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.
+   */
+  ad_user_data_consent?: string
+  /**
+   * Sets consent for personalized advertising. Must be either GRANTED or DENIED.
+   */
+  ad_personalization_consent?: string
 }

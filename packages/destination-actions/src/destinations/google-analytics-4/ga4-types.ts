@@ -37,3 +37,8 @@ export interface DataStreamParams {
   // only one of app_instance_id or client_id is allowed
   identifier: { app_instance_id: string; client_id?: never } | { client_id: string; app_instance_id?: never }
 }
+
+export interface Consent {
+  ad_personalization_consent?: string
+  ad_user_data_consent?: string
+}

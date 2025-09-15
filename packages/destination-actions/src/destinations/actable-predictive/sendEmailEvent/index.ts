@@ -20,7 +20,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: "datetime",
       label: "timestamp of event",
       description: "Timestamp of event",
-      format: 'date-time',
       required: true,
       default: {
         '@path': '$.timestamp'
@@ -30,7 +29,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: "string",
       label: "Campaign Name of Email",
       description: "name of the campaign associated with the email",
-      format: 'text',
       required: false,
       default: {
         '@path': '$.context.campaign.name'
@@ -41,26 +39,22 @@ const action: ActionDefinition<Settings, Payload> = {
       type: "integer",
       label: "Click Event Indicator",
       description: "1=email was clicked, 0 email was not clicked",
-      format: 'text',
       required: false
     },
     opened_flag: {
       type: "integer",
       label: "Open Event Indicator",
       description: "1=email was opened, 0 email was not opened",
-      format: 'text',
       required: false
     },
     unsub_flag: {
       type: "integer",
       label: "Unsubscribe Event Indicator",
       description: "1=customer unsubscribed from the email list, 0 user remained subscribed",
-      format: 'text',
       required: false
     },
     stream_key: {
       type: "string",
-      format: "text",
       label: "Stream Key",
       description: "Dataset label, should be left as default unless directed otherwise",
       required: true,

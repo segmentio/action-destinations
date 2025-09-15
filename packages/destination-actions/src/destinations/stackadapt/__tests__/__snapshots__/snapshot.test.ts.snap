@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-stackadapt destination: forwardEvent action - all fields 1`] = `""`;
+
+exports[`Testing snapshot for actions-stackadapt destination: forwardEvent action - required fields 1`] = `""`;
+
+exports[`Testing snapshot for actions-stackadapt destination: forwardEvent action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "baMI$5GC5yt@",
+    ],
+    "x-forwarded-for": Array [
+      "baMI$5GC5yt@",
+    ],
+  },
+}
+`;

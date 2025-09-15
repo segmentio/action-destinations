@@ -93,7 +93,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     uuid: {
       label: 'Unique ID',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       description: 'Unique ID for the event',
       required: true,
       default: {
@@ -107,7 +108,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    const result = await request<ProjectConfig>(settings.dataFileUrl)
+    const result = await request<ProjectConfig>(settings.dataFileUrl, {
+      skipResponseCloning: true
+    })
     if (!isValidJson(result.content)) {
       throw new IntegrationError(result.content, 'PROJECT_DEACTIVATED', 400)
     }

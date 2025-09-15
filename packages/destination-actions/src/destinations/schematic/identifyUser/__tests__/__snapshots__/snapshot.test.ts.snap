@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Schematic's identifyUser destination action: all fields 1`] = `
+Object {
+  "api_key": "A7WJL)2NKFy&pmtr0",
+  "body": Object {
+    "company": Object {
+      "keys": Object {
+        "testType": "A7WJL)2NKFy&pmtr0",
+      },
+      "name": "A7WJL)2NKFy&pmtr0",
+      "traits": Object {
+        "testType": "A7WJL)2NKFy&pmtr0",
+      },
+    },
+    "keys": Object {
+      "testType": "A7WJL)2NKFy&pmtr0",
+    },
+    "name": "A7WJL)2NKFy&pmtr0",
+    "traits": Object {
+      "testType": "A7WJL)2NKFy&pmtr0",
+    },
+  },
+  "sent_at": "2021-02-01T00:00:00.000Z",
+  "type": "identify",
+}
+`;
+
+exports[`Testing snapshot for Schematic's identifyUser destination action: required fields 1`] = `
+Object {
+  "api_key": "A7WJL)2NKFy&pmtr0",
+  "body": Object {
+    "company": Object {
+      "keys": Object {
+        "testType": "A7WJL)2NKFy&pmtr0",
+      },
+    },
+    "keys": Object {
+      "testType": "A7WJL)2NKFy&pmtr0",
+    },
+  },
+  "sent_at": "2021-02-01T00:00:00.000Z",
+  "type": "identify",
+}
+`;

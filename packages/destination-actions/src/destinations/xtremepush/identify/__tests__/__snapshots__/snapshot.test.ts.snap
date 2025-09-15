@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for XtremepushActionsDestination's identify destination action: all fields 1`] = `
+Object {
+  "anonymousId": "vP@PYmGYlf15wn)@O",
+  "email": "marfuhsap@tedutni.kh",
+  "messageId": "vP@PYmGYlf15wn)@O",
+  "phone": "vP@PYmGYlf15wn)@O",
+  "timestamp": "vP@PYmGYlf15wn)@O",
+  "traits": Object {
+    "testType": "vP@PYmGYlf15wn)@O",
+  },
+  "type": "vP@PYmGYlf15wn)@O",
+  "userId": "vP@PYmGYlf15wn)@O",
+}
+`;
+
+exports[`Testing snapshot for XtremepushActionsDestination's identify destination action: required fields 1`] = `
+Object {
+  "messageId": "vP@PYmGYlf15wn)@O",
+  "timestamp": "vP@PYmGYlf15wn)@O",
+  "type": "vP@PYmGYlf15wn)@O",
+}
+`;

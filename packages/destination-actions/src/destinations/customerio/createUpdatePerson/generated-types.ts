@@ -4,9 +4,9 @@ export interface Payload {
   /**
    * The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).
    */
-  id: string
+  id?: string
   /**
-   * An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).
+   * An optional anonymous ID. This is used to tie anonymous events to this person. [Learn more](https://customer.io/docs/anonymous-events/).
    */
   anonymous_id?: string
   /**
@@ -28,6 +28,12 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * Optional attributes for the relationship between the object and the user. When updating an object, attributes are added or updated, not removed.
+   */
+  relationship_attributes?: {
+    [k: string]: unknown
+  }
+  /**
    * Convert dates to Unix timestamps (seconds since Epoch).
    */
   convert_timestamp?: boolean
@@ -35,4 +41,12 @@ export interface Payload {
    * The ID used to uniquely identify a custom object type in Customer.io. [Learn more](https://customer.io/docs/object-relationships).
    */
   object_type_id?: string
+  /**
+   * Set as true to ensure Segment sends data to Customer.io in batches.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }

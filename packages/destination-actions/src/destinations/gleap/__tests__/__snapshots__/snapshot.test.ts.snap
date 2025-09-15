@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-gleap destination: identifyContact action - all fields 1`] = `
+Object {
+  "companyId": "5(nuZw&pud4S",
+  "companyName": "5(nuZw&pud4S",
+  "createdAt": "2021-02-01T00:00:00.000Z",
+  "email": "perum@rakunar.dm",
+  "lang": "5(nuZw&pud4S",
+  "lastActivity": "2021-02-01T00:00:00.000Z",
+  "lastPageView": Object {
+    "date": "2021-02-01T00:00:00.000Z",
+    "page": "5(nuZw&pud4S",
+  },
+  "name": "5(nuZw&pud4S 5(nuZw&pud4S",
+  "phone": "5(nuZw&pud4S",
+  "plan": "5(nuZw&pud4S",
+  "testType": "5(nuZw&pud4S",
+  "userId": "5(nuZw&pud4S",
+  "value": -3360299155456,
+}
+`;
+
+exports[`Testing snapshot for actions-gleap destination: identifyContact action - required fields 1`] = `
+Object {
+  "userId": "5(nuZw&pud4S",
+}
+`;
+
+exports[`Testing snapshot for actions-gleap destination: trackEvent action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "data": Object {
+        "page": "5h*@HiWdC&Q2#9YhdZ&0",
+      },
+      "date": "2021-02-01T00:00:00.000Z",
+      "name": "pageView",
+      "userId": "5h*@HiWdC&Q2#9YhdZ&0",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-gleap destination: trackEvent action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "data": Object {},
+      "date": "2021-02-01T00:00:00.000Z",
+      "name": "pageView",
+      "userId": "5h*@HiWdC&Q2#9YhdZ&0",
+    },
+  ],
+}
+`;

@@ -223,4 +223,39 @@ export interface Payload {
   traits?: {
     [k: string]: unknown
   }
+  /**
+   * The Segment messageId.
+   */
+  message_id?: string
+  /**
+   * Segment event consent category preferences.
+   */
+  consent?: {
+    [k: string]: unknown
+  }
+  /**
+   * Dictionary of information about the user’s current Address.
+   */
+  address?: {
+    /**
+     * The user's street address
+     */
+    street?: string
+    /**
+     * The user's city
+     */
+    city?: string
+    /**
+     * The user's State
+     */
+    state?: string
+    /**
+     * The user's country
+     */
+    country?: string
+    /**
+     * The user's Postal Code
+     */
+    postalCode?: string
+  }
 }

@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       description: 'The device IP collected from the context',
-      label: 'Context properties',
+      label: 'Device IP',
       default: { '@path': '$.context.ip' }
     },
     message_id: {
@@ -63,6 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const traits = data.payload.traits ?? {}
     const email = data.payload.email ?? data.payload.traits?.email ?? traits.email
     const ip = data.payload.traits?.ip ?? data.payload.device_ip
+    const context = data.payload.context ?? {}
 
     if (!profileId && !email) {
       // Skip call if no identifier is found
@@ -79,7 +80,11 @@ const action: ActionDefinition<Settings, Payload> = {
         identifies: [
           {
             type: 'identify',
-            ...data.payload
+            ...data.payload,
+            context: {
+              ...context,
+              source: 'segment-cloud'
+            }
           }
         ]
       }

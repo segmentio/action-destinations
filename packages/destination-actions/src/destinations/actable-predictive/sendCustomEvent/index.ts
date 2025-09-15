@@ -20,7 +20,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: "datetime",
       label: "Timestamp of Event",
       description: "Timestamp of when the custom event occured.",
-      format: 'date-time',
       required: true,
       default: {
         '@path': '$.timestamp'
@@ -30,14 +29,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: "object",
       label: "Custom Properties",
       description: "Send an object of custom properties to Actable Predictive for custom data modeling.",
-      format: "text",
       required: true,
       default: { '@path': '$.properties' }
-
     },
     stream_key: {
       type: "string",
-      format: "text",
       label: "Stream Key",
       description: "Dataset label, should be left as default unless specified otherwise.",
       required: true,

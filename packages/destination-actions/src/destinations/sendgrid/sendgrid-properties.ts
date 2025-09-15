@@ -1,5 +1,6 @@
 import { InputField, RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload } from './updateUserProfile/generated-types'
+import { Settings } from './generated-types'
 
 export const customFields: InputField = {
   label: 'Other Fields',
@@ -25,10 +26,18 @@ interface APIData {
   custom_fields?: CustomField[]
 }
 
+export const GLOBAL_ENDPOINT = 'https://api.sendgrid.com'
+export const EU_ENDPOINT = 'https://api.eu.sendgrid.com'
+
+export function getRegionalEndpoint(settings: Settings) {
+  return settings?.endpoint ?? GLOBAL_ENDPOINT
+}
+
 // Fetch all custom field definitions for the account using the Sendgrid API
 // https://docs.sendgrid.com/api-reference/custom-fields/get-all-field-definitions
-export const fetchAccountCustomFields = async (request: RequestClient): Promise<CustomField[]> => {
-  const response = await request('https://api.sendgrid.com/v3/marketing/field_definitions')
+export const fetchAccountCustomFields = async (request: RequestClient, settings: Settings): Promise<CustomField[]> => {
+  const regionalEndpoint = getRegionalEndpoint(settings)
+  const response = await request(`${regionalEndpoint}/v3/marketing/field_definitions`)
   const data: APIData = response.data as APIData
   const customFields: CustomField[] = data.custom_fields as CustomField[]
 
@@ -94,8 +103,23 @@ const transformValuesToAcceptedDataTypes = (data: any): any => {
   return tranformedData
 }
 
+// Validate the payload of each contact
+export const validatePayload = (payload: Payload) => {
+  // Validate that 1 of the 4 identifier fields is included in the payload
+  if (!payload.primary_email && !payload.phone_number_id && !payload.external_id && !payload.anonymous_id) {
+    throw new IntegrationError(
+      'Contact must have at least one identifying field included (email, phone_number_id, external_id, anonymous_id).',
+      'Invalid value',
+      400
+    )
+  }
+}
+
 export const convertPayload = (payload: Payload, accountCustomFields: CustomField[]) => {
   const { state, primary_email, enable_batching, customFields, ...rest } = payload
+
+  // Validate that each contact payload is correct (i.e. contains 1 of the 4 identifier fields)
+  validatePayload(payload)
 
   // If there are any custom fields, convert their key from sendgrid Name to sendgrid ID if needed
   const updatedCustomFields = customFields

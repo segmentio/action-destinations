@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-sprig destination: identifyUser action - all fields 1`] = `
+Object {
+  "attributes": Object {
+    "testType": "8%Yljy$Bdi)ERgpbaQ",
+  },
+  "userId": "8%Yljy$Bdi)ERgpbaQ",
+}
+`;
+
+exports[`Testing snapshot for actions-sprig destination: identifyUser action - required fields 1`] = `
+Object {
+  "userId": "8%Yljy$Bdi)ERgpbaQ",
+}
+`;
+
+exports[`Testing snapshot for actions-sprig destination: trackEvent action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "event": "KaY8rX",
+      "timestamp": null,
+    },
+  ],
+  "userId": "KaY8rX",
+}
+`;
+
+exports[`Testing snapshot for actions-sprig destination: trackEvent action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "event": "KaY8rX",
+      "timestamp": null,
+    },
+  ],
+  "userId": "KaY8rX",
+}
+`;

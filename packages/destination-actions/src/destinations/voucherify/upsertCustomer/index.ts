@@ -19,6 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     name: {
       label: 'Name',
+      allowNull: true,
       description: 'First name and last name of the [customer](https://docs.voucherify.io/reference/customer-object).',
       type: 'string',
       default: {
@@ -27,6 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     first_name: {
       label: 'First Name',
+      allowNull: true,
       description:
         'First name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `last_name` to create the `name` field.',
       type: 'string',
@@ -36,6 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     last_name: {
       label: 'Last Name',
+      allowNull: true,
       description:
         'Last name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `first_name` to create the `name` field.',
       type: 'string',
@@ -45,6 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     description: {
       label: 'Description',
+      allowNull: true,
       description:
         'An arbitrary string that you can attach to a [customer](https://docs.voucherify.io/reference/customer-object) object.',
       type: 'string',
@@ -54,6 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email Address',
+      allowNull: true,
       description:
         'The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.',
       type: 'string',
@@ -63,6 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone: {
       label: 'Phone',
+      allowNull: true,
       description: 'Phone number of the [customer](https://docs.voucherify.io/reference/the-customer-object).',
       type: 'string',
       default: {
@@ -71,6 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     birthdate: {
       label: 'Birthdate',
+      allowNull: true,
       description:
         'Birthdate of the [customer](https://docs.voucherify.io/reference/the-customer-object). You can pass data here in `date` or `datetime` format (ISO 8601).',
       type: 'string',
@@ -85,23 +92,28 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         city: {
           label: 'City',
-          type: 'string'
+          type: 'string',
+          allowNull: true
         },
         state: {
           label: 'State',
-          type: 'string'
+          type: 'string',
+          allowNull: true
         },
         postal_code: {
           label: 'Postal Code',
-          type: 'string'
+          type: 'string',
+          allowNull: true
         },
         street: {
           label: 'Street',
-          type: 'string'
+          type: 'string',
+          allowNull: true
         },
         country: {
           label: 'Country',
-          type: 'string'
+          type: 'string',
+          allowNull: true
         }
       },
       default: {
@@ -117,6 +129,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'A set of custom key/value pairs that you can attach to a customer. The metadata object stores all custom attributes assigned to the customer. It can be useful for storing additional information about the customer in a structured format.',
       type: 'object',
+      allowNull: true,
       default: {
         '@path': '$.traits.metadata'
       }

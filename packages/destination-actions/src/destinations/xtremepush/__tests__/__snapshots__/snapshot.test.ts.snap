@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-xtremepush-actions-destination destination: identify action - all fields 1`] = `
+Object {
+  "anonymousId": "62P$ZY",
+  "email": "nogav@wahkat.gf",
+  "messageId": "62P$ZY",
+  "phone": "62P$ZY",
+  "timestamp": "62P$ZY",
+  "traits": Object {
+    "testType": "62P$ZY",
+  },
+  "type": "62P$ZY",
+  "userId": "62P$ZY",
+}
+`;
+
+exports[`Testing snapshot for actions-xtremepush-actions-destination destination: identify action - required fields 1`] = `
+Object {
+  "messageId": "62P$ZY",
+  "timestamp": "62P$ZY",
+  "type": "62P$ZY",
+}
+`;
+
+exports[`Testing snapshot for actions-xtremepush-actions-destination destination: track action - all fields 1`] = `
+Object {
+  "anonymousId": "$C&bo4aVkeZv",
+  "email": "iguinuco@deb.eu",
+  "event": "$C&bo4aVkeZv",
+  "messageId": "$C&bo4aVkeZv",
+  "phone": "$C&bo4aVkeZv",
+  "properties": Object {
+    "testType": "$C&bo4aVkeZv",
+  },
+  "timestamp": "$C&bo4aVkeZv",
+  "type": "$C&bo4aVkeZv",
+  "userId": "$C&bo4aVkeZv",
+}
+`;
+
+exports[`Testing snapshot for actions-xtremepush-actions-destination destination: track action - required fields 1`] = `
+Object {
+  "event": "$C&bo4aVkeZv",
+  "messageId": "$C&bo4aVkeZv",
+  "timestamp": "$C&bo4aVkeZv",
+  "type": "$C&bo4aVkeZv",
+}
+`;

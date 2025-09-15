@@ -6,6 +6,7 @@ export type AppData = Payload['app_data_field']
 export type GeneratedAppData = {
   advertiser_tracking_enabled: 1 | 0
   application_tracking_enabled: 1 | 0
+  madid?: string
   extinfo: string[]
 }
 
@@ -17,6 +18,7 @@ export const generate_app_data = (app_data: AppData): GeneratedAppData | undefin
   return {
     advertiser_tracking_enabled: app_data?.advertiser_tracking_enabled ? 1 : 0,
     application_tracking_enabled: app_data?.application_tracking_enabled ? 1 : 0,
+    madid: app_data?.madId,
     extinfo: [
       app_data?.version ?? '',
       app_data?.packageName ?? '',
@@ -41,7 +43,7 @@ export const generate_app_data = (app_data: AppData): GeneratedAppData | undefin
 export const app_data_field: InputField = {
   label: 'App Events Fields',
   description: `These fields support sending app events to Facebook through the Conversions API. For more information about app events support in the Conversions API, see the Facebook docs [here](https://developers.facebook.com/docs/marketing-api/conversions-api/app-events).
-  App events sent through the Conversions API must be associated with a dataset. 
+  App events sent through the Conversions API must be associated with a dataset.
   Instructions for creating a dataset can be found [here](https://www.facebook.com/business/help/750785952855662?id=490360542427371). Once a dataset is created, the dataset ID
   can be substituted for the pixel ID in the destination settings.`,
   type: 'object',
@@ -97,6 +99,12 @@ export const app_data_field: InputField = {
     deviceName: {
       label: 'Device Model Name',
       description: `Example: 'iPhone5,1'.`,
+      type: 'string'
+    },
+    madId: {
+      label: 'Advertiser ID (madid)',
+      description:
+        'Your mobile advertiser ID, the advertising ID from an Android device or the Advertising Identifier (IDFA) from an Apple device.',
       type: 'string'
     },
     locale: {
@@ -183,6 +191,9 @@ export const app_data_field: InputField = {
     },
     deviceTimezone: {
       '@path': '$.context.timezone'
+    },
+    madId: {
+      '@path': '$.context.madId'
     }
   }
 }

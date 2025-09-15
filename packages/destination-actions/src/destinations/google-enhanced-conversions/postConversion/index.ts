@@ -26,6 +26,7 @@ interface GoogleError {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Enhanced Conversion (Legacy)',
   description: 'Upload a conversion enhancement to the legacy Google Enhanced Conversions API.',
+  hidden: true,
   fields: {
     // Required Fields - These fields are required by Google's EC API to successfully match conversions.
     conversion_label: {
@@ -157,7 +158,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.address.street' },
           else: { '@path': '$.traits.address.street' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     city: {
       label: 'City',

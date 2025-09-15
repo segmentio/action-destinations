@@ -37,18 +37,21 @@ const action: ActionDefinition<Settings, Payload> = {
     userId: {
       label: 'User ID',
       description: 'A Distinct User ID',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       default: { '@path': '$.userId' }
     },
     anonymousId: {
       label: 'Anonymous ID',
       description: 'A Distinct External ID',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       default: { '@path': '$.anonymousId' }
     },
     eventType: {
       label: 'Event type',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       description: 'The type of the event being performed.',
       required: true,
       default: {

@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for m3ter destination: submitMeasurements action - all fields 1`] = `
+Object {
+  "measurements": Array [
+    Object {
+      "account": "7]OvxqYNmsgZb1Gg3$5f",
+      "cost": Object {
+        "testType": "7]OvxqYNmsgZb1Gg3$5f",
+      },
+      "enable_batching": false,
+      "ets": "2021-02-01T00:00:00.000Z",
+      "income": Object {
+        "testType": "7]OvxqYNmsgZb1Gg3$5f",
+      },
+      "measure": Object {
+        "testType": "7]OvxqYNmsgZb1Gg3$5f",
+      },
+      "metadata": Object {
+        "testType": "7]OvxqYNmsgZb1Gg3$5f",
+      },
+      "meter": "7]OvxqYNmsgZb1Gg3$5f",
+      "other": Object {
+        "testType": "7]OvxqYNmsgZb1Gg3$5f",
+      },
+      "ts": "2021-02-01T00:00:00.000Z",
+      "uid": "7]OvxqYNmsgZb1Gg3$5f",
+      "what": Object {
+        "testType": "7]OvxqYNmsgZb1Gg3$5f",
+      },
+      "where": Object {
+        "testType": "7]OvxqYNmsgZb1Gg3$5f",
+      },
+      "who": Object {
+        "testType": "7]OvxqYNmsgZb1Gg3$5f",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for m3ter destination: submitMeasurements action - required fields 1`] = `
+Object {
+  "measurements": Array [
+    Object {
+      "account": "7]OvxqYNmsgZb1Gg3$5f",
+      "enable_batching": false,
+      "meter": "7]OvxqYNmsgZb1Gg3$5f",
+      "ts": "2021-02-01T00:00:00.000Z",
+      "uid": "7]OvxqYNmsgZb1Gg3$5f",
+    },
+  ],
+}
+`;

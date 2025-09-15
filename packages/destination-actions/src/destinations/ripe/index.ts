@@ -29,7 +29,7 @@ const destination: DestinationDefinition<Settings> = {
         description: `The Ripe API endpoint (do not change this unless you know what you're doing)`,
         type: 'string',
         format: 'uri',
-        default: 'https://api.getripe.com/core-backend'
+        default: 'https://api.getripe.com/event'
       }
     },
 
@@ -62,25 +62,29 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Group user',
       subscribe: 'type = "group"',
       partnerAction: 'group',
-      mapping: defaultValues(group.fields)
+      mapping: defaultValues(group.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify user',
       subscribe: 'type = "identify"',
       partnerAction: 'identify',
-      mapping: defaultValues(identify.fields)
+      mapping: defaultValues(identify.fields),
+      type: 'automatic'
     },
     {
       name: 'Page view',
       subscribe: 'type = "page"',
       partnerAction: 'page',
-      mapping: defaultValues(page.fields)
+      mapping: defaultValues(page.fields),
+      type: 'automatic'
     },
     {
       name: 'Track event',
       subscribe: 'type = "track"',
       partnerAction: 'track',
-      mapping: defaultValues(track.fields)
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
     }
   ]
 }

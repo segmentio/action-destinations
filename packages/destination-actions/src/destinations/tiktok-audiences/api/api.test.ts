@@ -118,4 +118,74 @@ describe('TikTok', () => {
       })
     })
   })
+  describe('.fetchAudiences', () => {
+    const tiktok: TikTokAudiences = new TikTokAudiences(requestClient)
+
+    const selected_advertiser_id = '1234567890'
+    const page_number = 1
+
+    it('should dynamically fetch list of audiences and name', async () => {
+      nock(`${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`)
+        .get(`/`)
+        .query({
+          advertiser_id: selected_advertiser_id,
+          page: page_number,
+          page_size: '100'
+        })
+        .reply(200, {
+          code: 0,
+          message: 'success',
+          data: {
+            page_info: {
+              page_size: 10,
+              total_number: 1,
+              page: 1,
+              total_page: 1
+            },
+            list: [
+              {
+                cover_num: 6489086,
+                is_valid: false,
+                calculate_type: null,
+                is_creator: false,
+                audience_id: '123',
+                name: 'CUSTOM_AUDIENCE_NAME',
+                is_expiring: false,
+                create_time: '2022-05-26 22:12:12',
+                audience_type: 'Lookalike Audience',
+                expired_time: '2023-09-08 02:34:20',
+                shared: true
+              },
+              {
+                cover_num: 6489085,
+                is_valid: false,
+                calculate_type: null,
+                is_creator: false,
+                audience_id: '124',
+                name: 'CUSTOM_AUDIENCE_NAME1',
+                is_expiring: false,
+                create_time: '2022-05-26 22:12:12',
+                audience_type: 'Lookalike Audience',
+                expired_time: '2023-09-08 02:34:20',
+                shared: true
+              }
+            ]
+          }
+        })
+
+      const fetchAudiencesRes = await tiktok.fetchAudiences(selected_advertiser_id)
+      expect(fetchAudiencesRes).toEqual({
+        choices: [
+          {
+            label: 'CUSTOM_AUDIENCE_NAME',
+            value: '123'
+          },
+          {
+            label: 'CUSTOM_AUDIENCE_NAME1',
+            value: '124'
+          }
+        ]
+      })
+    })
+  })
 })

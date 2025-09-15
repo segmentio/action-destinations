@@ -3,6 +3,9 @@
 exports[`Testing snapshot for Ripe's group destination action: all fields 1`] = `
 Object {
   "anonymousId": "DY&TUQqmpg2I",
+  "context": Object {
+    "testType": "DY&TUQqmpg2I",
+  },
   "groupId": "DY&TUQqmpg2I",
   "messageId": Any<String>,
   "timestamp": Any<String>,
@@ -16,6 +19,9 @@ Object {
 exports[`Testing snapshot for Ripe's group destination action: required fields 1`] = `
 Object {
   "anonymousId": "anonId1234",
+  "context": Object {
+    "ip": "1.2.3.4",
+  },
   "groupId": "DY&TUQqmpg2I",
   "messageId": Any<String>,
   "timestamp": Any<String>,

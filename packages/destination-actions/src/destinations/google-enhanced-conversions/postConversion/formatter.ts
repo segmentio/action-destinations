@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
 
 /**

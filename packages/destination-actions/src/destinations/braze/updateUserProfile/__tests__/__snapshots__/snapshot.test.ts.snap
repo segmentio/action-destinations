@@ -1,0 +1,208 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Braze's updateUserProfile destination action: all fields 1`] = `
+Object {
+  "attributes": Array [
+    Object {
+      "_update_existing_only": false,
+      "braze_id": "M8rtOywDKgN((jhUBk9",
+      "country": "M8rtOywDKgN((jhUBk9",
+      "current_location": Object {
+        "latitude": 74322492134522.88,
+        "longitude": 74322492134522.88,
+      },
+      "date_of_first_session": "2021-02-01T00:00:00.000Z",
+      "date_of_last_session": "2021-02-01T00:00:00.000Z",
+      "dob": "2021-02-01",
+      "email": "wifot@vuri.cl",
+      "email_click_tracking_disabled": false,
+      "email_open_tracking_disabled": false,
+      "email_subscribe": "M8rtOywDKgN((jhUBk9",
+      "external_id": "M8rtOywDKgN((jhUBk9",
+      "facebook": Object {
+        "id": "M8rtOywDKgN((jhUBk9",
+        "likes": Array [
+          "M8rtOywDKgN((jhUBk9",
+        ],
+        "num_friends": 7432249213452288,
+      },
+      "first_name": "M8rtOywDKgN((jhUBk9",
+      "gender": "M8rtOywDKgN((jhUBk9",
+      "home_city": "M8rtOywDKgN((jhUBk9",
+      "image_url": "http://agekekci.va/dofupo",
+      "language": "M8rtOywDKgN((jhUBk9",
+      "last_name": "M8rtOywDKgN((jhUBk9",
+      "marked_email_as_spam_at": "2021-02-01T00:00:00.000Z",
+      "phone": "M8rtOywDKgN((jhUBk9",
+      "push_subscribe": "M8rtOywDKgN((jhUBk9",
+      "push_tokens": Array [
+        Object {
+          "app_id": "M8rtOywDKgN((jhUBk9",
+          "device_id": "M8rtOywDKgN((jhUBk9",
+          "token": "M8rtOywDKgN((jhUBk9",
+        },
+      ],
+      "testType": "M8rtOywDKgN((jhUBk9",
+      "time_zone": "M8rtOywDKgN((jhUBk9",
+      "twitter": Object {
+        "followers_count": 7432249213452288,
+        "friends_count": 7432249213452288,
+        "id": "M8rtOywDKgN((jhUBk9",
+        "screen_name": "M8rtOywDKgN((jhUBk9",
+        "statuses_count": 7432249213452288,
+      },
+      "user_alias": Object {
+        "alias_label": "M8rtOywDKgN((jhUBk9",
+        "alias_name": "M8rtOywDKgN((jhUBk9",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's updateUserProfile destination action: it should work with a single batched events 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer my-api-key",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's updateUserProfile destination action: it should work with a single batched events 2`] = `
+Object {
+  "attributes": Array [
+    Object {
+      "_update_existing_only": true,
+      "braze_id": undefined,
+      "country": "United States",
+      "current_location": Object {
+        "latitude": 40.2964197,
+        "longitude": -76.9411617,
+      },
+      "date_of_first_session": undefined,
+      "date_of_last_session": undefined,
+      "dob": undefined,
+      "email": undefined,
+      "email_click_tracking_disabled": undefined,
+      "email_open_tracking_disabled": undefined,
+      "email_subscribe": undefined,
+      "external_id": "user1234",
+      "facebook": undefined,
+      "first_name": undefined,
+      "gender": undefined,
+      "home_city": undefined,
+      "image_url": undefined,
+      "language": undefined,
+      "last_name": undefined,
+      "marked_email_as_spam_at": undefined,
+      "phone": undefined,
+      "push_subscribe": undefined,
+      "push_tokens": undefined,
+      "time_zone": undefined,
+      "twitter": undefined,
+      "user_alias": undefined,
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's updateUserProfile destination action: it should work with batched events 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer my-api-key",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-braze-batch": Array [
+      "true",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's updateUserProfile destination action: it should work with batched events 2`] = `
+Object {
+  "attributes": Array [
+    Object {
+      "_update_existing_only": true,
+      "braze_id": undefined,
+      "country": "United States",
+      "current_location": Object {
+        "latitude": 40.2964197,
+        "longitude": -76.9411617,
+      },
+      "date_of_first_session": "2000-01-05T12:00:00.000Z",
+      "date_of_last_session": "2000-01-05T12:00:00.000Z",
+      "dob": undefined,
+      "email": undefined,
+      "email_click_tracking_disabled": undefined,
+      "email_open_tracking_disabled": undefined,
+      "email_subscribe": undefined,
+      "external_id": "user1234",
+      "facebook": undefined,
+      "first_name": undefined,
+      "gender": undefined,
+      "home_city": undefined,
+      "image_url": undefined,
+      "language": undefined,
+      "last_name": undefined,
+      "marked_email_as_spam_at": "2000-01-05T12:00:00.000Z",
+      "phone": undefined,
+      "push_subscribe": undefined,
+      "push_tokens": undefined,
+      "time_zone": undefined,
+      "twitter": undefined,
+      "user_alias": undefined,
+    },
+    Object {
+      "_update_existing_only": true,
+      "braze_id": undefined,
+      "country": "United States",
+      "current_location": Object {
+        "latitude": 40.2964197,
+        "longitude": -76.9411617,
+      },
+      "date_of_first_session": "2000-01-05T12:00:00.000Z",
+      "date_of_last_session": "2000-01-05T12:00:00.000Z",
+      "dob": undefined,
+      "email": undefined,
+      "email_click_tracking_disabled": undefined,
+      "email_open_tracking_disabled": undefined,
+      "email_subscribe": undefined,
+      "external_id": "user1234",
+      "facebook": undefined,
+      "first_name": undefined,
+      "gender": undefined,
+      "home_city": undefined,
+      "image_url": undefined,
+      "language": undefined,
+      "last_name": undefined,
+      "marked_email_as_spam_at": "2000-01-05T12:00:00.000Z",
+      "phone": undefined,
+      "push_subscribe": undefined,
+      "push_tokens": undefined,
+      "time_zone": undefined,
+      "twitter": undefined,
+      "user_alias": undefined,
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's updateUserProfile destination action: required fields 1`] = `
+Object {
+  "attributes": Array [
+    Object {
+      "braze_id": "M8rtOywDKgN((jhUBk9",
+      "external_id": "M8rtOywDKgN((jhUBk9",
+    },
+  ],
+}
+`;

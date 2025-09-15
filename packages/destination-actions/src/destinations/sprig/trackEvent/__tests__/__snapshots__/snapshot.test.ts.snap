@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Sprig's trackEvent destination action: all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "event": "kTC5V",
+      "timestamp": null,
+    },
+  ],
+  "userId": "kTC5V",
+}
+`;
+
+exports[`Testing snapshot for Sprig's trackEvent destination action: required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "event": "kTC5V",
+      "timestamp": null,
+    },
+  ],
+  "userId": "kTC5V",
+}
+`;

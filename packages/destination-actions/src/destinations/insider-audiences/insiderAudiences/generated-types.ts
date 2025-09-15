@@ -10,9 +10,13 @@ export interface Payload {
    */
   segment_computation_action: string
   /**
+   * If enabled, new data for array fields will be appended to the existing values in Insider.
+   */
+  append_arrays?: boolean
+  /**
    * User's email address for including/excluding from custom audience
    */
-  email: string
+  email?: string
   /**
    * User's phone number for including/excluding from custom audience
    */
