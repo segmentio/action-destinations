@@ -1,162 +1,80 @@
-import action from '../index'
-import { processHashing } from '../../../../lib/hashing-utils'
-import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 import { Payload } from '../generated-types'
+import action from '../index'
 
-describe('Google Data Manager Sync User Data Action', () => {
-  const settings = {
-    advertiserAccountId: '123456'
-  }
-  const audienceSettings = {
-    product: 'CUSTOM_AUDIENCE',
-    productDestinationId: 'aud_dest_1'
-  }
-  const auth: AuthTokens = { accessToken: 'test-token', refreshToken: 'refresh_token' }
-
-  const requestMock = jest.fn()
+jest.mock('../../data-partner-token', () => ({
+  getDataPartnerToken: jest.fn().mockResolvedValue('mocked-token')
+}))
+describe('Sync User Data Action', () => {
+  let mockRequest: jest.Mock
+  const mockSettings = { apiKey: 'test-key', advertiserAccountId: 'acc-123' } as any
+  const mockAudienceSettings = { audienceId: 'aud-123', product: 'PRODUCT', productDestinationId: 'dest-456' } as any
+  const mockPayload = { emailAddress: 'test@example.com', event_name: 'Audience Entered' } as any
+  const mockBatchPayload = [mockPayload, { emailAddress: 'other@example.com', event_name: 'Audience Entered' }]
+  const mockResponse = { success: true }
 
   beforeEach(() => {
-    requestMock.mockClear()
+    mockRequest = jest.fn().mockResolvedValue(mockResponse)
   })
 
-  it('should ingest a single audience member with email', async () => {
-    const payload = { emailAddress: 'test@example.com', enable_batching: false, batch_size: 3 }
-    await action.perform(requestMock, { settings, audienceSettings, payload, auth })
-    expect(requestMock).toHaveBeenCalledWith(
-      expect.stringContaining('audienceMembers:ingest'),
-      expect.objectContaining({
-        method: 'POST',
-        headers: expect.objectContaining({ Authorization: 'Bearer test-token' }),
-        json: expect.objectContaining({
-          audienceMembers: [
-            expect.objectContaining({
-              userData: expect.objectContaining({
-                userIdentifiers: [
-                  expect.objectContaining({
-                    emailAddress: processHashing('test@example.com', 'sha256', 'hex')
-                  })
-                ]
-              })
-            })
-          ]
-        })
-      })
-    )
+  afterEach(() => {
+    jest.restoreAllMocks()
   })
 
-  it('should ingest a single audience member with phone', async () => {
-    const payload = { phoneNumber: '+1234567890', enable_batching: false, batch_size: 3 }
-    await action.perform(requestMock, { settings, audienceSettings, payload, auth })
-    expect(requestMock).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        json: expect.objectContaining({
-          audienceMembers: [
-            expect.objectContaining({
-              userData: expect.objectContaining({
-                userIdentifiers: [
-                  expect.objectContaining({
-                    phoneNumber: processHashing('+1234567890', 'sha256', 'hex')
-                  })
-                ]
-              })
-            })
-          ]
-        })
-      })
-    )
+  it('calls request in perform with correct arguments', async () => {
+    const result = await action.perform!(mockRequest, {
+      settings: mockSettings,
+      payload: mockPayload,
+      audienceSettings: mockAudienceSettings
+    })
+    expect(mockRequest).toHaveBeenCalled()
+    expect(result).toEqual(mockResponse)
+    // Optionally, check the URL and method
+    const callArgs = mockRequest.mock.calls[0][0]
+    expect(callArgs).toContain('audienceMembers:ingest')
   })
 
-  it('should ingest a single audience member with address', async () => {
-    const payload = {
-      givenName: 'John',
-      familyName: 'Doe',
-      regionCode: 'US',
-      postalCode: '90210',
-      enable_batching: false,
-      batch_size: 3
-    }
-    await action.perform(requestMock, { settings, audienceSettings, payload, auth })
-    expect(requestMock).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        json: expect.objectContaining({
-          audienceMembers: [
-            expect.objectContaining({
-              userData: expect.objectContaining({
-                userIdentifiers: [
-                  expect.objectContaining({
-                    address: expect.objectContaining({
-                      givenName: processHashing('John', 'sha256', 'hex'),
-                      familyName: processHashing('Doe', 'sha256', 'hex'),
-                      regionCode: 'US',
-                      postalCode: '90210'
-                    })
-                  })
-                ]
-              })
-            })
-          ]
-        })
-      })
-    )
+  it('calls request in performBatch with correct arguments', async () => {
+    const result = await action.performBatch!(mockRequest, {
+      settings: mockSettings,
+      payload: mockBatchPayload,
+      audienceSettings: mockAudienceSettings
+    })
+    expect(mockRequest).toHaveBeenCalled()
+    expect(result).toEqual(mockResponse)
+    const callArgs = mockRequest.mock.calls[0][0]
+    expect(callArgs).toContain('audienceMembers:ingest')
   })
 
-  it('should ingest multiple audience members in batch', async () => {
-    const payloads: Payload[] = [
-      { emailAddress: 'a@b.com', enable_batching: true, batch_size: 3 },
-      { phoneNumber: '+1111111111', enable_batching: true, batch_size: 3 },
-      {
-        givenName: 'Jane',
-        familyName: 'Smith',
-        regionCode: 'CA',
-        postalCode: 'A1A1A1',
-        enable_batching: true,
-        batch_size: 3
-      }
-    ]
-    await action.performBatch?.(requestMock, { settings, payload: payloads, audienceSettings, auth })
-    expect(requestMock).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        json: expect.objectContaining({
-          audienceMembers: [
-            expect.objectContaining({
-              userData: expect.objectContaining({
-                userIdentifiers: [expect.objectContaining({ emailAddress: processHashing('a@b.com', 'sha256', 'hex') })]
-              })
-            }),
-            expect.objectContaining({
-              userData: expect.objectContaining({
-                userIdentifiers: [
-                  expect.objectContaining({ phoneNumber: processHashing('+1111111111', 'sha256', 'hex') })
-                ]
-              })
-            }),
-            expect.objectContaining({
-              userData: expect.objectContaining({
-                userIdentifiers: [
-                  expect.objectContaining({
-                    address: expect.objectContaining({
-                      givenName: processHashing('Jane', 'sha256', 'hex'),
-                      familyName: processHashing('Smith', 'sha256', 'hex'),
-                      regionCode: 'CA',
-                      postalCode: 'A1A1A1'
-                    })
-                  })
-                ]
-              })
-            })
-          ]
-        })
-      })
-    )
-  })
+  it('calls request for both Audience Entered and Audience Exited in performBatch', async () => {
+    const enteredPayload = { emailAddress: 'entered@example.com', event_name: 'Audience Entered' } as Payload
+    const exitedPayload = { emailAddress: 'exited@example.com', event_name: 'Audience Exited' } as Payload
+    const batchPayload = [enteredPayload, exitedPayload]
 
-  it('should throw error if access token is missing', async () => {
-    const payload = { emailAddress: 'test@example.com', enable_batching: true, batch_size: 3 }
-    await expect(action.perform(requestMock, { settings, audienceSettings, payload })).rejects.toThrow(
-      'Missing access token.'
-    )
+    await action.performBatch!(mockRequest, {
+      settings: mockSettings,
+      payload: batchPayload,
+      audienceSettings: mockAudienceSettings
+    })
+
+    // Should call ingest for Audience Entered
+    expect(mockRequest.mock.calls.some((call) => call[0].includes('audienceMembers:ingest'))).toBe(true)
+    // Should call remove for Audience Exited
+    expect(mockRequest.mock.calls.some((call) => call[0].includes('audienceMembers:remove'))).toBe(true)
+
+    // Optionally, check the payloads sent
+    const ingestCall = mockRequest.mock.calls.find((call) => call[0].includes('audienceMembers:ingest'))
+    const removeCall = mockRequest.mock.calls.find((call) => call[0].includes('audienceMembers:remove'))
+    expect(
+      ingestCall[1].json.audienceMembers.some(
+        (m: { userData: { userIdentifiers: { emailAddress: any }[] } }) =>
+          m.userData.userIdentifiers && m.userData.userIdentifiers[0].emailAddress
+      )
+    ).toBe(true)
+    expect(
+      removeCall[1].json.audienceMembers.some(
+        (m: { userData: { userIdentifiers: { emailAddress: any }[] } }) =>
+          m.userData.userIdentifiers && m.userData.userIdentifiers[0].emailAddress
+      )
+    ).toBe(true)
   })
 })

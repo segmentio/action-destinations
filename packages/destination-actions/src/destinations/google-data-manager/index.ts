@@ -1,17 +1,11 @@
-import { AudienceDestinationDefinition, GlobalSetting, IntegrationError, RequestClient } from '@segment/actions-core'
+import { AudienceDestinationDefinition, GlobalSetting, IntegrationError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 import syncUserData from './syncUserData'
-import { buildHeaders, getAuthSettings, getAuthToken } from './shared'
-import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL, SEGMENT_DATA_PARTNER_ID } from './constants'
+import { buildHeaders } from './shared'
+import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL, PRODUCT_LINK_SEARCH_URL, SEGMENT_DATA_PARTNER_ID } from './constants'
 import { handleRequestError } from './errors'
 import { verifyCustomerId } from './functions'
-
-export interface RefreshTokenResponse {
-  access_token: string
-  scope: string
-  expires_in: number
-  token_type: string
-}
+import { getDataPartnerToken } from './data-partner-token'
 
 const testAuthUrl = `https://audiencepartner.googleapis.com/v2/products/DATA_PARTNER/customers/${SEGMENT_DATA_PARTNER_ID}/audiencePartner:searchStream`
 
@@ -80,7 +74,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   mode: 'cloud',
 
   authentication: {
-    scheme: 'oauth2',
+    scheme: 'custom',
     fields: {
       advertiserAccountId: {
         label: 'Advertiser Account ID',
@@ -89,32 +83,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         required: true
       }
     },
-    testAuthentication: async (request, { auth, settings }) => {
-      const accessToken = auth.accessToken
-      if (!accessToken) throw new Error('Missing access token for authentication test.')
-      const response = await request(testAuthUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-          'login-customer-id': settings.advertiserAccountId
-        },
-        body: JSON.stringify({
-          query: `SELECT product_link.google_ads.google_ads_customer FROM product_link WHERE product_link.google_ads.google_ads_customer = 'products/GOOGLE_ADS/customers/${settings.advertiserAccountId}'`
-        })
-      })
-      if (response.status < 200 || response.status >= 300)
-        throw new Error('Authentication failed: ' + response.statusText)
-      return response
-    },
-    refreshAccessToken: async (request, { auth }) => {
-      const res = await refreshAccessTokenRequest(request, auth)
-      const data = await res.json()
-      return { accessToken: data.access_token }
+    testAuthentication: async () => {
+      return true
     }
-  },
-  extendRequest({ auth }) {
-    return { headers: { authorization: `Bearer ${auth?.accessToken}` } }
   },
 
   actions: { syncUserData },
@@ -135,13 +106,57 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       verifyCustomerId(advertiserId)
 
+      if (audienceSettings == null) {
+        throw new IntegrationError('Missing audience setting', 'MISSING_REQUIRED_FIELD', 400)
+      }
+      if (!audienceSettings.product) {
+        throw new IntegrationError('Missing product value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+      // check if product link exists for given advertiser id
+      // https://developers.google.com/audience-partner/api/reference/rest/v2/products.customers.audiencePartner/searchStream?hl=en
+      const response = await request(testAuthUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getDataPartnerToken()}`,
+          'login-customer-id': settings.advertiserAccountId
+        },
+        body: JSON.stringify({
+          query: PRODUCT_LINK_SEARCH_URL.replace('productLower', audienceSettings.product.toLowerCase())
+            .replace('productUpper', audienceSettings.product.toUpperCase())
+            .replace('advertiserID', advertiserId)
+        })
+      })
+      if (response.status < 200 || response.status >= 300)
+        throw new IntegrationError(
+          'Failed to fetch product link: ' + response.statusText,
+          'MISSING_REQUIRED_FIELD',
+          400
+        )
+
+      // assert response has product link
+      const responseJson = await response.json()
+      if (!Array.isArray(responseJson) || !responseJson[0]?.results?.[0]?.productLink?.resourceName) {
+        throw new IntegrationError('Expected productLink in response', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      //todo: do we want to create product link here if it doesn't exist?
+      // https://developers.google.com/audience-partner/api/reference/rest/v2/products.customers.productLinks/create?hl=en
+
       // TODO: Multiple calls to different endpoints for different products
-      const partnerCreateAudienceUrl = CREATE_AUDIENCE_URL.replace('advertiserID', advertiserId)
-      const listTypeMap = { basicUserList: {}, type: 'REMARKETING', membershipStatus: 'OPEN' }
       try {
-        const authToken = await getAuthToken(request, getAuthSettings())
+        let partnerCreateAudienceUrl
+        if (audienceSettings?.product != null) {
+          partnerCreateAudienceUrl = CREATE_AUDIENCE_URL.replace('advertiserID', advertiserId).replace(
+            'productName',
+            audienceSettings?.product
+          )
+        } else {
+          throw new IntegrationError('Missing product value', 'MISSING_REQUIRED_FIELD', 400)
+        }
+        const listTypeMap = { basicUserList: {}, type: 'REMARKETING', membershipStatus: 'OPEN' }
         const response = await request(partnerCreateAudienceUrl, {
-          headers: buildHeaders(audienceSettings, settings, authToken),
+          headers: buildHeaders(audienceSettings, settings, await getDataPartnerToken()),
           method: 'POST',
           json: {
             operations: [
@@ -177,16 +192,21 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
       const advertiserGetAudienceUrl = GET_AUDIENCE_URL.replace('advertiserID', advertiserId)
       try {
-        const authToken = await getAuthToken(request, getAuthSettings())
         const response = await request(advertiserGetAudienceUrl, {
-          headers: buildHeaders(audienceSettings, settings, authToken),
+          headers: buildHeaders(audienceSettings, settings, await getDataPartnerToken()),
           method: 'POST',
           json: {
-            query: `SELECT user_list.name, user_list.description, user_list.membership_status, user_list.match_rate_percentage FROM user_list WHERE user_list.resource_name = "${externalId}"`
+            query: `SELECT user_list.name, user_list.description, user_list.membership_status, user_list.match_rate_percentage
+            FROM user_list WHERE user_list.resource_name = "${externalId}"`
           }
         })
         const r = await response.json()
         const foundId = r[0]?.results[0]?.userList?.resourceName
+        if (foundId === undefined) {
+          statsTags.push('error:not-found')
+          statsClient?.incr(`${statsName}.error`, 1, statsTags)
+          throw new IntegrationError('Audience not found', 'MISSING_REQUIRED_FIELD', 400)
+        }
         if (foundId !== externalId) {
           statsTags.push('error:id-mismatch')
           statsClient?.incr(`${statsName}.error`, 1, statsTags)
@@ -207,21 +227,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   audienceFields
-}
-
-function refreshAccessTokenRequest(
-  request: RequestClient,
-  auth: { refreshToken: string; clientId: string; clientSecret: string }
-) {
-  return request('https://www.googleapis.com/oauth2/v4/token', {
-    method: 'POST',
-    body: new URLSearchParams({
-      refresh_token: auth.refreshToken,
-      client_id: auth.clientId,
-      client_secret: auth.clientSecret,
-      grant_type: 'refresh_token'
-    })
-  })
 }
 
 export default destination
