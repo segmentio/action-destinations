@@ -1,6 +1,8 @@
 import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendEvent from './sendEvent'
+import { send } from '../amazon-eventbridge/send/functions'
+import { eventType } from '../attentive/fields'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Ms Bing Capi',
@@ -40,6 +42,45 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   presets: [
+    {
+      name: 'Send Purchase Event',
+      subscribe: 'type = "track" and event = "Order Completed"',
+      partnerAction: 'sendEvent',
+      mapping: defaultValues({
+        ...sendEvent.fields,
+        customData: {
+          ...sendEvent.fields.customData,
+          eventType: 'purchase'
+        }
+      }),
+      type: 'automatic'
+    },
+    {
+      name: 'Send Cart Event',
+      subscribe: 'type = "track" and event = "Add to Cart"',
+      partnerAction: 'sendEvent',
+      mapping: defaultValues({
+        ...sendEvent.fields,
+        customData: {
+          ...sendEvent.fields.customData,
+          eventType: 'cart'
+        }
+      }),
+      type: 'automatic'
+    },
+    {
+      name: 'Send Search Results',
+      subscribe: 'type = "track" and event = "Products Searched"',
+      partnerAction: 'sendEvent',
+      mapping: defaultValues({
+        ...sendEvent.fields,
+        customData: {
+          ...sendEvent.fields.customData,
+          eventType: 'searchresults'
+        }
+      }),
+      type: 'automatic'
+    },
     {
       name: 'Send Custom Event',
       subscribe: 'type = "track"',
