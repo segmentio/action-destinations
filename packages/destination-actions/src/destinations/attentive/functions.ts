@@ -53,7 +53,7 @@ function formatUser(userIdentifiers: UserIdentifiers): User {
 function formatItems(items: Items): Array<Item> {
   return items.map(({ value, currency, ...rest }) => ({
     ...rest,
-    price: currency !== undefined && currency !== null && currency !== '' ? [{value, currency}] : [{value}]
+    price: currency !== undefined && currency !== null && currency !== '' ? [{ value, currency }] : [{ value }]
   }))
 }
 
@@ -78,10 +78,6 @@ export function formatEcommEventJSON(payload: EcommEvent): EcommEventJSON {
 export function formatCustomEventJSON(payload: CustomEvent): CustomEventJSON {
   const { externalEventId, type, properties, occurredAt, userIdentifiers } = payload
 
-  if (Object.values(properties ?? {}).some((value) => Array.isArray(value))) {
-    throw new PayloadValidationError('Properties cannot contain arrays.')
-  }
-
   return {
     type,
     properties,
@@ -105,13 +101,14 @@ export function formatUpsertUserAttributesJSON(payload: CustomAttributesEvent): 
 }
 
 export function formatSubscribeUserJSON(payload: SubscribeUserEvent): SubscribeUserJSON {
-  const { externalEventId, occurredAt, userIdentifiers, subscriptionType, signUpSourceId, singleOptIn, locale } = payload
+  const { externalEventId, occurredAt, userIdentifiers, subscriptionType, signUpSourceId, singleOptIn, locale } =
+    payload
   return {
     externalEventId,
     occurredAt,
     subscriptionType: subscriptionType as SubscriptionType,
     ...(locale ? { locale: formatLocale(locale) } : {}),
-    ...(signUpSourceId? { signUpSourceId } : {}),
+    ...(signUpSourceId ? { signUpSourceId } : {}),
     singleOptIn,
     user: formatUser(userIdentifiers)
   }

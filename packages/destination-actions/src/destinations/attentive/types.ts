@@ -10,7 +10,7 @@ export interface CustomEventJSON {
   occurredAt?: string
   user: User
   type: string
-  properties?: Record<string, unknown> // cannot contain arrays
+  properties?: Record<string, unknown>
 }
 export interface UpsertUserAttributesJSON {
   properties: Record<string, unknown> // cannot contain arrays or objects
@@ -43,7 +43,7 @@ export interface Item {
   productImage?: string
   productUrl?: string
   name?: string
-  price: [{value: number, currency?: string}]
+  price: [{ value: number; currency?: string }]
   quantity?: number
 }
 export type SubscriptionType = typeof SUBSCRIPTION_TYPES[number]
