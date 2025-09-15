@@ -1,5 +1,5 @@
 import { getCurrencyChoices } from '../utils'
-import { CURRENCY_ISO_CODES } from '../../constants'
+import { CURRENCY_ISO_CODES } from '../constants'
 
 describe('MS Bing CAPI utils', () => {
   describe('getCurrencyChoices', () => {

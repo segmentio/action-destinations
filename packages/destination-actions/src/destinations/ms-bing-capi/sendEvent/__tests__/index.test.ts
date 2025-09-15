@@ -1,5 +1,5 @@
 import action from '../index' // adjust path
-import { API_URL } from '../../constants'
+import { API_URL } from '../constants'
 import { processHashing } from '../../../../lib/hashing-utils'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 

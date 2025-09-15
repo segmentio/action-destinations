@@ -1,7 +1,6 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendEvent from './sendEvent'
-import pageLoad from './pageLoad'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Ms Bing Capi',
@@ -24,10 +23,11 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (_, { settings }) => {
+      // TODO: see if there's any API call which can be made to check if the credentials are valid
       if (settings.UetTag.length && settings.ApiToken.length) {
         return true
       } else {
-        throw new Error('Invalid AccountID. Please check your AccountID')
+        throw new Error('Invalid UetTag or ApiToken')
       }
     }
   },
@@ -39,9 +39,30 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
+  presets: [
+    {
+      name: 'Send Custom Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'sendEvent',
+      mapping: defaultValues(sendEvent.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Send Pageload',
+      subscribe: 'type = "page"',
+      partnerAction: 'sendEvent',
+      mapping: defaultValues({
+        ...sendEvent.fields,
+        data: {
+          ...sendEvent.fields.data,
+          eventType: 'pageLoad' 
+        }
+      }),
+      type: 'automatic'
+    }
+  ],
   actions: {
-    sendEvent,
-    pageLoad
+    sendEvent
   }
 }
 

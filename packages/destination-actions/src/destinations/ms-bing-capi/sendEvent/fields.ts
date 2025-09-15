@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
-import { getCurrencyChoices } from './sendEvent/utils'
+import { getCurrencyChoices } from './utils'
 
 export const userData: InputField = {
   label: 'User Data',
@@ -104,6 +104,7 @@ export const data: InputField = {
       label: 'Event Time',
       description: 'The time the event occurred.',
       type: 'string',
+      
       required: true
     },
     eventSourceUrl: {
@@ -144,7 +145,7 @@ export const data: InputField = {
     }
   },
   default: {
-    eventType: { '@path': '$.properties.event_type' },
+    eventType: 'custom',
     eventId: { '@path': '$.messageId' },
     eventName: { '@path': '$.event' },
     eventSourceUrl: { '@path': '$.context.page.url' },
@@ -160,6 +161,7 @@ export const items: InputField = {
   description: 'The list of items associated with the event. Must contain at least one item.',
   type: 'object',
   multiple: true,
+  additionalProperties: false, // TODO check if this is needed. 
   required: false,
   properties: {
     id: {
