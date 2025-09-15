@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.125.1-staging-459f1d9de.0",
+  "version": "1.125.1-staging-fb3b476c7.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -46,7 +46,7 @@
     "@segment/analytics-browser-actions-stackadapt": "1.91.1-staging-fb8bbedd8.0",
     "@segment/analytics-browser-actions-survicate": "1.65.1-staging-fb8bbedd8.0",
     "@segment/analytics-browser-actions-tiktok-pixel": "1.90.1-staging-fb8bbedd8.0",
-    "@segment/analytics-browser-actions-upollo": "1.89.1-staging-459f1d9de.0",
+    "@segment/analytics-browser-actions-upollo": "1.89.1-staging-fb3b476c7.0",
     "@segment/analytics-browser-actions-userpilot": "1.89.1-staging-fb8bbedd8.0",
     "@segment/analytics-browser-actions-utils": "1.89.1-staging-fb8bbedd8.0",
     "@segment/analytics-browser-actions-vwo": "1.92.1-staging-fb8bbedd8.0",
