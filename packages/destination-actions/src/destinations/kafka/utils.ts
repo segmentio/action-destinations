@@ -91,7 +91,9 @@ const getKafka = (settings: Settings) => {
       }
       return undefined
     })(),
-    retries: 0
+    retry: {
+      retries: 0
+    }
   } as unknown as KafkaConfig
 
   try {
