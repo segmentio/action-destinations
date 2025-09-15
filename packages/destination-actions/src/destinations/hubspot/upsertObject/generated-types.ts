@@ -85,17 +85,21 @@ export interface Payload {
    */
   list_details?: {
     /**
-     * The name of the Hubspot List to add or remove the record from. If the 'Create List' field is set to true, Segment will create the List if it does not already exist.
+     * Set to true if syncing an Engage Audience to a Hubstpot list, false otherwise.
      */
-    list_name: string
+    connected_to_engage_audience?: boolean
     /**
-     * Specify if the record should be added or removed from the list. true = add to list, false = remove from list.
+     * The name of the Hubspot List to add or remove the record from. If connecting to an Engage Audience this field can be left empty.
      */
-    list_action: boolean
+    list_name?: string
+    /**
+     * Specify if the record should be added or removed from the list. true = add to list, false = remove from list. If connecting an Engage Audience this field should be left empty.
+     */
+    list_action?: boolean
     /**
      * If true, Segment will create the list in Hubspot if it does not already exist.
      */
-    should_create_list: boolean
+    should_create_list?: boolean
   }
   /**
    * By default Segment batches events to Hubspot.
@@ -113,4 +117,18 @@ export interface Payload {
    * The time the event occurred. This will be used to de-duplicate the events before sending them to hubspot.
    */
   timestamp?: string
+  /**
+   * Hidden field: Object which to get the traits or properties object from Engage Audience payloads.
+   */
+  traits_or_props?: {
+    [k: string]: unknown
+  }
+  /**
+   * Hidden field: Engage Audience Computation Key refers to the audience slug name in an Engage Audience payload.
+   */
+  computation_key?: string
+  /**
+   * Hidden field: Engage Audience Computation Class indicates if the payload is from an Engage Audience or not.
+   */
+  computation_class?: string
 }

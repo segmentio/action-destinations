@@ -1,9 +1,44 @@
 import { Client } from '../client'
-import { CachableList, PayloadWithFromId, AddRemoveFromListReq } from '../types'
+import { CachableList, PayloadWithFromId, AddRemoveFromListReq, EngageAudiencePayload } from '../types'
 import { StatsContext, RetryableError, PayloadValidationError } from '@segment/actions-core'
 import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import { getListFromCache, saveListToCache } from '../functions/cache-functions'
 import { HubSpotError } from '../../errors'
+import { Payload } from '../generated-types'
+import { ENGAGE_AUDIENCE_COMPUTATION_CLASSES } from '../constants'
+
+export function getListName(payload: Payload): string | undefined {
+  if(isEngageAudiencePayload(payload)) {
+    const { traits_or_props, computation_key } = payload as EngageAudiencePayload
+    return (payload?.list_details?.list_name || traits_or_props[computation_key]) as string
+  } else {
+    return payload?.list_details?.list_name
+  }
+}
+
+function isEngageAudiencePayload(payload: Payload): boolean {
+  const {
+    list_details: { connected_to_engage_audience } = {},
+    traits_or_props, 
+    computation_class = '',
+    computation_key = ''
+  } = payload
+
+  return connected_to_engage_audience === true 
+    && computation_key!== '' 
+    && ENGAGE_AUDIENCE_COMPUTATION_CLASSES.includes(computation_class)
+    && typeof traits_or_props === 'object' 
+    && typeof traits_or_props[computation_key] === 'string'
+}
+
+function getListAction(payload: PayloadWithFromId): boolean | undefined{
+  if(isEngageAudiencePayload(payload)) {
+    const action = (payload as EngageAudiencePayload)?.traits_or_props[payload.computation_key as string] as boolean
+    return typeof action === 'boolean' ? action : undefined 
+  } else {
+    return payload?.list_details?.list_action
+  }
+}
 
 export async function ensureList(
   client: Client,
@@ -114,10 +149,10 @@ async function createListInHubspot(
 export async function sendLists(client: Client, cachableList: CachableList, fromRecordPayloads: PayloadWithFromId[]) {
   const json: AddRemoveFromListReq = {
     recordIdsToAdd: fromRecordPayloads
-      .filter((p) => p.list_details?.list_action == true)
+      .filter((p) => getListAction(p) == true)
       .map((p) => p.object_details.record_id),
     recordIdsToRemove: fromRecordPayloads
-      .filter((p) => p.list_details?.list_action == false)
+      .filter((p) => getListAction(p) == false)
       .map((p) => p.object_details.record_id)
   }
   await client.addRemoveFromList(cachableList.listId, json)

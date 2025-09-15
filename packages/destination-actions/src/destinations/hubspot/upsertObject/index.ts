@@ -10,7 +10,7 @@ import { getSchemaFromCache, saveSchemaToCache } from './functions/cache-functio
 import { ensureValidTimestamps, mergeAndDeduplicateById, validate } from './functions/validation-functions'
 import { objectSchema, compareSchemas } from './functions/schema-functions'
 import { sendFromRecords } from './functions/hubspot-record-functions'
-import { ensureList, sendLists } from './functions/hubspot-list-functions'
+import { getListName, ensureList, sendLists } from './functions/hubspot-list-functions'
 import {
   sendAssociatedRecords,
   createAssociationPayloads,
@@ -65,8 +65,12 @@ const send = async (
   const {
     object_details: { object_type: objectType, property_group: propertyGroup },
     association_sync_mode: associationSyncMode,
-    list_details: { list_name: listName, should_create_list: shouldCreateList } = {}
+    list_details
   } = payloads[0]
+
+  const listName = getListName(payloads[0])
+  
+  const shouldCreateList = list_details?.should_create_list
 
   const client = new Client(request, objectType)
 
