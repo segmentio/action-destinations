@@ -23,7 +23,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         label: 'Client Secret',
         description: "The client's secret from your Taboola account.",
         type: 'string',
-        required: true
+        required: true,
+        format: 'password'
       },
       audience_identifier: {
         label: 'Audience Identifier',

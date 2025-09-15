@@ -101,7 +101,8 @@ const destination: DestinationDefinition<Settings> = {
           'The Client Key for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.',
         type: 'string',
         required: false,
-        depends_on: DEPENDS_ON_CLIENT_CERT
+        depends_on: DEPENDS_ON_CLIENT_CERT,
+        format: 'password'
       },
       ssl_cert: {
         label: 'SSL Client Certificate',

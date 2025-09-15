@@ -62,7 +62,8 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'Your TikTok Access Token. Please see TikTok’s [Events API 2.0 documentation](https://business-api.tiktok.com/portal/docs?id=1771101130925058) for information on how to generate an access token via the TikTok Ads Manager or API.',
         type: 'string',
-        required: true
+        required: true,
+        format: 'password'
       },
       eventSetID: {
         label: 'Event Set ID',

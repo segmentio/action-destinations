@@ -31,7 +31,8 @@ const destination: DestinationDefinition<Settings> = {
           'Pipedrive API token. This is found in Pipedrive in Settings > Personal preferences > API > Your personal API token.',
         type: 'string',
         // minLength: 20,
-        required: true
+        required: true,
+        format: 'password'
       },
       personField: {
         label: 'External ID field for a Person in Pipedrive',

@@ -23,7 +23,8 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Client Secret',
         description: 'Your Criteo API client secret',
         type: 'string',
-        required: true
+        required: true,
+        format: 'password'
       },
       advertiser_id: {
         label: 'Advertiser ID',

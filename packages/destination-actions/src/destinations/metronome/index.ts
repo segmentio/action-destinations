@@ -15,7 +15,8 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         label: 'API Token',
         description: 'Your Metronome API Token',
-        required: true
+        required: true,
+        format: 'password'
       }
     },
     testAuthentication: async (request) => {

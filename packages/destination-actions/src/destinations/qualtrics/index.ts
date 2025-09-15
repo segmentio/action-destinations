@@ -19,7 +19,8 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Token',
         description: 'Qualtrics API token found in your Qualtrics account under "Account settings" -> "Qualtrics IDs."',
         type: 'string',
-        required: true
+        required: true,
+        format: 'password'
       },
       datacenter: {
         label: 'Datacenter ID',
