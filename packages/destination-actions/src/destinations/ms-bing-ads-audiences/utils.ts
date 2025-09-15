@@ -10,7 +10,7 @@ import {
   IntegrationError
 } from '@segment/actions-core'
 import { BASE_URL } from './constants'
-import { syncAudiencePayload, PartialError } from './types'
+import { SyncAudiencePayload, PartialError } from './types'
 
 /**
  * Hashes an email address using the SHA-256 algorithm and returns the result as a hexadecimal string.
@@ -22,55 +22,6 @@ import { syncAudiencePayload, PartialError } from './types'
  */
 export const hashEmail = (item: string): string => {
   return processHashing(item, 'sha256', 'hex', (value) => value.trim().toLowerCase())
-}
-
-/**
- * Prepares a map of list items based on the provided payload and identifier type.
- *
- * Iterates over the payload array and, depending on the `identifierType`, either hashes the email or uses the CRM ID as the key.
- * If the required identifier is missing in an item, sets an error response at the corresponding index in the `msResponse`.
- *
- * @param payload - An array of payload objects containing user data.
- * @param identifierType - The type of identifier to use ('Email' or 'CRM').
- * @param msResponse - The response object used to set error responses for invalid items.
- * @returns A map where the key is the hashed email or CRM ID and the value is the index of the item in the payload.
- */
-export const prepareListItems = (
-  payload: Payload[],
-  identifierType: string,
-  msResponse: MultiStatusResponse
-): Map<string, number> => {
-  const listItemsMap = new Map<string, number>()
-
-  payload.forEach((item, index) => {
-    const { email, crm_id } = item
-    if (identifierType === 'Email') {
-      if (!email) {
-        msResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: ErrorCodes.BAD_REQUEST,
-          errormessage: 'Email is required when Identifier Type is set to Email',
-          sent: item as unknown as JSONLikeObject
-        })
-      } else {
-        listItemsMap.set(hashEmail(email), index)
-      }
-    }
-    if (identifierType === 'CRM') {
-      if (!crm_id) {
-        msResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: ErrorCodes.BAD_REQUEST,
-          errormessage: 'CRM ID is required when Identifier Type is set to CRM ID',
-          sent: item as unknown as JSONLikeObject
-        })
-      } else {
-        listItemsMap.set(crm_id, index)
-      }
-    }
-  })
-
-  return listItemsMap
 }
 
 /**
@@ -87,7 +38,7 @@ export const preparePayload = (
   action: string,
   identifierType: string,
   listItems: string[]
-): syncAudiencePayload => {
+): SyncAudiencePayload => {
   return {
     CustomerListUserData: {
       ActionType: action,
