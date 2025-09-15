@@ -3,19 +3,21 @@ export interface RefreshTokenResponse {
   refresh_token?: string
 }
 
+export interface PartialError {
+  FieldPath: string | null
+  ErrorCode: string
+  Message: string
+  Code: number
+  Details: string | null
+  Index: number
+  Type: string
+  ForwardCompatibilityMap: null
+}
+
 export interface CreateAudienceResponse {
   data: {
     AudienceIds: string[]
-    PartialErrors: {
-      FieldPath: string | null
-      ErrorCode: string
-      Message: string
-      Code: number
-      Details: string | null
-      Index: number
-      Type: string
-      ForwardCompatibilityMap: null
-    }[]
+    PartialErrors: PartialError[]
   }
 }
 
@@ -27,5 +29,14 @@ export interface GetAudienceResponse {
       }
     ]
     PartialErrors: []
+  }
+}
+
+export interface syncAudiencePayload {
+  CustomerListUserData: {
+    ActionType: string
+    AudienceId: string
+    CustomerListItemSubType: string
+    CustomerListItems: string[]
   }
 }
