@@ -2,22 +2,33 @@ import { ActionDefinition, RequestClient, HTTPError } from '@segment/actions-cor
 import { MultiStatusResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { audience_id, traits_or_props, audience_key, batch_size, crm_id, email, enable_batching, identifier_type, computation_class } from './fields'
+import {
+  audience_id,
+  traits_or_props,
+  audience_key,
+  batch_size,
+  crm_id,
+  email,
+  enable_batching,
+  identifier_type,
+  computation_class
+} from './fields'
 import {
   preparePayload,
   sendDataToMicrosoftBingAds,
   handleMultistatusResponse,
-  handleHttpError
+  handleHttpError,
+  categorizePayloadByAction
 } from '../utils'
-import { ActionType, SyncAudiencePayload } from '../types'
+import { Identifier, SyncAudiencePayload } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audiences',
   description: 'Sync users to Microsoft Bing Ads Audiences',
   fields: {
     audience_id,
-    traits_or_props, 
-    audience_key, 
+    traits_or_props,
+    audience_key,
     identifier_type,
     email,
     crm_id,
@@ -53,9 +64,9 @@ const syncUser = async (request: RequestClient, payload: Payload[], isBatch: boo
   if (!Array.isArray(payload) || payload.length === 0) {
     return msResponse
   }
-  
+
   // Identifier type is static for every batch as it's set in the batch keys array
-  const identifierType = payload[0]?.identifier_type
+  const identifierType: Identifier = payload[0]?.identifier_type as Identifier
 
   // Audience ID value is static for every batch as it's set in the batch keys array
   const audienceId = payload[0]?.audience_id
@@ -63,44 +74,31 @@ const syncUser = async (request: RequestClient, payload: Payload[], isBatch: boo
   const addMap: Map<string, number> = new Map()
   const removeMap: Map<string, number> = new Map()
 
-  payload.forEach((p, index) => {
-    const action: ActionType = p.traits_or_props[p.audience_key] ? 'Add' : 'Remove'
-    const identifier: string = (p.identifier_type === 'Email' ? p.email : p.crm_id) as string
+  categorizePayloadByAction(payload, addMap, removeMap)
 
-    if(action === 'Add') {
-      addMap.set(identifier, index)
-    } else {
-      removeMap.set(identifier, index)
-    }
-  })
+  const addItems = Array.from(addMap.keys())
+  const removeItems = Array.from(removeMap.keys())
 
-  const addJSON: SyncAudiencePayload = preparePayload(
-    audienceId,
-    'Add',
-    identifierType,
-    Array.from(addMap.keys())
-  )
+  const addPayload: SyncAudiencePayload = preparePayload(audienceId, 'Add', identifierType, addItems)
 
-  const removeJSON: SyncAudiencePayload = preparePayload(
-    audienceId,
-    'Remove',
-    identifierType,
-    Array.from(removeMap.keys())
-  )
-
+  const removePayload: SyncAudiencePayload = preparePayload(audienceId, 'Remove', identifierType, removeItems)
 
   try {
-    // Send data to Microsoft Bing Ads
-    const response = await sendDataToMicrosoftBingAds(request, preparedPayload)
-
-    // Handle the multistatus response
-    handleMultistatusResponse(msResponse, response, validItems, listItemsMap, payload, isBatch)
+    // Send data to Microsoft Bing Ads for both Add and Remove actions if they have entries
+    if (addMap.size > 0) {
+      const response = await sendDataToMicrosoftBingAds(request, addPayload)
+      handleMultistatusResponse(msResponse, response, addItems, addMap, payload, isBatch)
+    }
+    if (removeMap.size > 0) {
+      const response = await sendDataToMicrosoftBingAds(request, removePayload)
+      handleMultistatusResponse(msResponse, response, removeItems, removeMap, payload, isBatch)
+    }
   } catch (error) {
     if (!isBatch) {
       throw error
     }
     if (error instanceof HTTPError) {
-      await handleHttpError(msResponse, error, listItemsMap, payload)
+      await handleHttpError(msResponse, error, new Map([...addMap, ...removeMap]), payload)
     } else {
       throw error
     }

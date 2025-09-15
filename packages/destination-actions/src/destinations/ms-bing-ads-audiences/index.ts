@@ -1,4 +1,10 @@
-import { IntegrationError, PayloadValidationError, AudienceDestinationDefinition } from '@segment/actions-core'
+import {
+  IntegrationError,
+  PayloadValidationError,
+  AudienceDestinationDefinition,
+  InvalidAuthenticationError,
+  ErrorCodes
+} from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import syncAudiences from './syncAudiences'
 import { CreateAudienceResponse, CreateAudienceRequest, GetAudienceResponse, RefreshTokenResponse } from './types'
@@ -49,7 +55,9 @@ const destination: AudienceDestinationDefinition<Settings> = {
         })
       })
 
-      // TODO: throw error if no acess_token?
+      if (!res?.data?.access_token) {
+        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
+      }
 
       return {
         accessToken: res?.data?.access_token,
@@ -77,8 +85,6 @@ const destination: AudienceDestinationDefinition<Settings> = {
       full_audience_sync: false
     },
     createAudience: async (request, createAudienceInput) => {
-      // TODO: Make this function idempotent
-
       // API Docs
       // Add Audience: https://learn.microsoft.com/en-us/advertising/campaign-management-service/addaudiences?view=bingads-13&tabs=prod&pivots=rest
       // Customer List: https://learn.microsoft.com/en-us/advertising/campaign-management-service/customerlist?view=bingads-13&tabs=json

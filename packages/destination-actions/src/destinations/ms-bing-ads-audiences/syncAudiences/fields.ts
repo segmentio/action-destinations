@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
+import { CRM_CONDITION, EMAIL_CONDITION } from '../constants'
 
 export const audience_id: InputField = {
   label: 'Audience ID',
@@ -43,10 +44,10 @@ export const email: InputField = {
   description: 'The email address of the user to add or remove from the audience.',
   type: 'string',
   required: {
-    conditions: [{ fieldKey: 'identifier_type', operator: 'is', value: 'Email' }]
+    ...EMAIL_CONDITION
   },
   depends_on: {
-     conditions: [{ fieldKey: 'identifier_type', operator: 'is', value: 'Email' }]
+    ...EMAIL_CONDITION
   },
   default: {
     '@if': {
@@ -64,10 +65,10 @@ export const crm_id: InputField = {
   description: 'The CRM ID of the user to add or remove from the audience.',
   type: 'string',
   required: {
-    conditions: [{ fieldKey: 'identifier_type', operator: 'is', value: 'CRM' }]
+    ...CRM_CONDITION
   },
   depends_on: {
-    conditions: [{ fieldKey: 'identifier_type', operator: 'is', value: 'CRM' }]
+    ...CRM_CONDITION
   },
   default: {
     '@path': '$.userId'
