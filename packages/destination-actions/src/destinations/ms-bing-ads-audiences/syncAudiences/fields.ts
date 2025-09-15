@@ -97,7 +97,7 @@ export const audience_key: InputField = {
   required: true,
   unsafe_hidden: true,
   default: {
-    '@path': '$.context.personas.audience_key'
+    '@path': '$.context.personas.computation_key'
   }
 }
 
