@@ -4235,6 +4235,14 @@
     "@segment/actions-core" "3.159.1-staging-81dcc83e5.0"
     "@segment/browser-destination-runtime" "1.88.1-staging-81dcc83e5.0"
 
+"@segment/analytics-browser-actions-google-analytics-4@^1.96.0":
+  version "1.96.0"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-google-analytics-4/-/analytics-browser-actions-google-analytics-4-1.96.0.tgz#3c024a7d4a28603e1e8fac1e999d6851fe41f70f"
+  integrity sha512-qku/9kjAXHC587PcMBkt5V7CRPic4uyZwYq0KeQYJOtW5G5Hqaj9L34XyGI+DxUaBMr7+shGvgMBeKIxyrFEWg==
+  dependencies:
+    "@segment/actions-core" "^3.159.0"
+    "@segment/browser-destination-runtime" "^1.88.0"
+
 "@segment/analytics-browser-actions-google-campaign-manager@^1.80.0":
   version "1.80.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-google-campaign-manager/-/analytics-browser-actions-google-campaign-manager-1.80.0.tgz#65f27220f1f821a612fb0f4b0b218fe97abc67ad"
