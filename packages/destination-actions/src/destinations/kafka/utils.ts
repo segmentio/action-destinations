@@ -234,8 +234,9 @@ export const sendData = async (
     logger?.crit(`Kafka Connection Error: ${(error as Error).stack}`)
     if ((error as Error).name !== 'IntegrationError') {
       throw new RetryableError(`${(error as Error).name}: ${(error as Error).message}`)
+    } else {
+      throw error
     }
-    throw error
   }
 
   for (const data of topicMessages) {
