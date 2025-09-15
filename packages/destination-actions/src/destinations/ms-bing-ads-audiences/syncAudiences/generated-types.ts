@@ -6,6 +6,16 @@ export interface Payload {
    */
   audience_id: string
   /**
+   * Hidden field: traits object from identify() payloads or properties object from track() payloads.
+   */
+  traits_or_props: {
+    [k: string]: unknown
+  }
+  /**
+   * Hidden field: The Engage Audience Key / Slug.
+   */
+  audience_key: string
+  /**
    * The type of identifier you are using to sync users.
    */
   identifier_type: string
@@ -18,10 +28,6 @@ export interface Payload {
    */
   crm_id?: string
   /**
-   * The operation to perform on the audience.
-   */
-  operation: string
-  /**
    * Enable batching of user syncs to optimize performance. When enabled, user syncs will be sent in batches based on the specified batch size.
    */
   enable_batching: boolean
@@ -29,4 +35,8 @@ export interface Payload {
    * The number of user syncs to include in each batch when batching is enabled. Must be between 1 and 1000.
    */
   batch_size: number
+  /**
+   * Hidden field: The computation class for the audience.
+   */
+  computation_class: string
 }

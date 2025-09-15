@@ -1,7 +1,13 @@
-import { IntegrationError, PayloadValidationError, AudienceDestinationDefinition } from '@segment/actions-core'
+import {
+  IntegrationError,
+  PayloadValidationError,
+  AudienceDestinationDefinition,
+  InvalidAuthenticationError,
+  ErrorCodes
+} from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import syncAudiences from './syncAudiences'
-import { CreateAudienceResponse, GetAudienceResponse, RefreshTokenResponse } from './types'
+import { CreateAudienceResponse, CreateAudienceRequest, GetAudienceResponse, RefreshTokenResponse } from './types'
 import { BASE_URL, TOKEN_URL } from './constants'
 
 const destination: AudienceDestinationDefinition<Settings> = {
@@ -15,21 +21,22 @@ const destination: AudienceDestinationDefinition<Settings> = {
       developerToken: {
         label: 'Developer Token',
         description:
-          'The developer token for authenticating API requests. You can find it in the Microsoft Advertising UI under Settings → Developer Settings.',
+          'The developer token for authenticating API requests. You can find it in the Microsoft Advertising User Interface under Settings → Developer Settings.',
         type: 'string',
+        format: 'password',
         required: true
       },
       customerAccountId: {
         label: 'Customer Account ID',
         description:
-          'The account ID of the Microsoft Advertising account you want to manage. You can find it in the URL when viewing the account in the Microsoft Ads UI.',
+          'The account ID of the Microsoft Advertising account you want to manage. You can find it in the URL when viewing the account in the Microsoft Ads User Interface.',
         type: 'string',
         required: true
       },
       customerId: {
         label: 'Customer ID',
         description:
-          'The customer (parent) ID associated with your Microsoft Advertising account. You can also find this in the URL when viewing your account in the Microsoft Ads UI.',
+          'The customer (parent) ID associated with your Microsoft Advertising account. You can find this in the URL when viewing your account in the Microsoft Ads User Interface.',
         type: 'string',
         required: true
       }
@@ -47,6 +54,10 @@ const destination: AudienceDestinationDefinition<Settings> = {
           scope: 'https://ads.microsoft.com/msads.manage offline_access'
         })
       })
+
+      if (!res?.data?.access_token) {
+        throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
+      }
 
       return {
         accessToken: res?.data?.access_token,
@@ -83,16 +94,18 @@ const destination: AudienceDestinationDefinition<Settings> = {
         throw new PayloadValidationError('Missing audience name value')
       }
 
+      const json: CreateAudienceRequest = {
+        Audiences: [
+          {
+            Name: audienceName,
+            Type: 'CustomerList'
+          }
+        ]
+      }
+
       const response: CreateAudienceResponse = await request(`${BASE_URL}/Audiences`, {
         method: 'POST',
-        json: {
-          Audiences: [
-            {
-              Name: audienceName,
-              Type: 'CustomerList'
-            }
-          ]
-        }
+        json
       })
 
       // Handle Terms and Conditions error from Bing Ads API

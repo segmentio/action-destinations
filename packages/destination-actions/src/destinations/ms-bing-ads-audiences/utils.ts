@@ -1,7 +1,6 @@
 import { processHashing } from '../../lib/hashing-utils'
 import { Payload } from './syncAudiences/generated-types'
 import {
-  ErrorCodes,
   JSONLikeObject,
   MultiStatusResponse,
   RequestClient,
@@ -10,7 +9,7 @@ import {
   IntegrationError
 } from '@segment/actions-core'
 import { BASE_URL } from './constants'
-import { syncAudiencePayload, PartialError } from './types'
+import { SyncAudiencePayload, PartialError, Action, Identifier } from './types'
 
 /**
  * Hashes an email address using the SHA-256 algorithm and returns the result as a hexadecimal string.
@@ -25,52 +24,28 @@ export const hashEmail = (item: string): string => {
 }
 
 /**
- * Prepares a map of list items based on the provided payload and identifier type.
+ * Categorizes payload items into add and remove actions based on audience key.
  *
- * Iterates over the payload array and, depending on the `identifierType`, either hashes the email or uses the CRM ID as the key.
- * If the required identifier is missing in an item, sets an error response at the corresponding index in the `msResponse`.
- *
- * @param payload - An array of payload objects containing user data.
- * @param identifierType - The type of identifier to use ('Email' or 'CRM').
- * @param msResponse - The response object used to set error responses for invalid items.
- * @returns A map where the key is the hashed email or CRM ID and the value is the index of the item in the payload.
+ * @param payload - Array of user audience payloads to be categorized
+ * @param addMap - Map to store identifiers for Add actions with their original index
+ * @param removeMap - Map to store identifiers for Remove actions with their original index
  */
-export const prepareListItems = (
+export const categorizePayloadByAction = (
   payload: Payload[],
-  identifierType: string,
-  msResponse: MultiStatusResponse
-): Map<string, number> => {
-  const listItemsMap = new Map<string, number>()
+  addMap: Map<string, number>,
+  removeMap: Map<string, number>
+) => {
+  payload.forEach((p, index) => {
+    const action: Action = p.traits_or_props[p.audience_key] ? 'Add' : 'Remove'
+    // @ts-ignore - Email is required if identifier_type is Email and crm_id is required if identifier_type is CRM
+    const identifier: string = (p.identifier_type === 'Email' ? hashEmail(p.email) : p.crm_id) as string
 
-  payload.forEach((item, index) => {
-    const { email, crm_id } = item
-    if (identifierType === 'Email') {
-      if (!email) {
-        msResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: ErrorCodes.BAD_REQUEST,
-          errormessage: 'Email is required when Identifier Type is set to Email',
-          sent: item as unknown as JSONLikeObject
-        })
-      } else {
-        listItemsMap.set(hashEmail(email), index)
-      }
-    }
-    if (identifierType === 'CRM') {
-      if (!crm_id) {
-        msResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: ErrorCodes.BAD_REQUEST,
-          errormessage: 'CRM ID is required when Identifier Type is set to CRM ID',
-          sent: item as unknown as JSONLikeObject
-        })
-      } else {
-        listItemsMap.set(crm_id, index)
-      }
+    if (action === 'Add') {
+      addMap.set(identifier, index)
+    } else {
+      removeMap.set(identifier, index)
     }
   })
-
-  return listItemsMap
 }
 
 /**
@@ -84,10 +59,10 @@ export const prepareListItems = (
  */
 export const preparePayload = (
   audienceId: string,
-  action: string,
-  identifierType: string,
+  action: Action,
+  identifierType: Identifier,
   listItems: string[]
-): syncAudiencePayload => {
+): SyncAudiencePayload => {
   return {
     CustomerListUserData: {
       ActionType: action,
@@ -105,7 +80,7 @@ export const preparePayload = (
  * @param payload - The payload containing audience data to be synchronized.
  * @returns A promise that resolves to the response from the Microsoft Bing Ads API.
  */
-export const sendDataToMicrosoftBingAds = async (request: RequestClient, payload: syncAudiencePayload) => {
+export const sendDataToMicrosoftBingAds = async (request: RequestClient, payload: SyncAudiencePayload) => {
   const response = await request(`${BASE_URL}/CustomerListUserData/Apply`, {
     method: 'POST',
     json: payload
@@ -121,7 +96,7 @@ export const sendDataToMicrosoftBingAds = async (request: RequestClient, payload
  *
  * @param msResponse - The response object to update with success or error statuses for each item.
  * @param response - The raw response from the API, potentially containing partial errors.
- * @param validItems - An array of item identifiers that were sent in the request.
+ * @param items - An array of item identifiers that were sent in the request.
  * @param listItemsMap - A map from item identifiers to their original indices in the payload.
  * @param payload - The original payload array sent to the API.
  * @param isBatch - Indicates whether the operation is being performed in batch mode. If false, a partial error will throw an IntegrationError.
@@ -129,13 +104,12 @@ export const sendDataToMicrosoftBingAds = async (request: RequestClient, payload
 export const handleMultistatusResponse = (
   msResponse: MultiStatusResponse,
   response: ModifiedResponse,
-  validItems: string[],
+  items: string[],
   listItemsMap: Map<string, number>,
   payload: Payload[],
   isBatch: boolean
 ): void => {
   const responseData = response?.data as { PartialErrors?: PartialError[] } | undefined
-
   if (responseData?.PartialErrors && responseData.PartialErrors.length > 0) {
     if (!isBatch) {
       throw new IntegrationError(responseData.PartialErrors[0].Message, 'PartialErrors', 400)
@@ -143,8 +117,8 @@ export const handleMultistatusResponse = (
     // Process partial errors
     responseData.PartialErrors.forEach((error: PartialError) => {
       // The error.Index corresponds to the position in the CustomerListItems array
-      if (typeof error.Index === 'number' && error.Index >= 0 && error.Index < validItems.length) {
-        const item = validItems[error.Index]
+      if (typeof error.Index === 'number' && error.Index >= 0 && error.Index < items.length) {
+        const item = items[error.Index]
         const originalIndex = listItemsMap.get(item)
 
         if (originalIndex !== undefined) {
@@ -167,7 +141,7 @@ export const handleMultistatusResponse = (
     msResponse.setSuccessResponseAtIndex(index, {
       status: 200,
       sent: payload[index] as unknown as JSONLikeObject,
-      body: JSON.stringify(response?.data) || 'Success'
+      body: JSON.stringify(response) || 'Success'
     })
   })
 }

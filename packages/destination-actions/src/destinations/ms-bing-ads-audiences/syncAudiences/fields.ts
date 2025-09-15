@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
+import { CRM_CONDITION, EMAIL_CONDITION } from '../constants'
 
 export const audience_id: InputField = {
   label: 'Audience ID',
@@ -8,6 +9,21 @@ export const audience_id: InputField = {
   default: {
     '@path': '$.context.personas.external_audience_id'
   },
+  unsafe_hidden: true
+}
+
+export const computation_class: InputField = {
+  label: 'Computation Class',
+  description: 'Hidden field: The computation class for the audience.',
+  type: 'string',
+  required: true,
+  default: {
+    '@path': '$.context.personas.computation_class'
+  },
+  choices: [
+    { label: 'audience', value: 'audience' },
+    { label: 'journey_step', value: 'journey_step' }
+  ],
   unsafe_hidden: true
 }
 
@@ -27,9 +43,18 @@ export const email: InputField = {
   label: 'Email',
   description: 'The email address of the user to add or remove from the audience.',
   type: 'string',
-  required: false,
+  required: {
+    ...EMAIL_CONDITION
+  },
+  depends_on: {
+    ...EMAIL_CONDITION
+  },
   default: {
-    '@path': '$.traits.email'
+    '@if': {
+      exists: { '@path': '$.traits.email' },
+      then: { '@path': '$.traits.email' },
+      else: { '@path': '$.properties.email' }
+    }
   },
   category: 'hashedPII',
   format: 'email'
@@ -39,22 +64,41 @@ export const crm_id: InputField = {
   label: 'CRM ID',
   description: 'The CRM ID of the user to add or remove from the audience.',
   type: 'string',
-  required: false,
+  required: {
+    ...CRM_CONDITION
+  },
+  depends_on: {
+    ...CRM_CONDITION
+  },
   default: {
     '@path': '$.userId'
   }
 }
 
-export const operation: InputField = {
-  label: 'Operation',
-  description: 'The operation to perform on the audience.',
+export const traits_or_props: InputField = {
+  label: 'Traits or Properties',
+  description: 'Hidden field: traits object from identify() payloads or properties object from track() payloads.',
+  type: 'object',
+  required: true,
+  unsafe_hidden: true,
+  default: {
+    '@if': {
+      exists: { '@path': '$.traits' },
+      then: { '@path': '$.traits' },
+      else: { '@path': '$.properties' }
+    }
+  }
+}
+
+export const audience_key: InputField = {
+  label: 'Audience Key',
+  description: 'Hidden field: The Engage Audience Key / Slug.',
   type: 'string',
   required: true,
-  default: 'Add',
-  choices: [
-    { label: 'Add', value: 'Add' },
-    { label: 'Remove', value: 'Remove' }
-  ]
+  unsafe_hidden: true,
+  default: {
+    '@path': '$.context.personas.audience_key'
+  }
 }
 
 export const enable_batching: InputField = {
@@ -82,7 +126,7 @@ export const batch_keys: InputField = {
     'The keys to use for batching user syncs. Users with the same values for these keys will be grouped together in the same batch.',
   type: 'string',
   required: false,
-  default: ['identifier_type', 'audience_id', 'operation'],
+  default: ['identifier_type', 'audience_id'],
   unsafe_hidden: true,
   multiple: true
 }

@@ -2,26 +2,39 @@ import { ActionDefinition, RequestClient, HTTPError } from '@segment/actions-cor
 import { MultiStatusResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { audience_id, batch_size, crm_id, email, enable_batching, identifier_type, operation } from '../fields'
 import {
-  prepareListItems,
+  audience_id,
+  traits_or_props,
+  audience_key,
+  batch_size,
+  crm_id,
+  email,
+  enable_batching,
+  identifier_type,
+  computation_class
+} from './fields'
+import {
   preparePayload,
   sendDataToMicrosoftBingAds,
   handleMultistatusResponse,
-  handleHttpError
+  handleHttpError,
+  categorizePayloadByAction
 } from '../utils'
+import { Identifier, SyncAudiencePayload } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audiences',
   description: 'Sync users to Microsoft Bing Ads Audiences',
   fields: {
-    audience_id: audience_id,
-    identifier_type: identifier_type,
-    email: email,
-    crm_id: crm_id,
-    operation: operation,
-    enable_batching: enable_batching,
-    batch_size: batch_size
+    audience_id,
+    traits_or_props,
+    audience_key,
+    identifier_type,
+    email,
+    crm_id,
+    enable_batching,
+    batch_size,
+    computation_class
   },
   perform: async (request, { payload }) => {
     return await syncUser(request, [payload], false)
@@ -51,34 +64,41 @@ const syncUser = async (request: RequestClient, payload: Payload[], isBatch: boo
   if (!Array.isArray(payload) || payload.length === 0) {
     return msResponse
   }
-  const identifierType = payload[0]?.identifier_type
+
+  // Identifier type is static for every batch as it's set in the batch keys array
+  const identifierType: Identifier = payload[0]?.identifier_type as Identifier
+
+  // Audience ID value is static for every batch as it's set in the batch keys array
   const audienceId = payload[0]?.audience_id
-  const action = payload[0]?.operation
 
-  // Validate identifier type
-  const listItemsMap = prepareListItems(payload, identifierType, msResponse)
+  const addMap: Map<string, number> = new Map()
+  const removeMap: Map<string, number> = new Map()
 
-  // If no valid items after validation, return early
-  if (listItemsMap.size === 0) {
-    return msResponse
-  }
+  categorizePayloadByAction(payload, addMap, removeMap)
 
-  // Get array of valid items
-  const validItems = Array.from(listItemsMap.keys())
-  const preparedPayload = preparePayload(audienceId, action, identifierType, validItems)
+  const addItems = Array.from(addMap.keys())
+  const removeItems = Array.from(removeMap.keys())
+
+  const addPayload: SyncAudiencePayload = preparePayload(audienceId, 'Add', identifierType, addItems)
+
+  const removePayload: SyncAudiencePayload = preparePayload(audienceId, 'Remove', identifierType, removeItems)
 
   try {
-    // Send data to Microsoft Bing Ads
-    const response = await sendDataToMicrosoftBingAds(request, preparedPayload)
-
-    // Handle the multistatus response
-    handleMultistatusResponse(msResponse, response, validItems, listItemsMap, payload, isBatch)
+    // Send data to Microsoft Bing Ads for both Add and Remove actions if they have entries
+    if (addMap.size > 0) {
+      const response = await sendDataToMicrosoftBingAds(request, addPayload)
+      handleMultistatusResponse(msResponse, response, addItems, addMap, payload, isBatch)
+    }
+    if (removeMap.size > 0) {
+      const response = await sendDataToMicrosoftBingAds(request, removePayload)
+      handleMultistatusResponse(msResponse, response, removeItems, removeMap, payload, isBatch)
+    }
   } catch (error) {
     if (!isBatch) {
       throw error
     }
     if (error instanceof HTTPError) {
-      await handleHttpError(msResponse, error, listItemsMap, payload)
+      await handleHttpError(msResponse, error, new Map([...addMap, ...removeMap]), payload)
     } else {
       throw error
     }

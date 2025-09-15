@@ -21,6 +21,15 @@ export interface CreateAudienceResponse {
   }
 }
 
+export interface CreateAudienceRequest {
+  Audiences: [
+    {
+      Name: string
+      Type: 'CustomerList'
+    }
+  ]
+}
+
 export interface GetAudienceResponse {
   data: {
     Audiences: [
@@ -32,11 +41,15 @@ export interface GetAudienceResponse {
   }
 }
 
-export interface syncAudiencePayload {
+export interface SyncAudiencePayload {
   CustomerListUserData: {
-    ActionType: string
+    ActionType: Action
     AudienceId: string
-    CustomerListItemSubType: string
+    CustomerListItemSubType: Identifier
     CustomerListItems: string[]
   }
 }
+
+export type Identifier = 'Email' | 'CRM'
+
+export type Action = 'Add' | 'Remove'

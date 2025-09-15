@@ -13,10 +13,11 @@ const settings = {
 
 const baseMapping = {
   audience_id: 'aud_123',
-  operation: 'Add',
   identifier_type: 'Email',
   enable_batching: true,
-  batch_size: 1000
+  batch_size: 1000,
+  audience_key: 'aud_key',
+  computation_class: 'audience'
 }
 
 describe('MS Bing Ads Audiences syncAudiences', () => {
@@ -38,7 +39,7 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
 
     const event = createTestEvent({
       type: 'identify',
-      traits: { email: 'demo@segment.com' }
+      traits: { email: 'demo@segment.com', aud_key: true }
     })
 
     const response = await testDestination.testAction('syncAudiences', {
@@ -70,7 +71,7 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
 
     const response = await testDestination.testAction('syncAudiences', {
       event,
-      mapping: { ...baseMapping, operation: 'Remove' },
+      mapping: { ...baseMapping },
       useDefaultMappings: true,
       settings
     })
@@ -92,7 +93,8 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
 
     const event = createTestEvent({
       type: 'identify',
-      userId: 'crm_123'
+      userId: 'crm_123',
+      traits: { aud_key: true }
     })
 
     const response = await testDestination.testAction('syncAudiences', {
@@ -121,8 +123,8 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       .reply(200, {})
 
     const events = [
-      createTestEvent({ type: 'identify', traits: { email: 'one@segment.com' } }),
-      createTestEvent({ type: 'identify', traits: { email: 'two@segment.com' } })
+      createTestEvent({ type: 'identify', traits: { email: 'one@segment.com', aud_key: true } }),
+      createTestEvent({ type: 'identify', traits: { email: 'two@segment.com', aud_key: true } })
     ]
 
     const response = await testDestination.testBatchAction('syncAudiences', {
@@ -157,7 +159,7 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
 
     const response = await testDestination.testBatchAction('syncAudiences', {
       events,
-      mapping: { ...baseMapping, operation: 'Remove' },
+      mapping: { ...baseMapping },
       useDefaultMappings: true,
       settings
     })
@@ -178,8 +180,8 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       .reply(200, {})
 
     const events = [
-      createTestEvent({ type: 'identify', userId: 'crm_111' }),
-      createTestEvent({ type: 'identify', userId: 'crm_222' })
+      createTestEvent({ type: 'identify', userId: 'crm_111', traits: { aud_key: true } }),
+      createTestEvent({ type: 'identify', userId: 'crm_222', traits: { aud_key: true } })
     ]
 
     const response = await testDestination.testBatchAction('syncAudiences', {
@@ -190,44 +192,5 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
     })
 
     expect(response[0].status).toBe(200)
-  })
-
-  it('should return 400 when identifier_type is Email but no email is provided (performBatch)', async () => {
-    const events = [createTestEvent({ type: 'track' })]
-
-    const response = await testDestination.executeBatch('syncAudiences', {
-      events,
-      mapping: baseMapping,
-      settings
-    })
-
-    expect(response).toHaveLength(1)
-    expect(response[0].status).toBe(400)
-    // @ts-ignore
-    expect(JSON.stringify(response[0].errormessage)).toContain('Email is required')
-  })
-
-  it('should return 400 when identifier_type is CRM but no crm_id is provided (performBatch)', async () => {
-    const mapping = { ...baseMapping, identifier_type: 'CRM' }
-    delete (mapping as any).crm_id
-    delete (mapping as any).email
-
-    const events = [
-      createTestEvent({
-        type: 'identify',
-        traits: {}
-      })
-    ]
-
-    const response = await testDestination.executeBatch('syncAudiences', {
-      events,
-      mapping,
-      settings
-    })
-
-    expect(response).toHaveLength(1)
-    expect(response[0].status).toBe(400)
-    // @ts-ignore
-    expect(JSON.stringify(response[0]?.errormessage)).toContain('CRM ID is required')
   })
 })
