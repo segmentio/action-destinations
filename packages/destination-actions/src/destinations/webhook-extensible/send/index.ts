@@ -74,6 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
     // Expect these to be the same across the payloads
     try {
       const { url, method, headers } = payload[0]
+      console.log(url, 'url')
       return request(url, {
         method: method as RequestMethod,
         headers: headers as Record<string, string>,
