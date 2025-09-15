@@ -46,7 +46,6 @@
     "@segment/analytics-browser-actions-stackadapt": "^1.91.0",
     "@segment/analytics-browser-actions-survicate": "^1.65.0",
     "@segment/analytics-browser-actions-tiktok-pixel": "^1.90.0",
-    "@segment/analytics-browser-actions-upollo": "^1.89.0",
     "@segment/analytics-browser-actions-userpilot": "^1.89.0",
     "@segment/analytics-browser-actions-utils": "^1.89.0",
     "@segment/analytics-browser-actions-vwo": "^1.92.0",
