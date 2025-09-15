@@ -39,9 +39,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         label: 'Authentication Token',
         description:
           'Your long-lived Trade Desk authentication token. Please see The Trade Desk’s [authentication documentation](https://api.thetradedesk.com/v3/portal/api/doc/Authentication) for information on how to generate a long-lived API Token via the Manage API Tokens in the developer Portal.',
-        type: 'string',
-        required: true,
-        format: 'password'
+        type: 'password',
+        required: true
       },
       advertiser_id: {
         label: 'Advertiser ID',

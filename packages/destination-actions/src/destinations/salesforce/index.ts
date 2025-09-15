@@ -55,8 +55,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Password',
         description:
           'The password of the Salesforce account you want to connect to. When all three of username, password, and security token are provided, a username-password flow is used to authenticate. This field is hidden to all users except those who have opted in to the username+password flow.',
-        type: 'string',
-        format: 'password'
+        type: 'password'
       },
       security_token: {
         label: 'Security Token',

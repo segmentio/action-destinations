@@ -36,9 +36,8 @@ const destination: DestinationDefinition<Settings> = {
       public_key: {
         label: 'Public Key',
         description: 'Your public key',
-        type: 'string',
-        required: true,
-        format: 'password'
+        type: 'password',
+        required: true
       }
     },
     testAuthentication: (request, { settings }) => {

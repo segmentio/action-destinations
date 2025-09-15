@@ -27,9 +27,8 @@ const destination: DestinationDefinition<Settings> = {
       authSecret: {
         label: 'Friendbuy MAPI Secret',
         description: 'See Friendbuy MAPI Key.',
-        type: 'string',
-        required: true,
-        format: 'password'
+        type: 'password',
+        required: true
       }
     },
     testAuthentication: (request, { settings }) => {

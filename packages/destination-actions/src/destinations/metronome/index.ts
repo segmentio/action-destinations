@@ -12,11 +12,10 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       apiToken: {
-        type: 'string',
+        type: 'password',
         label: 'API Token',
         description: 'Your Metronome API Token',
-        required: true,
-        format: 'password'
+        required: true
       }
     },
     testAuthentication: async (request) => {

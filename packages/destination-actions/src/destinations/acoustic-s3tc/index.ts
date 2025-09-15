@@ -68,9 +68,8 @@ const destination: DestinationDefinition<Settings> = {
       s3_access_key: {
         label: 'S3 Access Key',
         description: 'S3 Access Key for the S3 bucket.',
-        type: 'string',
-        required: true,
-        format: 'password'
+        type: 'password',
+        required: true
       },
       s3_secret: {
         label: 'S3 Secret',
