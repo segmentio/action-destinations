@@ -27,7 +27,7 @@ export function createAssociationPayloads(payloads: PayloadWithFromId[], key: As
             object_details: {
               object_type: association.object_type,
               id_field_name: association.id_field_name,
-              id_field_value: association.id_field_value,
+              id_field_value: association.id_field_value as string,
               from_record_id: association.from_record_id
             },
             association_details: {

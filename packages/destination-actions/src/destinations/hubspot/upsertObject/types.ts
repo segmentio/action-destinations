@@ -139,8 +139,6 @@ export interface BatchObjResp {
   }>
 }
 
-interface OmitPayload extends Omit<Payload, 'enable_batching' | 'batch_size' | 'association_sync_mode' | 'list_details' | 'batch_keys'> {}
-
 export interface PayloadWithFromId extends Payload {
   object_details: Payload['object_details'] & {
     record_id: string
@@ -149,8 +147,12 @@ export interface PayloadWithFromId extends Payload {
   dissociations?: Array<NonNullable<Payload['dissociations']>[number] & { from_record_id: string }>
 }
 
-export interface AssociationPayload extends OmitPayload {
-  object_details: OmitPayload['object_details'] & {
+export interface AssociationPayload {
+  object_details: {
+    object_type: string
+    id_field_name: string
+    id_field_value: string
+    property_group?: string
     from_record_id: string
   }
   association_details: {
