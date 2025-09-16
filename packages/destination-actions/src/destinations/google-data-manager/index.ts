@@ -106,10 +106,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       verifyCustomerId(advertiserId)
 
-      if (audienceSettings == null) {
-        throw new IntegrationError('Missing audience setting', 'MISSING_REQUIRED_FIELD', 400)
-      }
-      if (!audienceSettings.product) {
+      if (audienceSettings == null || !audienceSettings.product) {
         throw new IntegrationError('Missing product value', 'MISSING_REQUIRED_FIELD', 400)
       }
       // check if product link exists for given advertiser id
@@ -118,7 +115,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${getDataPartnerToken()}`,
+          Authorization: `Bearer ${await getDataPartnerToken()}`,
           'login-customer-id': settings.advertiserAccountId
         },
         body: JSON.stringify({
