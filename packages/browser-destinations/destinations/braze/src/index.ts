@@ -325,7 +325,6 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         devicePropertyAllowlist,
         ...expectedConfig
       } = settings
-
       type BrazeConfig = typeof expectedConfig & {
         devicePropertyAllowlist?: string[]
       }
@@ -335,7 +334,6 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
           config.devicePropertyAllowlist = devicePropertyAllowlist
         }
       }
-
       const version = sdkVersion ?? defaultVersion
 
       resetUserCache()
