@@ -90,7 +90,10 @@ const getKafka = (settings: Settings) => {
         return settings.ssl_enabled
       }
       return undefined
-    })()
+    })(),
+    retry: {
+      retries: 0
+    }
   } as unknown as KafkaConfig
 
   try {
@@ -226,23 +229,27 @@ export const sendData = async (
       await producer.connect()
     }
   } catch (error) {
-    const tags = [...(statsContext?.tags ?? []), `kafka_error:${error.name}`]
-    statsContext?.statsClient.incr('kafka_connection_error', 1, tags)
     logger?.crit(`Kafka Connection Error: ${(error as Error).stack}`)
-    throw error
+    if ((error as Error).name !== 'IntegrationError') {
+      throw new IntegrationError(
+        `Kafka Connection Error - ${(error as Error).name}: ${(error as Error).message}`,
+        (error as Error)?.name,
+        500
+      )
+    } else {
+      throw error
+    }
   }
 
   for (const data of topicMessages) {
     try {
       await producer.send(data as ProducerRecord)
     } catch (error) {
-      const tags = [...(statsContext?.tags ?? []), `kafka_error:${error.name}`]
-      statsContext?.statsClient.incr('kafka_send_error', 1, tags)
       logger?.crit(`Kafka Send Error: ${(error as Error).stack}`)
       throw new IntegrationError(
-        `Kafka Producer Error: ${(error as KafkaJSError).message}`,
-        'KAFKA_PRODUCER_ERROR',
-        400
+        `Kafka Producer Error - ${(error as Error).name}: ${(error as Error).message}`,
+        (error as Error)?.name,
+        500
       )
     }
   }
