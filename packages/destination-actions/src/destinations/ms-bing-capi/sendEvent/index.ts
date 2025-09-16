@@ -13,10 +13,17 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     data: data,
     userData: userData,
-    customData: customData
+    customData: customData,
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'Enable batching for this action.',
+      type: 'boolean',
+      default: false,
+      required: false
+    }
   },
   perform: async (request, { payload, settings }) => {
-    return await send(request, [payload], settings, false) 
+    return await send(request, [payload], settings, false)
   },
   performBatch: async (request, { payload, settings }) => {
     return await send(request, payload, settings, true)
@@ -24,7 +31,6 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean) {
-
   const json: BingCAPIRequestItem[] = []
   const multiStatusResponse = new MultiStatusResponse()
 
@@ -32,25 +38,26 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
     const {
       data: { eventType, eventTime, eventSourceUrl, ...restOfData },
       userData: { em, ph, ...restOfUserData } = {},
-      customData,
+      customData
     } = payload
 
+    const eventTimestamp = eventTime ?? (payload as any).timestamp
     const jsonItem: BingCAPIRequestItem = {
-      data: {
-        ...restOfData,
-        eventType: eventType as 'pageLoad' | 'custom',
-        eventTime: Math.floor(new Date(eventTime ?? Date.now()).getTime() / 1000),
-        eventSourceUrl,
-        userData: {
-          ...restOfUserData,
-          em: em ? processHashing(em, 'sha256', 'hex', v => v.trim().toLowerCase()) : undefined,
-          ph: ph ? processHashing(ph, 'sha256', 'hex', v => v.trim().replace(/\D/g, '')) : undefined,
-        },
-        customData: customData && {
-          ...customData,
-          items: customData.items
-        }
-      }
+      ...restOfData,
+      eventType: eventType as 'pageLoad' | 'custom',
+      eventTime: Math.floor(new Date(eventTimestamp ?? Date.now()).getTime() / 1000),
+      adStorageConsent: payload.data.adStorageConsent ?? settings.adStorageConsent,
+      eventSourceUrl,
+      userData: {
+        ...restOfUserData,
+        em: em ? processHashing(em, 'sha256', 'hex', (v) => v.trim().toLowerCase()) : undefined,
+        ph: ph ? processHashing(ph, 'sha256', 'hex', (v) => v.trim().replace(/\D/g, '')) : null
+      },
+      customData: customData && {
+        ...customData,
+        items: customData.items ?? []
+      },
+      continueOnValidationError: true
     }
 
     json.push(jsonItem)
@@ -58,15 +65,16 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
 
   const response = await request<MSMultiStatusResponse>(`${API_URL}${settings.UetTag}/events`, {
     method: 'post',
-    throwHttpErrors: false,
-    json
+    json: {
+      data: json
+    }
   })
 
-  const details = response.data?.error?.details 
+  const details = response.data?.error?.details ?? []
 
   payloads.forEach((payload, index) => {
     const error = details.find((detail) => detail.index === index)
-    if(error){
+    if (error) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errormessage: error.errorMessage,
@@ -84,6 +92,5 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
 
   return isBatch ? multiStatusResponse : response
 }
-
 
 export default action

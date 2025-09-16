@@ -1,8 +1,6 @@
 import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendEvent from './sendEvent'
-import { send } from '../amazon-eventbridge/send/functions'
-import { eventType } from '../attentive/fields'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Ms Bing Capi',
@@ -20,8 +18,19 @@ const destination: DestinationDefinition<Settings> = {
       ApiToken: {
         label: 'Bing ApiToken',
         description: 'Your Bing API Token.',
-        type: 'string',
+        type: 'password',
         required: true
+      },
+      adStorageConsent: {
+        label: 'Ad Storage Consent',
+        description: 'Ad Storage Consent for GDPR compliance',
+        type: 'string',
+        choices: [
+          { label: 'Granted', value: 'G' },
+          { label: 'Denied', value: 'D' }
+        ],
+        default: 'G',
+        required: false
       }
     },
     testAuthentication: (_, { settings }) => {
@@ -96,7 +105,7 @@ const destination: DestinationDefinition<Settings> = {
         ...sendEvent.fields,
         data: {
           ...sendEvent.fields.data,
-          eventType: 'pageLoad' 
+          eventType: 'pageLoad'
         }
       }),
       type: 'automatic'

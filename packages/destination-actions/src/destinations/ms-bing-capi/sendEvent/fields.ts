@@ -39,6 +39,16 @@ export const userData: InputField = {
       description: 'IP address of the client device.',
       type: 'string'
     },
+    gaid: {
+      label: 'Google Advertising ID',
+      description: 'Google Advertising ID for mobile app tracking.',
+      type: 'string'
+    },
+    idfa: {
+      label: 'IDFA',
+      description: 'Identifier for Advertisers for iOS devices for mobile app tracking.',
+      type: 'string'
+    },
     msclkid: {
       label: 'MSCLKID',
       description: 'Microsoft Last Click ID.',
@@ -78,7 +88,6 @@ export const data: InputField = {
   label: 'Data',
   description: 'TODO - description for this field',
   type: 'object',
-  required: true,
   properties: {
     eventType: {
       label: 'Event Type',
@@ -104,7 +113,6 @@ export const data: InputField = {
       label: 'Event Time',
       description: 'The time the event occurred.',
       type: 'string',
-      
       required: true
     },
     eventSourceUrl: {
@@ -112,7 +120,7 @@ export const data: InputField = {
       description: 'URL of the page, used for example: “destination URL” goals. Required for pageLoad events.',
       type: 'string',
       required: {
-        conditions: [{ fieldKey: 'eventDetails.eventType', operator: 'is', value: 'pageLoad' }]
+        conditions: [{ fieldKey: 'eventType', operator: 'is', value: 'pageLoad' }]
       }
     },
     pageLoadId: {
@@ -135,18 +143,22 @@ export const data: InputField = {
       description: 'Page keywords - SEO meta keyworls.',
       type: 'string'
     },
-    userData: {
-      label: 'User Data',
-      type: 'object'
-    },
-    customData: {
-      label: 'Custom Data',
-      type: 'object'
+    adStorageConsent: {
+      label: 'Ad Storage Consent',
+      description: 'Ad Storage Consent for GDPR compliance',
+      type: 'string',
+      choices: [
+        { label: 'Granted', value: 'G' },
+        { label: 'Denied', value: 'D' }
+      ],
+      default: 'G',
+      required: false
     }
   },
   default: {
     eventType: 'custom',
     eventId: { '@path': '$.messageId' },
+    eventTime: { '@path': '$.timestamp' },
     eventName: { '@path': '$.event' },
     eventSourceUrl: { '@path': '$.context.page.url' },
     pageLoadId: { '@path': '$.properties.page_load_id' },
@@ -161,7 +173,7 @@ export const items: InputField = {
   description: 'The list of items associated with the event. Must contain at least one item.',
   type: 'object',
   multiple: true,
-  additionalProperties: false, // TODO check if this is needed. 
+  additionalProperties: false, // TODO check if this is needed.
   required: false,
   properties: {
     id: {

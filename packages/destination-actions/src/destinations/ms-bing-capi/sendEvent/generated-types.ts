@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * TODO - description for this field
    */
-  data: {
+  data?: {
     /**
      * The type of event being sent to the Bing API.
      */
@@ -41,12 +41,10 @@ export interface Payload {
      * Page keywords - SEO meta keyworls.
      */
     keywords?: string
-    userData?: {
-      [k: string]: unknown
-    }
-    customData?: {
-      [k: string]: unknown
-    }
+    /**
+     * Ad Storage Consent for GDPR compliance
+     */
+    adStorageConsent?: string
   }
   /**
    * A list of user identifiers associated with the event.
@@ -76,6 +74,14 @@ export interface Payload {
      * IP address of the client device.
      */
     clientIpAddress?: string
+    /**
+     * Google Advertising ID for mobile app tracking.
+     */
+    gaid?: string
+    /**
+     * Identifier for Advertisers for iOS devices for mobile app tracking.
+     */
+    idfa?: string
     /**
      * Microsoft Last Click ID.
      */
@@ -184,4 +190,8 @@ export interface Payload {
       bookingHref?: string
     }
   }
+  /**
+   * Enable batching for this action.
+   */
+  enable_batching?: boolean
 }
