@@ -2,10 +2,10 @@ import { Features, IntegrationError, RequestClient, StatsContext } from '@segmen
 import { Payload } from './addToAudContactInfo/generated-types'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
+import { FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE } from './properties'
 
 const DV360API = `https://displayvideo.googleapis.com/`
 const CONSENT_STATUS_GRANTED = 'CONSENT_STATUS_GRANTED' // Define consent status
-export const FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE = 'actions-first-party-dv360-version-update'
 
 interface createAudienceRequestParams {
   advertiserId: string
@@ -96,7 +96,8 @@ export async function editDeviceMobileIds(
   request: RequestClient,
   payloads: DeviceIdPayload[],
   operation: 'add' | 'remove',
-  statsContext?: StatsContext // Adjust type based on actual stats context,
+  statsContext?: StatsContext, // Adjust type based on actual stats context
+  features?: Features
 ) {
   // Assume all payloads are for the same audience/advertiser (use first)
   const { external_id: audienceId, advertiser_id: advertiserId } = payloads[0]
@@ -107,7 +108,13 @@ export async function editDeviceMobileIds(
   )
 
   //Format the endpoint
-  const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
+  let endpoint
+  if (features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]) {
+    // Handle version update logic
+    endpoint = DV360API + 'v4/firstPartyAndPartnerAudiences/' + audienceId + ':editCustomerMatchMembers'
+  } else {
+    endpoint = DV360API + 'v3/firstAndThirdPartyAudiences/' + audienceId + ':editCustomerMatchMembers'
+  }
 
   // Prepare the request payload
   const mobileDeviceIdList = {
@@ -131,7 +138,11 @@ export async function editDeviceMobileIds(
     },
     body: requestPayload
   })
-  if (!response.data || !response.data.firstAndThirdPartyAudienceId) {
+  const responseAudienceId =
+    features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]
+      ? response.data.firstPartyAndPartnerAudienceId
+      : response.data.firstAndThirdPartyAudienceId
+  if (!response.data || !responseAudienceId) {
     statsContext?.statsClient?.incr('addCustomerMatchMembers.error', allMobileDeviceIds.length, statsContext?.tags)
     throw new IntegrationError(
       `API returned error: ${response.data?.error || 'Unknown error'}`,
