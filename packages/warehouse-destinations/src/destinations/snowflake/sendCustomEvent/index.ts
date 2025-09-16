@@ -11,7 +11,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The name of the table.',
       type: 'string',
       required: true,
-      default: { '@path': '$.event' }
+      default: { '@path': '$.event' },
+      unsafe_hidden: true
     },
     // note that this must be `properties` to be processed by the warehouse pipeline
     properties: {
