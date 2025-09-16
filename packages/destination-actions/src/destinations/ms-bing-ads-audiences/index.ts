@@ -22,8 +22,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
         label: 'Developer Token',
         description:
           'The developer token for authenticating API requests. You can find it in the Microsoft Advertising User Interface under Settings → Developer Settings.',
-        type: 'string',
-        format: 'password',
+        type: 'password',
         required: true
       },
       customerAccountId: {
