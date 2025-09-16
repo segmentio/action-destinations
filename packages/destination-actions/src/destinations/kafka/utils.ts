@@ -1,5 +1,5 @@
 import { Kafka, ProducerRecord, Partitioners, SASLOptions, KafkaConfig, KafkaJSError, Producer } from 'kafkajs'
-import { DynamicFieldResponse, IntegrationError, Features, RetryableError } from '@segment/actions-core'
+import { DynamicFieldResponse, IntegrationError, Features } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
@@ -229,11 +229,13 @@ export const sendData = async (
       await producer.connect()
     }
   } catch (error) {
-    const tags = [...(statsContext?.tags ?? []), `kafka_error:${error.name}`]
-    statsContext?.statsClient.incr('kafka_connection_error', 1, tags)
     logger?.crit(`Kafka Connection Error: ${(error as Error).stack}`)
     if ((error as Error).name !== 'IntegrationError') {
-      throw new RetryableError(`Kafka Connection Error - ${(error as Error).name}: ${(error as Error).message}`)
+      throw new IntegrationError(
+        `Kafka Connection Error - ${(error as Error).name}: ${(error as Error).message}`,
+        (error as Error)?.name,
+        500
+      )
     } else {
       throw error
     }
@@ -243,10 +245,12 @@ export const sendData = async (
     try {
       await producer.send(data as ProducerRecord)
     } catch (error) {
-      const tags = [...(statsContext?.tags ?? []), `kafka_error:${error.name}`]
-      statsContext?.statsClient.incr('kafka_send_error', 1, tags)
       logger?.crit(`Kafka Send Error: ${(error as Error).stack}`)
-      throw new RetryableError(`Kafka Producer Error - ${(error as Error).name}: ${(error as Error).message}`)
+      throw new IntegrationError(
+        `Kafka Producer Error - ${(error as Error).name}: ${(error as Error).message}`,
+        (error as Error)?.name,
+        500
+      )
     }
   }
 
