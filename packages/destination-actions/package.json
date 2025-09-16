@@ -58,7 +58,8 @@
     "liquidjs": "^10.8.4",
     "lodash": "^4.17.21",
     "lru-cache": "10.4.3",
-    "ssh2-sftp-client": "^10.0.3"
+    "ssh2-sftp-client": "^10.0.3",
+    "google-auth-library": "^10.3.0"
   },
   "jest": {
     "preset": "ts-jest",
