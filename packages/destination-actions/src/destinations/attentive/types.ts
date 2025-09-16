@@ -10,7 +10,7 @@ export interface CustomEventJSON {
   occurredAt?: string
   user: User
   type: string
-  properties?: Record<string, unknown> // cannot contain arrays
+  properties?: Record<string, unknown>
 }
 export interface UpsertUserAttributesJSON {
   properties: Record<string, unknown> // cannot contain arrays or objects

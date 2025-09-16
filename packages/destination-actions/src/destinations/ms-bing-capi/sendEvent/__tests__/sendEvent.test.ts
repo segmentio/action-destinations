@@ -112,10 +112,10 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
     await testDestination.testAction('sendEvent', {
       event,
       settings,
-      mapping: {
-        data: { eventType: 'custom', eventTime: isoEventTime },
+      mapping: { 
+        data: { eventType: 'custom', eventTime: isoEventTime }, 
         userData: { anonymousId: 'anon-1' },
-        timestamp: { '@path': '$.timestamp' }
+        timestamp: { '@path': '$.timestamp' } 
       }
     })
     expect(scope.isDone()).toBe(true)
@@ -131,9 +131,9 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
       settings,
       mapping: {
         enable_batching: true,
-        data: { eventType: 'custom' },
+        data: { eventType: 'custom'},
         userData: { anonymousId: 'anon-1' },
-        timestamp: { '@path': '$.timestamp' }
+        timestamp: { '@path': '$.timestamp'}
       }
     })
     expect(responses.length).toBe(2)
@@ -156,9 +156,9 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
       settings,
       mapping: {
         enable_batching: true,
-        data: { eventType: 'custom' },
+        data: { eventType: 'custom'},
         userData: { anonymousId: 'anon-1' },
-        timestamp: { '@path': '$.timestamp' }
+        timestamp: { '@path': '$.timestamp'}
       }
     })
     expect(responses.length).toBe(2)
@@ -181,7 +181,7 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
       event,
       settings,
       mapping: {
-        data: { eventType: 'custom' },
+        data: { eventType: 'custom'},
         userData: { anonymousId: 'anon-1', em: 'only@example.com' },
         timestamp: { '@path': '$.timestamp' }
       }
@@ -204,7 +204,7 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
         data: { eventType: 'custom', eventTime: new Date('2024-01-01T00:00:00.000Z').toISOString() },
         customData: { value: 10 },
         userData: { anonymousId: 'anon-1' },
-        timestamp: { '@path': '$.timestamp' }
+        timestamp: { '@path': '$.timestamp'}
       }
     })
     expect(scope.isDone()).toBe(true)
@@ -250,7 +250,7 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
       mapping: {
         data: { eventType: 'custom', eventTime: '2024-01-01T00:00:00.000Z' },
         userData: { anonymousId: 'anon-1', ph: rawPhone },
-        timestamp: { '@path': '$.timestamp' }
+        timestamp: { '@path': '$.timestamp'}
       }
     })
     expect(scope.isDone()).toBe(true)
