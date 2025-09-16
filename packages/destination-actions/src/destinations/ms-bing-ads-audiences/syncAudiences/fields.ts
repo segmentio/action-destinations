@@ -107,7 +107,8 @@ export const enable_batching: InputField = {
     'Enable batching of user syncs to optimize performance. When enabled, user syncs will be sent in batches based on the specified batch size.',
   type: 'boolean',
   required: true,
-  default: true
+  default: true,
+  readOnly: true
 }
 
 export const batch_size: InputField = {
