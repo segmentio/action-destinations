@@ -92,7 +92,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Send Custom Event',
-      subscribe: 'type = "track"',
+      subscribe: 'type = "track" and event != "Order Completed" and event != "Add to Cart" and event != "Products Searched"',
       partnerAction: 'sendEvent',
       mapping: defaultValues(sendEvent.fields),
       type: 'automatic'

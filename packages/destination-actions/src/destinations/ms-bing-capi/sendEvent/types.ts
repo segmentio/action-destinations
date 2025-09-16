@@ -3,7 +3,7 @@ export interface BingCAPIRequestItem {
     clientUserAgent?: string
     anonymousId?: string
     externalId?: string
-    em?: string
+    em?: string | null
     ph?: string | null
     clientIpAddress?: string
     gaid?: string

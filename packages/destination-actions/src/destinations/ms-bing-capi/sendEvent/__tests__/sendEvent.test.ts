@@ -2,13 +2,14 @@ import nock from 'nock'
 import { createTestIntegration, createTestEvent } from '@segment/actions-core'
 import destination from '../../index'
 import type { Settings } from '../../generated-types'
+import { time } from 'console'
 
 function buildTrackEvent(overrides: Record<string, any> = {}) {
   return createTestEvent({
     type: overrides.type || 'track',
     event: overrides.event || 'Product Viewed',
     messageId: overrides.messageId || 'msg-123',
-    timestamp: overrides.timestamp || new Date('2024-01-01T00:00:00.000Z'),
+    timestamp: '2024-01-01T00:00:00.000Z',
     anonymousId: overrides.anonymousId || 'anon-1',
     userId: overrides.userId || 'user-1',
     properties: {
@@ -67,7 +68,8 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
       settings,
       mapping: {
         data: { eventType: 'custom', eventTime: iso },
-        userData: { anonymousId: 'anon-1', em: 'USER@example.COM', ph: '+1 (415) 555-0000' }
+        userData: { anonymousId: 'anon-1', em: 'USER@example.COM', ph: '+1 (415) 555-0000' },
+        timestamp: { '@path': '$.timestamp' }
       }
     })
     expect(scope.isDone()).toBe(true)
@@ -91,27 +93,16 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
           eventTime: new Date('2024-01-01T00:00:00.000Z').toISOString(),
           adStorageConsent: 'D'
         },
-        userData: { anonymousId: 'anon-1' }
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
       }
     })
     expect(scope.isDone()).toBe(true)
   })
 
-  test('validation fails when required eventTime missing', async () => {
-    const event = buildTrackEvent()
-    await expect(
-      testDestination.testAction('sendEvent', {
-        event,
-        settings,
-        // Intentionally rely on default mappings which do NOT supply eventTime
-        useDefaultMappings: true
-      })
-    ).rejects.toThrow(/Event Time/)
-  })
-
   test('explicit eventTime mapping overrides timestamp', async () => {
     const isoEventTime = '2024-03-03T12:00:00.000Z'
-    const event = buildTrackEvent({ timestamp: new Date('2023-01-01T00:00:00.000Z') })
+    const event = buildTrackEvent()
     const expectedSeconds = Math.floor(new Date(isoEventTime).getTime() / 1000)
     const scope = nock('https://capi.uet.microsoft.com')
       .post(`/v1/${settings.UetTag}/events`, (body: any) => {
@@ -122,7 +113,11 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
     await testDestination.testAction('sendEvent', {
       event,
       settings,
-      mapping: { data: { eventType: 'custom', eventTime: isoEventTime }, userData: { anonymousId: 'anon-1' } }
+      mapping: { 
+        data: { eventType: 'custom', eventTime: isoEventTime }, 
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' } 
+      }
     })
     expect(scope.isDone()).toBe(true)
   })
@@ -137,8 +132,9 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
       settings,
       mapping: {
         enable_batching: true,
-        data: { eventType: 'custom', eventTime: new Date('2024-01-01T00:00:00.000Z').toISOString() },
-        userData: { anonymousId: 'anon-1' }
+        data: { eventType: 'custom'},
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp'}
       }
     })
     expect(responses.length).toBe(2)
@@ -161,8 +157,9 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
       settings,
       mapping: {
         enable_batching: true,
-        data: { eventType: 'custom', eventTime: new Date('2024-01-01T00:00:00.000Z').toISOString() },
-        userData: { anonymousId: 'anon-1' }
+        data: { eventType: 'custom'},
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp'}
       }
     })
     expect(responses.length).toBe(2)
@@ -185,8 +182,9 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
       event,
       settings,
       mapping: {
-        data: { eventType: 'custom', eventTime: new Date('2024-01-01T00:00:00.000Z').toISOString() },
-        userData: { anonymousId: 'anon-1', em: 'only@example.com' }
+        data: { eventType: 'custom'},
+        userData: { anonymousId: 'anon-1', em: 'only@example.com' },
+        timestamp: { '@path': '$.timestamp' }
       }
     })
     expect(scope.isDone()).toBe(true)
@@ -206,7 +204,8 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
       mapping: {
         data: { eventType: 'custom', eventTime: new Date('2024-01-01T00:00:00.000Z').toISOString() },
         customData: { value: 10 },
-        userData: { anonymousId: 'anon-1' }
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp'}
       }
     })
     expect(scope.isDone()).toBe(true)
@@ -228,7 +227,8 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
       settings,
       mapping: {
         data: { eventType: 'pageLoad', eventTime: iso, eventSourceUrl: 'https://example.com/product' },
-        userData: { anonymousId: 'anon-1' }
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
       }
     })
     expect(scope.isDone()).toBe(true)
@@ -250,7 +250,8 @@ describe('Ms Bing Capi - sendEvent (updated)', () => {
       settings,
       mapping: {
         data: { eventType: 'custom', eventTime: '2024-01-01T00:00:00.000Z' },
-        userData: { anonymousId: 'anon-1', ph: rawPhone }
+        userData: { anonymousId: 'anon-1', ph: rawPhone },
+        timestamp: { '@path': '$.timestamp'}
       }
     })
     expect(scope.isDone()).toBe(true)

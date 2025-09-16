@@ -1,7 +1,7 @@
 import { ActionDefinition, RequestClient, JSONLikeObject, MultiStatusResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { data, customData, userData } from './fields'
+import { data, customData, userData, items, hotelData, timestamp, enable_batching, batch_size } from './fields'
 import { API_URL } from './constants'
 import { BingCAPIRequestItem, MSMultiStatusResponse } from './types'
 import { processHashing } from '../../../lib/hashing-utils'
@@ -11,16 +11,14 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send a track or page event to Microsoft Bing CAPI.',
   defaultSubscription: 'type = "track" or type = "page"',
   fields: {
-    data: data,
-    userData: userData,
-    customData: customData,
-    enable_batching: {
-      label: 'Enable Batching',
-      description: 'Enable batching for this action.',
-      type: 'boolean',
-      default: false,
-      required: false
-    }
+    data,
+    userData,
+    customData,
+    items,
+    hotelData,
+    timestamp,
+    enable_batching,
+    batch_size
   },
   perform: async (request, { payload, settings }) => {
     return await send(request, [payload], settings, false)
@@ -35,23 +33,22 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
   const multiStatusResponse = new MultiStatusResponse()
 
   payloads.forEach((payload) => {
-    const { data, userData: { em, ph, ...restOfUserData } = {}, customData } = payload
-
-    const eventTimestamp = data?.eventTime ?? (payload as any).timestamp
+    const { timestamp, data: { eventTime, eventType, adStorageConsent, eventSourceUrl } = {}, userData: { em, ph, ...restOfUserData } = {}, customData, items, hotelData } = payload
     const jsonItem: BingCAPIRequestItem = {
       ...data,
-      eventType: data?.eventType as 'pageLoad' | 'custom',
-      eventTime: Math.floor(new Date(eventTimestamp ?? Date.now()).getTime() / 1000),
-      adStorageConsent: data?.adStorageConsent ?? settings.adStorageConsent,
-      eventSourceUrl: data?.eventSourceUrl,
+      eventType: eventType as 'pageLoad' | 'custom',
+      eventTime: Math.floor(new Date(eventTime ?? timestamp as string).getTime() / 1000),
+      adStorageConsent: adStorageConsent ?? settings.adStorageConsent,
+      eventSourceUrl: eventSourceUrl,
       userData: {
         ...restOfUserData,
-        em: em ? processHashing(em, 'sha256', 'hex', (v) => v.trim().toLowerCase()) : undefined,
+        em: em ? processHashing(em, 'sha256', 'hex', (v) => v.trim().toLowerCase()) : null,
         ph: ph ? processHashing(ph, 'sha256', 'hex', (v) => v.trim().replace(/\D/g, '')) : null
       },
       customData: customData && {
         ...customData,
-        items: customData.items ?? []
+        hotelData,
+        items: items ?? []
       },
       continueOnValidationError: true
     }

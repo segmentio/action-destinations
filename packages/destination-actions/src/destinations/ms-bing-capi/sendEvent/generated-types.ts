@@ -135,63 +135,71 @@ export interface Payload {
      * Category ID
      */
     ecommCategory?: string
-    /**
-     * The list of items associated with the event. Must contain at least one item.
-     */
-    items?: {
-      /**
-       * The unique identifier for the item.
-       */
-      id?: string
-      /**
-       * The name of the item.
-       */
-      name?: string
-      /**
-       * The price of the item, after discounts.
-       */
-      price?: number
-      /**
-       * The quantity of the item.
-       */
-      quantity?: number
-    }[]
-    /**
-     * Data specific to hotel events.
-     */
-    hotelData?: {
-      /**
-       * Total price of the booking, including taxes and fees.
-       */
-      totalPrice?: number
-      /**
-       * Price of the booking, not including taxes or fees.
-       */
-      basePrice?: number
-      /**
-       * The date of check-in for the hotel booking in the format YYYY-MM-DD
-       */
-      checkInDate?: string
-      /**
-       * The date of check-out for the hotel booking in the format YYYY-MM-DD
-       */
-      checkOutDate?: string
-      /**
-       * The number of nights the booking is for. Not required if you specify hct_checkout_date.
-       */
-      lengthOfStay?: number
-      /**
-       * The ID of the hotel as provided by the partner.
-       */
-      partnerHotelId?: string
-      /**
-       * Encrypted or obfuscated booking refrence number
-       */
-      bookingHref?: string
-    }
   }
+  /**
+   * The list of items associated with the event. Must contain at least one item.
+   */
+  items?: {
+    /**
+     * The unique identifier for the item.
+     */
+    id?: string
+    /**
+     * The name of the item.
+     */
+    name?: string
+    /**
+     * The price of the item, after discounts.
+     */
+    price?: number
+    /**
+     * The quantity of the item.
+     */
+    quantity?: number
+  }[]
+  /**
+   * Data specific to hotel events.
+   */
+  hotelData?: {
+    /**
+     * Total price of the booking, including taxes and fees.
+     */
+    totalPrice?: number
+    /**
+     * Price of the booking, not including taxes or fees.
+     */
+    basePrice?: number
+    /**
+     * The date of check-in for the hotel booking in the format YYYY-MM-DD
+     */
+    checkInDate?: string
+    /**
+     * The date of check-out for the hotel booking in the format YYYY-MM-DD
+     */
+    checkOutDate?: string
+    /**
+     * The number of nights the booking is for. Not required if you specify hct_checkout_date.
+     */
+    lengthOfStay?: number
+    /**
+     * The ID of the hotel as provided by the partner.
+     */
+    partnerHotelId?: string
+    /**
+     * Encrypted or obfuscated booking refrence number
+     */
+    bookingHref?: string
+  }
+  /**
+   * Hidden field: The timestamp of the event.
+   */
+  timestamp: string
   /**
    * Enable batching for this action.
    */
   enable_batching?: boolean
+  /**
+   * The max number of events to include in each batch.
+   */
+  batch_size?: number
 }

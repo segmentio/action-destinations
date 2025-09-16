@@ -335,9 +335,7 @@ export const customData: InputField = {
       label: 'Ecomm Category',
       description: 'Category ID',
       type: 'string'
-    },
-    items: items,
-    hotelData: hotelData
+    }
   },
   default: {
     eventCategory: { '@path': '$.properties.event_category' }, // ?? is this the correct default mapping?
@@ -352,4 +350,31 @@ export const customData: InputField = {
     ecommTotalValue: { '@path': '$.properties.ecomm_total_value' },
     ecommCategory: { '@path': '$.properties.ecomm_category' }
   }
+}
+
+export const timestamp: InputField = {
+  label: 'Event Timestamp',
+  description: 'Hidden field: The timestamp of the event.',
+  type: 'string',
+  default: { '@path': '$.timestamp' },
+  required: true,
+  readOnly: true,
+  unsafe_hidden: true
+}
+
+export const enable_batching: InputField = {
+  label: 'Enable Batching',
+  description: 'Enable batching for this action.',
+  type: 'boolean',
+  default: true,
+  readOnly: true
+}
+
+export const batch_size: InputField = {
+  label: 'Batch Size',
+  description: 'The max number of events to include in each batch.',
+  type: 'number',
+  default: 1000,
+  readOnly: true,
+  unsafe_hidden: true
 }
