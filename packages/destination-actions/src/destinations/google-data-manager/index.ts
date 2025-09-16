@@ -187,7 +187,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing required advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
-      const advertiserGetAudienceUrl = GET_AUDIENCE_URL.replace('advertiserID', advertiserId)
+      // TODO : How to return external audience ID for multiple products?
+      if (audienceSettings === undefined) {
+        statsTags.push('error:missing-settings')
+        statsClient?.incr(`${statsName}.error`, 1, statsTags)
+        throw new IntegrationError('Missing audience settings', 'MISSING_REQUIRED_FIELD', 400)
+      }
+      const advertiserGetAudienceUrl = GET_AUDIENCE_URL.replace('advertiserID', advertiserId).replace(
+        'productName',
+        audienceSettings.product
+      )
       try {
         const response = await request(advertiserGetAudienceUrl, {
           headers: buildHeaders(audienceSettings, settings, await getDataPartnerToken()),
