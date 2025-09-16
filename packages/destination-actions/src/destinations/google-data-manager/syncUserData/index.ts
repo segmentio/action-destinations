@@ -1,12 +1,13 @@
 import { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
+import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { ingestAudienceMembers } from '../functions'
+import { syncAudienceMembers } from '../functions'
 import {
   batch_size,
   countryCode,
   emailAddress,
   enable_batching,
+  event_name,
   external_id,
   familyName,
   givenName,
@@ -27,15 +28,16 @@ const action: ActionDefinition<Settings, Payload> = {
     postalCode: { ...postalCode },
     audienceId: { ...external_id },
     enable_batching: { ...enable_batching },
-    batch_size: { ...batch_size }
+    batch_size: { ...batch_size },
+    event_name: { ...event_name }
   },
 
-  perform: async (request, { settings, payload, audienceSettings, auth }) => {
-    return await ingestAudienceMembers(request, settings, [payload], audienceSettings, auth)
+  perform: async (request, { settings, payload, audienceSettings }) => {
+    return await syncAudienceMembers(request, settings, [payload], audienceSettings as AudienceSettings)
   },
 
-  performBatch: async (request, { settings, payload, audienceSettings, auth }) => {
-    return await ingestAudienceMembers(request, settings, payload, audienceSettings, auth)
+  performBatch: async (request, { settings, payload, audienceSettings }) => {
+    return await syncAudienceMembers(request, settings, payload, audienceSettings as AudienceSettings)
   }
 }
 export default action

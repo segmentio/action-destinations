@@ -2,8 +2,8 @@ import { IntegrationError, PayloadValidationError, RequestClient } from '@segmen
 import type { Payload } from './syncUserData/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
 import type { AudienceSettings, Settings } from './generated-types'
-import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 import { SEGMENT_DATA_PARTNER_ID } from './constants'
+import { getDataPartnerToken } from './data-partner-token'
 
 export const verifyCustomerId = (customerId: string | undefined) => {
   if (!customerId) {
@@ -53,25 +53,51 @@ function buildAudienceMember(payload: Payload) {
   }
 }
 
-export async function ingestAudienceMembers(
+export async function syncAudienceMembers(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
-  audienceSettings: AudienceSettings,
-  auth?: AuthTokens
+  audienceSettings: AudienceSettings
 ) {
-  const accessToken = auth?.accessToken || ''
+  const accessToken = await getDataPartnerToken()
   if (!accessToken) throw new IntegrationError('Missing access token.', 'ACCESS_TOKEN_MISSING', 401)
-  const body = buildRequestBody(payloads, settings, audienceSettings)
-  return request('https://datamanager.googleapis.com/v1/audienceMembers:ingest', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    },
-    json: body
-  })
+  const audienceEnteredPayloads = payloads.filter((payload) => payload.event_name === 'Audience Entered')
+  const audienceExitedPayloads = payloads.filter((payload) => payload.event_name === 'Audience Exited')
+  const audienceEnteredBody =
+    audienceEnteredPayloads.length > 0
+      ? buildRequestBody(audienceEnteredPayloads, settings, audienceSettings)
+      : undefined
+  const audienceExitedBody =
+    audienceExitedPayloads.length > 0 ? buildRequestBody(audienceExitedPayloads, settings, audienceSettings) : undefined
+
+  const responses = []
+  if (audienceEnteredBody !== undefined) {
+    responses.push(
+      await request('https://datamanager.googleapis.com/v1/audienceMembers:ingest', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        json: audienceEnteredBody
+      })
+    )
+  }
+  if (audienceExitedBody !== undefined) {
+    responses.push(
+      await request('https://datamanager.googleapis.com/v1/audienceMembers:remove', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        json: audienceExitedBody
+      })
+    )
+  }
+  return responses.length === 1 ? responses[0] : responses
 }
 
 const buildRequestBody = (payloads: Payload[], settings: Settings, audienceSettings: AudienceSettings) => ({

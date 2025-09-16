@@ -113,3 +113,13 @@ export const batch_size: InputField = {
   unsafe_hidden: true,
   required: true
 }
+
+export const event_name: InputField = {
+  label: 'Event Name',
+  description: 'The name of the current Segment event.',
+  type: 'string',
+  default: {
+    '@path': '$.event'
+  },
+  unsafe_hidden: true
+}
