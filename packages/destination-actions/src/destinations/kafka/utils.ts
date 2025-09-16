@@ -1,10 +1,21 @@
-import { Kafka, ProducerRecord, Partitioners, SASLOptions, KafkaConfig, KafkaJSError, Producer } from 'kafkajs'
-import { DynamicFieldResponse, IntegrationError, Features } from '@segment/actions-core'
+import {
+  Kafka,
+  ProducerRecord,
+  Partitioners,
+  SASLOptions,
+  KafkaConfig,
+  KafkaJSError,
+  Producer,
+  KafkaJSNonRetriableError,
+  KafkaJSNumberOfRetriesExceeded
+} from 'kafkajs'
+
+import { DynamicFieldResponse, IntegrationError, Features, getErrorCodeFromHttpStatus } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
-import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
 import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
+import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME, KAFKAJS_ERRORS_TO_HTTP_STATUS } from './constants'
 
 export const producersByConfig: Record<string, CachedProducer> = {}
 
@@ -180,6 +191,21 @@ export const getOrCreateProducer = async (
   return producer
 }
 
+function handleKafkaError(error: Error) {
+  if (error.name !== 'IntegrationError') {
+    let name = error.name
+    let status = 500
+    let code = getErrorCodeFromHttpStatus(status)
+    if (error instanceof KafkaJSNonRetriableError || error instanceof KafkaJSNumberOfRetriesExceeded) {
+      name = error?.cause?.name ?? name
+      status = KAFKAJS_ERRORS_TO_HTTP_STATUS[name]
+      code = getErrorCodeFromHttpStatus(status)
+    }
+    throw new IntegrationError(`${name}: ${error.message}`, code, status)
+  } else {
+    throw error
+  }
+}
 export const sendData = async (
   settings: Settings,
   payload: Payload[],
@@ -230,27 +256,15 @@ export const sendData = async (
     }
   } catch (error) {
     logger?.crit(`Kafka Connection Error: ${(error as Error).stack}`)
-    if ((error as Error).name !== 'IntegrationError') {
-      throw new IntegrationError(
-        `Kafka Connection Error - ${(error as Error).name}: ${(error as Error).message}`,
-        (error as Error)?.name,
-        500
-      )
-    } else {
-      throw error
-    }
+    throw handleKafkaError(error as Error)
   }
 
   for (const data of topicMessages) {
     try {
-      await producer.send(data as ProducerRecord)
+      await producer?.send(data as ProducerRecord)
     } catch (error) {
       logger?.crit(`Kafka Send Error: ${(error as Error).stack}`)
-      throw new IntegrationError(
-        `Kafka Producer Error - ${(error as Error).name}: ${(error as Error).message}`,
-        (error as Error)?.name,
-        500
-      )
+      throw handleKafkaError(error as Error)
     }
   }
 
