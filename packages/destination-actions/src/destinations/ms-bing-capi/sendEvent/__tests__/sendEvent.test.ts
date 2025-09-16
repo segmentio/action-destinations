@@ -2,7 +2,6 @@ import nock from 'nock'
 import { createTestIntegration, createTestEvent } from '@segment/actions-core'
 import destination from '../../index'
 import type { Settings } from '../../generated-types'
-import { time } from 'console'
 
 function buildTrackEvent(overrides: Record<string, any> = {}) {
   return createTestEvent({
