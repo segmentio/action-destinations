@@ -4,7 +4,7 @@ import { IntegrationError, InvalidAuthenticationError } from '@segment/actions-c
 import forwardProfile from './forwardProfile'
 import forwardAudienceEvent from './forwardAudienceEvent'
 import { AdvertiserScopesResponse } from './types'
-import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, advertiserIdFieldImplementation } from './functions'
+import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash } from './functions'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'StackAdapt Audiences',
@@ -25,7 +25,58 @@ const destination: DestinationDefinition<Settings> = {
         description: "The StackAdapt advertiser ID to add the profile to. The value in this field field can also be overridden at the Action level via the Action field of the same name.",
         type: 'string', 
         required: false,
-        dynamic: advertiserIdFieldImplementation
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
+        dynamic: async (request, { settings }) => {
+          if (!settings?.apiKey) {
+            return {
+              choices: [],
+              error: {
+                message: 'Please configure the API Key field before setting the Advertiser field value',
+                code: 'API Key Missing'
+              }
+            }
+          }
+
+          try {
+            const query = `query {
+              tokenInfo {
+                scopesByAdvertiser {
+                  nodes {
+                    advertiser {
+                      id
+                      name
+                    }
+                    scopes
+                  }
+                }
+              }
+            }`
+            
+            const response = await request<AdvertiserScopesResponse>(GQL_ENDPOINT, {
+              body: JSON.stringify({ query })
+            })
+            
+            const scopesByAdvertiser = response.data?.data?.tokenInfo?.scopesByAdvertiser
+            const choices = scopesByAdvertiser?.nodes
+              .filter((advertiserEntry: any) => advertiserEntry.scopes.includes('WRITE'))
+              .map((advertiserEntry: any) => ({ 
+                value: advertiserEntry.advertiser.id, 
+                label: advertiserEntry.advertiser.name 
+              }))
+              .sort((a: any, b: any) => a.label.localeCompare(b.label))
+            
+            console.log('=============choices', choices)
+            return { choices }
+          } catch (error: any) {
+            return {
+              choices: [],
+              error: {
+                message: error.message ?? 'Unknown error',
+                code: error.status?.toString() ?? 'Unknown error'
+              }
+            }
+          }
+        }
       }
     },
     testAuthentication: async (request) => {
