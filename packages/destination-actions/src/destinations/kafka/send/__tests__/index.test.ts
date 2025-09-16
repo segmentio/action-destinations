@@ -69,6 +69,7 @@ describe('Kafka.send', () => {
       brokers: ['yourBroker'],
       requestTimeout: 10000,
       ssl: true,
+      retry: { retries: 0 },
       sasl: {
         mechanism: 'plain',
         username: 'yourUsername',
@@ -93,6 +94,7 @@ describe('Kafka.send', () => {
       brokers: ['yourBroker'],
       requestTimeout: 10000,
       ssl: true,
+      retry: { retries: 0 },
       sasl: {
         mechanism: 'scram-sha-256',
         username: 'yourUsername',
@@ -117,6 +119,7 @@ describe('Kafka.send', () => {
       brokers: ['yourBroker'],
       requestTimeout: 10000,
       ssl: true,
+      retry: { retries: 0 },
       sasl: {
         mechanism: 'scram-sha-512',
         username: 'yourUsername',
@@ -144,6 +147,7 @@ describe('Kafka.send', () => {
       brokers: ['yourBroker'],
       requestTimeout: 10000,
       ssl: true,
+      retry: { retries: 0 },
       sasl: {
         mechanism: 'aws',
         accessKeyId: 'testAccessKeyId',
@@ -173,6 +177,7 @@ describe('Kafka.send', () => {
         ca: ['-----BEGIN CERTIFICATE-----\nyourCACert\n-----END CERTIFICATE-----'],
         rejectUnauthorized: true
       },
+      retry: { retries: 0 },
       sasl: {
         mechanism: 'plain',
         username: 'yourUsername',
