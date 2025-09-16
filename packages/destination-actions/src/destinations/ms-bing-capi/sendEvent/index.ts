@@ -35,19 +35,15 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
   const multiStatusResponse = new MultiStatusResponse()
 
   payloads.forEach((payload) => {
-    const {
-      data: { eventType, eventTime, eventSourceUrl, ...restOfData },
-      userData: { em, ph, ...restOfUserData } = {},
-      customData
-    } = payload
+    const { data, userData: { em, ph, ...restOfUserData } = {}, customData } = payload
 
-    const eventTimestamp = eventTime ?? (payload as any).timestamp
+    const eventTimestamp = data?.eventTime ?? (payload as any).timestamp
     const jsonItem: BingCAPIRequestItem = {
-      ...restOfData,
-      eventType: eventType as 'pageLoad' | 'custom',
+      ...data,
+      eventType: data?.eventType as 'pageLoad' | 'custom',
       eventTime: Math.floor(new Date(eventTimestamp ?? Date.now()).getTime() / 1000),
-      adStorageConsent: payload.data.adStorageConsent ?? settings.adStorageConsent,
-      eventSourceUrl,
+      adStorageConsent: data?.adStorageConsent ?? settings.adStorageConsent,
+      eventSourceUrl: data?.eventSourceUrl,
       userData: {
         ...restOfUserData,
         em: em ? processHashing(em, 'sha256', 'hex', (v) => v.trim().toLowerCase()) : undefined,
