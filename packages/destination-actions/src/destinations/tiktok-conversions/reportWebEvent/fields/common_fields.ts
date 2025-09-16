@@ -1,6 +1,33 @@
 import { InputField } from '@segment/actions-core'
+import { VEHICLE_FIELDS, TRAVEL_FIELDS, WEB, CRM } from '../constants'
 
-export const commonFields: Record<string, InputField> = {
+export const common_fields: Record<string, InputField> = {
+  event_source: {
+    label: 'Event Source',
+    type: 'string',
+    description:
+      "The type of events you are uploading through TikTok Events API. Please see TikTok's [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to find this value. If no selection is made 'Web' is assumed.",
+    default: WEB,
+    choices: [
+      {
+        value: WEB,
+        label: 'The events took place on your website and are measured by a Pixel Code.'
+      },
+      {
+        value: CRM,
+        label: 'The lead events took place on a CRM system and are tracked by a CRM Event Set ID.'
+      }
+    ]
+  },
+  event_spec_type: {
+    label: 'Additional Fields',
+    type: 'string',
+    description: 'Include fields for travel or vehicle events.',
+    choices: [
+      { value: TRAVEL_FIELDS, label: 'Travel Fields' },
+      { value: VEHICLE_FIELDS, label: 'Vehicle Fields' }
+    ]
+  },
   event: {
     label: 'Event Name',
     type: 'string',
@@ -36,8 +63,7 @@ export const commonFields: Record<string, InputField> = {
         then: { '@path': '$.properties.phone' },
         else: { '@path': '$.context.traits.phone' }
       }
-    },
-    category: 'hashedPII'
+    }
   },
   email: {
     label: 'Email',
@@ -51,8 +77,7 @@ export const commonFields: Record<string, InputField> = {
         then: { '@path': '$.properties.email' },
         else: { '@path': '$.context.traits.email' }
       }
-    },
-    category: 'hashedPII'
+    }
   },
   first_name: {
     label: 'First Name',
@@ -65,8 +90,7 @@ export const commonFields: Record<string, InputField> = {
         then: { '@path': '$.properties.first_name' },
         else: { '@path': '$.context.traits.first_name' }
       }
-    },
-    category: 'hashedPII'
+    }
   },
   last_name: {
     label: 'Last Name',
@@ -79,8 +103,7 @@ export const commonFields: Record<string, InputField> = {
         then: { '@path': '$.properties.last_name' },
         else: { '@path': '$.context.traits.last_name' }
       }
-    },
-    category: 'hashedPII'
+    }
   },
   address: {
     label: 'Address',
@@ -101,8 +124,7 @@ export const commonFields: Record<string, InputField> = {
       zip_code: {
         label: 'Zip Code',
         type: 'string',
-        description: "The customer's Zip Code.",
-        category: 'hashedPII'
+        description: "The customer's Zip Code."
       },
       state: {
         label: 'State',
@@ -169,8 +191,7 @@ export const commonFields: Record<string, InputField> = {
         then: { '@path': '$.userId' },
         else: { '@path': '$.anonymousId' }
       }
-    },
-    category: 'hashedPII'
+    }
   },
   ttclid: {
     label: 'TikTok Click ID',
@@ -197,13 +218,6 @@ export const commonFields: Record<string, InputField> = {
         else: { '@path': '$.integrations.TikTok Conversions.ttp' }
       }
     }
-  },
-  lead_id: {
-    label: 'TikTok Lead ID',
-    description:
-      'ID of TikTok leads. Every lead will have its own lead_id when exported from TikTok. This feature is in Beta. Please contact your TikTok representative to inquire regarding availability',
-    type: 'string',
-    default: { '@path': '$.properties.lead_id' }
   },
   locale: {
     label: 'Locale',
@@ -251,7 +265,6 @@ export const commonFields: Record<string, InputField> = {
     type: 'object',
     multiple: true,
     description: 'Related item details for the event.',
-    defaultObjectUI: 'keyvalue',
     properties: {
       price: {
         label: 'Price',
@@ -283,6 +296,24 @@ export const commonFields: Record<string, InputField> = {
         description: 'Brand name of the product item.',
         type: 'string'
       }
+    }
+  },
+  content_ids: {
+    label: 'Content IDs',
+    description:
+      "Product IDs associated with the event, such as SKUs. Do not populate this field if the 'Contents' field is populated. This field accepts a single string value or an array of string values.",
+    type: 'string',
+    multiple: true,
+    default: {
+      '@path': '$.properties.content_ids'
+    }
+  },
+  num_items: {
+    label: 'Number of Items',
+    type: 'number',
+    description: 'Number of items when checkout was initiated. Used with the InitiateCheckout event.',
+    default: {
+      '@path': '$.properties.num_items'
     }
   },
   content_type: {
@@ -343,5 +374,44 @@ export const commonFields: Record<string, InputField> = {
     type: 'string',
     description:
       'Use this field to specify that events should be test events rather than actual traffic. You can find your Test Event Code in your TikTok Events Manager under the "Test Event" tab. You\'ll want to remove your Test Event Code when sending real traffic through this integration.'
+  },
+  delivery_category: {
+    label: 'Delivery Category',
+    type: 'string',
+    description: 'Category of the delivery.',
+    default: {
+      '@path': '$.properties.delivery_category'
+    },
+    choices: [
+      { value: 'in_store', label: 'In Store - Purchase requires customer to enter the store.' },
+      { value: 'curbside', label: 'Curbside - Purchase requires curbside pickup.' },
+      { value: 'home_delivery', label: 'Home Delivery - Purchase is delivered to the customer.' }
+    ]
+  },
+  predicted_ltv: {
+    label: 'Prediected Lifetime Value',
+    type: 'number',
+    description:
+      'Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.',
+    default: {
+      '@path': '$.properties.predicted_ltv'
+    }
+  },
+  search_string: {
+    label: 'Search String',
+    type: 'string',
+    description: 'The text string entered by the user for the search. Optionally used with the Search event.',
+    default: {
+      '@path': '$.properties.search_string'
+    },
+    depends_on: {
+      conditions: [
+        {
+          fieldKey: 'event',
+          operator: 'is',
+          value: 'Search'
+        }
+      ]
+    }
   }
 }
