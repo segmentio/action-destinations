@@ -43,7 +43,8 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: async (request, data) => {
     const requestData = data as RequestData<Settings, Payload[]>
-    const { payload, syncMode, subscriptionMetadata, statsContext, features, rawData } = requestData
+    const { payload, syncMode, subscriptionMetadata, statsContext, rawData } = requestData
+    const { features } = data
     statsContext?.tags?.push('action:custom_object_batch')
     return await send(request, payload, syncMode, subscriptionMetadata, statsContext, features, rawData)
   }
@@ -55,7 +56,7 @@ const send = async (
   syncMode: SyncMode,
   subscriptionMetadata?: SubscriptionMetadata,
   statsContext?: StatsContext,
-  features: Features,
+  features?: Features,
   rawData?: Payload[]
 ) => {
   if (syncMode === 'upsert' || syncMode === 'update') {
@@ -78,7 +79,7 @@ const send = async (
     listName = getListName(payloads[0])
     shouldCreateList = list_details?.should_create_list
   }
- 
+
   const client = new Client(request, objectType)
 
   const validPayloads = validate(payloads)

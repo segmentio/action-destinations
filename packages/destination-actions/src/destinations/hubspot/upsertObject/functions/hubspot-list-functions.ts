@@ -9,8 +9,8 @@ import { ENGAGE_AUDIENCE_COMPUTATION_CLASSES } from '../constants'
 
 export function getListName(payload: Payload): string | undefined {
   if(isEngageAudiencePayload(payload)) {
-    const { traits_or_props, computation_key } = payload as EngageAudiencePayload
-    return (payload?.list_details?.list_name || traits_or_props[computation_key]) as string
+    const { computation_key } = payload as EngageAudiencePayload
+    return (payload?.list_details?.list_name || computation_key) as string | undefined
   } else {
     return payload?.list_details?.list_name
   }
@@ -28,7 +28,7 @@ function isEngageAudiencePayload(payload: Payload): boolean {
     && computation_key!== '' 
     && ENGAGE_AUDIENCE_COMPUTATION_CLASSES.includes(computation_class)
     && typeof traits_or_props === 'object' 
-    && typeof traits_or_props[computation_key] === 'string'
+    && typeof traits_or_props[computation_key] === 'boolean'
 }
 
 function getListAction(payload: PayloadWithFromId): boolean | undefined{
