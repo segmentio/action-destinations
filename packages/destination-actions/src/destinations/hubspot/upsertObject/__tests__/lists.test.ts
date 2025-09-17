@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent, JSONObject } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 import { HUBSPOT_BASE_URL } from '../../properties'
@@ -380,8 +380,226 @@ describe('Hubspot.upsertObject', () => {
     })
   })
 
-  
+  describe('Not an Engage Audience', () => {
+    it('should add a user to an existing Hubspot List.', async () => {
+      const modifiedPayload = { 
+        ...payload, 
+        context: {}, 
+        properties: { 
+          ...payload.properties, 
+          list_details: {
+            connected_to_engage_audience: false,
+            should_create_list: true,
+            list_name: 'contact_list_2',
+            list_action: true
+          }
+        }
+      }
 
+      const modifiedMapping: JSONObject = {
+        ...mapping,
+        list_details: {
+          connected_to_engage_audience: { '@path': '$.properties.list_details.connected_to_engage_audience' },
+          should_create_list: { '@path': '$.properties.list_details.should_create_list' },
+          list_name: { '@path': '$.properties.list_details.list_name' },
+          list_action: { '@path': '$.properties.list_details.list_action' }
+        }
+      }
+
+      delete modifiedMapping['computation_key']
+      delete modifiedMapping['computation_class']
+
+      const event = createTestEvent(modifiedPayload)
+
+      nock(HUBSPOT_BASE_URL)
+        .get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`)
+        .reply(200, {
+          list: {
+            listId: '21',
+            processingType: 'MANUAL',
+            objectTypeId: '0-2',
+            name: 'contact_list_2'
+          }
+        })
+
+      nock(HUBSPOT_BASE_URL)
+        .put(`/crm/v3/lists/21/memberships/add-and-remove`, {
+          recordIdsToAdd: ['62102303560'],
+          recordIdsToRemove: []
+        })
+        .reply(200)
+
+      nock(HUBSPOT_BASE_URL)
+        .get('/crm/v3/properties/contact')
+        .reply(200, propertiesResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
+        .reply(200, sensitivePropertiesResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq)
+        .reply(200, upsertObjectResp)
+
+      const responses = await testDestination.testAction('upsertObject', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: modifiedMapping,
+        features: { 'actions-hubspot-lists-association-support': true }
+      })
+
+      expect(responses.length).toBe(5)
+    })
+
+    it('should remove a user from an existing Hubspot List.', async () => {
+      const modifiedPayload = { 
+        ...payload, 
+        context: {}, 
+        properties: { 
+          ...payload.properties, 
+          list_details: {
+            connected_to_engage_audience: false,
+            should_create_list: true,
+            list_name: 'contact_list_2',
+            list_action: false
+          }
+        }
+      }
+
+      const modifiedMapping: JSONObject = {
+        ...mapping,
+        list_details: {
+          connected_to_engage_audience: { '@path': '$.properties.list_details.connected_to_engage_audience' },
+          should_create_list: { '@path': '$.properties.list_details.should_create_list' },
+          list_name: { '@path': '$.properties.list_details.list_name' },
+          list_action: { '@path': '$.properties.list_details.list_action' }
+        }
+      }
+
+      delete modifiedMapping['computation_key']
+      delete modifiedMapping['computation_class']
+
+      const event = createTestEvent(modifiedPayload)
+
+      nock(HUBSPOT_BASE_URL)
+        .get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`)
+        .reply(200, {
+          list: {
+            listId: '21',
+            processingType: 'MANUAL',
+            objectTypeId: '0-2',
+            name: 'contact_list_2'
+          }
+        })
+
+      nock(HUBSPOT_BASE_URL)
+        .put(`/crm/v3/lists/21/memberships/add-and-remove`, {
+          recordIdsToAdd: [],
+          recordIdsToRemove: ['62102303560']
+        })
+        .reply(200)
+
+      nock(HUBSPOT_BASE_URL)
+        .get('/crm/v3/properties/contact')
+        .reply(200, propertiesResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
+        .reply(200, sensitivePropertiesResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq)
+        .reply(200, upsertObjectResp)
+
+      const responses = await testDestination.testAction('upsertObject', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: modifiedMapping,
+        features: { 'actions-hubspot-lists-association-support': true }
+      })
+
+      expect(responses.length).toBe(5)
+    })
+
+    it('should add a user to an non existing Hubspot List - by creating the List first.', async () => {
+      
+      const modifiedPayload = { 
+        ...payload, 
+        context: {}, 
+        properties: { 
+          ...payload.properties, 
+          list_details: {
+            connected_to_engage_audience: false,
+            should_create_list: true,
+            list_name: 'contact_list_2',
+            list_action: true
+          }
+        }
+      }
+
+      const modifiedMapping: JSONObject = {
+        ...mapping,
+        list_details: {
+          connected_to_engage_audience: { '@path': '$.properties.list_details.connected_to_engage_audience' },
+          should_create_list: { '@path': '$.properties.list_details.should_create_list' },
+          list_name: { '@path': '$.properties.list_details.list_name' },
+          list_action: { '@path': '$.properties.list_details.list_action' }
+        }
+      }
+      
+      const event = createTestEvent(modifiedPayload)
+
+      nock(HUBSPOT_BASE_URL)
+        .get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`)
+        .reply(400, {
+          status: 'error',
+          message: 'List does not exist with name contact_list_2 and object type ID 0-2.'
+        })
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/lists', {name: "contact_list_2", objectTypeId: "contact", processingType: "MANUAL"})
+        .reply(200, {
+          list: {
+            listId: "21",
+            objectTypeId: "0-2",
+            name: "contact_list_2"
+          }
+        })
+
+      nock(HUBSPOT_BASE_URL)
+        .put(`/crm/v3/lists/21/memberships/add-and-remove`, {
+          recordIdsToAdd: ['62102303560'],
+          recordIdsToRemove: []
+        })
+        .reply(200)
+
+      nock(HUBSPOT_BASE_URL)
+        .get('/crm/v3/properties/contact')
+        .reply(200, propertiesResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
+        .reply(200, sensitivePropertiesResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq)
+        .reply(200, upsertObjectResp)
+
+      const responses = await testDestination.testAction('upsertObject', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: modifiedMapping,
+        features: { 'actions-hubspot-lists-association-support': true }
+      })
+
+      expect(responses.length).toBe(6)
+    })
+
+    
+  })
 })
 
 

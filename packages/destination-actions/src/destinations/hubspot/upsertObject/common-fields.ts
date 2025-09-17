@@ -203,12 +203,12 @@ export const commonFields: Record<string, InputField> = {
           match: 'all',
           conditions: [
             {
-              fieldKey: 'list_details.list_name',
+              fieldKey: 'list_name',
               operator: 'is_not',
               value: [null,'']
             },
             {
-              fieldKey: 'list_details.connected_to_engage_audience',
+              fieldKey: 'connected_to_engage_audience',
               operator: 'is',
               value: false
             }
@@ -217,7 +217,7 @@ export const commonFields: Record<string, InputField> = {
         depends_on: {
           conditions: [
             {
-              fieldKey: 'list_details.connected_to_engage_audience',
+              fieldKey: 'connected_to_engage_audience',
               operator: 'is',
               value: false
             }
