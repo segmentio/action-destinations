@@ -330,7 +330,7 @@ describe('Kafka.send', () => {
       expect((error as IntegrationError).status).toBe(500)
     }
 
-    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('Kafka Connection Error:'))
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('Kafka Connection Error'))
   })
 
   it('wraps producer send errors and logs with critical level', async () => {
@@ -352,7 +352,7 @@ describe('Kafka.send', () => {
       expect((error as IntegrationError).status).toBe(500)
     }
 
-    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('Kafka Send Error:'))
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('Kafka Send Error'))
   })
 })
 
