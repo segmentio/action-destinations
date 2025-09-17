@@ -173,8 +173,8 @@ export const travel_fields: InputField = {
     origin_airport: {
       '@path': '$.properties.origin_airport'
     },
-    destination_airiport: {
-      '@path': '$.properties.destination_airiport'
+    destination_airport: {
+      '@path': '$.properties.destination_airport'
     },
     destination_ids: {
       '@path': '$.properties.destination_ids' // Confirmed this can be a single string or an array of strings

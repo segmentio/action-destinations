@@ -24,9 +24,18 @@ export const common_fields: Record<string, InputField> = {
     type: 'string',
     description: 'Include fields for travel or vehicle events.',
     choices: [
-      { value: TRAVEL_FIELDS, label: 'Travel Fields' },
-      { value: VEHICLE_FIELDS, label: 'Vehicle Fields' }
-    ]
+      { value: TRAVEL_FIELDS, label: 'Show travel fields' },
+      { value: VEHICLE_FIELDS, label: 'Show vehicle fields' }
+    ],
+    depends_on: {
+      conditions: [
+        {
+          fieldKey: 'event_source',
+          operator: 'is',
+          value: WEB
+        }
+      ]
+    }
   },
   event: {
     label: 'Event Name',
@@ -265,6 +274,7 @@ export const common_fields: Record<string, InputField> = {
     type: 'object',
     multiple: true,
     description: 'Related item details for the event.',
+    defaultObjectUI: 'keyvalue',
     properties: {
       price: {
         label: 'Price',
