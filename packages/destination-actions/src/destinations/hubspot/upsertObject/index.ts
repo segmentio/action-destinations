@@ -1,4 +1,4 @@
-import { ActionDefinition, RequestClient, IntegrationError, StatsContext } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, IntegrationError, StatsContext, Features } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from './common-fields'
@@ -37,15 +37,15 @@ const action: ActionDefinition<Settings, Payload> = {
     ...commonFields
   },
   dynamicFields,
-  perform: async (request, { payload, syncMode, subscriptionMetadata, statsContext }) => {
+  perform: async (request, { payload, syncMode, subscriptionMetadata, statsContext, features }) => {
     statsContext?.tags?.push('action:custom_object')
-    return await send(request, [payload], syncMode as SyncMode, subscriptionMetadata, statsContext)
+    return await send(request, [payload], syncMode as SyncMode, subscriptionMetadata, statsContext, features)
   },
   performBatch: async (request, data) => {
     const requestData = data as RequestData<Settings, Payload[]>
-    const { payload, syncMode, subscriptionMetadata, statsContext, rawData } = requestData
+    const { payload, syncMode, subscriptionMetadata, statsContext, features, rawData } = requestData
     statsContext?.tags?.push('action:custom_object_batch')
-    return await send(request, payload, syncMode, subscriptionMetadata, statsContext, rawData)
+    return await send(request, payload, syncMode, subscriptionMetadata, statsContext, features, rawData)
   }
 }
 
@@ -55,6 +55,7 @@ const send = async (
   syncMode: SyncMode,
   subscriptionMetadata?: SubscriptionMetadata,
   statsContext?: StatsContext,
+  features: Features,
   rawData?: Payload[]
 ) => {
   if (syncMode === 'upsert' || syncMode === 'update') {
@@ -68,10 +69,16 @@ const send = async (
     list_details
   } = payloads[0]
 
-  const listName = getListName(payloads[0])
-  
-  const shouldCreateList = list_details?.should_create_list
+  const flag = features?.['actions-hubspot-lists-association-support'] ?? false
 
+  let listName: string | undefined = undefined
+  let shouldCreateList: boolean | undefined = false
+  
+  if(flag){
+    listName = getListName(payloads[0])
+    shouldCreateList = list_details?.should_create_list
+  }
+ 
   const client = new Client(request, objectType)
 
   const validPayloads = validate(payloads)
@@ -104,22 +111,28 @@ const send = async (
     }
   }
 
-  const cachableList = await ensureList(client, objectType, listName, shouldCreateList, subscriptionMetadata, statsContext)
-
+  let cachableList = undefined
+  if(flag){
+    cachableList = await ensureList(client, objectType, listName, shouldCreateList, subscriptionMetadata, statsContext)
+  }
+  
   const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
 
   const associationPayloads = createAssociationPayloads(fromRecordPayloads, 'associations')
   const associatedRecords = await sendAssociatedRecords(client, associationPayloads, associationSyncMode as AssociationSyncMode)
 
-  const dissociationPayloads = createAssociationPayloads(fromRecordPayloads, 'dissociations')
-  const dissociatedRecords = await readAssociatedRecords(client, dissociationPayloads)
   await sendAssociations(client, associatedRecords, 'create')
-  await sendAssociations(client, dissociatedRecords, 'archive')
 
-  if (cachableList) {
-    await sendLists(client, cachableList, fromRecordPayloads)
+  if(flag) {
+    const dissociationPayloads = createAssociationPayloads(fromRecordPayloads, 'dissociations')
+    const dissociatedRecords = await readAssociatedRecords(client, dissociationPayloads)
+    await sendAssociations(client, dissociatedRecords, 'archive')
+
+    if (cachableList) {
+      await sendLists(client, cachableList, fromRecordPayloads)
+    }
   }
-
+  
   return
 }
 
