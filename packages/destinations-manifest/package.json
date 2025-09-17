@@ -51,6 +51,9 @@
     "@segment/analytics-browser-actions-vwo": "^1.92.0",
     "@segment/analytics-browser-actions-wiseops": "^1.90.0",
     "@segment/analytics-browser-hubble-web": "^1.75.0",
+    "@segment/analytics-browser-actions-cj": "1.1.0",
+    "@segment/analytics-browser-actions-fullsession": "1.1.0",
+    "@segment/analytics-browser-actions-ms-bing-capi-plugins": "1.1.0",
     "@segment/browser-destination-runtime": "^1.88.0"
   }
 }
