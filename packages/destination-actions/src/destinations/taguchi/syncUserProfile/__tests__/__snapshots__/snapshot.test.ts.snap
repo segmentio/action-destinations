@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Taguchi's syncUserProfile destination action: all fields 1`] = `
+Array [
+  Object {
+    "profile": Object {
+      "address": "jty#[Z$zVf",
+      "address2": "jty#[Z$zVf",
+      "address3": "jty#[Z$zVf",
+      "country": "jty#[Z$zVf",
+      "custom": Object {
+        "phone": "jty#[Z$zVf",
+      },
+      "dob": "2037-05-09T13:52:58.693Z",
+      "email": "test@example.com",
+      "firstname": "jty#[Z$zVf",
+      "gender": "jty#[Z$zVf",
+      "lastname": "jty#[Z$zVf",
+      "lists": Array [
+        Object {
+          "listId": -26199024730112,
+          "unsubscribedTimestamp": null,
+        },
+        Object {
+          "listId": -26199024730112,
+          "unsubscribedTimestamp": "2037-05-09T13:52:58.693Z",
+        },
+      ],
+      "organizationId": 123,
+      "postcode": "jty#[Z$zVf",
+      "ref": "test-user-123",
+      "state": "jty#[Z$zVf",
+      "suburb": "jty#[Z$zVf",
+      "title": "jty#[Z$zVf",
+    },
+  },
+]
+`;
+
+exports[`Testing snapshot for Taguchi's syncUserProfile destination action: required fields 1`] = `
+Array [
+  Object {
+    "profile": Object {
+      "email": "test@example.com",
+      "organizationId": 123,
+      "ref": "test-user-123",
+    },
+  },
+]
+`;

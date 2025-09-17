@@ -17,8 +17,8 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       type: 'string',
       required: true
     },
-    schemaName: {
-      label: 'Snowflake Schema Name',
+    schemaOverride: {
+      label: 'Schema Override',
       description: 'The name of an existing Snowflake Schema to use.',
       type: 'string',
       required: false
