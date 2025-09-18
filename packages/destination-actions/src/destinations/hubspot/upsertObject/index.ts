@@ -75,14 +75,14 @@ const send = async (
   let listName: string | undefined = undefined
   let shouldCreateList: boolean | undefined = false
   
+  const client = new Client(request, objectType)
+
+  const validPayloads = validate(payloads, flag)
+
   if(flag){
     listName = getListName(payloads[0])
     shouldCreateList = list_details?.should_create_list
   }
-
-  const client = new Client(request, objectType)
-
-  const validPayloads = validate(payloads)
 
   const schema = objectSchema(validPayloads, objectType)
 

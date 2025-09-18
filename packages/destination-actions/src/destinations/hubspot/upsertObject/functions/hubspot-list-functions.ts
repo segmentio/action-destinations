@@ -16,7 +16,7 @@ export function getListName(payload: Payload): string | undefined {
   }
 }
 
-function isEngageAudiencePayload(payload: Payload): boolean {
+export function isEngageAudiencePayload(payload: Payload): boolean {
   const {
     list_details: { connected_to_engage_audience } = {},
     traits_or_props, 

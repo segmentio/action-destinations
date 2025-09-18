@@ -1,8 +1,9 @@
 import { PayloadValidationError, StatsContext } from '@segment/actions-core'
 import { Payload } from '../generated-types'
 import { Association } from '../types'
+import { isEngageAudiencePayload } from '../functions/hubspot-list-functions'
 
-export function validate(payloads: Payload[]): Payload[] {
+export function validate(payloads: Payload[], flag?: boolean): Payload[] {
   const length = payloads.length
 
   const cleaned: Payload[] = payloads.filter((payload) => {
@@ -18,6 +19,18 @@ export function validate(payloads: Payload[]): Payload[] {
     throw new PayloadValidationError(
       'Payload is missing required fields. Null or empty values are not allowed for "Object Type", "ID Field Name" or "ID Field Value".'
     )
+  }
+
+  if(flag === true){
+    // check that all payloads are either engage audience or not
+    const allEngageAudience = cleaned.every(isEngageAudiencePayload)
+    const noneEngageAudience = cleaned.every((p) => !isEngageAudiencePayload(p))
+    
+    if(!(allEngageAudience || noneEngageAudience)){
+      throw new PayloadValidationError(
+        'Engage and non Engage payloads cannot be mixed in the same batch.'
+      )
+    }
   }
 
   cleaned.forEach((payload) => {

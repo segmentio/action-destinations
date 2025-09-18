@@ -597,6 +597,65 @@ describe('Hubspot.upsertObject', () => {
 
       expect(responses.length).toBe(4)
     })
+
+    it('should error if more than 1 list is included in the same batch', async () => {
+      // To simplify this test properties and sensitive_properties are excluded
+      const modifiedPayload = { 
+        ...payload, 
+        properties: {    
+          contact_list_2: true,
+          email: 'test@test.com'
+        }
+      } as SegmentEvent
+
+      const modifiedPayload2 = { 
+        ...payload, 
+        properties: {    
+          contact_list_3: true,
+          email: 'test2@test.com'
+        }
+      } as SegmentEvent
+
+      nock(HUBSPOT_BASE_URL)
+        .get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`)
+        .reply(400, {
+          status: 'error',
+          message: 'List does not exist with name contact_list_2 and object type ID 0-2.'
+        })
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/lists', {name: "contact_list_2", objectTypeId: "contact", processingType: "MANUAL"})
+        .reply(200, {
+          list: {
+            listId: "21",
+            objectTypeId: "0-2",
+            name: "contact_list_2"
+          }
+        })
+
+      nock(HUBSPOT_BASE_URL)
+        .put(`/crm/v3/lists/21/memberships/add-and-remove`, {
+          recordIdsToAdd: ['62102303560', '999999898989'],
+          recordIdsToRemove: []
+        })
+        .reply(200)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/contact/batch/upsert',
+          {inputs:[{idProperty:"email",id:"test@test.com",properties:{email:"test@test.com"}}, {idProperty:"email",id:"test2@test.com",properties:{email:"test2@test.com"}}]})
+        .reply(200, modifiedUpsertObjectResp)
+
+      const responses = await testDestination.testBatchAction('upsertObject', {
+        events: [modifiedPayload, modifiedPayload2],
+        settings,
+        useDefaultMappings: true,
+        mapping,
+        features: { 'actions-hubspot-lists-association-support': true }
+      })
+
+      expect(responses.length).toBe(4)
+    })
+
   })
 
   describe('Not an Engage Audience', () => {
@@ -816,7 +875,6 @@ describe('Hubspot.upsertObject', () => {
 
       expect(responses.length).toBe(6)
     })
+    
   })
 })
-
-
