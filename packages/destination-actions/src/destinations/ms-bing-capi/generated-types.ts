@@ -9,4 +9,8 @@ export interface Settings {
    * Your Bing API Token.
    */
   ApiToken: string
+  /**
+   * Ad Storage Consent for GDPR compliance
+   */
+  adStorageConsent?: string
 }

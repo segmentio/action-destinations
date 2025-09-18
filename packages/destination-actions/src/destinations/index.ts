@@ -214,6 +214,7 @@ register('689b6590095a4d2957bc50ca', './yonoma')
 register('68b6ddcd033b3f6d006d8e1f', './taguchi')
 register('68bff47aa7bba4dd200b450a', './ms-bing-ads-audiences')
 register('68b82be249b48bae343517c7', './ms-bing-capi')
+register('68c960b951beba1bccaeab02', './vibe-audience')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

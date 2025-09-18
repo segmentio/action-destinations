@@ -22,7 +22,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Conversion Token',
         description:
           'The conversion token for your Reddit account. This can be found by following the steps mentioned [here](https://business.reddithelp.com/helpcenter/s/article/conversion-access-token).',
-        type: 'string',
+        type: 'password',
         required: true
       },
       test_mode: {

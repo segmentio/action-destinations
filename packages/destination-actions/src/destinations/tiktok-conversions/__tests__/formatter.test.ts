@@ -1,4 +1,4 @@
-import { formatEmails, formatPhones } from '../formatter'
+import { formatEmails, formatPhones } from '../reportWebEvent/formatter'
 
 describe('Tiktok Conversions Formatter', () => {
   describe('formatEmails', () => {

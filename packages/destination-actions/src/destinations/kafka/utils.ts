@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
 import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
-import { StatsContext } from '@segment/actions-core/destination-kit'
+import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
 
 export const producersByConfig: Record<string, CachedProducer> = {}
 
@@ -90,7 +90,10 @@ const getKafka = (settings: Settings) => {
         return settings.ssl_enabled
       }
       return undefined
-    })()
+    })(),
+    retry: {
+      retries: 0
+    }
   } as unknown as KafkaConfig
 
   try {
@@ -177,11 +180,20 @@ export const getOrCreateProducer = async (
   return producer
 }
 
+function getKafkaError(error: Error) {
+  const errorCause = (error as KafkaJSError)?.cause
+  if (errorCause) {
+    return errorCause
+  }
+  return error
+}
+
 export const sendData = async (
   settings: Settings,
   payload: Payload[],
   features: Features | undefined,
-  statsContext: StatsContext | undefined
+  statsContext: StatsContext | undefined,
+  logger: Logger | undefined
 ) => {
   validate(settings)
 
@@ -217,21 +229,40 @@ export const sendData = async (
   }))
 
   let producer: Producer
-  if (features && features[FLAGON_NAME]) {
-    producer = await getOrCreateProducer(settings, statsContext)
-  } else {
-    producer = getProducer(settings)
-    await producer.connect()
+  try {
+    if (features && features[FLAGON_NAME]) {
+      producer = await getOrCreateProducer(settings, statsContext)
+    } else {
+      producer = getProducer(settings)
+      await producer.connect()
+    }
+  } catch (error) {
+    if ((error as Error).name !== 'IntegrationError') {
+      const kafkaError = getKafkaError(error as Error)
+      logger?.crit(
+        `Kafka Connection Error - ${kafkaError.name} | ${JSON.stringify(kafkaError)} | stack: ${kafkaError.stack}`
+      )
+      throw new IntegrationError(
+        `Kafka Connection Error - ${kafkaError.name}: ${kafkaError.message}`,
+        kafkaError.name,
+        500
+      )
+    } else {
+      logger?.crit(`Kafka Connection Error - ${error.name}: ${error as Error}`)
+      throw error
+    }
   }
 
   for (const data of topicMessages) {
     try {
       await producer.send(data as ProducerRecord)
     } catch (error) {
+      const kafkaError = getKafkaError(error as Error)
+      logger?.crit(`Kafka Send Error - ${kafkaError.name} | ${JSON.stringify(kafkaError)} | stack: ${kafkaError.stack}`)
       throw new IntegrationError(
-        `Kafka Producer Error: ${(error as KafkaJSError).message}`,
-        'KAFKA_PRODUCER_ERROR',
-        400
+        `Kafka Producer Error - ${kafkaError.name}: ${kafkaError.message}`,
+        kafkaError.name,
+        500
       )
     }
   }

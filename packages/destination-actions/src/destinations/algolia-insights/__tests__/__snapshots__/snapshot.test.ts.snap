@@ -52,7 +52,9 @@ exports[`Testing snapshot for actions-algolia-insights destination: productAdded
 Object {
   "events": Array [
     Object {
+      "authenticatedUserToken": "g)$f*TeM",
       "eventName": "g)$f*TeM",
+      "eventSubtype": "addToCart",
       "eventType": "view",
       "index": "g)$f*TeM",
       "objectIDs": Array [
@@ -72,6 +74,7 @@ Object {
   "events": Array [
     Object {
       "eventName": "Add to cart",
+      "eventSubtype": "addToCart",
       "eventType": "conversion",
       "index": "g)$f*TeM",
       "objectIDs": Array [
