@@ -148,6 +148,52 @@ describe('handleHttpError', () => {
 })
 
 describe('handleMultistatusResponse', () => {
+  it('uses default Code (400) when error.Code is missing', () => {
+    const msResponse = createMockMsResponse()
+    const items = ['item1']
+    const listItemsMap = new Map<string, number[]>([['item1', [0]]])
+    const payload: Payload[] = [
+      {
+        audience_id: 'a1',
+        identifier_type: 'Email',
+        email: 'test@example.com',
+        enable_batching: true,
+        batch_size: 1000,
+        traits_or_props: {},
+        audience_key: 'a1',
+        computation_class: 'Default'
+      }
+    ]
+
+    const response = {
+      data: {
+        PartialErrors: [
+          {
+            FieldPath: null,
+            ErrorCode: 'InvalidInput',
+            Message: 'The input is invalid',
+            Code: undefined, // Missing Code
+            Details: null,
+            Index: 0,
+            Type: 'Error',
+            ForwardCompatibilityMap: null
+          }
+        ]
+      }
+    }
+
+    handleMultistatusResponse(msResponse, response as unknown as ModifiedResponse, items, listItemsMap, payload, true)
+
+    // Should use default 400 status code
+    expect(msResponse.setErrorResponseAtIndex).toHaveBeenCalledWith(
+      0,
+      expect.objectContaining({
+        status: 400, // Default value
+        errormessage: 'InvalidInput: The input is invalid'
+      })
+    )
+  })
+
   it('throws IntegrationError when not in batch mode and there are partial errors', () => {
     const msResponse = createMockMsResponse()
     const items = ['item1']
@@ -368,6 +414,144 @@ describe('handleMultistatusResponse', () => {
       0,
       expect.objectContaining({
         status: 200
+      })
+    )
+  })
+
+  it('uses default Message ("No error message provided") when Message is missing in partial errors', () => {
+    const msResponse = createMockMsResponse()
+    const items = ['item1']
+    const listItemsMap = new Map<string, number[]>([['item1', [0]]])
+    const payload: Payload[] = [
+      {
+        audience_id: 'a1',
+        identifier_type: 'Email',
+        email: 'test@example.com',
+        enable_batching: true,
+        batch_size: 1000,
+        traits_or_props: {},
+        audience_key: 'a1',
+        computation_class: 'Default'
+      }
+    ]
+
+    const response = {
+      data: {
+        PartialErrors: [
+          {
+            FieldPath: null,
+            ErrorCode: 'InvalidInput',
+            // Message is missing
+            Code: 403,
+            Details: null,
+            Index: 0,
+            Type: 'Error',
+            ForwardCompatibilityMap: null
+          }
+        ]
+      }
+    }
+
+    handleMultistatusResponse(msResponse, response as unknown as ModifiedResponse, items, listItemsMap, payload, true)
+
+    // Check that the default Message "No error message provided" is used
+    expect(msResponse.setErrorResponseAtIndex).toHaveBeenCalledWith(
+      0,
+      expect.objectContaining({
+        status: 403,
+        errormessage: 'InvalidInput: No error message provided'
+      })
+    )
+  })
+
+  it('uses default ErrorCode ("UnknownError") when ErrorCode is missing in partial errors', () => {
+    const msResponse = createMockMsResponse()
+    const items = ['item1']
+    const listItemsMap = new Map<string, number[]>([['item1', [0]]])
+    const payload: Payload[] = [
+      {
+        audience_id: 'a1',
+        identifier_type: 'Email',
+        email: 'test@example.com',
+        enable_batching: true,
+        batch_size: 1000,
+        traits_or_props: {},
+        audience_key: 'a1',
+        computation_class: 'Default'
+      }
+    ]
+
+    const response = {
+      data: {
+        PartialErrors: [
+          {
+            FieldPath: null,
+            // ErrorCode is missing
+            Message: 'The input is invalid',
+            Code: 403,
+            Details: null,
+            Index: 0,
+            Type: 'Error',
+            ForwardCompatibilityMap: null
+          }
+        ]
+      }
+    }
+
+    handleMultistatusResponse(msResponse, response as unknown as ModifiedResponse, items, listItemsMap, payload, true)
+
+    // Check that the default ErrorCode "UnknownError" is used
+    expect(msResponse.setErrorResponseAtIndex).toHaveBeenCalledWith(
+      0,
+      expect.objectContaining({
+        status: 403,
+        errormessage: 'UnknownError: The input is invalid'
+      })
+    )
+  })
+
+  it('uses default status code (400) when Code is missing in partial errors', () => {
+    const msResponse = createMockMsResponse()
+    const items = ['item1']
+    const listItemsMap = new Map<string, number[]>([['item1', [0]]])
+    const payload: Payload[] = [
+      {
+        audience_id: 'a1',
+        identifier_type: 'Email',
+        email: 'test@example.com',
+        enable_batching: true,
+        batch_size: 1000,
+        traits_or_props: {},
+        audience_key: 'a1',
+        computation_class: 'Default'
+      }
+    ]
+
+    const response = {
+      data: {
+        PartialErrors: [
+          {
+            FieldPath: null,
+            ErrorCode: 'InvalidInput',
+            Message: 'The input is invalid',
+            // Code is missing
+            Details: null,
+            Index: 0,
+            Type: 'Error',
+            ForwardCompatibilityMap: null
+          }
+        ]
+      }
+    }
+
+    handleMultistatusResponse(msResponse, response as unknown as ModifiedResponse, items, listItemsMap, payload, true)
+
+    // Check that the default status code 400 is used
+    expect(msResponse.setErrorResponseAtIndex).toHaveBeenCalledWith(
+      0,
+      expect.objectContaining({
+        status: 400, // Default value
+        errormessage: 'InvalidInput: The input is invalid'
       })
     )
   })
