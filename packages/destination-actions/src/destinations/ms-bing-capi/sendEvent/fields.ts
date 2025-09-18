@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
-import { getCurrencyChoices } from './sendEvent/utils'
+import { getCurrencyChoices } from './utils'
 
 export const userData: InputField = {
   label: 'User Data',
@@ -39,6 +39,16 @@ export const userData: InputField = {
       description: 'IP address of the client device.',
       type: 'string'
     },
+    gaid: {
+      label: 'Google Advertising ID',
+      description: 'Google Advertising ID for mobile app tracking.',
+      type: 'string'
+    },
+    idfa: {
+      label: 'IDFA',
+      description: 'Identifier for Advertisers for iOS devices for mobile app tracking.',
+      type: 'string'
+    },
     msclkid: {
       label: 'MSCLKID',
       description: 'Microsoft Last Click ID.',
@@ -68,7 +78,7 @@ export const userData: InputField = {
       '@if': {
         exists: { '@path': '$.properties.msclkid' },
         then: { '@path': '$.properties.msclkid' },
-        else: { '@path': '$.integrations.Ms Bing Capi.msclkid' }
+        else: { '@path': '$.integrations.Microsoft Bing CAPI.msclkid' }
       }
     }
   }
@@ -78,7 +88,6 @@ export const data: InputField = {
   label: 'Data',
   description: 'TODO - description for this field',
   type: 'object',
-  required: true,
   properties: {
     eventType: {
       label: 'Event Type',
@@ -111,7 +120,7 @@ export const data: InputField = {
       description: 'URL of the page, used for example: “destination URL” goals. Required for pageLoad events.',
       type: 'string',
       required: {
-        conditions: [{ fieldKey: 'eventDetails.eventType', operator: 'is', value: 'pageLoad' }]
+        conditions: [{ fieldKey: 'eventType', operator: 'is', value: 'pageLoad' }]
       }
     },
     pageLoadId: {
@@ -134,18 +143,22 @@ export const data: InputField = {
       description: 'Page keywords - SEO meta keyworls.',
       type: 'string'
     },
-    userData: {
-      label: 'User Data',
-      type: 'object'
-    },
-    customData: {
-      label: 'Custom Data',
-      type: 'object'
+    adStorageConsent: {
+      label: 'Ad Storage Consent',
+      description: 'Ad Storage Consent for GDPR compliance',
+      type: 'string',
+      choices: [
+        { label: 'Granted', value: 'G' },
+        { label: 'Denied', value: 'D' }
+      ],
+      default: 'G',
+      required: false
     }
   },
   default: {
-    eventType: { '@path': '$.properties.event_type' },
+    eventType: 'custom',
     eventId: { '@path': '$.messageId' },
+    eventTime: { '@path': '$.timestamp' },
     eventName: { '@path': '$.event' },
     eventSourceUrl: { '@path': '$.context.page.url' },
     pageLoadId: { '@path': '$.properties.page_load_id' },
@@ -160,6 +173,7 @@ export const items: InputField = {
   description: 'The list of items associated with the event. Must contain at least one item.',
   type: 'object',
   multiple: true,
+  additionalProperties: false, // TODO check if this is needed.
   required: false,
   properties: {
     id: {
@@ -321,9 +335,7 @@ export const customData: InputField = {
       label: 'Ecomm Category',
       description: 'Category ID',
       type: 'string'
-    },
-    items: items,
-    hotelData: hotelData
+    }
   },
   default: {
     eventCategory: { '@path': '$.properties.event_category' }, // ?? is this the correct default mapping?
@@ -338,4 +350,31 @@ export const customData: InputField = {
     ecommTotalValue: { '@path': '$.properties.ecomm_total_value' },
     ecommCategory: { '@path': '$.properties.ecomm_category' }
   }
+}
+
+export const timestamp: InputField = {
+  label: 'Event Timestamp',
+  description: 'Hidden field: The timestamp of the event.',
+  type: 'string',
+  default: { '@path': '$.timestamp' },
+  required: true,
+  readOnly: true,
+  unsafe_hidden: true
+}
+
+export const enable_batching: InputField = {
+  label: 'Enable Batching',
+  description: 'Enable batching for this action.',
+  type: 'boolean',
+  default: true,
+  readOnly: true
+}
+
+export const batch_size: InputField = {
+  label: 'Batch Size',
+  description: 'The max number of events to include in each batch.',
+  type: 'number',
+  default: 1000,
+  readOnly: true,
+  unsafe_hidden: true
 }

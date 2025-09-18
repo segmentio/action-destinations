@@ -4,6 +4,7 @@ import { Kafka, KafkaConfig, Partitioners } from 'kafkajs'
 import { producersByConfig, serializeKafkaConfig, getOrCreateProducer } from '../../utils'
 import { Settings } from '../../generated-types'
 import { Producer } from 'kafkajs'
+import { IntegrationError } from '@segment/actions-core/*'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -258,6 +259,118 @@ describe('Kafka.send', () => {
     expect(key).toBe(
       '{"clientId":"testClientId","brokers":["https://broker1:9092","https://broker2:9092"],"mechanism":"plain","username":"testUsername","password":"testPassword","accessKeyId":"testAccessKeyId","secretAccessKey":"testSecretAccessKey","authorizationIdentity":"testAuthorizationIdentity","ssl_ca":"testCACert","ssl_cert":"testCert","ssl_key":"testKey","ssl_reject_unauthorized_ca":true,"ssl_enabled":true}'
     )
+  })
+
+  it('logs and rethrows IntegrationError when Kafka constructor fails', async () => {
+    // Make Kafka constructor throw
+    ;(Kafka as unknown as jest.Mock).mockImplementationOnce(() => {
+      throw new IntegrationError('some settings error', 'Kafka Connection Error', 400)
+    })
+
+    const logger = { crit: jest.fn() } as any
+
+    try {
+      await testDestination.testAction('send', { ...(testData as any), logger })
+    } catch (error) {
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect((error as Error).message).toBe('Kafka Connection Error: some settings error')
+      expect((error as IntegrationError).status).toBe(400)
+    }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('Kafka Connection Error:'))
+  })
+
+  it('wraps producer connect errors and logs with critical level', async () => {
+    const err = new Error('connect failed')
+    err.name = 'KafkaJSError'
+
+    // Make connect reject for the next call
+    const producer = new (Kafka as unknown as jest.Mock)({} as KafkaConfig).producer()
+    ;(producer.connect as unknown as jest.Mock).mockRejectedValueOnce(err)
+
+    const logger = { crit: jest.fn() } as any
+
+    try {
+      await testDestination.testAction('send', { ...(testData as any), logger })
+    } catch (error) {
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect((error as Error).message).toBe('Kafka Connection Error - KafkaJSError: connect failed')
+      expect((error as IntegrationError).status).toBe(500)
+    }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('Kafka Connection Error'))
+  })
+
+  it('wraps producer send errors and logs with critical level', async () => {
+    // Ensure connect resolves
+    const producer = new (Kafka as unknown as jest.Mock)({} as KafkaConfig).producer()
+    ;(producer.connect as unknown as jest.Mock).mockResolvedValueOnce(undefined)
+
+    const err = new Error('broker unavailable')
+    err.name = 'KafkaJSError'
+    ;(producer.send as unknown as jest.Mock).mockRejectedValueOnce(err)
+
+    const logger = { crit: jest.fn() } as any
+
+    try {
+      await testDestination.testAction('send', { ...(testData as any), logger })
+    } catch (error) {
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect((error as Error).message).toBe('Kafka Producer Error - KafkaJSError: broker unavailable')
+      expect((error as IntegrationError).status).toBe(500)
+    }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('Kafka Send Error'))
+  })
+
+  it('extracts nested Kafka cause for connect errors', async () => {
+    const producer = new (Kafka as unknown as jest.Mock)({} as KafkaConfig).producer()
+    ;(producer.connect as unknown as jest.Mock).mockReset()
+
+    // Simulate a KafkaJSError with a nested cause coming from Kafka
+    const kafkaErr = new Error('outer wrapper error') as any
+    kafkaErr.name = 'KafkaJSError'
+    kafkaErr.cause = new Error('brokers down')
+    kafkaErr.cause.name = 'BrokerNotAvailable'
+    ;(producer.connect as unknown as jest.Mock).mockRejectedValueOnce(kafkaErr)
+
+    const logger = { crit: jest.fn() } as any
+
+    try {
+      await testDestination.testAction('send', { ...(testData as any), logger })
+    } catch (error) {
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect((error as IntegrationError).message).toBe('Kafka Connection Error - BrokerNotAvailable: brokers down')
+      expect((error as IntegrationError).status).toBe(500)
+    }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('BrokerNotAvailable'))
+  })
+
+  it('extracts nested Kafka cause for send errors', async () => {
+    const producer = new (Kafka as unknown as jest.Mock)({} as KafkaConfig).producer()
+    ;(producer.connect as unknown as jest.Mock).mockReset()
+    ;(producer.connect as unknown as jest.Mock).mockResolvedValueOnce(undefined)
+
+    // Simulate a KafkaJSError with a nested cause on send
+    const kafkaErr = new Error('outer wrapper error') as any
+    kafkaErr.name = 'KafkaJSError'
+    kafkaErr.cause = new Error('message too large')
+    kafkaErr.cause.name = 'MessageSizeTooLarge'
+    ;(producer.send as unknown as jest.Mock).mockReset()
+    ;(producer.send as unknown as jest.Mock).mockRejectedValueOnce(kafkaErr)
+
+    const logger = { crit: jest.fn() } as any
+
+    try {
+      await testDestination.testAction('send', { ...(testData as any), logger })
+    } catch (error) {
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect((error as IntegrationError).message).toBe('Kafka Producer Error - MessageSizeTooLarge: message too large')
+      expect((error as IntegrationError).status).toBe(500)
+    }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('MessageSizeTooLarge'))
   })
 })
 

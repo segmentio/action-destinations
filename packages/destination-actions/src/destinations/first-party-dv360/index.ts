@@ -11,7 +11,7 @@ import removeFromAudMobileDeviceId from './removeFromAudMobileDeviceId'
 import addToAudContactInfo from './addToAudContactInfo'
 import addToAudMobileDeviceId from './addToAudMobileDeviceId'
 import { _CreateAudienceInput, _GetAudienceInput } from './types'
-import { FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE } from './functions'
+import { FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE } from './properties'
 
 export interface RefreshTokenResponse {
   access_token: string

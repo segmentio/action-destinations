@@ -21,6 +21,71 @@ const event = createTestEvent({
 })
 
 describe('First-Party-dv360.addToAudMobileDeviceId', () => {
+  it('should use v4 endpoint when feature flag is ON', async () => {
+    nock('https://displayvideo.googleapis.com/v4/firstPartyAndPartnerAudiences')
+      .post('/1234567890:editCustomerMatchMembers')
+      .reply(200, { firstPartyAndPartnerAudienceId: '1234567890' })
+
+    const responses = await testDestination.testAction('addToAudMobileDeviceId', {
+      event,
+      mapping: {
+        mobileDeviceIds: ['test-id'],
+        external_id: '1234567890',
+        advertiser_id: '1234567890',
+        enable_batching: false,
+        batch_size: 1
+      },
+      features: { 'actions-first-party-dv360-version-update': true }
+    })
+
+    expect(JSON.parse(responses[0].options.body as string)).toMatchInlineSnapshot(`
+      Object {
+        "addedMobileDeviceIdList": Object {
+          "consent": Object {
+            "adPersonalization": "CONSENT_STATUS_GRANTED",
+            "adUserData": "CONSENT_STATUS_GRANTED",
+          },
+          "mobileDeviceIds": Array [
+            "test-id",
+          ],
+        },
+        "advertiserId": "1234567890",
+      }
+    `)
+  })
+
+  it('should use v3 endpoint when feature flag is OFF', async () => {
+    nock('https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences')
+      .post('/1234567890:editCustomerMatchMembers')
+      .reply(200, { firstAndThirdPartyAudienceId: '1234567890' })
+
+    const responses = await testDestination.testAction('addToAudMobileDeviceId', {
+      event,
+      mapping: {
+        mobileDeviceIds: ['test-id'],
+        external_id: '1234567890',
+        advertiser_id: '1234567890',
+        enable_batching: false,
+        batch_size: 1
+      },
+      features: { 'actions-first-party-dv360-version-update': false }
+    })
+
+    expect(JSON.parse(responses[0].options.body as string)).toMatchInlineSnapshot(`
+      Object {
+        "addedMobileDeviceIdList": Object {
+          "consent": Object {
+            "adPersonalization": "CONSENT_STATUS_GRANTED",
+            "adUserData": "CONSENT_STATUS_GRANTED",
+          },
+          "mobileDeviceIds": Array [
+            "test-id",
+          ],
+        },
+        "advertiserId": "1234567890",
+      }
+    `)
+  })
   it('should addToAudMobileDeviceId', async () => {
     nock('https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences')
       .post('/1234567890:editCustomerMatchMembers')
