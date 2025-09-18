@@ -82,9 +82,6 @@ export class Client {
   }
 
   async readList(name: string) {
-
-    console.log(`readlist(): ` + `GET: ${HUBSPOT_BASE_URL}/crm/v3/lists/object-type-id/${this.objectType}/name/${name}`) 
-
     const response = await this.request<ReadListResp>(
       `${HUBSPOT_BASE_URL}/crm/v3/lists/object-type-id/${this.objectType}/name/${name}`,
       {
@@ -95,9 +92,6 @@ export class Client {
   }
 
   async createList(json: CreateListReq) {
-
-    console.log(`createList(): ` + `POST: ${HUBSPOT_BASE_URL}/crm/v3/lists` + ` with body: ${JSON.stringify(json)}`)
-
     const response = await this.request<CreateListResp>(`${HUBSPOT_BASE_URL}/crm/v3/lists`, {
       method: 'POST',
       json
@@ -105,9 +99,7 @@ export class Client {
     return response
   }
 
-  async addRemoveFromList(listId: string, json: AddRemoveFromListReq) {
-    console.log(`addRemoveFromList(): ` + `PUT: ${HUBSPOT_BASE_URL}/crm/v3/lists/${listId}/memberships/add-and-remove` + ` with body: ${JSON.stringify(json)}`) 
- 
+  async addRemoveFromList(listId: string, json: AddRemoveFromListReq) { 
     const response = await this.request<CreateListResp>(
       `${HUBSPOT_BASE_URL}/crm/v3/lists/${listId}/memberships/add-and-remove`,
       {

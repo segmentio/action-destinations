@@ -3,6 +3,7 @@ import { createTestEvent, createTestIntegration, SegmentEvent, JSONObject } from
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 import { HUBSPOT_BASE_URL } from '../../properties'
+import { schemaCache, listCache } from '../functions/cache-functions'
 
 let testDestination = createTestIntegration(Definition)
 const settings: Settings = {}
@@ -234,6 +235,8 @@ const upsertObjectResp = {
 beforeEach((done) => {
   testDestination = createTestIntegration(Definition)
   nock.cleanAll()
+  schemaCache.clear()
+  listCache.clear()
   done()
 })
 
@@ -377,6 +380,222 @@ describe('Hubspot.upsertObject', () => {
       })
 
       expect(responses.length).toBe(6)
+    })
+
+    it('should not create a List if it is in the LRU Cache.', async () => {
+      const subscriptionMetadata = {
+        // cache key for testing
+        actionConfigId: 'test-cache-key'
+      }
+      
+      // To simplify this test properties and sensitive_properties are excluded
+      const modifiedPayload = { 
+        ...payload, 
+        properties: {    
+          contact_list_2: true,
+          email: 'test@test.com'
+        }
+      } as Partial<SegmentEvent>
+
+      nock(HUBSPOT_BASE_URL)
+        .get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`)
+        .reply(200, {
+          list: {
+            listId: '21',
+            processingType: 'MANUAL',
+            objectTypeId: '0-2',
+            name: 'contact_list_2'
+          }
+        })
+
+      nock(HUBSPOT_BASE_URL)
+        .put(`/crm/v3/lists/21/memberships/add-and-remove`, {
+          recordIdsToAdd: ['62102303560'],
+          recordIdsToRemove: []
+        })
+        .reply(200)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/contact/batch/upsert',
+          {inputs:[{idProperty:"email",id:"test@test.com",properties:{email:"test@test.com"}}]})
+        .reply(200, upsertObjectResp)
+
+      const responses = await testDestination.testAction('upsertObject', {
+        event: modifiedPayload,
+        settings,
+        useDefaultMappings: true,
+        mapping,
+        features: { 'actions-hubspot-lists-association-support': true },
+        subscriptionMetadata
+      })
+
+      nock(HUBSPOT_BASE_URL)
+        .put(`/crm/v3/lists/21/memberships/add-and-remove`, {
+          recordIdsToAdd: ['62102303560'],
+          recordIdsToRemove: []
+        })
+        .reply(200)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/contact/batch/upsert',
+          {inputs:[{idProperty:"email",id:"test@test.com",properties:{email:"test@test.com"}}]})
+        .reply(200, upsertObjectResp)
+
+      const responses2 = await testDestination.testAction('upsertObject', {
+        event: modifiedPayload,
+        settings,
+        useDefaultMappings: true,
+        mapping,
+        features: { 'actions-hubspot-lists-association-support': true },
+        subscriptionMetadata
+      })
+
+      expect(responses.length).toBe(3)
+      expect(responses2.length).toBe(2)
+    })
+
+    it('should batch events together and update Lists correctly (List already exists in Hubspot)', async () => {      
+      // To simplify this test properties and sensitive_properties are excluded
+      const modifiedPayload = { 
+        ...payload, 
+        properties: {    
+          contact_list_2: true,
+          email: 'test@test.com'
+        }
+      } as SegmentEvent
+
+      const modifiedPayload2 = { 
+        ...payload, 
+        properties: {    
+          contact_list_2: false,
+          email: 'test2@test.com'
+        }
+      } as SegmentEvent
+
+      const modifiedUpsertObjectResp = {
+        results: [
+          {
+            id: '62102303560',
+            properties: {
+              email: 'test@test.com'
+            }
+          },
+          {
+            id: '999999898989',
+            properties: {
+              email: 'test2@test.com'
+            }
+          }
+        ]
+      }
+
+      nock(HUBSPOT_BASE_URL)
+        .get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`)
+        .reply(200, {
+          list: {
+            listId: '21',
+            processingType: 'MANUAL',
+            objectTypeId: '0-2',
+            name: 'contact_list_2'
+          }
+        })
+
+      nock(HUBSPOT_BASE_URL)
+        .put(`/crm/v3/lists/21/memberships/add-and-remove`, {
+          recordIdsToAdd: ['62102303560'],
+          recordIdsToRemove: ['999999898989']
+        })
+        .reply(200)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/contact/batch/upsert',
+          {inputs:[{idProperty:"email",id:"test@test.com",properties:{email:"test@test.com"}}, {idProperty:"email",id:"test2@test.com",properties:{email:"test2@test.com"}}]})
+        .reply(200, modifiedUpsertObjectResp)
+
+      const responses = await testDestination.testBatchAction('upsertObject', {
+        events: [modifiedPayload, modifiedPayload2],
+        settings,
+        useDefaultMappings: true,
+        mapping,
+        features: { 'actions-hubspot-lists-association-support': true }
+      })
+
+      expect(responses.length).toBe(3)
+    })
+
+    it('should batch events together and update Lists correctly (List does not already exist in Hubspot)', async () => {
+      // To simplify this test properties and sensitive_properties are excluded
+      const modifiedPayload = { 
+        ...payload, 
+        properties: {    
+          contact_list_2: true,
+          email: 'test@test.com'
+        }
+      } as SegmentEvent
+
+      const modifiedPayload2 = { 
+        ...payload, 
+        properties: {    
+          contact_list_2: true,
+          email: 'test2@test.com'
+        }
+      } as SegmentEvent
+
+      const modifiedUpsertObjectResp = {
+        results: [
+          {
+            id: '62102303560',
+            properties: {
+              email: 'test@test.com'
+            }
+          },
+          {
+            id: '999999898989',
+            properties: {
+              email: 'test2@test.com'
+            }
+          }
+        ]
+      }
+
+      nock(HUBSPOT_BASE_URL)
+        .get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`)
+        .reply(400, {
+          status: 'error',
+          message: 'List does not exist with name contact_list_2 and object type ID 0-2.'
+        })
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/lists', {name: "contact_list_2", objectTypeId: "contact", processingType: "MANUAL"})
+        .reply(200, {
+          list: {
+            listId: "21",
+            objectTypeId: "0-2",
+            name: "contact_list_2"
+          }
+        })
+
+      nock(HUBSPOT_BASE_URL)
+        .put(`/crm/v3/lists/21/memberships/add-and-remove`, {
+          recordIdsToAdd: ['62102303560', '999999898989'],
+          recordIdsToRemove: []
+        })
+        .reply(200)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/contact/batch/upsert',
+          {inputs:[{idProperty:"email",id:"test@test.com",properties:{email:"test@test.com"}}, {idProperty:"email",id:"test2@test.com",properties:{email:"test2@test.com"}}]})
+        .reply(200, modifiedUpsertObjectResp)
+
+      const responses = await testDestination.testBatchAction('upsertObject', {
+        events: [modifiedPayload, modifiedPayload2],
+        settings,
+        useDefaultMappings: true,
+        mapping,
+        features: { 'actions-hubspot-lists-association-support': true }
+      })
+
+      expect(responses.length).toBe(4)
     })
   })
 
@@ -597,8 +816,6 @@ describe('Hubspot.upsertObject', () => {
 
       expect(responses.length).toBe(6)
     })
-
-    
   })
 })
 
