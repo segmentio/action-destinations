@@ -354,6 +354,56 @@ describe('Kafka.send', () => {
 
     expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('Kafka Send Error'))
   })
+
+  it('extracts nested Kafka cause for connect errors', async () => {
+    const producer = new (Kafka as unknown as jest.Mock)({} as KafkaConfig).producer()
+    ;(producer.connect as unknown as jest.Mock).mockReset()
+
+    // Simulate a KafkaJSError with a nested cause coming from Kafka
+    const kafkaErr = new Error('outer wrapper error') as any
+    kafkaErr.name = 'KafkaJSError'
+    kafkaErr.cause = new Error('brokers down')
+    kafkaErr.cause.name = 'BrokerNotAvailable'
+    ;(producer.connect as unknown as jest.Mock).mockRejectedValueOnce(kafkaErr)
+
+    const logger = { crit: jest.fn() } as any
+
+    try {
+      await testDestination.testAction('send', { ...(testData as any), logger })
+    } catch (error) {
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect((error as IntegrationError).message).toBe('Kafka Connection Error - BrokerNotAvailable: brokers down')
+      expect((error as IntegrationError).status).toBe(500)
+    }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('BrokerNotAvailable'))
+  })
+
+  it('extracts nested Kafka cause for send errors', async () => {
+    const producer = new (Kafka as unknown as jest.Mock)({} as KafkaConfig).producer()
+    ;(producer.connect as unknown as jest.Mock).mockReset()
+    ;(producer.connect as unknown as jest.Mock).mockResolvedValueOnce(undefined)
+
+    // Simulate a KafkaJSError with a nested cause on send
+    const kafkaErr = new Error('outer wrapper error') as any
+    kafkaErr.name = 'KafkaJSError'
+    kafkaErr.cause = new Error('message too large')
+    kafkaErr.cause.name = 'MessageSizeTooLarge'
+    ;(producer.send as unknown as jest.Mock).mockReset()
+    ;(producer.send as unknown as jest.Mock).mockRejectedValueOnce(kafkaErr)
+
+    const logger = { crit: jest.fn() } as any
+
+    try {
+      await testDestination.testAction('send', { ...(testData as any), logger })
+    } catch (error) {
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect((error as IntegrationError).message).toBe('Kafka Producer Error - MessageSizeTooLarge: message too large')
+      expect((error as IntegrationError).status).toBe(500)
+    }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('MessageSizeTooLarge'))
+  })
 })
 
 describe('getOrCreateProducer', () => {
