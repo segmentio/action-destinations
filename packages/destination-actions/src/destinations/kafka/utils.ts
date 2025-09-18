@@ -180,6 +180,14 @@ export const getOrCreateProducer = async (
   return producer
 }
 
+function getKafkaError(error: Error) {
+  const errorCause = (error as KafkaJSError)?.cause
+  if (errorCause) {
+    return errorCause
+  }
+  return error
+}
+
 export const sendData = async (
   settings: Settings,
   payload: Payload[],
@@ -229,14 +237,18 @@ export const sendData = async (
       await producer.connect()
     }
   } catch (error) {
-    logger?.crit(`Kafka Connection Error - ${(error as Error).name}: ${(error as Error).stack}`)
     if ((error as Error).name !== 'IntegrationError') {
+      const kafkaError = getKafkaError(error as Error)
+      logger?.crit(
+        `Kafka Connection Error - ${kafkaError.name} | ${JSON.stringify(kafkaError)} | stack: ${kafkaError.stack}`
+      )
       throw new IntegrationError(
-        `Kafka Connection Error - ${(error as Error).name}: ${(error as Error).message}`,
-        (error as Error)?.name,
+        `Kafka Connection Error - ${kafkaError.name}: ${kafkaError.message}`,
+        kafkaError.name,
         500
       )
     } else {
+      logger?.crit(`Kafka Connection Error - ${error.name}: ${error as Error}`)
       throw error
     }
   }
@@ -245,10 +257,11 @@ export const sendData = async (
     try {
       await producer.send(data as ProducerRecord)
     } catch (error) {
-      logger?.crit(`Kafka Send Error - ${(error as Error).name}: ${(error as Error).stack}`)
+      const kafkaError = getKafkaError(error as Error)
+      logger?.crit(`Kafka Send Error - ${kafkaError.name} | ${JSON.stringify(kafkaError)} | stack: ${kafkaError.stack}`)
       throw new IntegrationError(
-        `Kafka Producer Error - ${(error as Error).name}: ${(error as Error).message}`,
-        (error as Error)?.name,
+        `Kafka Producer Error - ${kafkaError.name}: ${kafkaError.message}`,
+        kafkaError.name,
         500
       )
     }
