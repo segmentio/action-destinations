@@ -3,9 +3,9 @@ import camelCase from 'lodash/camelCase'
 import isEmpty from 'lodash/isEmpty'
 import { Payload } from './generated-types'
 import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes, stringifyMappingSchemaForGraphQL } from '../functions'
-import { getFieldsToMap, getFieldTypes, PROFILE_DEFAULT_FIELDS } from '../profile-fields'
+import { getDefaultFieldsToMap, getDefaultFieldTypes, PROFILE_DEFAULT_FIELDS } from '../profile-fields'
 
-const standardFields = getFieldsToMap()
+const standardFields = getDefaultFieldsToMap()
 
 interface Mapping {
   incomingKey: string
@@ -16,8 +16,8 @@ interface Mapping {
 }
 
 export async function performForwardProfiles(request: RequestClient, events: Payload[]) {
-  const fieldsToMap: Set<string> = getFieldsToMap()
-  const fieldTypes: Record<string, string> = getFieldTypes()
+  const fieldsToMap: Set<string> = getDefaultFieldsToMap()
+  const fieldTypes: Record<string, string> = getDefaultFieldTypes()
   const advertiserId = events[0].advertiser_id
   const profileUpdates = events.flatMap((event) => {
     const { event_type, previous_id, user_id, traits } = event
@@ -76,13 +76,20 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
   function processTraits(traits: Record<string, unknown>) {
     // Convert trait keys to camelCase and capture any non-standard fields as mappings
     return Object.keys(traits).reduce((acc: Record<string, unknown>, key) => {
+      const value = traits[key]
+      
+      // Skip if key is empty string or value is empty string
+      if (key === '' || value === '') {
+        return acc
+      }
+      
       const camelCaseKey = camelCase(key)
-      acc[camelCaseKey] = traits[key]
+      acc[camelCaseKey] = value
       if (!standardFields.has(camelCaseKey)) {
         fieldsToMap.add(camelCaseKey)
         // Field type should be the most specific type of the values we've seen so far, use string if there is a conflict of types
-        if (traits[key] || traits[key] === 0) {
-          const type = getType(traits[key])
+        if (value || value === 0) {
+          const type = getType(value)
           if (fieldTypes[camelCaseKey] && fieldTypes[camelCaseKey] !== type) {
             fieldTypes[camelCaseKey] = 'STRING'
           } else {

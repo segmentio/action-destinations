@@ -118,11 +118,11 @@ export const PROFILE_DEFAULT_FIELDS: ProfileFieldConfig[] = [
 ]
 
 // Utility functions to extract data from the configuration
-export const getFieldsToMap = (): Set<string> => {
+export const getDefaultFieldsToMap = (): Set<string> => {
   return new Set(PROFILE_DEFAULT_FIELDS.map(field => field.key))
 }
 
-export const getFieldTypes = (): Record<string, string> => {
+export const getDefaultFieldTypes = (): Record<string, string> => {
   return PROFILE_DEFAULT_FIELDS.reduce((acc, field) => {
     acc[field.key] = field.type.toUpperCase()
     return acc
