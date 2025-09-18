@@ -1,6 +1,17 @@
 import { InputField } from '@segment/actions-core'
+import { VEHICLE_FIELDS, TRAVEL_FIELDS, CRM } from '../constants'
 
 export const commonFields: Record<string, InputField> = {
+  event_spec_type: {
+    label: 'Additional Fields',
+    type: 'string',
+    description: 'Include fields for travel or vehicle events.',
+    choices: [
+      { value: CRM, label: 'CRM Fields' },
+      { value: TRAVEL_FIELDS, label: 'Travel Fields' },
+      { value: VEHICLE_FIELDS, label: 'Vehicle Fields' }
+    ]
+  },
   event: {
     label: 'Event Name',
     type: 'string',
@@ -195,6 +206,24 @@ export const commonFields: Record<string, InputField> = {
       }
     }
   },
+  content_ids: {
+    label: 'Content IDs',
+    description:
+      "Product IDs associated with the event, such as SKUs. Do not populate this field if the 'Contents' field is populated. This field accepts a single string value or an array of string values.",
+    type: 'string',
+    multiple: true,
+    default: {
+      '@path': '$.properties.content_ids'
+    }
+  },
+  num_items: {
+    label: 'Number of Items',
+    type: 'number',
+    description: 'Number of items when checkout was initiated. Used with the InitiateCheckout event.',
+    default: {
+      '@path': '$.properties.num_items'
+    }
+  },
   content_type: {
     label: 'Content Type',
     description:
@@ -237,6 +266,23 @@ export const commonFields: Record<string, InputField> = {
     description: 'The text string that was searched for.',
     default: {
       '@path': '$.properties.query'
+    }
+  },
+  search_string: {
+    label: 'Search String',
+    type: 'string',
+    description: 'The text string entered by the user for the search. Optionally used with the Search event.',
+    default: {
+      '@path': '$.properties.search_string'
+    },
+    depends_on: {
+      conditions: [
+        {
+          fieldKey: 'event',
+          operator: 'is',
+          value: 'Search'
+        }
+      ]
     }
   }
 }

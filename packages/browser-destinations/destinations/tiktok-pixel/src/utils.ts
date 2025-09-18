@@ -1,0 +1,2 @@
+
+// function getUser(payload: Payload)

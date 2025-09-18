@@ -3,7 +3,10 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { formatPhone, handleArrayInput, formatString, formatAddress } from '../formatter'
 import { TikTokPixel } from '../types'
-import { commonFields } from '../common_fields'
+import { commonFields } from './fields/common_fields'
+import { crm_fields } from './fields/crm_fields'
+import { travel_fields } from './fields/travel_fields'
+import { vehicle_fields } from './fields/vehicle_fields'
 
 const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
   title: 'Report Web Event',
@@ -12,11 +15,14 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
   platform: 'web',
   defaultSubscription: 'type = "track"',
   fields: {
-    ...commonFields
+    ...commonFields,
+    ...crm_fields,
+    vehicle_fields,
+    travel_fields
   },
   perform: (ttq, { payload, settings }) => {
     if (payload.email || payload.phone_number || payload.external_id) {
-      ttq.identify({
+      ttq.instance(settings.pixelCode).identify({
         email: handleArrayInput(payload.email),
         phone_number: formatPhone(handleArrayInput(payload.phone_number)),
         external_id: handleArrayInput(payload.external_id),

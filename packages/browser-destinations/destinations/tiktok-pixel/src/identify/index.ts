@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { formatPhone, handleArrayInput, formatString, formatAddress } from '../formatter'
 import { TikTokPixel } from '../types'
-import { commonFields } from '../common_fields'
+import { commonFields } from '../reportWebEvent/fields/common_fields'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {

@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * Include fields for travel or vehicle events.
+   */
+  event_spec_type?: string
+  /**
    * Conversion event name. Please refer to the "Supported Web Events" section on in TikTok’s [Pixel SDK documentation](https://business-api.tiktok.com/portal/docs?id=1739585696931842) for accepted event names.
    */
   event: string
@@ -88,6 +92,14 @@ export interface Payload {
     brand?: string
   }[]
   /**
+   * Product IDs associated with the event, such as SKUs. Do not populate this field if the 'Contents' field is populated. This field accepts a single string value or an array of string values.
+   */
+  content_ids?: string[]
+  /**
+   * Number of items when checkout was initiated. Used with the InitiateCheckout event.
+   */
+  num_items?: number
+  /**
    * Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.
    */
   content_type?: string
@@ -107,4 +119,8 @@ export interface Payload {
    * The text string that was searched for.
    */
   query?: string
+  /**
+   * The text string entered by the user for the search. Optionally used with the Search event.
+   */
+  search_string?: string
 }
