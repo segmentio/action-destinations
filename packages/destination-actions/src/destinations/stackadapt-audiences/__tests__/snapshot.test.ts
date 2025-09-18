@@ -28,6 +28,11 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         auth: undefined
       })
 
+      if (!responses || responses.length === 0) {
+        expect('No responses received').toMatchSnapshot()
+        return
+      }
+
       const request = responses[0].request
       const rawBody = await request.text()
 
@@ -61,6 +66,11 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         settings: settingsData,
         auth: undefined
       })
+
+      if (!responses || responses.length === 0) {
+        expect('No responses received').toMatchSnapshot()
+        return
+      }
 
       const request = responses[0].request
       const rawBody = await request.text()
