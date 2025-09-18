@@ -76,7 +76,6 @@ const send = async (
   let shouldCreateList: boolean | undefined = false
   
   const client = new Client(request, objectType)
-
   const validPayloads = validate(payloads, flag)
 
   if(flag){

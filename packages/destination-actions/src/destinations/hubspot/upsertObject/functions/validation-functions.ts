@@ -1,7 +1,7 @@
 import { PayloadValidationError, StatsContext } from '@segment/actions-core'
 import { Payload } from '../generated-types'
 import { Association } from '../types'
-import { isEngageAudiencePayload } from '../functions/hubspot-list-functions'
+import { getListPayloadType, getListName } from '../functions/hubspot-list-functions'
 
 export function validate(payloads: Payload[], flag?: boolean): Payload[] {
   const length = payloads.length
@@ -22,13 +22,22 @@ export function validate(payloads: Payload[], flag?: boolean): Payload[] {
   }
 
   if(flag === true){
-    // check that all payloads are either engage audience or not
-    const allEngageAudience = cleaned.every(isEngageAudiencePayload)
-    const noneEngageAudience = cleaned.every((p) => !isEngageAudiencePayload(p))
+    const hasEngageAudience = cleaned.some((p) => getListPayloadType(p) === 'is_engage_audience_payload') 
+    const hasNonEngageAudience = cleaned.some((p) => getListPayloadType(p) === 'is_non_engage_audience_payload') 
     
-    if(!(allEngageAudience || noneEngageAudience)){
+    if(hasEngageAudience && hasNonEngageAudience){
       throw new PayloadValidationError(
         'Engage and non Engage payloads cannot be mixed in the same batch.'
+      )
+    }
+
+    const listNames = Array.from(
+      new Set(cleaned.map((p) => getListName(p)).filter(Boolean))
+    )
+
+    if(listNames.length > 1){
+      throw new PayloadValidationError(
+        `When updating List membership, all payloads must reference the same list. Found multiple lists in the batch: ${listNames.slice(0, 3).join(', ')}`
       )
     }
   }
@@ -57,6 +66,7 @@ export function validate(payloads: Payload[], flag?: boolean): Payload[] {
       return fieldsToCheck.every((field) => field !== null && field !== '')
     })
   })
+  
   return cleaned
 }
 

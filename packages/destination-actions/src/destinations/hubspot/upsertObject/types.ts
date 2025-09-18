@@ -286,3 +286,5 @@ export type EngageAudiencePayload = Payload & {
   }
   computation_key: string
 }
+
+export type PayloadListType = 'is_engage_audience_payload' | 'is_non_engage_audience_payload' | 'is_not_audience_payload'
