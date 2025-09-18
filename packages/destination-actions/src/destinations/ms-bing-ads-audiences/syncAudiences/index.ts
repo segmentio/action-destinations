@@ -71,8 +71,8 @@ const syncUser = async (request: RequestClient, payload: Payload[], isBatch: boo
   // Audience ID value is static for every batch as it's set in the batch keys array
   const audienceId = payload[0]?.audience_id
 
-  const addMap: Map<string, number> = new Map()
-  const removeMap: Map<string, number> = new Map()
+  const addMap: Map<string, number[]> = new Map()
+  const removeMap: Map<string, number[]> = new Map()
 
   categorizePayloadByAction(payload, addMap, removeMap)
 
@@ -98,7 +98,7 @@ const syncUser = async (request: RequestClient, payload: Payload[], isBatch: boo
       throw error
     }
     if (error instanceof HTTPError) {
-      await handleHttpError(msResponse, error, new Map([...addMap, ...removeMap]), payload)
+      await handleHttpError(msResponse, error, new Map([...addMap.entries(), ...removeMap.entries()]), payload)
     } else {
       throw error
     }

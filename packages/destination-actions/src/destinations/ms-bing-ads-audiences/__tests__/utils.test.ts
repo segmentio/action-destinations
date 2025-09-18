@@ -4,7 +4,8 @@ import {
   preparePayload,
   sendDataToMicrosoftBingAds,
   handleHttpError,
-  handleMultistatusResponse
+  handleMultistatusResponse,
+  categorizePayloadByAction
 } from '../utils'
 import { BASE_URL } from '../constants'
 import { MultiStatusResponse, HTTPError, RequestClient, IntegrationError } from '@segment/actions-core'
@@ -47,6 +48,56 @@ describe('preparePayload', () => {
   })
 })
 
+describe('categorizePayloadByAction', () => {
+  it('handles duplicate identifiers correctly', () => {
+    const payload: Payload[] = [
+      {
+        audience_id: 'a1',
+        identifier_type: 'Email',
+        email: 'test@example.com',
+        enable_batching: true,
+        batch_size: 1000,
+        traits_or_props: { a1: true },
+        audience_key: 'a1',
+        computation_class: 'Default'
+      },
+      {
+        audience_id: 'a1',
+        identifier_type: 'Email',
+        email: 'test@example.com', // Same email as first payload
+        enable_batching: true,
+        batch_size: 1000,
+        traits_or_props: { a1: true },
+        audience_key: 'a1',
+        computation_class: 'Default'
+      },
+      {
+        audience_id: 'a1',
+        identifier_type: 'Email',
+        email: 'other@example.com',
+        enable_batching: true,
+        batch_size: 1000,
+        traits_or_props: {},
+        audience_key: 'a1',
+        computation_class: 'Default'
+      }
+    ]
+
+    const addMap: Map<string, number[]> = new Map()
+    const removeMap: Map<string, number[]> = new Map()
+
+    categorizePayloadByAction(payload, addMap, removeMap)
+
+    const hashedEmail = hashEmail('test@example.com')
+    const hashedOtherEmail = hashEmail('other@example.com')
+
+    expect(addMap.get(hashedEmail)).toEqual([0, 1])
+
+    // Check that the remove map contains the index for the other email
+    expect(removeMap.get(hashedOtherEmail)).toEqual([2])
+  })
+})
+
 describe('sendDataToMicrosoftBingAds', () => {
   it('sends data to Microsoft Bing Ads', async () => {
     nock(BASE_URL).post('/CustomerListUserData/Apply', { foo: 'bar' }).reply(200, { ok: true })
@@ -64,7 +115,7 @@ describe('sendDataToMicrosoftBingAds', () => {
 describe('handleHttpError', () => {
   it('sets error responses for all items', async () => {
     const msResponse = createMockMsResponse()
-    const listItemsMap = new Map<string, number>([['abc', 0]])
+    const listItemsMap = new Map<string, number[]>([['abc', [0]]])
     const payload: Payload[] = [
       {
         audience_id: 'a1',
@@ -100,7 +151,7 @@ describe('handleMultistatusResponse', () => {
   it('throws IntegrationError when not in batch mode and there are partial errors', () => {
     const msResponse = createMockMsResponse()
     const items = ['item1']
-    const listItemsMap = new Map<string, number>([['item1', 0]])
+    const listItemsMap = new Map<string, number[]>([['item1', [0]]])
     const payload: Payload[] = [
       {
         audience_id: 'a1',
@@ -146,10 +197,10 @@ describe('handleMultistatusResponse', () => {
   it('processes partial errors in batch mode', () => {
     const msResponse = createMockMsResponse()
     const items = ['item1', 'item2', 'item3']
-    const listItemsMap = new Map<string, number>([
-      ['item1', 0],
-      ['item2', 1],
-      ['item3', 2]
+    const listItemsMap = new Map<string, number[]>([
+      ['item1', [0]],
+      ['item2', [1]],
+      ['item3', [2]]
     ])
     const payload: Payload[] = [
       {
@@ -230,9 +281,9 @@ describe('handleMultistatusResponse', () => {
   it('marks all items as successful when there are no partial errors', () => {
     const msResponse = createMockMsResponse()
     const items = ['item1', 'item2']
-    const listItemsMap = new Map<string, number>([
-      ['item1', 0],
-      ['item2', 1]
+    const listItemsMap = new Map<string, number[]>([
+      ['item1', [0]],
+      ['item2', [1]]
     ])
     const payload: Payload[] = [
       {
@@ -279,7 +330,7 @@ describe('handleMultistatusResponse', () => {
   it('handles partial errors with invalid indices', () => {
     const msResponse = createMockMsResponse()
     const items = ['item1']
-    const listItemsMap = new Map<string, number>([['item1', 0]])
+    const listItemsMap = new Map<string, number[]>([['item1', [0]]])
     const payload: Payload[] = [
       {
         audience_id: 'a1',
@@ -317,6 +368,69 @@ describe('handleMultistatusResponse', () => {
       0,
       expect.objectContaining({
         status: 200
+      })
+    )
+  })
+
+  it('handles duplicate identifiers correctly in partial errors', () => {
+    const msResponse = createMockMsResponse()
+    const items = ['dupItem']
+    const listItemsMap = new Map<string, number[]>([['dupItem', [0, 1]]]) // dupItem maps to two payload indices
+    const payload: Payload[] = [
+      {
+        audience_id: 'a1',
+        identifier_type: 'Email',
+        email: 'test@example.com',
+        enable_batching: true,
+        batch_size: 1000,
+        traits_or_props: {},
+        audience_key: 'a1',
+        computation_class: 'Default'
+      },
+      {
+        audience_id: 'a1',
+        identifier_type: 'Email',
+        email: 'test@example.com',
+        enable_batching: true,
+        batch_size: 1000,
+        traits_or_props: {},
+        audience_key: 'a1',
+        computation_class: 'Default'
+      }
+    ]
+
+    const response = {
+      data: {
+        PartialErrors: [
+          {
+            FieldPath: null,
+            ErrorCode: 'InvalidInput',
+            Message: 'The input is invalid',
+            Code: 400,
+            Details: null,
+            Index: 0,
+            Type: 'Error',
+            ForwardCompatibilityMap: null
+          }
+        ]
+      }
+    }
+
+    handleMultistatusResponse(msResponse, response as any as ModifiedResponse, items, listItemsMap, payload, true)
+
+    // Check that the error item was handled correctly
+    expect(msResponse.setErrorResponseAtIndex).toHaveBeenCalledWith(
+      0,
+      expect.objectContaining({
+        status: 400,
+        errormessage: 'InvalidInput: The input is invalid'
+      })
+    )
+    expect(msResponse.setErrorResponseAtIndex).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({
+        status: 400,
+        errormessage: 'InvalidInput: The input is invalid'
       })
     )
   })
