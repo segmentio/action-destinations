@@ -1,4 +1,4 @@
-import { IntegrationError, PayloadValidationError, RequestClient } from '@segment/actions-core'
+import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import type { Payload } from './syncUserData/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
 import type { AudienceSettings, Settings } from './generated-types'
@@ -60,7 +60,6 @@ export async function syncAudienceMembers(
   audienceSettings: AudienceSettings
 ) {
   const accessToken = await getDataPartnerToken()
-  if (!accessToken) throw new IntegrationError('Missing access token.', 'ACCESS_TOKEN_MISSING', 401)
   const audienceEnteredPayloads = payloads.filter((payload) => payload.event_name === 'Audience Entered')
   const audienceExitedPayloads = payloads.filter((payload) => payload.event_name === 'Audience Exited')
   const audienceEnteredBody =
@@ -69,6 +68,12 @@ export async function syncAudienceMembers(
       : undefined
   const audienceExitedBody =
     audienceExitedPayloads.length > 0 ? buildRequestBody(audienceExitedPayloads, settings, audienceSettings) : undefined
+  console.log('audienceEnteredBody', JSON.stringify(audienceEnteredBody, null, 2))
+  console.log('audienceExitedBody', JSON.stringify(audienceExitedBody, null, 2))
+
+  if (!audienceEnteredBody && !audienceExitedBody) {
+    throw new PayloadValidationError('No valid payloads to process. Ensure event_name is set correctly.')
+  }
 
   const responses = []
   if (audienceEnteredBody !== undefined) {
@@ -97,6 +102,7 @@ export async function syncAudienceMembers(
       })
     )
   }
+  console.log('responses', JSON.stringify(responses, null, 2))
   return responses.length === 1 ? responses[0] : responses
 }
 

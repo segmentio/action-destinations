@@ -11,16 +11,6 @@ export const external_id: InputField = {
   unsafe_hidden: true
 }
 
-export const advertiser_id: InputField = {
-  label: 'Advertiser ID',
-  description: 'The Advertiser ID associated with the DV360 Audience.',
-  type: 'string',
-  default: {
-    '@path': '$.context.personas.audience_settings.advertiserId'
-  },
-  unsafe_hidden: true
-}
-
 const atLeastOneIdentifierRequired: DependsOnConditions = {
   match: 'any',
   conditions: [
@@ -83,7 +73,7 @@ export const countryCode: InputField = {
   description: `The country code of the user.`,
   type: 'string',
   default: {
-    '@path': '$.context.traits.countryCode'
+    '@path': '$.traits.countryCode'
   }
 }
 
