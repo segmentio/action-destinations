@@ -1,6 +1,6 @@
-# @segment/analytics-browser-actions-ms-bing-capi
+# @segment/analytics-browser-actions-ms-bing-capi-plugins
 
-The Ms Bing Capi Plugin browser action destination for use with @segment/analytics-next.
+The Microsoft Bing CAPI Browser Plugins browser action destination for use with @segment/analytics-next.
 
 ## License
 

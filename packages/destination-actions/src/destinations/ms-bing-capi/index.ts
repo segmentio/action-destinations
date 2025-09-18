@@ -52,6 +52,13 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets: [
     {
+      name: 'Microsoft Bing CAPI msclkid Plugin',
+      subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+      partnerAction: 'msclkidPlugin',
+      mapping: {},
+      type: 'automatic'
+    },
+    {
       name: 'Send Purchase Event',
       subscribe: 'type = "track" and event = "Order Completed"',
       partnerAction: 'sendEvent',
