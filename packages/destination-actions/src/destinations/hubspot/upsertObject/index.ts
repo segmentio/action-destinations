@@ -73,14 +73,12 @@ const send = async (
   const flag = features?.['actions-hubspot-lists-association-support'] ?? false
 
   let listName: string | undefined = undefined
-  let shouldCreateList: boolean | undefined = false
-  
+
   const client = new Client(request, objectType)
   const validPayloads = validate(payloads, flag)
 
   if(flag){
     listName = getListName(payloads[0])
-    shouldCreateList = list_details?.should_create_list
   }
 
   const schema = objectSchema(validPayloads, objectType)
@@ -113,6 +111,7 @@ const send = async (
 
   let cachableList = undefined
   if(flag){
+    const shouldCreateList = list_details?.should_create_list ?? false
     cachableList = await ensureList(client, objectType, listName, shouldCreateList, subscriptionMetadata, statsContext)
   }
   
