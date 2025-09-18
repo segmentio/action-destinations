@@ -32,8 +32,8 @@ export const hashEmail = (item: string): string => {
  */
 export const categorizePayloadByAction = (
   payload: Payload[],
-  addMap: Map<string, number>,
-  removeMap: Map<string, number>
+  addMap: Map<string, number[]>,
+  removeMap: Map<string, number[]>
 ) => {
   payload.forEach((p, index) => {
     const action: Action = p.traits_or_props[p.audience_key] ? 'Add' : 'Remove'
@@ -41,9 +41,15 @@ export const categorizePayloadByAction = (
     const identifier: string = (p.identifier_type === 'Email' ? hashEmail(p.email) : p.crm_id) as string
 
     if (action === 'Add') {
-      addMap.set(identifier, index)
+      if (!addMap.has(identifier)) {
+        addMap.set(identifier, [])
+      }
+      addMap.get(identifier)?.push(index)
     } else {
-      removeMap.set(identifier, index)
+      if (!removeMap.has(identifier)) {
+        removeMap.set(identifier, [])
+      }
+      removeMap.get(identifier)?.push(index)
     }
   })
 }
@@ -105,7 +111,7 @@ export const handleMultistatusResponse = (
   msResponse: MultiStatusResponse,
   response: ModifiedResponse,
   items: string[],
-  listItemsMap: Map<string, number>,
+  listItemsMap: Map<string, number[]>,
   payload: Payload[],
   isBatch: boolean
 ): void => {
@@ -119,14 +125,17 @@ export const handleMultistatusResponse = (
       // The error.Index corresponds to the position in the CustomerListItems array
       if (typeof error.Index === 'number' && error.Index >= 0 && error.Index < items.length) {
         const item = items[error.Index]
-        const originalIndex = listItemsMap.get(item)
+        const originalIndices = listItemsMap.get(item)
 
-        if (originalIndex !== undefined) {
-          msResponse.setErrorResponseAtIndex(originalIndex, {
-            status: error.Code || 400,
-            errormessage: `${error.ErrorCode ?? 'UnknownError'}: ${error.Message ?? 'No error message provided'}`,
-            sent: payload[originalIndex] as unknown as JSONLikeObject,
-            body: JSON.stringify(error)
+        if (originalIndices !== undefined && originalIndices.length > 0) {
+          // Set error for all indices associated with this item
+          originalIndices.forEach((originalIndex) => {
+            msResponse.setErrorResponseAtIndex(originalIndex, {
+              status: error.Code || 400,
+              errormessage: `${error.ErrorCode ?? 'UnknownError'}: ${error.Message ?? 'No error message provided'}`,
+              sent: payload[originalIndex] as unknown as JSONLikeObject,
+              body: JSON.stringify(error)
+            })
           })
 
           // Remove this item from the list of items to be marked as successful
@@ -137,11 +146,13 @@ export const handleMultistatusResponse = (
   }
 
   // Mark all remaining items as successful
-  listItemsMap.forEach((index) => {
-    msResponse.setSuccessResponseAtIndex(index, {
-      status: 200,
-      sent: payload[index] as unknown as JSONLikeObject,
-      body: JSON.stringify(response) || 'Success'
+  listItemsMap.forEach((indices) => {
+    indices.forEach((index) => {
+      msResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        sent: payload[index] as unknown as JSONLikeObject,
+        body: JSON.stringify(response) || 'Success'
+      })
     })
   })
 }
@@ -159,16 +170,18 @@ export const handleMultistatusResponse = (
 export const handleHttpError = async (
   msResponse: MultiStatusResponse,
   error: HTTPError,
-  listItemsMap: Map<string, number>,
+  listItemsMap: Map<string, number[]>,
   payload: Payload[]
 ): Promise<void> => {
   const errorResponse = await error?.response?.json()
-  listItemsMap.forEach((index) => {
-    msResponse.setErrorResponseAtIndex(index, {
-      status: errorResponse?.status,
-      errormessage: errorResponse?.message || error.message,
-      sent: payload[index] as unknown as JSONLikeObject,
-      body: JSON.stringify(errorResponse)
+  listItemsMap.forEach((indices) => {
+    indices.forEach((index) => {
+      msResponse.setErrorResponseAtIndex(index, {
+        status: errorResponse?.status,
+        errormessage: errorResponse?.message || error.message,
+        sent: payload[index] as unknown as JSONLikeObject,
+        body: JSON.stringify(errorResponse)
+      })
     })
   })
 }

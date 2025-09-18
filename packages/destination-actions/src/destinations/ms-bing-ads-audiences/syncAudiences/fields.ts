@@ -56,8 +56,7 @@ export const email: InputField = {
       else: { '@path': '$.properties.email' }
     }
   },
-  category: 'hashedPII',
-  format: 'email'
+  category: 'hashedPII'
 }
 
 export const crm_id: InputField = {

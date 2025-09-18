@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestIntegration, createTestEvent } from '@segment/actions-core'
 import Destination from '../../index'
 import { BASE_URL } from '../../constants'
+import * as utils from '../../utils'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -20,9 +21,26 @@ const baseMapping = {
   computation_class: 'audience'
 }
 
+// Mock the utils module to spy on handleHttpError function
+jest.mock('../../utils', () => {
+  const originalModule = jest.requireActual('../../utils')
+  return {
+    ...originalModule,
+    handleHttpError: jest.fn().mockImplementation(async (msResponse, error, listItemsMap, payload) => {
+      // Call the original implementation
+      return originalModule.handleHttpError(msResponse, error, listItemsMap, payload)
+    }),
+    // @ts-ignore
+    sendDataToMicrosoftBingAds: jest
+      .fn()
+      .mockImplementation(originalModule.sendDataToMicrosoftBingAds as (payload: any) => Promise<any>)
+  }
+})
+
 describe('MS Bing Ads Audiences syncAudiences', () => {
   beforeEach(() => {
     nock.cleanAll()
+    jest.clearAllMocks()
   })
 
   it('should add a user by email (perform)', async () => {
@@ -192,5 +210,71 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
     })
 
     expect(response[0].status).toBe(200)
+  })
+
+  it('should handle HTTP error correctly in batch mode', async () => {
+    nock(BASE_URL).post('/CustomerListUserData/Apply').reply(500, { error: 'Internal Server Error' })
+
+    const events = [
+      // Add events
+      createTestEvent({ type: 'identify', traits: { email: 'add1@segment.com', aud_key: true } })
+    ]
+
+    const response = await testDestination.testBatchAction('syncAudiences', {
+      events,
+      mapping: baseMapping,
+      useDefaultMappings: true,
+      settings
+    })
+
+    // Verify handleHttpError was called
+    expect(utils.handleHttpError).toHaveBeenCalled()
+
+    // Verify handleHttpError was called with the correct parameters
+    let handleHttpErrorMock = utils.handleHttpError as jest.Mock
+    expect(handleHttpErrorMock).toHaveBeenCalled()
+
+    // Verify the first argument is an instance of MultiStatusResponse
+    const msResponseArg = handleHttpErrorMock.mock.calls[0][0]
+    expect(msResponseArg).toBeDefined()
+
+    expect(response.length).toBe(1)
+    expect(response[0].status).toBe(500)
+    expect(response[0].body).toBeDefined()
+
+    // Check handleHttpError arguments more thoroughly to ensure it correctly processes errors
+    handleHttpErrorMock = utils.handleHttpError as jest.Mock
+    const payloadArg = handleHttpErrorMock.mock.calls[0][3]
+
+    // Verify payloads were passed correctly
+    expect(payloadArg.length).toBe(1)
+    expect(payloadArg[0].email).toBe('add1@segment.com')
+  })
+
+  it('should throw non-HTTP errors in batch mode', async () => {
+    // Create a custom error that is NOT an HTTPError
+    const customError = new Error('Custom non-HTTP error')
+
+    // Mock sendDataToMicrosoftBingAds to throw a non-HTTP error
+    const sendDataMock = utils.sendDataToMicrosoftBingAds as jest.Mock
+    sendDataMock.mockImplementationOnce(() => {
+      throw customError
+    })
+
+    const events = [createTestEvent({ type: 'identify', traits: { email: 'test@segment.com', aud_key: true } })]
+
+    // Expect the testBatchAction to throw the custom error
+    await expect(
+      testDestination.testBatchAction('syncAudiences', {
+        events,
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings
+      })
+    ).rejects.toThrow('Custom non-HTTP error')
+
+    // Verify handleHttpError was NOT called (since it's not an HTTPError)
+    const handleHttpErrorMock = utils.handleHttpError as jest.Mock
+    expect(handleHttpErrorMock).not.toHaveBeenCalled()
   })
 })
