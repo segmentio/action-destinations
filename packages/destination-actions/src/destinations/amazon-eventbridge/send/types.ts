@@ -27,6 +27,14 @@ export interface HookSuccess {
 }
 
 export interface HookOutputs {
-  onMappingSave?: OnMappingSaveOutputs
-  retlOnMappingSave?: RetlOnMappingSaveOutputs
+  onMappingSave?: {
+    outputs: {
+      sourceId: string  
+    }
+  }
+  retlOnMappingSave?: {
+    outputs: {
+      sourceId: string  
+    }
+  }
 }
