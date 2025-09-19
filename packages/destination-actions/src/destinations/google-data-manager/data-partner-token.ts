@@ -35,7 +35,7 @@ export async function getDataPartnerToken() {
   // Create an auth client with the required scope
   const auth = new GoogleAuth({
     credentials: key,
-    scopes: ['https://www.googleapis.com/auth/datamanager']
+    scopes: ['https://www.googleapis.com/auth/datamanager', 'https://www.googleapis.com/auth/audience-partner']
   })
 
   // Get an access token
