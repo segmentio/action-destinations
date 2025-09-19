@@ -32,12 +32,12 @@ const action: ActionDefinition<Settings, Payload> = {
     event_name: { ...event_name }
   },
 
-  perform: async (request, { settings, payload, audienceSettings }) => {
-    return await syncAudienceMembers(request, settings, [payload], audienceSettings as AudienceSettings)
+  perform: async (request, { payload, audienceSettings }) => {
+    return await syncAudienceMembers(request, [payload], audienceSettings as AudienceSettings)
   },
 
-  performBatch: async (request, { settings, payload, audienceSettings }) => {
-    return await syncAudienceMembers(request, settings, payload, audienceSettings as AudienceSettings)
+  performBatch: async (request, { payload, audienceSettings }) => {
+    return await syncAudienceMembers(request, payload, audienceSettings as AudienceSettings)
   }
 }
 export default action

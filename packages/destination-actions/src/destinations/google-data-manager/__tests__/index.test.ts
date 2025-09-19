@@ -10,8 +10,13 @@ describe('Google Data Manager Destination', () => {
   const mockRequest = jest.fn()
   const statsClient = { incr: jest.fn() } as unknown as StatsClient
   const statsContext = { statsClient, tags: [] }
-  const settings = { advertiserAccountId: '12345' }
-  const audienceSettings = { product: 'GOOGLE_ADS', description: 'desc', membershipDurationDays: '30' }
+  const settings = {}
+  const audienceSettings = {
+    advertiserAccountId: '12345',
+    product: 'GOOGLE_ADS',
+    description: 'desc',
+    membershipDurationDays: '30'
+  }
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -20,7 +25,6 @@ describe('Google Data Manager Destination', () => {
   afterEach(() => {
     mockRequest.mockReset()
   })
-
   describe('createAudience', () => {
     it('creates audience successfully', async () => {
       // Mock product link search response

@@ -1,13 +1,20 @@
 import { Payload } from '../generated-types'
 import action from '../index'
+import { AudienceSettings } from '../../generated-types'
 
 jest.mock('../../data-partner-token', () => ({
   getDataPartnerToken: jest.fn().mockResolvedValue('mocked-token')
 }))
 describe('Sync User Data Action', () => {
   let mockRequest: jest.Mock
-  const mockSettings = { apiKey: 'test-key', advertiserAccountId: 'acc-123' } as any
-  const mockAudienceSettings = { audienceId: 'aud-123', product: 'PRODUCT', productDestinationId: 'dest-456' } as any
+  const mockSettings = {}
+  const mockAudienceSettings = {
+    audienceId: 'aud-123',
+    product: 'PRODUCT',
+    productDestinationId: 'dest-456',
+    advertiserAccountId: 'acc-123',
+    membershipDurationDays: '560'
+  } as AudienceSettings
   const mockPayload = { emailAddress: 'test@example.com', event_name: 'Audience Entered' } as any
   const mockBatchPayload = [mockPayload, { emailAddress: 'other@example.com', event_name: 'Audience Entered' }]
   const mockResponse = { success: true }
@@ -21,7 +28,7 @@ describe('Sync User Data Action', () => {
   })
 
   it('calls request in perform with correct arguments', async () => {
-    const result = await action.perform!(mockRequest, {
+    const result = await action.perform?.(mockRequest, {
       settings: mockSettings,
       payload: mockPayload,
       audienceSettings: mockAudienceSettings
@@ -34,7 +41,7 @@ describe('Sync User Data Action', () => {
   })
 
   it('calls request in performBatch with correct arguments', async () => {
-    const result = await action.performBatch!(mockRequest, {
+    const result = await action.performBatch?.(mockRequest, {
       settings: mockSettings,
       payload: mockBatchPayload,
       audienceSettings: mockAudienceSettings
@@ -50,7 +57,7 @@ describe('Sync User Data Action', () => {
     const exitedPayload = { emailAddress: 'exited@example.com', event_name: 'Audience Exited' } as Payload
     const batchPayload = [enteredPayload, exitedPayload]
 
-    await action.performBatch!(mockRequest, {
+    await action.performBatch?.(mockRequest, {
       settings: mockSettings,
       payload: batchPayload,
       audienceSettings: mockAudienceSettings

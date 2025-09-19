@@ -1,7 +1,7 @@
 import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import type { Payload } from './syncUserData/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
-import type { AudienceSettings, Settings } from './generated-types'
+import type { AudienceSettings } from './generated-types'
 import { SEGMENT_DATA_PARTNER_ID } from './constants'
 import { getDataPartnerToken } from './data-partner-token'
 
@@ -44,7 +44,7 @@ function buildUserIdentifiers(payload: Payload) {
 function buildAudienceMember(payload: Payload) {
   return {
     consent: {
-      adUserData: 'CONSENT_GRANTED',
+      adUserData: 'CONSENT_GRANTED', // TODO: should this come from the event?
       adPersonalization: 'CONSENT_GRANTED'
     },
     userData: {
@@ -55,7 +55,6 @@ function buildAudienceMember(payload: Payload) {
 
 export async function syncAudienceMembers(
   request: RequestClient,
-  settings: Settings,
   payloads: Payload[],
   audienceSettings: AudienceSettings
 ) {
@@ -63,11 +62,9 @@ export async function syncAudienceMembers(
   const audienceEnteredPayloads = payloads.filter((payload) => payload.event_name === 'Audience Entered')
   const audienceExitedPayloads = payloads.filter((payload) => payload.event_name === 'Audience Exited')
   const audienceEnteredBody =
-    audienceEnteredPayloads.length > 0
-      ? buildRequestBody(audienceEnteredPayloads, settings, audienceSettings)
-      : undefined
+    audienceEnteredPayloads.length > 0 ? buildRequestBody(audienceEnteredPayloads, audienceSettings) : undefined
   const audienceExitedBody =
-    audienceExitedPayloads.length > 0 ? buildRequestBody(audienceExitedPayloads, settings, audienceSettings) : undefined
+    audienceExitedPayloads.length > 0 ? buildRequestBody(audienceExitedPayloads, audienceSettings) : undefined
   console.log('audienceEnteredBody', JSON.stringify(audienceEnteredBody, null, 2))
   console.log('audienceExitedBody', JSON.stringify(audienceExitedBody, null, 2))
 
@@ -76,53 +73,56 @@ export async function syncAudienceMembers(
   }
 
   const responses = []
-  if (audienceEnteredBody !== undefined) {
-    responses.push(
-      await request('https://datamanager.googleapis.com/v1/audienceMembers:ingest', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        json: audienceEnteredBody
-      })
-    )
-  }
-  if (audienceExitedBody !== undefined) {
-    responses.push(
-      await request('https://datamanager.googleapis.com/v1/audienceMembers:remove', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        json: audienceExitedBody
-      })
-    )
+
+  const datamanagerAudienceMembersUrl = 'https://datamanager.googleapis.com/v1/audienceMembers'
+  const requestConfigs = [
+    {
+      body: audienceEnteredBody,
+      url: datamanagerAudienceMembersUrl + ':ingest'
+    },
+    {
+      body: audienceExitedBody,
+      url: datamanagerAudienceMembersUrl + ':remove'
+    }
+  ]
+
+  for (const { body, url } of requestConfigs) {
+    if (body !== undefined) {
+      responses.push(
+        await request(url, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          json: body
+        })
+      )
+    }
   }
   console.log('responses', JSON.stringify(responses, null, 2))
   return responses.length === 1 ? responses[0] : responses
 }
 
-const buildRequestBody = (payloads: Payload[], settings: Settings, audienceSettings: AudienceSettings) => ({
+const buildRequestBody = (payloads: Payload[], audienceSettings: AudienceSettings) => ({
   audienceMembers: payloads.map(buildAudienceMember),
   destinations: [
     {
       operatingAccount: {
-        accountId: settings.advertiserAccountId,
+        accountId: audienceSettings.advertiserAccountId,
         product: audienceSettings.product
       },
       loginAccount: {
         accountId: `${SEGMENT_DATA_PARTNER_ID}`,
         product: 'DATA_PARTNER'
       },
-      productDestinationId: audienceSettings.productDestinationId
+      productDestinationId: payloads[0].audienceId
     }
+    // TODO: Add more destinations from settings
   ],
   encoding: 'HEX',
   termsOfService: {
-    customerMatchTermsOfServiceStatus: 'ACCEPTED'
+    customerMatchTermsOfServiceStatus: 'ACCEPTED' // todo: should this come from the event?
   }
 })

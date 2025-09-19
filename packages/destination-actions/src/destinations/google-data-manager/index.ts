@@ -10,6 +10,12 @@ import { getDataPartnerToken } from './data-partner-token'
 const testAuthUrl = `https://audiencepartner.googleapis.com/v2/products/DATA_PARTNER/customers/${SEGMENT_DATA_PARTNER_ID}/audiencePartner:searchStream`
 
 const audienceFields: Record<string, GlobalSetting> = {
+  advertiserAccountId: {
+    label: 'Advertiser Account ID',
+    description: 'The ID of the advertiser in Google Product.',
+    type: 'string',
+    required: true
+  },
   product: {
     label: 'Product',
     description: 'The product for which you want to create or manage audiences.',
@@ -19,13 +25,6 @@ const audienceFields: Record<string, GlobalSetting> = {
       { label: 'Google Ads', value: 'GOOGLE_ADS' },
       { label: 'Display & Video 360', value: 'DISPLAY_VIDEO_ADVERTISER' }
     ]
-  },
-  productDestinationId: {
-    label: 'Product Destination ID',
-    description:
-      'The ID of the product destination, used to identify the specific destination for audience management.',
-    type: 'string',
-    required: true
   },
   externalIdType: {
     type: 'string',
@@ -62,7 +61,7 @@ const audienceFields: Record<string, GlobalSetting> = {
   membershipDurationDays: {
     type: 'string',
     label: 'Membership Duration Days',
-    required: true,
+    required: false,
     description:
       'The duration in days that an entry remains in the audience after the qualifying event. If the audience has no expiration, set the value of this field to 10000. Otherwise, the set value must be greater than 0 and less than or equal to 540.'
   }
@@ -75,14 +74,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
   authentication: {
     scheme: 'custom',
-    fields: {
-      advertiserAccountId: {
-        label: 'Advertiser Account ID',
-        description: 'The ID of the advertiser in Google Product.',
-        type: 'string',
-        required: true
-      }
-    },
+    fields: {},
     testAuthentication: async () => {
       return true
     }
@@ -93,7 +85,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceConfig: {
     mode: { type: 'synced', full_audience_sync: false },
     async createAudience(request, { audienceName, settings, statsContext, audienceSettings }) {
-      const advertiserId = settings?.advertiserAccountId.trim()
+      let advertiserId = audienceSettings?.advertiserAccountId.trim()
       const { statsClient, tags: statsTags = [] } = statsContext || {}
       const statsName = 'createAudience'
       statsTags.push(`slug:${destination.slug}`)
@@ -104,7 +96,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      verifyCustomerId(advertiserId)
+      advertiserId = verifyCustomerId(advertiserId)
 
       if (audienceSettings == null || !audienceSettings.product) {
         throw new IntegrationError('Missing product value', 'MISSING_REQUIRED_FIELD', 400)
@@ -116,10 +108,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${await getDataPartnerToken()}`,
-          'login-customer-id': settings.advertiserAccountId
+          'login-customer-id': audienceSettings.advertiserAccountId
         },
         body: JSON.stringify({
-          query: PRODUCT_LINK_SEARCH_URL.replace('productLower', audienceSettings.product.toLowerCase())
+          query: PRODUCT_LINK_SEARCH_URL.replace('productLower', audienceSettings.product.toLowerCase()) //todo: check link for each of the products
             .replace('productUpper', audienceSettings.product.toUpperCase())
             .replace('advertiserID', advertiserId)
         })
@@ -178,7 +170,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async getAudience(request, { statsContext, settings, audienceSettings, externalId }) {
       const { statsClient, tags: statsTags = [] } = statsContext || {}
-      const advertiserId = settings?.advertiserAccountId?.trim()
+      const advertiserId = audienceSettings?.advertiserAccountId?.trim()
       const statsName = 'getAudience'
       statsTags.push(`slug:${destination.slug}`)
       statsClient?.incr(`${statsName}.call`, 1, statsTags)
