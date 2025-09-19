@@ -182,6 +182,9 @@ describe('sessionId', () => {
     })
 
     test('sets a session id and send session start track event when allowSessionTracking is true', async () => {
+      const trk = jest
+        .spyOn(ajs, 'track')
+        .mockImplementation((_) => Promise.resolve(new Context({ type: 'track', event: 'mock' })))
       const ctx = new Context({
         type: 'track',
         event: 'greet',
@@ -194,11 +197,14 @@ describe('sessionId', () => {
       const updatedCtx = await sessionIdPlugin.track?.(ctx)
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
       expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(id())
-      expect(window.analytics.track).toHaveBeenCalledWith('session_ended', {})
-      expect(window.analytics.track).toHaveBeenCalledWith('session_started', {})
+      expect(trk).toHaveBeenCalledWith('session_ended', {})
+      expect(trk).toHaveBeenCalledWith('session_started', {})
     })
 
     test('session event with custom name', async () => {
+      const trk = jest
+        .spyOn(ajs, 'track')
+        .mockImplementation((_) => Promise.resolve(new Context({ type: 'track', event: 'mock' })))
       const ctx = new Context({
         type: 'track',
         event: 'greet',
@@ -213,8 +219,8 @@ describe('sessionId', () => {
       const updatedCtx = await sessionIdPlugin.track?.(ctx)
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
       expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(id())
-      expect(window.analytics.track).toHaveBeenCalledWith('Session Ended', {})
-      expect(window.analytics.track).toHaveBeenCalledWith('Session Started', {})
+      expect(trk).toHaveBeenCalledWith('Session Ended', {})
+      expect(trk).toHaveBeenCalledWith('Session Started', {})
     })
 
     test('persists the session id', async () => {
