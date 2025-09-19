@@ -3,25 +3,9 @@ import camelCase from 'lodash/camelCase'
 import isEmpty from 'lodash/isEmpty'
 import { Payload } from './generated-types'
 import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes, stringifyMappingSchemaForGraphQL } from '../functions'
+import { getDefaultFieldsToMap, getDefaultFieldTypes, PROFILE_DEFAULT_FIELDS } from '../profile-fields'
 
-const standardFields = new Set([
-  'email',
-  'firstName',
-  'lastName',
-  'phone',
-  'marketingStatus',
-  'company',
-  'gender',
-  'city',
-  'state',
-  'country',
-  'timezone',
-  'postalCode',
-  'birthDay',
-  'birthMonth',
-  'address',
-  'previousId'
-])
+const standardFields = getDefaultFieldsToMap()
 
 interface Mapping {
   incomingKey: string
@@ -32,8 +16,8 @@ interface Mapping {
 }
 
 export async function performForwardProfiles(request: RequestClient, events: Payload[]) {
-  const fieldsToMap: Set<string> = new Set(['userId'])
-  const fieldTypes: Record<string, string> = { userId: 'string' }
+  const fieldsToMap: Set<string> = getDefaultFieldsToMap()
+  const fieldTypes: Record<string, string> = getDefaultFieldTypes()
   const advertiserId = events[0].advertiser_id
   const profileUpdates = events.flatMap((event) => {
     const { event_type, previous_id, user_id, traits } = event
@@ -56,6 +40,9 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
     return { ...processTraits(rest), ...profile }
   })
 
+  if (profileUpdates.length === 0) {
+    return
+  }
   const profiles = stringifyJsonWithEscapedQuotes(profileUpdates)
   const mutation = `mutation {
       upsertProfiles(
@@ -89,13 +76,20 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
   function processTraits(traits: Record<string, unknown>) {
     // Convert trait keys to camelCase and capture any non-standard fields as mappings
     return Object.keys(traits).reduce((acc: Record<string, unknown>, key) => {
+      const value = traits[key]
+      
+      // Skip if key is empty string or value is empty string
+      if (key === '' || value === '') {
+        return acc
+      }
+      
       const camelCaseKey = camelCase(key)
-      acc[camelCaseKey] = traits[key]
+      acc[camelCaseKey] = value
       if (!standardFields.has(camelCaseKey)) {
         fieldsToMap.add(camelCaseKey)
         // Field type should be the most specific type of the values we've seen so far, use string if there is a conflict of types
-        if (traits[key] || traits[key] === 0) {
-          const type = getType(traits[key])
+        if (value || value === 0) {
+          const type = getType(value)
           if (fieldTypes[camelCaseKey] && fieldTypes[camelCaseKey] !== type) {
             fieldTypes[camelCaseKey] = 'STRING'
           } else {
@@ -111,13 +105,44 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
 function getProfileMappings(customFields: string[], fieldTypes: Record<string, string>) {
   const mappingSchema: Mapping[] = []
   for (const field of customFields) {
-    mappingSchema.push({
-      incomingKey: field,
-      destinationKey: field === 'userId' ? 'external_id' : field,
-      label: generateLabel(field),
-      type: fieldTypes[field] ?? 'STRING',
-      isPii: false
-    })
+    // Find the field config in PROFILE_DEFAULT_FIELDS
+    const fieldConfig = PROFILE_DEFAULT_FIELDS.find(f => f.key === field)
+    
+    if (fieldConfig) {
+      // Convert camelCase to snake_case for destinationKey
+      const snakeCaseKey = fieldConfig.key.replace(/([A-Z])/g, '_$1').toLowerCase()
+      
+      // Special mapping cases for StackAdapt destination keys
+      let destinationKey: string
+      switch (fieldConfig.key) {
+        case 'userId':
+          destinationKey = 'external_id'
+          break
+        case 'birthday':
+          destinationKey = 'birth_date'
+          break
+        default:
+          destinationKey = snakeCaseKey
+      }
+      
+      // StackAdapt uses destinationKey to look up global fields so it has to match 
+      mappingSchema.push({
+        incomingKey: fieldConfig.key,
+        destinationKey,
+        label: fieldConfig.label,
+        type: fieldConfig.type.toUpperCase(),
+        isPii: fieldConfig.isPii || false
+      })
+    } else {
+      // Fallback for custom fields not in default global fields
+      mappingSchema.push({
+        incomingKey: field,
+        destinationKey: field,
+        label: generateLabel(field),
+        type: fieldTypes[field] ?? 'STRING',
+        isPii: false
+      })
+    }
   }
   return stringifyMappingSchemaForGraphQL(mappingSchema)
 }
