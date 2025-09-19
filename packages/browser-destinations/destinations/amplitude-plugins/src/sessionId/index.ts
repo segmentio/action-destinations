@@ -67,7 +67,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
       default: false,
       required: false,
       description:
-        'Generate session start and session end events. This is useful for tracking user sessions. NOTE: This will generate a Segment track() event which will also get send to all Destinations connected to the JS Source'
+        'Generate session start and session end track() events. These events will be sent to the Javascript Source and will be forwarded on to any connected Destinations.'
     },
     sessionStartEvent: {
       label: 'Session Start Event',
