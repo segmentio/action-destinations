@@ -116,17 +116,16 @@ const send = async (
   }
   
   const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
-
   const associationPayloads = createAssociationPayloads(fromRecordPayloads, 'associations')
   const associatedRecords = await sendAssociatedRecords(client, associationPayloads, associationSyncMode as AssociationSyncMode)
-
   await sendAssociations(client, associatedRecords, 'create')
 
   if(flag) {
     const dissociationPayloads = createAssociationPayloads(fromRecordPayloads, 'dissociations')
-    const dissociatedRecords = await readAssociatedRecords(client, dissociationPayloads)
+    // We don't want to create new records when dissociating, hence forcing AssociationSyncMode.Read
+    const dissociatedRecords = await sendAssociatedRecords(client, dissociationPayloads, AssociationSyncMode.Read)
     await sendAssociations(client, dissociatedRecords, 'archive')
-
+  
     if (cachableList) {
       await sendLists(client, cachableList, fromRecordPayloads)
     }

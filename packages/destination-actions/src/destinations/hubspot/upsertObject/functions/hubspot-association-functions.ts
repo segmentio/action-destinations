@@ -146,7 +146,6 @@ export async function sendAssociations(client: Client, payloads: AssociationPayl
   const groupedPayloads: AssociationPayloadWithId[][] = groupPayloads(payloads as AssociationPayload[], [
     'object_type'
   ]) as AssociationPayloadWithId[][]
-
   const requests = groupedPayloads.map(async (payloads) => {
     const toObjectType = payloads[0].object_details.object_type
 

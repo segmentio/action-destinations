@@ -70,7 +70,6 @@ export class Client {
   }
 
   async batchDissociationsRequest(json: DissociationsReq, toObjectType: string) {
-    
     const response = await this.request(
       `${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/archive`,
       {
