@@ -2,7 +2,7 @@ import { IntegrationError, RequestClient } from '@segment/actions-core'
 import { OAUTH_URL, SEGMENT_DATA_PARTNER_ID } from './constants'
 import type { RefreshTokenResponse } from './types'
 
-import type { AudienceSettings, Settings } from './generated-types'
+import type { AudienceSettings } from './generated-types'
 
 type AuthCredentials = { refresh_token: string; access_token: string; client_id: string; client_secret: string }
 
@@ -35,12 +35,8 @@ export const getAuthToken = async (request: RequestClient, settings: AuthCredent
   return data.access_token
 }
 
-export const buildHeaders = (
-  audienceSettings: AudienceSettings | undefined,
-  settings: Settings | undefined,
-  accessToken: string
-) => {
-  if (!audienceSettings || !accessToken || !settings) {
+export const buildHeaders = (audienceSettings: AudienceSettings | undefined, accessToken: string) => {
+  if (!audienceSettings || !accessToken) {
     throw new IntegrationError('Bad Request', 'INVALID_REQUEST_DATA', 400)
   }
 
@@ -48,6 +44,6 @@ export const buildHeaders = (
     Authorization: `Bearer ${accessToken}`,
     'Content-Type': 'application/json',
     'login-customer-Id': `products/DATA_PARTNER/customers/${SEGMENT_DATA_PARTNER_ID}`, // this is the Segment account id
-    'linked-customer-id': settings?.advertiserAccountId
+    'linked-customer-id': audienceSettings?.advertiserAccountId
   }
 }

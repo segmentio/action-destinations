@@ -84,7 +84,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
   audienceConfig: {
     mode: { type: 'synced', full_audience_sync: false },
-    async createAudience(request, { audienceName, settings, statsContext, audienceSettings }) {
+    async createAudience(request, { audienceName, statsContext, audienceSettings }) {
       let advertiserId = audienceSettings?.advertiserAccountId.trim()
       const { statsClient, tags: statsTags = [] } = statsContext || {}
       const statsName = 'createAudience'
@@ -145,7 +145,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         }
         const listTypeMap = { basicUserList: {}, type: 'REMARKETING', membershipStatus: 'OPEN' }
         const response = await request(partnerCreateAudienceUrl, {
-          headers: buildHeaders(audienceSettings, settings, await getDataPartnerToken()),
+          headers: buildHeaders(audienceSettings, await getDataPartnerToken()),
           method: 'POST',
           json: {
             operations: [
@@ -168,7 +168,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw handleRequestError(error, statsName, statsContext)
       }
     },
-    async getAudience(request, { statsContext, settings, audienceSettings, externalId }) {
+    async getAudience(request, { statsContext, audienceSettings, externalId }) {
       const { statsClient, tags: statsTags = [] } = statsContext || {}
       const advertiserId = audienceSettings?.advertiserAccountId?.trim()
       const statsName = 'getAudience'
@@ -191,7 +191,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       )
       try {
         const response = await request(advertiserGetAudienceUrl, {
-          headers: buildHeaders(audienceSettings, settings, await getDataPartnerToken()),
+          headers: buildHeaders(audienceSettings, await getDataPartnerToken()),
           method: 'POST',
           json: {
             query: `SELECT user_list.name, user_list.description, user_list.membership_status, user_list.match_rate_percentage
