@@ -52,12 +52,14 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Total Length',
           description: 'The total length of the item that the user can view (for example, in seconds or minutes).',
           type: 'number',
+          minimum: 0,
           required: true
         },
         watchTime: {
           label: 'Watch Time',
           description: "The user's watched time of the item (measured in the same units as Total Length).",
           type: 'number',
+          minimum: 0,
           required: true
         }
       },
@@ -89,15 +91,11 @@ function payloadToViewPortion(payload: Payload): SetViewPortion {
   if (payload.portion.totalLength === 0) {
     throw new PayloadValidationError('The total length of the item cannot be zero.')
   }
-  return new SetViewPortion({
-    userId: payload.userId,
-    itemId: payload.itemId,
-    timestamp: payload.timestamp,
-    portion: payload.portion.watchTime / payload.portion.totalLength,
-    sessionId: payload.sessionId,
-    additionalData: payload.additionalData,
-    recommId: payload.recommId
-  })
+  const { portion: portionData, ...rest } = payload
+  if (portionData.watchTime > portionData.totalLength) {
+    throw new PayloadValidationError('The watch time of the item cannot be greater than the total length of the item.')
+  }
+  return new SetViewPortion({ portion: portionData.watchTime / portionData.totalLength, ...rest })
 }
 
 export default action

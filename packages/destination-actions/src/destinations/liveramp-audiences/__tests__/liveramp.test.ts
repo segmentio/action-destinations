@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestIntegration, PayloadValidationError, SegmentEvent } from '@segment/actions-core'
 import Destination from '../index'
 import fs from 'fs'
-import { LIVERAMP_MIN_RECORD_COUNT } from '../properties'
+import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME } from '../properties'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -23,6 +23,7 @@ const mockedEvents: SegmentEvent[] = Array.from({ length: 50 }, (_, i) => ({
 }))
 
 describe('Liveramp Audiences', () => {
+  let s3MetadataPayload: unknown = null
   beforeEach(() => {
     jest.clearAllMocks()
     jest.resetModules()
@@ -61,6 +62,7 @@ describe('Liveramp Audiences', () => {
         }
       })
 
+    // capture request body in
     nock('https://integrations-outbound-event-store-test-us-west-2.s3.us-west-2.amazonaws.com')
       .put(
         /\/actions-liveramp-audiences\/destinationConfigId\/actionConfigId\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\.csv$/
@@ -68,7 +70,10 @@ describe('Liveramp Audiences', () => {
       .reply(200)
 
     nock('https://integrations-outbound-event-store-test-us-west-2.s3.us-west-2.amazonaws.com')
-      .put('/actions-liveramp-audiences/destinationConfigId/actionConfigId/meta.json')
+      .put('/actions-liveramp-audiences/destinationConfigId/actionConfigId/meta.json', (reqbody: any) => {
+        s3MetadataPayload = reqbody
+        return true
+      })
       .reply(200)
   })
   describe('audienceEnteredS3', () => {
@@ -78,12 +83,13 @@ describe('Liveramp Audiences', () => {
         mapping: {
           s3_aws_access_key: 's3_aws_access_key',
           s3_aws_secret_key: 's3_aws_secret_key',
-          s3_aws_bucket_name: 's3_aws_bucket_name',
+          s3_aws_bucket_name: 's3-aws-bucket-name',
           s3_aws_region: 's3_aws_region',
           audience_key: 'audience_key',
           delimiter: ',',
           filename: 'filename.csv',
-          enable_batching: true
+          enable_batching: true,
+          s3_aws_bucket_path: 'folder1/folder2'
         },
         subscriptionMetadata: {
           destinationConfigId: 'destinationConfigId',
@@ -98,6 +104,41 @@ describe('Liveramp Audiences', () => {
         expect(response.at(i)?.status).toEqual(200)
       }
     })
+
+    it('should set gzipCompressFile flag as true if feature flag is enabled', async () => {
+      const response = await testDestination.executeBatch('audienceEnteredS3', {
+        events: mockedEvents,
+        mapping: {
+          s3_aws_access_key: 's3_aws_access_key',
+          s3_aws_secret_key: 's3_aws_secret_key',
+          s3_aws_bucket_name: 's3-aws-bucket-name',
+          s3_aws_region: 's3_aws_region',
+          audience_key: 'audience_key',
+          delimiter: ',',
+          filename: 'filename.csv',
+          enable_batching: true
+        },
+        subscriptionMetadata: {
+          destinationConfigId: 'destinationConfigId',
+          actionConfigId: 'actionConfigId'
+        },
+        settings: {
+          __segment_internal_engage_force_full_sync: true,
+          __segment_internal_engage_batch_sync: true
+        },
+        features: {
+          [LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME]: true
+        }
+      })
+      for (let i = 0; i < mockedEvents.length; i++) {
+        expect(response.at(i)?.status).toEqual(200)
+      }
+      expect(s3MetadataPayload).toBeDefined()
+      expect(s3MetadataPayload).toMatchObject({
+        gzipCompressFile: true
+      })
+    })
+
     it(`should throw error if payload size is less than ${LIVERAMP_MIN_RECORD_COUNT}`, async () => {
       try {
         await testDestination.executeBatch('audienceEnteredS3', {
@@ -105,7 +146,7 @@ describe('Liveramp Audiences', () => {
           mapping: {
             s3_aws_access_key: 's3_aws_access_key',
             s3_aws_secret_key: 's3_aws_secret_key',
-            s3_aws_bucket_name: 's3_aws_bucket_name',
+            s3_aws_bucket_name: 's3-aws-bucket-name',
             s3_aws_region: 's3_aws_region',
             audience_key: 'audience_key',
             delimiter: ',',
@@ -125,6 +166,71 @@ describe('Liveramp Audiences', () => {
         expect(e).toBeInstanceOf(PayloadValidationError)
         expect(e.message).toEqual(
           `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: 3`
+        )
+        expect(e.status).toEqual(400)
+      }
+    })
+
+    it(`should throw error if S3 bucket name is invalid`, async () => {
+      try {
+        await testDestination.executeBatch('audienceEnteredS3', {
+          events: mockedEvents,
+          mapping: {
+            s3_aws_access_key: 's3_aws_access_key',
+            s3_aws_secret_key: 's3_aws_secret_key',
+            s3_aws_bucket_name: 'for-liveramp/folder01/folder_001/',
+            s3_aws_region: 's3_aws_region',
+            audience_key: 'audience_key',
+            delimiter: ',',
+            filename: 'filename.csv',
+            enable_batching: true
+          },
+          subscriptionMetadata: {
+            destinationConfigId: 'destinationConfigId',
+            actionConfigId: 'actionConfigId'
+          },
+          settings: {
+            __segment_internal_engage_force_full_sync: true,
+            __segment_internal_engage_batch_sync: true
+          }
+        })
+      } catch (e) {
+        expect(e).toBeInstanceOf(PayloadValidationError)
+        expect(e.message).toEqual(
+          `Invalid S3 bucket name: "for-liveramp/folder01/folder_001/". Bucket names cannot contain '/' characters, must be lowercase, and follow AWS naming conventions.`
+        )
+        expect(e.status).toEqual(400)
+      }
+    })
+
+    it(`should throw error if S3 bucket path is invalid`, async () => {
+      try {
+        await testDestination.executeBatch('audienceEnteredS3', {
+          events: mockedEvents,
+          mapping: {
+            s3_aws_access_key: 's3_aws_access_key',
+            s3_aws_secret_key: 's3_aws_secret_key',
+            s3_aws_bucket_name: 's3-aws-bucket-name',
+            s3_aws_region: 's3_aws_region',
+            audience_key: 'audience_key',
+            delimiter: ',',
+            filename: 'filename.csv',
+            enable_batching: true,
+            s3_aws_bucket_path: '/invalid[]/path/'
+          },
+          subscriptionMetadata: {
+            destinationConfigId: 'destinationConfigId',
+            actionConfigId: 'actionConfigId'
+          },
+          settings: {
+            __segment_internal_engage_force_full_sync: true,
+            __segment_internal_engage_batch_sync: true
+          }
+        })
+      } catch (e) {
+        expect(e).toBeInstanceOf(PayloadValidationError)
+        expect(e.message).toEqual(
+          `Invalid S3 bucket path. It must be a valid S3 object key, avoid leading/trailing slashes and forbidden characters (e.g., \\ { } ^ [ ] % \` " < > # | ~). Use a relative path like "folder1/folder2".`
         )
         expect(e.status).toEqual(400)
       }
@@ -157,6 +263,39 @@ describe('Liveramp Audiences', () => {
       for (let i = 0; i < mockedEvents.length; i++) {
         expect(response.at(i)?.status).toEqual(200)
       }
+    })
+
+    it('should set gzipCompressFile flag as true if feature flag is enabled', async () => {
+      const response = await testDestination.executeBatch('audienceEnteredSFTP', {
+        events: mockedEvents,
+        mapping: {
+          sftp_username: 'sftp_username',
+          sftp_aws_access_key: 'sftp_aws_access_key',
+          sftp_folder_path: 'sftp_folder_path',
+          sftp_password: 'sftp_password',
+          audience_key: 'audience_key',
+          delimiter: ',',
+          filename: 'filename.csv',
+          enable_batching: true
+        },
+        subscriptionMetadata: {
+          destinationConfigId: 'destinationConfigId',
+          actionConfigId: 'actionConfigId'
+        },
+        settings: {
+          __segment_internal_engage_force_full_sync: true,
+          __segment_internal_engage_batch_sync: true
+        },
+        features: {
+          [LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME]: true
+        }
+      })
+      for (let i = 0; i < mockedEvents.length; i++) {
+        expect(response.at(i)?.status).toEqual(200)
+      }
+      expect(s3MetadataPayload).toMatchObject({
+        gzipCompressFile: true
+      })
     })
     it(`should throw error if payload size is less than ${LIVERAMP_MIN_RECORD_COUNT}`, async () => {
       try {

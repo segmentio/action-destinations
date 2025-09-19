@@ -17,6 +17,7 @@ Object {
 
 exports[`Testing snapshot for Recombee's addCartAddition destination action: required fields 1`] = `
 Object {
+  "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "E$o]!yX^hLQ^46#)",
   "userId": "E$o]!yX^hLQ^46#)",

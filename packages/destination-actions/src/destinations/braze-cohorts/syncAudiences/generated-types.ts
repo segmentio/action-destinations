@@ -42,4 +42,8 @@ export interface Payload {
    * When the event occurred.
    */
   time: string
+  /**
+   * The keys to use for batching the events.
+   */
+  batch_keys?: string[]
 }

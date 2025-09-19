@@ -12,7 +12,7 @@ import {
 } from '@segment/actions-core'
 import { Payload as payload_dataExtension } from './dataExtension/generated-types'
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
-import { ErrorResponse } from './types'
+import { ErrorResponse, ErrorData } from './types'
 import { OnMappingSaveInputs } from './dataExtensionV2/generated-types'
 import { Settings } from './generated-types'
 import { xml2js } from 'xml-js'
@@ -26,6 +26,15 @@ function generateRows(payloads: payload_dataExtension[] | payload_contactDataExt
     })
   })
   return rows
+}
+
+function isRetryableError(errData: ErrorData, status: number): boolean {
+  return (
+    status === 400 &&
+    errData?.errorcode === 10006 &&
+    errData?.message.includes('Unable to save rows for data extension ID') &&
+    !errData?.additionalErrors
+  )
 }
 
 export function upsertRows(
@@ -141,9 +150,15 @@ export async function executeUpsertWithMultiStatus(
       err.response.data.additionalErrors.length > 0 &&
       err.response.data.additionalErrors
 
+    let status = 500 // default status is 500
+    const isRetryable = isRetryableError(errData, err?.response?.status)
+    statsContext?.statsClient?.incr('sfmc_upsert_rows_error', 1, [...statsContext.tags, `retryable:${isRetryable}`])
+    if (!isRetryable && err?.response?.status) {
+      status = err.response.status
+    }
     payloads.forEach((_, index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: err?.response?.status || 500,
+        status: status,
         errormessage: additionalError ? additionalError[0].message : errData?.message || '',
         sent: rows[index] as Object as JSONLikeObject,
         /*

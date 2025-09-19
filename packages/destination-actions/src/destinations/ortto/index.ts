@@ -43,6 +43,13 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'upsertContactProfile',
       mapping: defaultValues(upsertContactProfile.fields),
       type: 'automatic'
+    },
+    {
+      name: trackActivity.title,
+      subscribe: 'type = "track"',
+      partnerAction: 'trackActivity',
+      mapping: defaultValues(trackActivity.fields),
+      type: 'automatic'
     }
   ],
   actions: {

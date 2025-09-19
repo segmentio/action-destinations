@@ -15,7 +15,7 @@ const isIsoDate = (value: string): boolean => {
   const isoformat =
     '^\\d{4}-\\d{2}-\\d{2}' + // Match YYYY-MM-DD
     '((T\\d{2}:\\d{2}(:\\d{2})?)' + // Match THH:mm:ss
-    '(\\.\\d{1,6})?' + // Match .sssss
+    '(\\.\\d{1,9})?' + // Match .sssssss
     '(Z|(\\+|-)\\d{2}:?\\d{2})?)?$' // Time zone (Z or ±hh:mm or ±hhmm)
 
   const matcher = new RegExp(isoformat)
@@ -122,6 +122,14 @@ export const buildPayload = <Payload extends BasePayload>({ action, type, payloa
   const { convert_timestamp, person_id, anonymous_id, email, object_id, object_type_id, timestamp, ...data } = payload
   let rest = data
 
+  // Remove batching configuration fields that shouldn't be sent to Customer.io
+  if ('enable_batching' in rest) {
+    delete rest.enable_batching
+  }
+  if ('batch_size' in rest) {
+    delete rest.batch_size
+  }
+
   if ('convert_timestamp' in payload && convert_timestamp !== false) {
     rest = convertAttributeTimestamps(rest)
   }
@@ -205,9 +213,10 @@ export const sendBatch = <Payload extends BasePayload>(request: Function, option
 
 export const sendSingle = <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>) => {
   const json = buildPayload(options)
-
   return request(`${trackApiEndpoint(options.settings)}/api/v2/entity`, {
     method: 'post',
     json
   })
 }
+
+export { isIsoDate }

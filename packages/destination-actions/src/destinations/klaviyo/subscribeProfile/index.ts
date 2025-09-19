@@ -55,6 +55,12 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: '-59'
     },
+    historical_import: {
+      label: 'Historical Import',
+      description: `When set to true, the profile will be subscribed as a historical import. This is useful for importing existing profiles into Klaviyo without sending them an email or SMS.`,
+      type: 'boolean',
+      default: false
+    },
     consented_at: {
       label: 'Consented At',
       description: `The timestamp of when the profile's consent was gathered.`,
@@ -75,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true,
       required: false,
       multiple: true,
-      default: ['list_id', 'custom_source']
+      default: ['list_id', 'custom_source', 'historical_import']
     }
   },
   dynamicFields: {
@@ -84,15 +90,23 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const { email, phone_number: initialPhoneNumber, consented_at, list_id, custom_source, country_code } = payload
+    const {
+      email,
+      phone_number: initialPhoneNumber,
+      consented_at,
+      list_id,
+      custom_source,
+      country_code,
+      historical_import
+    } = payload
 
     const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
     if (!email && !phone_number) {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
 
-    const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at)
-    const subData = formatSubscribeRequestBody(profileToSubscribe, list_id, custom_source)
+    const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at, historical_import)
+    const subData = formatSubscribeRequestBody(profileToSubscribe, list_id, custom_source, historical_import)
 
     return await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
       method: 'POST',
@@ -158,7 +172,12 @@ const action: ActionDefinition<Settings, Payload> = {
       // max number of profiles is 100 per request
       for (let i = 0; i < profiles.length; i += 100) {
         const profilesSubset = profiles.slice(i, i + 100)
-        const subData = formatSubscribeRequestBody(profilesSubset, list_id, custom_source)
+        const subData = formatSubscribeRequestBody(
+          profilesSubset,
+          list_id,
+          custom_source,
+          payload[0]?.historical_import
+        )
 
         const response = request<Response>(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
           method: 'POST',
@@ -186,7 +205,7 @@ function sortBatches(batchPayload: Payload[]) {
   const output: SortedBatches = {}
 
   batchPayload.forEach((payload) => {
-    const { email, phone_number, custom_source, consented_at, list_id } = payload
+    const { email, phone_number, custom_source, consented_at, list_id, historical_import } = payload
 
     const listId = list_id || 'noListId'
     const customSource = custom_source || 'noCustomSource'
@@ -212,7 +231,7 @@ function sortBatches(batchPayload: Payload[]) {
     }
 
     // format profile data klaviyo api spec
-    const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at)
+    const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at, historical_import)
 
     // add profile to batch
     output[key].profiles.push(profileToSubscribe)

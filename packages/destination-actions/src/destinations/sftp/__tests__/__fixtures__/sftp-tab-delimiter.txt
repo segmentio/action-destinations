@@ -1,0 +1,6 @@
+user_id	email	audience_name	audience_id	audience_action	timestamp	message_id
+"user1"	"user1@example.com"	"high_value_customers"	"aud_123"	"true"	"2023-07-26T15:23:39.803Z"	"msg_001"
+"user2"	"user2@example.com"	"high_value_customers"	"aud_123"	"true"	"2023-07-26T15:24:12.456Z"	"msg_002"
+"user3"	"user3@example.com"	"high_value_customers"	"aud_123"	"false"	"2023-07-26T15:24:45.789Z"	"msg_003"
+"user4"	"user4@example.com"	"high_value_customers"	"aud_123"	"true"	"2023-07-26T15:25:18.012Z"	"msg_004"
+"user5"	"user5@example.com"	"high_value_customers"	"aud_123"	"true"	"2023-07-26T15:25:51.345Z"	"msg_005"

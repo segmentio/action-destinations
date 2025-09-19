@@ -54,6 +54,34 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.traits.custom_fields'
       }
+    },
+    contactName: {
+      label: 'Contact Name',
+      description: 'The name of the contact / user',
+      type: 'string',
+      required: false,
+      default: { '@path': '$.traits.contact_name' }
+    },
+    contactEmail: {
+      label: 'Contact Email',
+      description: 'The email of the contact / user',
+      type: 'string',
+      required: false,
+      default: { '@path': '$.traits.contact_email' }
+    },
+    contactPhone: {
+      label: 'Contact Phone',
+      description: 'The phone number of the contact / user',
+      type: 'string',
+      required: false,
+      default: { '@path': '$.traits.contact_phone' }
+    },
+    contactRole: {
+      label: 'Contact Role',
+      description: 'The role of the contact / user. For example primary, secondary, user, etc',
+      type: 'string',
+      required: false,
+      default: { '@path': '$.traits.contact_role' }
     }
   },
   perform: (request, data) => {
@@ -66,7 +94,19 @@ const action: ActionDefinition<Settings, Payload> = {
         name: data.payload.name,
         email: data.payload.email,
         ...(data.payload.platformPlanName ? { platformPlanName: data.payload.platformPlanName } : {}),
-        ...(data.payload.customFields ? { customFields: data.payload.customFields } : {})
+        ...(data.payload.customFields ? { customFields: data.payload.customFields } : {}),
+        ...(data.payload.contactEmail && data.payload.contactRole
+          ? {
+              contacts: [
+                {
+                  email: data.payload.contactEmail,
+                  label: data.payload.contactRole,
+                  ...(data.payload.contactPhone ? { phone: data.payload.contactPhone } : {}),
+                  ...(data.payload.contactName ? { name: data.payload.contactName } : {})
+                }
+              ]
+            }
+          : {})
       }
     })
   }

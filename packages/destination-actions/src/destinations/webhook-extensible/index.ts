@@ -15,7 +15,7 @@ const destination: DestinationDefinition<SettingsWithDynamicAuth> = {
     scheme: 'oauth2',
     fields: {
       sharedSecret: {
-        type: 'string',
+        type: 'password',
         label: 'Shared Secret',
         description:
           'If set, Segment will sign requests with an HMAC in the "X-Signature" request header. The HMAC is a hex-encoded SHA1 hash generated using this shared secret and the request body.'
@@ -30,6 +30,9 @@ const destination: DestinationDefinition<SettingsWithDynamicAuth> = {
     const { dynamicAuthSettings } = settings
     let accessToken
     let tokenPrefix = 'Bearer'
+    if (dynamicAuthSettings?.oauth?.type === 'noAuth') {
+      return {}
+    }
     if (dynamicAuthSettings?.bearer) {
       accessToken = dynamicAuthSettings?.bearer?.bearerToken
     } else {

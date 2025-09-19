@@ -2,7 +2,7 @@ import { ActionDefinition, RequestClient, PayloadValidationError } from '@segmen
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
-import { CohortChanges } from '../braze-cohorts-types'
+import { CohortChanges, UserAlias } from '../braze-cohorts-types'
 import { StateContext } from '@segment/actions-core/destination-kit'
 import isEmpty from 'lodash/isEmpty'
 
@@ -101,6 +101,15 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      default: ['cohort_name', 'cohort_id'],
+      multiple: true,
+      required: false
     }
   },
   perform: async (request, { settings, payload, stateContext }) => {
@@ -127,6 +136,7 @@ async function processPayload(
     stateContext?.setResponseContext?.(`cohort_name`, cohort_name, {})
   }
   const { addUsers, removeUsers } = extractUsers(payloads)
+
   const hasAddUsers = hasUsersToAddOrRemove(addUsers)
   const hasRemoveUsers = hasUsersToAddOrRemove(removeUsers)
 
@@ -155,27 +165,61 @@ function validate(payloads: Payload[]): void {
 }
 
 function extractUsers(payloads: Payload[]) {
-  const addUsers: CohortChanges = { user_ids: [], device_ids: [], aliases: [] }
-  const removeUsers: CohortChanges = { user_ids: [], device_ids: [], aliases: [], should_remove: true }
+  // sort by time in descending order
+  // This is important because if a user is added and removed in the same batch,
+  // we want to ensure that the last action is taken.
+  payloads = payloads.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+  const addUsers = { user_ids: new Set(), device_ids: new Set(), aliases: new Map() }
+  const removeUsers = {
+    user_ids: new Set(),
+    device_ids: new Set(),
+    aliases: new Map(),
+    should_remove: true
+  }
 
   payloads.forEach((payload: Payload) => {
     const { event_properties, external_id, device_id, user_alias, personas_audience_key } = payload
     const userEnteredOrRemoved: boolean = event_properties[`${personas_audience_key}`] as boolean
     const user = userEnteredOrRemoved ? addUsers : removeUsers
 
-    if (external_id) {
-      user?.user_ids?.push(external_id)
-    } else if (device_id) {
-      user?.device_ids?.push(device_id)
+    // If the user is already in the cohort, we don't need to add them again.
+    if (external_id && !addUsers.user_ids?.has(external_id) && !removeUsers.user_ids?.has(external_id)) {
+      user?.user_ids?.add(external_id)
+    } else if (device_id && !addUsers.device_ids?.has(device_id) && !removeUsers.device_ids?.has(device_id)) {
+      user?.device_ids?.add(device_id)
     } else if (user_alias) {
-      user?.aliases?.push(user_alias)
+      const aliasKey = `${user_alias.alias_name}:${user_alias.alias_label}`
+      if (!addUsers.aliases?.has(aliasKey) && !removeUsers.aliases?.has(aliasKey)) {
+        user?.aliases?.set(aliasKey, user_alias)
+      }
     }
   })
 
   return {
-    addUsers,
-    removeUsers
+    addUsers: {
+      user_ids: toMayBeArray(addUsers.user_ids),
+      device_ids: toMayBeArray(addUsers.device_ids),
+      aliases: transformAliases(addUsers.aliases)
+    } as CohortChanges,
+    removeUsers: {
+      user_ids: toMayBeArray(removeUsers.user_ids),
+      device_ids: toMayBeArray(removeUsers.device_ids),
+      aliases: transformAliases(removeUsers.aliases),
+      should_remove: removeUsers.should_remove
+    } as CohortChanges
   }
+}
+
+function transformAliases(aliases: Map<string, UserAlias> | undefined): UserAlias[] | undefined {
+  if (!aliases) return undefined
+  return Array.from(aliases.values()).map((alias) => ({
+    alias_name: alias.alias_name,
+    alias_label: alias.alias_label
+  }))
+}
+
+function toMayBeArray<T>(set: Set<T> | undefined): T[] | undefined {
+  return set ? Array.from(set) : undefined
 }
 
 function hasUsersToAddOrRemove(user: CohortChanges): boolean {

@@ -42,6 +42,7 @@ export interface User {
     height?: number
     width?: number
   }
+  phone_number?: string
 }
 
 export interface StandardEventPayloadItem {

@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, IntegrationError } from '@segment/actions-core'
 import Destination from '../../index'
 import { Payload } from '../generated-types'
-import { apiBaseUrl } from '../../properties'
+import { apiBaseUrl } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 const LIVELIKE_CLIENT_ID = 'test-client-id'

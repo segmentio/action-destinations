@@ -37,7 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "User's email address for including/excluding from custom audience",
       type: 'string',
       format: 'email',
-      required: true,
+      required: false,
       default: {
         '@if': {
           exists: { '@path': '$.context.traits.email' },

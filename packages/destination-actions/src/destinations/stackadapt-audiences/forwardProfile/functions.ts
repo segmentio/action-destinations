@@ -2,7 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import camelCase from 'lodash/camelCase'
 import isEmpty from 'lodash/isEmpty'
 import { Payload } from './generated-types'
-import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes } from '../functions'
+import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes, stringifyMappingSchemaForGraphQL } from '../functions'
 
 const standardFields = new Set([
   'email',
@@ -74,7 +74,7 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
         input: {
           advertiserId: ${advertiserId},
           mappingSchemaV2: ${getProfileMappings(Array.from(fieldsToMap), fieldTypes)},
-          mappableType: "${EXTERNAL_PROVIDER}",
+          mappableType: "${EXTERNAL_PROVIDER}"
         }
       ) {
         userErrors {
@@ -97,7 +97,7 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
         if (traits[key] || traits[key] === 0) {
           const type = getType(traits[key])
           if (fieldTypes[camelCaseKey] && fieldTypes[camelCaseKey] !== type) {
-            fieldTypes[camelCaseKey] = 'string'
+            fieldTypes[camelCaseKey] = 'STRING'
           } else {
             fieldTypes[camelCaseKey] = type
           }
@@ -115,11 +115,11 @@ function getProfileMappings(customFields: string[], fieldTypes: Record<string, s
       incomingKey: field,
       destinationKey: field === 'userId' ? 'external_id' : field,
       label: generateLabel(field),
-      type: fieldTypes[field] ?? 'string',
+      type: fieldTypes[field] ?? 'STRING',
       isPii: false
     })
   }
-  return stringifyJsonWithEscapedQuotes(mappingSchema)
+  return stringifyMappingSchemaForGraphQL(mappingSchema)
 }
 
 function generateLabel(field: string) {
@@ -138,8 +138,8 @@ function generateLabel(field: string) {
 }
 
 function getType(value: unknown) {
-  if (isDateStr(value)) return 'date'
-  return typeof value
+  if (isDateStr(value)) return 'DATE'
+  return (typeof value).toUpperCase()
 }
 
 function isDateStr(value: unknown) {

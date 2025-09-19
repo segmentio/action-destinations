@@ -92,25 +92,16 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(new Batch(payloadToInteractions(data.payload)))
+    await client.send(new Batch(payloadToPurchases(data.payload)))
   },
   performBatch: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(new Batch(data.payload.flatMap(payloadToInteractions)))
+    await client.send(new Batch(data.payload.flatMap(payloadToPurchases)))
   }
 }
 
-function payloadToInteractions(payload: Payload): AddPurchase[] {
-  return payload.items.map(
-    (item) =>
-      new AddPurchase({
-        userId: payload.userId,
-        ...item,
-        timestamp: payload.timestamp,
-        recommId: payload.recommId,
-        additionalData: payload.additionalData
-      })
-  )
+function payloadToPurchases({ items, ...rest }: Payload): AddPurchase[] {
+  return items.map((item) => new AddPurchase({ ...item, ...rest }))
 }
 
 export default action

@@ -35,6 +35,7 @@ Object {
         "email": "4a032ff520e2ddbb4f3467c73e41b1f94bda5faf9c9080ac7f0d0e83156d9c99",
         "external_id": "7b1d43d3d43059efd3e755045cf79aa9a554bc456f4c10d1915ccb5d79345b4a",
         "ip_address": "7b1d43d3d43059efd3e755045cf79aa9a554bc456f4c10d1915ccb5d79345b4a",
+        "phone_number": "6a43002a7e3d5a65a03938155afe5c3df3518817c33969ec4b221c0b939af821",
         "screen_dimensions": Object {
           "height": 8361377294974976,
           "width": 8361377294974976,

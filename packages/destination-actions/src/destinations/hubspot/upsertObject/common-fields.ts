@@ -137,5 +137,14 @@ export const commonFields: Record<string, InputField> = {
     required: true,
     unsafe_hidden: true,
     default: MAX_HUBSPOT_BATCH_SIZE
+  },
+  timestamp: {
+    label: 'Timestamp',
+    description:
+      'The time the event occurred. This will be used to de-duplicate the events before sending them to hubspot.',
+    type: 'string',
+    required: false,
+    default: { '@path': '$.timestamp' },
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   }
 }

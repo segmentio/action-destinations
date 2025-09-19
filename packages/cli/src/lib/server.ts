@@ -311,6 +311,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
           }
 
           const debug = await getExchanges(destination.responses)
+          destination.responses.splice(0, destination.responses.length)  
           return res.status(200).json(debug)
         } catch (err) {
           const output = marshalError(err as ResponseError)

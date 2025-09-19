@@ -72,22 +72,16 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(payloadToInteraction(data.payload))
+    await client.send(payloadToCartAddition(data.payload))
   },
   performBatch: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(new Batch(data.payload.map(payloadToInteraction)))
+    await client.send(new Batch(data.payload.map(payloadToCartAddition)))
   }
 }
 
-function payloadToInteraction(payload: Payload): AddCartAddition {
-  return new AddCartAddition({
-    userId: payload.userId,
-    ...payload.item,
-    timestamp: payload.timestamp,
-    recommId: payload.recommId,
-    additionalData: payload.additionalData
-  })
+function payloadToCartAddition({ item, ...rest }: Payload): AddCartAddition {
+  return new AddCartAddition({ ...item, ...rest })
 }
 
 export default action

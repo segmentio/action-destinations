@@ -25,7 +25,10 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: event.properties,
+        mapping: { 
+          ...event.properties, 
+          timestamp: "2024-01-01T00:00:00.000Z"
+        },
         settings: { api_key: TEST_API_KEY },
         auth: undefined
       })
@@ -65,7 +68,10 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: event.properties,
+        mapping: { 
+          ...event.properties, 
+          timestamp: "2024-01-01T00:00:00.000Z"
+        },
         settings: { api_key: TEST_API_KEY },
         auth: undefined
       })

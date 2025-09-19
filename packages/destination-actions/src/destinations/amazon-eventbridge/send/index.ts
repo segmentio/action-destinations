@@ -1,12 +1,12 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { send } from '../functions'
-import { send as sendV2 } from '../functionsv2'
+import { send } from './functions'
+import { ensureSourceIdHook } from './hooks'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
-  description: 'Send an event to Amazon EventBridge.',
+  description: 'Send event data to Amazon EventBridge.',
   fields: {
     data: {
       label: 'Detail',
@@ -17,8 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     detailType: {
       label: 'Detail Type',
-      description: `Detail Type of the event. Used to determine what fields to expect in the event Detail. 
-                    Value cannot be longer than 128 characters.`,
+      description: `Detail Type of the event. Used to determine what fields to expect in the event Detail. Value cannot be longer than 128 characters.`,
       type: 'string',
       maximum: 128,
       default: { '@path': '$.type' },
@@ -40,23 +39,16 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     resources: {
       label: 'Resources',
-      description: `AWS resources, identified by Amazon Resource Name (ARN), 
-                    which the event primarily concerns. Any number, 
-                    including zero, may be present.`,
+      description: `AWS resources, identified by Amazon Resource Name (ARN), which the event primarily concerns. Any number, including zero, may be present.`,
       type: 'string',
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      },
+      multiple: true,
       required: false
     },
     time: {
       label: 'Time',
-      description: 'The timestamp the event occurred.',
+      description: 'The timestamp the event occurred. Accepts a date in ISO 8601 format.',
       type: 'string',
+      format: 'date-time',
       default: { '@path': '$.timestamp' },
       required: false
     },
@@ -80,16 +72,19 @@ const action: ActionDefinition<Settings, Payload> = {
       maximum: 20
     }
   },
-  perform: (_, data) => {
-    const { payload, settings } = data
-    return send([payload], settings)
-  },
-  performBatch: (_, data) => {
-    const { payload, settings, features } = data
-    if (features?.['amazon-eventbridge-v2']) {
-      return sendV2(payload, settings)
+  hooks: {
+    retlOnMappingSave: {
+      ...ensureSourceIdHook
+    },
+    onMappingSave: {
+      ...ensureSourceIdHook
     }
-    return send(payload, settings)
+  },
+  perform: (_, { payload, settings, hookOutputs }) => {
+    return send([payload], settings, hookOutputs)
+  },
+  performBatch: (_, { payload, settings, hookOutputs }) => {
+    return send(payload, settings, hookOutputs)
   }
 }
 

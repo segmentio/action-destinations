@@ -1,4 +1,4 @@
-import { RequestClient, PayloadValidationError } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
 import { Payload as UploadPayload } from './conversionUpload/generated-types'
 import { Payload as Adjustayload } from './conversionAdjustmentUpload/generated-types'
 import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
@@ -14,7 +14,8 @@ import {
   Conversion,
   CartData,
   ConsentType,
-  EncryptionInfo
+  EncryptionInfo,
+  SuccessMaybeErrorResponse
 } from './types'
 import { processHashing } from '../../lib/hashing-utils'
 
@@ -31,7 +32,7 @@ export async function send(
     maybeThrow(`No valid payloads found in batch of size ${payloads.length}`, true)
   }
 
-  const response = await request(
+  const response = await request<SuccessMaybeErrorResponse>(
     `https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${settings.profileId}/conversions/batch` +
       (isAdjustment ? 'update' : 'insert'),
     {
@@ -44,6 +45,17 @@ export async function send(
       json
     }
   )
+
+  const isSuccess = response.status >= 200 && response.status < 300
+  const hasFailures = response?.data?.hasFailures === true
+
+  if (isSuccess && hasFailures) {
+    const firstError = response?.data?.status?.[0]?.errors?.[0]
+    const message = firstError?.message ?? '200 response contained unknown error'
+    const code = firstError?.code ?? ErrorCodes.UNKNOWN_ERROR
+    throw new IntegrationError(message, code, 400)
+  }
+
   return response
 }
 

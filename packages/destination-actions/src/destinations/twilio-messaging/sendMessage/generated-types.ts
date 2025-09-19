@@ -18,9 +18,9 @@ export interface Payload {
    */
   toPhoneNumber?: string
   /**
-   * A valid Facebook Messenger Page Id or Messenger User Id to send the message to.
+   * A valid Facebook Messenger User Id to send the message to.
    */
-  toMessengerPageUserId?: string
+  toMessengerUserId?: string
   /**
    * The Twilio phone number (E.164 format) or Short Code. If not in the dropdown, enter it directly. Please ensure the number supports the selected 'Channel' type.
    */
@@ -28,7 +28,7 @@ export interface Payload {
   /**
    * The unique identifier for your Facebook Page, used to send messages via Messenger. You can find this in your Facebook Page settings.
    */
-  fromMessengerSenderId?: string
+  fromFacebookPageId?: string
   /**
    * The SID of the messaging service to use. If not in the dropdown, enter it directly.
    */
@@ -37,15 +37,6 @@ export interface Payload {
    * The SID of the Content Template to use.
    */
   contentSid?: string
-  /**
-   * The URLs of the media to include with the message. The URLs should be configured in the Content Template in Twilio.
-   */
-  mediaUrls?: {
-    /**
-     * The URL of the media to include with the message.
-     */
-    url: string
-  }[]
   /**
    * Variables to be used in the Content Template. The Variables must be defined in the Content Template in Twilio.
    */
@@ -61,12 +52,6 @@ export interface Payload {
    */
   inlineMediaUrls?: string[]
   /**
-   * Variables to be send with the inline message. e.g. 'first_name' would match with {{first_name}} in the Inline Template message body.
-   */
-  inlineVariables?: {
-    [k: string]: unknown
-  }
-  /**
    * The number of seconds between 1-14400 that the message is valid for. Default is 14400. If the message is not delivered within this time, it will not be delivered.
    */
   validityPeriod?: number
@@ -74,4 +59,10 @@ export interface Payload {
    * The time that Twilio will send the message. Must be in ISO 8601 format.
    */
   sendAt?: string
+  /**
+   * Custom tags to be included in the message. Key:value pairs of strings are allowed.
+   */
+  tags?: {
+    [k: string]: unknown
+  }
 }

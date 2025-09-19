@@ -22,7 +22,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       client_secret: {
         label: 'Client Secret',
         description: "The client's secret from your Taboola account.",
-        type: 'string',
+        type: 'password',
         required: true
       },
       audience_identifier: {
@@ -103,7 +103,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
             json: {
               audience_name: audienceName,
               ttl_in_hours: ttlInHours,
-              exclude_from_campaigns: excludeFromCampaigns
+              exclude_from_campaigns: excludeFromCampaigns,
+              integration_source: 'segment.com'
             },
             headers: {
               authorization: `Bearer ${accessToken}`,

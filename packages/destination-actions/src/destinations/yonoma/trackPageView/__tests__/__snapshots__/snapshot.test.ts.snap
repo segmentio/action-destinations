@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Yonoma's trackPageView destination action: all fields 1`] = `
+Object {
+  "listId": "9m$X[)9bYhG%dfuia",
+  "properties": Object {
+    "testType": "9m$X[)9bYhG%dfuia",
+  },
+  "referrer": "9m$X[)9bYhG%dfuia",
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "title": "9m$X[)9bYhG%dfuia",
+  "url": "9m$X[)9bYhG%dfuia",
+  "userId": "user1234",
+}
+`;
+
+exports[`Testing snapshot for Yonoma's trackPageView destination action: required fields 1`] = `
+Object {
+  "listId": "9m$X[)9bYhG%dfuia",
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "url": "9m$X[)9bYhG%dfuia",
+  "userId": "testuserid",
+}
+`;

@@ -136,4 +136,34 @@ describe('initialization', () => {
     expect(openSessionSpy).toHaveBeenCalled()
     expect(logCustomEventSpy).toHaveBeenCalledWith('FIFA', { goat: 'deno' })
   })
+
+  test('passes devicePropertyAllowlist to Braze SDK initialization', async () => {
+    const devicePropertyAllowlist = ['os', 'browser']
+    const [event] = await brazeDestination({
+      api_key: 'b_123',
+      endpoint: 'endpoint',
+      sdkVersion: '3.5',
+      doNotLoadFontAwesome: true,
+      devicePropertyAllowlist,
+      subscriptions: [
+        {
+          partnerAction: 'trackEvent',
+          name: 'Track Event',
+          enabled: true,
+          subscribe: 'type = "track"',
+          mapping: {
+            eventName: { '@path': '$.event' },
+            eventProperties: { '@path': '$.properties' }
+          }
+        }
+      ]
+    })
+
+    const initializeSpy = jest.spyOn(destination, 'initialize')
+    await event.load(Context.system(), {} as Analytics)
+
+    // Check that the config passed to initialize contains the allowlist
+    const callArgs = initializeSpy.mock.calls[0][0]?.settings || {}
+    expect(callArgs.devicePropertyAllowlist).toEqual(devicePropertyAllowlist)
+  })
 })
