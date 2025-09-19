@@ -16,7 +16,7 @@ describe('Google Data Manager Destination', () => {
     product: 'GOOGLE_ADS',
     description: 'desc',
     membershipDurationDays: '30'
-  }
+  } as Aud
 
   beforeEach(() => {
     jest.clearAllMocks()

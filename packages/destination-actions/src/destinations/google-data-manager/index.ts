@@ -30,6 +30,7 @@ const audienceFields: Record<string, GlobalSetting> = {
     type: 'string',
     label: 'External ID Type',
     description: 'Customer match upload key types. Required if you are using UserLists. Not used by the other actions.',
+    required: true,
     choices: [
       { label: 'CONTACT INFO', value: 'CONTACT_INFO' },
       { label: 'CRM ID', value: 'CRM_ID' },
@@ -85,6 +86,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceConfig: {
     mode: { type: 'synced', full_audience_sync: false },
     async createAudience(request, { audienceName, statsContext, audienceSettings }) {
+      console.log('request create audience called', request)
       let advertiserId = audienceSettings?.advertiserAccountId.trim()
       const { statsClient, tags: statsTags = [] } = statsContext || {}
       const statsName = 'createAudience'
@@ -144,7 +146,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         } else {
           throw new IntegrationError('Missing product value', 'MISSING_REQUIRED_FIELD', 400)
         }
-        const listTypeMap = { basicUserList: {}, type: 'REMARKETING', membershipStatus: 'OPEN' }
+        const listTypeMap = {
+          crmBasedUserList: {
+            uploadKeyType: audienceSettings?.externalIdType,
+            appId: audienceSettings?.app_id || ''
+          }
+        }
         const response = await request(partnerCreateAudienceUrl, {
           headers: buildHeaders(audienceSettings, await getDataPartnerToken()),
           method: 'POST',
