@@ -32,6 +32,7 @@ describe('Google Data Manager Destination', () => {
         status: 200,
         json: async () => [{ results: [{ productLink: { resourceName: 'link' } }] }]
       })
+
       // Mock create audience response
       mockRequest.mockResolvedValueOnce({
         json: async () => ({ results: [{ resourceName: 'audience/1' }] })
@@ -45,6 +46,15 @@ describe('Google Data Manager Destination', () => {
           audienceSettings
         }
       )
+      expect(mockRequest).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          method: expect.any(String),
+          headers: expect.any(Object),
+          body: expect.stringContaining('SELECT product_link.google_ads.google_ads_customer')
+        })
+      )
+
       expect(result).toEqual({ externalId: 'audience/1' })
       expect(statsClient.incr).toHaveBeenCalledWith('createAudience.success', 1, expect.any(Array))
     })

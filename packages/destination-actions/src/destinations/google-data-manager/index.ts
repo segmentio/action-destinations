@@ -103,6 +103,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
       // check if product link exists for given advertiser id
       // https://developers.google.com/audience-partner/api/reference/rest/v2/products.customers.audiencePartner/searchStream?hl=en
+      const re = new RegExp('productLower', 'g')
       const response = await request(testAuthUrl, {
         method: 'POST',
         headers: {
@@ -111,7 +112,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           'login-customer-id': audienceSettings.advertiserAccountId
         },
         body: JSON.stringify({
-          query: PRODUCT_LINK_SEARCH_URL.replace('productLower', audienceSettings.product.toLowerCase()) //todo: check link for each of the products
+          query: PRODUCT_LINK_SEARCH_URL.replace(re, audienceSettings.product.toLowerCase()) //todo: check link for each of the products
             .replace('productUpper', audienceSettings.product.toUpperCase())
             .replace('advertiserID', advertiserId)
         })
