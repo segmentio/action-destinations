@@ -107,6 +107,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       eventSlug: 'warehouse_audience_membership_changed_identify'
     },
     {
+      name: 'Associated Entity Added',
+      partnerAction: 'syncAudienceToCSV',
+      mapping: defaultValues(syncAudienceToCSV.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'syncAudienceToCSV',
+      mapping: defaultValues(syncAudienceToCSV.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
       name: 'Journeys Step Entered',
       partnerAction: 'syncAudienceToCSV',
       mapping: defaultValues(syncAudienceToCSV.fields),
