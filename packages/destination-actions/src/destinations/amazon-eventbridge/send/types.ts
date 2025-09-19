@@ -1,5 +1,3 @@
-import { OnMappingSaveOutputs, RetlOnMappingSaveOutputs } from './generated-types'
-
 export interface PutPartnerEventsCommandJSON {
   Entries: Array<EntryItem>
 }
