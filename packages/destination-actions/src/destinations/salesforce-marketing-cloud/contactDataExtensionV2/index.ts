@@ -7,7 +7,7 @@ import { executeUpsertWithMultiStatus, getDataExtensionFields, upsertRowsV2 } fr
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Contact to Data Extension (V2)',
   defaultSubscription: 'type = "identify"',
-  description: 'Upsert contact data as rows into an existing data extension in Salesforce Marketing Cloud.',
+  description: 'Upsert contact data as rows into a data extension in Salesforce Marketing Cloud.',
   fields: {
     keys: {
       ...keys,

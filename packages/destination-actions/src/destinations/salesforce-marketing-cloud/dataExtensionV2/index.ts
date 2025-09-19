@@ -6,7 +6,7 @@ import { executeUpsertWithMultiStatus, getDataExtensionFields, upsertRowsV2 } fr
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event to Data Extension (V2)',
-  description: 'Upsert events as rows into an existing data extension in Salesforce Marketing Cloud.',
+  description: 'Upsert events as rows into a data extension in Salesforce Marketing Cloud.',
   fields: {
     keys: { ...keys, required: true, dynamic: true },
     values: { ...values_dataExtensionFields, dynamic: true },
