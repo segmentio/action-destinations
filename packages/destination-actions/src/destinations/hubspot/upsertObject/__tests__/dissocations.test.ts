@@ -144,7 +144,7 @@ describe('Hubspot.upsertObject', () => {
             from: {
               id: '62102303560'
             },
-            to: [{ id: '798758764867' }]
+            to: { id: '798758764867' }
           }
         ]
       }
@@ -346,7 +346,7 @@ describe('Hubspot.upsertObject', () => {
             from: {
               id: '62102303560'
             },
-            to: [{ id: '798758764867' }]
+            to: { id: '798758764867' }
           },
           {
             types: [
@@ -358,7 +358,7 @@ describe('Hubspot.upsertObject', () => {
             from: {
               id: '62102303560'
             },
-            to: [{ id: '9898989898989' }]
+            to: { id: '9898989898989' }
           }
         ]
       }
@@ -694,11 +694,9 @@ describe('Hubspot.upsertObject', () => {
             from: {
               id: 'hubspot_contact_id_value_1'
             },
-            to: [
-              {
-                id: '798758764867'
-              }
-            ]
+            to: {
+              id: '798758764867'
+            }
           },
           {
             types: [
@@ -710,11 +708,9 @@ describe('Hubspot.upsertObject', () => {
             from: {
               id: 'hubspot_contact_id_value_2'
             },
-            to: [
-              {
-                id: '9898989898989'
-              }
-            ]
+            to: {
+              id: '9898989898989'
+            }
           }
         ]
       }

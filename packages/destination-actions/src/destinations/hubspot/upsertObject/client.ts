@@ -2,7 +2,6 @@ import { RequestClient } from '@segment/actions-core'
 import { HUBSPOT_BASE_URL } from '../properties'
 import {
   AssociationsReq,
-  DissociationsReq,
   ObjReqType,
   CreateReq,
   CreatePropsReq,
@@ -68,7 +67,7 @@ export class Client {
     return response
   }
 
-  async batchDissociationsRequest(json: DissociationsReq, toObjectType: string) {
+  async batchDissociationsRequest(json: AssociationsReq, toObjectType: string) {
     const response = await this.request(
       `${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/labels/archive`,
       {
