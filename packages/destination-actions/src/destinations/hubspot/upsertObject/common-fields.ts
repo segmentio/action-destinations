@@ -179,28 +179,63 @@ export const commonFields: Record<string, InputField> = {
     defaultObjectUI: 'keyvalue:only',
     additionalProperties: false,
     properties: {
+      connected_to_engage_audience: {
+        label: 'Connecting to Engage Audience',
+        description: 'Set to true if syncing an Engage Audience to a Hubstpot list, false otherwise.',
+        type: 'boolean',
+        required: false,
+        disabledInputMethods: ['literal', 'freeform']
+      },
       list_name: {
         label: 'List Name',
-        description: "The name of the Hubspot List to add or remove the record from. If the 'Create List' field is set to true, Segment will create the List if it does not already exist.",
+        description: "The name of the Hubspot List to add or remove the record from. If connecting to an Engage Audience this field can be left empty.",
         type: 'string',
-        required: true,
+        required: false,
         allowNull: false,
         dynamic: true
       },
       list_action: {
         label: 'List Action',
-        description: `Specify if the record should be added or removed from the list. true = add to list, false = remove from list.`,
+        description: `Specify if the record should be added or removed from the list. true = add to list, false = remove from list. If connecting an Engage Audience this field must be left empty.`,
         type: 'boolean',
-        required: true,
+        disabledInputMethods: ['literal', 'freeform'],
+        required:  {
+          match: 'all',
+          conditions: [
+            {
+              fieldKey: 'list_name',
+              operator: 'is_not',
+              value: [null,'']
+            },
+            {
+              fieldKey: 'connected_to_engage_audience',
+              operator: 'is',
+              value: false
+            }
+          ]
+        },
+        depends_on: {
+          conditions: [
+            {
+              fieldKey: 'connected_to_engage_audience',
+              operator: 'is',
+              value: false
+            }
+          ]
+        },
         allowNull: false
       },
       should_create_list: {
         label: 'Create List',
         description: 'If true, Segment will create the list in Hubspot if it does not already exist.',
         type: 'boolean',
-        required: true,
-        default: true
+        required: false,
+        disabledInputMethods: ['literal', 'freeform']
       }
+    },
+    default: {
+      connected_to_engage_audience: false,
+      should_create_list: true
     }
   },
   enable_batching: {
@@ -235,5 +270,39 @@ export const commonFields: Record<string, InputField> = {
     required: false,
     default: { '@path': '$.timestamp' },
     disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+  },
+  traits_or_props: {
+    label: 'traits or properties object',
+    description: 'Hidden field: Object which to get the traits or properties object from Engage Audience payloads.',
+    type: 'object',
+    required: false,
+    unsafe_hidden: true,
+    default: {
+      '@if': {
+        exists: { '@path': '$.properties' },
+        then: { '@path': '$.properties' },
+        else: { '@path': '$.traits' }
+      }
+    }
+  },
+  computation_key: {
+    label: 'Engage Audience Computation Key',
+    description: 'Hidden field: Engage Audience Computation Key refers to the audience slug name in an Engage Audience payload.',
+    required: false,
+    unsafe_hidden: true,
+    type: 'string',
+    default: {
+      '@path': '$.context.personas.computation_key'
+    }
+  },
+  computation_class: {
+    label: 'Engage Audience Computation Class',
+    description: "Hidden field: Engage Audience Computation Class indicates if the payload is from an Engage Audience or not.",
+    type: 'string',
+    required: false,
+    unsafe_hidden: true,
+    default: {
+      '@path': '$.context.personas.computation_class'
+    }
   }
 }

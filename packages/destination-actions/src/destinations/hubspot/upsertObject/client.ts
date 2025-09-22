@@ -58,7 +58,7 @@ export class Client {
   }
 
   async batchAssociationsRequest(json: AssociationsReq, toObjectType: string) {
-    console.log("Creating associations in HubSpot", JSON.stringify({ json, toObjectType }, null, 2)) // --- IGNORE ---
+    
     const response = await this.request(
       `${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/create`,
       {
@@ -70,7 +70,6 @@ export class Client {
   }
 
   async batchDissociationsRequest(json: DissociationsReq, toObjectType: string) {
-    console.log("Dissociating in HubSpot", JSON.stringify({ json, toObjectType }, null, 2)) // --- IGNORE ---
     const response = await this.request(
       `${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/archive`,
       {
@@ -99,8 +98,7 @@ export class Client {
     return response
   }
 
-  async addRemoveFromList(listId: string, json: AddRemoveFromListReq) {
-    console.log('Adding/removing from list', listId, json)
+  async addRemoveFromList(listId: string, json: AddRemoveFromListReq) { 
     const response = await this.request<CreateListResp>(
       `${HUBSPOT_BASE_URL}/crm/v3/lists/${listId}/memberships/add-and-remove`,
       {

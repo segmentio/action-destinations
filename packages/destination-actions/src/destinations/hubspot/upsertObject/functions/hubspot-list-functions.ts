@@ -1,9 +1,67 @@
 import { Client } from '../client'
-import { CachableList, PayloadWithFromId, AddRemoveFromListReq } from '../types'
+import { CachableList, PayloadWithFromId, AddRemoveFromListReq, EngageAudiencePayload, PayloadListType } from '../types'
 import { StatsContext, RetryableError, PayloadValidationError } from '@segment/actions-core'
 import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import { getListFromCache, saveListToCache } from '../functions/cache-functions'
 import { HubSpotError } from '../../errors'
+import { Payload } from '../generated-types'
+import { ENGAGE_AUDIENCE_COMPUTATION_CLASSES } from '../constants'
+
+export function getListName(payload: Payload): string | undefined {
+  const listPayloadType = getListPayloadType(payload)
+  switch(listPayloadType) {
+    case 'is_not_audience_payload':
+      return undefined
+    case 'is_non_engage_audience_payload': {
+      const listName = payload?.list_details?.list_name?.trim() || undefined
+      return listName
+    }
+    case 'is_engage_audience_payload': {
+      const { computation_key } = payload as EngageAudiencePayload
+      return (payload?.list_details?.list_name || computation_key) as string | undefined
+    }
+  }
+}
+
+export function getListPayloadType(payload: Payload): PayloadListType {
+  const {
+    list_details: { connected_to_engage_audience, list_action, list_name, should_create_list } = {},
+    traits_or_props, 
+    computation_class = '',
+    computation_key = ''
+  } = payload
+
+  if (connected_to_engage_audience === true 
+    && computation_key!== '' 
+    && ENGAGE_AUDIENCE_COMPUTATION_CLASSES.includes(computation_class)
+    && typeof traits_or_props === 'object' 
+    && typeof traits_or_props[computation_key] === 'boolean') {
+    return 'is_engage_audience_payload'
+  } else if (connected_to_engage_audience === false
+    && typeof list_action === 'boolean'
+    && typeof list_name === 'string' 
+    && list_name.trim().length > 0
+    && typeof should_create_list === 'boolean'
+  ) {
+    return 'is_non_engage_audience_payload'
+  }
+  return 'is_not_audience_payload'
+}
+
+function getListAction(payload: PayloadWithFromId): boolean | undefined{
+  const listPayloadType = getListPayloadType(payload)
+
+  switch(listPayloadType) {
+    case 'is_not_audience_payload':
+      return undefined
+    case 'is_non_engage_audience_payload':
+      return payload?.list_details?.list_action
+    case 'is_engage_audience_payload': {
+      const action = (payload as EngageAudiencePayload)?.traits_or_props[payload.computation_key as string] as boolean
+      return typeof action === 'boolean' ? action : undefined 
+    }
+  }
+}
 
 export async function ensureList(
   client: Client,
@@ -114,10 +172,10 @@ async function createListInHubspot(
 export async function sendLists(client: Client, cachableList: CachableList, fromRecordPayloads: PayloadWithFromId[]) {
   const json: AddRemoveFromListReq = {
     recordIdsToAdd: fromRecordPayloads
-      .filter((p) => p.list_details?.list_action == true)
+      .filter((p) => getListAction(p) == true)
       .map((p) => p.object_details.record_id),
     recordIdsToRemove: fromRecordPayloads
-      .filter((p) => p.list_details?.list_action == false)
+      .filter((p) => getListAction(p) == false)
       .map((p) => p.object_details.record_id)
   }
   await client.addRemoveFromList(cachableList.listId, json)
