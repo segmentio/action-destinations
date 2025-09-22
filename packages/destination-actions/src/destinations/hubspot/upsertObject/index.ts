@@ -14,8 +14,7 @@ import { getListName, ensureList, sendLists } from './functions/hubspot-list-fun
 import {
   sendAssociatedRecords,
   createAssociationPayloads,
-  sendAssociations,
-  readAssociatedRecords
+  sendAssociations
 } from './functions/hubspot-association-functions'
 import { getSchemaFromHubspot, createProperties } from './functions/hubspot-properties-functions'
 
