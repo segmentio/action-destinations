@@ -14,8 +14,7 @@ import { getListName, ensureList, sendLists } from './functions/hubspot-list-fun
 import {
   sendAssociatedRecords,
   createAssociationPayloads,
-  sendAssociations,
-  readAssociatedRecords
+  sendAssociations
 } from './functions/hubspot-association-functions'
 import { getSchemaFromHubspot, createProperties } from './functions/hubspot-properties-functions'
 
@@ -77,7 +76,7 @@ const send = async (
   const client = new Client(request, objectType)
   const validPayloads = validate(payloads, flag)
 
-  if(flag){
+  if (flag) {
     listName = getListName(payloads[0])
   }
 
@@ -110,27 +109,31 @@ const send = async (
   }
 
   let cachableList = undefined
-  if(flag){
+  if (flag) {
     const shouldCreateList = list_details?.should_create_list ?? false
     cachableList = await ensureList(client, objectType, listName, shouldCreateList, subscriptionMetadata, statsContext)
   }
-  
+
   const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
   const associationPayloads = createAssociationPayloads(fromRecordPayloads, 'associations')
-  const associatedRecords = await sendAssociatedRecords(client, associationPayloads, associationSyncMode as AssociationSyncMode)
+  const associatedRecords = await sendAssociatedRecords(
+    client,
+    associationPayloads,
+    associationSyncMode as AssociationSyncMode
+  )
   await sendAssociations(client, associatedRecords, 'create')
 
-  if(flag) {
+  if (flag) {
     const dissociationPayloads = createAssociationPayloads(fromRecordPayloads, 'dissociations')
     // We don't want to create new records when dissociating, hence forcing AssociationSyncMode.Read
     const dissociatedRecords = await sendAssociatedRecords(client, dissociationPayloads, AssociationSyncMode.Read)
     await sendAssociations(client, dissociatedRecords, 'archive')
-  
+
     if (cachableList) {
       await sendLists(client, cachableList, fromRecordPayloads)
     }
   }
-  
+
   return
 }
 

@@ -55,7 +55,6 @@ beforeEach((done) => {
 describe('Hubspot.upsertObject', () => {
   describe('perform', () => {
     it('should dissociate a record and associate a record correctly', async () => {
-      
       const upsertObjectReq = {
         inputs: [
           {
@@ -122,9 +121,9 @@ describe('Hubspot.upsertObject', () => {
       }
 
       const readReq = {
-        idProperty: "kompany", 
-        properties: ["kompany"], 
-        inputs: [{"id": "company_id_1"}]
+        idProperty: 'kompany',
+        properties: ['kompany'],
+        inputs: [{ id: 'company_id_1' }]
       }
 
       const readResp = {
@@ -137,28 +136,22 @@ describe('Hubspot.upsertObject', () => {
           }
         ]
       }
-      
+
       const archiveReq = {
-        inputs:[
-          {"types":[
-            {associationCategory:"HUBSPOT_DEFINED",
-              associationTypeId:"1"
-            }],
-            from:{
-              id:"62102303560"
+        inputs: [
+          {
+            types: [{ associationCategory: 'HUBSPOT_DEFINED', associationTypeId: '1' }],
+            from: {
+              id: '62102303560'
             },
-            to:[
-              {id:"798758764867"}
-            ]
+            to: [{ id: '798758764867' }]
           }
         ]
       }
 
       const event = createTestEvent(payload)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq)
-        .reply(200, upsertObjectResp)
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
 
       nock(HUBSPOT_BASE_URL)
         .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)
@@ -169,13 +162,9 @@ describe('Hubspot.upsertObject', () => {
         .reply(200)
 
       // read request for dissociations
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/company/batch/read', readReq)
-        .reply(200, readResp)
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/company/batch/read', readReq).reply(200, readResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v4/associations/contact/company/batch/archive', archiveReq)
-        .reply(200)
+      nock(HUBSPOT_BASE_URL).post('/crm/v4/associations/contact/company/batch/labels/archive', archiveReq).reply(200)
 
       const responses = await testDestination.testAction('upsertObject', {
         event,
@@ -189,7 +178,6 @@ describe('Hubspot.upsertObject', () => {
     })
 
     it('should dissociate multiple records and associate mulitple records correctly', async () => {
-      
       const modifiedPayload = {
         ...payload,
         properties: {
@@ -324,9 +312,9 @@ describe('Hubspot.upsertObject', () => {
       }
 
       const readReq = {
-        idProperty: "kompany", 
-        properties: ["kompany"], 
-        inputs: [{"id": "company_id_1"}, {"id": "company_id_2"}]
+        idProperty: 'kompany',
+        properties: ['kompany'],
+        inputs: [{ id: 'company_id_1' }, { id: 'company_id_2' }]
       }
 
       const readResp = {
@@ -345,45 +333,39 @@ describe('Hubspot.upsertObject', () => {
           }
         ]
       }
-      
+
       const archiveReq = {
-        inputs:[
+        inputs: [
           {
-            types:[
+            types: [
               {
-                associationCategory:"HUBSPOT_DEFINED",
-                associationTypeId:"1"
+                associationCategory: 'HUBSPOT_DEFINED',
+                associationTypeId: '1'
               }
             ],
-            from:{
-              id:"62102303560"
+            from: {
+              id: '62102303560'
             },
-            to:[
-              {id:"798758764867"}
-            ]
+            to: [{ id: '798758764867' }]
           },
           {
-            types:[
+            types: [
               {
-                associationCategory:"USER_DEFINED",
-                associationTypeId:"3"
+                associationCategory: 'USER_DEFINED',
+                associationTypeId: '3'
               }
             ],
-            from:{
-              id:"62102303560"
+            from: {
+              id: '62102303560'
             },
-            to:[
-              {id:"9898989898989"}
-            ]
+            to: [{ id: '9898989898989' }]
           }
         ]
       }
 
       const event = createTestEvent(modifiedPayload)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq)
-        .reply(200, upsertObjectResp)
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
 
       nock(HUBSPOT_BASE_URL)
         .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)
@@ -394,13 +376,9 @@ describe('Hubspot.upsertObject', () => {
         .reply(200)
 
       // read request for dissociations
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/company/batch/read', readReq)
-        .reply(200, readResp)
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/company/batch/read', readReq).reply(200, readResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v4/associations/contact/company/batch/archive', archiveReq)
-        .reply(200)
+      nock(HUBSPOT_BASE_URL).post('/crm/v4/associations/contact/company/batch/labels/archive', archiveReq).reply(200)
 
       const responses = await testDestination.testAction('upsertObject', {
         event,
@@ -414,349 +392,337 @@ describe('Hubspot.upsertObject', () => {
     })
   })
 
-
   describe('performBatch', () => {
     it('should handle multiple events from a batch, each dissociates multiple records and associates multiple records correctly', async () => {
-
-    const modifiedPayload = {
-      ...payload,
-      properties: {
-        email: 'test@test.com',
-        association_1: {
-          object_type: 'company',
-          association_label: 'HUBSPOT_DEFINED:1',
-          id_field_name: 'kompany',
-          id_field_value: 'company_id_1'
-        },
-        association_2: {
-          object_type: 'deal',
-          association_label: 'HUBSPOT_DEFINED:5',
-          id_field_name: 'deal_id',
-          id_field_value: 'deal_id_1'
-        },
-        disassociation_1: {
-          object_type: 'company',
-          association_label: 'USER_DEFINED:3',
-          id_field_name: 'kompany',
-          id_field_value: 'company_id_1'
-        },
-        disassociation_2: {
-          object_type: 'deal',
-          association_label: 'USER_DEFINED:6',
-          id_field_name: 'deal_id',
-          id_field_value: 'deal_id_1'
+      const modifiedPayload = {
+        ...payload,
+        properties: {
+          email: 'test@test.com',
+          association_1: {
+            object_type: 'company',
+            association_label: 'HUBSPOT_DEFINED:1',
+            id_field_name: 'kompany',
+            id_field_value: 'company_id_1'
+          },
+          association_2: {
+            object_type: 'deal',
+            association_label: 'HUBSPOT_DEFINED:5',
+            id_field_name: 'deal_id',
+            id_field_value: 'deal_id_1'
+          },
+          disassociation_1: {
+            object_type: 'company',
+            association_label: 'USER_DEFINED:3',
+            id_field_name: 'kompany',
+            id_field_value: 'company_id_1'
+          },
+          disassociation_2: {
+            object_type: 'deal',
+            association_label: 'USER_DEFINED:6',
+            id_field_name: 'deal_id',
+            id_field_value: 'deal_id_1'
+          }
         }
+      } as Partial<SegmentEvent>
+
+      const modifiedPayload_2 = {
+        ...payload,
+        properties: {
+          email: 'test2@test.com',
+          association_1: {
+            object_type: 'company',
+            association_label: 'HUBSPOT_DEFINED:1',
+            id_field_name: 'kompany',
+            id_field_value: 'company_id_3'
+          },
+          association_2: {
+            object_type: 'deal',
+            association_label: 'HUBSPOT_DEFINED:5',
+            id_field_name: 'deal_id',
+            id_field_value: 'deal_id_3'
+          },
+          disassociation_1: {
+            object_type: 'company',
+            association_label: 'USER_DEFINED:3',
+            id_field_name: 'kompany',
+            id_field_value: 'company_id_3'
+          },
+          disassociation_2: {
+            object_type: 'deal',
+            association_label: 'USER_DEFINED:6',
+            id_field_name: 'deal_id',
+            id_field_value: 'deal_id_3'
+          }
+        }
+      } as Partial<SegmentEvent>
+
+      const modifiedMapping = {
+        ...mapping,
+        associations: [
+          {
+            object_type: { '@path': '$.properties.association_1.object_type' },
+            association_label: { '@path': '$.properties.association_1.association_label' },
+            id_field_name: { '@path': '$.properties.association_1.id_field_name' },
+            id_field_value: { '@path': '$.properties.association_1.id_field_value' }
+          },
+          {
+            object_type: { '@path': '$.properties.association_2.object_type' },
+            association_label: { '@path': '$.properties.association_2.association_label' },
+            id_field_name: { '@path': '$.properties.association_2.id_field_name' },
+            id_field_value: { '@path': '$.properties.association_2.id_field_value' }
+          }
+        ],
+        dissociations: [
+          {
+            object_type: { '@path': '$.properties.disassociation_1.object_type' },
+            association_label: { '@path': '$.properties.disassociation_1.association_label' },
+            id_field_name: { '@path': '$.properties.disassociation_1.id_field_name' },
+            id_field_value: { '@path': '$.properties.disassociation_1.id_field_value' }
+          },
+          {
+            object_type: { '@path': '$.properties.disassociation_2.object_type' },
+            association_label: { '@path': '$.properties.disassociation_2.association_label' },
+            id_field_name: { '@path': '$.properties.disassociation_2.id_field_name' },
+            id_field_value: { '@path': '$.properties.disassociation_2.id_field_value' }
+          }
+        ]
       }
-    } as Partial<SegmentEvent>
 
-    const modifiedPayload_2 = {
-      ...payload,
-      properties: {
-        email: 'test2@test.com',
-        association_1: {
-          object_type: 'company',
-          association_label: 'HUBSPOT_DEFINED:1',
-          id_field_name: 'kompany',
-          id_field_value: 'company_id_3'
-        },
-        association_2: {
-          object_type: 'deal',
-          association_label: 'HUBSPOT_DEFINED:5',
-          id_field_name: 'deal_id',
-          id_field_value: 'deal_id_3'
-        },
-        disassociation_1: {
-          object_type: 'company',
-          association_label: 'USER_DEFINED:3',
-          id_field_name: 'kompany',
-          id_field_value: 'company_id_3'
-        },
-        disassociation_2: {
-          object_type: 'deal',
-          association_label: 'USER_DEFINED:6',
-          id_field_name: 'deal_id',
-          id_field_value: 'deal_id_3'
-        }
+      const upsertObjectReq = {
+        inputs: [
+          {
+            idProperty: 'email',
+            id: 'test@test.com',
+            properties: {
+              email: 'test@test.com'
+            }
+          },
+          {
+            idProperty: 'email',
+            id: 'test2@test.com',
+            properties: {
+              email: 'test2@test.com'
+            }
+          }
+        ]
       }
-    } as Partial<SegmentEvent>
 
-    const modifiedMapping = {
-      ...mapping,
-      associations: [
-        {
-          object_type: { '@path': '$.properties.association_1.object_type' },
-          association_label: { '@path': '$.properties.association_1.association_label' },
-          id_field_name: { '@path': '$.properties.association_1.id_field_name' },
-          id_field_value: { '@path': '$.properties.association_1.id_field_value' }
-        },
-        {
-          object_type: { '@path': '$.properties.association_2.object_type' },
-          association_label: { '@path': '$.properties.association_2.association_label' },
-          id_field_name: { '@path': '$.properties.association_2.id_field_name' },
-          id_field_value: { '@path': '$.properties.association_2.id_field_value' }
-        }
-      ],
-      dissociations: [
-        {
-          object_type: { '@path': '$.properties.disassociation_1.object_type' },
-          association_label: { '@path': '$.properties.disassociation_1.association_label' },
-          id_field_name: { '@path': '$.properties.disassociation_1.id_field_name' },
-          id_field_value: { '@path': '$.properties.disassociation_1.id_field_value' }
-        },
-        {
-          object_type: { '@path': '$.properties.disassociation_2.object_type' },
-          association_label: { '@path': '$.properties.disassociation_2.association_label' },
-          id_field_name: { '@path': '$.properties.disassociation_2.id_field_name' },
-          id_field_value: { '@path': '$.properties.disassociation_2.id_field_value' }
-        }
-      ]
-    }
-
-
-    const upsertObjectReq = {
-      inputs: [
-        {
-          idProperty: "email",
-          id: "test@test.com",
-          properties: {
-            email: "test@test.com"
-          }
-        },
-        {
-          idProperty: "email",
-          id: "test2@test.com",
-          properties: {
-            email: "test2@test.com"
-          }
-        }
-      ]
-    }
-
-    const upsertObjectResp = {
-      results: [
-        {
-          id: 'hubspot_contact_id_value_1',
-          properties: {
-            email: 'test@test.com'
-          }
-        },
-        {
-          id: 'hubspot_contact_id_value_2',
-          properties: {
-            email: 'test2@test.com'
-          }
-        }
-      ]
-    }
-
-    const upsertAssocCompanyRecordReq = {
-      inputs: [
-        {
-          idProperty: 'kompany',
-          id: 'company_id_1',
-          properties: {
-            kompany: 'company_id_1'
-          }
-        },
-        {
-          idProperty: 'kompany',
-          id: 'company_id_3',
-          properties: {
-            kompany: 'company_id_3'
-          }
-        }
-      ]
-    }
-
-    const upsertAssocCompanyRecordResp = {
-      results: [
-        {
-          id: '798758764867',
-          properties: {
-            kompany: 'company_id_1'
-          }
-        },
-        {
-          id: '9898989898989',
-          properties: {
-            kompany: 'company_id_3'
-          }
-        }
-      ]
-    }
-
-    const upsertAssocDealRecordReq = {
-      inputs: [
-        {
-          idProperty: "deal_id",
-          id: "deal_id_1",
-          properties: {
-            deal_id: "deal_id_1"
-          }
-        },
-        {
-          idProperty: "deal_id",
-          id: "deal_id_3",
-          properties: {
-            deal_id: "deal_id_3"
-          }
-        }
-      ]
-    }
-
-    const upsertAssocDealRecordResp = {
-      results: [
-        {
-          id: 'hs-deal-record-id-value-1',
-          properties: {
-            kompany: 'deal_id_1'
-          }
-        },
-        {
-          id: 'hs-deal-record-id-value-3',
-          properties: {
-            kompany: 'deal_id_3'
-          }
-        }
-      ]
-    }
-
-
-
-    const upsertCompanyAssociationReq = {
-      inputs: [
-        {
-          types: [
-            {
-              associationCategory: "HUBSPOT_DEFINED",
-              associationTypeId: "1"
+      const upsertObjectResp = {
+        results: [
+          {
+            id: 'hubspot_contact_id_value_1',
+            properties: {
+              email: 'test@test.com'
             }
-          ],
-          from: {
-            id: "hubspot_contact_id_value_1"
           },
-          to: {
-            id: "798758764867"
-          }
-        },
-        {
-          types: [
-            {
-              associationCategory: "HUBSPOT_DEFINED",
-              associationTypeId: "1"
+          {
+            id: 'hubspot_contact_id_value_2',
+            properties: {
+              email: 'test2@test.com'
             }
-          ],
-          from: {
-            id: "hubspot_contact_id_value_2"
+          }
+        ]
+      }
+
+      const upsertAssocCompanyRecordReq = {
+        inputs: [
+          {
+            idProperty: 'kompany',
+            id: 'company_id_1',
+            properties: {
+              kompany: 'company_id_1'
+            }
           },
-          to: {
-            id: "9898989898989"
-          }
-        }
-      ]
-    };
-
-
-    const readCompanyReq = {
-      idProperty: "kompany",
-      properties: ["kompany"],
-      inputs: [
-        {
-          id: "company_id_1"
-        },
-        {
-          id: "company_id_3"
-        }
-      ]
-    }
-
-    const readCompanyResp = {
-      results: [
-        {
-          id: '798758764867',
-          properties: {
-            kompany: 'company_id_1'
-          }
-        },
-        {
-          id: '9898989898989',
-          properties: {
-            kompany: 'company_id_3'
-          }
-        }
-      ]
-    }
-
-    const readDealReq = {
-      idProperty: "deal_id",
-      properties: ["deal_id"],
-      inputs: [
-        { id: "deal_id_1" },
-        { id: "deal_id_3" }
-      ]
-    }
-
-    const readDealResp = {
-      results: [
-        {
-          id: '66666666666',
-          properties: {
-            deal_id: 'hs-deal-record-id-value-1'
-          }
-        },
-        {
-          id: '555555555555',
-          properties: {
-            deal_id: 'hs-deal-record-id-value-3'
-          }
-        }
-      ]
-    }
-    
-    const archiveReq = {
-      inputs: [
-        {
-          types: [
-            {
-              associationCategory: "USER_DEFINED",
-              associationTypeId: "3"
+          {
+            idProperty: 'kompany',
+            id: 'company_id_3',
+            properties: {
+              kompany: 'company_id_3'
             }
-          ],
-          from: {
-            id: "hubspot_contact_id_value_1"
+          }
+        ]
+      }
+
+      const upsertAssocCompanyRecordResp = {
+        results: [
+          {
+            id: '798758764867',
+            properties: {
+              kompany: 'company_id_1'
+            }
           },
-          to: [
-            {
-              id: "798758764867"
+          {
+            id: '9898989898989',
+            properties: {
+              kompany: 'company_id_3'
             }
-          ]
-        },
-        {
-          types: [
-            {
-              associationCategory: "USER_DEFINED",
-              associationTypeId: "3"
-            }
-          ],
-          from: {
-            id: "hubspot_contact_id_value_2"
-          },
-          to: [
-            {
-              id: "9898989898989"
-            }
-          ]
-        }
-      ]
-    }
+          }
+        ]
+      }
 
+      const upsertAssocDealRecordReq = {
+        inputs: [
+          {
+            idProperty: 'deal_id',
+            id: 'deal_id_1',
+            properties: {
+              deal_id: 'deal_id_1'
+            }
+          },
+          {
+            idProperty: 'deal_id',
+            id: 'deal_id_3',
+            properties: {
+              deal_id: 'deal_id_3'
+            }
+          }
+        ]
+      }
+
+      const upsertAssocDealRecordResp = {
+        results: [
+          {
+            id: 'hs-deal-record-id-value-1',
+            properties: {
+              kompany: 'deal_id_1'
+            }
+          },
+          {
+            id: 'hs-deal-record-id-value-3',
+            properties: {
+              kompany: 'deal_id_3'
+            }
+          }
+        ]
+      }
+
+      const upsertCompanyAssociationReq = {
+        inputs: [
+          {
+            types: [
+              {
+                associationCategory: 'HUBSPOT_DEFINED',
+                associationTypeId: '1'
+              }
+            ],
+            from: {
+              id: 'hubspot_contact_id_value_1'
+            },
+            to: {
+              id: '798758764867'
+            }
+          },
+          {
+            types: [
+              {
+                associationCategory: 'HUBSPOT_DEFINED',
+                associationTypeId: '1'
+              }
+            ],
+            from: {
+              id: 'hubspot_contact_id_value_2'
+            },
+            to: {
+              id: '9898989898989'
+            }
+          }
+        ]
+      }
+
+      const readCompanyReq = {
+        idProperty: 'kompany',
+        properties: ['kompany'],
+        inputs: [
+          {
+            id: 'company_id_1'
+          },
+          {
+            id: 'company_id_3'
+          }
+        ]
+      }
+
+      const readCompanyResp = {
+        results: [
+          {
+            id: '798758764867',
+            properties: {
+              kompany: 'company_id_1'
+            }
+          },
+          {
+            id: '9898989898989',
+            properties: {
+              kompany: 'company_id_3'
+            }
+          }
+        ]
+      }
+
+      const readDealReq = {
+        idProperty: 'deal_id',
+        properties: ['deal_id'],
+        inputs: [{ id: 'deal_id_1' }, { id: 'deal_id_3' }]
+      }
+
+      const readDealResp = {
+        results: [
+          {
+            id: '66666666666',
+            properties: {
+              deal_id: 'hs-deal-record-id-value-1'
+            }
+          },
+          {
+            id: '555555555555',
+            properties: {
+              deal_id: 'hs-deal-record-id-value-3'
+            }
+          }
+        ]
+      }
+
+      const archiveReq = {
+        inputs: [
+          {
+            types: [
+              {
+                associationCategory: 'USER_DEFINED',
+                associationTypeId: '3'
+              }
+            ],
+            from: {
+              id: 'hubspot_contact_id_value_1'
+            },
+            to: [
+              {
+                id: '798758764867'
+              }
+            ]
+          },
+          {
+            types: [
+              {
+                associationCategory: 'USER_DEFINED',
+                associationTypeId: '3'
+              }
+            ],
+            from: {
+              id: 'hubspot_contact_id_value_2'
+            },
+            to: [
+              {
+                id: '9898989898989'
+              }
+            ]
+          }
+        ]
+      }
 
       const event1 = createTestEvent(modifiedPayload)
       const event2 = createTestEvent(modifiedPayload_2)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq)
-        .reply(200, upsertObjectResp)
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
 
       nock(HUBSPOT_BASE_URL)
         .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)
@@ -771,18 +737,12 @@ describe('Hubspot.upsertObject', () => {
         .reply(200)
 
       // read request for dissociations
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/company/batch/read', readCompanyReq)
-        .reply(200, readCompanyResp)
-      
-        // read request for dissociations
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/deal/batch/read', readDealReq)
-        .reply(200, readDealResp)
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/company/batch/read', readCompanyReq).reply(200, readCompanyResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v4/associations/contact/company/batch/archive', archiveReq)
-        .reply(200)
+      // read request for dissociations
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/deal/batch/read', readDealReq).reply(200, readDealResp)
+
+      nock(HUBSPOT_BASE_URL).post('/crm/v4/associations/contact/company/batch/labels/archive', archiveReq).reply(200)
 
       const responses = await testDestination.testBatchAction('upsertObject', {
         events: [event1, event2],
@@ -795,5 +755,4 @@ describe('Hubspot.upsertObject', () => {
       expect(responses.length).toBe(7)
     })
   })
-
 })
