@@ -84,7 +84,7 @@ const action: ActionDefinition<Settings, Payload> = {
       options = JSON.stringify({ min_id_length })
     }
 
-    // Associate user to group if user_id or device_id is present
+    // Associate user to group if user_id or device_id is present.
     if (payload.user_id || payload.device_id) {
       await request(getEndpointByRegion('identify', settings.endpoint), {
         method: 'post',
