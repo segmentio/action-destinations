@@ -74,8 +74,6 @@ export async function syncAudienceMembers(
     audienceEnteredPayloads.length > 0 ? buildRequestBody(audienceEnteredPayloads, audienceSettings) : undefined
   const audienceExitedBody =
     audienceExitedPayloads.length > 0 ? buildRequestBody(audienceExitedPayloads, audienceSettings) : undefined
-  console.log('audienceEnteredBody', JSON.stringify(audienceEnteredBody, null, 2))
-  console.log('audienceExitedBody', JSON.stringify(audienceExitedBody, null, 2))
 
   if (!audienceEnteredBody && !audienceExitedBody) {
     throw new PayloadValidationError('No valid payloads to process. Ensure event_name is set correctly.')
@@ -110,7 +108,6 @@ export async function syncAudienceMembers(
       )
     }
   }
-  console.log('responses', JSON.stringify(responses, null, 2))
   return responses.length === 1 ? responses[0] : responses
 }
 

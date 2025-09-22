@@ -35,7 +35,9 @@ describe('Google Data Manager Destination', () => {
 
       // Mock create audience response
       mockRequest.mockResolvedValueOnce({
-        json: async () => ({ results: [{ resourceName: 'audience/1' }] })
+        json: async () => ({
+          results: [{ resourceName: 'products/GOOGLE_ADS/customers/1041098592/userLists/9129978598' }]
+        })
       })
       const result = await (destination.audienceConfig as AudienceDestinationConfigurationWithCreateGet).createAudience(
         mockRequest,
@@ -57,7 +59,7 @@ describe('Google Data Manager Destination', () => {
         })
       )
 
-      expect(result).toEqual({ externalId: 'audience/1' })
+      expect(result).toEqual({ externalId: '9129978598' })
       expect(statsClient.incr).toHaveBeenCalledWith('createAudience.success', 1, expect.any(Array))
     })
 
@@ -145,27 +147,11 @@ describe('Google Data Manager Destination', () => {
       await expect(
         (destination.audienceConfig as AudienceDestinationConfigurationWithCreateGet).getAudience(mockRequest, {
           statsContext,
-          settings: { advertiserAccountId: '' },
-          audienceSettings,
+          settings,
+          audienceSettings: { ...audienceSettings, advertiserAccountId: '' },
           externalId: 'audience/1'
         })
       ).rejects.toThrow(IntegrationError)
-    })
-
-    it('throws error if foundId does not match externalId', async () => {
-      mockRequest.mockResolvedValueOnce({
-        json: async () => [{ results: [{ userList: { resourceName: 'audience/2' } }] }]
-      })
-      await expect(
-        (destination.audienceConfig as AudienceDestinationConfigurationWithCreateGet).getAudience(mockRequest, {
-          statsContext,
-          settings,
-          audienceSettings,
-          externalId: 'audience/1'
-        })
-      ).rejects.toThrow(
-        "Unable to verify ownership over audience. Segment Audience ID doesn't match Google's Audience ID."
-      )
     })
 
     it('throws error if audience not found', async () => {

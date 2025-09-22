@@ -9,14 +9,23 @@ describe('Sync User Data Action', () => {
   let mockRequest: jest.Mock
   const mockSettings = {}
   const mockAudienceSettings = {
-    audienceId: 'aud-123',
     product: 'PRODUCT',
-    productDestinationId: 'dest-456',
     advertiserAccountId: 'acc-123',
-    membershipDurationDays: '560'
+    membershipDurationDays: '560',
+    description: 'Test Audience',
+    externalIdType: 'test_audience_id'
   } as AudienceSettings
-  const mockPayload = { emailAddress: 'test@example.com', event_name: 'Audience Entered' } as any
-  const mockBatchPayload = [mockPayload, { emailAddress: 'other@example.com', event_name: 'Audience Entered' }]
+  const mockPayload = {
+    emailAddress: 'test@example.com',
+    event_name: 'Audience Entered',
+    audienceId: '12345',
+    enable_batching: false,
+    batch_size: 1000
+  } as Payload
+  const mockBatchPayload = [
+    mockPayload,
+    { emailAddress: 'other@example.com', event_name: 'Audience Entered', enable_batching: true, batch_size: 500 }
+  ] as Payload[]
   const mockResponse = { success: true }
 
   beforeEach(() => {
@@ -53,8 +62,16 @@ describe('Sync User Data Action', () => {
   })
 
   it('calls request for both Audience Entered and Audience Exited in performBatch', async () => {
-    const enteredPayload = { emailAddress: 'entered@example.com', event_name: 'Audience Entered' } as Payload
-    const exitedPayload = { emailAddress: 'exited@example.com', event_name: 'Audience Exited' } as Payload
+    const enteredPayload = {
+      emailAddress: 'entered@example.com',
+      event_name: 'Audience Entered',
+      audienceId: 'test_id'
+    } as Payload
+    const exitedPayload = {
+      emailAddress: 'exited@example.com',
+      event_name: 'Audience Exited',
+      audienceId: 'test_id'
+    } as Payload
     const batchPayload = [enteredPayload, exitedPayload]
 
     await action.performBatch?.(mockRequest, {
