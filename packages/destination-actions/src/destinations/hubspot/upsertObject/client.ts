@@ -2,7 +2,6 @@ import { RequestClient } from '@segment/actions-core'
 import { HUBSPOT_BASE_URL } from '../properties'
 import {
   AssociationsReq,
-  DissociationsReq,
   ObjReqType,
   CreateReq,
   CreatePropsReq,
@@ -58,7 +57,6 @@ export class Client {
   }
 
   async batchAssociationsRequest(json: AssociationsReq, toObjectType: string) {
-    
     const response = await this.request(
       `${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/create`,
       {
@@ -69,7 +67,7 @@ export class Client {
     return response
   }
 
-  async batchDissociationsRequest(json: DissociationsReq, toObjectType: string) {
+  async batchDissociationsRequest(json: AssociationsReq, toObjectType: string) {
     const response = await this.request(
       `${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/labels/archive`,
       {
@@ -98,7 +96,7 @@ export class Client {
     return response
   }
 
-  async addRemoveFromList(listId: string, json: AddRemoveFromListReq) { 
+  async addRemoveFromList(listId: string, json: AddRemoveFromListReq) {
     const response = await this.request<CreateListResp>(
       `${HUBSPOT_BASE_URL}/crm/v3/lists/${listId}/memberships/add-and-remove`,
       {

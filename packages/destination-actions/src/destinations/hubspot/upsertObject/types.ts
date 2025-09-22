@@ -178,19 +178,6 @@ export interface AssociationsReq {
   }[]
 }
 
-export interface DissociationsReq {
-  inputs: {
-    types: AssociationType[]
-    from: {
-      id: string
-    }
-    to: Array<{
-      id: string
-    }>
-  }[]
-}
-
-
 export interface AssociationType {
   associationCategory: AssociationCategory
   associationTypeId: string
