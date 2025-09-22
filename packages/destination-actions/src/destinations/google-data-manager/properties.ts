@@ -1,5 +1,4 @@
 import { InputField } from '@segment/actions-core'
-import { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 
 export const external_id: InputField = {
   label: 'External ID',
@@ -11,7 +10,7 @@ export const external_id: InputField = {
   unsafe_hidden: true
 }
 
-const atLeastOneIdentifierRequired: DependsOnConditions = {
+/*const atLeastOneIdentifierRequired: DependsOnConditions = {
   match: 'any',
   conditions: [
     { operator: 'is_not', fieldKey: 'emailAddress', value: undefined },
@@ -22,14 +21,14 @@ const atLeastOneIdentifierRequired: DependsOnConditions = {
     { operator: 'is_not', fieldKey: 'regionCode', value: undefined },
     { operator: 'is_not', fieldKey: 'postalCode', value: undefined }
   ]
-}
+}*/ // TODO: atleast one of email, phone, or (first+last+country+postal)
 
 export const emailAddress: InputField = {
   label: 'Email Address',
   description: 'The email address of the audience member.',
   type: 'string',
-  required: atLeastOneIdentifierRequired,
-  default: { '@path': '$.traits.email' },
+  // required: atLeastOneIdentifierRequired,
+  default: { '@path': '$.context.traits.email' },
   category: 'hashedPII'
 }
 
@@ -37,8 +36,8 @@ export const phoneNumber: InputField = {
   label: 'Phone Number',
   description: 'The phone number of the audience member.',
   type: 'string',
-  required: atLeastOneIdentifierRequired,
-  default: { '@path': '$.traits.phone' },
+  // required: atLeastOneIdentifierRequired,
+  default: { '@path': '$.context.traits.phone' },
   category: 'hashedPII'
 }
 
@@ -46,16 +45,16 @@ export const postalCode: InputField = {
   label: 'Postal Code',
   description: 'The postal code of the audience member.',
   type: 'string',
-  required: atLeastOneIdentifierRequired,
-  default: { '@path': '$.traits.postalCode' }
+  // required: atLeastOneIdentifierRequired,
+  default: { '@path': '$.context.traits.postalCode' }
 }
 
 export const givenName: InputField = {
   label: 'Given Name',
   description: 'The given name (first name) of the audience member.',
   type: 'string',
-  required: atLeastOneIdentifierRequired,
-  default: { '@path': '$.traits.firstName' },
+  // required: atLeastOneIdentifierRequired,
+  default: { '@path': '$.context.traits.firstName' },
   category: 'hashedPII'
 }
 
@@ -63,8 +62,8 @@ export const familyName: InputField = {
   label: 'Family Name',
   description: 'The family name (last name) of the audience member.',
   type: 'string',
-  required: atLeastOneIdentifierRequired,
-  default: { '@path': '$.traits.lastName' },
+  // required: atLeastOneIdentifierRequired,
+  default: { '@path': '$.context.traits.lastName' },
   category: 'hashedPII'
 }
 
@@ -73,7 +72,7 @@ export const countryCode: InputField = {
   description: `The country code of the user.`,
   type: 'string',
   default: {
-    '@path': '$.traits.countryCode'
+    '@path': '$.context.traits.countryCode'
   }
 }
 
