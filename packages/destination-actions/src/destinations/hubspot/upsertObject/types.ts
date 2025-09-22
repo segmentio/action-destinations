@@ -139,35 +139,20 @@ export interface BatchObjResp {
   }>
 }
 
-interface OmitPayload extends Omit<Payload, 'enable_batching' | 'batch_size' | 'association_sync_mode' | 'list_details' | 'batch_keys'> {}
-
-export interface PayloadWithFromId extends OmitPayload {
-  object_details: OmitPayload['object_details'] & {
+export interface PayloadWithFromId extends Payload {
+  object_details: Payload['object_details'] & {
     record_id: string
   }
-  associations?: Array<{
-    object_type: string
-    association_label: string
-    id_field_name: string
-    id_field_value: string
-    from_record_id: string
-  }>
-  dissociations?: Array<{
-    object_type: string
-    association_label: string
-    id_field_name: string
-    id_field_value: string
-    from_record_id: string
-  }>
-  list_details?: {
-    list_name: string
-    list_action: boolean
-    should_create_list: boolean
-  }
+  associations?: Array<NonNullable<Payload['associations']>[number] & { from_record_id: string }>
+  dissociations?: Array<NonNullable<Payload['dissociations']>[number] & { from_record_id: string }>
 }
 
-export interface AssociationPayload extends OmitPayload {
-  object_details: OmitPayload['object_details'] & {
+export interface AssociationPayload {
+  object_details: {
+    object_type: string
+    id_field_name: string
+    id_field_value: string
+    property_group?: string
     from_record_id: string
   }
   association_details: {
@@ -294,3 +279,12 @@ export interface AddRemoveFromListReq {
   recordIdsToAdd?: string[]
   recordIdsToRemove?: string[]
 }
+
+export type EngageAudiencePayload = Payload & {
+  traits_or_props: {
+    [k : string]: unknown
+  }
+  computation_key: string
+}
+
+export type PayloadListType = 'is_engage_audience_payload' | 'is_non_engage_audience_payload' | 'is_not_audience_payload'
