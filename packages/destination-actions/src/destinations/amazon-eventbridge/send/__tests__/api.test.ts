@@ -28,8 +28,8 @@ describe('AWS EventBridge Integration', () => {
   }
 
   const hookOutputs: HookOutputs = {
-    onMappingSave: { sourceId: 'test-source' },
-    retlOnMappingSave: { sourceId: 'test-source' }
+    onMappingSave: { outputs: { sourceId: 'test-source' } },
+    retlOnMappingSave: { outputs: { sourceId: 'test-source' } }
   }
 
   afterEach(() => {

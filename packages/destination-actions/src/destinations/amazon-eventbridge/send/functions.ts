@@ -38,11 +38,12 @@ export async function send(
 
 function getSourceId(payloads: Payload[], hookOutputs?: HookOutputs): string {
   const payloadSourceId = payloads[0].sourceId
-  const hookSourceId = hookOutputs?.onMappingSave?.sourceId ?? hookOutputs?.retlOnMappingSave?.sourceId
+  const hookSourceId =
+    hookOutputs?.onMappingSave?.outputs?.sourceId ?? hookOutputs?.retlOnMappingSave?.outputs?.sourceId
 
   if (!payloadSourceId) {
     throw new PayloadValidationError(
-      'Source ID is required. Source ID not found in payload. It should be present at $.context.protocols.sourceId or $.projectId in the payload.'
+      "Source ID is required but was not found in the payload. It should be present at $.context.protocols.sourceId or $.projectId in the payload. When configuring the Action Mapping, make sure to click the 'Ensure Source ID' button."
     )
   }
 
@@ -60,7 +61,6 @@ function getSourceId(payloads: Payload[], hookOutputs?: HookOutputs): string {
 function buildMultiStatusResponse(response: PutPartnerEventsCommandOutput, payloads: Payload[]): MultiStatusResponse {
   const entries: PutPartnerEventsResultEntry[] = response.Entries ?? []
   const multiStatusResponse = new MultiStatusResponse()
-  console.log('Entries' + entries)
   payloads.forEach((event, index) => {
     const entry = entries[index] ?? {}
     if (entry.ErrorCode || entry.ErrorMessage) {

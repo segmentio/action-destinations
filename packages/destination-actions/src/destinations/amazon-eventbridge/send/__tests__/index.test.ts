@@ -52,8 +52,8 @@ const mapping = {
   time: { '@path': '$.timestamp' },
   enable_batching: true,
   batch_size: 10,
-  onMappingSave: { sourceId: 'sourceId1' },
-  retlOnMappingSave: { sourceId: 'sourceId1' }
+  onMappingSave: { outputs: { sourceId: 'sourceId1' } },
+  retlOnMappingSave: { outputs: { sourceId: 'sourceId1' } }
 }
 
 const settings: Settings = {
@@ -158,7 +158,9 @@ describe('AWS EventBridge Integration', () => {
       const mappingHookSourceIdDiff = {
         ...mapping,
         onMappingSave: {
-          sourceId: 'sourceId2'
+          outputs: {
+            sourceId: 'sourceId2'
+          }
         },
         retlOnMappingSave: {}
       }
