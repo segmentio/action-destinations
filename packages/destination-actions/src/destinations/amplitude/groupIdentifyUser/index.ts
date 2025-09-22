@@ -15,7 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       description:
-        'A UUID (unique user ID) specified by you. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event. Required unless device ID is present.',
+        'A UUID (unique user ID) specified by you. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event. If either user_id or device_id is present, an associate user to group call will be made.',
       default: {
         '@path': '$.userId'
       }
@@ -24,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Device ID',
       type: 'string',
       description:
-        'A device specific identifier, such as the Identifier for Vendor (IDFV) on iOS. Required unless user ID is present.',
+        'A device specific identifier, such as the Identifier for Vendor (IDFV) on iOS. If either user_id or device_id is present, an associate user to group call will be made.',
       default: {
         '@if': {
           exists: { '@path': '$.context.device.id' },
@@ -71,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
     min_id_length: {
       label: 'Minimum ID Length',
       description:
-        'Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
+        'Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
       allowNull: true,
       type: 'integer'
     }
@@ -84,25 +84,27 @@ const action: ActionDefinition<Settings, Payload> = {
       options = JSON.stringify({ min_id_length })
     }
 
-    // Associate user to group
-    await request(getEndpointByRegion('identify', settings.endpoint), {
-      method: 'post',
-      body: new URLSearchParams({
-        api_key: settings.apiKey,
-        identification: JSON.stringify([
-          {
-            device_id: payload.device_id,
-            groups: groupAssociation,
-            insert_id: payload.insert_id,
-            library: 'segment',
-            time: dayjs.utc(payload.time).valueOf(),
-            user_id: payload.user_id,
-            user_properties: groupAssociation
-          }
-        ]),
-        options
-      } as Record<string, string>)
-    })
+    // Associate user to group if user_id or device_id is present
+    if (payload.user_id || payload.device_id) {
+      await request(getEndpointByRegion('identify', settings.endpoint), {
+        method: 'post',
+        body: new URLSearchParams({
+          api_key: settings.apiKey,
+          identification: JSON.stringify([
+            {
+              device_id: payload.device_id,
+              groups: groupAssociation,
+              insert_id: payload.insert_id,
+              library: 'segment',
+              time: dayjs.utc(payload.time).valueOf(),
+              user_id: payload.user_id,
+              user_properties: groupAssociation
+            }
+          ]),
+          options
+        } as Record<string, string>)
+      })
+    }
 
     // Associate group properties
     return request(getEndpointByRegion('groupidentify', settings.endpoint), {
