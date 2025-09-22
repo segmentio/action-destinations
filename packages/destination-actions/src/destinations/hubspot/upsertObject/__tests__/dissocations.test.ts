@@ -174,7 +174,7 @@ describe('Hubspot.upsertObject', () => {
         .reply(200, readResp)
 
       nock(HUBSPOT_BASE_URL)
-        .post('/crm/v4/associations/contact/company/batch/archive', archiveReq)
+        .post('/crm/v4/associations/contact/company/batch/labels/archive', archiveReq)
         .reply(200)
 
       const responses = await testDestination.testAction('upsertObject', {
@@ -399,7 +399,7 @@ describe('Hubspot.upsertObject', () => {
         .reply(200, readResp)
 
       nock(HUBSPOT_BASE_URL)
-        .post('/crm/v4/associations/contact/company/batch/archive', archiveReq)
+        .post('/crm/v4/associations/contact/company/batch/labels/archive', archiveReq)
         .reply(200)
 
       const responses = await testDestination.testAction('upsertObject', {
@@ -781,7 +781,7 @@ describe('Hubspot.upsertObject', () => {
         .reply(200, readDealResp)
 
       nock(HUBSPOT_BASE_URL)
-        .post('/crm/v4/associations/contact/company/batch/archive', archiveReq)
+        .post('/crm/v4/associations/contact/company/batch/labels/archive', archiveReq)
         .reply(200)
 
       const responses = await testDestination.testBatchAction('upsertObject', {
