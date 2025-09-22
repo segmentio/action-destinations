@@ -188,8 +188,7 @@ export const commonFields: Record<string, InputField> = {
       },
       list_name: {
         label: 'List Name',
-        description:
-          'The name of the Hubspot List to add or remove the record from. If connecting to an Engage Audience this field can be left empty.',
+        description: "The name of the Hubspot List to add or remove the record from. If connecting to an Engage Audience this field can be left empty.",
         type: 'string',
         required: false,
         allowNull: false,
@@ -200,16 +199,16 @@ export const commonFields: Record<string, InputField> = {
         description: `Specify if the record should be added or removed from the list. true = add to list, false = remove from list. If connecting an Engage Audience this field must be left empty.`,
         type: 'boolean',
         disabledInputMethods: ['literal', 'freeform'],
-        required: {
+        required:  {
           match: 'all',
           conditions: [
             {
-              fieldKey: 'list_details.list_name',
+              fieldKey: 'list_name',
               operator: 'is_not',
-              value: [null, '']
+              value: [null,'']
             },
             {
-              fieldKey: 'list_details.connected_to_engage_audience',
+              fieldKey: 'connected_to_engage_audience',
               operator: 'is',
               value: false
             }
@@ -218,7 +217,7 @@ export const commonFields: Record<string, InputField> = {
         depends_on: {
           conditions: [
             {
-              fieldKey: 'list_details.connected_to_engage_audience',
+              fieldKey: 'connected_to_engage_audience',
               operator: 'is',
               value: false
             }
@@ -288,8 +287,7 @@ export const commonFields: Record<string, InputField> = {
   },
   computation_key: {
     label: 'Engage Audience Computation Key',
-    description:
-      'Hidden field: Engage Audience Computation Key refers to the audience slug name in an Engage Audience payload.',
+    description: 'Hidden field: Engage Audience Computation Key refers to the audience slug name in an Engage Audience payload.',
     required: false,
     unsafe_hidden: true,
     type: 'string',
@@ -299,8 +297,7 @@ export const commonFields: Record<string, InputField> = {
   },
   computation_class: {
     label: 'Engage Audience Computation Class',
-    description:
-      'Hidden field: Engage Audience Computation Class indicates if the payload is from an Engage Audience or not.',
+    description: "Hidden field: Engage Audience Computation Class indicates if the payload is from an Engage Audience or not.",
     type: 'string',
     required: false,
     unsafe_hidden: true,
