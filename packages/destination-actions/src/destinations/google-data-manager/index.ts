@@ -2,8 +2,7 @@ import { AudienceDestinationDefinition, GlobalSetting, IntegrationError } from '
 import type { AudienceSettings, Settings } from './generated-types'
 import syncUserData from './syncUserData'
 import { buildHeaders } from './shared'
-import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL, PRODUCT_LINK_SEARCH_URL, SEGMENT_DATA_PARTNER_ID } from './constants'
-import { handleRequestError } from './errors'
+import { CREATE_AUDIENCE_URL, PRODUCT_LINK_SEARCH_URL, SEGMENT_DATA_PARTNER_ID } from './constants'
 import { verifyCustomerId } from './functions'
 import { getDataPartnerToken } from './data-partner-token'
 
@@ -86,7 +85,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceConfig: {
     mode: { type: 'synced', full_audience_sync: false },
     async createAudience(request, { audienceName, statsContext, audienceSettings }) {
-      console.log('request create audience called', request)
       let advertiserId = audienceSettings?.advertiserAccountId.trim()
       const { statsClient, tags: statsTags = [] } = statsContext || {}
       const statsName = 'createAudience'
@@ -106,28 +104,32 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       // check if product link exists for given advertiser id
       // https://developers.google.com/audience-partner/api/reference/rest/v2/products.customers.audiencePartner/searchStream?hl=en
       const re = new RegExp('productLower', 'g')
-      const response = await request(testAuthUrl, {
+      const query = PRODUCT_LINK_SEARCH_URL.replace(re, audienceSettings.product.toLowerCase()) //todo: check link for each of the products
+        .replace('productUpper', audienceSettings.product.toUpperCase())
+        .replace('advertiserID', advertiserId)
+      // const advertiserResource = `products/${audienceSettings.product}/customers/${audienceSettings.advertiserAccountId}`
+      const dataPartnerResource = `products/DATA_PARTNER/customers/${SEGMENT_DATA_PARTNER_ID}`
+
+      const responseProductLink = await request(testAuthUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${await getDataPartnerToken()}`,
-          'login-customer-id': audienceSettings.advertiserAccountId
+          'login-customer-id': dataPartnerResource
         },
         body: JSON.stringify({
-          query: PRODUCT_LINK_SEARCH_URL.replace(re, audienceSettings.product.toLowerCase()) //todo: check link for each of the products
-            .replace('productUpper', audienceSettings.product.toUpperCase())
-            .replace('advertiserID', advertiserId)
+          query: query
         })
       })
-      if (response.status < 200 || response.status >= 300)
+      if (responseProductLink.status < 200 || responseProductLink.status >= 300)
         throw new IntegrationError(
-          'Failed to fetch product link: ' + response.statusText,
+          'Failed to fetch product link: ' + responseProductLink.statusText,
           'MISSING_REQUIRED_FIELD',
           400
         )
 
       // assert response has product link
-      const responseJson = await response.json()
+      const responseJson = await responseProductLink.json()
       if (!Array.isArray(responseJson) || !responseJson[0]?.results?.[0]?.productLink?.resourceName) {
         throw new IntegrationError('Expected productLink in response', 'MISSING_REQUIRED_FIELD', 400)
       }
@@ -136,45 +138,48 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       // https://developers.google.com/audience-partner/api/reference/rest/v2/products.customers.productLinks/create?hl=en
 
       // TODO: Multiple calls to different endpoints for different products
-      try {
-        let partnerCreateAudienceUrl
-        if (audienceSettings?.product != null) {
-          partnerCreateAudienceUrl = CREATE_AUDIENCE_URL.replace('advertiserID', advertiserId).replace(
-            'productName',
-            audienceSettings?.product
-          )
-        } else {
-          throw new IntegrationError('Missing product value', 'MISSING_REQUIRED_FIELD', 400)
-        }
-        const listTypeMap = {
-          crmBasedUserList: {
-            uploadKeyType: audienceSettings?.externalIdType,
-            appId: audienceSettings?.app_id || ''
-          }
-        }
-        const response = await request(partnerCreateAudienceUrl, {
-          headers: buildHeaders(audienceSettings, await getDataPartnerToken()),
-          method: 'POST',
-          json: {
-            operations: [
-              {
-                create: {
-                  ...listTypeMap,
-                  name: audienceName,
-                  description: audienceSettings?.description || 'Created by Segment',
-                  membershipLifeSpan: audienceSettings?.membershipDurationDays
-                }
-              }
-            ]
-          }
-        })
-
-        const r = await response?.json()
-        statsClient?.incr(`${statsName}.success`, 1, statsTags)
-        return { externalId: r['results'][0]['resourceName'] }
-      } catch (error) {
-        throw handleRequestError(error, statsName, statsContext)
+      let partnerCreateAudienceUrl
+      if (audienceSettings?.product != null) {
+        partnerCreateAudienceUrl = CREATE_AUDIENCE_URL.replace('advertiserID', advertiserId).replace(
+          'productName',
+          audienceSettings?.product
+        )
+      } else {
+        throw new IntegrationError('Missing product value', 'MISSING_REQUIRED_FIELD', 400)
       }
+      const response = await request(partnerCreateAudienceUrl, {
+        headers: buildHeaders(audienceSettings, await getDataPartnerToken()),
+        method: 'POST',
+        json: {
+          operations: [
+            {
+              create: {
+                crmBasedUserList: {
+                  uploadKeyType: audienceSettings?.externalIdType,
+                  appId: audienceSettings?.app_id || ''
+                },
+                name: audienceName,
+                description: audienceSettings?.description || 'Created by Segment',
+                membershipLifeSpan: audienceSettings?.membershipDurationDays
+              }
+            }
+          ]
+        }
+      })
+
+      const r = await response?.json()
+      if (!r?.results?.[0]?.resourceName) {
+        throw new IntegrationError('Expected resource name in response', 'AUDIENCE_CREATION_FAILED', 400)
+      }
+
+      const resourceName: string = r.results[0].resourceName // e.g. products/GOOGLE_ADS/customers/1041098592/userLists/9129978598
+      if (resourceName.split('/').length !== 6) {
+        throw new IntegrationError('Invalid resource name in response', 'AUDIENCE_CREATION_FAILED', 400)
+      }
+      const parts = resourceName.split('/')
+      const externalId = parts[5] // the last part is the userList ID which is the external ID we want to store
+      statsClient?.incr(`${statsName}.success`, 1, statsTags)
+      return { externalId: externalId }
     },
     async getAudience(request, { statsContext, audienceSettings, externalId }) {
       const { statsClient, tags: statsTags = [] } = statsContext || {}
@@ -182,54 +187,58 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const statsName = 'getAudience'
       statsTags.push(`slug:${destination.slug}`)
       statsClient?.incr(`${statsName}.call`, 1, statsTags)
+
       if (!advertiserId) {
         statsTags.push('error:missing-settings')
         statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing required advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
-      // TODO : How to return external audience ID for multiple products?
-      if (audienceSettings === undefined) {
+      if (!audienceSettings?.product) {
         statsTags.push('error:missing-settings')
         statsClient?.incr(`${statsName}.error`, 1, statsTags)
-        throw new IntegrationError('Missing audience settings', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError('Missing product value', 'MISSING_REQUIRED_FIELD', 400)
       }
-      const advertiserGetAudienceUrl = GET_AUDIENCE_URL.replace('advertiserID', advertiserId).replace(
-        'productName',
-        audienceSettings.product
-      )
-      try {
-        const response = await request(advertiserGetAudienceUrl, {
-          headers: buildHeaders(audienceSettings, await getDataPartnerToken()),
-          method: 'POST',
-          json: {
-            query: `SELECT user_list.name, user_list.description, user_list.membership_status, user_list.match_rate_percentage
-            FROM user_list WHERE user_list.resource_name = "${externalId}"`
-          }
+      if (!externalId) {
+        statsTags.push('error:missing-external-id')
+        statsClient?.incr(`${statsName}.error`, 1, statsTags)
+        throw new IntegrationError('Missing externalId value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      const product = audienceSettings.product
+      const getAudienceUrl = `https://audiencepartner.googleapis.com/v2/products/${product}/customers/${advertiserId}/audiencePartner:searchStream`
+      const dataPartnerResource = `products/DATA_PARTNER/customers/${SEGMENT_DATA_PARTNER_ID}`
+      const linkedCustomerId = `products/${product}/customers/${advertiserId}`
+
+      const response = await request(getAudienceUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${await getDataPartnerToken()}`,
+          'login-customer-id': dataPartnerResource,
+          'linked-customer-id': linkedCustomerId
+        },
+        body: JSON.stringify({
+          query:
+            `SELECT user_list.name, user_list.description, user_list.membership_status, user_list.match_rate_percentage` +
+            ` FROM user_list WHERE user_list.resource_name = 'products/${audienceSettings.product}/customers/${advertiserId}/userLists/${externalId}'`
         })
-        const r = await response.json()
-        const foundId = r[0]?.results[0]?.userList?.resourceName
-        if (foundId === undefined) {
-          statsTags.push('error:not-found')
-          statsClient?.incr(`${statsName}.error`, 1, statsTags)
-          throw new IntegrationError('Audience not found', 'MISSING_REQUIRED_FIELD', 400)
-        }
-        if (foundId !== externalId) {
-          statsTags.push('error:id-mismatch')
-          statsClient?.incr(`${statsName}.error`, 1, statsTags)
-          throw new IntegrationError(
-            "Unable to verify ownership over audience. Segment Audience ID doesn't match Google's Audience ID.",
-            'INVALID_REQUEST_DATA',
-            400
-          )
-        }
-        statsClient?.incr(`${statsName}.success`, 1, statsTags)
-        return { externalId: foundId }
-      } catch (error) {
-        if (error instanceof IntegrationError) {
-          throw error
-        }
-        throw handleRequestError(error, statsName, statsContext)
+      })
+
+      if (response.status < 200 || response.status >= 300) {
+        statsTags.push('error:api-failure')
+        statsClient?.incr(`${statsName}.error`, 1, statsTags)
+        throw new IntegrationError('Failed to fetch audience: ' + response.statusText, 'API_ERROR', 400)
       }
+
+      const r = await response.json()
+      const foundId = r[0]?.results?.[0]?.userList?.resourceName
+      if (!foundId) {
+        statsTags.push('error:not-found')
+        statsClient?.incr(`${statsName}.error`, 1, statsTags)
+        throw new IntegrationError('Audience not found', 'MISSING_REQUIRED_FIELD', 400)
+      }
+      statsClient?.incr(`${statsName}.success`, 1, statsTags)
+      return { externalId: foundId }
     }
   },
   audienceFields

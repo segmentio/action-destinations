@@ -44,6 +44,6 @@ export const buildHeaders = (audienceSettings: AudienceSettings | undefined, acc
     Authorization: `Bearer ${accessToken}`,
     'Content-Type': 'application/json',
     'login-customer-Id': `products/DATA_PARTNER/customers/${SEGMENT_DATA_PARTNER_ID}`, // this is the Segment account id
-    'linked-customer-id': audienceSettings?.advertiserAccountId
+    'linked-customer-id': `products/${audienceSettings.product}/customers/${audienceSettings.advertiserAccountId}`
   }
 }

@@ -15,7 +15,7 @@ import {
   postalCode
 } from '../properties'
 
-const action: ActionDefinition<Settings, Payload> = {
+const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync User Data',
   description: 'Uploads a list of AudienceMember User Data resources to the provided Destination.',
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',

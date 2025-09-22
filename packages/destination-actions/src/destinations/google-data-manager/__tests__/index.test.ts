@@ -16,7 +16,7 @@ describe('Google Data Manager Destination', () => {
     product: 'GOOGLE_ADS',
     description: 'desc',
     membershipDurationDays: '30'
-  } as Aud
+  }
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -51,7 +51,9 @@ describe('Google Data Manager Destination', () => {
         expect.objectContaining({
           method: expect.any(String),
           headers: expect.any(Object),
-          body: expect.stringContaining('SELECT product_link.google_ads.google_ads_customer')
+          body: JSON.stringify({
+            query: `SELECT product_link.google_ads.google_ads_customer FROM product_link WHERE product_link.google_ads.google_ads_customer = 'products/GOOGLE_ADS/customers/12345'`
+          })
         })
       )
 

@@ -59,6 +59,15 @@ export async function syncAudienceMembers(
   audienceSettings: AudienceSettings
 ) {
   const accessToken = await getDataPartnerToken()
+  if (!audienceSettings.advertiserAccountId) {
+    throw new PayloadValidationError('Audience setting "advertiserAccountId" is required for Google Data Manager API.')
+  }
+  if (!audienceSettings.product) {
+    throw new PayloadValidationError('Audience setting "product" is required for Google Data Manager API.')
+  }
+  if (!payloads[0].audienceId) {
+    throw new PayloadValidationError('Payload field "audienceId" is required for Google Data Manager API.')
+  }
   const audienceEnteredPayloads = payloads.filter((payload) => payload.event_name === 'Audience Entered')
   const audienceExitedPayloads = payloads.filter((payload) => payload.event_name === 'Audience Exited')
   const audienceEnteredBody =
