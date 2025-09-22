@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
 import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
-import { Logger, StatsContext, SubscriptionMetadata } from '@segment/actions-core/destination-kit'
+import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
 
 export const producersByConfig: Record<string, CachedProducer> = {}
 
@@ -193,7 +193,6 @@ export const sendData = async (
   payload: Payload[],
   features: Features | undefined,
   statsContext: StatsContext | undefined,
-  subscriptionMetadata?: SubscriptionMetadata,
   logger?: Logger
 ) => {
   validate(settings)
@@ -232,7 +231,7 @@ export const sendData = async (
   let producer: Producer
   try {
     if (features && features[FLAGON_NAME]) {
-      producer = await getOrCreateProducerLRU(settings, statsContext, subscriptionMetadata)
+      producer = await getOrCreateProducer(settings, statsContext)
     } else {
       producer = getProducer(settings)
       await producer.connect()
