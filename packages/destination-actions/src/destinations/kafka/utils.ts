@@ -240,7 +240,7 @@ export const sendData = async (
     if ((error as Error).name !== 'IntegrationError') {
       const kafkaError = getKafkaError(error as Error)
       logger?.crit(
-        `Kafka Connection Error - ${kafkaError.name} | ${JSON.stringify(kafkaError)} | stack: ${kafkaError.stack}`
+        `Kafka Connection Error - ${kafkaError.name} | ${JSON.stringify(kafkaError)} | message: ${kafkaError.message}`
       )
       throw new IntegrationError(
         `Kafka Connection Error - ${kafkaError.name}: ${kafkaError.message}`,
@@ -258,7 +258,9 @@ export const sendData = async (
       await producer.send(data as ProducerRecord)
     } catch (error) {
       const kafkaError = getKafkaError(error as Error)
-      logger?.crit(`Kafka Send Error - ${kafkaError.name} | ${JSON.stringify(kafkaError)} | stack: ${kafkaError.stack}`)
+      logger?.crit(
+        `Kafka Send Error - ${kafkaError.name} | ${JSON.stringify(kafkaError)} | message: ${kafkaError.message}`
+      )
       throw new IntegrationError(
         `Kafka Producer Error - ${kafkaError.name}: ${kafkaError.message}`,
         kafkaError.name,
