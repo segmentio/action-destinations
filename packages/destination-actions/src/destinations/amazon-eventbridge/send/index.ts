@@ -23,20 +23,6 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.type' },
       required: true
     },
-    sourceId: {
-      label: 'Source ID',
-      description: 'The source ID for the event. HIDDEN FIELD',
-      type: 'string',
-      unsafe_hidden: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.protocols.sourceId' },
-          then: { '@path': '$.context.protocols.sourceId' },
-          else: { '@path': '$.projectId' }
-        }
-      },
-      required: true
-    },
     resources: {
       label: 'Resources',
       description: `AWS resources, identified by Amazon Resource Name (ARN), which the event primarily concerns. Any number, including zero, may be present.`,
@@ -54,16 +40,15 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     enable_batching: {
       type: 'boolean',
-      label: 'Enable Batching',
-      description: 'Enable Batching',
+      label: '(Hidden field): Enable Batching',
+      description: '(Hidden field): Enable Batching',
       unsafe_hidden: false,
       required: true,
       default: true
     },
     batch_size: {
-      label: 'Batch Size',
-      description: `Maximum number of events to include in each batch. 
-                    Actual batch sizes may be lower.`,
+      label: '(Hidden field): Batch Size',
+      description: `(Hidden field): Maximum number of events to include in each batch. Actual batch sizes may be lower.`,
       type: 'number',
       unsafe_hidden: true,
       required: false,
