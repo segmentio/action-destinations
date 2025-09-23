@@ -65,7 +65,6 @@ const destination: DestinationDefinition<Settings> = {
               }))
               .sort((a: any, b: any) => a.label.localeCompare(b.label))
             
-            console.log('=============choices', choices)
             return { choices }
           } catch (error: any) {
             return {
@@ -121,10 +120,7 @@ const destination: DestinationDefinition<Settings> = {
     const userId = payload.userId
     const formattedExternalIds = `["${userId}"]`
     const syncId = sha256hash(String(userId))
-    const advertiserId = settings.advertiser_id
-    if(!advertiserId) {
-      throw new InvalidAuthenticationError("To delete a user, the Advertiser field in Settings should be populated.")
-    }
+    const advertiserId = settings.advertiser_id as string
 
     const mutation = `mutation {
       deleteProfilesWithExternalIds(

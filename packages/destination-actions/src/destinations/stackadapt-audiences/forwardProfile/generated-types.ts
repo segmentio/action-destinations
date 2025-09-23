@@ -59,8 +59,4 @@ export interface Payload {
    * When enabled, Segment will batch profiles together and send them to StackAdapt in a single request.
    */
   enable_batching: boolean
-  /**
-   * The StackAdapt advertiser to add the profile to.
-   */
-  advertiser_id: string
 }

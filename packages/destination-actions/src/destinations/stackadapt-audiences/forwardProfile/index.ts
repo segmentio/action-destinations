@@ -2,7 +2,6 @@ import { ActionDefinition } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { performForwardProfiles } from './functions'
-import { advertiserIdFieldImplementation } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Forward Profile',
@@ -167,19 +166,9 @@ const action: ActionDefinition<Settings, Payload> = {
         'When enabled, Segment will batch profiles together and send them to StackAdapt in a single request.',
       required: true,
       default: true
-    },
-    advertiser_id: {
-      label: 'Advertiser',
-      description: 'The StackAdapt advertiser to add the profile to. Either this field or the main Settings Advertiser field is required.',
-      type: 'string',
-      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
-      required: false,
-      dynamic: true
     }
   },
-  dynamicFields: {
-    advertiser_id: advertiserIdFieldImplementation
-  },
+  // Only being triggered when user use the event testing tool since batching is always enabled and hidden from user
   perform: async (request, { settings, payload }) => {
     return await performForwardProfiles(request, [payload], settings)
   },

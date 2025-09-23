@@ -35,10 +35,8 @@ interface Mapping {
 export async function performForwardProfiles(request: RequestClient, events: Payload[], settings: Settings) {
   const fieldsToMap: Set<string> = new Set(['userId'])
   const fieldTypes: Record<string, string> = { userId: 'string' }
-  const advertiserId = events[0]?.advertiser_id ?? settings.advertiser_id
-  if(!advertiserId) {
-    throw new InvalidAuthenticationError("Advertiser value must be provided in either the main Settings Advertiser field or at the Action level Advertiser field.")
-  }
+  const advertiserId = settings.advertiser_id
+ 
   const profileUpdates = events.flatMap((event) => {
     const { event_type, previous_id, user_id, traits } = event
     const profile: Record<string, string | number | undefined> = {
