@@ -12,10 +12,6 @@ export interface Payload {
    */
   detailType: string
   /**
-   * The source ID for the event. HIDDEN FIELD
-   */
-  sourceId: string
-  /**
    * AWS resources, identified by Amazon Resource Name (ARN), which the event primarily concerns. Any number, including zero, may be present.
    */
   resources?: string[]
@@ -24,12 +20,11 @@ export interface Payload {
    */
   time?: string
   /**
-   * Enable Batching
+   * (Hidden field): Enable Batching
    */
   enable_batching: boolean
   /**
-   * Maximum number of events to include in each batch.
-   *                     Actual batch sizes may be lower.
+   * (Hidden field): Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
 }

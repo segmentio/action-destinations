@@ -52,8 +52,8 @@ const mapping = {
   time: { '@path': '$.timestamp' },
   enable_batching: true,
   batch_size: 10,
-  onMappingSave: { sourceId: 'sourceId1' },
-  retlOnMappingSave: { sourceId: 'sourceId1' }
+  onMappingSave: { outputs: { sourceId: 'sourceId1'} },
+  retlOnMappingSave: { outputs: { sourceId: 'sourceId1'} }
 }
 
 const settings: Settings = {
@@ -145,52 +145,6 @@ describe('AWS EventBridge Integration', () => {
           mapping: mappingNoHook
         })
       ).rejects.toThrowError(new Error('Source ID is required. Source ID not found in hook outputs.'))
-    })
-
-    it('When Source ID from hook different to Source ID from payload', async () => {
-      mockSend.mockResolvedValueOnce({
-        FailedEntryCount: 0,
-        Entries: [{ EventId: '12345' }]
-      })
-
-      const event = createTestEvent(payload)
-
-      const mappingHookSourceIdDiff = {
-        ...mapping,
-        onMappingSave: {
-          sourceId: 'sourceId2'
-        },
-        retlOnMappingSave: {}
-      }
-
-      await expect(
-        testDestination.testAction('send', {
-          event,
-          settings,
-          useDefaultMappings: true,
-          mapping: mappingHookSourceIdDiff
-        })
-      ).rejects.toThrowError(new Error('Mismatch between payload and hook source ID values.'))
-    })
-
-    it('When Source ID not present in payload', async () => {
-      const payloadNoSourceId = {
-        ...payload,
-        context: {
-          protocols: {}
-        }
-      }
-
-      const event = createTestEvent(payloadNoSourceId)
-
-      await expect(
-        testDestination.testAction('send', {
-          event,
-          settings,
-          useDefaultMappings: true,
-          mapping
-        })
-      ).rejects.toThrowError(new Error("The root value is missing the required field 'sourceId'."))
     })
   })
 })

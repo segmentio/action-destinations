@@ -15,7 +15,7 @@ export async function send(
   settings: Settings,
   hookOutputs?: HookOutputs
 ): Promise<MultiStatusResponse> {
-  const sourceId = getSourceId(payloads, hookOutputs)
+  const sourceId = getSourceId(hookOutputs)
 
   const { region } = settings
 
@@ -36,31 +36,19 @@ export async function send(
   return buildMultiStatusResponse(response, payloads)
 }
 
-function getSourceId(payloads: Payload[], hookOutputs?: HookOutputs): string {
-  const payloadSourceId = payloads[0].sourceId
-  const hookSourceId = hookOutputs?.onMappingSave?.sourceId ?? hookOutputs?.retlOnMappingSave?.sourceId
-
-  if (!payloadSourceId) {
-    throw new PayloadValidationError(
-      'Source ID is required. Source ID not found in payload. It should be present at $.context.protocols.sourceId or $.projectId in the payload.'
-    )
-  }
+function getSourceId(hookOutputs?: HookOutputs): string {
+  const hookSourceId = hookOutputs?.onMappingSave?.outputs?.sourceId ?? hookOutputs?.retlOnMappingSave?.outputs?.sourceId
 
   if (!hookSourceId) {
     throw new PayloadValidationError('Source ID is required. Source ID not found in hook outputs.')
   }
 
-  if (hookSourceId !== payloadSourceId) {
-    throw new PayloadValidationError('Mismatch between payload and hook source ID values.')
-  }
-
-  return payloadSourceId
+  return hookSourceId
 }
 
 function buildMultiStatusResponse(response: PutPartnerEventsCommandOutput, payloads: Payload[]): MultiStatusResponse {
   const entries: PutPartnerEventsResultEntry[] = response.Entries ?? []
   const multiStatusResponse = new MultiStatusResponse()
-  console.log('Entries' + entries)
   payloads.forEach((event, index) => {
     const entry = entries[index] ?? {}
     if (entry.ErrorCode || entry.ErrorMessage) {

@@ -65,11 +65,11 @@ const action: ActionDefinition<Settings, Payload> = {
       return getTopics(settings)
     }
   },
-  perform: async (_request, { settings, payload, features, statsContext, logger }) => {
-    await sendData(settings, [payload], features, statsContext, logger)
+  perform: async (_request, { settings, payload, features, statsContext }) => {
+    await sendData(settings, [payload], features, statsContext)
   },
-  performBatch: async (_request, { settings, payload, features, statsContext, logger }) => {
-    await sendData(settings, payload, features, statsContext, logger)
+  performBatch: async (_request, { settings, payload, features, statsContext }) => {
+    await sendData(settings, payload, features, statsContext)
   }
 }
 
