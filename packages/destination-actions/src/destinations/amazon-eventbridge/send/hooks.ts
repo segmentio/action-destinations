@@ -18,7 +18,7 @@ export const ensureSourceIdHook: ActionHookDefinition<
   OnMappingSaveOutputs
 > = {
   label: 'EnsureSourceId',
-  description: 'Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.',
+  description: 'Creates the Partner Event Source in Amazon EventBridge, if it does not already exist.',
   inputFields: {},
   performHook: async (_, { settings, subscriptionMetadata }) => {
     const validation = validate(settings, subscriptionMetadata)
