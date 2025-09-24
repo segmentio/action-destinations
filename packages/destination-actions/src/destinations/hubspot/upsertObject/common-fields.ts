@@ -193,6 +193,7 @@ export const commonFields: Record<string, InputField> = {
         type: 'string',
         required: false,
         allowNull: false,
+        disabledInputMethods: [],
         dynamic: true
       },
       list_action: {
