@@ -141,7 +141,7 @@ export const dynamicFields = {
         throw new Error('Selected array index is missing')
       }
 
-      const toObjectType = payload?.associations?.[selectedIndex]?.object_type
+      const toObjectType = payload?.dissociations?.[selectedIndex]?.object_type
 
       if (!toObjectType) {
         throw new Error("Select a value from the 'To Object Type' field")
