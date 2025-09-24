@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       label: '(Hidden field): Enable Batching',
       description: '(Hidden field): Enable Batching',
-      unsafe_hidden: false,
+      unsafe_hidden: true,
       required: true,
       default: true
     },

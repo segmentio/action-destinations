@@ -40,7 +40,7 @@ function getSourceId(hookOutputs?: HookOutputs): string {
   const hookSourceId = hookOutputs?.onMappingSave?.outputs?.sourceId ?? hookOutputs?.retlOnMappingSave?.outputs?.sourceId
 
   if (!hookSourceId) {
-    throw new PayloadValidationError('Source ID is required. Source ID not found in hook outputs.')
+    throw new PayloadValidationError("Partner Event Source ID not found. Create a Partner Event Source using the 'Create Partner Source' button in the Action Mapping, then try again.")
   }
 
   return hookSourceId
