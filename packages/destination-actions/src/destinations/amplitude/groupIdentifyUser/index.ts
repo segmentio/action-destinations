@@ -15,7 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       description:
-        'A UUID (unique user ID) specified by you. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event. If either user_id or device_id is present, an associate user to group call will be made.',
+        'A UUID (unique user ID) specified by you. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event. If either user ID or device ID is present, an associate user to group call will be made.',
       default: {
         '@path': '$.userId'
       }
@@ -24,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Device ID',
       type: 'string',
       description:
-        'A device specific identifier, such as the Identifier for Vendor (IDFV) on iOS. If either user_id or device_id is present, an associate user to group call will be made.',
+        'A device specific identifier, such as the Identifier for Vendor (IDFV) on iOS. If either user ID or device ID is present, an associate user to group call will be made.',
       default: {
         '@if': {
           exists: { '@path': '$.context.device.id' },
