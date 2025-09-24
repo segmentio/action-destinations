@@ -132,13 +132,13 @@ export const validate = (settings: Settings) => {
       400
     )
   }
-  const isValidBroker = settings.brokers.split(',').every(isValidHostPort)
+  const isValidBroker = settings.brokers
+    .split(',') // split comma separated brokers
+    .map((item) => item.trim()) // trim whitespace
+    .filter((item) => item.length > 0) // remove empty strings
+    .every(isValidHostPort) // validate each broker
   if (!isValidBroker) {
-    throw new IntegrationError(
-      'Brokers must be in the format host:port and multiple brokers should be comma separated',
-      'BROKER_FORMAT_INVALID',
-      400
-    )
+    throw new IntegrationError('Brokers must be in the format host:port', 'BROKER_FORMAT_INVALID', 400)
   }
 }
 
