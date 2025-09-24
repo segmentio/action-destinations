@@ -93,7 +93,7 @@ export interface Payload {
      */
     list_name?: string
     /**
-     * Specify if the record should be added or removed from the list. true = add to list, false = remove from list. If connecting an Engage Audience this field should be left empty.
+     * Specify if the record should be added or removed from the list. true = add to list, false = remove from list. If connecting an Engage Audience this field must be left empty.
      */
     list_action?: boolean
     /**

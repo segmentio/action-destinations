@@ -201,30 +201,6 @@ export const commonFields: Record<string, InputField> = {
         description: `Specify if the record should be added or removed from the list. true = add to list, false = remove from list. If connecting an Engage Audience this field must be left empty.`,
         type: 'boolean',
         disabledInputMethods: ['literal', 'freeform'],
-        required: {
-          match: 'all',
-          conditions: [
-            {
-              fieldKey: 'list_details.list_name',
-              operator: 'is_not',
-              value: [null, '']
-            },
-            {
-              fieldKey: 'list_details.connected_to_engage_audience',
-              operator: 'is',
-              value: false
-            }
-          ]
-        },
-        depends_on: {
-          conditions: [
-            {
-              fieldKey: 'list_details.connected_to_engage_audience',
-              operator: 'is',
-              value: false
-            }
-          ]
-        },
         allowNull: false
       },
       should_create_list: {
