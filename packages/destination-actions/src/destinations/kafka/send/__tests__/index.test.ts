@@ -1,7 +1,7 @@
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { Kafka, KafkaConfig, Partitioners } from 'kafkajs'
-import { producersByConfig, serializeKafkaConfig, getOrCreateProducer } from '../../utils'
+import { producersByConfig, serializeKafkaConfig, getOrCreateProducer, isValidHostPort } from '../../utils'
 import { Settings } from '../../generated-types'
 import { Producer } from 'kafkajs'
 import { IntegrationError } from '@segment/actions-core/*'
@@ -47,7 +47,7 @@ const testData = {
   },
   useDefaultMappings: false,
   settings: {
-    brokers: 'yourBroker',
+    brokers: 'yourBroker:9092',
     clientId: 'yourClientId',
     mechanism: 'plain',
     username: 'yourUsername',
@@ -67,7 +67,7 @@ describe('Kafka.send', () => {
 
     expect(Kafka).toHaveBeenCalledWith({
       clientId: 'yourClientId',
-      brokers: ['yourBroker'],
+      brokers: ['yourBroker:9092'],
       requestTimeout: 10000,
       ssl: true,
       retry: { retries: 0 },
@@ -92,7 +92,7 @@ describe('Kafka.send', () => {
 
     expect(Kafka).toHaveBeenCalledWith({
       clientId: 'yourClientId',
-      brokers: ['yourBroker'],
+      brokers: ['yourBroker:9092'],
       requestTimeout: 10000,
       ssl: true,
       retry: { retries: 0 },
@@ -117,7 +117,7 @@ describe('Kafka.send', () => {
 
     expect(Kafka).toHaveBeenCalledWith({
       clientId: 'yourClientId',
-      brokers: ['yourBroker'],
+      brokers: ['yourBroker:9092'],
       requestTimeout: 10000,
       ssl: true,
       retry: { retries: 0 },
@@ -145,7 +145,7 @@ describe('Kafka.send', () => {
 
     expect(Kafka).toHaveBeenCalledWith({
       clientId: 'yourClientId',
-      brokers: ['yourBroker'],
+      brokers: ['yourBroker:9092'],
       requestTimeout: 10000,
       ssl: true,
       retry: { retries: 0 },
@@ -172,7 +172,7 @@ describe('Kafka.send', () => {
 
     expect(Kafka).toHaveBeenCalledWith({
       clientId: 'yourClientId',
-      brokers: ['yourBroker'],
+      brokers: ['yourBroker:9092'],
       requestTimeout: 10000,
       ssl: {
         ca: ['-----BEGIN CERTIFICATE-----\nyourCACert\n-----END CERTIFICATE-----'],
@@ -361,6 +361,53 @@ describe('Kafka.send', () => {
       expect((error as IntegrationError).message).toBe('Kafka Producer Error - MessageSizeTooLarge: message too large')
       expect((error as IntegrationError).status).toBe(500)
     }
+  })
+})
+
+describe('Broker string validation', () => {
+  it('accepts valid host:port formats', () => {
+    expect(isValidHostPort('localhost:9092')).toBe(true)
+    expect(isValidHostPort('kafka-broker:0')).toBe(true)
+    expect(isValidHostPort('kafka.internal.local:65535')).toBe(true)
+  })
+
+  it('rejects invalid host:port formats', () => {
+    expect(isValidHostPort('localhost')).toBe(false) // missing port
+    expect(isValidHostPort(':9092')).toBe(false) // missing host
+    expect(isValidHostPort('broker:')).toBe(false) // missing port number
+    expect(isValidHostPort('broker:not-a-number')).toBe(false)
+    expect(isValidHostPort('broker:-1')).toBe(false)
+    expect(isValidHostPort('broker:70000')).toBe(false) // > 65535
+    expect(isValidHostPort('')).toBe(false)
+    expect(isValidHostPort(null as unknown as string)).toBe(false)
+  })
+
+  it('throws IntegrationError when any broker in the list is invalid', async () => {
+    const bad = {
+      ...testData,
+      settings: {
+        ...testData.settings,
+        brokers: 'valid-host:9092, invalid-host' // second entry invalid
+      }
+    }
+
+    await expect(testDestination.testAction('send', bad as any)).rejects.toMatchObject({
+      message: 'Brokers must be in the format host:port',
+      code: 'BROKER_FORMAT_INVALID',
+      status: 400
+    })
+  })
+
+  it('accepts multiple valid brokers with whitespace and commas', async () => {
+    const good = {
+      ...testData,
+      settings: {
+        ...testData.settings,
+        brokers: ' valid1:9092 , valid2:1234,valid3:65535 '
+      }
+    }
+
+    await expect(testDestination.testAction('send', good as any)).resolves.toBeTruthy()
   })
 })
 

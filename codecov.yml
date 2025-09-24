@@ -21,3 +21,41 @@ coverage:
       default:
         target: 80%
         informational: false
+
+# Define flags for different parts of the codebase
+flags:
+  # Core packages
+  core:
+    paths:
+      - packages/core/**/*
+    carryforward: true
+
+  actions-shared:
+    paths:
+      - packages/actions-shared/**/*
+    carryforward: true
+
+  destination-actions:
+    paths:
+      - packages/destination-actions/**/*
+    carryforward: true
+
+  browser-destinations:
+    paths:
+      - packages/browser-destinations/**/*
+    carryforward: true
+
+  ajv-human-errors:
+    paths:
+      - packages/ajv-human-errors/**/*
+    carryforward: true
+
+  destination-subscriptions:
+    paths:
+      - packages/destination-subscriptions/**/*
+    carryforward: true
+
+  destinations-manifest:
+    paths:
+      - packages/destinations-manifest/**/*
+    carryforward: true
