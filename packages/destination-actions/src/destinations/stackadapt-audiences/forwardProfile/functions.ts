@@ -1,28 +1,12 @@
-import { RequestClient, InvalidAuthenticationError } from '@segment/actions-core'
+import { RequestClient } from '@segment/actions-core'
 import camelCase from 'lodash/camelCase'
 import isEmpty from 'lodash/isEmpty'
 import { Payload } from './generated-types'
-import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes, stringifyMappingSchemaForGraphQL } from '../functions'
 import { Settings } from '../generated-types'
+import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes, stringifyMappingSchemaForGraphQL } from '../functions'
+import { getDefaultFieldsToMap, getDefaultFieldTypes, PROFILE_DEFAULT_FIELDS, ProfileFieldConfig } from '../profile-fields'
 
-const standardFields = new Set([
-  'email',
-  'firstName',
-  'lastName',
-  'phone',
-  'marketingStatus',
-  'company',
-  'gender',
-  'city',
-  'state',
-  'country',
-  'timezone',
-  'postalCode',
-  'birthDay',
-  'birthMonth',
-  'address',
-  'previousId'
-])
+const standardFields = getDefaultFieldsToMap()
 
 interface Mapping {
   incomingKey: string
@@ -33,8 +17,8 @@ interface Mapping {
 }
 
 export async function performForwardProfiles(request: RequestClient, events: Payload[], settings: Settings) {
-  const fieldsToMap: Set<string> = new Set(['userId'])
-  const fieldTypes: Record<string, string> = { userId: 'string' }
+  const fieldsToMap: Set<string> = getDefaultFieldsToMap()
+  const fieldTypes: Record<string, string> = getDefaultFieldTypes()
   const advertiserId = settings.advertiser_id
  
   const profileUpdates = events.flatMap((event) => {
@@ -58,6 +42,9 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
     return { ...processTraits(rest), ...profile }
   })
 
+  if (profileUpdates.length === 0) {
+    return
+  }
   const profiles = stringifyJsonWithEscapedQuotes(profileUpdates)
   const mutation = `mutation {
       upsertProfiles(
@@ -113,13 +100,44 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
 function getProfileMappings(customFields: string[], fieldTypes: Record<string, string>) {
   const mappingSchema: Mapping[] = []
   for (const field of customFields) {
-    mappingSchema.push({
-      incomingKey: field,
-      destinationKey: field === 'userId' ? 'external_id' : field,
-      label: generateLabel(field),
-      type: fieldTypes[field] ?? 'STRING',
-      isPii: false
-    })
+    // Find the field config in PROFILE_DEFAULT_FIELDS
+    const fieldConfig = PROFILE_DEFAULT_FIELDS.find((f: ProfileFieldConfig) => f.key === field)
+    
+    if (fieldConfig) {
+      // Convert camelCase to snake_case for destinationKey
+      const snakeCaseKey = fieldConfig.key.replace(/([A-Z])/g, '_$1').toLowerCase()
+      
+      // Special mapping cases for StackAdapt destination keys
+      let destinationKey: string
+      switch (fieldConfig.key) {
+        case 'userId':
+          destinationKey = 'external_id'
+          break
+        case 'birthday':
+          destinationKey = 'birth_date'
+          break
+        default:
+          destinationKey = snakeCaseKey
+      }
+      
+      // StackAdapt uses destinationKey to look up global fields so it has to match 
+      mappingSchema.push({
+        incomingKey: fieldConfig.key,
+        destinationKey,
+        label: fieldConfig.label,
+        type: fieldConfig.type.toUpperCase(),
+        isPii: fieldConfig.isPii || false
+      })
+    } else {
+      // Fallback for custom fields not in default global fields
+      mappingSchema.push({
+        incomingKey: field,
+        destinationKey: field,
+        label: generateLabel(field),
+        type: fieldTypes[field] ?? 'STRING',
+        isPii: false
+      })
+    }
   }
   return stringifyMappingSchemaForGraphQL(mappingSchema)
 }

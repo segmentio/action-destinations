@@ -2,21 +2,25 @@
 
 export interface Payload {
   /**
-   * The properties of the user.
+   * Standard properties for the user.
    */
-  traits?: {
+  standard_traits?: {
     /**
      * The user's first name.
      */
-    firstName?: string
+    first_name?: string
     /**
      * The user's last name.
      */
-    lastName?: string
+    last_name?: string
     /**
      * The phone number of the user.
      */
     phone?: string
+    /**
+     * The address of the user.
+     */
+    address?: string
     /**
      * The city of the user.
      */
@@ -30,13 +34,34 @@ export interface Payload {
      */
     state?: string
     /**
+     * The timezone of the user.
+     */
+    timezone?: string
+    /**
      * The postal code of the user.
      */
-    postalCode?: string
+    postal_code?: string
     /**
-     * The birthday of the user.
+     * The birth day of the user.
      */
-    birthday?: string
+    birth_day?: string
+    /**
+     * The birth month of the user.
+     */
+    birth_month?: string
+    /**
+     * The birth year of the user.
+     */
+    birth_year?: string
+    /**
+     * The birth date of the user.
+     */
+    birth_date?: string
+  }
+  /**
+   * Custom properties for the user.
+   */
+  custom_traits?: {
     [k: string]: unknown
   }
   /**
@@ -73,4 +98,8 @@ export interface Payload {
    * For audience enter/exit events, this will be the audience key.
    */
   segment_computation_key: string
+  /**
+   * In certain jurisdictions, explicit consent may be required to send email marketing communications to imported profiles. Consult independent counsel for further guidance.
+   */
+  marketing_status: string
 }

@@ -1,6 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { IntegrationError, InvalidAuthenticationError } from '@segment/actions-core'
+import { IntegrationError } from '@segment/actions-core'
 import forwardProfile from './forwardProfile'
 import forwardAudienceEvent from './forwardAudienceEvent'
 import { AdvertiserScopesResponse } from './types'
@@ -160,7 +160,9 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
+    // TODO: forwardProfile should be deprecated. 
     forwardProfile,
+    // forwardAudienceEvent syncs both audience and profile properties and clients will only need to setup this event.
     forwardAudienceEvent
   }
 }

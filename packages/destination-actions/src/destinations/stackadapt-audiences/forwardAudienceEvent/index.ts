@@ -4,24 +4,24 @@ import { Settings } from '../generated-types'
 import { performForwardAudienceEvents } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Forward Audience Event',
+  title: 'Sync Audience',
   description: 'Forward audience enter or exit events to StackAdapt',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
-    traits: {
-      label: 'User Properties',
+    standard_traits: {
+      label: 'Standard User Properties',
       type: 'object',
-      description: 'The properties of the user.',
+      description: 'Standard properties for the user.',
       defaultObjectUI: 'keyvalue',
-      additionalProperties: true,
+      additionalProperties: false,
       required: false,
       properties: {
-        firstName: {
+        first_name: {
           label: 'First Name',
           type: 'string',
           description: "The user's first name."
         },
-        lastName: {
+        last_name: {
           label: 'Last Name',
           type: 'string',
           description: "The user's last name."
@@ -30,6 +30,11 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Phone',
           type: 'string',
           description: 'The phone number of the user.'
+        },
+        address: {
+          label: 'Address',
+          type: 'string',
+          description: 'The address of the user.'
         },
         city: {
           label: 'City',
@@ -46,26 +51,46 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           description: 'The state of the user.'
         },
-        postalCode: {
+        timezone: {
+          label: 'Postal Code',
+          type: 'string',
+          description: 'The timezone of the user.'
+        },
+        postal_code: {
           label: 'Postal Code',
           type: 'string',
           description: 'The postal code of the user.'
         },
-        birthday: {
-          label: 'Birthday',
+        birth_day: {
+          label: 'Birth Day',
           type: 'string',
-          description: 'The birthday of the user.'
-        }
+          description: 'The birth day of the user.'
+        },
+        birth_month: {
+          label: 'Birth Month',
+          type: 'string',
+          description: 'The birth month of the user.'
+        },
+        birth_year: {
+          label: 'Birth Year',
+          type: 'string',
+          description: 'The birth year of the user.'
+        },
+        birth_date: {
+          label: 'Birth Date',
+          type: 'string',
+          description: 'The birth date of the user.'
+        },
       },
       default: {
-        firstName: {
+        first_name: {
           '@if': {
             exists: { '@path': '$.traits.first_name' },
             then: { '@path': '$.traits.first_name' },
             else: { '@path': '$.properties.first_name' }
           }
         },
-        lastName: {
+        last_name: {
           '@if': {
             exists: { '@path': '$.traits.last_name' },
             then: { '@path': '$.traits.last_name' },
@@ -77,6 +102,13 @@ const action: ActionDefinition<Settings, Payload> = {
             exists: { '@path': '$.traits.phone' },
             then: { '@path': '$.traits.phone' },
             else: { '@path': '$.properties.phone' }
+          }
+        },
+        address: {
+          '@if': {
+            exists: { '@path': '$.traits.address' },
+            then: { '@path': '$.traits.address' },
+            else: { '@path': '$.properties.address' }
           }
         },
         city: {
@@ -100,21 +132,56 @@ const action: ActionDefinition<Settings, Payload> = {
             else: { '@path': '$.properties.address.state' }
           }
         },
-        postalCode: {
+        postal_code: {
           '@if': {
-            exists: { '@path': '$.traits.address.postalCode' },
-            then: { '@path': '$.traits.address.postalCode' },
-            else: { '@path': '$.properties.address.postalCode' }
+            exists: { '@path': '$.traits.address.postal_code' },
+            then: { '@path': '$.traits.address.postal_code' },
+            else: { '@path': '$.properties.address.postal_code' }
           }
         },
-        birthday: {
+        timezone: {
           '@if': {
-            exists: { '@path': '$.traits.birthday' },
-            then: { '@path': '$.traits.birthday' },
-            else: { '@path': '$.properties.birthday' }
+            exists: { '@path': '$.traits.timezone' },
+            then: { '@path': '$.traits.timezone' },
+            else: { '@path': '$.properties.timezone' }
+          }
+        },
+        birth_day: {
+          '@if': {
+            exists: { '@path': '$.traits.birth_day' },
+            then: { '@path': '$.traits.birth_day' },
+            else: { '@path': '$.properties.birth_day' }
+          }
+        },
+        birth_month: {
+          '@if': {
+            exists: { '@path': '$.traits.birth_month' },
+            then: { '@path': '$.traits.birth_month' },
+            else: { '@path': '$.properties.birth_month' }
+          }
+        },
+        birth_year: {
+          '@if': {
+            exists: { '@path': '$.traits.birth_year' },
+            then: { '@path': '$.traits.birth_year' },
+            else: { '@path': '$.properties.birth_year' }
+          }
+        },
+        birth_date: {
+          '@if': {
+            exists: { '@path': '$.traits.birth_date' },
+            then: { '@path': '$.traits.birth_date' },
+            else: { '@path': '$.properties.birth_date' }
           }
         }
       }
+    },
+    custom_traits: {
+      label: 'Custom User Properties',
+      type: 'object',
+      description: 'Custom properties for the user.',
+      defaultObjectUI: 'keyvalue',
+      required: false
     },
     traits_or_props: {
       label: 'Event Properties',
@@ -191,8 +258,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Segment Computation ID',
       description: 'For audience enter/exit events, this will be the audience ID.',
       type: 'string',
-      unsafe_hidden: true,
       required: true,
+      unsafe_hidden: true,
       default: {
         '@path': '$.context.personas.computation_id'
       }
@@ -206,6 +273,16 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.personas.computation_key'
       }
+    },
+    marketing_status: {
+      label: 'Marketing Status',
+      description: 'In certain jurisdictions, explicit consent may be required to send email marketing communications to imported profiles. Consult independent counsel for further guidance.',
+      type: 'string',
+      required: true,
+      choices: [
+        { label: 'Opted-in (Profiles can receive email marketing)', value: 'Opted-in' },
+        { label: 'Indeterminate (Profiles that have not opted-out, but are excluded from email marketing)', value: 'Indeterminate' }
+      ],
     }
   },
   perform: async (request, { payload, settings }) => {

@@ -7,8 +7,8 @@ exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardA
         input: {
           advertiserId: 84GW[vK%wv2xv@UF5iy,
           externalProvider: "segment_io",
-          syncId: "7bcb527cec5517b1155595cd74dc96b6db6ed1d0c54b91ebe04297f3524bd775",
-          profiles: "[{\\"userId\\":\\"84GW[vK%wv2xv@UF5iy\\",\\"audienceId\\":\\"84GW[vK%wv2xv@UF5iy\\",\\"audienceName\\":\\"84GW[vK%wv2xv@UF5iy\\",\\"action\\":\\"exit\\"}]"
+          syncId: "d3e25371063538435610951610dff59b1cb078b5795835c8e16a70ee25691b07",
+          profiles: "[{\\"userId\\":\\"84GW[vK%wv2xv@UF5iy\\",\\"audienceId\\":\\"84GW[vK%wv2xv@UF5iy\\",\\"audienceName\\":\\"84GW[vK%wv2xv@UF5iy\\",\\"action\\":\\"exit\\",\\"testType\\":\\"84GW[vK%wv2xv@UF5iy\\"}]"
         }
       ) {
         userErrors {
@@ -18,7 +18,7 @@ exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardA
       upsertProfileMapping(
         input: {
           advertiserId: 84GW[vK%wv2xv@UF5iy,
-          mappingSchemaV2: [{incomingKey:"userId",destinationKey:"external_id",type:STRING,isPii:false,label:"External Profile ID"}],
+          mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_day",destinationKey:"birth_day",label:"Birth Day",type:NUMBER,isPii:false},{incomingKey:"birth_month",destinationKey:"birth_month",label:"Birth Month",type:NUMBER,isPii:false},{incomingKey:"birth_year",destinationKey:"birth_year",label:"Birth Year",type:NUMBER,isPii:false},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:STRING,isPii:true},{incomingKey:"testType",destinationKey:"testType",label:"TestType",type:STRING,isPii:false},{incomingKey:"marketing_status",destinationKey:"marketing_status",label:"Marketing Status",type:STRING,isPii:false,value:"Indeterminate"}],
           mappableType: "segment_io"
         }
       ) {
@@ -48,8 +48,8 @@ exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardA
         input: {
           advertiserId: 84GW[vK%wv2xv@UF5iy,
           externalProvider: "segment_io",
-          syncId: "7bcb527cec5517b1155595cd74dc96b6db6ed1d0c54b91ebe04297f3524bd775",
-          profiles: "[{\\"userId\\":\\"84GW[vK%wv2xv@UF5iy\\",\\"audienceId\\":\\"84GW[vK%wv2xv@UF5iy\\",\\"audienceName\\":\\"84GW[vK%wv2xv@UF5iy\\",\\"action\\":\\"exit\\"}]"
+          syncId: "d3e25371063538435610951610dff59b1cb078b5795835c8e16a70ee25691b07",
+          profiles: "[{\\"userId\\":\\"84GW[vK%wv2xv@UF5iy\\",\\"audienceId\\":\\"84GW[vK%wv2xv@UF5iy\\",\\"audienceName\\":\\"84GW[vK%wv2xv@UF5iy\\",\\"action\\":\\"exit\\",\\"testType\\":\\"84GW[vK%wv2xv@UF5iy\\"}]"
         }
       ) {
         userErrors {
@@ -59,7 +59,7 @@ exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardA
       upsertProfileMapping(
         input: {
           advertiserId: 84GW[vK%wv2xv@UF5iy,
-          mappingSchemaV2: [{incomingKey:"userId",destinationKey:"external_id",type:STRING,isPii:false,label:"External Profile ID"}],
+          mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_day",destinationKey:"birth_day",label:"Birth Day",type:NUMBER,isPii:false},{incomingKey:"birth_month",destinationKey:"birth_month",label:"Birth Month",type:NUMBER,isPii:false},{incomingKey:"birth_year",destinationKey:"birth_year",label:"Birth Year",type:NUMBER,isPii:false},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:STRING,isPii:true},{incomingKey:"testType",destinationKey:"testType",label:"TestType",type:STRING,isPii:false},{incomingKey:"marketing_status",destinationKey:"marketing_status",label:"Marketing Status",type:STRING,isPii:false,value:"Indeterminate"}],
           mappableType: "segment_io"
         }
       ) {
@@ -100,7 +100,7 @@ exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardP
       upsertProfileMapping(
         input: {
           advertiserId: PsAwlRv%,
-          mappingSchemaV2: [{incomingKey:"userId",destinationKey:"external_id",label:"User Id",type:STRING,isPii:false}],
+          mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"user_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_day",destinationKey:"birth_day",label:"Birth Day",type:NUMBER,isPii:false},{incomingKey:"birth_month",destinationKey:"birth_month",label:"Birth Month",type:NUMBER,isPii:false},{incomingKey:"birth_year",destinationKey:"birth_year",label:"Birth Year",type:NUMBER,isPii:false},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:STRING,isPii:true},{incomingKey:"firstName",destinationKey:"firstName",label:"First Name",type:STRING,isPii:false},{incomingKey:"lastName",destinationKey:"lastName",label:"Last Name",type:STRING,isPii:false},{incomingKey:"postalCode",destinationKey:"postalCode",label:"Postal Code",type:STRING,isPii:false}],
           mappableType: "segment_io"
         }
       ) {
@@ -119,8 +119,8 @@ exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardP
         input: {
           advertiserId: PsAwlRv%,
           externalProvider: "segment_io",
-          syncId: "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-          profiles: "[]"
+          syncId: "189421de38265f02f322c47aafed2c5afff21e5533d0572c922ef10dd00f4d07",
+          profiles: "[{\\"email\\":\\"test@example.com\\",\\"firstName\\":\\"Test\\",\\"lastName\\":\\"User\\",\\"userId\\":\\"PsAwlRv%\\"}]"
         }
       ) {
         userErrors {
@@ -130,7 +130,7 @@ exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardP
       upsertProfileMapping(
         input: {
           advertiserId: PsAwlRv%,
-          mappingSchemaV2: [{incomingKey:"userId",destinationKey:"external_id",label:"User Id",type:STRING,isPii:false}],
+          mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"user_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_day",destinationKey:"birth_day",label:"Birth Day",type:NUMBER,isPii:false},{incomingKey:"birth_month",destinationKey:"birth_month",label:"Birth Month",type:NUMBER,isPii:false},{incomingKey:"birth_year",destinationKey:"birth_year",label:"Birth Year",type:NUMBER,isPii:false},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:STRING,isPii:true},{incomingKey:"firstName",destinationKey:"firstName",label:"First Name",type:STRING,isPii:false},{incomingKey:"lastName",destinationKey:"lastName",label:"Last Name",type:STRING,isPii:false}],
           mappableType: "segment_io"
         }
       ) {
