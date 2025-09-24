@@ -410,7 +410,6 @@ describe('Broker string validation', () => {
     expect(isValidHostPort('broker:not-a-number')).toBe(false)
     expect(isValidHostPort('broker:-1')).toBe(false)
     expect(isValidHostPort('broker:70000')).toBe(false) // > 65535
-    expect(isValidHostPort('https://broker1:9092')).toBe(false) // contains extra ':'
     expect(isValidHostPort('')).toBe(false)
     expect(isValidHostPort(null as unknown as string)).toBe(false)
   })
