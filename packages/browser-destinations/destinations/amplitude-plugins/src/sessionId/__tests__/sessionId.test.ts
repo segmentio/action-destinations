@@ -32,7 +32,17 @@ const example: Subscription[] = [
     name: 'SessionId',
     enabled: true,
     subscribe: 'type = "track"',
-    mapping: {}
+    mapping: {
+      triggerSessionEvents: {
+        '@path': '$.properties.triggerSessionEvents'
+      },
+      sessionStartEvent: {
+        '@path': '$.properties.sessionStartEvent'
+      },
+      sessionEndEvent: {
+        '@path': '$.properties.sessionEndEvent'
+      }
+    }
   }
 ]
 
@@ -49,6 +59,10 @@ beforeEach(async () => {
     document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
   })
   window.localStorage.clear()
+
+  window.analytics = {
+    track: jest.fn(() => Promise.resolve())
+  } as any
 
   ajs = new Analytics({
     writeKey: 'w_123'
@@ -165,6 +179,48 @@ describe('sessionId', () => {
       const updatedCtx = await sessionIdPlugin.track?.(ctx)
       // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
       expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(id())
+    })
+
+    test('sets a session id and send session start track event when triggerSessionEvents is true', async () => {
+      const trk = jest
+        .spyOn(ajs, 'track')
+        .mockImplementation((_) => Promise.resolve(new Context({ type: 'track', event: 'mock' })))
+      const ctx = new Context({
+        type: 'track',
+        event: 'greet',
+        properties: {
+          greeting: 'Oi!',
+          triggerSessionEvents: true
+        }
+      })
+
+      const updatedCtx = await sessionIdPlugin.track?.(ctx)
+      // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+      expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(id())
+      expect(trk).toHaveBeenCalledWith('session_ended', {})
+      expect(trk).toHaveBeenCalledWith('session_started', {})
+    })
+
+    test('session event with custom name', async () => {
+      const trk = jest
+        .spyOn(ajs, 'track')
+        .mockImplementation((_) => Promise.resolve(new Context({ type: 'track', event: 'mock' })))
+      const ctx = new Context({
+        type: 'track',
+        event: 'greet',
+        properties: {
+          greeting: 'Oi!',
+          triggerSessionEvents: true,
+          sessionStartEvent: 'Session Started',
+          sessionEndEvent: 'Session Ended'
+        }
+      })
+
+      const updatedCtx = await sessionIdPlugin.track?.(ctx)
+      // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+      expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(id())
+      expect(trk).toHaveBeenCalledWith('Session Ended', {})
+      expect(trk).toHaveBeenCalledWith('Session Started', {})
     })
 
     test('persists the session id', async () => {
