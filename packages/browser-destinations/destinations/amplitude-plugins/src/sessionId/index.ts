@@ -59,7 +59,8 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
       label: 'Session Length',
       type: 'number',
       required: false,
-      description: 'Time in milliseconds to be used before considering a session stale.'
+      description: 'Time in milliseconds to be used before considering a session stale.',
+      default: THIRTY_MINUTES
     },
     triggerSessionEvents: {
       label: 'Allow Session Tracking',
