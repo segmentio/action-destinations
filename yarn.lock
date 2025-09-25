@@ -4413,6 +4413,14 @@
     "@segment/actions-core" "^3.159.0"
     "@segment/browser-destination-runtime" "^1.88.0"
 
+"@segment/analytics-browser-actions-upollo@1.89.1-staging-81259d72f.0":
+  version "1.89.1-staging-81259d72f.0"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-upollo/-/analytics-browser-actions-upollo-1.89.1-staging-81259d72f.0.tgz#3914552cf58a1c2f0705b1abd803152666a69c9a"
+  integrity sha512-4dFDwaQ1RXQ8bepwcPZdrRhFXRdSxFTH5MuL750+SI8vyUaAOGui5f9FcZBMb5L34YsGSAOcxwS38kSlEH6aEg==
+  dependencies:
+    "@segment/actions-core" "3.159.1-staging-81259d72f.0"
+    "@segment/browser-destination-runtime" "1.88.1-staging-81259d72f.0"
+
 "@segment/analytics-browser-actions-upollo@^1.89.0":
   version "1.89.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-upollo/-/analytics-browser-actions-upollo-1.89.0.tgz#b5b9fe8e278a5d838a35e386b93591f58c196b63"
