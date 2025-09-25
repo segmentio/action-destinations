@@ -274,15 +274,15 @@ export const sendData = async (
         kafkaError.name,
         500
       )
+    } finally {
+      if (features && features[FLAGON_NAME]) {
+        const key = serializeKafkaConfig(settings)
+        if (producersByConfig[key]) {
+          producersByConfig[key].lastUsed = Date.now()
+        }
+      } else {
+        await producer?.disconnect()
+      }
     }
-  }
-
-  if (features && features[FLAGON_NAME]) {
-    const key = serializeKafkaConfig(settings)
-    if (producersByConfig[key]) {
-      producersByConfig[key].lastUsed = Date.now()
-    }
-  } else {
-    await producer.disconnect()
   }
 }
