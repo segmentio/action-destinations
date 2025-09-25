@@ -181,7 +181,7 @@ export const commonFields: Record<string, InputField> = {
     properties: {
       connected_to_engage_audience: {
         label: 'Connecting to Engage Audience',
-        description: 'Set to true if syncing an Engage Audience to a Hubstpot list, false otherwise.',
+        description: 'Set to true if syncing an Engage Audience to a Hubspot list, false otherwise.',
         type: 'boolean',
         required: false,
         disabledInputMethods: ['literal', 'freeform']

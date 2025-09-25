@@ -21,11 +21,11 @@ export function validate(payloads: Payload[], flag?: boolean): Payload[] {
     )
   }
 
-  if(flag === true){
+  if (flag === true){
     const hasEngageAudience = cleaned.some((p) => getListPayloadType(p) === 'is_engage_audience_payload') 
     const hasNonEngageAudience = cleaned.some((p) => getListPayloadType(p) === 'is_non_engage_audience_payload') 
     
-    if(hasEngageAudience && hasNonEngageAudience){
+    if (hasEngageAudience && hasNonEngageAudience){
       throw new PayloadValidationError(
         'Engage and non Engage payloads cannot be mixed in the same batch.'
       )
@@ -35,7 +35,7 @@ export function validate(payloads: Payload[], flag?: boolean): Payload[] {
       new Set(cleaned.map((p) => getListName(p)).filter(Boolean))
     )
 
-    if(listNames.length > 1){
+    if (listNames.length > 1){
       throw new PayloadValidationError(
         `When updating List membership, all payloads must reference the same list. Found multiple lists in the batch: ${listNames.slice(0, 3).join(', ')}`
       )

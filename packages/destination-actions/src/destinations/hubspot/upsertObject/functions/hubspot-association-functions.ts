@@ -169,10 +169,10 @@ export async function sendAssociations(client: Client, payloads: AssociationPayl
       }
       return input
     })
-    if(action === 'archive') {
+    if (action === 'archive') {
       return client.batchDissociationsRequest({ inputs }, toObjectType)
     }
-    if(action === 'create') {
+    if (action === 'create') {
       // create JSON does not take an array for the 'to' field
       return client.batchAssociationsRequest({ inputs }, toObjectType)
     }

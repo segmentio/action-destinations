@@ -85,7 +85,7 @@ export interface Payload {
    */
   list_details?: {
     /**
-     * Set to true if syncing an Engage Audience to a Hubstpot list, false otherwise.
+     * Set to true if syncing an Engage Audience to a Hubspot list, false otherwise.
      */
     connected_to_engage_audience?: boolean
     /**

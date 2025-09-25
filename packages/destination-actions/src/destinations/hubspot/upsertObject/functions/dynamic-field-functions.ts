@@ -159,7 +159,7 @@ export const dynamicFields = {
         throw new Error("Select a value from the 'Object Type' field")
       }
 
-      return await dynamicReadLists(request, "contact")
+      return await dynamicReadLists(request, objectType)
     }
   }
 }
