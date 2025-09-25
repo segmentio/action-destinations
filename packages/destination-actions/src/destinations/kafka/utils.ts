@@ -249,8 +249,7 @@ export const sendData = async (
 
   for (const data of topicMessages) {
     try {
-      const jsonString = JSON.stringify(data.messages)
-      const batch_bytes = Buffer.byteLength(jsonString, 'utf8')
+      const batch_bytes = Buffer.byteLength(JSON.stringify(data.messages), 'utf8')
       statsClient?.histogram('kafka.batch_bytes', batch_bytes, tags)
       await producer.send(data as ProducerRecord)
     } catch (error) {
