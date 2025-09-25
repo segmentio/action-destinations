@@ -6,6 +6,7 @@ import {
   DestinationDefinition
 } from '@segment/actions-core'
 import Webhook from '../index'
+import { createHmac, timingSafeEqual } from 'crypto'
 
 const settings = {
   oauth: {},
@@ -260,6 +261,98 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
             }
           })
         ).rejects.toThrow(PayloadValidationError)
+      })
+
+      it('supports request signing for no auth', async () => {
+        const url = 'https://example.com'
+        const event = createTestEvent({
+          properties: { cool: true }
+        })
+        const payload = JSON.stringify(event.properties)
+        const sharedSecret = 'sharedSecret123'
+
+        nock(url)
+          .post('/', payload)
+          .reply(async function (_uri, body) {
+            // Normally you should use the raw body but nock automatically
+            // deserializes it (and doesn't allow us to access the raw request
+            // body) so we re-serialize the body here so that we can demonstrate
+            // signture validation.
+            const bodyString = JSON.stringify(body)
+
+            // Validate the signature
+            const expectSignature = this.req.headers['x-signature'][0]
+            const actualSignature = createHmac('sha1', sharedSecret).update(bodyString).digest('hex')
+
+            // Use constant-time comparison to avoid timing attacks
+            if (
+              expectSignature.length !== actualSignature.length ||
+              !timingSafeEqual(Buffer.from(actualSignature, 'hex'), Buffer.from(expectSignature, 'hex'))
+            ) {
+              return [400, 'Invalid signature']
+            }
+
+            return [200, 'OK']
+          })
+
+        const responses = await testDestination.testAction('send', {
+          event,
+          mapping: {
+            url,
+            data: { '@path': '$.properties' }
+          },
+          settings: { sharedSecret, ...noAuthSettings },
+          useDefaultMappings: true
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+      })
+
+      it('supports request signing for bearer token', async () => {
+        const url = 'https://example.com'
+        const event = createTestEvent({
+          properties: { cool: true }
+        })
+        const payload = JSON.stringify(event.properties)
+        const sharedSecret = 'sharedSecret123'
+
+        nock(url)
+          .post('/', payload)
+          .reply(async function (_uri, body) {
+            // Normally you should use the raw body but nock automatically
+            // deserializes it (and doesn't allow us to access the raw request
+            // body) so we re-serialize the body here so that we can demonstrate
+            // signture validation.
+            const bodyString = JSON.stringify(body)
+
+            // Validate the signature
+            const expectSignature = this.req.headers['x-signature'][0]
+            const actualSignature = createHmac('sha1', sharedSecret).update(bodyString).digest('hex')
+
+            // Use constant-time comparison to avoid timing attacks
+            if (
+              expectSignature.length !== actualSignature.length ||
+              !timingSafeEqual(Buffer.from(actualSignature, 'hex'), Buffer.from(expectSignature, 'hex'))
+            ) {
+              return [400, 'Invalid signature']
+            }
+
+            return [200, 'OK']
+          })
+
+        const responses = await testDestination.testAction('send', {
+          event,
+          mapping: {
+            url,
+            data: { '@path': '$.properties' }
+          },
+          settings: { sharedSecret, ...bearerTypeSettings },
+          useDefaultMappings: true
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
       })
     })
 
