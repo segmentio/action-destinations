@@ -68,7 +68,7 @@ describe('Audience Destination', () => {
 
       const result = await testDestination.createAudience({
         ...createAudienceInput,
-        features: { 'actions-first-party-dv360-version-update': true }
+        features: { 'first-party-dv360-canary-version': true }
       })
       expect(result).toEqual({ externalId: 'audience-id-123' })
     })
@@ -88,7 +88,7 @@ describe('Audience Destination', () => {
 
       const result = await testDestination.createAudience({
         ...createAudienceInput,
-        features: { 'actions-first-party-dv360-version-update': false }
+        features: { 'first-party-dv360-canary-version': false }
       })
       expect(result).toEqual({ externalId: 'audience-id-123' })
     })
@@ -108,7 +108,7 @@ describe('Audience Destination', () => {
 
       const result = await testDestination.getAudience({
         ...getAudienceInput,
-        features: { 'actions-first-party-dv360-version-update': true }
+        features: { 'first-party-dv360-canary-version': true }
       })
       expect(result).toEqual({ externalId: 'audience-id-123' })
     })
@@ -121,7 +121,7 @@ describe('Audience Destination', () => {
 
       const result = await testDestination.getAudience({
         ...getAudienceInput,
-        features: { 'actions-first-party-dv360-version-update': false }
+        features: { 'first-party-dv360-canary-version': false }
       })
       expect(result).toEqual({ externalId: 'audience-id-123' })
     })
@@ -171,7 +171,7 @@ describe('Audience Destination', () => {
       const result = await testDestination.testAction('addToAudContactInfo', {
         event,
         useDefaultMappings: true,
-        features: { 'actions-first-party-dv360-version-update': true }
+        features: { 'first-party-dv360-canary-version': true }
       })
       expect(result).toContainEqual(
         expect.objectContaining({
@@ -188,7 +188,7 @@ describe('Audience Destination', () => {
       const result = await testDestination.testAction('addToAudContactInfo', {
         event,
         useDefaultMappings: true,
-        features: { 'actions-first-party-dv360-version-update': false }
+        features: { 'first-party-dv360-canary-version': false }
       })
       expect(result).toContainEqual(
         expect.objectContaining({
@@ -224,7 +224,7 @@ describe('Audience Destination', () => {
       const result = await testDestination.testAction('removeFromAudContactInfo', {
         event,
         useDefaultMappings: true,
-        features: { 'actions-first-party-dv360-version-update': true }
+        features: { 'first-party-dv360-canary-version': true }
       })
       expect(result).toContainEqual(
         expect.objectContaining({
@@ -260,7 +260,7 @@ describe('Audience Destination', () => {
       const result = await testDestination.testAction('removeFromAudContactInfo', {
         event,
         useDefaultMappings: true,
-        features: { 'actions-first-party-dv360-version-update': false }
+        features: { 'first-party-dv360-canary-version': false }
       })
       expect(result).toContainEqual(
         expect.objectContaining({
@@ -311,7 +311,7 @@ describe('Audience Destination', () => {
       const result = await testDestination.testAction('addToAudMobileDeviceId', {
         event,
         useDefaultMappings: true,
-        features: { 'actions-first-party-dv360-version-update': true }
+        features: { 'first-party-dv360-canary-version': true }
       })
       expect(result).toContainEqual(
         expect.objectContaining({
@@ -339,7 +339,7 @@ describe('Audience Destination', () => {
       const result = await testDestination.testAction('addToAudMobileDeviceId', {
         event,
         useDefaultMappings: true,
-        features: { 'actions-first-party-dv360-version-update': false }
+        features: { 'first-party-dv360-canary-version': false }
       })
       expect(result).toContainEqual(
         expect.objectContaining({
@@ -367,7 +367,7 @@ describe('Audience Destination', () => {
       const result = await testDestination.testAction('removeFromAudMobileDeviceId', {
         event,
         useDefaultMappings: true,
-        features: { 'actions-first-party-dv360-version-update': true }
+        features: { 'first-party-dv360-canary-version': true }
       })
       expect(result).toContainEqual(
         expect.objectContaining({
@@ -395,7 +395,7 @@ describe('Audience Destination', () => {
       const result = await testDestination.testAction('removeFromAudMobileDeviceId', {
         event,
         useDefaultMappings: true,
-        features: { 'actions-first-party-dv360-version-update': false }
+        features: { 'first-party-dv360-canary-version': false }
       })
       expect(result).toContainEqual(
         expect.objectContaining({

@@ -35,7 +35,7 @@ describe('First-Party-dv360.addToAudMobileDeviceId', () => {
         enable_batching: false,
         batch_size: 1
       },
-      features: { 'actions-first-party-dv360-version-update': true }
+      features: { 'first-party-dv360-canary-version': true }
     })
 
     expect(JSON.parse(responses[0].options.body as string)).toMatchInlineSnapshot(`
@@ -68,7 +68,7 @@ describe('First-Party-dv360.addToAudMobileDeviceId', () => {
         enable_batching: false,
         batch_size: 1
       },
-      features: { 'actions-first-party-dv360-version-update': false }
+      features: { 'first-party-dv360-canary-version': false }
     })
 
     expect(JSON.parse(responses[0].options.body as string)).toMatchInlineSnapshot(`

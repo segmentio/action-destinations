@@ -25,13 +25,13 @@ const event = createTestEvent({
   }
 })
 
-describe('First-Party-dv360.addToAudContactInfo', () => {
+describe('First-Party-dv360.removeFromAudContactInfo', () => {
   it('should hash pii data if not already hashed', async () => {
     nock('https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences')
       .post('/1234567890:editCustomerMatchMembers')
       .reply(200, { success: true })
 
-    const responses = await testDestination.testAction('addToAudContactInfo', {
+    const responses = await testDestination.testAction('removeFromAudContactInfo', {
       event,
       mapping: {
         emails: ['testing@testing.com'],
@@ -48,7 +48,7 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
     })
 
     expect(responses[0].options.body).toMatchInlineSnapshot(
-      '"{\\"advertiserId\\":\\"1234567890\\",\\"addedContactInfoList\\":{\\"contactInfos\\":[{\\"hashedEmails\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\",\\"hashedPhoneNumbers\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\",\\"zipCodes\\":\\"12345\\",\\"hashedFirstName\\":\\"96d9632f363564cc3032521409cf22a852f2032eec099ed5967c0d000cec607a\\",\\"hashedLastName\\":\\"799ef92a11af918e3fb741df42934f3b568ed2d93ac1df74f1b8d41a27932a6f\\",\\"countryCode\\":\\"US\\"}],\\"consent\\":{\\"adUserData\\":\\"CONSENT_STATUS_GRANTED\\",\\"adPersonalization\\":\\"CONSENT_STATUS_GRANTED\\"}}}"'
+      '"{\\"advertiserId\\":\\"1234567890\\",\\"removedContactInfoList\\":{\\"contactInfos\\":[{\\"hashedEmails\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\",\\"hashedPhoneNumbers\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\",\\"zipCodes\\":\\"12345\\",\\"hashedFirstName\\":\\"96d9632f363564cc3032521409cf22a852f2032eec099ed5967c0d000cec607a\\",\\"hashedLastName\\":\\"799ef92a11af918e3fb741df42934f3b568ed2d93ac1df74f1b8d41a27932a6f\\",\\"countryCode\\":\\"US\\"}],\\"consent\\":{\\"adUserData\\":\\"CONSENT_STATUS_GRANTED\\",\\"adPersonalization\\":\\"CONSENT_STATUS_GRANTED\\"}}}"'
     )
   })
 
@@ -57,7 +57,7 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
       .post('/1234567890:editCustomerMatchMembers')
       .reply(200, { success: true })
 
-    const responses = await testDestination.testAction('addToAudContactInfo', {
+    const responses = await testDestination.testAction('removeFromAudContactInfo', {
       event,
       mapping: {
         emails: ['584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'],
@@ -73,9 +73,27 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
       }
     })
 
-    expect(responses[0].options.body).toMatchInlineSnapshot(
-      '"{\\"advertiserId\\":\\"1234567890\\",\\"addedContactInfoList\\":{\\"contactInfos\\":[{\\"hashedEmails\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\",\\"hashedPhoneNumbers\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\",\\"zipCodes\\":\\"12345\\",\\"hashedFirstName\\":\\"96d9632f363564cc3032521409cf22a852f2032eec099ed5967c0d000cec607a\\",\\"hashedLastName\\":\\"799ef92a11af918e3fb741df42934f3b568ed2d93ac1df74f1b8d41a27932a6f\\",\\"countryCode\\":\\"US\\"}],\\"consent\\":{\\"adUserData\\":\\"CONSENT_STATUS_GRANTED\\",\\"adPersonalization\\":\\"CONSENT_STATUS_GRANTED\\"}}}"'
-    )
+    expect(JSON.parse(responses[0].options.body as string)).toMatchInlineSnapshot(`
+      Object {
+        "advertiserId": "1234567890",
+        "removedContactInfoList": Object {
+          "consent": Object {
+            "adPersonalization": "CONSENT_STATUS_GRANTED",
+            "adUserData": "CONSENT_STATUS_GRANTED",
+          },
+          "contactInfos": Array [
+            Object {
+              "countryCode": "US",
+              "hashedEmails": "584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777",
+              "hashedFirstName": "96d9632f363564cc3032521409cf22a852f2032eec099ed5967c0d000cec607a",
+              "hashedLastName": "799ef92a11af918e3fb741df42934f3b568ed2d93ac1df74f1b8d41a27932a6f",
+              "hashedPhoneNumbers": "422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8",
+              "zipCodes": "12345",
+            },
+          ],
+        },
+      }
+    `)
   })
 
   it('should batch multiple payloads into a single request when enable_batching is true', async () => {
@@ -84,7 +102,7 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
       .reply(200, { success: true })
 
     const events = createBatchTestEvents(createContactList)
-    const responses = await testDestination.testBatchAction('addToAudContactInfo', {
+    const responses = await testDestination.testBatchAction('removeFromAudContactInfo', {
       events: events,
       mapping: {
         emails: ['584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'],
@@ -101,9 +119,9 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
     })
 
     const requestBody = JSON.parse(String(responses[0].options.body))
-    expect(requestBody.addedContactInfoList.contactInfos.length).toBe(2)
-    expect(requestBody.addedContactInfoList.contactInfos[0].hashedEmails).toBeDefined()
-    expect(requestBody.addedContactInfoList.contactInfos[1].hashedEmails).toBeDefined()
+    expect(requestBody.removedContactInfoList.contactInfos.length).toBe(2)
+    expect(requestBody.removedContactInfoList.contactInfos[0].hashedEmails).toBeDefined()
+    expect(requestBody.removedContactInfoList.contactInfos[1].hashedEmails).toBeDefined()
     // Optionally, check that the emails are correctly hashed and correspond to the input
   })
 
@@ -113,7 +131,7 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
       .reply(200, { success: true })
 
     const events = createBatchTestEvents(createContactList)
-    const responses = await testDestination.testBatchAction('addToAudContactInfo', {
+    const responses = await testDestination.testBatchAction('removeFromAudContactInfo', {
       events: events,
       mapping: {
         emails: ['584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'],
@@ -127,13 +145,13 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
         enable_batching: true,
         batch_size: 2
       },
-      features: { 'actions-first-party-dv360-version-update': true }
+      features: { 'first-party-dv360-canary-version': true }
     })
 
     const requestBody = JSON.parse(String(responses[0].options.body))
-    expect(requestBody.addedContactInfoList.contactInfos.length).toBe(2)
-    expect(requestBody.addedContactInfoList.contactInfos[0].hashedEmails).toBeDefined()
-    expect(requestBody.addedContactInfoList.contactInfos[1].hashedEmails).toBeDefined()
+    expect(requestBody.removedContactInfoList.contactInfos.length).toBe(2)
+    expect(requestBody.removedContactInfoList.contactInfos[0].hashedEmails).toBeDefined()
+    expect(requestBody.removedContactInfoList.contactInfos[1].hashedEmails).toBeDefined()
   })
 
   it('should batch multiple payloads into a single request when enable_batching is true (feature flag OFF, v3)', async () => {
@@ -142,7 +160,7 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
       .reply(200, { success: true })
 
     const events = createBatchTestEvents(createContactList)
-    const responses = await testDestination.testBatchAction('addToAudContactInfo', {
+    const responses = await testDestination.testBatchAction('removeFromAudContactInfo', {
       events: events,
       mapping: {
         emails: ['584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'],
@@ -156,13 +174,13 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
         enable_batching: true,
         batch_size: 2
       },
-      features: { 'actions-first-party-dv360-version-update': false }
+      features: { 'first-party-dv360-canary-version': false }
     })
 
     const requestBody = JSON.parse(String(responses[0].options.body))
-    expect(requestBody.addedContactInfoList.contactInfos.length).toBe(2)
-    expect(requestBody.addedContactInfoList.contactInfos[0].hashedEmails).toBeDefined()
-    expect(requestBody.addedContactInfoList.contactInfos[1].hashedEmails).toBeDefined()
+    expect(requestBody.removedContactInfoList.contactInfos.length).toBe(2)
+    expect(requestBody.removedContactInfoList.contactInfos[0].hashedEmails).toBeDefined()
+    expect(requestBody.removedContactInfoList.contactInfos[1].hashedEmails).toBeDefined()
   })
 })
 

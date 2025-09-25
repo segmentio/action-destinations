@@ -127,7 +127,7 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
         enable_batching: true,
         batch_size: 2
       },
-      features: { 'actions-first-party-dv360-version-update': true }
+      features: { 'first-party-dv360-canary-version': true }
     })
 
     const requestBody = JSON.parse(String(responses[0].options.body))
@@ -156,7 +156,7 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
         enable_batching: true,
         batch_size: 2
       },
-      features: { 'actions-first-party-dv360-version-update': false }
+      features: { 'first-party-dv360-canary-version': false }
     })
 
     const requestBody = JSON.parse(String(responses[0].options.body))

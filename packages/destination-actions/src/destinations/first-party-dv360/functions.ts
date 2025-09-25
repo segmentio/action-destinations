@@ -2,7 +2,19 @@ import { Features, IntegrationError, RequestClient, StatsContext } from '@segmen
 import { Payload } from './addToAudContactInfo/generated-types'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
-import { FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE } from './properties'
+
+export const API_VERSION = 'v3'
+export const CANARY_API_VERSION = 'v4'
+export const FLAGON_NAME = 'first-party-dv360-canary-version'
+
+export function getApiVersion(features?: Features, statsContext?: StatsContext): string {
+  const statsClient = statsContext?.statsClient
+  const tags = statsContext?.tags
+  const version = features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
+  tags?.push(`version:${version}`)
+  statsClient?.incr('dv360_api_version', 1, tags)
+  return version
+}
 
 const DV360API = `https://displayvideo.googleapis.com/`
 const CONSENT_STATUS_GRANTED = 'CONSENT_STATUS_GRANTED' // Define consent status
@@ -16,6 +28,7 @@ interface createAudienceRequestParams {
   appId?: string
   token?: string
   features?: Features
+  statsContext?: StatsContext
 }
 
 interface getAudienceParams {
@@ -23,6 +36,7 @@ interface getAudienceParams {
   audienceId: string
   token?: string
   features?: Features
+  statsContext?: StatsContext
 }
 
 interface DV360editCustomerMatchResponse {
@@ -44,8 +58,9 @@ export const createAudienceRequest = (
   const { advertiserId, audienceName, description, membershipDurationDays, audienceType, appId, token, features } =
     params
 
+  const version = getApiVersion(features)
   let endpoint
-  if (features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]) {
+  if (version === 'v4') {
     endpoint = DV360API + 'v4/firstPartyAndPartnerAudiences' + `?advertiserId=${advertiserId}`
   } else {
     endpoint = DV360API + 'v3/firstAndThirdPartyAudiences' + `?advertiserId=${advertiserId}`
@@ -64,11 +79,8 @@ export const createAudienceRequest = (
       description: description,
       audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',
       firstAndThirdPartyAudienceType:
-        features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]
-          ? undefined
-          : 'FIRST_AND_THIRD_PARTY_AUDIENCE_TYPE_FIRST_PARTY',
-      firstPartyAndPartnerAudienceType:
-        features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE] ? 'TYPE_FIRST_PARTY' : undefined,
+        features && features[FLAGON_NAME] ? undefined : 'FIRST_AND_THIRD_PARTY_AUDIENCE_TYPE_FIRST_PARTY',
+      firstPartyAndPartnerAudienceType: features && features[FLAGON_NAME] ? 'TYPE_FIRST_PARTY' : undefined,
       appId: appId
     }
   })
@@ -76,8 +88,10 @@ export const createAudienceRequest = (
 
 export const getAudienceRequest = (request: RequestClient, params: getAudienceParams): Promise<Response> => {
   const { advertiserId, audienceId, token, features } = params
+
+  const version = getApiVersion(features)
   let endpoint
-  if (features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]) {
+  if (version === 'v4') {
     endpoint = DV360API + 'v4/firstPartyAndPartnerAudiences' + `/${audienceId}?advertiserId=${advertiserId}`
   } else {
     endpoint = DV360API + 'v3/firstAndThirdPartyAudiences' + `/${audienceId}?advertiserId=${advertiserId}`
@@ -108,9 +122,10 @@ export async function editDeviceMobileIds(
   )
 
   //Format the endpoint
+
+  const version = getApiVersion(features)
   let endpoint
-  if (features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]) {
-    // Handle version update logic
+  if (version === 'v4') {
     endpoint = DV360API + 'v4/firstPartyAndPartnerAudiences/' + audienceId + ':editCustomerMatchMembers'
   } else {
     endpoint = DV360API + 'v3/firstAndThirdPartyAudiences/' + audienceId + ':editCustomerMatchMembers'
@@ -139,7 +154,7 @@ export async function editDeviceMobileIds(
     body: requestPayload
   })
   const responseAudienceId =
-    features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]
+    features && features[FLAGON_NAME]
       ? response.data.firstPartyAndPartnerAudienceId
       : response.data.firstAndThirdPartyAudienceId
   if (!response.data || !responseAudienceId) {
@@ -212,8 +227,9 @@ export async function editContactInfo(
   const contactInfos = validPayloads.map(processPayload)
   const contactInfoList = buildContactInfoList(contactInfos)
   const requestPayload = buildRequestPayload(advertiserId, contactInfoList, operation)
+  const version = getApiVersion(features)
   let endpoint
-  if (features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]) {
+  if (version === 'v4') {
     endpoint = DV360API + 'v4/firstPartyAndPartnerAudiences/' + audienceId + ':editCustomerMatchMembers'
   } else {
     endpoint = DV360API + 'v3/firstAndThirdPartyAudiences/' + audienceId + ':editCustomerMatchMembers'
