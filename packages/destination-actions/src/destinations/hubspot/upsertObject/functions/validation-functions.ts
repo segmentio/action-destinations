@@ -1,8 +1,9 @@
 import { PayloadValidationError, StatsContext } from '@segment/actions-core'
 import { Payload } from '../generated-types'
 import { Association } from '../types'
+import { getListPayloadType, getListName } from '../functions/hubspot-list-functions'
 
-export function validate(payloads: Payload[]): Payload[] {
+export function validate(payloads: Payload[], flag?: boolean): Payload[] {
   const length = payloads.length
 
   const cleaned: Payload[] = payloads.filter((payload) => {
@@ -20,6 +21,27 @@ export function validate(payloads: Payload[]): Payload[] {
     )
   }
 
+  if (flag === true){
+    const hasEngageAudience = cleaned.some((p) => getListPayloadType(p) === 'is_engage_audience_payload') 
+    const hasNonEngageAudience = cleaned.some((p) => getListPayloadType(p) === 'is_non_engage_audience_payload') 
+    
+    if (hasEngageAudience && hasNonEngageAudience){
+      throw new PayloadValidationError(
+        'Engage and non Engage payloads cannot be mixed in the same batch.'
+      )
+    }
+
+    const listNames = Array.from(
+      new Set(cleaned.map((p) => getListName(p)).filter(Boolean))
+    )
+
+    if (listNames.length > 1){
+      throw new PayloadValidationError(
+        `When updating List membership, all payloads must reference the same list. Found multiple lists in the batch: ${listNames.slice(0, 3).join(', ')}`
+      )
+    }
+  }
+
   cleaned.forEach((payload) => {
     payload.properties = cleanPropObj(payload.properties)
     payload.sensitive_properties = cleanPropObj(payload.sensitive_properties)
@@ -33,8 +55,18 @@ export function validate(payloads: Payload[]): Payload[] {
       ]
       return fieldsToCheck.every((field) => field !== null && field !== '')
     })
-  })
 
+    payload.dissociations = payload.dissociations?.filter((association) => {
+      const fieldsToCheck = [
+        association.id_field_name,
+        association.object_type,
+        association.id_field_value,
+        association.association_label
+      ]
+      return fieldsToCheck.every((field) => field !== null && field !== '')
+    })
+  })
+  
   return cleaned
 }
 

@@ -9,6 +9,7 @@ export class HubSpotError extends HTTPError {
       message: string
       correlationId: string
       category: string
+      subCategory?: string
     }
   }
 }

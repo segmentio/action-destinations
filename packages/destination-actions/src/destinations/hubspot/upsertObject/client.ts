@@ -8,7 +8,11 @@ import {
   ReadReq,
   ReadPropsResp,
   BatchObjResp,
-  UpsertReq
+  UpsertReq,
+  CreateListReq,
+  CreateListResp,
+  ReadListResp,
+  AddRemoveFromListReq
 } from './types'
 
 export class Client {
@@ -57,6 +61,46 @@ export class Client {
       `${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/create`,
       {
         method: 'POST',
+        json
+      }
+    )
+    return response
+  }
+
+  async batchDissociationsRequest(json: AssociationsReq, toObjectType: string) {
+    const response = await this.request(
+      `${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/labels/archive`,
+      {
+        method: 'POST',
+        json
+      }
+    )
+    return response
+  }
+
+  async readList(name: string) {
+    const response = await this.request<ReadListResp>(
+      `${HUBSPOT_BASE_URL}/crm/v3/lists/object-type-id/${this.objectType}/name/${name}`,
+      {
+        method: 'GET'
+      }
+    )
+    return response
+  }
+
+  async createList(json: CreateListReq) {
+    const response = await this.request<CreateListResp>(`${HUBSPOT_BASE_URL}/crm/v3/lists`, {
+      method: 'POST',
+      json
+    })
+    return response
+  }
+
+  async addRemoveFromList(listId: string, json: AddRemoveFromListReq) {
+    const response = await this.request<CreateListResp>(
+      `${HUBSPOT_BASE_URL}/crm/v3/lists/${listId}/memberships/add-and-remove`,
+      {
+        method: 'PUT',
         json
       }
     )
