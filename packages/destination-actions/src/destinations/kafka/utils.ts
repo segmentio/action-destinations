@@ -271,7 +271,7 @@ export const sendData = async (
           producersByConfig[key].lastUsed = Date.now()
         }
       } else {
-        await producer.disconnect()
+        await producer?.disconnect()
       }
     }
   }
