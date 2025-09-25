@@ -18,15 +18,37 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
-        properties: eventData
+        properties: eventData,
       })
+      event.properties!.marketing_status = 'Indeterminate'
+
+      // Add required test data for specific actions
+      let mapping = event.properties
+      if (actionSlug === 'forwardAudienceEvent') {
+        mapping = { ...event.properties, marketing_status: 'Indeterminate' }
+      } else if (actionSlug === 'forwardProfile') {
+        // Ensure forwardProfile has traits to avoid empty processing
+        mapping = { 
+          ...event.properties, 
+          traits: { 
+            email: 'test@example.com',
+            firstName: 'Test',
+            lastName: 'User',
+            ...event.properties.traits 
+          }
+        }
+      }
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: event.properties,
+        mapping: mapping,
         settings: settingsData,
         auth: undefined
       })
+
+      if (!responses || responses.length === 0) {
+        throw new Error(`No responses returned for action ${actionSlug}`)
+      }
 
       const request = responses[0].request
       const rawBody = await request.text()
@@ -55,12 +77,33 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         properties: eventData
       })
 
+      // Add required test data for specific actions
+      let mapping = event.properties
+      if (actionSlug === 'forwardAudienceEvent') {
+        mapping = { ...event.properties, marketing_status: 'Indeterminate' }
+      } else if (actionSlug === 'forwardProfile') {
+        // Ensure forwardProfile has traits to avoid empty processing
+        mapping = { 
+          ...event.properties, 
+          traits: { 
+            email: 'test@example.com',
+            firstName: 'Test',
+            lastName: 'User',
+            ...event.properties.traits 
+          }
+        }
+      }
+
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: event.properties,
+        mapping: mapping,
         settings: settingsData,
         auth: undefined
       })
+
+      if (!responses || responses.length === 0) {
+        throw new Error(`No responses returned for action ${actionSlug}`)
+      }
 
       const request = responses[0].request
       const rawBody = await request.text()

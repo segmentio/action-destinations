@@ -39,13 +39,13 @@ describe('StackAdapt Audiences - Destination Tests', () => {
           }
         })
 
-      await expect(testDestination.testAuthentication(mockSettings)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(mockSettings)).resolves.not.toThrow()
     })
 
     it('should fail if authentication is invalid', async () => {
       nock(GQL_ENDPOINT).post('').reply(403, {})
 
-      await expect(testDestination.testAuthentication(mockSettings)).rejects.toThrowError('403Forbidden')
+      await expect(testDestination.testAuthentication(mockSettings)).rejects.toThrow('403Forbidden')
     })
   })
 
@@ -91,7 +91,7 @@ describe('StackAdapt Audiences - Destination Tests', () => {
         testDestination.onDelete!(event, {
           apiKey: 'test-api-key'
         })
-      ).rejects.toThrowError('Profile deletion was not successful: Deletion failed')
+      ).rejects.toThrow('Profile deletion was not successful: Deletion failed')
     })
   })
 })
