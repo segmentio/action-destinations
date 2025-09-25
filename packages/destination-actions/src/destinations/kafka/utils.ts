@@ -132,6 +132,14 @@ export const validate = (settings: Settings) => {
       400
     )
   }
+  const isValidBroker = settings.brokers
+    .split(',') // split comma separated brokers
+    .map((item) => item.trim()) // trim whitespace
+    .filter((item) => item.length > 0) // remove empty strings
+    .every(isValidHostPort) // validate each broker
+  if (!isValidBroker) {
+    throw new IntegrationError('Brokers must be in the format host:port', 'BROKER_FORMAT_INVALID', 400)
+  }
 }
 
 const getProducer = (settings: Settings) => {
@@ -186,6 +194,14 @@ function getKafkaError(error: Error) {
     return errorCause
   }
   return error
+}
+
+export function isValidHostPort(brokerStr: string): boolean {
+  if (typeof brokerStr !== 'string') return false
+  const [host, port] = brokerStr.split(':')
+  if (!host || !port) return false
+  const portNum = Number(port)
+  return typeof host === 'string' && host.length > 0 && Number.isInteger(portNum) && portNum >= 0 && portNum <= 65535
 }
 
 export const sendData = async (
