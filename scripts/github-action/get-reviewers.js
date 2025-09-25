@@ -129,9 +129,12 @@ module.exports = async ({ github, context, core }) => {
             return
         }
 
-        // Filter out the PR author if they are in the target team (to avoid self-review)
+        // Filter out the PR author and excluded members
         const prAuthor = context.payload.pull_request.user.login
-        const eligibleMembers = team.data.filter(member => member.login !== prAuthor)
+        const excludedMembers = ['sandeeptwilio']
+        const eligibleMembers = team.data.filter(member =>
+            member.login !== prAuthor && !excludedMembers.includes(member.login)
+        )
 
         // If no eligible members after filtering author, use all team members
         const membersToSelectFrom = eligibleMembers.length > 0 ? eligibleMembers : team.data
