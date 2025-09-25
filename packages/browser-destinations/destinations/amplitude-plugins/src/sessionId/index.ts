@@ -61,13 +61,13 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
       required: false,
       description: 'Time in milliseconds to be used before considering a session stale.'
     },
-    allowSessionTracking: {
+    triggerSessionEvents: {
       label: 'Allow Session Tracking',
       type: 'boolean',
       default: false,
       required: false,
       description:
-        'Generate session start and session end track() events. These events will be sent to the Javascript Source and will be forwarded on to any connected Destinations.'
+        "if set to true, 'Session Started' and 'Session Ended' events will be triggered from the user's browser. These events will be forwarded to all connected Destinations."
     },
     sessionStartEvent: {
       label: 'Session Start Event',
@@ -78,7 +78,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
       depends_on: {
         conditions: [
           {
-            fieldKey: 'allowSessionTracking',
+            fieldKey: 'triggerSessionEvents',
             operator: 'is',
             value: true
           }
@@ -94,7 +94,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
       depends_on: {
         conditions: [
           {
-            fieldKey: 'allowSessionTracking',
+            fieldKey: 'triggerSessionEvents',
             operator: 'is',
             value: true
           }
@@ -125,7 +125,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     const updated = storage.get('analytics_session_id.last_access')
 
     const withInSessionLimit = withinSessionLimit(newSession, updated, payload.sessionLength)
-    if (!withInSessionLimit && payload.allowSessionTracking) {
+    if (!withInSessionLimit && payload.triggerSessionEvents) {
       // end previous session
       endSession(analytics, payload.sessionEndEvent)
     }
@@ -134,7 +134,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     if (stale(raw, updated, payload.sessionLength)) {
       id = newSession
       storage.set('analytics_session_id', id)
-      if (payload.allowSessionTracking) startSession(analytics, payload.sessionStartEvent)
+      if (payload.triggerSessionEvents) startSession(analytics, payload.sessionStartEvent)
     } else {
       // we are storing the session id regardless, so it gets synced between different storage mediums
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- id can't be null because of stale check

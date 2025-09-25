@@ -6,9 +6,9 @@ export interface Payload {
    */
   sessionLength?: number
   /**
-   * Generate session start and session end track() events. These events will be sent to the Javascript Source and will be forwarded on to any connected Destinations.
+   * if set to true, 'Session Started' and 'Session Ended' events will be triggered from the user's browser. These events will be forwarded to all connected Destinations.
    */
-  allowSessionTracking?: boolean
+  triggerSessionEvents?: boolean
   /**
    * The event name to use for the session start event.
    */

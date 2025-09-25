@@ -33,8 +33,8 @@ const example: Subscription[] = [
     enabled: true,
     subscribe: 'type = "track"',
     mapping: {
-      allowSessionTracking: {
-        '@path': '$.properties.allowSessionTracking'
+      triggerSessionEvents: {
+        '@path': '$.properties.triggerSessionEvents'
       },
       sessionStartEvent: {
         '@path': '$.properties.sessionStartEvent'
@@ -181,7 +181,7 @@ describe('sessionId', () => {
       expect(updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBeWithinOneSecondOf(id())
     })
 
-    test('sets a session id and send session start track event when allowSessionTracking is true', async () => {
+    test('sets a session id and send session start track event when triggerSessionEvents is true', async () => {
       const trk = jest
         .spyOn(ajs, 'track')
         .mockImplementation((_) => Promise.resolve(new Context({ type: 'track', event: 'mock' })))
@@ -190,7 +190,7 @@ describe('sessionId', () => {
         event: 'greet',
         properties: {
           greeting: 'Oi!',
-          allowSessionTracking: true
+          triggerSessionEvents: true
         }
       })
 
@@ -210,7 +210,7 @@ describe('sessionId', () => {
         event: 'greet',
         properties: {
           greeting: 'Oi!',
-          allowSessionTracking: true,
+          triggerSessionEvents: true,
           sessionStartEvent: 'Session Started',
           sessionEndEvent: 'Session Ended'
         }
