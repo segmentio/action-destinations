@@ -1,5 +1,5 @@
-import { Payload } from './syncToS3/generated-types'
-import { Settings } from './generated-types'
+import { Payload } from './generated-types'
+import { Settings } from '../generated-types'
 import { Client } from './client'
 import { RawMapping, ColumnHeader } from './types'
 

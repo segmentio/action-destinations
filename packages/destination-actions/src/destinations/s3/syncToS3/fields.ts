@@ -1,10 +1,10 @@
 import { ActionDefinition } from '@segment/actions-core'
-import { Settings } from './generated-types'
+import { Settings } from '../generated-types'
 
 export const commonFields: ActionDefinition<Settings>['fields'] = {
   columns: {
     label: 'Columns',
-    description: `Column write to the S3 CSV file.`,
+    description: `Column to write to the S3 CSV file.`,
     type: 'object',
     defaultObjectUI: 'keyvalue',
     required: true,
@@ -141,7 +141,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       'Name of the column that will contain the action for the audience. true if the user is in the audience, false if not.',
     type: 'string',
     required: false,
-    disabledInputMethods: ['variable', 'function', 'enrichment'],
+    disabledInputMethods: ['enrichment', 'function', 'variable', 'literal'],
     default: 'audience_action'
   },
   batch_size_column_name: {
@@ -150,7 +150,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       'Specify the column name to store the batch size when the event is sent to S3. Leave blank if no column is required',
     type: 'string',
     required: false,
-    disabledInputMethods: ['variable', 'function', 'enrichment'],
+    disabledInputMethods: ['enrichment', 'function', 'variable', 'literal'],
     default: 'batch_size'
   },
   traits_or_props: {
@@ -188,27 +188,30 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
     type: 'number',
     required: false,
-    default: 100_000
+    default: 100_000,
+    disabledInputMethods: ['enrichment', 'function', 'variable', 'literal']
   },
   s3_aws_folder_name: {
     label: 'AWS Subfolder Name',
     description:
       'Name of the S3 Subfolder where the files will be uploaded to. e.g. segmentdata/ or segmentdata/audiences/',
     type: 'string',
-    required: false
+    required: false,
+    disabledInputMethods: ['enrichment', 'function', 'variable', 'literal']
   },
   filename_prefix: {
     label: 'Filename prefix',
     description: `Prefix to append to the name of the uploaded file.`,
     type: 'string',
-    required: false
+    required: false,
+    disabledInputMethods: ['enrichment', 'function', 'variable', 'literal']
   },
   delimiter: {
     label: 'Delimeter',
     description: `Character used to separate tokens in the resulting file.`,
     type: 'string',
     required: true,
-    disabledInputMethods: ['enrichment', 'function', 'variable'],
+    disabledInputMethods: ['enrichment', 'function', 'variable', 'literal'],
     choices: [
       { label: 'comma', value: ',' },
       { label: 'pipe', value: '|' },
@@ -223,6 +226,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     description: `File extension for the uploaded file.`,
     type: 'string',
     required: true,
+    disabledInputMethods: ['enrichment', 'function', 'variable', 'literal'],
     choices: [
       { label: 'csv', value: 'csv' },
       { label: 'txt', value: 'txt' }
