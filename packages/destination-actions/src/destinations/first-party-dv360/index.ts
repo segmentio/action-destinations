@@ -11,7 +11,7 @@ import removeFromAudMobileDeviceId from './removeFromAudMobileDeviceId'
 import addToAudContactInfo from './addToAudContactInfo'
 import addToAudMobileDeviceId from './addToAudMobileDeviceId'
 import { _CreateAudienceInput, _GetAudienceInput } from './types'
-import { FLAGON_NAME } from './functions'
+import { getApiVersion, CANARY_API_VERSION } from './functions'
 
 export interface RefreshTokenResponse {
   access_token: string
@@ -176,7 +176,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
         externalId:
-          features && features[FLAGON_NAME] ? r.firstPartyAndPartnerAudienceId : r.firstAndThirdPartyAudienceId
+          getApiVersion(features, statsContext) === CANARY_API_VERSION
+            ? r.firstPartyAndPartnerAudienceId
+            : r.firstAndThirdPartyAudienceId
       }
     },
 
@@ -241,7 +243,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
         externalId:
-          features && features[FLAGON_NAME]
+          getApiVersion(features, statsContext) === CANARY_API_VERSION
             ? audienceData.firstPartyAndPartnerAudienceId
             : audienceData.firstAndThirdPartyAudienceId
       }

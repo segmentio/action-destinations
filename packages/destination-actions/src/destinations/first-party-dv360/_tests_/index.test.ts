@@ -53,7 +53,7 @@ beforeEach(() => {
 // Create Audience Tests
 describe('Audience Destination', () => {
   describe('createAudience', () => {
-    it('creates an audience successfully with feature flag ON (v4)', async () => {
+    it('creates an audience successfully with CANARY VERSION', async () => {
       nock('https://displayvideo.googleapis.com')
         .post('/v4/firstPartyAndPartnerAudiences?advertiserId=12345', {
           displayName: audienceName,
@@ -73,7 +73,7 @@ describe('Audience Destination', () => {
       expect(result).toEqual({ externalId: 'audience-id-123' })
     })
 
-    it('creates an audience successfully with feature flag OFF (v3)', async () => {
+    it('creates an audience successfully with API VERSION', async () => {
       nock('https://displayvideo.googleapis.com')
         .post('/v3/firstAndThirdPartyAudiences?advertiserId=12345', {
           displayName: audienceName,
@@ -100,7 +100,7 @@ describe('Audience Destination', () => {
   })
 
   describe('getAudience', () => {
-    it('should succeed with feature flag ON (v4)', async () => {
+    it('should succeed with CANARY VERSION', async () => {
       nock('https://displayvideo.googleapis.com')
         .get(`/v4/firstPartyAndPartnerAudiences/audience-id-123?advertiserId=12345`)
         .matchHeader('Authorization', 'Bearer temp-token')
@@ -113,7 +113,7 @@ describe('Audience Destination', () => {
       expect(result).toEqual({ externalId: 'audience-id-123' })
     })
 
-    it('should succeed with feature flag OFF (v3)', async () => {
+    it('should succeed with API VERSION', async () => {
       nock('https://displayvideo.googleapis.com')
         .get(`/v3/firstAndThirdPartyAudiences/audience-id-123?advertiserId=12345`)
         .matchHeader('Authorization', 'Bearer temp-token')
@@ -164,7 +164,7 @@ describe('Audience Destination', () => {
       }
     })
 
-    it('should add customer match members successfully with feature flag ON (v4)', async () => {
+    it('should add customer match members successfully with CANARY VERSION', async () => {
       nock('https://displayvideo.googleapis.com')
         .post('/v4/firstPartyAndPartnerAudiences/audience-id-123:editCustomerMatchMembers')
         .reply(200, { firstPartyAndPartnerAudienceId: 'audience-id-123' })
@@ -181,7 +181,7 @@ describe('Audience Destination', () => {
         })
       )
     })
-    it('should add customer match members successfully with feature flag OFF (v3)', async () => {
+    it('should add customer match members successfully with API VERSION', async () => {
       nock('https://displayvideo.googleapis.com')
         .post('/v3/firstAndThirdPartyAudiences/audience-id-123:editCustomerMatchMembers')
         .reply(200, { firstAndThirdPartyAudienceId: 'audience-id-123' })
@@ -198,7 +198,7 @@ describe('Audience Destination', () => {
         })
       )
     })
-    it('should remove customer match members successfully with feature flag ON (v4)', async () => {
+    it('should remove customer match members successfully with CANARY VERSION', async () => {
       nock('https://displayvideo.googleapis.com')
         .post('/v4/firstPartyAndPartnerAudiences/audience-id-123:editCustomerMatchMembers', {
           advertiserId: '12345',
@@ -234,7 +234,7 @@ describe('Audience Destination', () => {
         })
       )
     })
-    it('should remove customer match members successfully with feature flag OFF (v3)', async () => {
+    it('should remove customer match members successfully with API VERSION', async () => {
       nock('https://displayvideo.googleapis.com')
         .post('/v3/firstAndThirdPartyAudiences/audience-id-123:editCustomerMatchMembers', {
           advertiserId: '12345',
@@ -294,7 +294,7 @@ describe('Audience Destination', () => {
       }
     })
 
-    it('should add customer match members successfully with feature flag ON (v4)', async () => {
+    it('should add customer match members successfully with CANARY VERSION', async () => {
       nock('https://displayvideo.googleapis.com')
         .post('/v4/firstPartyAndPartnerAudiences/audience-id-123:editCustomerMatchMembers', {
           advertiserId: '12345',
@@ -322,7 +322,7 @@ describe('Audience Destination', () => {
       )
     })
 
-    it('should add customer match members successfully with feature flag OFF (v3)', async () => {
+    it('should add customer match members successfully with API VERSION', async () => {
       nock('https://displayvideo.googleapis.com')
         .post('/v3/firstAndThirdPartyAudiences/audience-id-123:editCustomerMatchMembers', {
           advertiserId: '12345',
@@ -350,7 +350,7 @@ describe('Audience Destination', () => {
       )
     })
 
-    it('should remove customer match members successfully with feature flag ON (v4)', async () => {
+    it('should remove customer match members successfully with CANARY VERSION', async () => {
       nock('https://displayvideo.googleapis.com')
         .post('/v4/firstPartyAndPartnerAudiences/audience-id-123:editCustomerMatchMembers', {
           advertiserId: '12345',
@@ -378,7 +378,7 @@ describe('Audience Destination', () => {
       )
     })
 
-    it('should remove customer match members successfully with feature flag OFF (v3)', async () => {
+    it('should remove customer match members successfully with API VERSION', async () => {
       nock('https://displayvideo.googleapis.com')
         .post('/v3/firstAndThirdPartyAudiences/audience-id-123:editCustomerMatchMembers', {
           advertiserId: '12345',
