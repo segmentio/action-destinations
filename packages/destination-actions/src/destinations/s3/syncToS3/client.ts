@@ -1,4 +1,4 @@
-import { Settings } from './generated-types'
+import { Settings } from '../generated-types'
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 import { S3Client, PutObjectCommandInput, PutObjectCommand, _Error as AWSError } from '@aws-sdk/client-s3'
 import { v4 as uuidv4 } from '@lukeed/uuid'

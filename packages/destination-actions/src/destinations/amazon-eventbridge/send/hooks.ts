@@ -17,8 +17,8 @@ export const ensureSourceIdHook: ActionHookDefinition<
   OnMappingSaveInputs,
   OnMappingSaveOutputs
 > = {
-  label: 'EnsureSourceId',
-  description: 'Creates the Partner Event Source in Amazon EventBridge, if it does not already exist.',
+  label: 'Create Partner Source',
+  description: 'Creates the Partner Event Source in Amazon EventBridge. This must be done before sending events.',
   inputFields: {},
   performHook: async (_, { settings, subscriptionMetadata }) => {
     const validation = validate(settings, subscriptionMetadata)
@@ -49,14 +49,14 @@ function validate(
   const { region, accountId } = settings
 
   if (typeof sourceId !== 'string' || !sourceId) {
-    return { error: { message: 'Source ID required', code: 'ERROR' } }
+    return { error: { message: "Partner Event Source ID not found. Create a Partner Event Source using the 'Create Partner Source' button in the Action Mapping, then try again.", code: 'ERROR' } }
   }
 
   if (typeof region !== 'string' || !region) {
     return {
       error: {
         message:
-          "Hook call to ensure Source ID failed. Region required. Ensure 'AWS Region' Settings field is populated.",
+          "Failed to create Partner Source ID. Region required. Ensure 'AWS Region' Settings field is populated.",
         code: 'ERROR'
       }
     }
@@ -66,7 +66,7 @@ function validate(
     return {
       error: {
         message:
-          "Hook call to ensure Source ID failed. Account ID required. Ensure 'AWS Account ID' Settings field is populated.",
+          "Failed to create Partner Source ID failed. Account ID required. Ensure 'AWS Account ID' Settings field is populated.",
         code: 'ERROR'
       }
     }

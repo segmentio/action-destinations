@@ -264,7 +264,7 @@ describe('Kafka.send', () => {
 
   it('logs and rethrows IntegrationError when Kafka constructor fails', async () => {
     // Make Kafka constructor throw
-    ;(Kafka as unknown as jest.Mock).mockImplementationOnce(() => {
+    ; (Kafka as unknown as jest.Mock).mockImplementationOnce(() => {
       throw new IntegrationError('some settings error', 'Kafka Connection Error', 400)
     })
 
@@ -285,7 +285,7 @@ describe('Kafka.send', () => {
 
     // Make connect reject for the next call
     const producer = new (Kafka as unknown as jest.Mock)({} as KafkaConfig).producer()
-    ;(producer.connect as unknown as jest.Mock).mockRejectedValueOnce(err)
+      ; (producer.connect as unknown as jest.Mock).mockRejectedValueOnce(err)
 
     const logger = { crit: jest.fn() } as any
 
@@ -301,11 +301,11 @@ describe('Kafka.send', () => {
   it('wraps producer send errors and logs with critical level', async () => {
     // Ensure connect resolves
     const producer = new (Kafka as unknown as jest.Mock)({} as KafkaConfig).producer()
-    ;(producer.connect as unknown as jest.Mock).mockResolvedValueOnce(undefined)
+      ; (producer.connect as unknown as jest.Mock).mockResolvedValueOnce(undefined)
 
     const err = new Error('broker unavailable')
     err.name = 'KafkaJSError'
-    ;(producer.send as unknown as jest.Mock).mockRejectedValueOnce(err)
+      ; (producer.send as unknown as jest.Mock).mockRejectedValueOnce(err)
 
     const logger = { crit: jest.fn() } as any
 
@@ -320,14 +320,14 @@ describe('Kafka.send', () => {
 
   it('extracts nested Kafka cause for connect errors', async () => {
     const producer = new (Kafka as unknown as jest.Mock)({} as KafkaConfig).producer()
-    ;(producer.connect as unknown as jest.Mock).mockReset()
+      ; (producer.connect as unknown as jest.Mock).mockReset()
 
     // Simulate a KafkaJSError with a nested cause coming from Kafka
     const kafkaErr = new Error('outer wrapper error') as any
     kafkaErr.name = 'KafkaJSError'
     kafkaErr.cause = new Error('brokers down')
     kafkaErr.cause.name = 'BrokerNotAvailable'
-    ;(producer.connect as unknown as jest.Mock).mockRejectedValueOnce(kafkaErr)
+      ; (producer.connect as unknown as jest.Mock).mockRejectedValueOnce(kafkaErr)
 
     const logger = { crit: jest.fn() } as any
 
@@ -342,16 +342,16 @@ describe('Kafka.send', () => {
 
   it('extracts nested Kafka cause for send errors', async () => {
     const producer = new (Kafka as unknown as jest.Mock)({} as KafkaConfig).producer()
-    ;(producer.connect as unknown as jest.Mock).mockReset()
-    ;(producer.connect as unknown as jest.Mock).mockResolvedValueOnce(undefined)
+      ; (producer.connect as unknown as jest.Mock).mockReset()
+      ; (producer.connect as unknown as jest.Mock).mockResolvedValueOnce(undefined)
 
     // Simulate a KafkaJSError with a nested cause on send
     const kafkaErr = new Error('outer wrapper error') as any
     kafkaErr.name = 'KafkaJSError'
     kafkaErr.cause = new Error('message too large')
     kafkaErr.cause.name = 'MessageSizeTooLarge'
-    ;(producer.send as unknown as jest.Mock).mockReset()
-    ;(producer.send as unknown as jest.Mock).mockRejectedValueOnce(kafkaErr)
+      ; (producer.send as unknown as jest.Mock).mockReset()
+      ; (producer.send as unknown as jest.Mock).mockRejectedValueOnce(kafkaErr)
 
     const logger = { crit: jest.fn() } as any
 

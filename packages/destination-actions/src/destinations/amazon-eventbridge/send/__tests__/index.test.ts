@@ -144,7 +144,7 @@ describe('AWS EventBridge Integration', () => {
           useDefaultMappings: true,
           mapping: mappingNoHook
         })
-      ).rejects.toThrowError(new Error('Source ID is required. Source ID not found in hook outputs.'))
+      ).rejects.toThrowError(new Error("Partner Event Source ID not found. Create a Partner Event Source using the 'Create Partner Source' button in the Action Mapping, then try again."))
     })
   })
 })
