@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-const defaultVersion = '5.9'
+const defaultVersion = '6.1'
 
 const presets: DestinationDefinition['presets'] = [
   {
@@ -105,6 +105,10 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         {
           value: '5.9',
           label: '5.9'
+        },
+        {
+          value: '6.1',
+          label: '6.1'
         }
       ],
       default: defaultVersion,
