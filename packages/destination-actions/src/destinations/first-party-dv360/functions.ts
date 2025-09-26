@@ -21,6 +21,7 @@ export function getApiVersion(features?: Features, statsContext?: StatsContext):
 
 function getAudienceEndpoint(version: string, advertiserId: string, audienceId?: string): string {
   if (audienceId) {
+    console.log(audienceId, 'audienceId')
     if (version === CANARY_API_VERSION) {
       return DV360API + 'v4/firstPartyAndPartnerAudiences/' + `${audienceId}?advertiserId=${advertiserId}`
     } else {
