@@ -9,8 +9,29 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Create or update a Contact in Ortto',
   defaultSubscription: 'type = "identify"',
   fields: {
-    timestamp: commonFields.timestamp,
-    message_id: commonFields.message_id,
+    timestamp: {
+      label: 'Timestamp',
+      description: 'Event timestamp (ISO 8601)',
+      type: 'string',
+      readOnly: true,
+      format: 'date-time',
+      required: false,
+      unsafe_hidden: true,
+      default: {
+        '@path': '$.timestamp'
+      }
+    },
+    message_id: {
+      label: 'Message ID',
+      description: 'Message ID',
+      type: 'string',
+      readOnly: true,
+      required: false,
+      unsafe_hidden: true,
+      default: {
+        '@path': '$.messageId'
+      }
+    },
     user_id: commonFields.user_id,
     anonymous_id: commonFields.anonymous_id,
     enable_batching: commonFields.enable_batching,

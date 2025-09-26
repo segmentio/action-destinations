@@ -20,12 +20,10 @@ const settings: Settings = {
 }
 
 const validPayload = {
-  timestamp: '2024-01-08T13:52:50.212Z',
   type: 'track',
   userId: 'user_id',
   anonymousId: 'anonymous_id',
   event: 'event',
-  messageId: 'message_id',
   properties: {
     arrtibute1: 'value1',
     arrtibute2: 'value2'

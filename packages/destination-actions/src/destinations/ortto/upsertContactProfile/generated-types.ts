@@ -4,11 +4,11 @@ export interface Payload {
   /**
    * Event timestamp (ISO 8601)
    */
-  timestamp: string
+  timestamp?: string
   /**
    * Message ID
    */
-  message_id: string
+  message_id?: string
   /**
    * The unique user identifier
    */

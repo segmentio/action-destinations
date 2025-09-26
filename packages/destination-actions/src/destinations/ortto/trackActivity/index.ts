@@ -8,8 +8,29 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Track user activity',
   defaultSubscription: 'type = "track"',
   fields: {
-    timestamp: commonFields.timestamp,
-    message_id: commonFields.message_id,
+    timestamp: {
+      label: 'Timestamp',
+      description:
+        'Event timestamp in ISO 8601 format. Used with the Message ID to uniquely identify an activity in Ortto. If not provided, duplicate activities may occur.',
+      type: 'string',
+      readOnly: false,
+      format: 'date-time',
+      required: false,
+      default: {
+        '@path': '$.timestamp'
+      }
+    },
+    message_id: {
+      label: 'Message ID',
+      description:
+        'Message ID. Combined with the event timestamp to uniquely identify an activity in Ortto. If omitted, duplicate activities may occur.',
+      type: 'string',
+      readOnly: false,
+      required: false,
+      default: {
+        '@path': '$.messageId'
+      }
+    },
     user_id: commonFields.user_id,
     anonymous_id: commonFields.anonymous_id,
     enable_batching: commonFields.enable_batching,
@@ -23,8 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     traits: {
       ...commonFields.traits,
-      description:
-        "key-value custom property pairs to be assigned to the Contact's profile"
+      description: "key-value custom property pairs to be assigned to the Contact's profile"
     },
     audience_update_mode: commonFields.audience_update_mode,
     batch_size: commonFields.batch_size,
@@ -51,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Activity properties',
       description: 'An object containing key-value pairs representing activity attributes',
       type: 'object',
-      defaultObjectUI: 'keyvalue',    
+      defaultObjectUI: 'keyvalue',
       default: {
         '@path': '$.properties'
       }
