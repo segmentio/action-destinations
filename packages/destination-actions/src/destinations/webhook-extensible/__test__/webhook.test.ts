@@ -319,6 +319,7 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
 
         nock(url)
           .post('/', payload)
+          .matchHeader('authorization', 'Bearer BearerToken1')
           .reply(async function (_uri, body) {
             // Normally you should use the raw body but nock automatically
             // deserializes it (and doesn't allow us to access the raw request
