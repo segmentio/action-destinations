@@ -100,28 +100,28 @@ describe('forwardProfile', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].request.headers).toMatchInlineSnapshot(`
       Headers {
-        Symbol(map): Object {
-          "authorization": Array [
+        Symbol(map): {
+          "authorization": [
             "Bearer test-graphql-key",
           ],
-          "content-type": Array [
+          "content-type": [
             "application/json",
           ],
-          "user-agent": Array [
+          "user-agent": [
             "Segment (Actions)",
           ],
         },
       }
     `)
     expect(requestBody).toMatchInlineSnapshot(`
-      Object {
+      {
         "query": "mutation {
             upsertProfiles(
               input: {
-                advertiserId: 23,
-                externalProvider: \\"segment_io\\",
-                syncId: \\"e6a568a61b0264fb8038ae64dbfb72032f7d1f5b32cf54acbe02979d9312f470\\",
-                profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"birthDay\\\\\\":1,\\\\\\"birthMonth\\\\\\":2}]\\"
+                advertiserId: undefined,
+                externalProvider: "segment_io",
+                syncId: "e6a568a61b0264fb8038ae64dbfb72032f7d1f5b32cf54acbe02979d9312f470",
+                profiles: "[{\\"email\\":\\"admin@stackadapt.com\\",\\"userId\\":\\"user-id\\",\\"birthDay\\":1,\\"birthMonth\\":2}]"
               }
             ) {
               userErrors {
@@ -130,9 +130,9 @@ describe('forwardProfile', () => {
             }
             upsertProfileMapping(
               input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false}],
-                mappableType: \\"segment_io\\"
+                advertiserId: undefined,
+                mappingSchemaV2: [{incomingKey:"userId",destinationKey:"external_id",label:"User Id",type:STRING,isPii:false}],
+                mappableType: "segment_io"
               }
             ) {
               userErrors {
@@ -163,28 +163,28 @@ describe('forwardProfile', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].request.headers).toMatchInlineSnapshot(`
       Headers {
-        Symbol(map): Object {
-          "authorization": Array [
+        Symbol(map): {
+          "authorization": [
             "Bearer test-graphql-key",
           ],
-          "content-type": Array [
+          "content-type": [
             "application/json",
           ],
-          "user-agent": Array [
+          "user-agent": [
             "Segment (Actions)",
           ],
         },
       }
     `)
     expect(requestBody).toMatchInlineSnapshot(`
-      Object {
+      {
         "query": "mutation {
             upsertProfiles(
               input: {
-                advertiserId: 23,
-                externalProvider: \\"segment_io\\",
-                syncId: \\"e6a568a61b0264fb8038ae64dbfb72032f7d1f5b32cf54acbe02979d9312f470\\",
-                profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"birthDay\\\\\\":1,\\\\\\"birthMonth\\\\\\":2}]\\"
+                advertiserId: undefined,
+                externalProvider: "segment_io",
+                syncId: "e6a568a61b0264fb8038ae64dbfb72032f7d1f5b32cf54acbe02979d9312f470",
+                profiles: "[{\\"email\\":\\"admin@stackadapt.com\\",\\"userId\\":\\"user-id\\",\\"birthDay\\":1,\\"birthMonth\\":2}]"
               }
             ) {
               userErrors {
@@ -193,9 +193,9 @@ describe('forwardProfile', () => {
             }
             upsertProfileMapping(
               input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false}],
-                mappableType: \\"segment_io\\"
+                advertiserId: undefined,
+                mappingSchemaV2: [{incomingKey:"userId",destinationKey:"external_id",label:"User Id",type:STRING,isPii:false}],
+                mappableType: "segment_io"
               }
             ) {
               userErrors {
@@ -225,14 +225,14 @@ describe('forwardProfile', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(requestBody).toMatchInlineSnapshot(`
-      Object {
+      {
         "query": "mutation {
             upsertProfiles(
               input: {
-                advertiserId: 23,
-                externalProvider: \\"segment_io\\",
-                syncId: \\"fab5978d05bc4be0dadaed90eb6372333239e1c0c464a6a62b48d34cbaf676b2\\",
-                profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"birthDay\\\\\\":1,\\\\\\"birthMonth\\\\\\":2},{\\\\\\"email\\\\\\":\\\\\\"email2@stackadapt.com\\\\\\",\\\\\\"customField\\\\\\":\\\\\\"value\\\\\\",\\\\\\"numberCustomField\\\\\\":123,\\\\\\"userId\\\\\\":\\\\\\"user-id2\\\\\\"}]\\"
+                advertiserId: undefined,
+                externalProvider: "segment_io",
+                syncId: "fab5978d05bc4be0dadaed90eb6372333239e1c0c464a6a62b48d34cbaf676b2",
+                profiles: "[{\\"email\\":\\"admin@stackadapt.com\\",\\"userId\\":\\"user-id\\",\\"birthDay\\":1,\\"birthMonth\\":2},{\\"email\\":\\"email2@stackadapt.com\\",\\"customField\\":\\"value\\",\\"numberCustomField\\":123,\\"userId\\":\\"user-id2\\"}]"
               }
             ) {
               userErrors {
@@ -241,9 +241,9 @@ describe('forwardProfile', () => {
             }
             upsertProfileMapping(
               input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false},{incomingKey:\\"customField\\",destinationKey:\\"customField\\",label:\\"Custom Field\\",type:STRING,isPii:false},{incomingKey:\\"numberCustomField\\",destinationKey:\\"numberCustomField\\",label:\\"Number Custom Field\\",type:NUMBER,isPii:false}],
-                mappableType: \\"segment_io\\"
+                advertiserId: undefined,
+                mappingSchemaV2: [{incomingKey:"userId",destinationKey:"external_id",label:"User Id",type:STRING,isPii:false},{incomingKey:"customField",destinationKey:"customField",label:"Custom Field",type:STRING,isPii:false},{incomingKey:"numberCustomField",destinationKey:"numberCustomField",label:"Number Custom Field",type:NUMBER,isPii:false}],
+                mappableType: "segment_io"
               }
             ) {
               userErrors {
@@ -273,14 +273,14 @@ describe('forwardProfile', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(requestBody).toMatchInlineSnapshot(`
-      Object {
+      {
         "query": "mutation {
             upsertProfiles(
               input: {
-                advertiserId: 23,
-                externalProvider: \\"segment_io\\",
-                syncId: \\"b9612b9eb0ade5b30e0f474e03e54449e0d108e09306aa1afdf92e2a6267146e\\",
-                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"previousId\\\\\\":\\\\\\"user-id2\\\\\\"}]\\"
+                advertiserId: undefined,
+                externalProvider: "segment_io",
+                syncId: "b9612b9eb0ade5b30e0f474e03e54449e0d108e09306aa1afdf92e2a6267146e",
+                profiles: "[{\\"userId\\":\\"user-id\\",\\"previousId\\":\\"user-id2\\"}]"
               }
             ) {
               userErrors {
@@ -289,9 +289,9 @@ describe('forwardProfile', () => {
             }
             upsertProfileMapping(
               input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false}],
-                mappableType: \\"segment_io\\"
+                advertiserId: undefined,
+                mappingSchemaV2: [{incomingKey:"userId",destinationKey:"external_id",label:"User Id",type:STRING,isPii:false}],
+                mappableType: "segment_io"
               }
             ) {
               userErrors {

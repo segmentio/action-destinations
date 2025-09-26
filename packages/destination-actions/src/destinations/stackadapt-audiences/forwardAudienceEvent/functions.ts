@@ -1,5 +1,6 @@
 import { RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
+import { Settings } from '../generated-types'
 import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes, stringifyMappingSchemaForGraphQL } from '../functions'
 
 const audienceMapping = stringifyMappingSchemaForGraphQL([
@@ -30,12 +31,13 @@ const profileMapping = stringifyMappingSchemaForGraphQL([
   }
 ])
 
-export async function performForwardAudienceEvents(request: RequestClient, events: Payload[]) {
-  const advertiserId = events[0].advertiser_id
+export async function performForwardAudienceEvents(request: RequestClient, events: Payload[], settings: Settings) {
+  const advertiserId = settings.advertiser_id
+
   const profileUpdates = events.map((event) => {
     const { segment_computation_key: audienceKey, segment_computation_id: audienceId, user_id, traits_or_props } = event
 
-    const { [audienceKey]: action } = traits_or_props
+    const action = traits_or_props[audienceKey]
     return {
       userId: user_id,
       audienceId,

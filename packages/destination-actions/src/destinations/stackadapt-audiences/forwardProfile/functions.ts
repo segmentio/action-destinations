@@ -3,6 +3,7 @@ import camelCase from 'lodash/camelCase'
 import isEmpty from 'lodash/isEmpty'
 import { Payload } from './generated-types'
 import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes, stringifyMappingSchemaForGraphQL } from '../functions'
+import { Settings } from '../generated-types'
 
 const standardFields = new Set([
   'email',
@@ -31,10 +32,11 @@ interface Mapping {
   isPii: boolean
 }
 
-export async function performForwardProfiles(request: RequestClient, events: Payload[]) {
+export async function performForwardProfiles(request: RequestClient, events: Payload[], settings: Settings) {
   const fieldsToMap: Set<string> = new Set(['userId'])
   const fieldTypes: Record<string, string> = { userId: 'string' }
-  const advertiserId = events[0].advertiser_id
+  const advertiserId = settings.advertiser_id
+ 
   const profileUpdates = events.flatMap((event) => {
     const { event_type, previous_id, user_id, traits } = event
     const profile: Record<string, string | number | undefined> = {

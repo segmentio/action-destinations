@@ -10,12 +10,14 @@ const gqlHostUrl = 'https://api.stackadapt.com'
 const gqlPath = '/graphql'
 const mockUserId = 'user-id'
 const mockAdvertiserId = '23'
+const mockEmail = 'test@email.com'
 const mockMappings = { advertiser_id: mockAdvertiserId }
 
 const defaultEventPayload: Partial<SegmentEvent> = {
   userId: mockUserId,
   type: 'identify',
   traits: {
+    email: mockEmail,
     first_time_buyer: true
   },
   context: {
@@ -32,6 +34,7 @@ const trackEventPayload: Partial<SegmentEvent> = {
   type: 'track',
   event: 'Audience Entered',
   properties: {
+    email: mockEmail,
     audience_key: 'first_time_buyer',
     first_time_buyer: true
   },
@@ -64,28 +67,28 @@ describe('forwardAudienceEvent', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].request.headers).toMatchInlineSnapshot(`
       Headers {
-        Symbol(map): Object {
-          "authorization": Array [
+        Symbol(map): {
+          "authorization": [
             "Bearer test-graphql-key",
           ],
-          "content-type": Array [
+          "content-type": [
             "application/json",
           ],
-          "user-agent": Array [
+          "user-agent": [
             "Segment (Actions)",
           ],
         },
       }
     `)
     expect(requestBody).toMatchInlineSnapshot(`
-      Object {
+      {
         "query": "mutation {
             upsertProfiles(
               input: {
-                advertiserId: 23,
-                externalProvider: \\"segment_io\\",
-                syncId: \\"18173ad77a58c56aee5ef6ebde0ff2911b80807f32985ff1e10c03b02cd0b8bc\\",
-                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
+                advertiserId: undefined,
+                externalProvider: "segment_io",
+                syncId: "92dea893426582fc0d324d55831eb77d3c6d980baf8f18b9126ab258d0aaaa1c",
+                profiles: "[{\\"userId\\":\\"user-id\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"exit\\"}]"
               }
             ) {
               userErrors {
@@ -94,9 +97,9 @@ describe('forwardAudienceEvent', () => {
             }
             upsertProfileMapping(
               input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",type:STRING,isPii:false,label:\\"External Profile ID\\"}],
-                mappableType: \\"segment_io\\"
+                advertiserId: undefined,
+                mappingSchemaV2: [{incomingKey:"userId",destinationKey:"external_id",type:STRING,isPii:false,label:"External Profile ID"}],
+                mappableType: "segment_io"
               }
             ) {
               userErrors {
@@ -105,9 +108,9 @@ describe('forwardAudienceEvent', () => {
             }
             upsertExternalAudienceMapping(
               input: {
-                advertiserId: 23,
-                mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
-                mappableType: \\"segment_io\\"
+                advertiserId: undefined,
+                mappingSchema: [{incomingKey:"audienceId",destinationKey:"external_id",type:STRING,label:"External Audience ID",isPii:false},{incomingKey:"audienceName",destinationKey:"name",type:STRING,label:"External Audience Name",isPii:false}],
+                mappableType: "segment_io"
               }
             ) {
               userErrors {
@@ -138,28 +141,28 @@ describe('forwardAudienceEvent', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].request.headers).toMatchInlineSnapshot(`
       Headers {
-        Symbol(map): Object {
-          "authorization": Array [
+        Symbol(map): {
+          "authorization": [
             "Bearer test-graphql-key",
           ],
-          "content-type": Array [
+          "content-type": [
             "application/json",
           ],
-          "user-agent": Array [
+          "user-agent": [
             "Segment (Actions)",
           ],
         },
       }
     `)
     expect(requestBody).toMatchInlineSnapshot(`
-      Object {
+      {
         "query": "mutation {
             upsertProfiles(
               input: {
-                advertiserId: 23,
-                externalProvider: \\"segment_io\\",
-                syncId: \\"18173ad77a58c56aee5ef6ebde0ff2911b80807f32985ff1e10c03b02cd0b8bc\\",
-                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
+                advertiserId: undefined,
+                externalProvider: "segment_io",
+                syncId: "18173ad77a58c56aee5ef6ebde0ff2911b80807f32985ff1e10c03b02cd0b8bc",
+                profiles: "[{\\"userId\\":\\"user-id\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"enter\\"}]"
               }
             ) {
               userErrors {
@@ -168,9 +171,9 @@ describe('forwardAudienceEvent', () => {
             }
             upsertProfileMapping(
               input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",type:STRING,isPii:false,label:\\"External Profile ID\\"}],
-                mappableType: \\"segment_io\\"
+                advertiserId: undefined,
+                mappingSchemaV2: [{incomingKey:"userId",destinationKey:"external_id",type:STRING,isPii:false,label:"External Profile ID"}],
+                mappableType: "segment_io"
               }
             ) {
               userErrors {
@@ -179,9 +182,9 @@ describe('forwardAudienceEvent', () => {
             }
             upsertExternalAudienceMapping(
               input: {
-                advertiserId: 23,
-                mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
-                mappableType: \\"segment_io\\"
+                advertiserId: undefined,
+                mappingSchema: [{incomingKey:"audienceId",destinationKey:"external_id",type:STRING,label:"External Audience ID",isPii:false},{incomingKey:"audienceName",destinationKey:"name",type:STRING,label:"External Audience Name",isPii:false}],
+                mappableType: "segment_io"
               }
             ) {
               userErrors {
@@ -211,14 +214,14 @@ describe('forwardAudienceEvent', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(requestBody).toMatchInlineSnapshot(`
-      Object {
+      {
         "query": "mutation {
             upsertProfiles(
               input: {
-                advertiserId: 23,
-                externalProvider: \\"segment_io\\",
-                syncId: \\"c371022fd0a74b3ff0376ee0a8838c0e7d21be220ba335bfdd7205bca9545bd3\\",
-                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"},{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
+                advertiserId: undefined,
+                externalProvider: "segment_io",
+                syncId: "bb034597bb8ca9ff6b1e4cf7919d8bb5920ed6cc5e596238b6bb05a88721e409",
+                profiles: "[{\\"userId\\":\\"user-id\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"exit\\"},{\\"userId\\":\\"user-id\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"enter\\"}]"
               }
             ) {
               userErrors {
@@ -227,9 +230,9 @@ describe('forwardAudienceEvent', () => {
             }
             upsertProfileMapping(
               input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",type:STRING,isPii:false,label:\\"External Profile ID\\"}],
-                mappableType: \\"segment_io\\"
+                advertiserId: undefined,
+                mappingSchemaV2: [{incomingKey:"userId",destinationKey:"external_id",type:STRING,isPii:false,label:"External Profile ID"}],
+                mappableType: "segment_io"
               }
             ) {
               userErrors {
@@ -238,9 +241,9 @@ describe('forwardAudienceEvent', () => {
             }
             upsertExternalAudienceMapping(
               input: {
-                advertiserId: 23,
-                mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
-                mappableType: \\"segment_io\\"
+                advertiserId: undefined,
+                mappingSchema: [{incomingKey:"audienceId",destinationKey:"external_id",type:STRING,label:"External Audience ID",isPii:false},{incomingKey:"audienceName",destinationKey:"name",type:STRING,label:"External Audience Name",isPii:false}],
+                mappableType: "segment_io"
               }
             ) {
               userErrors {

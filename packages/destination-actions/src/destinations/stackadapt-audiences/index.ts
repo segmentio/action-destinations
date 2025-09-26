@@ -19,6 +19,63 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Your StackAdapt GQL API Token',
         type: 'string',
         required: true
+      },
+      advertiser_id: {
+        label: "Advertiser ID",
+        description: "The StackAdapt advertiser ID to add the profile to. The value in this field field can also be overridden at the Action level via the Action field of the same name.",
+        type: 'string', 
+        required: false,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
+        dynamic: async (request, { settings }) => {
+          if (!settings?.apiKey) {
+            return {
+              choices: [],
+              error: {
+                message: 'Please configure the API Key field before setting the Advertiser field value',
+                code: 'API Key Missing'
+              }
+            }
+          }
+
+          try {
+            const query = `query {
+              tokenInfo {
+                scopesByAdvertiser {
+                  nodes {
+                    advertiser {
+                      id
+                      name
+                    }
+                    scopes
+                  }
+                }
+              }
+            }`
+            
+            const response = await request<AdvertiserScopesResponse>(GQL_ENDPOINT, {
+              body: JSON.stringify({ query })
+            })
+            
+            const scopesByAdvertiser = response.data?.data?.tokenInfo?.scopesByAdvertiser
+            const choices = scopesByAdvertiser?.nodes
+              .filter((advertiserEntry: any) => advertiserEntry.scopes.includes('WRITE'))
+              .map((advertiserEntry: any) => ({ 
+                value: advertiserEntry.advertiser.id, 
+                label: advertiserEntry.advertiser.name 
+              }))
+              .sort((a: any, b: any) => a.label.localeCompare(b.label))
+            
+            return { choices }
+          } catch (error: any) {
+            return {
+              choices: [],
+              error: {
+                message: error.message ?? 'Unknown error',
+                code: error.status?.toString() ?? 'Unknown error'
+              }
+            }
+          }
+        }
       }
     },
     testAuthentication: async (request) => {
@@ -59,16 +116,20 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  onDelete: async (request, { payload }) => {
+  onDelete: async (request, { payload, settings }) => {
     const userId = payload.userId
     const formattedExternalIds = `["${userId}"]`
     const syncId = sha256hash(String(userId))
+    const advertiserId = settings.advertiser_id as string
 
     const mutation = `mutation {
       deleteProfilesWithExternalIds(
-        externalIds: ${formattedExternalIds},
-        externalProvider: "${EXTERNAL_PROVIDER}",
-        syncId: "${syncId}"
+        input: {
+          externalIds: ${formattedExternalIds},
+          externalProvider: "${EXTERNAL_PROVIDER}",
+          syncId: "${syncId}",
+          advertiserIds: [${parseInt(advertiserId, 10)}]
+        }
       ) {
         userErrors {
           message
