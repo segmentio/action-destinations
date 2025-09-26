@@ -107,8 +107,8 @@ export const createAudienceRequest = (
       description: description,
       audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',
       firstAndThirdPartyAudienceType:
-        features && features[FLAGON_NAME] ? undefined : 'FIRST_AND_THIRD_PARTY_AUDIENCE_TYPE_FIRST_PARTY',
-      firstPartyAndPartnerAudienceType: features && features[FLAGON_NAME] ? 'TYPE_FIRST_PARTY' : undefined,
+        version === CANARY_API_VERSION ? undefined : 'FIRST_AND_THIRD_PARTY_AUDIENCE_TYPE_FIRST_PARTY',
+      firstPartyAndPartnerAudienceType: version === CANARY_API_VERSION ? 'TYPE_FIRST_PARTY' : undefined,
       appId: appId
     }
   })
@@ -172,7 +172,7 @@ export async function editDeviceMobileIds(
     body: requestPayload
   })
   const responseAudienceId =
-    features && features[FLAGON_NAME]
+    version === CANARY_API_VERSION
       ? response.data.firstPartyAndPartnerAudienceId
       : response.data.firstAndThirdPartyAudienceId
   if (!response.data || !responseAudienceId) {
