@@ -25,7 +25,7 @@ const destination: DestinationDefinition<Settings> = {
         description: "The StackAdapt advertiser ID to add the profile to. The value in this field field can also be overridden at the Action level via the Action field of the same name.",
         type: 'string', 
         required: false,
-        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
+        disabledInputMethods: [],
         dynamic: async (request, { settings }) => {
           if (!settings?.apiKey) {
             return {
