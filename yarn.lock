@@ -4082,6 +4082,24 @@
   dependencies:
     "@types/node" "^18.11.15"
 
+"@segment/actions-core@3.159.1-staging-81259d72f.0":
+  version "3.159.1-staging-81259d72f.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.159.1-staging-81259d72f.0.tgz#07b3f2d61f5f1f3b9bfa8737b52b3fab3f54b8b6"
+  integrity sha512-lZW4xo5VLq/bm39tEdxFnpnLQhZLbCYVbzvbER6xWGVH/KP9Kj+sD6x25dPkyPefDLULjgtWXfVXVSND+Owe2w==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/action-emitters" "^1.3.6"
+    "@segment/ajv-human-errors" "2.15.1-staging-81259d72f.0"
+    "@segment/destination-subscriptions" "3.37.1-staging-81259d72f.0"
+    "@types/node" "^22.13.1"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
 "@segment/actions-core@3.159.1-staging-81dcc83e5.0":
   version "3.159.1-staging-81dcc83e5.0"
   resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.159.1-staging-81dcc83e5.0.tgz#a0919437bf8f99c1ec4a6f6d8da8aba92bee6339"
@@ -4130,6 +4148,11 @@
     escape-goat "^3"
     liquidjs "^10.8.4"
     lodash "^4.17.21"
+
+"@segment/ajv-human-errors@2.15.1-staging-81259d72f.0":
+  version "2.15.1-staging-81259d72f.0"
+  resolved "https://registry.yarnpkg.com/@segment/ajv-human-errors/-/ajv-human-errors-2.15.1-staging-81259d72f.0.tgz#017876896738176c43e9b7b3fe7653b389f0212e"
+  integrity sha512-lc8x9+McgTeJpTJdzdAEHNZqJzoYFwAjllqKZ9IztjOxBEhzx0/H/LL86z6+U+xIq0Hc+XsbSSriVtRPKQL9Ng==
 
 "@segment/ajv-human-errors@2.15.1-staging-81dcc83e5.0":
   version "2.15.1-staging-81dcc83e5.0"
@@ -4501,6 +4524,13 @@
   dependencies:
     unfetch "^3.1.1"
 
+"@segment/browser-destination-runtime@1.88.1-staging-81259d72f.0":
+  version "1.88.1-staging-81259d72f.0"
+  resolved "https://registry.yarnpkg.com/@segment/browser-destination-runtime/-/browser-destination-runtime-1.88.1-staging-81259d72f.0.tgz#fbce4371515cd9d59e87c709204f89264a800810"
+  integrity sha512-Lx4yy95D6vbTVg5wbyWuomFMKdx6otCt6cDTMBhcb4UXmThY7dVy4Ar8/loY0P7sYIyPgNNBx+OuJ2BRRdSdqA==
+  dependencies:
+    "@segment/actions-core" "3.159.1-staging-81259d72f.0"
+
 "@segment/browser-destination-runtime@1.88.1-staging-81dcc83e5.0":
   version "1.88.1-staging-81dcc83e5.0"
   resolved "https://registry.yarnpkg.com/@segment/browser-destination-runtime/-/browser-destination-runtime-1.88.1-staging-81dcc83e5.0.tgz#56f74f99d6ee23adc5e168434a5a7ac26c6d00b9"
@@ -4514,6 +4544,13 @@
   integrity sha512-4K+mxCxr9in+bI8IpI7e6bguhhKi5IPxcZHdepbPdnbx647nBvO7znD8qd2NUsztt3cWvclR9ibvH/epAt7WEw==
   dependencies:
     "@segment/actions-core" "^3.159.0"
+
+"@segment/destination-subscriptions@3.37.1-staging-81259d72f.0":
+  version "3.37.1-staging-81259d72f.0"
+  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.37.1-staging-81259d72f.0.tgz#4fd83e95aec47a462afd8b4df0eafa87dbb017dc"
+  integrity sha512-uLCVJTO3U2yr2Uk8AFgWr9rOU3j8M7Otd34KO/OYei655XOk5Kz/UEV9rB79Qj/llTq/vQgSb1qhqSrKkeFNSg==
+  dependencies:
+    "@segment/fql-ts" "^1.10.1"
 
 "@segment/destination-subscriptions@3.37.1-staging-81dcc83e5.0":
   version "3.37.1-staging-81dcc83e5.0"
