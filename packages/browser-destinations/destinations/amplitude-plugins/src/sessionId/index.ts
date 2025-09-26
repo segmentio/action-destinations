@@ -3,7 +3,7 @@ import { UniversalStorage } from '@segment/analytics-next'
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { getAttributionFromURL, getAttributionFromStorage, getAttributionDiff } from './autocapture-attribution'
+import { getAttributionsFromURL, getAttributionsFromStorage, getAttributionsDiff } from './autocapture-attribution'
 import { AttributionValues } from './types'
 
 function newSessionId(): number {
@@ -90,12 +90,11 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     }
 
     if (payload.autocaptureAttribution) {
-      const urlParams = getAttributionFromURL(window.location.search)
-      const storedParams = getAttributionFromStorage(analytics.storage as UniversalStorage<Record<string, AttributionValues>>)
-      const { itemsToSet, itemsToUnset, changes } = getAttributionDiff(storedParams, urlParams)
-      if (changes && (context.event.integrations?.All !== false || context.event.integrations['Actions Amplitude'])) {
+      const urlAttributions = getAttributionsFromURL(window.location.search)
+      const cachedAttributions = getAttributionsFromStorage(analytics.storage as UniversalStorage<Record<string, AttributionValues>>)
+      if (context.event.integrations?.All !== false || context.event.integrations['Actions Amplitude']) {
         context.updateEvent('integrations.Actions Amplitude', {})
-        context.updateEvent('integrations.Actions Amplitude.attribution', { itemsToSet, itemsToUnset })
+        context.updateEvent('integrations.Actions Amplitude.autocapture_attribution', getAttributionsDiff(cachedAttributions, urlAttributions))
       }
     }
 

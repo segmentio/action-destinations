@@ -3,7 +3,7 @@ import { UniversalStorage } from '@segment/analytics-next'
 import type { AttributionKey, AttributionValues } from './types'
 import { KEYS, ATTRIBUTION_STORAGE_KEY } from './constants'
 
-export function getAttributionFromURL(queryString: string | undefined): Partial<AttributionValues> {
+export function getAttributionsFromURL(queryString: string | undefined): Partial<AttributionValues> {
   if (!queryString){
     return {}
   } 
@@ -17,31 +17,31 @@ export function getAttributionFromURL(queryString: string | undefined): Partial<
   ) as Partial<AttributionValues>
 }
 
-export function getAttributionFromStorage(storage: UniversalStorage<Record<string, AttributionValues>>): Partial<AttributionValues> {
+export function getAttributionsFromStorage(storage: UniversalStorage<Record<string, AttributionValues>>): Partial<AttributionValues> {
   const values = storage.get(ATTRIBUTION_STORAGE_KEY)
   return values ?? {}
 }
 
-export function getAttributionDiff(
-  oldValues: Partial<AttributionValues>,
-  newValues: Partial<AttributionValues>
-): { itemsToSet: Partial<AttributionValues>, itemsToUnset: AttributionKey[], changes: boolean } {
-    const itemsToSet: Partial<AttributionValues> = {}
+export function getAttributionsDiff(
+  cachedAttributions: Partial<AttributionValues>,
+  urlAttributions: Partial<AttributionValues>
+): { new_attributions: Partial<AttributionValues>, old_attributions: AttributionKey[], differences: boolean } {
+    const newAttributions: Partial<AttributionValues> = {}
 
     KEYS.forEach((key) => {
-        const newVal = newValues[key] ?? null
-        if (newVal !== null && newVal !== oldValues[key]) {
-            itemsToSet[key] = newVal
+        const newVal = urlAttributions[key] ?? null
+        if (newVal !== null && newVal !== cachedAttributions[key]) {
+            newAttributions[key] = newVal
         }
     })
 
-    const itemsToUnset = KEYS.filter(
-        (key) => oldValues[key] !== null && !(key in itemsToSet)
+    const oldAttributions = KEYS.filter(
+        (key) => cachedAttributions[key] !== null && !(key in newAttributions)
     )
 
     return { 
-        itemsToSet, 
-        itemsToUnset, 
-        changes: Object.entries(itemsToSet).length > 0 || Object.entries(itemsToUnset).length > 0 
+        new_attributions: newAttributions, 
+        old_attributions: oldAttributions, 
+        differences: Object.entries(newAttributions).length > 0 || Object.entries(oldAttributions).length > 0 
     }
 }
