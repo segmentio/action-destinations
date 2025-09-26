@@ -1,4 +1,4 @@
-import { RequestClient, InvalidAuthenticationError } from '@segment/actions-core'
+import { RequestClient } from '@segment/actions-core'
 import camelCase from 'lodash/camelCase'
 import isEmpty from 'lodash/isEmpty'
 import { Payload } from './generated-types'

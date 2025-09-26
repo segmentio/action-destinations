@@ -54,7 +54,7 @@ export interface Payload {
    */
   user_id?: string
   /**
-   * The Segment event type (identify, alias, etc.)
+   * The Segment event type (identify or track)
    */
   event_type: string
   /**

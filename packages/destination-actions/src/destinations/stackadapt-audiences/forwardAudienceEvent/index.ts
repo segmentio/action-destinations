@@ -160,7 +160,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     event_type: {
       label: 'Event Type',
-      description: 'The Segment event type (identify, alias, etc.)',
+      description: 'The Segment event type (identify or track)',
       type: 'string',
       required: true,
       default: {
