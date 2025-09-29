@@ -27,7 +27,8 @@ export async function send(request: RequestClient, payloads: RegularPayload[] | 
         birth_year,
         ...restStandardTraits
       } = {},
-      custom_traits
+      custom_traits,
+      email
     } = p
 
     let segment_computation_key: string | undefined
@@ -40,12 +41,6 @@ export async function send(request: RequestClient, payloads: RegularPayload[] | 
         segment_computation_id, 
         traits_or_props 
       } = p)
-
-      if(custom_traits) {
-        // Remove reserved keys from custom traits just incase the customer accidentally maps them
-        delete custom_traits[segment_computation_key] 
-        delete custom_traits[segment_computation_id] 
-      }
     }
 
     let date: Date | undefined
@@ -55,6 +50,7 @@ export async function send(request: RequestClient, payloads: RegularPayload[] | 
 
     const profile: Record<string, string | number | undefined> = {
       userId: user_id,
+      email: email,
       ...restStandardTraits,
       birth_day: (date ? date.getDate() : birth_day) ?? undefined,
       birth_month: (date ? date.getMonth() + 1 : birth_month) ?? undefined,
@@ -63,9 +59,12 @@ export async function send(request: RequestClient, payloads: RegularPayload[] | 
     }
 
     if(isAudience && traits_or_props && segment_computation_key && segment_computation_id) {
-      profile.segment_computation_id = segment_computation_id
-      profile.segment_computation_key = segment_computation_key
+      profile.audienceId = segment_computation_id
+      profile.audienceName = segment_computation_key
       profile.action = traits_or_props[segment_computation_key] ? 'enter' : 'exit'
+      // Remove reserved keys from custom traits just in case the customer accidentally maps them
+      delete traits_or_props[segment_computation_key] 
+      delete traits_or_props[segment_computation_id] 
     }
 
     if(!isAudience && p.previous_id){

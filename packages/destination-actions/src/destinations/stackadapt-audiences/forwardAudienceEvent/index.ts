@@ -7,7 +7,7 @@ import { audience_only_fields } from './fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
-  description: 'Sync Segment Enegage audience and user profile details to StackAdapt',
+  description: 'Sync Segment Engage audience and user profile details to StackAdapt',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     ...common_fields,
