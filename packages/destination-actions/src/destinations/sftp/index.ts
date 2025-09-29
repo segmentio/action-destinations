@@ -56,16 +56,16 @@ const destination: DestinationDefinition<Settings> = {
               value: 'password'
             }
           ]
-        },
-        depends_on: {
-          conditions: [
-            {
-              fieldKey: 'auth_type',
-              operator: 'is',
-              value: 'password'
-            }
-          ]
         }
+        // depends_on: {
+        //   conditions: [
+        //     {
+        //       fieldKey: 'auth_type',
+        //       operator: 'is',
+        //       value: 'password'
+        //     }
+        //   ]
+        // }
       },
       sftp_ssh_key: {
         label: 'SSH Key',
@@ -79,16 +79,16 @@ const destination: DestinationDefinition<Settings> = {
               value: 'ssh_key'
             }
           ]
-        },
-        depends_on: {
-          conditions: [
-            {
-              fieldKey: 'auth_type',
-              operator: 'is',
-              value: 'ssh_key'
-            }
-          ]
         }
+        // depends_on: {
+        //   conditions: [
+        //     {
+        //       fieldKey: 'auth_type',
+        //       operator: 'is',
+        //       value: 'ssh_key'
+        //     }
+        //   ]
+        // }
       }
     },
     testAuthentication: async (_, { settings }) => await testSFTPConnection(settings)
