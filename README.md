@@ -21,7 +21,7 @@ For more detailed instruction, see the following READMEs:
 - [Destination Kit](./packages/core/src/destination-kit/README.md)
 - [Error Handling](./docs/error-handling.md)
 
-## Table of Contents:
+## Table of Contents: 
 
 - [Get Started](#get-started)
 - [Actions CLI](#actions-cli)
