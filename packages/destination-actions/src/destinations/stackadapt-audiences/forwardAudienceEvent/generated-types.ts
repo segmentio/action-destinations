@@ -65,10 +65,6 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The email address of the user.
-   */
-  email: string
-  /**
    * The ID of the user in Segment
    */
   user_id?: string
@@ -102,4 +98,8 @@ export interface Payload {
    * For audience enter/exit events, this will be the audience key.
    */
   segment_computation_key: string
+  /**
+   * The email address of the user.
+   */
+  email: string
 }

@@ -65,10 +65,6 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The email address of the user.
-   */
-  email: string
-  /**
    * The ID of the user in Segment
    */
   user_id?: string
@@ -84,4 +80,8 @@ export interface Payload {
    * The user's previous ID, for alias events
    */
   previous_id?: string
+  /**
+   * The email address of the user.
+   */
+  email?: string
 }
