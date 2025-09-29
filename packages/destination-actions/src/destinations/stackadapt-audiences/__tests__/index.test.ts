@@ -1,12 +1,12 @@
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import nock from 'nock'
 import Definition from '../index'
-import { GQL_ENDPOINT } from '../functions'
+import { GQL_ENDPOINT } from '../constants'
 
 const testDestination = createTestIntegration(Definition)
 
 describe('StackAdapt Audiences - Destination Tests', () => {
-  const mockSettings = { apiKey: 'test-api-key' }
+  const mockSettings = { apiKey: 'test-api-key', advertiser_id: 'test-advertiser-id' }
   const gqlHostUrl = 'https://api.stackadapt.com'
 
   afterEach(() => {
@@ -39,13 +39,13 @@ describe('StackAdapt Audiences - Destination Tests', () => {
           }
         })
 
-      await expect(testDestination.testAuthentication(mockSettings)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(mockSettings)).resolves.not.toThrow()
     })
 
     it('should fail if authentication is invalid', async () => {
       nock(GQL_ENDPOINT).post('').reply(403, {})
 
-      await expect(testDestination.testAuthentication(mockSettings)).rejects.toThrowError('403Forbidden')
+      await expect(testDestination.testAuthentication(mockSettings)).rejects.toThrow('403Forbidden')
     })
   })
 
@@ -64,7 +64,8 @@ describe('StackAdapt Audiences - Destination Tests', () => {
         })
 
       const response = await testDestination.onDelete!(event, {
-        apiKey: 'test-api-key'
+        apiKey: 'test-api-key',
+        advertiser_id: 'test-advertiser-id'
       })
 
       expect(response).toMatchObject({
@@ -89,9 +90,10 @@ describe('StackAdapt Audiences - Destination Tests', () => {
 
       await expect(
         testDestination.onDelete!(event, {
-          apiKey: 'test-api-key'
+          apiKey: 'test-api-key',
+          advertiser_id: 'test-advertiser-id'
         })
-      ).rejects.toThrowError('Profile deletion was not successful: Deletion failed')
+      ).rejects.toThrow('Profile deletion was not successful: Deletion failed')
     })
   })
 })

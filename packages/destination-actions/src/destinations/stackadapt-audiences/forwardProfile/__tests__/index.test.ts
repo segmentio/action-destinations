@@ -56,12 +56,12 @@ const trackEventPayload: Partial<SegmentEvent> = {
   userId: mockUserId,
   type: 'track',
   event: 'Track Event Name',
-  context: {
-    traits: {
-      email: mockEmail,
-      birthday: mockBirthday
-    }
+  
+  properties: {
+    email: mockEmail,
+    birthday: mockBirthday
   }
+  
 }
 
 const batchEventPayload: Partial<SegmentEvent> = {
@@ -94,7 +94,7 @@ describe('forwardProfile', () => {
       event,
       useDefaultMappings: true,
       mapping: mockMappings,
-      settings: { apiKey: mockGqlKey }
+      settings: { apiKey: mockGqlKey, advertiser_id: '<ADVERTISER_ID>' }
     })
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
@@ -118,10 +118,10 @@ describe('forwardProfile', () => {
         "query": "mutation {
             upsertProfiles(
               input: {
-                advertiserId: 23,
+                advertiserId: <ADVERTISER_ID>,
                 externalProvider: \\"segment_io\\",
-                syncId: \\"e6a568a61b0264fb8038ae64dbfb72032f7d1f5b32cf54acbe02979d9312f470\\",
-                profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"birthDay\\\\\\":1,\\\\\\"birthMonth\\\\\\":2}]\\"
+                syncId: \\"ea5a05cd8f93c0ca422929f44ab8c49b1e5385d6e0cf717190c1f854064f4246\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\"}]\\"
               }
             ) {
               userErrors {
@@ -130,8 +130,8 @@ describe('forwardProfile', () => {
             }
             upsertProfileMapping(
               input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false}],
+                advertiserId: <ADVERTISER_ID>,
+                mappingSchemaV2: [{incomingKey:\\"user_id\\",destinationKey:\\"external_id\\",label:\\"User ID\\",type:STRING,isPii:false},{incomingKey:\\"email\\",destinationKey:\\"email\\",label:\\"Email\\",type:STRING,isPii:true},{incomingKey:\\"first_name\\",destinationKey:\\"first_name\\",label:\\"First Name\\",type:STRING,isPii:true},{incomingKey:\\"last_name\\",destinationKey:\\"last_name\\",label:\\"Last Name\\",type:STRING,isPii:true},{incomingKey:\\"phone\\",destinationKey:\\"phone\\",label:\\"Phone\\",type:STRING,isPii:true},{incomingKey:\\"address\\",destinationKey:\\"address\\",label:\\"Address\\",type:STRING,isPii:true},{incomingKey:\\"city\\",destinationKey:\\"city\\",label:\\"City\\",type:STRING,isPii:false},{incomingKey:\\"state\\",destinationKey:\\"state\\",label:\\"State\\",type:STRING,isPii:false},{incomingKey:\\"country\\",destinationKey:\\"country\\",label:\\"Country\\",type:STRING,isPii:false},{incomingKey:\\"postal_code\\",destinationKey:\\"postal_code\\",label:\\"Postal Code\\",type:STRING,isPii:false},{incomingKey:\\"timezone\\",destinationKey:\\"timezone\\",label:\\"Timezone\\",type:STRING,isPii:false},{incomingKey:\\"birth_day\\",destinationKey:\\"birth_day\\",label:\\"Birth Day\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_month\\",destinationKey:\\"birth_month\\",label:\\"Birth Month\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_year\\",destinationKey:\\"birth_year\\",label:\\"Birth Year\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_date\\",destinationKey:\\"birth_date\\",label:\\"Birth Date\\",type:STRING,isPii:true}],
                 mappableType: \\"segment_io\\"
               }
             ) {
@@ -139,7 +139,18 @@ describe('forwardProfile', () => {
                 message
               }
             }
-          }",
+            upsertExternalAudienceMapping(
+                  input: {
+                    advertiserId: <ADVERTISER_ID>,
+                    mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
+                    mappableType: \\"segment_io\\"
+                  }
+                ) {
+                  userErrors {
+                    message
+                  }
+                }
+        }",
       }
     `)
   })
@@ -157,7 +168,7 @@ describe('forwardProfile', () => {
       event,
       useDefaultMappings: true,
       mapping: trackMockMappings,
-      settings: { apiKey: mockGqlKey }
+      settings: { apiKey: mockGqlKey, advertiser_id: '<ADVERTISER_ID>' }
     })
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
@@ -181,10 +192,10 @@ describe('forwardProfile', () => {
         "query": "mutation {
             upsertProfiles(
               input: {
-                advertiserId: 23,
+                advertiserId: <ADVERTISER_ID>,
                 externalProvider: \\"segment_io\\",
-                syncId: \\"e6a568a61b0264fb8038ae64dbfb72032f7d1f5b32cf54acbe02979d9312f470\\",
-                profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"birthDay\\\\\\":1,\\\\\\"birthMonth\\\\\\":2}]\\"
+                syncId: \\"ea5a05cd8f93c0ca422929f44ab8c49b1e5385d6e0cf717190c1f854064f4246\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\"}]\\"
               }
             ) {
               userErrors {
@@ -193,8 +204,8 @@ describe('forwardProfile', () => {
             }
             upsertProfileMapping(
               input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false}],
+                advertiserId: <ADVERTISER_ID>,
+                mappingSchemaV2: [{incomingKey:\\"user_id\\",destinationKey:\\"external_id\\",label:\\"User ID\\",type:STRING,isPii:false},{incomingKey:\\"email\\",destinationKey:\\"email\\",label:\\"Email\\",type:STRING,isPii:true},{incomingKey:\\"first_name\\",destinationKey:\\"first_name\\",label:\\"First Name\\",type:STRING,isPii:true},{incomingKey:\\"last_name\\",destinationKey:\\"last_name\\",label:\\"Last Name\\",type:STRING,isPii:true},{incomingKey:\\"phone\\",destinationKey:\\"phone\\",label:\\"Phone\\",type:STRING,isPii:true},{incomingKey:\\"address\\",destinationKey:\\"address\\",label:\\"Address\\",type:STRING,isPii:true},{incomingKey:\\"city\\",destinationKey:\\"city\\",label:\\"City\\",type:STRING,isPii:false},{incomingKey:\\"state\\",destinationKey:\\"state\\",label:\\"State\\",type:STRING,isPii:false},{incomingKey:\\"country\\",destinationKey:\\"country\\",label:\\"Country\\",type:STRING,isPii:false},{incomingKey:\\"postal_code\\",destinationKey:\\"postal_code\\",label:\\"Postal Code\\",type:STRING,isPii:false},{incomingKey:\\"timezone\\",destinationKey:\\"timezone\\",label:\\"Timezone\\",type:STRING,isPii:false},{incomingKey:\\"birth_day\\",destinationKey:\\"birth_day\\",label:\\"Birth Day\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_month\\",destinationKey:\\"birth_month\\",label:\\"Birth Month\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_year\\",destinationKey:\\"birth_year\\",label:\\"Birth Year\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_date\\",destinationKey:\\"birth_date\\",label:\\"Birth Date\\",type:STRING,isPii:true}],
                 mappableType: \\"segment_io\\"
               }
             ) {
@@ -202,7 +213,18 @@ describe('forwardProfile', () => {
                 message
               }
             }
-          }",
+            upsertExternalAudienceMapping(
+                  input: {
+                    advertiserId: <ADVERTISER_ID>,
+                    mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
+                    mappableType: \\"segment_io\\"
+                  }
+                ) {
+                  userErrors {
+                    message
+                  }
+                }
+        }",
       }
     `)
   })
@@ -220,7 +242,7 @@ describe('forwardProfile', () => {
       events,
       useDefaultMappings: true,
       mapping: mockMappings,
-      settings: { apiKey: mockGqlKey }
+      settings: { apiKey: mockGqlKey, advertiser_id: '<ADVERTISER_ID>' }
     })
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
@@ -229,10 +251,10 @@ describe('forwardProfile', () => {
         "query": "mutation {
             upsertProfiles(
               input: {
-                advertiserId: 23,
+                advertiserId: <ADVERTISER_ID>,
                 externalProvider: \\"segment_io\\",
-                syncId: \\"fab5978d05bc4be0dadaed90eb6372333239e1c0c464a6a62b48d34cbaf676b2\\",
-                profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"birthDay\\\\\\":1,\\\\\\"birthMonth\\\\\\":2},{\\\\\\"email\\\\\\":\\\\\\"email2@stackadapt.com\\\\\\",\\\\\\"customField\\\\\\":\\\\\\"value\\\\\\",\\\\\\"numberCustomField\\\\\\":123,\\\\\\"userId\\\\\\":\\\\\\"user-id2\\\\\\"}]\\"
+                syncId: \\"6746c25ce898b9f0030cedfe3b427e9f97c2de049aa52de22f0b2e892635d510\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\"},{\\\\\\"userId\\\\\\":\\\\\\"user-id2\\\\\\"}]\\"
               }
             ) {
               userErrors {
@@ -241,8 +263,8 @@ describe('forwardProfile', () => {
             }
             upsertProfileMapping(
               input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false},{incomingKey:\\"customField\\",destinationKey:\\"customField\\",label:\\"Custom Field\\",type:STRING,isPii:false},{incomingKey:\\"numberCustomField\\",destinationKey:\\"numberCustomField\\",label:\\"Number Custom Field\\",type:NUMBER,isPii:false}],
+                advertiserId: <ADVERTISER_ID>,
+                mappingSchemaV2: [{incomingKey:\\"user_id\\",destinationKey:\\"external_id\\",label:\\"User ID\\",type:STRING,isPii:false},{incomingKey:\\"email\\",destinationKey:\\"email\\",label:\\"Email\\",type:STRING,isPii:true},{incomingKey:\\"first_name\\",destinationKey:\\"first_name\\",label:\\"First Name\\",type:STRING,isPii:true},{incomingKey:\\"last_name\\",destinationKey:\\"last_name\\",label:\\"Last Name\\",type:STRING,isPii:true},{incomingKey:\\"phone\\",destinationKey:\\"phone\\",label:\\"Phone\\",type:STRING,isPii:true},{incomingKey:\\"address\\",destinationKey:\\"address\\",label:\\"Address\\",type:STRING,isPii:true},{incomingKey:\\"city\\",destinationKey:\\"city\\",label:\\"City\\",type:STRING,isPii:false},{incomingKey:\\"state\\",destinationKey:\\"state\\",label:\\"State\\",type:STRING,isPii:false},{incomingKey:\\"country\\",destinationKey:\\"country\\",label:\\"Country\\",type:STRING,isPii:false},{incomingKey:\\"postal_code\\",destinationKey:\\"postal_code\\",label:\\"Postal Code\\",type:STRING,isPii:false},{incomingKey:\\"timezone\\",destinationKey:\\"timezone\\",label:\\"Timezone\\",type:STRING,isPii:false},{incomingKey:\\"birth_day\\",destinationKey:\\"birth_day\\",label:\\"Birth Day\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_month\\",destinationKey:\\"birth_month\\",label:\\"Birth Month\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_year\\",destinationKey:\\"birth_year\\",label:\\"Birth Year\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_date\\",destinationKey:\\"birth_date\\",label:\\"Birth Date\\",type:STRING,isPii:true}],
                 mappableType: \\"segment_io\\"
               }
             ) {
@@ -250,7 +272,18 @@ describe('forwardProfile', () => {
                 message
               }
             }
-          }",
+            upsertExternalAudienceMapping(
+                  input: {
+                    advertiserId: <ADVERTISER_ID>,
+                    mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
+                    mappableType: \\"segment_io\\"
+                  }
+                ) {
+                  userErrors {
+                    message
+                  }
+                }
+        }",
       }
     `)
   })
@@ -268,7 +301,7 @@ describe('forwardProfile', () => {
       event,
       useDefaultMappings: true,
       mapping: mockMappings,
-      settings: { apiKey: mockGqlKey }
+      settings: { apiKey: mockGqlKey, advertiser_id: '<ADVERTISER_ID>' }
     })
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
@@ -277,10 +310,10 @@ describe('forwardProfile', () => {
         "query": "mutation {
             upsertProfiles(
               input: {
-                advertiserId: 23,
+                advertiserId: <ADVERTISER_ID>,
                 externalProvider: \\"segment_io\\",
-                syncId: \\"b9612b9eb0ade5b30e0f474e03e54449e0d108e09306aa1afdf92e2a6267146e\\",
-                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"previousId\\\\\\":\\\\\\"user-id2\\\\\\"}]\\"
+                syncId: \\"26b60126284b1abbf416018991eef9558747030d917d17c8c9db4b659e72a234\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"previous_id\\\\\\":\\\\\\"user-id2\\\\\\"}]\\"
               }
             ) {
               userErrors {
@@ -289,8 +322,8 @@ describe('forwardProfile', () => {
             }
             upsertProfileMapping(
               input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false}],
+                advertiserId: <ADVERTISER_ID>,
+                mappingSchemaV2: [{incomingKey:\\"user_id\\",destinationKey:\\"external_id\\",label:\\"User ID\\",type:STRING,isPii:false},{incomingKey:\\"email\\",destinationKey:\\"email\\",label:\\"Email\\",type:STRING,isPii:true},{incomingKey:\\"first_name\\",destinationKey:\\"first_name\\",label:\\"First Name\\",type:STRING,isPii:true},{incomingKey:\\"last_name\\",destinationKey:\\"last_name\\",label:\\"Last Name\\",type:STRING,isPii:true},{incomingKey:\\"phone\\",destinationKey:\\"phone\\",label:\\"Phone\\",type:STRING,isPii:true},{incomingKey:\\"address\\",destinationKey:\\"address\\",label:\\"Address\\",type:STRING,isPii:true},{incomingKey:\\"city\\",destinationKey:\\"city\\",label:\\"City\\",type:STRING,isPii:false},{incomingKey:\\"state\\",destinationKey:\\"state\\",label:\\"State\\",type:STRING,isPii:false},{incomingKey:\\"country\\",destinationKey:\\"country\\",label:\\"Country\\",type:STRING,isPii:false},{incomingKey:\\"postal_code\\",destinationKey:\\"postal_code\\",label:\\"Postal Code\\",type:STRING,isPii:false},{incomingKey:\\"timezone\\",destinationKey:\\"timezone\\",label:\\"Timezone\\",type:STRING,isPii:false},{incomingKey:\\"birth_day\\",destinationKey:\\"birth_day\\",label:\\"Birth Day\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_month\\",destinationKey:\\"birth_month\\",label:\\"Birth Month\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_year\\",destinationKey:\\"birth_year\\",label:\\"Birth Year\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_date\\",destinationKey:\\"birth_date\\",label:\\"Birth Date\\",type:STRING,isPii:true}],
                 mappableType: \\"segment_io\\"
               }
             ) {
@@ -298,7 +331,18 @@ describe('forwardProfile', () => {
                 message
               }
             }
-          }",
+            upsertExternalAudienceMapping(
+                  input: {
+                    advertiserId: <ADVERTISER_ID>,
+                    mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
+                    mappableType: \\"segment_io\\"
+                  }
+                ) {
+                  userErrors {
+                    message
+                  }
+                }
+        }",
       }
     `)
   })

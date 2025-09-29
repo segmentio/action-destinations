@@ -4,13 +4,14 @@ import { IntegrationError } from '@segment/actions-core'
 import forwardProfile from './forwardProfile'
 import forwardAudienceEvent from './forwardAudienceEvent'
 import { AdvertiserScopesResponse } from './types'
-import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash } from './functions'
+import { sha256hash } from './common-functions'
+import { EXTERNAL_PROVIDER, GQL_ENDPOINT } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'StackAdapt Audiences',
   slug: 'actions-stackadapt-audiences',
+  description: 'Send Segment Audience and user profile details to StackAdapt',
   mode: 'cloud',
-
   authentication: {
     scheme: 'custom',
     fields: {
@@ -18,6 +19,12 @@ const destination: DestinationDefinition<Settings> = {
         label: 'GraphQL Token',
         description: 'Your StackAdapt GQL API Token',
         type: 'string',
+        required: true
+      },
+      advertiser_id: {
+        label: "Advertiser ID",
+        description: "The StackAdapt advertiser ID to add the profile to. The value in this field field can also be overridden at the Action level via the Action field of the same name.",
+        type: 'string', 
         required: true
       }
     },
@@ -59,16 +66,20 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  onDelete: async (request, { payload }) => {
+  onDelete: async (request, { payload, settings }) => {
     const userId = payload.userId
     const formattedExternalIds = `["${userId}"]`
     const syncId = sha256hash(String(userId))
+    const advertiserId = settings.advertiser_id as string
 
     const mutation = `mutation {
       deleteProfilesWithExternalIds(
-        externalIds: ${formattedExternalIds},
-        externalProvider: "${EXTERNAL_PROVIDER}",
-        syncId: "${syncId}"
+        input: {
+          externalIds: ${formattedExternalIds},
+          externalProvider: "${EXTERNAL_PROVIDER}",
+          syncId: "${syncId}",
+          advertiserIds: [${parseInt(advertiserId, 10)}]
+        }
       ) {
         userErrors {
           message
