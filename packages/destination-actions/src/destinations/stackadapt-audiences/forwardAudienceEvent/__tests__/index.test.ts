@@ -10,12 +10,14 @@ const gqlHostUrl = 'https://api.stackadapt.com'
 const gqlPath = '/graphql'
 const mockUserId = 'user-id'
 const mockAdvertiserId = '23'
-const mockMappings = { advertiser_id: mockAdvertiserId }
+const mockEmail = 'test@email.com'
+const mockMappings = { advertiser_id: mockAdvertiserId, marketing_status: 'Opted-in' }
 
 const defaultEventPayload: Partial<SegmentEvent> = {
   userId: mockUserId,
   type: 'identify',
   traits: {
+    email: mockEmail,
     first_time_buyer: true
   },
   context: {
@@ -32,6 +34,7 @@ const trackEventPayload: Partial<SegmentEvent> = {
   type: 'track',
   event: 'Audience Entered',
   properties: {
+    email: mockEmail,
     audience_key: 'first_time_buyer',
     first_time_buyer: true
   },
@@ -82,10 +85,10 @@ describe('forwardAudienceEvent', () => {
         "query": "mutation {
             upsertProfiles(
               input: {
-                advertiserId: 23,
+                advertiserId: undefined,
                 externalProvider: \\"segment_io\\",
-                syncId: \\"18173ad77a58c56aee5ef6ebde0ff2911b80807f32985ff1e10c03b02cd0b8bc\\",
-                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
+                syncId: \\"3d1ba847cc35e2cc1c04242700f61d7915197020bcf0c2e615671c89f931a62b\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"segment_computation_id\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"segment_computation_key\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"}]\\"
               }
             ) {
               userErrors {
@@ -94,8 +97,8 @@ describe('forwardAudienceEvent', () => {
             }
             upsertProfileMapping(
               input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",type:STRING,isPii:false,label:\\"External Profile ID\\"}],
+                advertiserId: undefined,
+                mappingSchemaV2: [{incomingKey:\\"user_id\\",destinationKey:\\"external_id\\",label:\\"User ID\\",type:STRING,isPii:false},{incomingKey:\\"email\\",destinationKey:\\"email\\",label:\\"Email\\",type:STRING,isPii:true},{incomingKey:\\"first_name\\",destinationKey:\\"first_name\\",label:\\"First Name\\",type:STRING,isPii:true},{incomingKey:\\"last_name\\",destinationKey:\\"last_name\\",label:\\"Last Name\\",type:STRING,isPii:true},{incomingKey:\\"phone\\",destinationKey:\\"phone\\",label:\\"Phone\\",type:STRING,isPii:true},{incomingKey:\\"address\\",destinationKey:\\"address\\",label:\\"Address\\",type:STRING,isPii:true},{incomingKey:\\"city\\",destinationKey:\\"city\\",label:\\"City\\",type:STRING,isPii:false},{incomingKey:\\"state\\",destinationKey:\\"state\\",label:\\"State\\",type:STRING,isPii:false},{incomingKey:\\"country\\",destinationKey:\\"country\\",label:\\"Country\\",type:STRING,isPii:false},{incomingKey:\\"postal_code\\",destinationKey:\\"postal_code\\",label:\\"Postal Code\\",type:STRING,isPii:false},{incomingKey:\\"timezone\\",destinationKey:\\"timezone\\",label:\\"Timezone\\",type:STRING,isPii:false},{incomingKey:\\"birth_day\\",destinationKey:\\"birth_day\\",label:\\"Birth Day\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_month\\",destinationKey:\\"birth_month\\",label:\\"Birth Month\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_year\\",destinationKey:\\"birth_year\\",label:\\"Birth Year\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_date\\",destinationKey:\\"birth_date\\",label:\\"Birth Date\\",type:STRING,isPii:true},{incomingKey:\\"marketing_status\\",destinationKey:\\"marketing_status\\",label:\\"Marketing Status\\",type:STRING,isPii:false,value:\\"Opted-in\\"}],
                 mappableType: \\"segment_io\\"
               }
             ) {
@@ -103,18 +106,8 @@ describe('forwardAudienceEvent', () => {
                 message
               }
             }
-            upsertExternalAudienceMapping(
-              input: {
-                advertiserId: 23,
-                mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
-                mappableType: \\"segment_io\\"
-              }
-            ) {
-              userErrors {
-                message
-              }
-            }
-          }",
+            
+        }",
       }
     `)
   })
@@ -156,10 +149,10 @@ describe('forwardAudienceEvent', () => {
         "query": "mutation {
             upsertProfiles(
               input: {
-                advertiserId: 23,
+                advertiserId: undefined,
                 externalProvider: \\"segment_io\\",
-                syncId: \\"18173ad77a58c56aee5ef6ebde0ff2911b80807f32985ff1e10c03b02cd0b8bc\\",
-                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
+                syncId: \\"5f19b888950b17014adb611d002c5b3edce464ae6c506993a3c354b89c23de5e\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"segment_computation_id\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"segment_computation_key\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
               }
             ) {
               userErrors {
@@ -168,8 +161,8 @@ describe('forwardAudienceEvent', () => {
             }
             upsertProfileMapping(
               input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",type:STRING,isPii:false,label:\\"External Profile ID\\"}],
+                advertiserId: undefined,
+                mappingSchemaV2: [{incomingKey:\\"user_id\\",destinationKey:\\"external_id\\",label:\\"User ID\\",type:STRING,isPii:false},{incomingKey:\\"email\\",destinationKey:\\"email\\",label:\\"Email\\",type:STRING,isPii:true},{incomingKey:\\"first_name\\",destinationKey:\\"first_name\\",label:\\"First Name\\",type:STRING,isPii:true},{incomingKey:\\"last_name\\",destinationKey:\\"last_name\\",label:\\"Last Name\\",type:STRING,isPii:true},{incomingKey:\\"phone\\",destinationKey:\\"phone\\",label:\\"Phone\\",type:STRING,isPii:true},{incomingKey:\\"address\\",destinationKey:\\"address\\",label:\\"Address\\",type:STRING,isPii:true},{incomingKey:\\"city\\",destinationKey:\\"city\\",label:\\"City\\",type:STRING,isPii:false},{incomingKey:\\"state\\",destinationKey:\\"state\\",label:\\"State\\",type:STRING,isPii:false},{incomingKey:\\"country\\",destinationKey:\\"country\\",label:\\"Country\\",type:STRING,isPii:false},{incomingKey:\\"postal_code\\",destinationKey:\\"postal_code\\",label:\\"Postal Code\\",type:STRING,isPii:false},{incomingKey:\\"timezone\\",destinationKey:\\"timezone\\",label:\\"Timezone\\",type:STRING,isPii:false},{incomingKey:\\"birth_day\\",destinationKey:\\"birth_day\\",label:\\"Birth Day\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_month\\",destinationKey:\\"birth_month\\",label:\\"Birth Month\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_year\\",destinationKey:\\"birth_year\\",label:\\"Birth Year\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_date\\",destinationKey:\\"birth_date\\",label:\\"Birth Date\\",type:STRING,isPii:true},{incomingKey:\\"marketing_status\\",destinationKey:\\"marketing_status\\",label:\\"Marketing Status\\",type:STRING,isPii:false,value:\\"Opted-in\\"}],
                 mappableType: \\"segment_io\\"
               }
             ) {
@@ -177,18 +170,8 @@ describe('forwardAudienceEvent', () => {
                 message
               }
             }
-            upsertExternalAudienceMapping(
-              input: {
-                advertiserId: 23,
-                mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
-                mappableType: \\"segment_io\\"
-              }
-            ) {
-              userErrors {
-                message
-              }
-            }
-          }",
+            
+        }",
       }
     `)
   })
@@ -215,10 +198,10 @@ describe('forwardAudienceEvent', () => {
         "query": "mutation {
             upsertProfiles(
               input: {
-                advertiserId: 23,
+                advertiserId: undefined,
                 externalProvider: \\"segment_io\\",
-                syncId: \\"c371022fd0a74b3ff0376ee0a8838c0e7d21be220ba335bfdd7205bca9545bd3\\",
-                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"},{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
+                syncId: \\"35e5db40dbaa7f78300a09fad8d9e8d87f3117b5d4bb9c55351ed36d5211e667\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"segment_computation_id\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"segment_computation_key\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"},{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"segment_computation_id\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"segment_computation_key\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
               }
             ) {
               userErrors {
@@ -227,8 +210,8 @@ describe('forwardAudienceEvent', () => {
             }
             upsertProfileMapping(
               input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",type:STRING,isPii:false,label:\\"External Profile ID\\"}],
+                advertiserId: undefined,
+                mappingSchemaV2: [{incomingKey:\\"user_id\\",destinationKey:\\"external_id\\",label:\\"User ID\\",type:STRING,isPii:false},{incomingKey:\\"email\\",destinationKey:\\"email\\",label:\\"Email\\",type:STRING,isPii:true},{incomingKey:\\"first_name\\",destinationKey:\\"first_name\\",label:\\"First Name\\",type:STRING,isPii:true},{incomingKey:\\"last_name\\",destinationKey:\\"last_name\\",label:\\"Last Name\\",type:STRING,isPii:true},{incomingKey:\\"phone\\",destinationKey:\\"phone\\",label:\\"Phone\\",type:STRING,isPii:true},{incomingKey:\\"address\\",destinationKey:\\"address\\",label:\\"Address\\",type:STRING,isPii:true},{incomingKey:\\"city\\",destinationKey:\\"city\\",label:\\"City\\",type:STRING,isPii:false},{incomingKey:\\"state\\",destinationKey:\\"state\\",label:\\"State\\",type:STRING,isPii:false},{incomingKey:\\"country\\",destinationKey:\\"country\\",label:\\"Country\\",type:STRING,isPii:false},{incomingKey:\\"postal_code\\",destinationKey:\\"postal_code\\",label:\\"Postal Code\\",type:STRING,isPii:false},{incomingKey:\\"timezone\\",destinationKey:\\"timezone\\",label:\\"Timezone\\",type:STRING,isPii:false},{incomingKey:\\"birth_day\\",destinationKey:\\"birth_day\\",label:\\"Birth Day\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_month\\",destinationKey:\\"birth_month\\",label:\\"Birth Month\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_year\\",destinationKey:\\"birth_year\\",label:\\"Birth Year\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_date\\",destinationKey:\\"birth_date\\",label:\\"Birth Date\\",type:STRING,isPii:true},{incomingKey:\\"marketing_status\\",destinationKey:\\"marketing_status\\",label:\\"Marketing Status\\",type:STRING,isPii:false,value:\\"Opted-in\\"}],
                 mappableType: \\"segment_io\\"
               }
             ) {
@@ -236,18 +219,8 @@ describe('forwardAudienceEvent', () => {
                 message
               }
             }
-            upsertExternalAudienceMapping(
-              input: {
-                advertiserId: 23,
-                mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
-                mappableType: \\"segment_io\\"
-              }
-            ) {
-              userErrors {
-                message
-              }
-            }
-          }",
+            
+        }",
       }
     `)
   })

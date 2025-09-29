@@ -7,8 +7,8 @@ Object {
         input: {
           advertiserId: 84GW[vK%wv2xv@UF5iy,
           externalProvider: \\"segment_io\\",
-          syncId: \\"7bcb527cec5517b1155595cd74dc96b6db6ed1d0c54b91ebe04297f3524bd775\\",
-          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"}]\\"
+          syncId: \\"f033d6d83a5944783cc2a3cd210ae8f1d7ae4295295cd7ffdc6fa18b7f5f2174\\",
+          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"John\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"Doe\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"1234567890\\\\\\",\\\\\\"address\\\\\\":\\\\\\"10 pleasant st.\\\\\\",\\\\\\"city\\\\\\":\\\\\\"Pleasantville\\\\\\",\\\\\\"state\\\\\\":\\\\\\"CA\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"12345\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"PST\\\\\\",\\\\\\"birth_day\\\\\\":24,\\\\\\"birth_month\\\\\\":3,\\\\\\"birth_year\\\\\\":1990,\\\\\\"testType\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"segment_computation_id\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"segment_computation_key\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"}]\\"
         }
       ) {
         userErrors {
@@ -18,7 +18,7 @@ Object {
       upsertProfileMapping(
         input: {
           advertiserId: 84GW[vK%wv2xv@UF5iy,
-          mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",type:STRING,isPii:false,label:\\"External Profile ID\\"}],
+          mappingSchemaV2: [{incomingKey:\\"user_id\\",destinationKey:\\"external_id\\",label:\\"User ID\\",type:STRING,isPii:false},{incomingKey:\\"email\\",destinationKey:\\"email\\",label:\\"Email\\",type:STRING,isPii:true},{incomingKey:\\"first_name\\",destinationKey:\\"first_name\\",label:\\"First Name\\",type:STRING,isPii:true},{incomingKey:\\"last_name\\",destinationKey:\\"last_name\\",label:\\"Last Name\\",type:STRING,isPii:true},{incomingKey:\\"phone\\",destinationKey:\\"phone\\",label:\\"Phone\\",type:STRING,isPii:true},{incomingKey:\\"address\\",destinationKey:\\"address\\",label:\\"Address\\",type:STRING,isPii:true},{incomingKey:\\"city\\",destinationKey:\\"city\\",label:\\"City\\",type:STRING,isPii:false},{incomingKey:\\"state\\",destinationKey:\\"state\\",label:\\"State\\",type:STRING,isPii:false},{incomingKey:\\"country\\",destinationKey:\\"country\\",label:\\"Country\\",type:STRING,isPii:false},{incomingKey:\\"postal_code\\",destinationKey:\\"postal_code\\",label:\\"Postal Code\\",type:STRING,isPii:false},{incomingKey:\\"timezone\\",destinationKey:\\"timezone\\",label:\\"Timezone\\",type:STRING,isPii:false},{incomingKey:\\"birth_day\\",destinationKey:\\"birth_day\\",label:\\"Birth Day\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_month\\",destinationKey:\\"birth_month\\",label:\\"Birth Month\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_year\\",destinationKey:\\"birth_year\\",label:\\"Birth Year\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_date\\",destinationKey:\\"birth_date\\",label:\\"Birth Date\\",type:STRING,isPii:true},{incomingKey:\\"testType\\",destinationKey:\\"testType\\",label:\\"TestType\\",type:STRING,isPii:false},{incomingKey:\\"marketing_status\\",destinationKey:\\"marketing_status\\",label:\\"Marketing Status\\",type:STRING,isPii:false,value:\\"Indeterminate\\"}],
           mappableType: \\"segment_io\\"
         }
       ) {
@@ -27,17 +27,17 @@ Object {
         }
       }
       upsertExternalAudienceMapping(
-        input: {
-          advertiserId: 84GW[vK%wv2xv@UF5iy,
-          mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
-          mappableType: \\"segment_io\\"
-        }
-      ) {
-        userErrors {
-          message
-        }
-      }
-    }",
+            input: {
+              advertiserId: 84GW[vK%wv2xv@UF5iy,
+              mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
+              mappableType: \\"segment_io\\"
+            }
+          ) {
+            userErrors {
+              message
+            }
+          }
+  }",
 }
 `;
 
@@ -48,8 +48,8 @@ Object {
         input: {
           advertiserId: 84GW[vK%wv2xv@UF5iy,
           externalProvider: \\"segment_io\\",
-          syncId: \\"7bcb527cec5517b1155595cd74dc96b6db6ed1d0c54b91ebe04297f3524bd775\\",
-          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"}]\\"
+          syncId: \\"285223711ce57d8fe7b2e3756b218029eca89c0ebfb073940e5aeece1744ea5b\\",
+          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"John\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"Doe\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"1234567890\\\\\\",\\\\\\"address\\\\\\":\\\\\\"10 pleasant st.\\\\\\",\\\\\\"city\\\\\\":\\\\\\"Pleasantville\\\\\\",\\\\\\"state\\\\\\":\\\\\\"CA\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"12345\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"PST\\\\\\",\\\\\\"birth_day\\\\\\":24,\\\\\\"birth_month\\\\\\":3,\\\\\\"birth_year\\\\\\":1990,\\\\\\"segment_computation_id\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"segment_computation_key\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"}]\\"
         }
       ) {
         userErrors {
@@ -59,7 +59,7 @@ Object {
       upsertProfileMapping(
         input: {
           advertiserId: 84GW[vK%wv2xv@UF5iy,
-          mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",type:STRING,isPii:false,label:\\"External Profile ID\\"}],
+          mappingSchemaV2: [{incomingKey:\\"user_id\\",destinationKey:\\"external_id\\",label:\\"User ID\\",type:STRING,isPii:false},{incomingKey:\\"email\\",destinationKey:\\"email\\",label:\\"Email\\",type:STRING,isPii:true},{incomingKey:\\"first_name\\",destinationKey:\\"first_name\\",label:\\"First Name\\",type:STRING,isPii:true},{incomingKey:\\"last_name\\",destinationKey:\\"last_name\\",label:\\"Last Name\\",type:STRING,isPii:true},{incomingKey:\\"phone\\",destinationKey:\\"phone\\",label:\\"Phone\\",type:STRING,isPii:true},{incomingKey:\\"address\\",destinationKey:\\"address\\",label:\\"Address\\",type:STRING,isPii:true},{incomingKey:\\"city\\",destinationKey:\\"city\\",label:\\"City\\",type:STRING,isPii:false},{incomingKey:\\"state\\",destinationKey:\\"state\\",label:\\"State\\",type:STRING,isPii:false},{incomingKey:\\"country\\",destinationKey:\\"country\\",label:\\"Country\\",type:STRING,isPii:false},{incomingKey:\\"postal_code\\",destinationKey:\\"postal_code\\",label:\\"Postal Code\\",type:STRING,isPii:false},{incomingKey:\\"timezone\\",destinationKey:\\"timezone\\",label:\\"Timezone\\",type:STRING,isPii:false},{incomingKey:\\"birth_day\\",destinationKey:\\"birth_day\\",label:\\"Birth Day\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_month\\",destinationKey:\\"birth_month\\",label:\\"Birth Month\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_year\\",destinationKey:\\"birth_year\\",label:\\"Birth Year\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_date\\",destinationKey:\\"birth_date\\",label:\\"Birth Date\\",type:STRING,isPii:true},{incomingKey:\\"marketing_status\\",destinationKey:\\"marketing_status\\",label:\\"Marketing Status\\",type:STRING,isPii:false,value:\\"Indeterminate\\"}],
           mappableType: \\"segment_io\\"
         }
       ) {
@@ -68,17 +68,17 @@ Object {
         }
       }
       upsertExternalAudienceMapping(
-        input: {
-          advertiserId: 84GW[vK%wv2xv@UF5iy,
-          mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
-          mappableType: \\"segment_io\\"
-        }
-      ) {
-        userErrors {
-          message
-        }
-      }
-    }",
+            input: {
+              advertiserId: 84GW[vK%wv2xv@UF5iy,
+              mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
+              mappableType: \\"segment_io\\"
+            }
+          ) {
+            userErrors {
+              message
+            }
+          }
+  }",
 }
 `;
 
@@ -89,8 +89,8 @@ Object {
         input: {
           advertiserId: PsAwlRv%,
           externalProvider: \\"segment_io\\",
-          syncId: \\"1187e62a973b77faa5387b91939d70295b25063e3439b583b997efa92d9c8e78\\",
-          profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"zobbufpop@usliz.mh\\\\\\",\\\\\\"firstName\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"lastName\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"city\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"country\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"state\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"postalCode\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"birthDay\\\\\\":null,\\\\\\"birthMonth\\\\\\":null}]\\"
+          syncId: \\"ef175c33c221a5cb4c46c7a655ad56f66e15cf3ab1513309377f3d1438eff66f\\",
+          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"John\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"Doe\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"1234567890\\\\\\",\\\\\\"address\\\\\\":\\\\\\"10 pleasant st.\\\\\\",\\\\\\"city\\\\\\":\\\\\\"Pleasantville\\\\\\",\\\\\\"state\\\\\\":\\\\\\"CA\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"12345\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"PST\\\\\\",\\\\\\"birth_day\\\\\\":24,\\\\\\"birth_month\\\\\\":3,\\\\\\"birth_year\\\\\\":1990,\\\\\\"testType\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"previous_id\\\\\\":\\\\\\"PsAwlRv%\\\\\\"}]\\"
         }
       ) {
         userErrors {
@@ -100,7 +100,7 @@ Object {
       upsertProfileMapping(
         input: {
           advertiserId: PsAwlRv%,
-          mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false}],
+          mappingSchemaV2: [{incomingKey:\\"user_id\\",destinationKey:\\"external_id\\",label:\\"User ID\\",type:STRING,isPii:false},{incomingKey:\\"email\\",destinationKey:\\"email\\",label:\\"Email\\",type:STRING,isPii:true},{incomingKey:\\"first_name\\",destinationKey:\\"first_name\\",label:\\"First Name\\",type:STRING,isPii:true},{incomingKey:\\"last_name\\",destinationKey:\\"last_name\\",label:\\"Last Name\\",type:STRING,isPii:true},{incomingKey:\\"phone\\",destinationKey:\\"phone\\",label:\\"Phone\\",type:STRING,isPii:true},{incomingKey:\\"address\\",destinationKey:\\"address\\",label:\\"Address\\",type:STRING,isPii:true},{incomingKey:\\"city\\",destinationKey:\\"city\\",label:\\"City\\",type:STRING,isPii:false},{incomingKey:\\"state\\",destinationKey:\\"state\\",label:\\"State\\",type:STRING,isPii:false},{incomingKey:\\"country\\",destinationKey:\\"country\\",label:\\"Country\\",type:STRING,isPii:false},{incomingKey:\\"postal_code\\",destinationKey:\\"postal_code\\",label:\\"Postal Code\\",type:STRING,isPii:false},{incomingKey:\\"timezone\\",destinationKey:\\"timezone\\",label:\\"Timezone\\",type:STRING,isPii:false},{incomingKey:\\"birth_day\\",destinationKey:\\"birth_day\\",label:\\"Birth Day\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_month\\",destinationKey:\\"birth_month\\",label:\\"Birth Month\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_year\\",destinationKey:\\"birth_year\\",label:\\"Birth Year\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_date\\",destinationKey:\\"birth_date\\",label:\\"Birth Date\\",type:STRING,isPii:true},{incomingKey:\\"testType\\",destinationKey:\\"testType\\",label:\\"TestType\\",type:STRING,isPii:false}],
           mappableType: \\"segment_io\\"
         }
       ) {
@@ -108,7 +108,18 @@ Object {
           message
         }
       }
-    }",
+      upsertExternalAudienceMapping(
+            input: {
+              advertiserId: PsAwlRv%,
+              mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
+              mappableType: \\"segment_io\\"
+            }
+          ) {
+            userErrors {
+              message
+            }
+          }
+  }",
 }
 `;
 
@@ -119,8 +130,8 @@ Object {
         input: {
           advertiserId: PsAwlRv%,
           externalProvider: \\"segment_io\\",
-          syncId: \\"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\\",
-          profiles: \\"[]\\"
+          syncId: \\"f0205456c5968f2ddf8ba31e868ca865c04d85638e7f4d5d2353926a69cd96ec\\",
+          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"John\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"Doe\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"1234567890\\\\\\",\\\\\\"address\\\\\\":\\\\\\"10 pleasant st.\\\\\\",\\\\\\"city\\\\\\":\\\\\\"Pleasantville\\\\\\",\\\\\\"state\\\\\\":\\\\\\"CA\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"12345\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"PST\\\\\\",\\\\\\"birth_day\\\\\\":24,\\\\\\"birth_month\\\\\\":3,\\\\\\"birth_year\\\\\\":1990,\\\\\\"previous_id\\\\\\":\\\\\\"PsAwlRv%\\\\\\"}]\\"
         }
       ) {
         userErrors {
@@ -130,7 +141,7 @@ Object {
       upsertProfileMapping(
         input: {
           advertiserId: PsAwlRv%,
-          mappingSchemaV2: [{incomingKey:\\"userId\\",destinationKey:\\"external_id\\",label:\\"User Id\\",type:STRING,isPii:false}],
+          mappingSchemaV2: [{incomingKey:\\"user_id\\",destinationKey:\\"external_id\\",label:\\"User ID\\",type:STRING,isPii:false},{incomingKey:\\"email\\",destinationKey:\\"email\\",label:\\"Email\\",type:STRING,isPii:true},{incomingKey:\\"first_name\\",destinationKey:\\"first_name\\",label:\\"First Name\\",type:STRING,isPii:true},{incomingKey:\\"last_name\\",destinationKey:\\"last_name\\",label:\\"Last Name\\",type:STRING,isPii:true},{incomingKey:\\"phone\\",destinationKey:\\"phone\\",label:\\"Phone\\",type:STRING,isPii:true},{incomingKey:\\"address\\",destinationKey:\\"address\\",label:\\"Address\\",type:STRING,isPii:true},{incomingKey:\\"city\\",destinationKey:\\"city\\",label:\\"City\\",type:STRING,isPii:false},{incomingKey:\\"state\\",destinationKey:\\"state\\",label:\\"State\\",type:STRING,isPii:false},{incomingKey:\\"country\\",destinationKey:\\"country\\",label:\\"Country\\",type:STRING,isPii:false},{incomingKey:\\"postal_code\\",destinationKey:\\"postal_code\\",label:\\"Postal Code\\",type:STRING,isPii:false},{incomingKey:\\"timezone\\",destinationKey:\\"timezone\\",label:\\"Timezone\\",type:STRING,isPii:false},{incomingKey:\\"birth_day\\",destinationKey:\\"birth_day\\",label:\\"Birth Day\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_month\\",destinationKey:\\"birth_month\\",label:\\"Birth Month\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_year\\",destinationKey:\\"birth_year\\",label:\\"Birth Year\\",type:NUMBER,isPii:false},{incomingKey:\\"birth_date\\",destinationKey:\\"birth_date\\",label:\\"Birth Date\\",type:STRING,isPii:true}],
           mappableType: \\"segment_io\\"
         }
       ) {
@@ -138,6 +149,17 @@ Object {
           message
         }
       }
-    }",
+      upsertExternalAudienceMapping(
+            input: {
+              advertiserId: PsAwlRv%,
+              mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
+              mappableType: \\"segment_io\\"
+            }
+          ) {
+            userErrors {
+              message
+            }
+          }
+  }",
 }
 `;
