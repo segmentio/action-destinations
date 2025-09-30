@@ -57,7 +57,8 @@ const testData = {
   },
   mapping: {
     topic: 'test-topic',
-    payload: { '@path': '$.' }
+    payload: { '@path': '$.' },
+    batch_bytes: 1000000
   }
 }
 
