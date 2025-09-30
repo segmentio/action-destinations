@@ -27,7 +27,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'string',
       label: 'Dynamic Yield Identifier Type (optional)',
       required: false,
-      description: 'The name of the identifier in Dynamic Yield by Mastercard. If you leave this empty, Segment will assume that the name of the identifier in Dynamic Yield by Mastercard matches the value specified in the "Segment Identifier Type" field.'
+      description:
+        'The name of the identifier in Dynamic Yield by Mastercard. If you leave this empty, Segment will assume that the name of the identifier in Dynamic Yield by Mastercard matches the value specified in the "Segment Identifier Type" field.'
     }
   },
   authentication: {
@@ -152,6 +153,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
     },
     {
       name: 'Journeys Step Entered',
