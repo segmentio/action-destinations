@@ -21,7 +21,7 @@ const event = createTestEvent({
 })
 
 describe('First-Party-dv360.addToAudMobileDeviceId', () => {
-  it('should use v4 endpoint when feature flag is ON', async () => {
+  it('should use v4 endpoint when CANARY VERSION', async () => {
     nock('https://displayvideo.googleapis.com/v4/firstPartyAndPartnerAudiences')
       .post('/1234567890:editCustomerMatchMembers')
       .reply(200, { firstPartyAndPartnerAudienceId: '1234567890' })
@@ -35,7 +35,7 @@ describe('First-Party-dv360.addToAudMobileDeviceId', () => {
         enable_batching: false,
         batch_size: 1
       },
-      features: { 'actions-first-party-dv360-version-update': true }
+      features: { 'first-party-dv360-canary-version': true }
     })
 
     expect(JSON.parse(responses[0].options.body as string)).toMatchInlineSnapshot(`
@@ -54,7 +54,7 @@ describe('First-Party-dv360.addToAudMobileDeviceId', () => {
     `)
   })
 
-  it('should use v3 endpoint when feature flag is OFF', async () => {
+  it('should use v3 endpoint when API VERSION', async () => {
     nock('https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences')
       .post('/1234567890:editCustomerMatchMembers')
       .reply(200, { firstAndThirdPartyAudienceId: '1234567890' })
@@ -68,7 +68,7 @@ describe('First-Party-dv360.addToAudMobileDeviceId', () => {
         enable_batching: false,
         batch_size: 1
       },
-      features: { 'actions-first-party-dv360-version-update': false }
+      features: { 'first-party-dv360-canary-version': false }
     })
 
     expect(JSON.parse(responses[0].options.body as string)).toMatchInlineSnapshot(`

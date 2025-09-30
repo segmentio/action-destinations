@@ -125,7 +125,7 @@ describe('First-Party-dv360.removeFromAudContactInfo', () => {
     // Optionally, check that the emails are correctly hashed and correspond to the input
   })
 
-  it('should batch multiple payloads into a single request when enable_batching is true (feature flag ON, v4)', async () => {
+  it('should batch multiple payloads into a single request when enable_batching is true ( CANARY VERSION )', async () => {
     nock('https://displayvideo.googleapis.com/v4/firstPartyAndPartnerAudiences')
       .post('/1234567890:editCustomerMatchMembers')
       .reply(200, { success: true })
@@ -145,7 +145,7 @@ describe('First-Party-dv360.removeFromAudContactInfo', () => {
         enable_batching: true,
         batch_size: 2
       },
-      features: { 'actions-first-party-dv360-version-update': true }
+      features: { 'first-party-dv360-canary-version': true }
     })
 
     const requestBody = JSON.parse(String(responses[0].options.body))
@@ -154,7 +154,7 @@ describe('First-Party-dv360.removeFromAudContactInfo', () => {
     expect(requestBody.removedContactInfoList.contactInfos[1].hashedEmails).toBeDefined()
   })
 
-  it('should batch multiple payloads into a single request when enable_batching is true (feature flag OFF, v3)', async () => {
+  it('should batch multiple payloads into a single request when enable_batching is true ( API VERSION )', async () => {
     nock('https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences')
       .post('/1234567890:editCustomerMatchMembers')
       .reply(200, { success: true })
@@ -174,7 +174,7 @@ describe('First-Party-dv360.removeFromAudContactInfo', () => {
         enable_batching: true,
         batch_size: 2
       },
-      features: { 'actions-first-party-dv360-version-update': false }
+      features: { 'first-party-dv360-canary-version': false }
     })
 
     const requestBody = JSON.parse(String(responses[0].options.body))
