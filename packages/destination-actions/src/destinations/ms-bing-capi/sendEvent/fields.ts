@@ -78,7 +78,7 @@ export const userData: InputField = {
       '@if': {
         exists: { '@path': '$.properties.msclkid' },
         then: { '@path': '$.properties.msclkid' },
-        else: { '@path': '$.integrations.Ms Bing Capi.msclkid' }
+        else: { '@path': '$.integrations.Microsoft Bing CAPI (Actions).msclkid' }
       }
     }
   }
