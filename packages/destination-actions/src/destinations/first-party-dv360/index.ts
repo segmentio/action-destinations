@@ -11,7 +11,7 @@ import removeFromAudMobileDeviceId from './removeFromAudMobileDeviceId'
 import addToAudContactInfo from './addToAudContactInfo'
 import addToAudMobileDeviceId from './addToAudMobileDeviceId'
 import { _CreateAudienceInput, _GetAudienceInput } from './types'
-import { FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE } from './properties'
+import { getApiVersion, CANARY_API_VERSION } from './functions'
 
 export interface RefreshTokenResponse {
   access_token: string
@@ -167,7 +167,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         audienceType,
         appId,
         token,
-        features
+        features,
+        statsContext
       })
 
       // Parse and return the externalId
@@ -175,7 +176,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
         externalId:
-          features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]
+          getApiVersion(features, statsContext) === CANARY_API_VERSION
             ? r.firstPartyAndPartnerAudienceId
             : r.firstAndThirdPartyAudienceId
       }
@@ -228,7 +229,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       // Make API request to get audience details
-      const response = await getAudienceRequest(_request, { advertiserId, audienceId, token, features })
+      const response = await getAudienceRequest(_request, { advertiserId, audienceId, token, features, statsContext })
 
       if (!response.ok) {
         // Handle non-OK responses
@@ -242,7 +243,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
         externalId:
-          features && features[FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE]
+          getApiVersion(features, statsContext) === CANARY_API_VERSION
             ? audienceData.firstPartyAndPartnerAudienceId
             : audienceData.firstAndThirdPartyAudienceId
       }
