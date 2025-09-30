@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 import sendEvent from './sendEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Ms Bing Capi',
+  name: 'Microsoft Bing CAPI (Actions)',
   slug: 'actions-ms-bing-capi',
   mode: 'cloud',
   authentication: {
@@ -17,7 +17,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       ApiToken: {
         label: 'Bing ApiToken',
-        description: 'Your Bing API Token.',
+        description:
+          'Your Bing API Token. API token generation is not generally available. To obtain one, you’ll need to contact Microsoft Support, or alternatively, you can [fill out this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbRwMZAe0PcMxHmZ0AjDaNRmxUM0o5UURRVktCRkxHNEFLTVNYQjI3NDNBUS4u) to request access.',
         type: 'password',
         required: true
       },
@@ -99,7 +100,8 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Send Custom Event',
-      subscribe: 'type = "track" and event != "Order Completed" and event != "Add to Cart" and event != "Products Searched"',
+      subscribe:
+        'type = "track" and event != "Order Completed" and event != "Add to Cart" and event != "Products Searched"',
       partnerAction: 'sendEvent',
       mapping: defaultValues(sendEvent.fields),
       type: 'automatic'

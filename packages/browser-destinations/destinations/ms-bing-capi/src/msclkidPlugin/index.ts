@@ -18,8 +18,8 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     const integrationsData: Record<string, string> = {}
     if (msclkid) {
       integrationsData[clickIdIntegrationFieldName] = msclkid
-      if (context.event.integrations?.All !== false || context.event.integrations['Ms Bing Capi']) {
-        context.updateEvent(`integrations.Ms Bing Capi`, integrationsData)
+      if (context.event.integrations?.All !== false || context.event.integrations['Microsoft Bing CAPI (Actions)']) {
+        context.updateEvent(`integrations.Microsoft Bing CAPI (Actions)`, integrationsData)
       }
     }
     return
