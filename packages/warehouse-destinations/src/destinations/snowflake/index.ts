@@ -17,6 +17,12 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       description: 'The ID of the existing Snowflake warehouse instance to use.',
       type: 'string',
       required: true
+    },
+    schemaOverride: {
+      label: 'Schema Override',
+      description: 'The name of an existing Snowflake Schema to use.',
+      type: 'string',
+      required: false
     }
   },
 
