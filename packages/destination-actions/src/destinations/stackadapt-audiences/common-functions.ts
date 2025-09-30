@@ -7,17 +7,14 @@ import type { Payload as RegularPayload } from './forwardProfile/generated-types
 // eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
 
-export async function send(request: RequestClient, payloads: RegularPayload[] | AudiencePayload[], settings: Settings) {
+export async function send(request: RequestClient, payloads: RegularPayload[] | AudiencePayload[], settings: Settings, isAudience: boolean) {
 
   const fieldTypes = getDefaultFieldTypes()
   const fieldsToMap = getDefaultFieldsToMap()
   const advertiserId = settings.advertiser_id
-  const marketingStatus = isBatchAudience(payloads) ? (payloads[0] as AudiencePayload).marketing_status as MarketingStatus : undefined
+  const marketingStatus = isAudience ? (payloads[0] as AudiencePayload).marketing_status as MarketingStatus : undefined
   
-  const profileUpdates = payloads.map((p) => {
-    
-    const isAudience = isAudiencePayload(p)
-    
+  const profileUpdates = payloads.map((p) => {  
     const {
       user_id,
       standard_traits: {
@@ -27,25 +24,18 @@ export async function send(request: RequestClient, payloads: RegularPayload[] | 
         birth_year,
         ...restStandardTraits
       } = {},
-      custom_traits
+      custom_traits,
+      email
     } = p
 
-    let segment_computation_key: string | undefined
-    let segment_computation_id: string | undefined
-    let traits_or_props: AudiencePayload['traits_or_props'] | undefined
+    const segment_computation_key = isAudience ? (p as AudiencePayload).segment_computation_key : undefined 
+    const segment_computation_id = isAudience ? (p as AudiencePayload).segment_computation_id : undefined
+    const traits_or_props = isAudience ? (p as AudiencePayload).traits_or_props : undefined
 
-    if(isAudience) {
-      ({ 
-        segment_computation_key, 
-        segment_computation_id, 
-        traits_or_props 
-      } = p)
-
-      if(custom_traits) {
+    if(isAudience && custom_traits) {
         // Remove reserved keys from custom traits just incase the customer accidentally maps them
-        delete custom_traits[segment_computation_key] 
-        delete custom_traits[segment_computation_id] 
-      }
+        delete custom_traits[segment_computation_key as string] 
+        delete custom_traits[segment_computation_id as string] 
     }
 
     let date: Date | undefined
@@ -55,6 +45,7 @@ export async function send(request: RequestClient, payloads: RegularPayload[] | 
 
     const profile: Record<string, string | number | undefined> = {
       userId: user_id,
+      email,
       ...restStandardTraits,
       birth_day: (date ? date.getDate() : birth_day) ?? undefined,
       birth_month: (date ? date.getMonth() + 1 : birth_month) ?? undefined,
@@ -63,13 +54,13 @@ export async function send(request: RequestClient, payloads: RegularPayload[] | 
     }
 
     if(isAudience && traits_or_props && segment_computation_key && segment_computation_id) {
-      profile.segment_computation_id = segment_computation_id
-      profile.segment_computation_key = segment_computation_key
+      profile.audienceId = segment_computation_id
+      profile.audienceName = segment_computation_key
       profile.action = traits_or_props[segment_computation_key] ? 'enter' : 'exit'
     }
 
-    if(!isAudience && p.previous_id){
-      profile.previous_id = p.previous_id
+    if(!isAudience && (p as RegularPayload).previous_id){
+      profile.previous_id = (p as RegularPayload).previous_id
     }
 
     updateFieldsToMapAndFieldTypes(fieldsToMap, fieldTypes, custom_traits)
@@ -104,7 +95,7 @@ export async function send(request: RequestClient, payloads: RegularPayload[] | 
           message
         }
       }
-      ${audienceMutation(advertiserId, stringifyMappingSchemaForGraphQL(MAPPING_SCHEMA))}
+      ${ isAudience ? audienceMutation(advertiserId, stringifyMappingSchemaForGraphQL(MAPPING_SCHEMA)) : ""}
   }`
 
   return await request(GQL_ENDPOINT, {
@@ -118,33 +109,20 @@ export function sha256hash(data: string) {
   return hash.digest('hex')
 }
 
-function audienceMutation(advertiserId: string | undefined, audienceMapping: string | undefined): string | undefined {
-  if(advertiserId && audienceMapping){
-    return `upsertExternalAudienceMapping(
-            input: {
-              advertiserId: ${advertiserId},
-              mappingSchema: ${audienceMapping},
-              mappableType: "${EXTERNAL_PROVIDER}"
-            }
-          ) {
-            userErrors {
-              message
-            }
-          }`;
-  } else {
-    return ''
-  }
+function audienceMutation(advertiserId: string, audienceMapping: string): string {
+  return `upsertExternalAudienceMapping(
+          input: {
+            advertiserId: ${advertiserId},
+            mappingSchema: ${audienceMapping},
+            mappableType: "${EXTERNAL_PROVIDER}"
+          }
+        ) {
+          userErrors {
+            message
+          }
+        }`;
 }
 
-function isAudiencePayload(payload: RegularPayload | AudiencePayload): payload is AudiencePayload {
-  return 'segment_computation_id' in payload && typeof payload.segment_computation_id === 'string' &&
-         'segment_computation_key' in payload && typeof payload.segment_computation_key === 'string' &&
-         'traits_or_props' in payload && typeof payload.traits_or_props === 'object'
-}
-
-function isBatchAudience(payloads: RegularPayload[] | AudiencePayload[]): boolean {
-  return payloads.every(isAudiencePayload)
-} 
 
 function updateFieldsToMapAndFieldTypes(fieldsToMap: Set<string>, fieldTypes: Record<string, string>, customTraits: RegularPayload['custom_traits'] | AudiencePayload['custom_traits'] = {}) {
    // Process trait keys (already in snake_case) and capture any non-standard fields as mappings 

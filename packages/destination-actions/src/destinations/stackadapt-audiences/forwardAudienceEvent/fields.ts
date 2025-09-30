@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core'
+import { MarketingStatus } from '../constants'
 
 export const audience_only_fields: Record<string, InputField> = {
     marketing_status: {
@@ -8,8 +9,8 @@ export const audience_only_fields: Record<string, InputField> = {
       required: true,
       disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
       choices: [
-        { label: 'Opted-in (Profiles can receive email marketing)', value: 'Opted-in' },
-        { label: 'Indeterminate (Profiles that have not opted-out, but are excluded from email marketing)', value: 'Indeterminate' }
+        { label: 'Opted-in (Profiles can receive email marketing)', value: MarketingStatus.OPT_IN },
+        { label: 'Indeterminate (Profiles that have not opted-out, but are excluded from email marketing)', value: MarketingStatus.Indeterminate }
       ]
     },
     traits_or_props: {

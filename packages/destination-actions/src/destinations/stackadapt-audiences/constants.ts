@@ -130,3 +130,8 @@ export const MAPPING_SCHEMA = [
     isPii: false
   }
 ]
+
+export const MarketingStatus = {
+  OPT_IN: 'Opted-in',
+  Indeterminate: 'Indeterminate'
+} as const

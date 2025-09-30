@@ -7,8 +7,8 @@ Object {
         input: {
           advertiserId: 84GW[vK%wv2xv@UF5iy,
           externalProvider: \\"segment_io\\",
-          syncId: \\"f033d6d83a5944783cc2a3cd210ae8f1d7ae4295295cd7ffdc6fa18b7f5f2174\\",
-          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"John\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"Doe\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"1234567890\\\\\\",\\\\\\"address\\\\\\":\\\\\\"10 pleasant st.\\\\\\",\\\\\\"city\\\\\\":\\\\\\"Pleasantville\\\\\\",\\\\\\"state\\\\\\":\\\\\\"CA\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"12345\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"PST\\\\\\",\\\\\\"birth_day\\\\\\":24,\\\\\\"birth_month\\\\\\":3,\\\\\\"birth_year\\\\\\":1990,\\\\\\"testType\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"segment_computation_id\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"segment_computation_key\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"}]\\"
+          syncId: \\"d117876039ed1e63ada0a681732313f8ad2190970382deabcb869102ada25bbf\\",
+          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"email\\\\\\":\\\\\\"kagaca@til.zw\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"John\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"Doe\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"1234567890\\\\\\",\\\\\\"address\\\\\\":\\\\\\"10 pleasant st.\\\\\\",\\\\\\"city\\\\\\":\\\\\\"Pleasantville\\\\\\",\\\\\\"state\\\\\\":\\\\\\"CA\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"12345\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"PST\\\\\\",\\\\\\"birth_day\\\\\\":24,\\\\\\"birth_month\\\\\\":3,\\\\\\"birth_year\\\\\\":1990,\\\\\\"testType\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"}]\\"
         }
       ) {
         userErrors {
@@ -27,16 +27,16 @@ Object {
         }
       }
       upsertExternalAudienceMapping(
-            input: {
-              advertiserId: 84GW[vK%wv2xv@UF5iy,
-              mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
-              mappableType: \\"segment_io\\"
-            }
-          ) {
-            userErrors {
-              message
-            }
+          input: {
+            advertiserId: 84GW[vK%wv2xv@UF5iy,
+            mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
+            mappableType: \\"segment_io\\"
           }
+        ) {
+          userErrors {
+            message
+          }
+        }
   }",
 }
 `;
@@ -48,8 +48,8 @@ Object {
         input: {
           advertiserId: 84GW[vK%wv2xv@UF5iy,
           externalProvider: \\"segment_io\\",
-          syncId: \\"285223711ce57d8fe7b2e3756b218029eca89c0ebfb073940e5aeece1744ea5b\\",
-          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"John\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"Doe\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"1234567890\\\\\\",\\\\\\"address\\\\\\":\\\\\\"10 pleasant st.\\\\\\",\\\\\\"city\\\\\\":\\\\\\"Pleasantville\\\\\\",\\\\\\"state\\\\\\":\\\\\\"CA\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"12345\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"PST\\\\\\",\\\\\\"birth_day\\\\\\":24,\\\\\\"birth_month\\\\\\":3,\\\\\\"birth_year\\\\\\":1990,\\\\\\"segment_computation_id\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"segment_computation_key\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"}]\\"
+          syncId: \\"75b0978320828cab0e3d2501979f6e12ecc787fc1bf9bb6583230f993c55c8ea\\",
+          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"email\\\\\\":\\\\\\"kagaca@til.zw\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"John\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"Doe\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"1234567890\\\\\\",\\\\\\"address\\\\\\":\\\\\\"10 pleasant st.\\\\\\",\\\\\\"city\\\\\\":\\\\\\"Pleasantville\\\\\\",\\\\\\"state\\\\\\":\\\\\\"CA\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"12345\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"PST\\\\\\",\\\\\\"birth_day\\\\\\":24,\\\\\\"birth_month\\\\\\":3,\\\\\\"birth_year\\\\\\":1990,\\\\\\"audienceId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"}]\\"
         }
       ) {
         userErrors {
@@ -68,16 +68,16 @@ Object {
         }
       }
       upsertExternalAudienceMapping(
-            input: {
-              advertiserId: 84GW[vK%wv2xv@UF5iy,
-              mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
-              mappableType: \\"segment_io\\"
-            }
-          ) {
-            userErrors {
-              message
-            }
+          input: {
+            advertiserId: 84GW[vK%wv2xv@UF5iy,
+            mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
+            mappableType: \\"segment_io\\"
           }
+        ) {
+          userErrors {
+            message
+          }
+        }
   }",
 }
 `;
@@ -89,8 +89,8 @@ Object {
         input: {
           advertiserId: PsAwlRv%,
           externalProvider: \\"segment_io\\",
-          syncId: \\"ef175c33c221a5cb4c46c7a655ad56f66e15cf3ab1513309377f3d1438eff66f\\",
-          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"John\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"Doe\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"1234567890\\\\\\",\\\\\\"address\\\\\\":\\\\\\"10 pleasant st.\\\\\\",\\\\\\"city\\\\\\":\\\\\\"Pleasantville\\\\\\",\\\\\\"state\\\\\\":\\\\\\"CA\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"12345\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"PST\\\\\\",\\\\\\"birth_day\\\\\\":24,\\\\\\"birth_month\\\\\\":3,\\\\\\"birth_year\\\\\\":1990,\\\\\\"testType\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"previous_id\\\\\\":\\\\\\"PsAwlRv%\\\\\\"}]\\"
+          syncId: \\"801ce656de3279db96dbc21672843435aa9f25f2b5bae307bd3f1f16d7072c62\\",
+          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"email\\\\\\":\\\\\\"bobgolvij@relsifhu.ag\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"John\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"Doe\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"1234567890\\\\\\",\\\\\\"address\\\\\\":\\\\\\"10 pleasant st.\\\\\\",\\\\\\"city\\\\\\":\\\\\\"Pleasantville\\\\\\",\\\\\\"state\\\\\\":\\\\\\"CA\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"12345\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"PST\\\\\\",\\\\\\"birth_day\\\\\\":24,\\\\\\"birth_month\\\\\\":3,\\\\\\"birth_year\\\\\\":1990,\\\\\\"testType\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"previous_id\\\\\\":\\\\\\"PsAwlRv%\\\\\\"}]\\"
         }
       ) {
         userErrors {
@@ -108,17 +108,7 @@ Object {
           message
         }
       }
-      upsertExternalAudienceMapping(
-            input: {
-              advertiserId: PsAwlRv%,
-              mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
-              mappableType: \\"segment_io\\"
-            }
-          ) {
-            userErrors {
-              message
-            }
-          }
+      
   }",
 }
 `;
@@ -130,8 +120,8 @@ Object {
         input: {
           advertiserId: PsAwlRv%,
           externalProvider: \\"segment_io\\",
-          syncId: \\"f0205456c5968f2ddf8ba31e868ca865c04d85638e7f4d5d2353926a69cd96ec\\",
-          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"John\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"Doe\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"1234567890\\\\\\",\\\\\\"address\\\\\\":\\\\\\"10 pleasant st.\\\\\\",\\\\\\"city\\\\\\":\\\\\\"Pleasantville\\\\\\",\\\\\\"state\\\\\\":\\\\\\"CA\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"12345\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"PST\\\\\\",\\\\\\"birth_day\\\\\\":24,\\\\\\"birth_month\\\\\\":3,\\\\\\"birth_year\\\\\\":1990,\\\\\\"previous_id\\\\\\":\\\\\\"PsAwlRv%\\\\\\"}]\\"
+          syncId: \\"8b38160dd135e698945c1d681343de2dfeb72a2747bd3b7ded93da13288c64a8\\",
+          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"email\\\\\\":\\\\\\"bobgolvij@relsifhu.ag\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"John\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"Doe\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"1234567890\\\\\\",\\\\\\"address\\\\\\":\\\\\\"10 pleasant st.\\\\\\",\\\\\\"city\\\\\\":\\\\\\"Pleasantville\\\\\\",\\\\\\"state\\\\\\":\\\\\\"CA\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"12345\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"PST\\\\\\",\\\\\\"birth_day\\\\\\":24,\\\\\\"birth_month\\\\\\":3,\\\\\\"birth_year\\\\\\":1990,\\\\\\"previous_id\\\\\\":\\\\\\"PsAwlRv%\\\\\\"}]\\"
         }
       ) {
         userErrors {
@@ -149,17 +139,7 @@ Object {
           message
         }
       }
-      upsertExternalAudienceMapping(
-            input: {
-              advertiserId: PsAwlRv%,
-              mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
-              mappableType: \\"segment_io\\"
-            }
-          ) {
-            userErrors {
-              message
-            }
-          }
+      
   }",
 }
 `;

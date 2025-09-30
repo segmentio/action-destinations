@@ -1,3 +1,5 @@
+import { MarketingStatus } from './constants'
+
 export interface ProfileFieldConfig {
   key: string
   label: string
@@ -53,4 +55,4 @@ export interface Mapping {
   value?: string
 }
 
-export type MarketingStatus = 'opt_in' | 'opt_out'
+export type MarketingStatus = typeof MarketingStatus[keyof typeof MarketingStatus]

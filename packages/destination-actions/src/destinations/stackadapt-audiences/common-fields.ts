@@ -104,37 +104,37 @@ export const common_fields: Record<string, InputField> = {
         },
         address: {
           '@if': {
-            exists: { '@path': '$.traits.address' },
-            then: { '@path': '$.traits.address' },
-            else: { '@path': '$.properties.address' }
+            exists: { '@path': '$.traits.street' },
+            then: { '@path': '$.traits.street' },
+            else: { '@path': '$.properties.street' }
           }
         },
         city: {
           '@if': {
-            exists: { '@path': '$.traits.address.city' },
-            then: { '@path': '$.traits.address.city' },
-            else: { '@path': '$.properties.address.city' }
+            exists: { '@path': '$.traits.city' },
+            then: { '@path': '$.traits.city' },
+            else: { '@path': '$.properties.city' }
           }
         },
         country: {
           '@if': {
-            exists: { '@path': '$.traits.address.country' },
-            then: { '@path': '$.traits.address.country' },
-            else: { '@path': '$.properties.address.country' }
+            exists: { '@path': '$.traits.country' },
+            then: { '@path': '$.traits.country' },
+            else: { '@path': '$.properties.country' }
           }
         },
         state: {
           '@if': {
-            exists: { '@path': '$.traits.address.state' },
-            then: { '@path': '$.traits.address.state' },
-            else: { '@path': '$.properties.address.state' }
+            exists: { '@path': '$.traits.state' },
+            then: { '@path': '$.traits.state' },
+            else: { '@path': '$.properties.state' }
           }
         },
         postal_code: {
           '@if': {
-            exists: { '@path': '$.traits.address.postal_code' },
-            then: { '@path': '$.traits.address.postal_code' },
-            else: { '@path': '$.properties.address.postal_code' }
+            exists: { '@path': '$.traits.postal_code' },
+            then: { '@path': '$.traits.postal_code' },
+            else: { '@path': '$.properties.postal_code' }
           }
         },
         timezone: {

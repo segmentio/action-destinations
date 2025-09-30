@@ -23,7 +23,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       advertiser_id: {
         label: "Advertiser ID",
-        description: "The StackAdapt advertiser ID to add the profile to. The value in this field field can also be overridden at the Action level via the Action field of the same name.",
+        description: "The StackAdapt advertiser ID to add the profile to.",
         type: 'string', 
         required: true
       }
@@ -70,7 +70,7 @@ const destination: DestinationDefinition<Settings> = {
     const userId = payload.userId
     const formattedExternalIds = `["${userId}"]`
     const syncId = sha256hash(String(userId))
-    const advertiserId = settings.advertiser_id as string
+    const advertiserId = settings.advertiser_id
 
     const mutation = `mutation {
       deleteProfilesWithExternalIds(
