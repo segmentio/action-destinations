@@ -125,9 +125,9 @@ export const commonFields: Record<string, InputField> = {
     }
   },
   dissociations: {
-    label: 'Associations to remove',
+    label: 'Associations to remove (BETA)',
     description:
-      'Remove Association Labels from an Association between two records. Removing the default association label will dissociate both records from each other completely.',
+      'Remove Association Labels from an Association between two records. Removing the default association label will dissociate both records from each other completely. This feature is currently in Beta and should not be used with production data.',
     type: 'object',
     multiple: true,
     required: false,
@@ -172,8 +172,8 @@ export const commonFields: Record<string, InputField> = {
     }
   },
   list_details: {
-    label: 'List Details',
-    description: 'Details of the list to add or remove the record from',
+    label: 'List Details (BETA)',
+    description: 'Details of the list to add or remove the record from. This feature is currently in Beta and should not be used with production data.',
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue:only',

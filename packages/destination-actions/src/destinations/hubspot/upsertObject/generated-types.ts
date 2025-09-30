@@ -60,7 +60,7 @@ export interface Payload {
     id_field_value?: string
   }[]
   /**
-   * Remove Association Labels from an Association between two records. Removing the default association label will dissociate both records from each other completely.
+   * Remove Association Labels from an Association between two records. Removing the default association label will dissociate both records from each other completely. This feature is currently in Beta and should not be used with production data.
    */
   dissociations?: {
     /**
@@ -81,7 +81,7 @@ export interface Payload {
     id_field_value?: string
   }[]
   /**
-   * Details of the list to add or remove the record from
+   * Details of the list to add or remove the record from. This feature is currently in Beta and should not be used with production data.
    */
   list_details?: {
     /**
