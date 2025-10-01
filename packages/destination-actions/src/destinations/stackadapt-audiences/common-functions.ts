@@ -12,7 +12,7 @@ export async function send(request: RequestClient, payloads: RegularPayload[] | 
   const fieldTypes = getDefaultFieldTypes()
   const fieldsToMap = getDefaultFieldsToMap()
   const advertiserId = settings.advertiser_id
-  const marketingStatus = isAudience ? (payloads[0] as AudiencePayload).marketing_status as MarketingStatus : undefined
+  const marketingStatus = payloads[0].marketing_status as MarketingStatus
   
   const profileUpdates = payloads.map((p) => {  
     const {
@@ -154,7 +154,7 @@ function updateFieldsToMapAndFieldTypes(fieldsToMap: Set<string>, fieldTypes: Re
   }, {})
 }
 
-function getProfileMappings(customFields: string[], fieldTypes: Record<string, string>, marketingStatus?: MarketingStatus) {
+function getProfileMappings(customFields: string[], fieldTypes: Record<string, string>, marketingStatus: MarketingStatus) {
   const mappingSchema: Mapping[] = []
   for (const field of customFields) {
     // Keys are already in snake_case, so find directly in PROFILE_DEFAULT_FIELDS
@@ -191,16 +191,15 @@ function getProfileMappings(customFields: string[], fieldTypes: Record<string, s
     }
   }
 
-  if(typeof marketingStatus === 'string') {
-    mappingSchema.push({
-      incomingKey: 'marketing_status',
-      destinationKey: 'marketing_status',
-      label: 'Marketing Status',
-      type: 'STRING',
-      isPii: false,
-      value: marketingStatus,
-    })
-  }
+  mappingSchema.push({
+    incomingKey: 'marketing_status',
+    destinationKey: 'marketing_status',
+    label: 'Marketing Status',
+    type: 'STRING',
+    isPii: false,
+    value: marketingStatus,
+  })
+
   return stringifyMappingSchemaForGraphQL(mappingSchema)
 }
 
