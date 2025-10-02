@@ -2,17 +2,17 @@ import { Payload } from './generated-types'
 import { TTBaseProps, TTTravelProps, TTAutoProps } from '../types'
 import { TRAVEL_FIELDS, VEHICLE_FIELDS } from './constants'
 
-export function getProp(payload: Payload): TTBaseProps & TTAutoProps & TTTravelProps {
+export function getAllProperties(payload: Payload): TTBaseProps & TTAutoProps & TTTravelProps {
   const { event_spec_type } = payload
 
   return {
-    ...buildBaseProp(payload),
-    ...(event_spec_type === TRAVEL_FIELDS ? buildTravelProp(payload) : {}),
-    ...(event_spec_type === VEHICLE_FIELDS ? buildAutoProp(payload) : {})
+    ...getProps(payload),
+    ...(event_spec_type === TRAVEL_FIELDS ? getTravelProps(payload) : {}),
+    ...(event_spec_type === VEHICLE_FIELDS ? getAutoProp(payload) : {})
   }
 }
 
-function buildBaseProp(payload: Payload): TTBaseProps {
+function getProps(payload: Payload): TTBaseProps {
   const {
     content_type,
     currency,
@@ -53,7 +53,7 @@ function buildBaseProp(payload: Payload): TTBaseProps {
   return requestProperties
 }
 
-function buildTravelProp(payload: Payload): TTTravelProps {
+function getTravelProps(payload: Payload): TTTravelProps {
   const {
     city,
     region,
@@ -107,7 +107,7 @@ function buildTravelProp(payload: Payload): TTTravelProps {
   return requestProperties
 }
 
-function buildAutoProp(payload: Payload): TTAutoProps {
+function getAutoProp(payload: Payload): TTAutoProps {
   const {
     postal_code,
     make,

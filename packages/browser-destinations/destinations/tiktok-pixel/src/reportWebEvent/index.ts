@@ -1,8 +1,8 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { getUserObject } from '../utils'
-import { getProp } from './utils'
+import { getUser } from '../utils'
+import { getAllProperties } from './utils'
 import { TikTokPixel } from '../types'
 import { commonFields } from './fields/common_fields'
 import { travel_fields } from './fields/travel_fields'
@@ -21,12 +21,16 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
   },
   perform: (ttq, { payload, settings }) => {
     if (payload.email || payload.phone_number || payload.external_id) {
-      ttq.instance(settings.pixelCode).identify(getUserObject(payload))
+      ttq.instance(settings.pixelCode).identify(getUser(payload))
     }
 
-    ttq.instance(settings.pixelCode).track(payload.event, getProp(payload), {
-      event_id: payload.event_id ? payload.event_id : ''
-    })
+    ttq.instance(settings.pixelCode).track(
+      payload.event, 
+      getAllProperties(payload), 
+      { 
+        event_id: payload.event_id ? payload.event_id : ''
+      }
+    )
   }
 }
 

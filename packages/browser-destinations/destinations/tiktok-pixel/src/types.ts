@@ -1,78 +1,11 @@
 export interface TikTokPixel {
   page: () => void
   instance: (pixel_code: string) => TikTokPixel
-  identify: ({
-    email,
-    phone_number,
-    external_id,
-    first_name,
-    last_name,
-    city,
-    state,
-    country,
-    zip_code
-  }: TTUser) => void
+  identify: (user: TTUser) => void
   track: (
     event: string,
-    {
-      contents,
-      content_type,
-      currency,
-      value,
-      query,
-      description,
-      order_id,
-      shop_id,
-      content_ids,
-      num_items,
-      search_string,
-      city,
-      region,
-      country,
-      checkin_date,
-      checkout_date,
-      num_adults,
-      num_children,
-      num_infants,
-      suggested_hotels,
-      departing_departure_date,
-      returning_departure_date,
-      origin_airport,
-      destination_airiport,
-      destination_ids,
-      departing_arrival_date,
-      returning_arrival_date,
-      travel_class,
-      user_score,
-      preferred_num_stops,
-      travel_start,
-      travel_end,
-      suggested_destinations,
-      postal_code,
-      make,
-      model,
-      year,
-      state_of_vehicle,
-      mileage,
-      exterior_color,
-      transmission,
-      body_style,
-      fuel_type,
-      drivetrain,
-      preferred_price_range,
-      trim,
-      vin,
-      interior_color,
-      condition_of_vehicle,
-      viewcontent_type,
-      search_type,
-      registration_type
-    }: TTBaseProps & TTTravelProps & TTAutoProps,
-    {
-      event_id
-    }: {
-      event_id: string | undefined
-    }
+    { ...props }: TTBaseProps & TTTravelProps & TTAutoProps,
+    { event_id }: { event_id?: string }
   ) => void
 }
 

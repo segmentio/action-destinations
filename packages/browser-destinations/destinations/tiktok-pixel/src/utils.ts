@@ -2,11 +2,7 @@ import { Payload } from './reportWebEvent/generated-types'
 import { formatPhone, handleArrayInput, formatString, formatAddress } from './formatter'
 import { TTUser } from './types'
 
-export function getUserObject(payload: Payload): TTUser {
-  return buildUserObject(payload)
-}
-
-function buildUserObject(payload: Payload): TTUser {
+export function getUser(payload: Payload): TTUser {
   return {
     email: handleArrayInput(payload.email),
     phone_number: formatPhone(handleArrayInput(payload.phone_number)),
