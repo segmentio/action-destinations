@@ -239,7 +239,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       }
       gtag('consent', 'default', consent)
     }
-    const script = `https://${settings.domain ?? 'www.googletagmanager.com'}/gtag/js?id=${settings.measurementID}`
+    const script = `https://${settings.domain || 'www.googletagmanager.com'}/gtag/js?id=${settings.measurementID}`
     await deps.loadScript(script)
     return window.gtag
   },
