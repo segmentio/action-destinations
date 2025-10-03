@@ -7,7 +7,12 @@ import { Client } from './client'
 import { AssociationSyncMode, SyncMode, SchemaMatch, RequestData } from './types'
 import { dynamicFields } from './functions/dynamic-field-functions'
 import { getSchemaFromCache, saveSchemaToCache } from './functions/cache-functions'
-import { ensureValidTimestamps, mergeAndDeduplicateById, validate } from './functions/validation-functions'
+import {
+  deDuplicateAssociations,
+  ensureValidTimestamps,
+  mergeAndDeduplicateById,
+  validate
+} from './functions/validation-functions'
 import { objectSchema, compareSchemas } from './functions/schema-functions'
 import { sendFromRecords } from './functions/hubspot-record-functions'
 import { getListName, ensureList, sendLists } from './functions/hubspot-list-functions'
@@ -115,7 +120,8 @@ const send = async (
   }
 
   const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
-  const associationPayloads = createAssociationPayloads(fromRecordPayloads, 'associations')
+  let associationPayloads = createAssociationPayloads(fromRecordPayloads, 'associations')
+  associationPayloads = deDuplicateAssociations(associationPayloads)
   const associatedRecords = await sendAssociatedRecords(
     client,
     associationPayloads,

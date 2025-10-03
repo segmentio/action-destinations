@@ -1,6 +1,6 @@
 import { PayloadValidationError, StatsContext } from '@segment/actions-core'
 import { Payload } from '../generated-types'
-import { Association } from '../types'
+import { Association, AssociationPayload } from '../types'
 import { getListPayloadType, getListName } from '../functions/hubspot-list-functions'
 
 export function validate(payloads: Payload[], flag?: boolean): Payload[] {
@@ -21,23 +21,21 @@ export function validate(payloads: Payload[], flag?: boolean): Payload[] {
     )
   }
 
-  if (flag === true){
-    const hasEngageAudience = cleaned.some((p) => getListPayloadType(p) === 'is_engage_audience_payload') 
-    const hasNonEngageAudience = cleaned.some((p) => getListPayloadType(p) === 'is_non_engage_audience_payload') 
-    
-    if (hasEngageAudience && hasNonEngageAudience){
-      throw new PayloadValidationError(
-        'Engage and non Engage payloads cannot be mixed in the same batch.'
-      )
+  if (flag === true) {
+    const hasEngageAudience = cleaned.some((p) => getListPayloadType(p) === 'is_engage_audience_payload')
+    const hasNonEngageAudience = cleaned.some((p) => getListPayloadType(p) === 'is_non_engage_audience_payload')
+
+    if (hasEngageAudience && hasNonEngageAudience) {
+      throw new PayloadValidationError('Engage and non Engage payloads cannot be mixed in the same batch.')
     }
 
-    const listNames = Array.from(
-      new Set(cleaned.map((p) => getListName(p)).filter(Boolean))
-    )
+    const listNames = Array.from(new Set(cleaned.map((p) => getListName(p)).filter(Boolean)))
 
-    if (listNames.length > 1){
+    if (listNames.length > 1) {
       throw new PayloadValidationError(
-        `When updating List membership, all payloads must reference the same list. Found multiple lists in the batch: ${listNames.slice(0, 3).join(', ')}`
+        `When updating List membership, all payloads must reference the same list. Found multiple lists in the batch: ${listNames
+          .slice(0, 3)
+          .join(', ')}`
       )
     }
   }
@@ -66,7 +64,7 @@ export function validate(payloads: Payload[], flag?: boolean): Payload[] {
       return fieldsToCheck.every((field) => field !== null && field !== '')
     })
   })
-  
+
   return cleaned
 }
 
@@ -234,4 +232,33 @@ function isValidTimestamp(ts: unknown): ts is string | number | Date {
     return !isNaN(new Date(ts).getTime())
   }
   return false
+}
+
+/**
+ * Removes duplicate associations from the provided array based on a composite key
+ *
+ * @param associationGroups - An array of arrays of `AssociationPayload` objects.
+ * @returns An array of arrays of unique `AssociationPayload` objects.
+ */
+export function deDuplicateAssociations(associationGroups: AssociationPayload[][]): AssociationPayload[][] {
+  if (!associationGroups || associationGroups.length === 0) {
+    return associationGroups
+  }
+
+  return associationGroups.map((group) => {
+    if (!group || group.length === 0) return group
+
+    const associationKey = (assoc: AssociationPayload) =>
+      `${assoc.object_details.object_type}|${assoc.association_details.association_label}|${assoc.object_details.id_field_name}|${assoc.object_details.id_field_value}`
+
+    const uniqueAssociationsMap = new Map<string, AssociationPayload>()
+
+    for (const assoc of group) {
+      uniqueAssociationsMap.set(associationKey(assoc), assoc)
+    }
+
+    const dedupedGroup = Array.from(uniqueAssociationsMap.values())
+
+    return dedupedGroup
+  })
 }
