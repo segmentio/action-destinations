@@ -1,6 +1,6 @@
 module.exports = {
   root: true,
-  ignorePatterns: ['node_modules', 'dist', 'templates', 'scripts', '**/node_modules'],
+  ignorePatterns: ['node_modules', 'dist', 'templates', 'scripts', '**/node_modules', '**/webpack.config.js'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 2019,

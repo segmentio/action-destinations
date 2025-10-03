@@ -10,6 +10,6 @@
       "@segment/actions-shared": ["../actions-shared/src"]
     }
   },
-  "exclude": ["dist"],
+  "exclude": ["webpack.config.js", "dist"],
   "include": ["src", "test"]
 }
