@@ -1,18 +1,6 @@
 import { InputField } from '@segment/actions-core'
-import { MarketingStatus } from '../constants'
 
 export const audience_only_fields: Record<string, InputField> = {
-    marketing_status: {
-      label: 'Marketing Status',
-      description: 'In certain jurisdictions, explicit consent may be required to send email marketing communications to imported profiles. Consult independent counsel for further guidance.',
-      type: 'string',
-      required: true,
-      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
-      choices: [
-        { label: 'Opted-in (Profiles can receive email marketing)', value: MarketingStatus.OPT_IN },
-        { label: 'Indeterminate (Profiles that have not opted-out, but are excluded from email marketing)', value: MarketingStatus.Indeterminate }
-      ]
-    },
     traits_or_props: {
       label: 'Event Properties',
       type: 'object',
