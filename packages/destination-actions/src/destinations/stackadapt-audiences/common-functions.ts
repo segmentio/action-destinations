@@ -1,6 +1,6 @@
 import { RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
-import {GQL_ENDPOINT, EXTERNAL_PROVIDER, PROFILE_DEFAULT_FIELDS, MAPPING_SCHEMA } from './constants'
+import {GQL_ENDPOINT, EXTERNAL_PROVIDER, PROFILE_DEFAULT_FIELDS, MAPPING_SCHEMA, MarketingStatus as MarketingStatuses } from './constants'
 import {  Mapping, MarketingStatus, ProfileFieldConfig } from './types'
 import type { Payload as AudiencePayload } from './forwardAudienceEvent/generated-types'
 import type { Payload as RegularPayload } from './forwardProfile/generated-types'
@@ -68,7 +68,7 @@ export async function send(request: RequestClient, payloads: RegularPayload[] | 
     return profile
   })
 
-  const mappings = getProfileMappings(Array.from(fieldsToMap), fieldTypes, marketingStatus)
+  const mappings = getProfileMappings(Array.from(fieldsToMap), fieldTypes)
   const profiles = stringifyJsonWithEscapedQuotes(profileUpdates)
 
   const mutation = `mutation {
@@ -88,6 +88,7 @@ export async function send(request: RequestClient, payloads: RegularPayload[] | 
         input: {
           advertiserId: ${advertiserId},
           mappingSchemaV2: ${mappings},
+          isOptedIn: ${marketingStatus === MarketingStatuses.OPT_IN},
           mappableType: "${EXTERNAL_PROVIDER}"
         }
       ) {
@@ -154,7 +155,7 @@ function updateFieldsToMapAndFieldTypes(fieldsToMap: Set<string>, fieldTypes: Re
   }, {})
 }
 
-function getProfileMappings(customFields: string[], fieldTypes: Record<string, string>, marketingStatus: MarketingStatus) {
+function getProfileMappings(customFields: string[], fieldTypes: Record<string, string>) {
   const mappingSchema: Mapping[] = []
   for (const field of customFields) {
     // Keys are already in snake_case, so find directly in PROFILE_DEFAULT_FIELDS
@@ -190,16 +191,6 @@ function getProfileMappings(customFields: string[], fieldTypes: Record<string, s
       })
     }
   }
-
-  mappingSchema.push({
-    incomingKey: 'marketing_status',
-    destinationKey: 'marketing_status',
-    label: 'Marketing Status',
-    type: 'STRING',
-    isPii: false,
-    value: marketingStatus,
-  })
-
   return stringifyMappingSchemaForGraphQL(mappingSchema)
 }
 
