@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, PayloadValidationError } from '@segment/actions-core'
 import Destination from '../../index'
 import { processHashing } from '../../../../lib/hashing-utils'
-import { normalize, normalizePhone } from '../utils'
+import { normalize, normalizePhone } from '../functions'
 
 const testDestination = createTestIntegration(Destination)
 
