@@ -308,6 +308,8 @@ describe('Kafka.send', () => {
       expect((error as Error).message).toBe('Kafka Connection Error: some settings error')
       expect((error as IntegrationError).status).toBe(400)
     }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('Kafka Connection Error:'))
   })
 
   it('wraps producer connect errors and logs with critical level', async () => {
@@ -327,6 +329,8 @@ describe('Kafka.send', () => {
       expect((error as Error).message).toBe('Kafka Connection Error - KafkaJSError: connect failed')
       expect((error as IntegrationError).status).toBe(500)
     }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('Kafka Connection Error'))
   })
 
   it('wraps producer send errors and logs with critical level', async () => {
@@ -347,6 +351,8 @@ describe('Kafka.send', () => {
       expect((error as Error).message).toBe('Kafka Producer Error - KafkaJSError: broker unavailable')
       expect((error as IntegrationError).status).toBe(500)
     }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('Kafka Send Error'))
   })
 
   it('extracts nested Kafka cause for connect errors', async () => {
@@ -369,6 +375,8 @@ describe('Kafka.send', () => {
       expect((error as IntegrationError).message).toBe('Kafka Connection Error - BrokerNotAvailable: brokers down')
       expect((error as IntegrationError).status).toBe(500)
     }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('BrokerNotAvailable'))
   })
 
   it('extracts nested Kafka cause for send errors', async () => {
@@ -393,6 +401,8 @@ describe('Kafka.send', () => {
       expect((error as IntegrationError).message).toBe('Kafka Producer Error - MessageSizeTooLarge: message too large')
       expect((error as IntegrationError).status).toBe(500)
     }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('MessageSizeTooLarge'))
   })
 })
 
