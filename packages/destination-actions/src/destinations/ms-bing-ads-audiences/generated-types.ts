@@ -2,10 +2,6 @@
 
 export interface Settings {
   /**
-   * The developer token for authenticating API requests. You can find it in the Microsoft Advertising User Interface under Settings → Developer Settings.
-   */
-  developerToken: string
-  /**
    * The account ID of the Microsoft Advertising account you want to manage. You can find it in the URL when viewing the account in the Microsoft Ads User Interface.
    */
   customerAccountId: string
