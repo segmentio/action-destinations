@@ -19,9 +19,6 @@ export const serializeKafkaConfig = (settings: Settings): string => {
     mechanism: settings.mechanism,
     username: settings.username,
     password: settings.password,
-    accessKeyId: settings.accessKeyId,
-    secretAccessKey: settings.secretAccessKey,
-    authorizationIdentity: settings.authorizationIdentity,
     ssl_ca: settings.ssl_ca,
     ssl_cert: settings.ssl_cert,
     ssl_key: settings.ssl_key,
@@ -64,13 +61,6 @@ const getKafka = (settings: Settings) => {
             password: settings.password,
             mechanism: settings.mechanism
           } as SASLOptions
-        case 'aws':
-          return {
-            accessKeyId: settings.accessKeyId,
-            secretAccessKey: settings.secretAccessKey,
-            authorizationIdentity: settings.authorizationIdentity,
-            mechanism: settings.mechanism
-          } as SASLOptions
         default:
           return undefined
       }
@@ -82,7 +72,7 @@ const getKafka = (settings: Settings) => {
           rejectUnauthorized: settings.ssl_reject_unauthorized_ca
         }
         if (settings.mechanism === 'client-cert-auth') {
-          ; (ssl.key = `-----BEGIN PRIVATE KEY-----\n${settings?.ssl_key?.trim()}\n-----END PRIVATE KEY-----`),
+          ;(ssl.key = `-----BEGIN PRIVATE KEY-----\n${settings?.ssl_key?.trim()}\n-----END PRIVATE KEY-----`),
             (ssl.cert = `-----BEGIN CERTIFICATE-----\n${settings?.ssl_cert?.trim()}\n-----END CERTIFICATE-----`)
         }
         return ssl
@@ -115,13 +105,6 @@ export const validate = (settings: Settings) => {
     throw new IntegrationError(
       'Username and Password are required for PLAIN and SCRAM authentication mechanisms',
       'SASL_PARAMS_MISSING',
-      400
-    )
-  }
-  if (['aws'].includes(settings.mechanism) && (!settings.accessKeyId || !settings.secretAccessKey)) {
-    throw new IntegrationError(
-      'AWS Access Key ID and AWS Secret Key are required for AWS authentication mechanism',
-      'SASL_AWS_PARAMS_MISSING',
       400
     )
   }
@@ -232,13 +215,13 @@ export const sendData = async (
     topic,
     messages: groupedPayloads[topic].map(
       (payload) =>
-      ({
-        value: JSON.stringify(payload.payload),
-        key: payload.key,
-        headers: payload?.headers ?? undefined,
-        partition: payload?.partition ?? payload?.default_partition ?? undefined,
-        partitionerType: DEFAULT_PARTITIONER
-      } as Message)
+        ({
+          value: JSON.stringify(payload.payload),
+          key: payload.key,
+          headers: payload?.headers ?? undefined,
+          partition: payload?.partition ?? payload?.default_partition ?? undefined,
+          partitionerType: DEFAULT_PARTITIONER
+        } as Message)
     )
   }))
 
