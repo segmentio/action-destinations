@@ -121,7 +121,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
       return { externalId: audienceId }
     },
     getAudience: async (request, getAudienceInput) => {
-      // API Docs
+      // API Docs.
       // https://learn.microsoft.com/en-us/advertising/campaign-management-service/getaudiencesbyids?view=bingads-13&tabs=prod&pivots=rest
       const audienceId = getAudienceInput?.externalId
       const response: GetAudienceResponse = await request(`${BASE_URL}/Audiences/QueryByIds`, {
