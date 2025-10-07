@@ -27,7 +27,7 @@ const event = createTestEvent({
 
 describe('First-Party-dv360.addToAudContactInfo', () => {
   it('should hash pii data if not already hashed', async () => {
-    nock('https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences')
+    nock('https://displayvideo.googleapis.com/v4/firstPartyAndPartnerAudiences')
       .post('/1234567890:editCustomerMatchMembers')
       .reply(200, { success: true })
 
@@ -53,7 +53,7 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
   })
 
   it('should not hash pii data if already hashed', async () => {
-    nock('https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences')
+    nock('https://displayvideo.googleapis.com/v4/firstPartyAndPartnerAudiences')
       .post('/1234567890:editCustomerMatchMembers')
       .reply(200, { success: true })
 
@@ -79,7 +79,7 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
   })
 
   it('should batch multiple payloads into a single request when enable_batching is true', async () => {
-    nock('https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences')
+    nock('https://displayvideo.googleapis.com/v4/firstPartyAndPartnerAudiences')
       .post('/1234567890:editCustomerMatchMembers')
       .reply(200, { success: true })
 
@@ -128,35 +128,6 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
         batch_size: 2
       },
       features: { 'first-party-dv360-canary-version': true }
-    })
-
-    const requestBody = JSON.parse(String(responses[0].options.body))
-    expect(requestBody.addedContactInfoList.contactInfos.length).toBe(2)
-    expect(requestBody.addedContactInfoList.contactInfos[0].hashedEmails).toBeDefined()
-    expect(requestBody.addedContactInfoList.contactInfos[1].hashedEmails).toBeDefined()
-  })
-
-  it('should batch multiple payloads into a single request when enable_batching is true ( API VERSION )', async () => {
-    nock('https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences')
-      .post('/1234567890:editCustomerMatchMembers')
-      .reply(200, { success: true })
-
-    const events = createBatchTestEvents(createContactList)
-    const responses = await testDestination.testBatchAction('addToAudContactInfo', {
-      events: events,
-      mapping: {
-        emails: ['584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'],
-        phoneNumbers: ['422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8'],
-        zipCodes: ['12345'],
-        firstName: '96d9632f363564cc3032521409cf22a852f2032eec099ed5967c0d000cec607a',
-        lastName: '799ef92a11af918e3fb741df42934f3b568ed2d93ac1df74f1b8d41a27932a6f',
-        countryCode: 'US',
-        external_id: '1234567890',
-        advertiser_id: '1234567890',
-        enable_batching: true,
-        batch_size: 2
-      },
-      features: { 'first-party-dv360-canary-version': false }
     })
 
     const requestBody = JSON.parse(String(responses[0].options.body))

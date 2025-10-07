@@ -3,7 +3,7 @@ import { Payload } from './addToAudContactInfo/generated-types'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
 
-export const API_VERSION = 'v3'
+export const API_VERSION = 'v4'
 export const CANARY_API_VERSION = 'v4'
 export const FLAGON_NAME = 'first-party-dv360-canary-version'
 
@@ -14,34 +14,20 @@ export function getApiVersion(features?: Features, statsContext?: StatsContext):
   const statsClient = statsContext?.statsClient
   const tags = statsContext?.tags
   const version = features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
-  tags?.push(`version:${version}`)
-  statsClient?.incr('dv360_api_version', 1, tags)
+  statsClient?.incr('dv360_api_version', 1, [...(tags || []), `version:${version}`])
   return version
 }
 
 function getAudienceEndpoint(version: string, advertiserId: string, audienceId?: string): string {
   if (audienceId) {
-    console.log(audienceId, 'audienceId')
-    if (version === CANARY_API_VERSION) {
-      return DV360API + 'v4/firstPartyAndPartnerAudiences/' + `${audienceId}?advertiserId=${advertiserId}`
-    } else {
-      return DV360API + 'v3/firstAndThirdPartyAudiences/' + `${audienceId}?advertiserId=${advertiserId}`
-    }
+    return DV360API + `${version}/firstPartyAndPartnerAudiences/` + `${audienceId}?advertiserId=${advertiserId}`
   } else {
-    if (version === CANARY_API_VERSION) {
-      return DV360API + 'v4/firstPartyAndPartnerAudiences' + `?advertiserId=${advertiserId}`
-    } else {
-      return DV360API + 'v3/firstAndThirdPartyAudiences' + `?advertiserId=${advertiserId}`
-    }
+    return DV360API + `${version}/firstPartyAndPartnerAudiences` + `?advertiserId=${advertiserId}`
   }
 }
 
 function getEditCustomerMatchMembersEndpoint(version: string, audienceId: string): string {
-  if (version === CANARY_API_VERSION) {
-    return DV360API + 'v4/firstPartyAndPartnerAudiences/' + audienceId + ':editCustomerMatchMembers'
-  } else {
-    return DV360API + 'v3/firstAndThirdPartyAudiences/' + audienceId + ':editCustomerMatchMembers'
-  }
+  return DV360API + `${version}/firstPartyAndPartnerAudiences/` + audienceId + ':editCustomerMatchMembers'
 }
 
 interface createAudienceRequestParams {
@@ -65,7 +51,6 @@ interface getAudienceParams {
 }
 
 interface DV360editCustomerMatchResponse {
-  firstAndThirdPartyAudienceId?: string
   firstPartyAndPartnerAudienceId?: string
   error: [
     {
@@ -107,9 +92,7 @@ export const createAudienceRequest = (
       membershipDurationDays: membershipDurationDays,
       description: description,
       audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',
-      firstAndThirdPartyAudienceType:
-        version === CANARY_API_VERSION ? undefined : 'FIRST_AND_THIRD_PARTY_AUDIENCE_TYPE_FIRST_PARTY',
-      firstPartyAndPartnerAudienceType: version === CANARY_API_VERSION ? 'TYPE_FIRST_PARTY' : undefined,
+      firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY',
       appId: appId
     }
   })
@@ -172,10 +155,7 @@ export async function editDeviceMobileIds(
     },
     body: requestPayload
   })
-  const responseAudienceId =
-    version === CANARY_API_VERSION
-      ? response.data.firstPartyAndPartnerAudienceId
-      : response.data.firstAndThirdPartyAudienceId
+  const responseAudienceId = response.data.firstPartyAndPartnerAudienceId
   if (!response.data || !responseAudienceId) {
     statsContext?.statsClient?.incr('addCustomerMatchMembers.error', allMobileDeviceIds.length, statsContext?.tags)
     throw new IntegrationError(
