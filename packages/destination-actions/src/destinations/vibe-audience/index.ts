@@ -1,4 +1,4 @@
-import { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sync from './sync'
 import { BASE_URL, API_VERSION } from './constants'
@@ -43,7 +43,16 @@ const destination: DestinationDefinition<Settings> = {
   },
   actions: {
     sync
-  }
+  },
+  presets: [
+    {
+      name: 'Sync Engage Audience',
+      subscribe: 'type = "identify" or type = "track"',
+      partnerAction: 'sync',
+      mapping: defaultValues(sync.fields),
+      type: 'automatic'
+    }
+  ]
 }
 
 export default destination
