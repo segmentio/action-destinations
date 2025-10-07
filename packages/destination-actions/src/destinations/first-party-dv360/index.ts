@@ -11,7 +11,6 @@ import removeFromAudMobileDeviceId from './removeFromAudMobileDeviceId'
 import addToAudContactInfo from './addToAudContactInfo'
 import addToAudMobileDeviceId from './addToAudMobileDeviceId'
 import { _CreateAudienceInput, _GetAudienceInput } from './types'
-import { getApiVersion, CANARY_API_VERSION } from './functions'
 
 export interface RefreshTokenResponse {
   access_token: string
@@ -175,10 +174,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const r = await response.json()
       statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
-        externalId:
-          getApiVersion(features, statsContext) === CANARY_API_VERSION
-            ? r.firstPartyAndPartnerAudienceId
-            : r.firstAndThirdPartyAudienceId
+        externalId: r.firstPartyAndPartnerAudienceId
       }
     },
 
@@ -242,10 +238,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audienceData = await response.json()
       statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
-        externalId:
-          getApiVersion(features, statsContext) === CANARY_API_VERSION
-            ? audienceData.firstPartyAndPartnerAudienceId
-            : audienceData.firstAndThirdPartyAudienceId
+        externalId: audienceData.firstPartyAndPartnerAudienceId
       }
     }
   },
