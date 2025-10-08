@@ -340,7 +340,8 @@ export const userData: InputField = {
         db: {
             label: 'Date of Birth',
             description: 'Date of birth of the user',
-            type: 'string'
+            type: 'string',
+            format: 'date'
         },
         ct: {
             label: 'City',
