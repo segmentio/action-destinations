@@ -15,7 +15,7 @@ const { DefinePlugin, optimize, ProvidePlugin } = webpack
 
 const dEnv = defineEnv({
   nodeCompat: true,
-  npmShims: false,
+  npmShims: true,
   resolve: true,
   overrides: {},
   presets: []
