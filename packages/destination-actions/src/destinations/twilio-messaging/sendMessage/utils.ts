@@ -16,7 +16,7 @@ import {
 import { TwilioPayload, Sender, Content } from './types'
 
 export async function send(request: RequestClient, payload: Payload, settings: Settings) {
-  let { toPhoneNumber, fromPhoneNumber, messagingServiceSid, contentSid } = payload
+  let { toPhoneNumber, fromPhoneNumber, messagingServiceSid, contentSid, toMessengerUserId, fromFacebookPageId, } = payload
 
   const {
     channel,
@@ -50,6 +50,10 @@ export async function send(request: RequestClient, payload: Payload, settings: S
         }
         return `whatsapp:${toPhoneNumber}`
       }
+      case CHANNELS.MESSENGER: {
+        toMessengerUserId = toMessengerUserId?.trim() ?? ''
+        return `messenger:${toMessengerUserId}`
+      }
       default: {
         throw new PayloadValidationError('Unsupported Channel')
       }
@@ -71,6 +75,13 @@ export async function send(request: RequestClient, payload: Payload, settings: S
         throw new PayloadValidationError("'From' field should be a valid phone number in E.164 format")
       }
       return channel === CHANNELS.WHATSAPP ? { From: `whatsapp:${fromPhoneNumber}` } : { From: fromPhoneNumber }
+    }
+    if (senderType === SENDER_TYPE.FACEBOOK_PAGE_ID) {
+      fromFacebookPageId = fromFacebookPageId?.trim()
+      if (!fromFacebookPageId) {
+        throw new PayloadValidationError("'From Facebook Page ID' field is required when sending from a Facebook Page.")
+      }
+      return { From: `messenger:${fromFacebookPageId}` }
     }
     if (senderType === SENDER_TYPE.MESSAGING_SERVICE) {
       messagingServiceSid = parseFieldValue(messagingServiceSid)

@@ -255,6 +255,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       eventSlug: 'warehouse_audience_membership_changed_identify'
     },
     {
+      name: 'Associated Entity Added',
+      partnerAction: 'syncAudiencesToDSP',
+      mapping: defaultValues(syncAudiencesToDSP.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'syncAudiencesToDSP',
+      mapping: defaultValues(syncAudiencesToDSP.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
       name: 'Journeys Step Entered',
       partnerAction: 'syncAudiencesToDSP',
       mapping: {

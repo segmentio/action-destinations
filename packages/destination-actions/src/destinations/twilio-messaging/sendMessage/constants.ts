@@ -117,6 +117,6 @@ export const ALL_CONTENT_TYPES = {
 
 export const SENDER_TYPE = {
   PHONE_NUMBER: 'Phone number',
-  MESSENGER_SENDER_ID: 'Messenger Sender ID',
+  FACEBOOK_PAGE_ID: 'Facebook Page ID',
   MESSAGING_SERVICE: 'Messaging Service'
 }

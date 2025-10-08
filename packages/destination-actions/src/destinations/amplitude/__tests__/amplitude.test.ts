@@ -2234,7 +2234,7 @@ describe('Amplitude', () => {
       group_value: 'some-value'
     }
 
-    it('should fire identify call to Amplitude', async () => {
+    it('should fire identify call to Amplitude, if user_id or device_id is present', async () => {
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       nock('https://api2.amplitude.com').post('/groupidentify').reply(200, {})
 
@@ -2268,7 +2268,7 @@ describe('Amplitude', () => {
       )
     })
 
-    it('should fire identify call to Amplitude EU endpoint', async () => {
+    it('should fire identify call to Amplitude EU endpoint, if user_id or device_id is present', async () => {
       nock('https://api.eu.amplitude.com').post('/identify').reply(200, {})
       nock('https://api.eu.amplitude.com').post('/groupidentify').reply(200, {})
 
@@ -2309,6 +2309,71 @@ describe('Amplitude', () => {
       expect(response.data).toMatchObject({})
       expect(response.options.body?.toString()).toMatchInlineSnapshot(
         `"api_key=&identification=%5B%7B%22group_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22group_value%22%3A%22some-value%22%2C%22group_type%22%3A%22some-type%22%2C%22library%22%3A%22segment%22%7D%5D&options=undefined"`
+      )
+    })
+
+    it('should only fire groupidentify call to Amplitude, if user_id and device_id are missing', async () => {
+      // Create a new event without userId and deviceId
+      const eventWithoutIds = createTestEvent({
+        timestamp: '2021-04-12T16:32:37.710Z',
+        type: 'group',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        }
+      })
+
+      nock('https://api2.amplitude.com').post('/groupidentify').reply(200, {})
+
+      const responses = await testDestination.testAction('groupIdentifyUser', {
+        event: eventWithoutIds,
+        mapping,
+        settings: {
+          apiKey: '',
+          secretKey: ''
+        }
+      })
+
+      // There should only be one response since no identify call should be made
+      expect(responses.length).toBe(1)
+      const response = responses[0]
+
+      expect(response.status).toBe(200)
+      expect(response.data).toMatchObject({})
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=&identification=%5B%7B%22group_value%22%3A%22some-value%22%2C%22group_type%22%3A%22some-type%22%2C%22library%22%3A%22segment%22%7D%5D&options=undefined"`
+      )
+    })
+
+    it('should only fire groupidentify call to Amplitude EU endpoint, if user_id and device_id are missing', async () => {
+      // Create a new event without userId and deviceId
+      const eventWithoutIds = createTestEvent({
+        timestamp: '2021-04-12T16:32:37.710Z',
+        type: 'group',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        }
+      })
+
+      nock('https://api.eu.amplitude.com').post('/groupidentify').reply(200, {})
+
+      const responses = await testDestination.testAction('groupIdentifyUser', {
+        event: eventWithoutIds,
+        mapping,
+        settings: {
+          apiKey: '',
+          secretKey: '',
+          endpoint: 'europe'
+        }
+      })
+
+      // There should only be one response since no identify call should be made
+      expect(responses.length).toBe(1)
+      const response = responses[0]
+
+      expect(response.status).toBe(200)
+      expect(response.data).toMatchObject({})
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=&identification=%5B%7B%22group_value%22%3A%22some-value%22%2C%22group_type%22%3A%22some-type%22%2C%22library%22%3A%22segment%22%7D%5D&options=undefined"`
       )
     })
   })

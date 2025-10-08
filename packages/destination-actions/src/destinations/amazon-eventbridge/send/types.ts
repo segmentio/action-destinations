@@ -1,5 +1,3 @@
-import { OnMappingSaveOutputs, RetlOnMappingSaveOutputs } from './generated-types'
-
 export interface PutPartnerEventsCommandJSON {
   Entries: Array<EntryItem>
 }
@@ -27,6 +25,14 @@ export interface HookSuccess {
 }
 
 export interface HookOutputs {
-  onMappingSave?: OnMappingSaveOutputs
-  retlOnMappingSave?: RetlOnMappingSaveOutputs
+  onMappingSave?: {
+    outputs: {
+      sourceId: string  
+    }
+  }
+  retlOnMappingSave?: {
+    outputs: {
+      sourceId: string  
+    }
+  }
 }

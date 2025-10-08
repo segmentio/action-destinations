@@ -182,6 +182,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       eventSlug: 'warehouse_audience_exited_track'
     },
     {
+      name: 'Associated Entity Added',
+      partnerAction: 'addToAudience',
+      mapping: defaultValues(addToAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'removeFromAudience',
+      mapping: defaultValues(removeFromAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
       name: 'Journeys Step Entered',
       partnerAction: 'addToAudience',
       mapping: defaultValues(addToAudience.fields),

@@ -2,13 +2,13 @@
 
 export interface Payload {
   /**
-   * Event timestamp (ISO 8601)
+   * Event timestamp in ISO 8601 format. Used with the Message ID to uniquely identify an activity in Ortto. If not provided, duplicate activities may occur.
    */
-  timestamp: string
+  timestamp?: string
   /**
-   * Message ID
+   * Message ID. Combined with the event timestamp to uniquely identify an activity in Ortto. If omitted, duplicate activities may occur.
    */
-  message_id: string
+  message_id?: string
   /**
    * The unique user identifier
    */

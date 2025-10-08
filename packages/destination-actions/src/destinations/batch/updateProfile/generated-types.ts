@@ -12,7 +12,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * If enabled, the action will send multiple profiles in a single request. The maximum number of profiles in a single request is 1000.
+   * If enabled, the action will send multiple profiles in a single request. The maximum number of profiles in a single request is 200.
    */
   enable_batching?: boolean
   /**
@@ -20,7 +20,7 @@ export interface Payload {
    */
   batch_size?: number
   /**
-   * Attributes for the user profile
+   * Attributes for the user profile. Batch can accept up to 50 attributes per user.
    */
   profileAttributes?: {
     /**

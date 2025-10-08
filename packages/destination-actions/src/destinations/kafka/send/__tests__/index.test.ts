@@ -1,9 +1,10 @@
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { Kafka, KafkaConfig, Partitioners } from 'kafkajs'
-import { producersByConfig, serializeKafkaConfig, getOrCreateProducer } from '../../utils'
+import { producersByConfig, serializeKafkaConfig, getOrCreateProducer, isValidHostPort } from '../../utils'
 import { Settings } from '../../generated-types'
 import { Producer } from 'kafkajs'
+import { IntegrationError } from '@segment/actions-core/*'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -46,7 +47,7 @@ const testData = {
   },
   useDefaultMappings: false,
   settings: {
-    brokers: 'yourBroker',
+    brokers: 'yourBroker:9092',
     clientId: 'yourClientId',
     mechanism: 'plain',
     username: 'yourUsername',
@@ -64,19 +65,18 @@ describe('Kafka.send', () => {
   it('kafka library is initialized correctly for SASL plain auth', async () => {
     await testDestination.testAction('send', testData as any)
 
-    expect(Kafka).toHaveBeenCalledWith(
-     {
-        clientId: 'yourClientId',
-        brokers: ['yourBroker'],
-        requestTimeout: 10000,
-        ssl: true,
-        sasl: {
-          mechanism: 'plain',
-          username: 'yourUsername',
-          password: 'yourPassword'
-        }
+    expect(Kafka).toHaveBeenCalledWith({
+      clientId: 'yourClientId',
+      brokers: ['yourBroker:9092'],
+      requestTimeout: 10000,
+      ssl: true,
+      retry: { retries: 0 },
+      sasl: {
+        mechanism: 'plain',
+        username: 'yourUsername',
+        password: 'yourPassword'
       }
-    )
+    })
   })
 
   it('kafka library is initialized correctly for SASL scram-sha-256 auth', async () => {
@@ -87,22 +87,21 @@ describe('Kafka.send', () => {
         mechanism: 'scram-sha-256'
       }
     }
-    
+
     await testDestination.testAction('send', testData1 as any)
 
-    expect(Kafka).toHaveBeenCalledWith(
-     {
-        clientId: 'yourClientId',
-        brokers: ['yourBroker'],
-        requestTimeout: 10000,
-        ssl: true,
-        sasl: {
-          mechanism: 'scram-sha-256',
-          username: 'yourUsername',
-          password: 'yourPassword'
-        }
+    expect(Kafka).toHaveBeenCalledWith({
+      clientId: 'yourClientId',
+      brokers: ['yourBroker:9092'],
+      requestTimeout: 10000,
+      ssl: true,
+      retry: { retries: 0 },
+      sasl: {
+        mechanism: 'scram-sha-256',
+        username: 'yourUsername',
+        password: 'yourPassword'
       }
-    )
+    })
   })
 
   it('kafka library is initialized correctly for SASL scram-sha-512 auth', async () => {
@@ -113,22 +112,21 @@ describe('Kafka.send', () => {
         mechanism: 'scram-sha-512'
       }
     }
-    
+
     await testDestination.testAction('send', testData1 as any)
 
-    expect(Kafka).toHaveBeenCalledWith(
-     {
-        clientId: 'yourClientId',
-        brokers: ['yourBroker'],
-        requestTimeout: 10000,
-        ssl: true,
-        sasl: {
-          mechanism: 'scram-sha-512',
-          username: 'yourUsername',
-          password: 'yourPassword'
-        }
+    expect(Kafka).toHaveBeenCalledWith({
+      clientId: 'yourClientId',
+      brokers: ['yourBroker:9092'],
+      requestTimeout: 10000,
+      ssl: true,
+      retry: { retries: 0 },
+      sasl: {
+        mechanism: 'scram-sha-512',
+        username: 'yourUsername',
+        password: 'yourPassword'
       }
-    )
+    })
   })
 
   it('kafka library is initialized correctly for SASL aws auth', async () => {
@@ -142,23 +140,22 @@ describe('Kafka.send', () => {
         authorizationIdentity: 'testAuthorizationIdentity'
       }
     }
-    
+
     await testDestination.testAction('send', testData3 as any)
 
-    expect(Kafka).toHaveBeenCalledWith(
-     {
-        clientId: 'yourClientId',
-        brokers: ['yourBroker'],
-        requestTimeout: 10000,
-        ssl: true,
-        sasl: {
-          mechanism: 'aws',
-          accessKeyId: 'testAccessKeyId',
-          secretAccessKey: 'testSecretAccessKey',
-          authorizationIdentity: 'testAuthorizationIdentity'
-        }
+    expect(Kafka).toHaveBeenCalledWith({
+      clientId: 'yourClientId',
+      brokers: ['yourBroker:9092'],
+      requestTimeout: 10000,
+      ssl: true,
+      retry: { retries: 0 },
+      sasl: {
+        mechanism: 'aws',
+        accessKeyId: 'testAccessKeyId',
+        secretAccessKey: 'testSecretAccessKey',
+        authorizationIdentity: 'testAuthorizationIdentity'
       }
-    )
+    })
   })
 
   it('kafka library is initialized correctly when SSL_CA provided', async () => {
@@ -170,25 +167,24 @@ describe('Kafka.send', () => {
         ssl_reject_unauthorized_ca: true
       }
     }
-    
+
     await testDestination.testAction('send', testData4 as any)
 
-    expect(Kafka).toHaveBeenCalledWith(
-     {
-        clientId: 'yourClientId',
-        brokers: ['yourBroker'],
-        requestTimeout: 10000,
-        ssl: {
-          ca: ['-----BEGIN CERTIFICATE-----\nyourCACert\n-----END CERTIFICATE-----'],
-          rejectUnauthorized: true
-        },
-        sasl: {
-          mechanism: 'plain',
-          username: 'yourUsername',
-          password: 'yourPassword'
-        }
+    expect(Kafka).toHaveBeenCalledWith({
+      clientId: 'yourClientId',
+      brokers: ['yourBroker:9092'],
+      requestTimeout: 10000,
+      ssl: {
+        ca: ['-----BEGIN CERTIFICATE-----\nyourCACert\n-----END CERTIFICATE-----'],
+        rejectUnauthorized: true
+      },
+      retry: { retries: 0 },
+      sasl: {
+        mechanism: 'plain',
+        username: 'yourUsername',
+        password: 'yourPassword'
       }
-    )
+    })
   })
 
   it('kafka library is initialized correctly when SSL_CA provided and mechanism is client-cert-auth', async () => {
@@ -196,32 +192,31 @@ describe('Kafka.send', () => {
       ...testData,
       settings: {
         mechanism: 'client-cert-auth',
-        brokers: 'yourBroker',
+        brokers: 'yourBroker:9092',
         clientId: 'yourClientId',
         partitionerType: 'DefaultPartitioner',
         ssl_enabled: true,
         ssl_ca: 'yourCACert',
         ssl_reject_unauthorized_ca: true,
         ssl_key: 'yourKey',
-        ssl_cert: 'yourCert',
+        ssl_cert: 'yourCert'
       }
     }
-    
+
     await testDestination.testAction('send', testData5 as any)
 
-    expect(Kafka).toHaveBeenCalledWith(
-     {
-        clientId: 'yourClientId',
-        brokers: ['yourBroker'],
-        requestTimeout: 10000,
-        ssl: {
-          ca: ['-----BEGIN CERTIFICATE-----\nyourCACert\n-----END CERTIFICATE-----'],
-          rejectUnauthorized: true,
-          key: '-----BEGIN PRIVATE KEY-----\nyourKey\n-----END PRIVATE KEY-----',
-          cert: '-----BEGIN CERTIFICATE-----\nyourCert\n-----END CERTIFICATE-----'
-        }
-      }
-    )
+    expect(Kafka).toHaveBeenCalledWith({
+      clientId: 'yourClientId',
+      brokers: ['yourBroker:9092'],
+      requestTimeout: 10000,
+      ssl: {
+        ca: ['-----BEGIN CERTIFICATE-----\nyourCACert\n-----END CERTIFICATE-----'],
+        rejectUnauthorized: true,
+        key: '-----BEGIN PRIVATE KEY-----\nyourKey\n-----END PRIVATE KEY-----',
+        cert: '-----BEGIN CERTIFICATE-----\nyourCert\n-----END CERTIFICATE-----'
+      },
+      retry: { retries: 0 }
+    })
   })
 
   it('kafka producer is initialized correctly', async () => {
@@ -269,7 +264,9 @@ describe('Kafka.send', () => {
 
     const key = serializeKafkaConfig(settings)
     expect(typeof key).toBe('string')
-    expect(key).toBe('{"clientId":"testClientId","brokers":["https://broker1:9092","https://broker2:9092"],"mechanism":"plain","username":"testUsername","password":"testPassword","accessKeyId":"testAccessKeyId","secretAccessKey":"testSecretAccessKey","authorizationIdentity":"testAuthorizationIdentity","ssl_ca":"testCACert","ssl_cert":"testCert","ssl_key":"testKey","ssl_reject_unauthorized_ca":true,"ssl_enabled":true}')
+    expect(key).toBe(
+      '{"clientId":"testClientId","brokers":["https://broker1:9092","https://broker2:9092"],"mechanism":"plain","username":"testUsername","password":"testPassword","accessKeyId":"testAccessKeyId","secretAccessKey":"testSecretAccessKey","authorizationIdentity":"testAuthorizationIdentity","ssl_ca":"testCACert","ssl_cert":"testCert","ssl_key":"testKey","ssl_reject_unauthorized_ca":true,"ssl_enabled":true}'
+    )
   })
 
   it('serializeKafkaConfig generates the correct producer connection cache key', async () => {
@@ -291,7 +288,169 @@ describe('Kafka.send', () => {
 
     const key = serializeKafkaConfig(settings)
     expect(typeof key).toBe('string')
-    expect(key).toBe('{"clientId":"testClientId","brokers":["https://broker1:9092","https://broker2:9092"],"mechanism":"plain","username":"testUsername","password":"testPassword","accessKeyId":"testAccessKeyId","secretAccessKey":"testSecretAccessKey","authorizationIdentity":"testAuthorizationIdentity","ssl_ca":"testCACert","ssl_cert":"testCert","ssl_key":"testKey","ssl_reject_unauthorized_ca":true,"ssl_enabled":true}')
+    expect(key).toBe(
+      '{"clientId":"testClientId","brokers":["https://broker1:9092","https://broker2:9092"],"mechanism":"plain","username":"testUsername","password":"testPassword","accessKeyId":"testAccessKeyId","secretAccessKey":"testSecretAccessKey","authorizationIdentity":"testAuthorizationIdentity","ssl_ca":"testCACert","ssl_cert":"testCert","ssl_key":"testKey","ssl_reject_unauthorized_ca":true,"ssl_enabled":true}'
+    )
+  })
+
+  it('logs and rethrows IntegrationError when Kafka constructor fails', async () => {
+    // Make Kafka constructor throw
+    ;(Kafka as unknown as jest.Mock).mockImplementationOnce(() => {
+      throw new IntegrationError('some settings error', 'Kafka Connection Error', 400)
+    })
+
+    const logger = { crit: jest.fn() } as any
+
+    try {
+      await testDestination.testAction('send', { ...(testData as any), logger })
+    } catch (error) {
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect((error as Error).message).toBe('Kafka Connection Error: some settings error')
+      expect((error as IntegrationError).status).toBe(400)
+    }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('Kafka Connection Error:'))
+  })
+
+  it('wraps producer connect errors and logs with critical level', async () => {
+    const err = new Error('connect failed')
+    err.name = 'KafkaJSError'
+
+    // Make connect reject for the next call
+    const producer = new (Kafka as unknown as jest.Mock)({} as KafkaConfig).producer()
+    ;(producer.connect as unknown as jest.Mock).mockRejectedValueOnce(err)
+
+    const logger = { crit: jest.fn() } as any
+
+    try {
+      await testDestination.testAction('send', { ...(testData as any), logger })
+    } catch (error) {
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect((error as Error).message).toBe('Kafka Connection Error - KafkaJSError: connect failed')
+      expect((error as IntegrationError).status).toBe(500)
+    }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('Kafka Connection Error'))
+  })
+
+  it('wraps producer send errors and logs with critical level', async () => {
+    // Ensure connect resolves
+    const producer = new (Kafka as unknown as jest.Mock)({} as KafkaConfig).producer()
+    ;(producer.connect as unknown as jest.Mock).mockResolvedValueOnce(undefined)
+
+    const err = new Error('broker unavailable')
+    err.name = 'KafkaJSError'
+    ;(producer.send as unknown as jest.Mock).mockRejectedValueOnce(err)
+
+    const logger = { crit: jest.fn() } as any
+
+    try {
+      await testDestination.testAction('send', { ...(testData as any), logger })
+    } catch (error) {
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect((error as Error).message).toBe('Kafka Producer Error - KafkaJSError: broker unavailable')
+      expect((error as IntegrationError).status).toBe(500)
+    }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('Kafka Send Error'))
+  })
+
+  it('extracts nested Kafka cause for connect errors', async () => {
+    const producer = new (Kafka as unknown as jest.Mock)({} as KafkaConfig).producer()
+    ;(producer.connect as unknown as jest.Mock).mockReset()
+
+    // Simulate a KafkaJSError with a nested cause coming from Kafka
+    const kafkaErr = new Error('outer wrapper error') as any
+    kafkaErr.name = 'KafkaJSError'
+    kafkaErr.cause = new Error('brokers down')
+    kafkaErr.cause.name = 'BrokerNotAvailable'
+    ;(producer.connect as unknown as jest.Mock).mockRejectedValueOnce(kafkaErr)
+
+    const logger = { crit: jest.fn() } as any
+
+    try {
+      await testDestination.testAction('send', { ...(testData as any), logger })
+    } catch (error) {
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect((error as IntegrationError).message).toBe('Kafka Connection Error - BrokerNotAvailable: brokers down')
+      expect((error as IntegrationError).status).toBe(500)
+    }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('BrokerNotAvailable'))
+  })
+
+  it('extracts nested Kafka cause for send errors', async () => {
+    const producer = new (Kafka as unknown as jest.Mock)({} as KafkaConfig).producer()
+    ;(producer.connect as unknown as jest.Mock).mockReset()
+    ;(producer.connect as unknown as jest.Mock).mockResolvedValueOnce(undefined)
+
+    // Simulate a KafkaJSError with a nested cause on send
+    const kafkaErr = new Error('outer wrapper error') as any
+    kafkaErr.name = 'KafkaJSError'
+    kafkaErr.cause = new Error('message too large')
+    kafkaErr.cause.name = 'MessageSizeTooLarge'
+    ;(producer.send as unknown as jest.Mock).mockReset()
+    ;(producer.send as unknown as jest.Mock).mockRejectedValueOnce(kafkaErr)
+
+    const logger = { crit: jest.fn() } as any
+
+    try {
+      await testDestination.testAction('send', { ...(testData as any), logger })
+    } catch (error) {
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect((error as IntegrationError).message).toBe('Kafka Producer Error - MessageSizeTooLarge: message too large')
+      expect((error as IntegrationError).status).toBe(500)
+    }
+
+    expect(logger.crit).toHaveBeenCalledWith(expect.stringContaining('MessageSizeTooLarge'))
+  })
+})
+
+describe('Broker string validation', () => {
+  it('accepts valid host:port formats', () => {
+    expect(isValidHostPort('localhost:9092')).toBe(true)
+    expect(isValidHostPort('kafka-broker:0')).toBe(true)
+    expect(isValidHostPort('kafka.internal.local:65535')).toBe(true)
+  })
+
+  it('rejects invalid host:port formats', () => {
+    expect(isValidHostPort('localhost')).toBe(false) // missing port
+    expect(isValidHostPort(':9092')).toBe(false) // missing host
+    expect(isValidHostPort('broker:')).toBe(false) // missing port number
+    expect(isValidHostPort('broker:not-a-number')).toBe(false)
+    expect(isValidHostPort('broker:-1')).toBe(false)
+    expect(isValidHostPort('broker:70000')).toBe(false) // > 65535
+    expect(isValidHostPort('https://broker1:9092')).toBe(false) // contains extra ':'
+    expect(isValidHostPort('')).toBe(false)
+    expect(isValidHostPort(null as unknown as string)).toBe(false)
+  })
+
+  it('throws IntegrationError when any broker in the list is invalid', async () => {
+    const bad = {
+      ...testData,
+      settings: {
+        ...testData.settings,
+        brokers: 'valid-host:9092, invalid-host' // second entry invalid
+      }
+    }
+
+    await expect(testDestination.testAction('send', bad as any)).rejects.toMatchObject({
+      message: 'Brokers must be in the format host:port',
+      code: 'BROKER_FORMAT_INVALID',
+      status: 400
+    })
+  })
+
+  it('accepts multiple valid brokers with whitespace and commas', async () => {
+    const good = {
+      ...testData,
+      settings: {
+        ...testData.settings,
+        brokers: ' valid1:9092 , valid2:1234,valid3:65535 '
+      }
+    }
+
+    await expect(testDestination.testAction('send', good as any)).resolves.toBeTruthy()
   })
 })
 
@@ -348,7 +507,7 @@ describe('getOrCreateProducer', () => {
 
   it('getOrCreateProducer replaces expired connections and creates a new connection', async () => {
     const now = Date.now()
-    const expiredTime = now - (31 * 60 * 1000) // 31 minutes ago
+    const expiredTime = now - 31 * 60 * 1000 // 31 minutes ago
     const key = serializeKafkaConfig(settings)
 
     const oldProducer = {
