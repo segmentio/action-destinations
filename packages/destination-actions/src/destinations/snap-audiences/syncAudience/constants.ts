@@ -1,0 +1,5 @@
+export const SCHEMA_TYPES = {
+  EMAIL: 'EMAIL_SHA256',
+  PHONE: 'PHONE_SHA256',
+  MAID: 'MOBILE_AD_ID_SHA256'
+} as const
