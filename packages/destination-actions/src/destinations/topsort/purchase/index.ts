@@ -90,6 +90,17 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     const client = new TopsortAPIClient(request, settings)
+
+    if (settings.skipZeroPricePurchases) {
+      const filteredItems = payload.items.filter((item) => item.unitPrice != null && item.unitPrice > 0)
+
+      if (filteredItems.length === 0) {
+        return
+      }
+
+      payload.items = filteredItems
+    }
+
     return client.sendEvent({
       purchases: [payload]
     })

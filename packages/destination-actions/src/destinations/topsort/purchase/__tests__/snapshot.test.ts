@@ -24,9 +24,14 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
-      settings: settingsData,
+      settings: { ...settingsData, skipZeroPricePurchases: false },
       auth: undefined
     })
+
+    if (!responses[0].request) {
+      expect(responses[0].options.json).toMatchSnapshot()
+      return
+    }
 
     const request = responses[0].request
     const rawBody = await request.text()
@@ -57,9 +62,14 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
-      settings: settingsData,
+      settings: { ...settingsData, skipZeroPricePurchases: false },
       auth: undefined
     })
+
+    if (!responses[0].request) {
+      expect(responses[0].options.json).toMatchSnapshot()
+      return
+    }
 
     const request = responses[0].request
     const rawBody = await request.text()
