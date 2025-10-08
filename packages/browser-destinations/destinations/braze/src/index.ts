@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-const defaultVersion = '5.9'
+const defaultVersion = '6.1'
 
 const presets: DestinationDefinition['presets'] = [
   {
@@ -105,6 +105,10 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         {
           value: '5.9',
           label: '5.9'
+        },
+        {
+          value: '6.1',
+          label: '6.1'
         }
       ],
       default: defaultVersion,
@@ -322,9 +326,18 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         // @ts-expect-error same as above.
         subscriptions,
         deferUntilIdentified,
+        devicePropertyAllowlist,
         ...expectedConfig
       } = settings
-
+      type BrazeConfig = typeof expectedConfig & {
+        devicePropertyAllowlist?: string[]
+      }
+      const config: BrazeConfig = { ...expectedConfig }
+      if (Array.isArray(devicePropertyAllowlist)) {
+        if (devicePropertyAllowlist.some((item) => item.trim() !== '')) {
+          config.devicePropertyAllowlist = devicePropertyAllowlist
+        }
+      }
       const version = sdkVersion ?? defaultVersion
 
       resetUserCache()
@@ -351,7 +364,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
           if (
             !client.instance.initialize(api_key, {
               baseUrl: window.BRAZE_BASE_URL || endpoint,
-              ...expectedConfig
+              ...config
             })
           ) {
             return false

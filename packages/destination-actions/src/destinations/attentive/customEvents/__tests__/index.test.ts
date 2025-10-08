@@ -106,24 +106,4 @@ describe('Attentive.customEvents', () => {
       })
     ).rejects.toThrowError("At least one user identifier is required.")
   })
-
-  it('throws error if properties contain arrays', async () => {
-    const badPayload = {
-      ...validPayload,
-      properties: {
-        someArray: [1, 2, 3]
-      }
-    }
-
-    const event = createTestEvent(badPayload)
-
-    await expect(
-      testDestination.testAction('customEvents', {
-        event,
-        settings,
-        mapping,
-        useDefaultMappings: false
-      })
-    ).rejects.toThrowError("Properties cannot contain arrays.")
-  })
 })

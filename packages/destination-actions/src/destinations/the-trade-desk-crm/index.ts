@@ -5,7 +5,9 @@ import { getAllDataSegments } from './functions'
 
 import syncAudience from './syncAudience'
 export const API_VERSION = 'v3'
-const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
+export const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
+export const SEGMENT_TYPE = 'targeting'
+const DATA_PROVIDER_ID = 'twilio'
 
 export interface CreateApiResponse {
   CrmDataId: string
@@ -37,7 +39,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         label: 'Authentication Token',
         description:
           'Your long-lived Trade Desk authentication token. Please see The Trade Desk’s [authentication documentation](https://api.thetradedesk.com/v3/portal/api/doc/Authentication) for information on how to generate a long-lived API Token via the Manage API Tokens in the developer Portal.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       advertiser_id: {
@@ -109,18 +111,22 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const response: ModifiedResponse<CreateApiResponse> = await request(`${BASE_URL}/crmdata/segment`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'TTD-Auth': authToken
-        },
-        json: {
-          AdvertiserId: advertiserId,
-          SegmentName: audienceName,
-          Region: region
+      const response: ModifiedResponse<CreateApiResponse> = await request(
+        `${BASE_URL}/crmdata/${SEGMENT_TYPE}/segment`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'TTD-Auth': authToken
+          },
+          json: {
+            AdvertiserId: advertiserId,
+            SegmentName: audienceName,
+            Region: region,
+            DataProviderId: DATA_PROVIDER_ID
+          }
         }
-      })
+      )
 
       if (response.status !== 200) {
         throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)

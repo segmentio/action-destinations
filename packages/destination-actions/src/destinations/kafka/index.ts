@@ -29,7 +29,7 @@ const destination: DestinationDefinition<Settings> = {
       mechanism: {
         label: 'Authentication Mechanism',
         description:
-          "Select the Authentication Mechanism to use. For SCRAM or PLAIN populate the 'Username' and 'Password' fields. For AWS IAM populated the 'AWS Access Key ID' and 'AWS Secret Key' fields. For 'Client Certificate' populated the 'SSL Client Key' and 'SSL Client Certificate' fields",
+          "Select the Authentication Mechanism to use. For SCRAM or PLAIN populate the 'Username' and 'Password' fields. For 'Client Certificate' populated the 'SSL Client Key' and 'SSL Client Certificate' fields",
         type: 'string',
         required: true,
         choices: [
@@ -99,7 +99,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'SSL Client Key',
         description:
           'The Client Key for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.',
-        type: 'string',
+        type: 'password',
         required: false,
         depends_on: DEPENDS_ON_CLIENT_CERT
       },
