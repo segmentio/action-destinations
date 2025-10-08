@@ -54,6 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, hookOutputs }) => {
+    console.log('perform called')
     const dataExtensionId: string =
       hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id
 
@@ -66,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { settings, payload, hookOutputs }) => {
     const dataExtensionId: string =
       hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id
-
+    console.log('perform batch called', dataExtensionId)
     if (!dataExtensionId) {
       throw new IntegrationError('No Data Extension Connected', 'INVALID_CONFIGURATION', 400)
     }

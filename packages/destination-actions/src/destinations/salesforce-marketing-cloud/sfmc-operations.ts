@@ -684,3 +684,165 @@ export const getCategories = async (request: RequestClient, settings: Settings):
     choices: results || []
   }
 }
+
+/**
+ * Interface for async operation response
+ */
+interface AsyncOperationResponse {
+  operationId: string
+  status: string
+  message?: string
+}
+
+/**
+ * Interface for SFMC async operation response
+ */
+interface SFMCAsyncResponse {
+  operationId?: string
+  requestId?: string
+  status?: string
+}
+
+/**
+ * Interface for SFMC async operation status
+ */
+interface SFMCAsyncStatus {
+  status?: string
+  operationId?: string
+  completedAt?: string
+  errorMessage?: string
+  results?: Record<string, unknown>
+}
+
+/**
+ * Interface for poll response
+ */
+interface PollResponse {
+  status: string
+  operationId: string
+  completedAt?: string
+  errorMessage?: string
+  results?: Record<string, unknown>
+}
+
+/**
+ * Start an async insert operation for data extension rows
+ * Uses the SFMC async API: https://developer.salesforce.com/docs/marketing/marketing-cloud/references/mc-data_extension_rows_async?meta=insertRows
+ */
+export async function insertRowsAsync(
+  request: RequestClient,
+  subdomain: string,
+  payloads: payload_contactDataExtension[],
+  dataExtensionId: string,
+  settings: Settings
+): Promise<AsyncOperationResponse> {
+  const { accessToken } = await getAccessToken(request, settings)
+
+  // Prepare the rows data
+  const rows = generateRows(payloads)
+
+  const requestBody = {
+    items: rows.map((row) => ({
+      ...row.keys,
+      ...row.values
+    }))
+  }
+
+  try {
+    const response = await request<SFMCAsyncResponse>(
+      `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/dataextensions/${dataExtensionId}/rows`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        json: requestBody
+      }
+    )
+
+    const responseData = response.data
+    return {
+      operationId: responseData.operationId || responseData.requestId || 'unknown',
+      status: 'started',
+      message: 'Async operation initiated successfully'
+    }
+  } catch (error) {
+    const err = error as ErrorResponse
+
+    if (err?.response?.status === 401) {
+      throw error
+    }
+
+    const errorMessage = err?.response?.data
+      ? (err.response.data as { message?: string }).message || 'Unknown error'
+      : 'Unknown error'
+
+    throw new IntegrationError(
+      `Failed to start async operation: ${errorMessage}`,
+      'ASYNC_OPERATION_FAILED',
+      err?.response?.status || 500
+    )
+  }
+}
+
+/**
+ * Poll the status of an async operation
+ * Uses the SFMC async API to check operation status
+ */
+export async function pollAsyncOperation(
+  request: RequestClient,
+  subdomain: string,
+  operationId: string,
+  settings: Settings
+): Promise<PollResponse> {
+  const { accessToken } = await getAccessToken(request, settings)
+
+  try {
+    const response = await request<SFMCAsyncStatus>(
+      `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/operations/${operationId}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+    const data = response.data
+
+    return {
+      status: data.status || 'Unknown',
+      operationId: operationId,
+      completedAt: data.completedAt,
+      errorMessage: data.errorMessage,
+      results: data.results || {}
+    }
+  } catch (error) {
+    const err = error as ErrorResponse
+
+    if (err?.response?.status === 401) {
+      throw error
+    }
+
+    // If operation not found, it might be completed and cleaned up
+    if (err?.response?.status === 404) {
+      return {
+        status: 'NotFound',
+        operationId: operationId,
+        errorMessage: 'Operation not found - may have been completed and cleaned up'
+      }
+    }
+
+    const errorMessage = err?.response?.data
+      ? (err.response.data as { message?: string }).message || 'Unknown error'
+      : 'Unknown error'
+
+    throw new IntegrationError(
+      `Failed to poll async operation: ${errorMessage}`,
+      'ASYNC_POLL_FAILED',
+      err?.response?.status || 500
+    )
+  }
+}
