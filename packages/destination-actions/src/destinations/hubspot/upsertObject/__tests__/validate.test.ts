@@ -304,6 +304,9 @@ describe('deDuplicateAssociations', () => {
     const result = deDuplicateAssociations([group1, group2])
     expect(result).toHaveLength(2)
     expect(result[0]).toHaveLength(1) // deduped to 1
+    expect(result[0][0].object_details).toBe(group1[1].object_details)
     expect(result[1]).toHaveLength(2) // deduped to 2
+    expect(result[1][0].object_details).toBe(group2[0].object_details)
+    expect(result[1][1].object_details).toBe(group2[2].object_details)
   })
 })
