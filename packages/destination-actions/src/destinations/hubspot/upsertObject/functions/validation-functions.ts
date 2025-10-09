@@ -249,7 +249,12 @@ export function deDuplicateAssociations(associationGroups: AssociationPayload[][
     if (!group || group.length === 0) return group
 
     const associationKey = (assoc: AssociationPayload) =>
-      `${assoc.object_details.object_type}|${assoc.association_details.association_label}|${assoc.object_details.id_field_name}|${assoc.object_details.id_field_value}`
+      JSON.stringify({
+        object_type: assoc.object_details.object_type,
+        association_label: assoc.association_details.association_label,
+        id_field_name: assoc.object_details.id_field_name,
+        id_field_value: assoc.object_details.id_field_value
+      })
 
     const uniqueAssociationsMap = new Map<string, AssociationPayload>()
 

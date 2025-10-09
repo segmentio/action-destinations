@@ -120,8 +120,7 @@ const send = async (
   }
 
   const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
-  let associationPayloads = createAssociationPayloads(fromRecordPayloads, 'associations')
-  associationPayloads = deDuplicateAssociations(associationPayloads)
+  const associationPayloads = deDuplicateAssociations(createAssociationPayloads(fromRecordPayloads, 'associations'))
   const associatedRecords = await sendAssociatedRecords(
     client,
     associationPayloads,
