@@ -1,4 +1,9 @@
-import { mergeAndDeduplicateById, validate, ensureValidTimestamps } from '../functions/validation-functions'
+import {
+  mergeAndDeduplicateById,
+  validate,
+  ensureValidTimestamps,
+  deDuplicateAssociations
+} from '../functions/validation-functions'
 import { Payload } from '../generated-types'
 
 const payload: Payload = {
@@ -226,5 +231,82 @@ describe('ensureValidTimestamps', () => {
     const result = ensureValidTimestamps(payloads, rawData)
     const ts = Date.parse(result[0].timestamp as string)
     expect(ts).not.toBeNaN()
+  })
+})
+
+describe('deDuplicateAssociations', () => {
+  const createAssociationPayload = (id: string) => ({
+    object_details: {
+      object_type: 'contact',
+      id_field_name: 'email',
+      id_field_value: id,
+      from_record_id: 'from-123'
+    },
+    association_details: {
+      association_label: 'HUBSPOT_DEFINED:primary'
+    }
+  })
+
+  it('returns empty array when association groups is empty', () => {
+    expect(deDuplicateAssociations([])).toEqual([])
+  })
+
+  it('returns the same array when associations are unique within groups', () => {
+    const associationGroup1 = [createAssociationPayload('a@example.com'), createAssociationPayload('b@example.com')]
+    const associationGroup2 = [createAssociationPayload('c@example.com'), createAssociationPayload('d@example.com')]
+
+    const result = deDuplicateAssociations([associationGroup1, associationGroup2])
+    expect(result).toHaveLength(2)
+    expect(result[0]).toHaveLength(2)
+    expect(result[1]).toHaveLength(2)
+  })
+
+  it('removes duplicate associations within each group', () => {
+    const assocPayload = createAssociationPayload('a@example.com')
+    const duplicateGroup = [assocPayload, { ...assocPayload }, { ...assocPayload }]
+
+    const result = deDuplicateAssociations([duplicateGroup])
+    expect(result).toHaveLength(1)
+    expect(result[0]).toHaveLength(1)
+    expect(result[0][0]).toEqual(assocPayload)
+  })
+
+  it('keeps the last occurrence of a duplicate association within a group', () => {
+    const assoc1 = createAssociationPayload('a@example.com')
+    const assoc2 = {
+      ...createAssociationPayload('a@example.com'),
+      object_details: {
+        ...createAssociationPayload('a@example.com').object_details,
+        extra: 'last'
+      }
+    }
+
+    const associationGroup = [assoc1, assoc2]
+
+    const result = deDuplicateAssociations([associationGroup])
+    expect(result).toHaveLength(1)
+    expect(result[0]).toHaveLength(1)
+    expect(result[0][0]).toEqual(assoc2)
+  })
+
+  it('handles multiple groups with different duplicates', () => {
+    const group1 = [
+      createAssociationPayload('a@example.com'),
+      createAssociationPayload('a@example.com') // duplicate
+    ]
+
+    const group2 = [
+      createAssociationPayload('b@example.com'),
+      createAssociationPayload('c@example.com'),
+      createAssociationPayload('c@example.com') // duplicate
+    ]
+
+    const result = deDuplicateAssociations([group1, group2])
+    expect(result).toHaveLength(2)
+    expect(result[0]).toHaveLength(1) // deduped to 1
+    expect(result[0][0].object_details).toBe(group1[1].object_details)
+    expect(result[1]).toHaveLength(2) // deduped to 2
+    expect(result[1][0].object_details).toBe(group2[0].object_details)
+    expect(result[1][1].object_details).toBe(group2[2].object_details)
   })
 })
