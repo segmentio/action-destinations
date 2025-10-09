@@ -125,7 +125,7 @@ describe('.getConversionActionId', () => {
       }
     }
     nock(`https://googleads.googleapis.com`)
-      .post(`/v19/customers/${settings.customerId}/googleAds:searchStream`)
+      .post(`/v21/customers/${settings.customerId}/googleAds:searchStream`)
       .reply(401, errorResponse)
 
     const payload = {}
