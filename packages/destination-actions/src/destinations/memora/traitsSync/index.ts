@@ -59,6 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, settings }) => {
+    console.log('perform called')
     const serviceId = settings.serviceId
     if (!serviceId) {
       throw new IntegrationError('Service ID is required', 'MISSING_REQUIRED_FIELD', 400)
@@ -75,20 +76,19 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!traitsPayload.traits.Contact || Object.keys(traitsPayload.traits.Contact).length === 0) {
       throw new IntegrationError('Contact information must be provided', 'EMPTY_CONTACT', 400)
     }
-    return console.log('traitsPayload', traitsPayload)
     try {
-      const response = await request(`https://api.memora.com/Services/${serviceId}/Profiles/${payload.profileId}`, {
+      const response = await request(`http://localhost:80/v1/Services/${serviceId}/Profiles/${payload.profileId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${settings.authToken}`,
+          Authorization: `Bearer ${settings.api_key}`,
           ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
         },
         json: traitsPayload
       })
 
       // API returns 202 for successful trait patch acceptance
-      if (response.status !== 202) {
+      if (response.status !== 201) {
         throw new IntegrationError(`Unexpected response status: ${response.status}`, 'API_ERROR', response.status)
       }
 
