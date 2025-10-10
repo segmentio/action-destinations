@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.timestamp' }
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload }) => {
     if (!payload.groupId) {
       throw new IntegrationError('Group ID is required', 'Missing required field', 400)
     }
@@ -45,9 +45,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
     return request(`https://panel-api.survicate.com/integrations-api/endpoint/segment/group`, {
       method: 'post',
-      headers: {
-        Authorization: `Bearer ${settings.apiKey}`
-      },
       json: {
         groupId: payload.groupId,
         traits: groupTraits,

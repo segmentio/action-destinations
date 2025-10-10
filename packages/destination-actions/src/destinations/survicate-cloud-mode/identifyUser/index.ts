@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload }) => {
     const { traits, anonymousId, userId, timestamp } = payload
 
     if (!userId && !anonymousId) {
@@ -60,9 +60,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
     return request(`https://panel-api.survicate.com/integrations-api/endpoint/segment/identify`, {
       method: 'post',
-      headers: {
-        Authorization: `Bearer ${settings.apiKey}`
-      },
       json: {
         ...(anonymousId !== undefined && { anonymousId }),
         ...(userId !== undefined && { userId }),
