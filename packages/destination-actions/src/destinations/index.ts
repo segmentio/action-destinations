@@ -208,11 +208,13 @@ register('6870f42bdaad87a11d764e91', './eagleeye-audiences')
 register('6874c64e5eda096bf3850ee0', './aampe')
 register('6880c39343b2271b41970fd9', './epsilon')
 register('6888c9ea14d648263fff811d', './clay')
-register('688b65709774ffcb4af8a03b', './bing-ads-audiences')
 register('6891fb45c0068b7fad1e80a5', './batch')
 register('6891e1a284d96219f601647b', './sftp')
 register('689b6590095a4d2957bc50ca', './yonoma')
 register('68b6ddcd033b3f6d006d8e1f', './taguchi')
+register('68bff47aa7bba4dd200b450a', './ms-bing-ads-audiences')
+register('68b82be249b48bae343517c7', './ms-bing-capi')
+register('68c960b951beba1bccaeab02', './vibe-audience')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

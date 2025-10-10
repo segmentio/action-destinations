@@ -114,7 +114,7 @@ export interface ActionDefinition<
     [K in keyof Payload]?: IsArray<Payload[K]> extends never
       ? Payload[K] extends object | undefined
         ? {
-            [ObjectProperty in keyof Payload[K] | '__keys__' | '__values__']?: RequestFn<
+            [ObjectProperty in keyof NonNullable<Payload[K]> | '__keys__' | '__values__']?: RequestFn<
               Settings,
               Payload,
               DynamicFieldResponse,
@@ -124,7 +124,7 @@ export interface ActionDefinition<
         : RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
       : IsArray<Payload[K]> extends object
       ? {
-          [ObjectProperty in keyof IsArray<Payload[K]> | '__keys__' | '__values__']?: RequestFn<
+          [ObjectProperty in keyof NonNullable<IsArray<Payload[K]>> | '__keys__' | '__values__']?: RequestFn<
             Settings,
             Payload,
             DynamicFieldResponse,

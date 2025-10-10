@@ -14,11 +14,9 @@ const settings: Settings = {
 }
 
 const validPayload = {
-  timestamp: '2024-01-08T13:52:50.212Z',
   type: 'identify',
   userId: 'user_id',
   anonymousId: 'anonymous_id',
-  messageId: 'message_id',
   traits: {
     first_name: 'John',
     last_name: 'Smith'

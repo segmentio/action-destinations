@@ -21,7 +21,7 @@ const destination: DestinationDefinition<Settings> = {
       api_key: {
         label: 'Api Key',
         description: 'Your Moengage API Key',
-        type: 'string',
+        type: 'password',
         required: true
       },
       region: {
