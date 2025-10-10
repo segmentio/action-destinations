@@ -56,25 +56,24 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Build traits payload from contact information
     const traitsPayload = buildMemoraProfilePayload(payload)
-    return console.log('payload', traitsPayload)
     // Validate that the profile has meaningful data
     if (!traitsPayload.traits || Object.keys(traitsPayload.traits).length === 0) {
       throw new IntegrationError('Profile must contain at least one trait', 'EMPTY_PROFILE', 400)
     }
 
     try {
-      const response = await request(`https://api.memora.com/Services/${serviceId}/Profiles`, {
+      const response = await request(`http://localhost:80/v1/Services/${serviceId}/Profiles`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${settings.authToken}`,
+          Authorization: `Bearer ${settings.api_key}`,
           ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
         },
         json: traitsPayload
       })
 
       // API returns 202 for successful profile resolution and processing
-      if (response.status !== 202) {
+      if (response.status !== 201) {
         throw new IntegrationError(`Unexpected response status: ${response.status}`, 'API_ERROR', response.status)
       }
 
