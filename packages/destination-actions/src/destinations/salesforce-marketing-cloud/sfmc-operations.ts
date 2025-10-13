@@ -686,24 +686,6 @@ export const getCategories = async (request: RequestClient, settings: Settings):
 }
 
 /**
- * Interface for async operation response
- */
-interface AsyncOperationResponse {
-  operationId: string
-  status: string
-  message?: string
-}
-
-/**
- * Interface for SFMC async operation response
- */
-interface SFMCAsyncResponse {
-  operationId?: string
-  requestId?: string
-  status?: string
-}
-
-/**
  * Interface for SFMC async operation status
  */
 interface SFMCAsyncStatus {
@@ -735,7 +717,7 @@ export async function insertRowsAsync(
   payloads: payload_contactDataExtension[],
   dataExtensionId: string,
   settings: Settings
-): Promise<AsyncOperationResponse> {
+): Promise<Response> {
   const { accessToken } = await getAccessToken(request, settings)
 
   // Prepare the rows data
@@ -749,7 +731,7 @@ export async function insertRowsAsync(
   }
 
   try {
-    const response = await request<SFMCAsyncResponse>(
+    return await request(
       `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/dataextensions/${dataExtensionId}/rows`,
       {
         method: 'POST',
@@ -760,13 +742,6 @@ export async function insertRowsAsync(
         json: requestBody
       }
     )
-
-    const responseData = response.data
-    return {
-      operationId: responseData.operationId || responseData.requestId || 'unknown',
-      status: 'started',
-      message: 'Async operation initiated successfully'
-    }
   } catch (error) {
     const err = error as ErrorResponse
 

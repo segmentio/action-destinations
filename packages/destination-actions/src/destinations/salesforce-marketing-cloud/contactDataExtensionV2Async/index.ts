@@ -87,15 +87,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Data Extension ID is required', 'INVALID_CONFIGURATION', 400)
     }
 
-    const asyncResponse = await insertRowsAsync(request, settings.subdomain, payload, dataExtensionId, settings)
-
-    // Return an AsyncActionResponseType indicating this is an async operation
-    return {
-      isAsync: true,
-      message: `Async operation started with ID: ${asyncResponse.operationId}`,
-      status: 202,
-      operationId: asyncResponse.operationId
-    }
+    return await insertRowsAsync(request, settings.subdomain, payload, dataExtensionId, settings)
   }
 }
 
