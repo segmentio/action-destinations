@@ -60,23 +60,17 @@ export async function getExternalKey(
   if (!dataExtensionId) {
     return Promise.resolve(null)
   }
-  try {
-    const url = `https://${settings.subdomain}.rest.marketingcloudapis.com/data/v1/customobjects/${dataExtensionId}`
-    const response = await request<{ key?: string }>(url, {
-      method: 'GET'
-    })
-    if (response.status === 200) {
-      const responseData = response.data
-      if (responseData && responseData.key) {
-        return responseData.key
-      }
+  const url = `https://${settings.subdomain}.rest.marketingcloudapis.com/data/v1/customobjects/${dataExtensionId}`
+  const response = await request<{ key?: string }>(url, {
+    method: 'GET'
+  })
+  if (response.status === 200) {
+    const responseData = response.data
+    if (responseData && responseData.key) {
+      return responseData.key
     }
-    // If we can't get the key from the API, fallback to using the dataExtensionId
-    return dataExtensionId
-  } catch (error) {
-    // If the API call fails, fallback to using the dataExtensionId
-    return dataExtensionId
   }
+  return null
 }
 
 export async function asyncInsertRowsV2(
