@@ -1,4 +1,4 @@
-import { stringifyJsonWithEscapedQuotes } from '../functions'
+import { stringifyJsonWithEscapedQuotes, stringifyMappingSchemaForGraphQL } from '../common-functions'
 
 describe('stringifyJsonWithEscapedQuotes', () => {
   it('should escape quotes in a simple object', () => {
@@ -38,35 +38,96 @@ describe('stringifyJsonWithEscapedQuotes', () => {
     expect(stringifyJsonWithEscapedQuotes(null)).toBe('null')
   })
 
-  describe('type field transformation', () => {
-    it('should transform type field to uppercase without quotes', () => {
-      const input = { type: 'string' }
-      const expected = '{\\"type\\":STRING}'
-      expect(stringifyJsonWithEscapedQuotes(input)).toBe(expected)
-    })
+})
 
-    it('should transform type field when it\'s already uppercase', () => {
-      const input = { type: 'STRING' }
-      const expected = '{\\"type\\":STRING}'
-      expect(stringifyJsonWithEscapedQuotes(input)).toBe(expected)
-    })
+describe('stringifyMappingSchemaForGraphQL', () => {
+  it('should transform simple mapping object for GraphQL', () => {
+    const input = {
+      incomingKey: 'userId',
+      destinationKey: 'external_id',
+      label: 'User Id',
+      type: 'STRING',
+      isPii: false
+    }
+    const expected = '{incomingKey:"userId",destinationKey:"external_id",label:"User Id",type:STRING,isPii:false}'
+    expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
+  })
 
-    it('should transform type field in nested objects', () => {
-      const input = { data: { type: 'string' } }
-      const expected = '{\\"data\\":{\\"type\\":STRING}}'
-      expect(stringifyJsonWithEscapedQuotes(input)).toBe(expected)
-    })
+  it('should transform type field to uppercase and unquoted', () => {
+    const input = { type: 'string' }
+    const expected = '{type:STRING}'
+    expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
+  })
 
-    it('should transform type fields in an array of objects', () => {
-      const input = {
-        mappings: [
-          { type: 'string', field: 'name' },
-          { type: 'number', field: 'age' },
-          { type: 'boolean', field: 'active' }
-        ]
+  it('should transform type field when it\'s already uppercase', () => {
+    const input = { type: 'STRING' }
+    const expected = '{type:STRING}'
+    expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
+  })
+
+  it('should handle array of mapping objects', () => {
+    const input = [
+      {
+        incomingKey: 'userId',
+        destinationKey: 'external_id',
+        type: 'STRING',
+        isPii: false,
+        label: 'External Profile ID'
+      },
+      {
+        incomingKey: 'email',
+        destinationKey: 'email',
+        type: 'string',
+        isPii: true,
+        label: 'Email Address'
       }
-      const expected = '{\\"mappings\\":[{\\"type\\":STRING,\\"field\\":\\"name\\"},{\\"type\\":NUMBER,\\"field\\":\\"age\\"},{\\"type\\":BOOLEAN,\\"field\\":\\"active\\"}]}'
-      expect(stringifyJsonWithEscapedQuotes(input)).toBe(expected)
-    })
+    ]
+    const expected = '[{incomingKey:"userId",destinationKey:"external_id",type:STRING,isPii:false,label:"External Profile ID"},{incomingKey:"email",destinationKey:"email",type:STRING,isPii:true,label:"Email Address"}]'
+    expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
+  })
+
+  it('should handle different type values', () => {
+    const input = {
+      mappings: [
+        { type: 'string', field: 'name' },
+        { type: 'number', field: 'age' },
+        { type: 'boolean', field: 'active' }
+      ]
+    }
+    const expected = '{mappings:[{type:STRING,field:"name"},{type:NUMBER,field:"age"},{type:BOOLEAN,field:"active"}]}'
+    expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
+  })
+
+  it('should unquote all object keys for GraphQL syntax', () => {
+    const input = {
+      incomingKey: 'test',
+      destinationKey: 'test_field',
+      customProperty: 'value',
+      type: 'string'
+    }
+    const expected = '{incomingKey:"test",destinationKey:"test_field",customProperty:"value",type:STRING}'
+    expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
+  })
+
+  it('should preserve string values with quotes', () => {
+    const input = {
+      label: 'User Name with "quotes"',
+      description: 'Field description',
+      type: 'string'
+    }
+    const expected = '{label:"User Name with \\"quotes\\"",description:"Field description",type:STRING}'
+    expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
+  })
+
+  it('should handle nested objects', () => {
+    const input = {
+      field: {
+        incomingKey: 'nested',
+        type: 'string'
+      },
+      type: 'object'
+    }
+    const expected = '{field:{incomingKey:"nested",type:STRING},type:OBJECT}'
+    expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
   })
 }) 

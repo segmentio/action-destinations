@@ -22,7 +22,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       client_secret: {
         label: 'Client Secret',
         description: "The client's secret from your Taboola account.",
-        type: 'string',
+        type: 'password',
         required: true
       },
       audience_identifier: {
@@ -153,6 +153,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(syncAudience.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
     },
     {
       name: 'Journeys Step Entered',

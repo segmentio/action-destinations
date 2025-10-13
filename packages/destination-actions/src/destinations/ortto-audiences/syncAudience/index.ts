@@ -48,6 +48,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Message ID',
       type: 'string',
       readOnly: true,
+      required: false,
+      unsafe_hidden: true,
       default: {
         '@path': '$.messageId'
       }

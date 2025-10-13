@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Column write to the S3 CSV file.
+   * Column to write to the S3 CSV file.
    */
   columns: {
     /**

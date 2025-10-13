@@ -113,7 +113,7 @@ export interface ActionDefinition<
     [K in keyof Payload]?: IsArray<Payload[K]> extends never
       ? Payload[K] extends object | undefined
         ? {
-            [ObjectProperty in keyof Payload[K] | '__keys__' | '__values__']?: RequestFn<
+            [ObjectProperty in keyof NonNullable<Payload[K]> | '__keys__' | '__values__']?: RequestFn<
               Settings,
               Payload,
               DynamicFieldResponse,
@@ -123,7 +123,7 @@ export interface ActionDefinition<
         : RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
       : IsArray<Payload[K]> extends object
       ? {
-          [ObjectProperty in keyof IsArray<Payload[K]> | '__keys__' | '__values__']?: RequestFn<
+          [ObjectProperty in keyof NonNullable<IsArray<Payload[K]>> | '__keys__' | '__values__']?: RequestFn<
             Settings,
             Payload,
             DynamicFieldResponse,
@@ -318,7 +318,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     const results: Result[] = []
 
     // Resolve/transform the mapping with the input data
-    let payload = transform(bundle.mapping, bundle.data) as Payload
+    let payload = transform(bundle.mapping, bundle.data, bundle.statsContext) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
@@ -387,7 +387,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     const mapping: JSONObject = bundle.mapping
 
-    let payloads = transformBatch(mapping, bundle.data) as Payload[]
+    let payloads = transformBatch(mapping, bundle.data, bundle.statsContext) as Payload[]
     const batchPayloadLength = payloads.length
 
     const multiStatusResponse: ResultMultiStatusNode[] = []

@@ -1,4 +1,4 @@
-import { isAWSError } from '../client'
+import { isAWSError } from '../syncToS3/client'
 import { _Error as AWSError } from '@aws-sdk/client-s3'
 
 describe('isAWSError', () => {

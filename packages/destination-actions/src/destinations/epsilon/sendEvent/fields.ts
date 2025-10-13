@@ -414,6 +414,14 @@ export const deviceType: InputField = {
   default: { '@path': '$.context.device.type' }
 }
 
+export const customProperties: InputField = {
+  label: 'Custom Properties',
+  description: 'Add custom properties to the event.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  required: false
+}
+
 export const standardFields = {
   id,
   appId,

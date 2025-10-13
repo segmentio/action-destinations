@@ -29,4 +29,16 @@ export interface Payload {
    * The key for the message (optional)
    */
   key?: string
+  /**
+   * If true, Segment will batch events before sending to Kafka.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
+  /**
+   * The keys to use for batching the events.
+   */
+  batch_keys?: string[]
 }

@@ -1,4 +1,5 @@
 import { Liquid } from 'liquidjs'
+import { StatsContext } from '../destination-kit'
 
 const liquidEngine = new Liquid({
   renderLimit: 500, // 500 ms
@@ -6,7 +7,7 @@ const liquidEngine = new Liquid({
   memoryLimit: 1e8 // 100 MB memory
 })
 
-const disabledTags = ['case', 'for', 'include', 'layout', 'render', 'tablerow']
+const disabledTags = ['case', 'include', 'layout', 'render', 'tablerow']
 
 const disabledFilters = [
   'array_to_sentence_string',
@@ -19,7 +20,6 @@ const disabledFilters = [
   'group_by_exp',
   'has',
   'has_exp',
-  'map',
   'newline_to_br',
   'reject',
   'reject_exp',
@@ -58,7 +58,7 @@ export function getLiquidKeys(liquidValue: string): string[] {
   return liquidEngine.fullVariablesSync(liquidValue)
 }
 
-export function evaluateLiquid(liquidValue: any, event: any): string {
+export function evaluateLiquid(liquidValue: any, event: any, statsContext?: StatsContext | undefined): string {
   if (typeof liquidValue !== 'string') {
     // type checking of @liquid directive is done in validate.ts as well
     throw new Error('liquid template value must be a string')
@@ -72,7 +72,22 @@ export function evaluateLiquid(liquidValue: any, event: any): string {
     throw new Error('liquid template values are limited to 1000 characters')
   }
 
-  const res = liquidEngine.parseAndRenderSync(liquidValue, event)
+  let res: string
+  const start = Date.now()
+  let status: 'success' | 'fail' = 'success'
+
+  try {
+    res = liquidEngine.parseAndRenderSync(liquidValue, event)
+  } catch (e) {
+    status = 'fail'
+    throw e
+  } finally {
+    const duration = Date.now() - start
+    statsContext?.statsClient?.histogram('liquid.template.evaluation_ms', duration, [
+      ...statsContext.tags,
+      `result:${status}`
+    ])
+  }
 
   if (typeof res !== 'string') {
     return 'error'

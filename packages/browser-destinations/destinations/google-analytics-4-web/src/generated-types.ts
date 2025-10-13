@@ -65,4 +65,8 @@ export interface Settings {
    * Set to false to prevent the default snippet from sending page views. Enabled by default.
    */
   pageView?: boolean
+  /**
+   * A custom domain to load the Google Analytics script from.
+   */
+  domain?: string
 }

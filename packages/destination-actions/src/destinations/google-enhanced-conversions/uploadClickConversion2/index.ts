@@ -62,6 +62,12 @@ const action: ActionDefinition<Settings, Payload> = {
         'The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14.',
       type: 'string'
     },
+    session_attributes_encoded: {
+      label: 'Session Attributes (Encoded)',
+      description:
+        "A base64url-encoded JSON string containing session attributes collected from the user's browser. This provides additional attribution context if gclid, gbraid, or user identifiers are missing.",
+      type: 'string'
+    },
     conversion_timestamp: {
       label: 'Conversion Timestamp',
       description:
@@ -215,7 +221,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ad_user_data_consent_state: {
       label: 'Ad User Data Consent State',
       description:
-        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v19/Consent).',
+        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).',
       type: 'string',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
@@ -227,7 +233,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Ad Personalization Consent State',
       type: 'string',
       description:
-        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v19/Consent).',
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
@@ -287,6 +293,7 @@ const action: ActionDefinition<Settings, Payload> = {
         gclid: payload.gclid,
         gbraid: payload.gbraid,
         wbraid: payload.wbraid,
+        sessionAttributesEncoded: payload.session_attributes_encoded,
         orderId: payload.order_id,
         conversionValue: payload.value,
         currencyCode: payload.currency,
@@ -399,6 +406,7 @@ const action: ActionDefinition<Settings, Payload> = {
           gclid: payloadItem.gclid,
           gbraid: payloadItem.gbraid,
           wbraid: payloadItem.wbraid,
+          sessionAttributesEncoded: payloadItem.session_attributes_encoded,
           orderId: payloadItem.order_id,
           conversionValue: payloadItem.value,
           currencyCode: payloadItem.currency,

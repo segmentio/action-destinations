@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
 import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
-import { StatsContext } from '@segment/actions-core/destination-kit'
+import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
 
 export const producersByConfig: Record<string, CachedProducer> = {}
 
@@ -19,9 +19,6 @@ export const serializeKafkaConfig = (settings: Settings): string => {
     mechanism: settings.mechanism,
     username: settings.username,
     password: settings.password,
-    accessKeyId: settings.accessKeyId,
-    secretAccessKey: settings.secretAccessKey,
-    authorizationIdentity: settings.authorizationIdentity,
     ssl_ca: settings.ssl_ca,
     ssl_cert: settings.ssl_cert,
     ssl_key: settings.ssl_key,
@@ -64,13 +61,6 @@ const getKafka = (settings: Settings) => {
             password: settings.password,
             mechanism: settings.mechanism
           } as SASLOptions
-        case 'aws':
-          return {
-            accessKeyId: settings.accessKeyId,
-            secretAccessKey: settings.secretAccessKey,
-            authorizationIdentity: settings.authorizationIdentity,
-            mechanism: settings.mechanism
-          } as SASLOptions
         default:
           return undefined
       }
@@ -90,7 +80,10 @@ const getKafka = (settings: Settings) => {
         return settings.ssl_enabled
       }
       return undefined
-    })()
+    })(),
+    retry: {
+      retries: 0
+    }
   } as unknown as KafkaConfig
 
   try {
@@ -115,19 +108,20 @@ export const validate = (settings: Settings) => {
       400
     )
   }
-  if (['aws'].includes(settings.mechanism) && (!settings.accessKeyId || !settings.secretAccessKey)) {
-    throw new IntegrationError(
-      'AWS Access Key ID and AWS Secret Key are required for AWS authentication mechanism',
-      'SASL_AWS_PARAMS_MISSING',
-      400
-    )
-  }
   if (['client-cert-auth'].includes(settings.mechanism) && (!settings.ssl_key || !settings.ssl_cert)) {
     throw new IntegrationError(
       'SSL Client Key and SSL Client Certificate are required for Client Certificate authentication mechanism',
       'SSL_CLIENT_CERT_AUTH_PARAMS_MISSING',
       400
     )
+  }
+  const isValidBroker = settings.brokers
+    .split(',') // split comma separated brokers
+    .map((item) => item.trim()) // trim whitespace
+    .filter((item) => item.length > 0) // remove empty strings
+    .every(isValidHostPort) // validate each broker
+  if (!isValidBroker) {
+    throw new IntegrationError('Brokers must be in the format host:port', 'BROKER_FORMAT_INVALID', 400)
   }
 }
 
@@ -137,7 +131,10 @@ const getProducer = (settings: Settings) => {
   })
 }
 
-export const getOrCreateProducer = async (settings: Settings, statsContext: StatsContext | undefined): Promise<Producer> => {
+export const getOrCreateProducer = async (
+  settings: Settings,
+  statsContext: StatsContext | undefined
+): Promise<Producer> => {
   const key = serializeKafkaConfig(settings)
   const now = Date.now()
 
@@ -174,18 +171,47 @@ export const getOrCreateProducer = async (settings: Settings, statsContext: Stat
   return producer
 }
 
-export const sendData = async (settings: Settings, payload: Payload[], features: Features | undefined, statsContext: StatsContext | undefined) => {
+function getKafkaError(error: Error) {
+  const errorCause = (error as KafkaJSError)?.cause
+  if (errorCause) {
+    return errorCause
+  }
+  return error
+}
+
+export function isValidHostPort(brokerStr: string): boolean {
+  if (typeof brokerStr !== 'string') return false
+  const [host, port] = brokerStr.split(':')
+  if (!host || !port) return false
+  const portNum = Number(port)
+  return typeof host === 'string' && host.length > 0 && Number.isInteger(portNum) && portNum >= 0 && portNum <= 65535
+}
+
+export const sendData = async (
+  settings: Settings,
+  payload: Payload[],
+  features: Features | undefined,
+  statsContext: StatsContext | undefined,
+  logger: Logger | undefined
+) => {
   validate(settings)
 
   const groupedPayloads: { [topic: string]: Payload[] } = {}
+  const set = new Set<string>()
 
   payload.forEach((p) => {
-    const { topic } = p
+    const { topic, partition, default_partition } = p
     if (!groupedPayloads[topic]) {
       groupedPayloads[topic] = []
     }
     groupedPayloads[topic].push(p)
+    set.add(`${topic}-${partition}-${default_partition}`)
   })
+  if (statsContext) {
+    const { statsClient, tags } = statsContext
+    statsClient?.histogram('kafka.configurable_batch_keys.unique_keys', set.size, tags)
+    // Add stats to track batch keys for kafka
+  }
 
   const topicMessages: TopicMessages[] = Object.keys(groupedPayloads).map((topic) => ({
     topic,
@@ -202,31 +228,48 @@ export const sendData = async (settings: Settings, payload: Payload[], features:
   }))
 
   let producer: Producer
-  if (features && features[FLAGON_NAME]) {
-    producer = await getOrCreateProducer(settings, statsContext)
-  } else {
-    producer = getProducer(settings)
-    await producer.connect()
+  try {
+    if (features && features[FLAGON_NAME]) {
+      producer = await getOrCreateProducer(settings, statsContext)
+    } else {
+      producer = getProducer(settings)
+      await producer.connect()
+    }
+  } catch (error) {
+    if ((error as Error).name !== 'IntegrationError') {
+      const kafkaError = getKafkaError(error as Error)
+      logger?.crit(`Kafka Connection Error - ${kafkaError.name} | ${JSON.stringify(kafkaError)}`)
+      throw new IntegrationError(
+        `Kafka Connection Error - ${kafkaError.name}: ${kafkaError.message}`,
+        kafkaError.name,
+        500
+      )
+    } else {
+      logger?.crit(`Kafka Connection Error - ${error.name}: ${error as Error}`)
+      throw error
+    }
   }
 
   for (const data of topicMessages) {
     try {
       await producer.send(data as ProducerRecord)
     } catch (error) {
+      const kafkaError = getKafkaError(error as Error)
+      logger?.crit(`Kafka Send Error - ${kafkaError.name} | ${JSON.stringify(kafkaError)}`)
       throw new IntegrationError(
-        `Kafka Producer Error: ${(error as KafkaJSError).message}`,
-        'KAFKA_PRODUCER_ERROR',
-        400
+        `Kafka Producer Error - ${kafkaError.name}: ${kafkaError.message}`,
+        kafkaError.name,
+        500
       )
+    } finally {
+      if (features && features[FLAGON_NAME]) {
+        const key = serializeKafkaConfig(settings)
+        if (producersByConfig[key]) {
+          producersByConfig[key].lastUsed = Date.now()
+        }
+      } else {
+        await producer?.disconnect()
+      }
     }
-  }
-
-  if (features && features[FLAGON_NAME]) {
-    const key = serializeKafkaConfig(settings)
-    if (producersByConfig[key]) {
-      producersByConfig[key].lastUsed = Date.now()
-    }
-  } else {
-    await producer.disconnect()
   }
 }
