@@ -24,39 +24,39 @@ export async function send(request: RequestClient, payload: Payload[]) {
       const isAdd = Boolean(p.props[p.audienceKey])
       
       if (p.email) {
-        (isAdd ? acc.addEmail.payloads : acc.removeEmail.payloads).push(p)
+        (isAdd ? acc.addEmail.batchPayloads : acc.removeEmail.batchPayloads).push(p)
       }
       if (p.phone) {
-        (isAdd ? acc.addPhone.payloads : acc.removePhone.payloads).push(p)
+        (isAdd ? acc.addPhone.batchPayloads : acc.removePhone.batchPayloads).push(p)
       }
       if (p.advertising_id) {
-        (isAdd ? acc.addMAID.payloads : acc.removeMAID.payloads).push(p)
+        (isAdd ? acc.addMAID.batchPayloads : acc.removeMAID.batchPayloads).push(p)
       }
 
       return acc
     },
     {
-      addEmail: { payloads: [] as PayloadWithIndex[], operationType: { method: 'POST', type: SCHEMA_TYPES.EMAIL } as OperationType },
-      addPhone: { payloads: [] as PayloadWithIndex[], operationType: { method: 'POST', type: SCHEMA_TYPES.PHONE } as OperationType },
-      addMAID: { payloads: [] as PayloadWithIndex[], operationType: { method: 'POST', type: SCHEMA_TYPES.MAID } as OperationType },
-      removeEmail: { payloads: [] as PayloadWithIndex[], operationType: { method: 'DELETE', type: SCHEMA_TYPES.EMAIL } as OperationType },
-      removePhone: { payloads: [] as PayloadWithIndex[], operationType: { method: 'DELETE', type: SCHEMA_TYPES.PHONE } as OperationType },
-      removeMAID: { payloads: [] as PayloadWithIndex[], operationType: { method: 'DELETE', type: SCHEMA_TYPES.MAID } as OperationType },
+      addEmail: { opPayloads: [] as PayloadWithIndex[], operationType: { method: 'POST', type: SCHEMA_TYPES.EMAIL } as OperationType },
+      addPhone: { opPayloads: [] as PayloadWithIndex[], operationType: { method: 'POST', type: SCHEMA_TYPES.PHONE } as OperationType },
+      addMAID: { opPayloads: [] as PayloadWithIndex[], operationType: { method: 'POST', type: SCHEMA_TYPES.MAID } as OperationType },
+      removeEmail: { opPayloads: [] as PayloadWithIndex[], operationType: { method: 'DELETE', type: SCHEMA_TYPES.EMAIL } as OperationType },
+      removePhone: { opPayloads: [] as PayloadWithIndex[], operationType: { method: 'DELETE', type: SCHEMA_TYPES.PHONE } as OperationType },
+      removeMAID: { opPayloads: [] as PayloadWithIndex[], operationType: { method: 'DELETE', type: SCHEMA_TYPES.MAID } as OperationType },
     }
   )
 
   const url = `https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`
 
   await Promise.all(Object.entries(batches)
-    .filter(([, batch]) => batch.payloads.length > 0)
+    .filter(([, batch]) => batch.opPayloads.length > 0)
     .map(async ([, batch]) => {
       
-      const { payloads, operationType: { type, method } } = batch
-      const json = buildJSON(payloads, type)
+      const { opPayloads, operationType: { type, method } } = batch
+      const json = buildJSON(opPayloads, type)
       
       try {
         await request(url, { method, json })
-        payloads.forEach((p) => {
+        opPayloads.forEach((p) => {
           const existingResponse = multiStatusResponse.getResponseAtIndex(p.index).value()
           const status = existingResponse?.status
           if (status < 200 || status >= 300) {
@@ -71,7 +71,7 @@ export async function send(request: RequestClient, payload: Payload[]) {
         })
       } 
       catch (error) {
-        for (const p of payloads) {
+        for (const p of opPayloads) {
           multiStatusResponse.setErrorResponseAtIndex(p.index, {
             status: error?.response?.status || 400,
             errortype: 'BAD_REQUEST',
