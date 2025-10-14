@@ -87,7 +87,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Membership Duration Days',
       required: true,
       description:
-        'The duration in days that an entry remains in the audience after the qualifying event. If the audience has no expiration, set the value of this field to 10000. Otherwise, the set value must be greater than 0 and less than or equal to 540.'
+        'The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.'
     }
   },
 
