@@ -73,13 +73,13 @@ export interface Payload {
    */
   event_type: string
   /**
-   * When enabled, Segment will batch profiles together and send them to StackAdapt in a single request.
-   */
-  enable_batching: boolean
-  /**
    * In certain jurisdictions, explicit consent may be required to send email marketing communications to imported profiles. Consult independent counsel for further guidance.
    */
   marketing_status: string
+  /**
+   * When enabled, Segment will batch profiles together and send them to StackAdapt in a single request.
+   */
+  enable_batching: boolean
   /**
    * The properties of the user or event.
    */
