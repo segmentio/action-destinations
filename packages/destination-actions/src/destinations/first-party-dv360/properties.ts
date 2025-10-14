@@ -1,7 +1,5 @@
 import { InputField } from '@segment/actions-core/index'
 
-export const FLAGON_NAME_FIRST_PARTY_DV360_VERSION_UPDATE = 'actions-first-party-dv360-version-update'
-
 export const external_id: InputField = {
   label: 'External ID',
   description: 'The ID of the DV360 Audience.',
