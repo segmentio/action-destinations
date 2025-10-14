@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-devrev",
-  "version": "1.77.1-staging-f1cdf49fe.0",
+  "version": "1.77.1-staging-d59e18ff9.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,7 +15,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "1.89.1-staging-f1cdf49fe.0"
+    "@segment/browser-destination-runtime": "1.89.1-staging-d59e18ff9.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
