@@ -5,6 +5,11 @@ export interface PayloadWithIndex extends Payload {
   index: number
 }
 
+export interface OperationType {
+  method: 'POST' | 'DELETE'
+  type: SchemaType
+}
+
 export interface AddRemoveUsersJSON {
   users: [
     {

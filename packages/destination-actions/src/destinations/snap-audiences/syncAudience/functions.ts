@@ -1,16 +1,15 @@
 import type { Payload } from './generated-types'
 import { processHashing } from '../../../lib/hashing-utils'
 import { RequestClient, MultiStatusResponse } from '@segment/actions-core'
-import { PayloadWithIndex, AddRemoveUsersJSON, SchemaType } from './types'
+import { PayloadWithIndex, AddRemoveUsersJSON, SchemaType, OperationType } from './types'
 import { SCHEMA_TYPES } from './constants'
-
 
 export async function send(request: RequestClient, payload: Payload[]) {
   const payloads: PayloadWithIndex[] = payload.map((p, index) => ({ ...p, index }))
   const { external_audience_id } = payload[0]
   const multiStatusResponse = new MultiStatusResponse()
   
-  const grouped = payloads.reduce(
+  const batches = payloads.reduce(
     (acc, p) => {
       const hasValue = Boolean(p.email || p.phone || p.advertising_id)
       if (!hasValue) {
@@ -18,46 +17,73 @@ export async function send(request: RequestClient, payload: Payload[]) {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
           errormessage: 'One of "email" or "phone" or "Mobile Advertising ID" is required.'
-        });
+        })
         return acc
       }
 
       const isAdd = Boolean(p.props[p.audienceKey])
       
-      if (p.email) (isAdd ? acc.addEmail : acc.removeEmail).push(p)
-      if (p.phone) (isAdd ? acc.addPhone : acc.removePhone).push(p)
-      if (p.advertising_id) (isAdd ? acc.addMAID : acc.removeMAID).push(p)
+      if (p.email) {
+        (isAdd ? acc.addEmail.payloads : acc.removeEmail.payloads).push(p)
+      }
+      if (p.phone) {
+        (isAdd ? acc.addPhone.payloads : acc.removePhone.payloads).push(p)
+      }
+      if (p.advertising_id) {
+        (isAdd ? acc.addMAID.payloads : acc.removeMAID.payloads).push(p)
+      }
 
       return acc
     },
     {
-      addEmail: [] as PayloadWithIndex[],
-      addPhone: [] as PayloadWithIndex[],
-      addMAID: [] as PayloadWithIndex[],
-      removeEmail: [] as PayloadWithIndex[],
-      removePhone: [] as PayloadWithIndex[],
-      removeMAID: [] as PayloadWithIndex[],
+      addEmail: { payloads: [] as PayloadWithIndex[], operationType: { method: 'POST', type: SCHEMA_TYPES.EMAIL } as OperationType },
+      addPhone: { payloads: [] as PayloadWithIndex[], operationType: { method: 'POST', type: SCHEMA_TYPES.PHONE } as OperationType },
+      addMAID: { payloads: [] as PayloadWithIndex[], operationType: { method: 'POST', type: SCHEMA_TYPES.MAID } as OperationType },
+      removeEmail: { payloads: [] as PayloadWithIndex[], operationType: { method: 'DELETE', type: SCHEMA_TYPES.EMAIL } as OperationType },
+      removePhone: { payloads: [] as PayloadWithIndex[], operationType: { method: 'DELETE', type: SCHEMA_TYPES.PHONE } as OperationType },
+      removeMAID: { payloads: [] as PayloadWithIndex[], operationType: { method: 'DELETE', type: SCHEMA_TYPES.MAID } as OperationType },
     }
   )
 
   const url = `https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`
 
-  return await Promise.all([
-    sendRequest(request, grouped.addEmail, SCHEMA_TYPES.EMAIL, "POST", url),
-    sendRequest(request, grouped.addPhone, SCHEMA_TYPES.PHONE, "POST", url),
-    sendRequest(request, grouped.addMAID, SCHEMA_TYPES.MAID, "POST", url),
-    sendRequest(request, grouped.removeEmail, SCHEMA_TYPES.EMAIL, "DELETE", url),
-    sendRequest(request, grouped.removePhone, SCHEMA_TYPES.PHONE, "DELETE", url),
-    sendRequest(request, grouped.removeMAID, SCHEMA_TYPES.MAID, "DELETE", url)
-  ])
+  await Promise.all(Object.entries(batches)
+    .filter(([, batch]) => batch.payloads.length > 0)
+    .map(async ([, batch]) => {
+      
+      const { payloads, operationType: { type, method } } = batch
+      const json = buildJSON(payloads, type)
+      
+      try {
+        await request(url, { method, json })
+        payloads.forEach((p) => {
+          const existingResponse = multiStatusResponse.getResponseAtIndex(p.index).value()
+          const status = existingResponse?.status
+          if (status < 200 || status >= 300) {
+            // skip, as we already have an error for this payload
+            return
+          }
+          multiStatusResponse.setSuccessResponseAtIndex(p.index, {
+            status: 200,
+            sent: json.users[p.index],
+            body: JSON.stringify(p)
+          })
+        })
+      } 
+      catch (error) {
+        for (const p of payloads) {
+          multiStatusResponse.setErrorResponseAtIndex(p.index, {
+            status: error?.response?.status || 400,
+            errortype: 'BAD_REQUEST',
+            errormessage: error.message || 'Unknown error',
+            sent: json.users[p.index],
+            body: JSON.stringify(p)
+          })
+        }
+      }
+  }))
 
-}
-
-async function sendRequest(request: RequestClient, payloads: PayloadWithIndex[], type: SchemaType, method: "POST" | "DELETE", url: string) {
-  if (payloads.length === 0) return { skipped: true }
-
-  const json = buildJSON(payloads, type)
-  return await request(url, { method, json })
+  return multiStatusResponse
 }
 
 function buildJSON(payloads: PayloadWithIndex[], type: SchemaType): AddRemoveUsersJSON {
