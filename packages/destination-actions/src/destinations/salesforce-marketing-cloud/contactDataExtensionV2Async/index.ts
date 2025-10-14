@@ -102,7 +102,7 @@ const action: ActionDefinition<Settings, Payload, unknown, unknown, unknown, Pol
 
     // Start the async operation and get the HTTP response
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const response = await insertRowsAsync(request, settings.subdomain, payload, dataExtensionId, settings)
+    const response = await insertRowsAsync(request, settings.subdomain, payload, dataExtensionId)
 
     // Generate a unique operation ID for tracking
     // In a real implementation, this would come from the SFMC API response
@@ -128,7 +128,7 @@ const action: ActionDefinition<Settings, Payload, unknown, unknown, unknown, Pol
 
     // Poll the SFMC async operation status
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const pollResult = await pollAsyncOperation(request, settings.subdomain, operationId, settings)
+    const pollResult = await pollAsyncOperation(request, settings.subdomain, operationId)
 
     // Map SFMC status to framework status
     let status: 'pending' | 'completed' | 'failed'

@@ -715,11 +715,8 @@ export async function insertRowsAsync(
   request: RequestClient,
   subdomain: string,
   payloads: payload_contactDataExtension[],
-  dataExtensionId: string,
-  settings: Settings
+  dataExtensionId: string
 ): Promise<Response> {
-  const { accessToken } = await getAccessToken(request, settings)
-
   // Prepare the rows data
   const rows = generateRows(payloads)
 
@@ -736,7 +733,6 @@ export async function insertRowsAsync(
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
         json: requestBody
@@ -768,18 +764,14 @@ export async function insertRowsAsync(
 export async function pollAsyncOperation(
   request: RequestClient,
   subdomain: string,
-  operationId: string,
-  settings: Settings
+  operationId: string
 ): Promise<PollResponse> {
-  const { accessToken } = await getAccessToken(request, settings)
-
   try {
     const response = await request<SFMCAsyncStatus>(
       `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/operations/${operationId}`,
       {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         }
       }

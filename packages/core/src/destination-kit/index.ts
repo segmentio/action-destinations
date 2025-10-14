@@ -727,7 +727,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       mapping,
       subscriptionMetadata,
       settings,
-      auth,
       features,
       statsContext,
       logger,
@@ -746,13 +745,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     if (event.context?.personas) {
       audienceSettings = event.context?.personas?.audience_settings as AudienceSettings
     }
-
+    const authData = getAuthData(settings as JSONObject)
     return action.executePoll({
       mapping,
       data: event as unknown as InputData,
       settings,
       audienceSettings,
-      auth,
+      auth: authData,
       features,
       statsContext,
       logger,
