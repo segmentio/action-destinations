@@ -10,8 +10,8 @@ import {
 } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send Event asynchronously to Data Extension (V2)',
-  description: 'Upsert events as rows into a data extension asynchronously in Salesforce Marketing Cloud.',
+  title: 'Send Event asynchronously to Data Extension',
+  description: 'Insert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.',
   fields: {
     keys: { ...keys, required: true, dynamic: true },
     values: { ...values_dataExtensionFields, dynamic: true },
