@@ -83,6 +83,13 @@ export interface BaseActionDefinition {
    * The fields used to perform the action. These fields should match what the partner API expects.
    */
   fields: ActionFields
+
+  /**
+   * The fields used specifically for polling async operations. These are typically minimal fields
+   * containing only identifiers needed to check operation status (e.g., operationId).
+   * REQUIRED when defining a poll method - ensures security and performance by validating only essential polling data.
+   */
+  pollFields?: ActionFields
 }
 
 type HookValueTypes = string | boolean | number | Array<string | boolean | number>
@@ -104,7 +111,9 @@ export interface ActionDefinition<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   GeneratedActionHookInputs = any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  GeneratedActionHookOutputs = any
+  GeneratedActionHookOutputs = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  PollPayload = any
 > extends BaseActionDefinition {
   /**
    * A way to "register" dynamic fields.
@@ -141,7 +150,7 @@ export interface ActionDefinition<
   performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings>
 
   /** The operation to poll the status of async operation(s) - handles both single and batch operations */
-  poll?: RequestFn<Settings, Payload, AsyncPollResponseType, AudienceSettings>
+  poll?: RequestFn<Settings, PollPayload, AsyncPollResponseType, AudienceSettings>
 
   /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
    * destination using the provided inputs and return a response. The response may then optionally be stored
@@ -257,10 +266,16 @@ const isSyncMode = (value: unknown): value is SyncMode => {
  * Action is the beginning step for all partner actions. Entrypoints always start with the
  * MapAndValidateInput step.
  */
-export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings = any> extends EventEmitter {
-  readonly definition: ActionDefinition<Settings, Payload, AudienceSettings>
+export class Action<
+  Settings,
+  Payload extends JSONLikeObject,
+  AudienceSettings = any,
+  PollPayload = unknown
+> extends EventEmitter {
+  readonly definition: ActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown, PollPayload>
   readonly destinationName: string
   readonly schema?: JSONSchema4
+  readonly pollSchema?: JSONSchema4
   readonly hookSchemas?: Record<string, JSONSchema4>
   readonly hasBatchSupport: boolean
   readonly hasHookSupport: boolean
@@ -271,7 +286,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
   constructor(
     destinationName: string,
-    definition: ActionDefinition<Settings, Payload, AudienceSettings>,
+    definition: ActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown, PollPayload>,
     // Payloads may be any type so we use `any` explicitly here.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extendRequest?: RequestExtension<Settings, any>
@@ -286,6 +301,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
       this.schema = fieldsToJsonSchema(definition.fields)
+    }
+
+    // Generate json schema for poll fields if they exist
+    if (Object.keys(definition.pollFields ?? {}).length) {
+      this.pollSchema = fieldsToJsonSchema(definition.pollFields)
     }
     // Generate a json schema for each defined hook based on the field definitions
     if (definition.hooks) {
@@ -599,16 +619,32 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       throw new IntegrationError('This action does not support polling operations.', 'NotImplemented', 501)
     }
 
-    // Note: Polling operations typically use data from stateContext rather than transforming the event payload
-    // Since we're checking the status of async operations, not processing new event data
-    const payload = {} as Payload
+    // For polling operations, use the input data directly as it should already contain
+    // the structured poll payload (e.g., { operationId: "abc-123" })
+    const payload = bundle.data as PollPayload
+
+    // Remove empty values and validate using poll schema (required for polling operations)
+    if (!this.pollSchema) {
+      throw new IntegrationError('Poll fields must be defined for polling operations.', 'NotImplemented', 501)
+    }
+    const validationSchema = this.pollSchema
+    // Cast to PollPayload as the removeEmptyValues pipeline produces a valid poll payload
+    // This represents the PollPayload type defined in the ActionDefinition (e.g., { operationId: string })
+    const pollPayload = removeEmptyValues(payload, validationSchema, true) as PollPayload
+    // Validate the resolved payload against the poll schema
+    const schemaKey = `${this.destinationName}:${this.definition.title}:poll`
+    validateSchema(pollPayload, validationSchema, {
+      schemaKey,
+      statsContext: bundle.statsContext,
+      exempt: ['dynamicAuthSettings']
+    })
 
     // Construct the data bundle to send to the poll action
     const dataBundle = {
       rawData: bundle.data,
       rawMapping: bundle.mapping,
       settings: bundle.settings,
-      payload,
+      payload: pollPayload,
       auth: bundle.auth,
       features: bundle.features,
       statsContext: bundle.statsContext,
@@ -623,7 +659,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     // Construct the request client and perform the poll operation
     const requestClient = this.createRequestClient(dataBundle)
-    const pollResponse = await this.definition.poll!(requestClient, dataBundle)
+    if (!this.definition.poll) {
+      throw new IntegrationError('Poll method is not defined.', 'NotImplemented', 501)
+    }
+    const pollResponse = await this.definition.poll(requestClient, dataBundle)
 
     return pollResponse
   }

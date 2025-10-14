@@ -1,10 +1,15 @@
-import { IntegrationError, ActionDefinition } from '@segment/actions-core'
+import { IntegrationError, ActionDefinition, JSONLikeObject } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { keys, enable_batching, batch_size, values_contactFields, dataExtensionHook } from '../sfmc-properties'
-import { getDataExtensionFields, insertRowsAsync } from '../sfmc-operations'
+import { getDataExtensionFields, insertRowsAsync, pollAsyncOperation } from '../sfmc-operations'
 
-const action: ActionDefinition<Settings, Payload> = {
+// Define the minimal payload type for polling operations
+interface PollPayload {
+  operationId: string
+}
+
+const action: ActionDefinition<Settings, Payload, unknown, unknown, unknown, PollPayload> = {
   title: 'Send Contact to Data Extension (V2 Async)',
   defaultSubscription: 'type = "identify"',
   description:
@@ -58,6 +63,14 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
+  pollFields: {
+    operationId: {
+      label: 'Operation ID',
+      description: 'The unique identifier for the async operation to poll',
+      type: 'string',
+      required: true
+    }
+  },
   hooks: {
     retlOnMappingSave: {
       ...dataExtensionHook
@@ -76,7 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
     )
   },
 
-  performBatch: async (request, { settings, payload, hookOutputs }) => {
+  performBatch: async (request, { settings, payload, hookOutputs, stateContext }) => {
     console.log('async called')
     const dataExtensionId: string =
       hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id
@@ -87,7 +100,71 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Data Extension ID is required', 'INVALID_CONFIGURATION', 400)
     }
 
-    return await insertRowsAsync(request, settings.subdomain, payload, dataExtensionId, settings)
+    // Start the async operation and get the HTTP response
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    const response = await insertRowsAsync(request, settings.subdomain, payload, dataExtensionId, settings)
+
+    // Generate a unique operation ID for tracking
+    // In a real implementation, this would come from the SFMC API response
+    const operationId = `sfmc-async-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+
+    if (stateContext) {
+      stateContext.setResponseContext('operationId', String(operationId), {})
+      stateContext.setResponseContext('dataExtensionId', dataExtensionId, {})
+    }
+
+    // Return the HTTP response as before
+    return response
+  },
+
+  poll: async (request, { payload, settings }) => {
+    console.log('async poll called')
+    // Get the operation ID from the payload
+    const operationId = payload.operationId
+
+    if (!operationId) {
+      throw new IntegrationError('Operation ID not found in payload', 'INVALID_REQUEST', 400)
+    }
+
+    // Poll the SFMC async operation status
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    const pollResult = await pollAsyncOperation(request, settings.subdomain, operationId, settings)
+
+    // Map SFMC status to framework status
+    let status: 'pending' | 'completed' | 'failed'
+    switch (pollResult.status) {
+      case 'Complete':
+        status = 'completed'
+        break
+      case 'Failed':
+      case 'Error':
+        status = 'failed'
+        break
+      case 'InProcess':
+      case 'Queued':
+      default:
+        status = 'pending'
+        break
+    }
+
+    const results = pollResult.results || {}
+    const context: JSONLikeObject = {
+      operationId: pollResult.operationId,
+      completedAt: pollResult.completedAt
+    }
+
+    return {
+      results: [
+        {
+          status: status,
+          message: pollResult.errorMessage || `Operation ${operationId} is ${pollResult.status}`,
+          result: results as JSONLikeObject,
+          context: context
+        }
+      ],
+      overallStatus: status,
+      message: pollResult.errorMessage || `Async operation ${status}`
+    }
   }
 }
 
