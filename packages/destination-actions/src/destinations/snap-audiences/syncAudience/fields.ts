@@ -61,6 +61,8 @@ export const fields: Record<string, InputField> = {
     label: 'Enable Batching',
     description: 'When enabled, events will be batched before being sent to Snap.',
     type: 'boolean',
+    readOnly: true,
+    unsafe_hidden: true,
     required: true,
     default: true
   },
@@ -69,6 +71,8 @@ export const fields: Record<string, InputField> = {
     description: 'Maximum number of API calls to include in a batch. Defaults to 100,000 which is the maximum allowed by Snap.',
     type: 'number',
     required: true,
+    readOnly: true,
+    unsafe_hidden: true,
     minimum: 1,
     maximum: 100_000,
     default: 100_000

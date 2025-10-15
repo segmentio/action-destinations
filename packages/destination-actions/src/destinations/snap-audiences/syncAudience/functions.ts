@@ -8,7 +8,6 @@ export async function send(request: RequestClient, payload: Payload[]) {
   const payloads: PayloadWithIndex[] = payload.map((p, index) => ({ ...p, index }))
   const { external_audience_id } = payload[0]
   const multiStatusResponse = new MultiStatusResponse()
-  
   const batches = payloads.reduce(
     (acc, p) => {
       const hasValue = Boolean(p.email || p.phone || p.advertising_id)
@@ -24,13 +23,13 @@ export async function send(request: RequestClient, payload: Payload[]) {
       const isAdd = Boolean(p.props[p.audienceKey])
       
       if (p.email) {
-        (isAdd ? acc.addEmail.batchPayloads : acc.removeEmail.batchPayloads).push(p)
+        (isAdd ? acc.addEmail.opPayloads : acc.removeEmail.opPayloads).push(p)
       }
       if (p.phone) {
-        (isAdd ? acc.addPhone.batchPayloads : acc.removePhone.batchPayloads).push(p)
+        (isAdd ? acc.addPhone.opPayloads : acc.removePhone.opPayloads).push(p)
       }
       if (p.advertising_id) {
-        (isAdd ? acc.addMAID.batchPayloads : acc.removeMAID.batchPayloads).push(p)
+        (isAdd ? acc.addMAID.opPayloads : acc.removeMAID.opPayloads).push(p)
       }
 
       return acc
@@ -46,20 +45,17 @@ export async function send(request: RequestClient, payload: Payload[]) {
   )
 
   const url = `https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`
-
   await Promise.all(Object.entries(batches)
     .filter(([, batch]) => batch.opPayloads.length > 0)
     .map(async ([, batch]) => {
-      
       const { opPayloads, operationType: { type, method } } = batch
       const json = buildJSON(opPayloads, type)
-      
       try {
         await request(url, { method, json })
         opPayloads.forEach((p) => {
-          const existingResponse = multiStatusResponse.getResponseAtIndex(p.index).value()
+          const existingResponse = multiStatusResponse.getResponseAtIndex(p.index)?.value()
           const status = existingResponse?.status
-          if (status < 200 || status >= 300) {
+          if (typeof status === 'number' && (status < 200 || status >= 300)) {
             // skip, as we already have an error for this payload
             return
           }
@@ -72,6 +68,7 @@ export async function send(request: RequestClient, payload: Payload[]) {
       } 
       catch (error) {
         for (const p of opPayloads) {
+          // Snap doesn't provide statuses for individual items in the batch. So if request fails, we mark all items in the batch as failed
           multiStatusResponse.setErrorResponseAtIndex(p.index, {
             status: error?.response?.status || 400,
             errortype: 'BAD_REQUEST',
@@ -87,13 +84,26 @@ export async function send(request: RequestClient, payload: Payload[]) {
 }
 
 function buildJSON(payloads: PayloadWithIndex[], type: SchemaType): AddRemoveUsersJSON {
-  const data: [string][] = payloads.reduce<[string][]>((acc, p) => {
-    let value: string | undefined;
-    if (type === SCHEMA_TYPES.EMAIL && p.email) value = processHashing(p.email, 'sha256', 'hex', normalize);
-    else if (type === SCHEMA_TYPES.PHONE && p.phone) value = processHashing(p.phone, 'sha256', 'hex', normalizePhone);
-    else if (type === SCHEMA_TYPES.MAID && p.advertising_id) value = processHashing(p.advertising_id, 'sha256', 'hex', normalize);
 
-    if (value) acc.push([value])
+  const seen = new Set<string>()
+
+  const data: [string][] = payloads.reduce<[string][]>((acc, p) => {
+    let value: string | undefined
+
+    if (type === SCHEMA_TYPES.EMAIL && p.email) {
+      value = processHashing(p.email, 'sha256', 'hex', normalize)
+    } else if (type === SCHEMA_TYPES.PHONE && p.phone) { 
+      value = processHashing(p.phone, 'sha256', 'hex', normalizePhone)
+    } else if (type === SCHEMA_TYPES.MAID && p.advertising_id) { 
+      value = processHashing(p.advertising_id, 'sha256', 'hex', normalize)
+    }
+
+    if (value && !seen.has(value)) {
+        // Make sure to never send duplicate identifiers in the same batch
+      seen.add(value)
+      acc.push([value])
+    }
+
     return acc
   }, [])
 
