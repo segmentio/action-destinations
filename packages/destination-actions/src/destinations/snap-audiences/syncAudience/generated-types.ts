@@ -32,7 +32,7 @@ export interface Payload {
    */
   enable_batching: boolean
   /**
-   * Maximum number of API calls to include in a batch.
+   * Maximum number of API calls to include in a batch. Defaults to 100,000 which is the maximum allowed by Snap.
    */
   max_batch_size: number
   /**
