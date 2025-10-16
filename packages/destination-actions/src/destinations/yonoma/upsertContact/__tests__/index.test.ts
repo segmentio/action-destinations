@@ -2,7 +2,6 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
-import { time } from 'node:console'
 
 let testDestination = createTestIntegration(Definition)
 const settings: Settings = {
