@@ -103,7 +103,7 @@ export const PROFILE_DEFAULT_FIELDS: ProfileFieldConfig[] = [
     label: 'Birth Year',
     type: 'number',
     description: 'The birth year of the user (YYYY)',
-    isPii: false,
+    isPii: true,
   },
   {
     key: 'birth_date',

@@ -50,6 +50,7 @@ export async function send(request: RequestClient, payloads: RegularPayload[] | 
       birth_day: (date ? date.getDate() : birth_day) ?? undefined,
       birth_month: (date ? date.getMonth() + 1 : birth_month) ?? undefined,
       birth_year: (date ? date.getFullYear() : birth_year) ?? undefined,
+      birth_date: birth_date,
       ...custom_traits
     }
 
