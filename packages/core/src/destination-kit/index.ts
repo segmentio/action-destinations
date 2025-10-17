@@ -940,10 +940,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     const subscriptions = this.getSubscriptions(settings)
     const destinationSettings = this.getDestinationSettings(settings)
 
-    if (options?.features?.['gameday-framework-failure']) {
-      throw new Error('Oh no, we have a problem!')
-    }
-
     // Validate settings according to the destination's `authentication.fields` schema
     this.validateSettings(destinationSettings)
 
