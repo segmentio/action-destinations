@@ -6,7 +6,7 @@ import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segme
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
 import { LINKEDIN_API_VERSION } from './constants'
-import { LinkedInAudiences } from './updateAudience/api'
+import { LinkedInAudiences } from './api'
 import type {
   RefreshTokenResponse,
   ProfileAPIResponse,

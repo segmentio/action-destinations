@@ -2,7 +2,7 @@ import type {StatsContext } from '@segment/actions-core'
 import { RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { LinkedInAudiences } from './api'
+import { LinkedInAudiences } from '../api'
 import { LinkedInAudiencePayload } from '../types'
 import { processHashing } from '../../../lib/hashing-utils'
 
