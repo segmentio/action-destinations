@@ -1,7 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
-import forwardProfile from './forwardProfile'
 import forwardAudienceEvent from './forwardAudienceEvent'
 import { AdvertiserScopesResponse } from './types'
 import { sha256hash } from './common-functions'
@@ -110,7 +109,6 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    forwardProfile,
     forwardAudienceEvent
   }
 }
