@@ -117,7 +117,7 @@ export const fields: Record<string, InputField> ={
     },
     dmp_user_action: {
       label: 'DMP User Action',
-      description: 'A Segment specific key used to define action type.',
+      description: 'Specifies if the user should be added or removed from the LinkedIn DMP User Segment.',
       type: 'string',
       choices: [
         { label: `Auto Detect`, value: 'AUTO' },

@@ -5,6 +5,7 @@ import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segme
 
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
+import updateCompanyAudience from './updateCompanyAudience'
 import { LINKEDIN_API_VERSION } from './constants'
 import { LinkedInAudiences } from './api'
 import type {
@@ -153,7 +154,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    updateAudience
+    updateAudience,
+    updateCompanyAudience
   }
 }
 

@@ -50,7 +50,7 @@ export interface Payload {
    */
   event_name?: string
   /**
-   * A Segment specific key used to define action type.
+   * Specifies if the user should be added or removed from the LinkedIn DMP User Segment.
    */
   dmp_user_action?: string
 }

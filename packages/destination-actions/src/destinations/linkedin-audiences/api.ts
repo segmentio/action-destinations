@@ -1,9 +1,7 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
-
 import type { Settings } from './generated-types'
-import type { Payload } from './updateAudience/generated-types'
 import { BASE_URL, LINKEDIN_SOURCE_PLATFORM } from './constants'
-import type { ProfileAPIResponse, AdAccountUserResponse, LinkedInAudiencePayload } from './types'
+import type { ProfileAPIResponse, AdAccountUserResponse, LinkedInAudiencePayload, GetDMPSegmentResponse, SegmentType } from './types'
 
 export class LinkedInAudiences {
   request: RequestClient
@@ -27,27 +25,27 @@ export class LinkedInAudiences {
     )
   }
 
-  async getDmpSegment(settings: Settings, payload: Payload): Promise<ModifiedResponse> {
+  async getDmpSegment(settings: Settings, sourceSegmentId = ''): Promise<ModifiedResponse<GetDMPSegmentResponse>> {
     return this.request(`${BASE_URL}/dmpSegments`, {
       method: 'GET',
       searchParams: {
         q: 'account',
         account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
-        sourceSegmentId: payload.personas_audience_key || '',
+        sourceSegmentId,
         sourcePlatform: LINKEDIN_SOURCE_PLATFORM
       }
     })
   }
 
-  async createDmpSegment(settings: Settings, payload: Payload): Promise<ModifiedResponse> {
+  async createDmpSegment(settings: Settings, sourceSegmentId: string, segmentType: SegmentType): Promise<ModifiedResponse> {
     return this.request(`${BASE_URL}/dmpSegments`, {
       method: 'POST',
       json: {
-        name: payload.dmp_segment_name,
+        name: sourceSegmentId,
         sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
-        sourceSegmentId: payload.personas_audience_key,
+        sourceSegmentId,
         account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
-        type: 'USER',
+        type: segmentType,
         destinations: [
           {
             destination: 'LINKEDIN'

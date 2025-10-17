@@ -1,4 +1,7 @@
 import { HTTPError } from '@segment/actions-core'
+import { SEGMENT_TYPES } from './constants'
+
+export type SegmentType = typeof SEGMENT_TYPES[keyof typeof SEGMENT_TYPES]
 
 export interface RefreshTokenResponse {
   access_token: string
@@ -13,6 +16,13 @@ export interface ProfileAPIResponse {
 
 export interface AdAccountUserResponse {
   role: string
+}
+
+export interface GetDMPSegmentResponse {
+  elements: Array<{
+    id: string
+    type: 'USER' | 'COMPANY'
+  }>
 }
 
 export interface LinkedInAudiencePayload {
