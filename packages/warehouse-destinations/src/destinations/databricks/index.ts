@@ -1,6 +1,6 @@
 import type { WarehouseDestinationDefinition } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
-import { Settings } from '../snowflake/generated-types'
+import { Settings } from './generated-types'
 import sendCustomEvent from './sendCustomEvent'
 import journeysDefaultFields from './sendCustomEvent/journeys-default-fields'
 import audienceDefaultFields from './sendCustomEvent/audience-default-fields'
