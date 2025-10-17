@@ -25,9 +25,6 @@ const defaultIdentifyPayload: Partial<SegmentEvent> = {
     state: 'CA',
     postal_code: '94105',
     timezone: 'PST',
-    birth_day: 15,
-    birth_month: 6,
-    birth_year: 1990,
     birth_date: '1990-06-15',
     custom_trait_1: 'custom_value_1',
     custom_trait_2: 'custom_value_2'
@@ -54,9 +51,6 @@ const mockIdentifyMapping = {
     state: { '@path': '$.traits.state' },
     postal_code: { '@path': '$.traits.postal_code' },
     timezone: { '@path': '$.traits.timezone' },
-    birth_day: { '@path': '$.traits.birth_day' },
-    birth_month: { '@path': '$.traits.birth_month' },
-    birth_year: { '@path': '$.traits.birth_year' },
     birth_date: { '@path': '$.traits.birth_date' }
   },
   custom_traits: {
@@ -89,9 +83,6 @@ const defaultTrackPayload: Partial<SegmentEvent> = {
       state: 'NY',
       postal_code: '29323',
       timezone: 'EST',
-      birth_day: 13,
-      birth_month: 6,
-      birth_year: 1990,
       birth_date: '1990-06-15',
       custom_trait_1: 'custom_value_1',
       custom_trait_2: 'custom_value_2'
@@ -117,9 +108,6 @@ const mockTrackMapping = {
     state: { '@path': '$.context.traits.state' },
     postal_code: { '@path': '$.context.traits.postal_code' },
     timezone: { '@path': '$.context.traits.timezone' },
-    birth_day: { '@path': '$.context.traits.birth_day' },
-    birth_month: { '@path': '$.context.traits.birth_month' },
-    birth_year: { '@path': '$.context.traits.birth_year' },
     birth_date: { '@path': '$.context.traits.birth_date' }
   },
   custom_traits: {
@@ -173,8 +161,8 @@ describe('forwardAudienceEvent', () => {
               input: {
                 advertiserId: 23,
                 externalProvider: "segment_io",
-                syncId: "61a23a1cccb7deb8db7c654e9c2410e6dbc5f60258d6fa000c3eecedbc227b46",
-                profiles: "[{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Billy\\",\\"last_name\\":\\"Bob\\",\\"phone\\":\\"1234567890\\",\\"address\\":\\"123 Main St\\",\\"city\\":\\"San Francisco\\",\\"country\\":\\"USA\\",\\"state\\":\\"CA\\",\\"postal_code\\":\\"94105\\",\\"timezone\\":\\"PST\\",\\"birth_day\\":14,\\"birth_month\\":6,\\"birth_year\\":1990,\\"birth_date\\":\\"1990-06-15\\",\\"custom_trait_1\\":\\"custom_value_1\\",\\"custom_trait_2\\":\\"custom_value_2\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"exit\\"}]"
+                syncId: "737a606596d5e41e69595b9fbf8ea4b3f61400cc172ac05cf1a0811d90a5b5dd",
+                profiles: "[{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Billy\\",\\"last_name\\":\\"Bob\\",\\"phone\\":\\"1234567890\\",\\"address\\":\\"123 Main St\\",\\"city\\":\\"San Francisco\\",\\"country\\":\\"USA\\",\\"state\\":\\"CA\\",\\"postal_code\\":\\"94105\\",\\"timezone\\":\\"PST\\",\\"birth_date\\":\\"1990-06-15\\",\\"custom_trait_1\\":\\"custom_value_1\\",\\"custom_trait_2\\":\\"custom_value_2\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"exit\\"}]"
               }
             ) {
               userErrors {
@@ -184,7 +172,7 @@ describe('forwardAudienceEvent', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_day",destinationKey:"birth_day",label:"Birth Day",type:NUMBER,isPii:false},{incomingKey:"birth_month",destinationKey:"birth_month",label:"Birth Month",type:NUMBER,isPii:false},{incomingKey:"birth_year",destinationKey:"birth_year",label:"Birth Year",type:NUMBER,isPii:true},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:STRING,isPii:true},{incomingKey:"custom_trait_1",destinationKey:"custom_trait_1",label:"Custom Trait 1",type:STRING,isPii:false},{incomingKey:"custom_trait_2",destinationKey:"custom_trait_2",label:"Custom Trait 2",type:STRING,isPii:false}],
+                mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:DATE,isPii:true},{incomingKey:"custom_trait_1",destinationKey:"custom_trait_1",label:"Custom Trait 1",type:STRING,isPii:false},{incomingKey:"custom_trait_2",destinationKey:"custom_trait_2",label:"Custom Trait 2",type:STRING,isPii:false},{incomingKey:"marketing_status",destinationKey:"marketing_status",label:"Marketing Status",type:STRING,isPii:false,value:"Opted-in"}],
                 isOptedIn: true,
                 mappableType: "segment_io"
               }
@@ -248,8 +236,8 @@ describe('forwardAudienceEvent', () => {
               input: {
                 advertiserId: 23,
                 externalProvider: "segment_io",
-                syncId: "50d4044a39f058671eeb390f197bae12ce4108c9582f64beaeb432b957e00657",
-                profiles: "[{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Saray\\",\\"last_name\\":\\"James\\",\\"phone\\":\\"45678765\\",\\"address\\":\\"123 Barn St\\",\\"city\\":\\"NYC\\",\\"country\\":\\"USA\\",\\"state\\":\\"NY\\",\\"postal_code\\":\\"29323\\",\\"timezone\\":\\"EST\\",\\"birth_day\\":14,\\"birth_month\\":6,\\"birth_year\\":1990,\\"birth_date\\":\\"1990-06-15\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"exit\\"}]"
+                syncId: "c89d66b1eed79b7dcd6a2bd3745b81be559bb3077d543cdccb57c023394b0044",
+                profiles: "[{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Saray\\",\\"last_name\\":\\"James\\",\\"phone\\":\\"45678765\\",\\"address\\":\\"123 Barn St\\",\\"city\\":\\"NYC\\",\\"country\\":\\"USA\\",\\"state\\":\\"NY\\",\\"postal_code\\":\\"29323\\",\\"timezone\\":\\"EST\\",\\"birth_date\\":\\"1990-06-15\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"exit\\"}]"
               }
             ) {
               userErrors {
@@ -259,7 +247,7 @@ describe('forwardAudienceEvent', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_day",destinationKey:"birth_day",label:"Birth Day",type:NUMBER,isPii:false},{incomingKey:"birth_month",destinationKey:"birth_month",label:"Birth Month",type:NUMBER,isPii:false},{incomingKey:"birth_year",destinationKey:"birth_year",label:"Birth Year",type:NUMBER,isPii:true},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:STRING,isPii:true}],
+                mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:DATE,isPii:true},{incomingKey:"marketing_status",destinationKey:"marketing_status",label:"Marketing Status",type:STRING,isPii:false,value:"Opted-in"}],
                 isOptedIn: true,
                 mappableType: "segment_io"
               }
@@ -308,8 +296,8 @@ describe('forwardAudienceEvent', () => {
               input: {
                 advertiserId: 23,
                 externalProvider: "segment_io",
-                syncId: "b223009f3442487fe26757f9cc1573296afaac70386f1dc5ec2f57e78c270e3c",
-                profiles: "[{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Saray\\",\\"last_name\\":\\"James\\",\\"phone\\":\\"45678765\\",\\"address\\":\\"123 Barn St\\",\\"city\\":\\"NYC\\",\\"country\\":\\"USA\\",\\"state\\":\\"NY\\",\\"postal_code\\":\\"29323\\",\\"timezone\\":\\"EST\\",\\"birth_day\\":14,\\"birth_month\\":6,\\"birth_year\\":1990,\\"birth_date\\":\\"1990-06-15\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"exit\\"},{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Saray\\",\\"last_name\\":\\"James\\",\\"phone\\":\\"45678765\\",\\"address\\":\\"123 Barn St\\",\\"city\\":\\"NYC\\",\\"country\\":\\"USA\\",\\"state\\":\\"NY\\",\\"postal_code\\":\\"29323\\",\\"timezone\\":\\"EST\\",\\"birth_day\\":14,\\"birth_month\\":6,\\"birth_year\\":1990,\\"birth_date\\":\\"1990-06-15\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"exit\\"}]"
+                syncId: "869391dc2b8136c0d7bff13ce4e84645e04860e7cdf0a05794cdf60e7a938393",
+                profiles: "[{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Saray\\",\\"last_name\\":\\"James\\",\\"phone\\":\\"45678765\\",\\"address\\":\\"123 Barn St\\",\\"city\\":\\"NYC\\",\\"country\\":\\"USA\\",\\"state\\":\\"NY\\",\\"postal_code\\":\\"29323\\",\\"timezone\\":\\"EST\\",\\"birth_date\\":\\"1990-06-15\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"exit\\"},{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Saray\\",\\"last_name\\":\\"James\\",\\"phone\\":\\"45678765\\",\\"address\\":\\"123 Barn St\\",\\"city\\":\\"NYC\\",\\"country\\":\\"USA\\",\\"state\\":\\"NY\\",\\"postal_code\\":\\"29323\\",\\"timezone\\":\\"EST\\",\\"birth_date\\":\\"1990-06-15\\",\\"audienceId\\":\\"aud_123\\",\\"audienceName\\":\\"first_time_buyer\\",\\"action\\":\\"exit\\"}]"
               }
             ) {
               userErrors {
@@ -319,7 +307,7 @@ describe('forwardAudienceEvent', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_day",destinationKey:"birth_day",label:"Birth Day",type:NUMBER,isPii:false},{incomingKey:"birth_month",destinationKey:"birth_month",label:"Birth Month",type:NUMBER,isPii:false},{incomingKey:"birth_year",destinationKey:"birth_year",label:"Birth Year",type:NUMBER,isPii:true},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:STRING,isPii:true}],
+                mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:DATE,isPii:true},{incomingKey:"marketing_status",destinationKey:"marketing_status",label:"Marketing Status",type:STRING,isPii:false,value:"Opted-in"}],
                 isOptedIn: true,
                 mappableType: "segment_io"
               }

@@ -25,9 +25,6 @@ const defaultIdentifyPayload: Partial<SegmentEvent> = {
     state: 'CA',
     postal_code: '94105',
     timezone: 'PST',
-    birth_day: 15,
-    birth_month: 6,
-    birth_year: 1990,
     birth_date: '1990-06-15',
     custom_trait_1: 'custom_value_1',
     custom_trait_2: 'custom_value_2'
@@ -47,9 +44,6 @@ const mockIdentifyMapping = {
     state: { '@path': '$.traits.state' },
     postal_code: { '@path': '$.traits.postal_code' },
     timezone: { '@path': '$.traits.timezone' },
-    birth_day: { '@path': '$.traits.birth_day' },
-    birth_month: { '@path': '$.traits.birth_month' },
-    birth_year: { '@path': '$.traits.birth_year' },
     birth_date: { '@path': '$.traits.birth_date' }
   },
   custom_traits: {
@@ -79,9 +73,6 @@ const defaultTrackPayload: Partial<SegmentEvent> = {
       state: 'NY',
       postal_code: '29323',
       timezone: 'EST',
-      birth_day: 13,
-      birth_month: 6,
-      birth_year: 1990,
       birth_date: '1990-06-15',
       custom_trait_1: 'custom_value_1',
       custom_trait_2: 'custom_value_2'
@@ -102,9 +93,6 @@ const mockTrackMapping = {
     state: { '@path': '$.context.traits.state' },
     postal_code: { '@path': '$.context.traits.postal_code' },
     timezone: { '@path': '$.context.traits.timezone' },
-    birth_day: { '@path': '$.context.traits.birth_day' },
-    birth_month: { '@path': '$.context.traits.birth_month' },
-    birth_year: { '@path': '$.context.traits.birth_year' },
     birth_date: { '@path': '$.context.traits.birth_date' }
   },
   custom_traits: {
@@ -172,8 +160,8 @@ describe('forwardProfile', () => {
               input: {
                 advertiserId: 23,
                 externalProvider: "segment_io",
-                syncId: "5e66fa228ee7bd21dcf52739e2e8cd2cc3b3d92c29f641116dd1adaac8046cda",
-                profiles: "[{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Billy\\",\\"last_name\\":\\"Bob\\",\\"phone\\":\\"1234567890\\",\\"address\\":\\"123 Main St\\",\\"city\\":\\"San Francisco\\",\\"country\\":\\"USA\\",\\"state\\":\\"CA\\",\\"postal_code\\":\\"94105\\",\\"timezone\\":\\"PST\\",\\"birth_day\\":14,\\"birth_month\\":6,\\"birth_year\\":1990,\\"birth_date\\":\\"1990-06-15\\",\\"custom_trait_1\\":\\"custom_value_1\\",\\"custom_trait_2\\":\\"custom_value_2\\"}]"
+                syncId: "d328f826d0bd5a0d0b297ce2c8385edf4d810cdd90b79bb77afe5cd5cffd251a",
+                profiles: "[{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Billy\\",\\"last_name\\":\\"Bob\\",\\"phone\\":\\"1234567890\\",\\"address\\":\\"123 Main St\\",\\"city\\":\\"San Francisco\\",\\"country\\":\\"USA\\",\\"state\\":\\"CA\\",\\"postal_code\\":\\"94105\\",\\"timezone\\":\\"PST\\",\\"birth_date\\":\\"1990-06-15\\",\\"custom_trait_1\\":\\"custom_value_1\\",\\"custom_trait_2\\":\\"custom_value_2\\"}]"
               }
             ) {
               userErrors {
@@ -183,8 +171,7 @@ describe('forwardProfile', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_day",destinationKey:"birth_day",label:"Birth Day",type:NUMBER,isPii:false},{incomingKey:"birth_month",destinationKey:"birth_month",label:"Birth Month",type:NUMBER,isPii:false},{incomingKey:"birth_year",destinationKey:"birth_year",label:"Birth Year",type:NUMBER,isPii:true},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:STRING,isPii:true},{incomingKey:"custom_trait_1",destinationKey:"custom_trait_1",label:"Custom Trait 1",type:STRING,isPii:false},{incomingKey:"custom_trait_2",destinationKey:"custom_trait_2",label:"Custom Trait 2",type:STRING,isPii:false}],
-                isOptedIn: true,
+                mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:DATE,isPii:true},{incomingKey:"custom_trait_1",destinationKey:"custom_trait_1",label:"Custom Trait 1",type:STRING,isPii:false},{incomingKey:"custom_trait_2",destinationKey:"custom_trait_2",label:"Custom Trait 2",type:STRING,isPii:false}],
                 mappableType: "segment_io"
               }
             ) {
@@ -237,8 +224,8 @@ describe('forwardProfile', () => {
               input: {
                 advertiserId: 23,
                 externalProvider: "segment_io",
-                syncId: "7fdfc30fcbcc60205a58bff8558d6ecf4bff2592ce4e539acf7600f36cb68a91",
-                profiles: "[{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Saray\\",\\"last_name\\":\\"James\\",\\"phone\\":\\"45678765\\",\\"address\\":\\"123 Barn St\\",\\"city\\":\\"NYC\\",\\"country\\":\\"USA\\",\\"state\\":\\"NY\\",\\"postal_code\\":\\"29323\\",\\"timezone\\":\\"EST\\",\\"birth_day\\":14,\\"birth_month\\":6,\\"birth_year\\":1990,\\"birth_date\\":\\"1990-06-15\\"}]"
+                syncId: "782a40b10afb45dd7194eabe94ce5504a271ff71b501a41f4db71ebb160aa0c3",
+                profiles: "[{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Saray\\",\\"last_name\\":\\"James\\",\\"phone\\":\\"45678765\\",\\"address\\":\\"123 Barn St\\",\\"city\\":\\"NYC\\",\\"country\\":\\"USA\\",\\"state\\":\\"NY\\",\\"postal_code\\":\\"29323\\",\\"timezone\\":\\"EST\\",\\"birth_date\\":\\"1990-06-15\\"}]"
               }
             ) {
               userErrors {
@@ -248,8 +235,7 @@ describe('forwardProfile', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_day",destinationKey:"birth_day",label:"Birth Day",type:NUMBER,isPii:false},{incomingKey:"birth_month",destinationKey:"birth_month",label:"Birth Month",type:NUMBER,isPii:false},{incomingKey:"birth_year",destinationKey:"birth_year",label:"Birth Year",type:NUMBER,isPii:true},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:STRING,isPii:true}],
-                isOptedIn: true,
+                mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:DATE,isPii:true}],
                 mappableType: "segment_io"
               }
             ) {
@@ -287,8 +273,8 @@ describe('forwardProfile', () => {
               input: {
                 advertiserId: 23,
                 externalProvider: "segment_io",
-                syncId: "05e39ad22b8beeeb8e0f2cf5852ac51876ca4702e0b98fca1b8acf7e4addddae",
-                profiles: "[{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Saray\\",\\"last_name\\":\\"James\\",\\"phone\\":\\"45678765\\",\\"address\\":\\"123 Barn St\\",\\"city\\":\\"NYC\\",\\"country\\":\\"USA\\",\\"state\\":\\"NY\\",\\"postal_code\\":\\"29323\\",\\"timezone\\":\\"EST\\",\\"birth_day\\":14,\\"birth_month\\":6,\\"birth_year\\":1990,\\"birth_date\\":\\"1990-06-15\\"},{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Saray\\",\\"last_name\\":\\"James\\",\\"phone\\":\\"45678765\\",\\"address\\":\\"123 Barn St\\",\\"city\\":\\"NYC\\",\\"country\\":\\"USA\\",\\"state\\":\\"NY\\",\\"postal_code\\":\\"29323\\",\\"timezone\\":\\"EST\\",\\"birth_day\\":14,\\"birth_month\\":6,\\"birth_year\\":1990,\\"birth_date\\":\\"1990-06-15\\"}]"
+                syncId: "7d81f7a1f1170feae1ebb655ac8bb0c92571ce71aa61bd198f1bb9360ae227ef",
+                profiles: "[{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Saray\\",\\"last_name\\":\\"James\\",\\"phone\\":\\"45678765\\",\\"address\\":\\"123 Barn St\\",\\"city\\":\\"NYC\\",\\"country\\":\\"USA\\",\\"state\\":\\"NY\\",\\"postal_code\\":\\"29323\\",\\"timezone\\":\\"EST\\",\\"birth_date\\":\\"1990-06-15\\"},{\\"userId\\":\\"user-id\\",\\"email\\":\\"test@email.com\\",\\"first_name\\":\\"Saray\\",\\"last_name\\":\\"James\\",\\"phone\\":\\"45678765\\",\\"address\\":\\"123 Barn St\\",\\"city\\":\\"NYC\\",\\"country\\":\\"USA\\",\\"state\\":\\"NY\\",\\"postal_code\\":\\"29323\\",\\"timezone\\":\\"EST\\",\\"birth_date\\":\\"1990-06-15\\"}]"
               }
             ) {
               userErrors {
@@ -298,8 +284,7 @@ describe('forwardProfile', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_day",destinationKey:"birth_day",label:"Birth Day",type:NUMBER,isPii:false},{incomingKey:"birth_month",destinationKey:"birth_month",label:"Birth Month",type:NUMBER,isPii:false},{incomingKey:"birth_year",destinationKey:"birth_year",label:"Birth Year",type:NUMBER,isPii:true},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:STRING,isPii:true}],
-                isOptedIn: true,
+                mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:DATE,isPii:true}],
                 mappableType: "segment_io"
               }
             ) {
@@ -363,8 +348,7 @@ describe('forwardProfile', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_day",destinationKey:"birth_day",label:"Birth Day",type:NUMBER,isPii:false},{incomingKey:"birth_month",destinationKey:"birth_month",label:"Birth Month",type:NUMBER,isPii:false},{incomingKey:"birth_year",destinationKey:"birth_year",label:"Birth Year",type:NUMBER,isPii:true},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:STRING,isPii:true}],
-                isOptedIn: true,
+                mappingSchemaV2: [{incomingKey:"user_id",destinationKey:"external_id",label:"User ID",type:STRING,isPii:false},{incomingKey:"email",destinationKey:"email",label:"Email",type:STRING,isPii:true},{incomingKey:"first_name",destinationKey:"first_name",label:"First Name",type:STRING,isPii:true},{incomingKey:"last_name",destinationKey:"last_name",label:"Last Name",type:STRING,isPii:true},{incomingKey:"phone",destinationKey:"phone",label:"Phone",type:STRING,isPii:true},{incomingKey:"address",destinationKey:"address",label:"Address",type:STRING,isPii:true},{incomingKey:"city",destinationKey:"city",label:"City",type:STRING,isPii:false},{incomingKey:"state",destinationKey:"state",label:"State",type:STRING,isPii:false},{incomingKey:"country",destinationKey:"country",label:"Country",type:STRING,isPii:false},{incomingKey:"postal_code",destinationKey:"postal_code",label:"Postal Code",type:STRING,isPii:false},{incomingKey:"timezone",destinationKey:"timezone",label:"Timezone",type:STRING,isPii:false},{incomingKey:"birth_date",destinationKey:"birth_date",label:"Birth Date",type:DATE,isPii:true}],
                 mappableType: "segment_io"
               }
             ) {

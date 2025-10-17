@@ -100,27 +100,6 @@ const action: ActionDefinition<Settings, Payload> = {
             else: { '@path': '$.context.traits.timezone' }
           }
         },
-        birth_day: {
-          '@if': {
-            exists: { '@path': '$.traits.birth_day' },
-            then: { '@path': '$.traits.birth_day' },
-            else: { '@path': '$.context.traits.birth_day' }
-          }
-        },
-        birth_month: {
-          '@if': {
-            exists: { '@path': '$.traits.birth_month' },
-            then: { '@path': '$.traits.birth_month' },
-            else: { '@path': '$.context.traits.birth_month' }
-          }
-        },
-        birth_year: {
-          '@if': {
-            exists: { '@path': '$.traits.birth_year' },
-            then: { '@path': '$.traits.birth_year' },
-            else: { '@path': '$.context.traits.birth_year' }
-          }
-        },
         birth_date: {
           '@if': {
             exists: { '@path': '$.traits.birth_date' },

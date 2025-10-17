@@ -17,13 +17,7 @@ export async function send(request: RequestClient, payloads: RegularPayload[] | 
   const profileUpdates = payloads.map((p) => {  
     const {
       user_id,
-      standard_traits: {
-        birth_date,
-        birth_day,
-        birth_month,
-        birth_year,
-        ...restStandardTraits
-      } = {},
+      standard_traits,
       custom_traits,
       email
     } = p
@@ -38,19 +32,10 @@ export async function send(request: RequestClient, payloads: RegularPayload[] | 
         delete custom_traits[segment_computation_id as string] 
     }
 
-    let date: Date | undefined
-    if(birth_date){
-      date = new Date(birth_date)
-    }
-
     const profile: Record<string, string | number | undefined> = {
       userId: user_id,
       email,
-      ...restStandardTraits,
-      birth_day: (date ? date.getDate() : birth_day) ?? undefined,
-      birth_month: (date ? date.getMonth() + 1 : birth_month) ?? undefined,
-      birth_year: (date ? date.getFullYear() : birth_year) ?? undefined,
-      birth_date: birth_date,
+      ...standard_traits,
       ...custom_traits
     }
 

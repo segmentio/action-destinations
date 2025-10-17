@@ -55,30 +55,11 @@ export const common_fields: Record<string, InputField> = {
           type: 'string',
           description: 'The postal code of the user.'
         },
-        birth_day: {
-          label: 'Birth Day',
-          type: 'number',
-          description: 'The numeric birth day of the user. e.g 15 for the 15th of the month.',
-          maximum: 31,
-          minimum: 1
-        },
-        birth_month: {
-          label: 'Birth Month',
-          type: 'number',
-          description: 'The numeric birth month of the user. e.g 6 for June.',
-          maximum: 12,
-          minimum: 1
-        },
-        birth_year: {
-          label: 'Birth Year',
-          type: 'number',
-          description: 'The numeric birth year of the user. e.g 1990.'
-        },
         birth_date: {
           label: 'Birth Date',
           type: 'string',
           format: 'date',
-          description: "The birth date of the user in YYYY-MM-DD format. If set, overrides 'Birth Day', 'Birth Month' and 'Birth Year' fields."
+          description: "The birth date of the user in YYYY-MM-DD format."
         }
       },
       default: {
@@ -143,27 +124,6 @@ export const common_fields: Record<string, InputField> = {
             exists: { '@path': '$.traits.timezone' },
             then: { '@path': '$.traits.timezone' },
             else: { '@path': '$.properties.timezone' }
-          }
-        },
-        birth_day: {
-          '@if': {
-            exists: { '@path': '$.traits.birth_day' },
-            then: { '@path': '$.traits.birth_day' },
-            else: { '@path': '$.properties.birth_day' }
-          }
-        },
-        birth_month: {
-          '@if': {
-            exists: { '@path': '$.traits.birth_month' },
-            then: { '@path': '$.traits.birth_month' },
-            else: { '@path': '$.properties.birth_month' }
-          }
-        },
-        birth_year: {
-          '@if': {
-            exists: { '@path': '$.traits.birth_year' },
-            then: { '@path': '$.traits.birth_year' },
-            else: { '@path': '$.properties.birth_year' }
           }
         },
         birth_date: {
