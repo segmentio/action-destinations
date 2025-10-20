@@ -19,10 +19,12 @@ export interface AdAccountUserResponse {
 }
 
 export interface GetDMPSegmentResponse {
-  elements: Array<{
-    id: string
-    type: 'USER' | 'COMPANY'
-  }>
+  elements: Array<CreateDMPSegmentResponse>
+}
+
+export interface CreateDMPSegmentResponse {
+  id: string
+  type: 'USER' | 'COMPANY'
 }
 
 export interface LinkedInAudiencePayload {

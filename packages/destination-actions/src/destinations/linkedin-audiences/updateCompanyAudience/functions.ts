@@ -11,6 +11,7 @@ export async function send(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
+  segmentType: SegmentType,
   statsContext: StatsContext | undefined
 ) {
   const msResponse = new MultiStatusResponse()
@@ -21,7 +22,25 @@ export async function send(
 
   const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
 
-  const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0], SEGMENT_TYPES.COMPANY, statsContext)
+  const { computation_key } = indexedPayloads[0]
+
+  const { id, type } = await getDmpSegmentIdAndType(linkedinApiClient, settings, computation_key, SEGMENT_TYPES.COMPANY, statsContext)
+
+  if(!id || !type || type !== segmentType) {
+    if(segmentType === SEGMENT_TYPES.COMPANY){
+      indexedPayloads.forEach((payload: PayloadWithIndex) => {
+        msResponse.setErrorResponseAtIndex(payload.index, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: `The existing DMP Segment with Source Segment Id ${computation_key} is of type ${type} and cannot be used to update a segment of type ${segmentType}.`
+        })
+      })
+    } 
+    else {
+      throw new PayloadValidationError(`The existing DMP Segment with Source Segment Id ${computation_key} is of type ${type} and cannot be used to update a segment of type ${segmentType}.`)
+    }
+  }
+  
   const elements = extractUsers(settings, payloads)
 
   // We should never hit this condition because at least an email or a
@@ -65,46 +84,37 @@ function validate(payloads: PayloadWithIndex[], msResponse: MultiStatusResponse)
   })
 }
 
-async function getDmpSegmentId(
+async function getDmpSegmentIdAndType(
   linkedinApiClient: LinkedInAudiences,
   settings: Settings,
-  payload: Payload,
+  computationKey: string,
   segmentType: SegmentType,
   statsContext: StatsContext | undefined
-): Promise<string> {
-  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:get-dmpSegment`])
+): Promise<{ id: string; type: SegmentType }> {
+  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:get-${segmentType === SEGMENT_TYPES.COMPANY ? 'abm-' : ''}dmpSegment`])
 
-  const { computation_key } = payload
-
-  const response = await linkedinApiClient.getDmpSegment(settings, computation_key)
+  const response = await linkedinApiClient.getDmpSegment(settings, computationKey)
   
   const { id, type } = response.data?.elements?.[0]
   
-  if(typeof type === 'string' && type !== segmentType){
-    throw new PayloadValidationError(
-      `The existing DMP Segment with Source Segment Id ${computation_key} is of type ${type} and cannot be used to update a segment of type ${segmentType}.`
-    )
+  if (id && type) {
+    return { id, type }
   }
 
-  if (id) {
-    return id
-  }
-
-  return createDmpSegment(linkedinApiClient, settings, payload, segmentType, statsContext)
+  return createDmpSegment(linkedinApiClient, settings, computationKey, segmentType, statsContext)
 }
 
 async function createDmpSegment(
   linkedinApiClient: LinkedInAudiences,
   settings: Settings,
-  payload: Payload,
+  computationKey: string,
   segmentType: SegmentType,
   statsContext: StatsContext | undefined
-): Promise<string> {
+): Promise<{ id: string; type: SegmentType }> {
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:create-dmpSegment`])
-  const { computation_key } = payload
-  const res = await linkedinApiClient.createDmpSegment(settings, computation_key, segmentType)
-  const headers = res.headers.toJSON()
-  return headers['x-linkedin-id']
+  const res = await linkedinApiClient.createDmpSegment(settings, computationKey, segmentType)
+  const { id, type } = res.data
+  return { id, type }
 }
 
 function extractUsers(settings: Settings, payloads: Payload[]): LinkedInAudiencePayload[] {
