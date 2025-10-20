@@ -85,30 +85,9 @@ export const PROFILE_DEFAULT_FIELDS: ProfileFieldConfig[] = [
     isPii: false,
   },
   {
-    key: 'birth_day',
-    label: 'Birth Day',
-    type: 'number',
-    description: 'The birth day of the user (1-31)',
-    isPii: false,
-  },
-  {
-    key: 'birth_month',
-    label: 'Birth Month',
-    type: 'number',
-    description: 'The birth month of the user (1-12)',
-    isPii: false,
-  },
-  {
-    key: 'birth_year',
-    label: 'Birth Year',
-    type: 'number',
-    description: 'The birth year of the user (YYYY)',
-    isPii: false,
-  },
-  {
     key: 'birth_date',
     label: 'Birth Date',
-    type: 'string',
+    type: 'date',
     description: 'The birth date of the user',
     isPii: true,
   }
