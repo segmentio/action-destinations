@@ -27,7 +27,7 @@ export interface CreateDMPSegmentResponse {
   type: 'USER' | 'COMPANY'
 }
 
-export interface LinkedInAudiencePayload {
+export interface LinkedInUserAudienceJSON {
   action: 'ADD' | 'REMOVE'
   userIds: Record<string, string>[]
   firstName?: string
@@ -35,6 +35,14 @@ export interface LinkedInAudiencePayload {
   title?: string
   company?: string
   country?: string
+}
+
+export interface LinkedInBatchUpdateResponse {
+  elements: Array<
+    {
+      status: number,
+      id: string
+    }>
 }
 
 export class LinkedInRefreshTokenError extends HTTPError {

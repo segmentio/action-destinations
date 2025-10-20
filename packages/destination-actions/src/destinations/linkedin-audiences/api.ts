@@ -1,7 +1,8 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { BASE_URL, LINKEDIN_SOURCE_PLATFORM, SEGMENT_TYPES } from './constants'
-import type { ProfileAPIResponse, AdAccountUserResponse, LinkedInAudiencePayload, CreateDMPSegmentResponse, GetDMPSegmentResponse, SegmentType } from './types'
+import type { ProfileAPIResponse, AdAccountUserResponse, LinkedInUserAudienceJSON, LinkedInBatchUpdateResponse, CreateDMPSegmentResponse, GetDMPSegmentResponse, SegmentType } from './types'
+import type { LinkedInCompanyAudienceJSON } from './updateCompanyAudience/types'
 
 export class LinkedInAudiences {
   request: RequestClient
@@ -55,16 +56,14 @@ export class LinkedInAudiences {
     })
   }
 
-  async batchUpdate(dmpSegmentId: string, elements: LinkedInAudiencePayload[], segmentType: SegmentType): Promise<ModifiedResponse> {
+  async batchUpdate(dmpSegmentId: string, json: LinkedInUserAudienceJSON | LinkedInCompanyAudienceJSON, segmentType: SegmentType): Promise<ModifiedResponse<LinkedInBatchUpdateResponse>> {
     const url = `${BASE_URL}/dmpSegments/${dmpSegmentId}/${segmentType === SEGMENT_TYPES.COMPANY ? 'companies' : 'users'}`
     return this.request(url, {
       method: 'POST',
       headers: {
         'X-RestLi-Method': 'BATCH_CREATE'
       },
-      json: {
-        elements
-      },
+      json,
       throwHttpErrors: false
     })
   }

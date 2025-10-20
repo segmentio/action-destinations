@@ -125,5 +125,14 @@ export const fields: Record<string, InputField> ={
         { label: 'Remove', value: 'REMOVE' }
       ],
       default: 'AUTO'
+    },
+    batch_keys: {
+      label: '[Hidden] Batch Keys',
+      description: '[Hidden] Batch key used to ensure a batch contains payloads from a single Audience only.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: true,
+      multiple: true,
+      default: ['computation_key']
     }
   }

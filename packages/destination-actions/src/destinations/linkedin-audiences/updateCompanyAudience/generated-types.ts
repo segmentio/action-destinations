@@ -25,7 +25,7 @@ export interface Payload {
   /**
    * [Hidden] A computed object for track and identify events. This field should not need to be edited.
    */
-  traits_or_props: {
+  props: {
     [k: string]: unknown
   }
   /**

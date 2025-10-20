@@ -3,7 +3,7 @@ import { RequestClient, RetryableError, IntegrationError } from '@segment/action
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { LinkedInAudiences } from '../api'
-import { LinkedInAudiencePayload } from '../types'
+import { LinkedInUserAudienceJSON } from '../types'
 import { processHashing } from '../../../lib/hashing-utils'
 
 export async function processPayload(
@@ -95,40 +95,40 @@ async function createDmpSegment(
   return headers['x-linkedin-id']
 }
 
-function extractUsers(settings: Settings, payloads: Payload[]): LinkedInAudiencePayload[] {
-  const elements: LinkedInAudiencePayload[] = []
+function extractUsers(settings: Settings, payloads: Payload[]): LinkedInUserAudienceJSON[] {
+  const elements: LinkedInUserAudienceJSON[] = []
 
   payloads.forEach((payload: Payload) => {
     if (!payload.email && !payload.google_advertising_id) {
       return
     }
 
-    const linkedinAudiencePayload: LinkedInAudiencePayload = {
+    const LinkedInUserAudienceJSON: LinkedInUserAudienceJSON = {
       action: getAction(payload),
       userIds: getUserIds(settings, payload)
     }
 
     if (payload.first_name) {
-      linkedinAudiencePayload.firstName = payload.first_name
+      LinkedInUserAudienceJSON.firstName = payload.first_name
     }
 
     if (payload.last_name) {
-      linkedinAudiencePayload.lastName = payload.last_name
+      LinkedInUserAudienceJSON.lastName = payload.last_name
     }
 
     if (payload.title) {
-      linkedinAudiencePayload.title = payload.title
+      LinkedInUserAudienceJSON.title = payload.title
     }
 
     if (payload.company) {
-      linkedinAudiencePayload.company = payload.company
+      LinkedInUserAudienceJSON.company = payload.company
     }
 
     if (payload.country) {
-      linkedinAudiencePayload.country = payload.country
+      LinkedInUserAudienceJSON.country = payload.country
     }
 
-    elements.push(linkedinAudiencePayload)
+    elements.push(LinkedInUserAudienceJSON)
   })
 
   return elements

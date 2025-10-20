@@ -22,20 +22,8 @@ export const fields: Record<string, InputField> ={
       }
     },
     default: {
-      companyDomain: {
-        '@if': {
-          exists: { '@path': '$.properties.company_domain' },
-          then: { '@path': '$.properties.company_domain' },
-          else: { '@path': '$.traits.company_domain' }
-        }
-      },
-      linkedInCompanyId: {
-        '@if': {
-          exists: { '@path': '$.properties.linkedin_company_id' },
-          then: { '@path': '$.properties.linkedin_company_id' },
-          else: { '@path': '$.traits.company.linkedin_company_id' }
-        }
-      }
+      companyDomain: { '@path': '$.properties.company_domain' },
+      linkedInCompanyId: { '@path': '$.properties.linkedin_company_id' }
     }
   },
   action: {
@@ -57,22 +45,20 @@ export const fields: Record<string, InputField> ={
     required: true,
     unsafe_hidden: true,
     default: {
-      '@path': '$.context.personas.computation_key'
+      '@if': {
+        exists: { '@path': '$.properties.audience_key' },
+        then: { '@path': '$.properties.audience_key' },
+        else: { '@path': '$.context.personas.computation_key' }
+      }
     }
   },
-  traits_or_props: {
+  props: {
     label: '[Hidden] Traits or properties object',
     description: '[Hidden] A computed object for track and identify events. This field should not need to be edited.',
     type: 'object',
     required: true,
     unsafe_hidden: true,
-    default: {
-      '@if': {
-        exists: { '@path': '$.properties' },
-        then: { '@path': '$.properties' },
-        else: { '@path': '$.traits' }
-      }
-    }
+    default: { '@path': '$.properties' }
   },
   computation_class: {
     label: '[Hidden] Computation Class',
