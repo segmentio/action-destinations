@@ -58,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const eventTimestamp = timestamp || new Date().toISOString()
 
-    return request(`https://panel-api.survicate.com/integrations-api/endpoint/segment/identify`, {
+    return request(`https://integrations.survicate.com/endpoint/segment/identify`, {
       method: 'post',
       json: {
         ...(anonymousId !== undefined && { anonymousId }),

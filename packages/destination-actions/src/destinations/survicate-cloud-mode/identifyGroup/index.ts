@@ -43,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const eventTimestamp = payload.timestamp || new Date().toISOString()
 
-    return request(`https://panel-api.survicate.com/integrations-api/endpoint/segment/group`, {
+    return request(`https://integrations.survicate.com/endpoint/segment/group`, {
       method: 'post',
       json: {
         groupId: payload.groupId,

@@ -12,12 +12,6 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      workspaceKey: {
-        label: 'Workspace Key',
-        description: 'Your Survicate workspace key',
-        type: 'string',
-        required: true
-      },
       apiKey: {
         label: 'API Key',
         description: 'Your Survicate API key',
