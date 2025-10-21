@@ -1,1 +1,0 @@
-export const SEND_EVENT_URL = 'https://api.yonoma.io/integration/segment/sendevent'
