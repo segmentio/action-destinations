@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-google-analytics-4",
-  "version": "1.98.1-staging-8e44525ae.0",
+  "version": "1.98.1-staging-f1b3c055d.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",

@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.131.1-staging-8e44525ae.0",
+  "version": "1.131.1-staging-f1b3c055d.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -20,7 +20,7 @@
     "@segment/analytics-browser-actions-braze-cloud-plugins": "1.103.1-staging-8e44525ae.0",
     "@segment/analytics-browser-actions-bucket": "1.71.1-staging-8e44525ae.0",
     "@segment/analytics-browser-actions-cdpresolution": "1.77.1-staging-8e44525ae.0",
-    "@segment/analytics-browser-actions-cj": "1.2.1-staging-8e44525ae.0",
+    "@segment/analytics-browser-actions-cj": "1.2.1-staging-f1b3c055d.0",
     "@segment/analytics-browser-actions-commandbar": "1.90.1-staging-8e44525ae.0",
     "@segment/analytics-browser-actions-contentstack-web": "1.33.1-staging-8e44525ae.0",
     "@segment/analytics-browser-actions-devrev": "1.77.1-staging-8e44525ae.0",
@@ -28,7 +28,7 @@
     "@segment/analytics-browser-actions-friendbuy": "1.91.1-staging-8e44525ae.0",
     "@segment/analytics-browser-actions-fullsession": "1.2.1-staging-8e44525ae.0",
     "@segment/analytics-browser-actions-fullstory": "1.92.1-staging-8e44525ae.0",
-    "@segment/analytics-browser-actions-google-analytics-4": "1.98.1-staging-8e44525ae.0",
+    "@segment/analytics-browser-actions-google-analytics-4": "1.98.1-staging-f1b3c055d.0",
     "@segment/analytics-browser-actions-google-campaign-manager": "1.81.1-staging-8e44525ae.0",
     "@segment/analytics-browser-actions-heap": "1.90.1-staging-8e44525ae.0",
     "@segment/analytics-browser-actions-hubspot": "1.90.1-staging-8e44525ae.0",
