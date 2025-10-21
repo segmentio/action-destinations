@@ -1,4 +1,4 @@
-import { stringifyJsonWithEscapedQuotes, stringifyMappingSchemaForGraphQL } from '../common-functions'
+import { stringifyJsonWithEscapedQuotes, stringifyMappingSchemaForGraphQL } from '../forwardAudienceEvent/functions'
 
 describe('stringifyJsonWithEscapedQuotes', () => {
   it('should escape quotes in a simple object', () => {

@@ -1,7 +1,7 @@
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import nock from 'nock'
 import Definition from '../index'
-import { GQL_ENDPOINT } from '../constants'
+import { GQL_ENDPOINT } from '../common-constants'
 
 const testDestination = createTestIntegration(Definition)
 

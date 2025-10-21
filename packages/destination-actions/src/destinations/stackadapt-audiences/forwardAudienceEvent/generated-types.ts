@@ -42,19 +42,7 @@ export interface Payload {
      */
     postal_code?: string
     /**
-     * The numeric birth day of the user. e.g 15 for the 15th of the month.
-     */
-    birth_day?: number
-    /**
-     * The numeric birth month of the user. e.g 6 for June.
-     */
-    birth_month?: number
-    /**
-     * The numeric birth year of the user. e.g 1990.
-     */
-    birth_year?: number
-    /**
-     * The birth date of the user in YYYY-MM-DD format. If set, overrides 'Birth Day', 'Birth Month' and 'Birth Year' fields.
+     * The birthday of the user in YYYY-MM-DD format.
      */
     birth_date?: string
   }

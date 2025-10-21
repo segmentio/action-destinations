@@ -8,22 +8,6 @@ export interface ProfileFieldConfig {
   isPii?: boolean
 }
 
-export interface AdvertiserScopesResponse {
-  data: {
-    tokenInfo: {
-      scopesByAdvertiser: {
-        nodes: {
-          advertiser: {
-            id: string
-            name: string
-          }
-          scopes: string[]
-        }[]
-      }
-    }
-  }
-}
-
 export interface Advertiser {
   id: string
   name: string
