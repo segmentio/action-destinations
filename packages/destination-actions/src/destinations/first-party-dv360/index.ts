@@ -82,9 +82,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         'The appId matches with the type of the mobileDeviceIds being uploaded. **Required for CUSTOMER_MATCH_DEVICE_ID Audience Types.**'
     },
     membershipDurationDays: {
-      type: 'string',
+      type: 'number',
       label: 'Membership Duration Days',
       required: true,
+      maximum: 540,
+      minimum: 1,
       description:
         'The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.'
     }

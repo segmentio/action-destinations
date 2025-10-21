@@ -34,7 +34,7 @@ interface createAudienceRequestParams {
   advertiserId: string
   audienceName: string
   description?: string
-  membershipDurationDays: string
+  membershipDurationDays: number
   audienceType: string
   appId?: string
   token?: string
