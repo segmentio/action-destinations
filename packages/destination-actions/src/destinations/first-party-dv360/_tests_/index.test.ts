@@ -15,7 +15,7 @@ const createAudienceInput = {
   audienceSettings: {
     advertiserId: '12345',
     audienceType: 'CUSTOMER_MATCH_CONTACT_INFO',
-    membershipDurationDays: '30',
+    membershipDurationDays: 30,
     description: 'Test description'
   }
 }
@@ -58,7 +58,7 @@ describe('Audience Destination', () => {
         .post('/v4/firstPartyAndPartnerAudiences?advertiserId=12345', {
           displayName: audienceName,
           audienceType: 'CUSTOMER_MATCH_CONTACT_INFO',
-          membershipDurationDays: '30',
+          membershipDurationDays: 30,
           description: 'Test description',
           audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',
           firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY'
