@@ -27,21 +27,12 @@ export interface CreateDMPSegmentResponse {
   type: 'USER' | 'COMPANY'
 }
 
-export interface LinkedInUserAudienceJSON {
-  action: 'ADD' | 'REMOVE'
-  userIds: Record<string, string>[]
-  firstName?: string
-  lastName?: string
-  title?: string
-  company?: string
-  country?: string
-}
-
 export interface LinkedInBatchUpdateResponse {
   elements: Array<
     {
       status: number,
-      id: string
+      id?: string
+      message?: string
     }>
 }
 

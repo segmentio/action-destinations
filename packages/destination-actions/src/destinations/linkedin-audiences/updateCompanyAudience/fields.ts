@@ -38,6 +38,20 @@ export const fields: Record<string, InputField> ={
     ],
     default: 'AUTO'
   },
+  segment_creation_name: {
+    label: 'Segment Creation Name',
+    description: 'The name of the segment to create. This field is no longer used after the Segment is created in LinkedIn DMP.',
+    type: 'string',
+    required: true,
+    disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment'],
+    default: {
+      '@if': {
+        exists: { '@path': '$.properties.audience_key' },
+        then: { '@path': '$.properties.audience_key' },
+        else: { '@path': '$.context.personas.computation_key' }
+      }
+    }
+  },
   computation_key: {
     label: '[Hidden] Audience Computation Key',
     description: "[Hidden] Segment's friendly name for the Audience",
@@ -53,8 +67,8 @@ export const fields: Record<string, InputField> ={
     }
   },
   props: {
-    label: '[Hidden] Traits or properties object',
-    description: '[Hidden] A computed object for track and identify events. This field should not need to be edited.',
+    label: '[Hidden] Properties object',
+    description: '[Hidden] A computed object for track events. This field should not need to be edited.',
     type: 'object',
     required: true,
     unsafe_hidden: true,

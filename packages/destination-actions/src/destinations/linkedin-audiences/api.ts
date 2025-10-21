@@ -38,11 +38,11 @@ export class LinkedInAudiences {
     })
   }
 
-  async createDmpSegment(settings: Settings, sourceSegmentId: string, segmentType: SegmentType): Promise<ModifiedResponse<CreateDMPSegmentResponse>> {
+  async createDmpSegment(settings: Settings, sourceSegmentId: string, segmentName: string, segmentType: SegmentType): Promise<ModifiedResponse<CreateDMPSegmentResponse>> {
     return this.request(`${BASE_URL}/dmpSegments`, {
       method: 'POST',
       json: {
-        name: sourceSegmentId,
+        name: segmentName,
         sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
         sourceSegmentId,
         account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,

@@ -1,6 +1,6 @@
 import type { Payload } from './generated-types'
 
-export type PayloadWithIndex = Payload & { index: number }
+export type ValidPayload = Payload & { index: number , isError: boolean }
 
 export interface LinkedInCompanyAudienceJSON {
   elements: {

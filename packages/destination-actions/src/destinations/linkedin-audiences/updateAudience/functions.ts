@@ -1,23 +1,30 @@
-import type {StatsContext } from '@segment/actions-core'
-import { RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
+import type { StatsContext } from '@segment/actions-core'
+import { RequestClient, RetryableError, IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { LinkedInAudiences } from '../api'
-import { LinkedInUserAudienceJSON } from '../types'
+import { SegmentType } from '../types'
+import { LinkedInUserAudienceJSON} from './types'
 import { processHashing } from '../../../lib/hashing-utils'
 
-export async function processPayload(
+export async function send(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
+  segmentType: SegmentType,
   statsContext: StatsContext | undefined
 ) {
-  validate(settings, payloads)
-
+  const { personas_audience_key: sourceSegmentId, dmp_segment_name: segmentName } = payloads[0]
   const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
+  const { id, type } = await getDmpSegmentIdAndType(linkedinApiClient, settings, sourceSegmentId, segmentName || sourceSegmentId, segmentType, statsContext)
+  
+  if(type !== segmentType) {
+    throw new PayloadValidationError(`The existing DMP Segment with Source Segment Id ${sourceSegmentId} is of type ${type} and cannot be used to update a segment of type ${segmentType}.`)
+  }
 
-  const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0], statsContext)
-  const elements = extractUsers(settings, payloads)
+  const validPayloads = validate(settings, payloads)
+
+  const elements = buildJSON(settings, validPayloads)
 
   // We should never hit this condition because at least an email or a
   // google ad id is required in each payload, but if we do, returning early
@@ -47,8 +54,10 @@ export async function processPayload(
   return res
 }
 
-function validate(settings: Settings, payloads: Payload[]): void {
+function validate(settings: Settings, payloads: Payload[]): Payload[] {
   const isAutoOrUndefined = ['AUTO', undefined].includes(payloads[0]?.dmp_user_action)
+  const { send_google_advertising_id, send_email } = settings
+
   if (isAutoOrUndefined && payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
     throw new IntegrationError(
       'The value of `source_segment_id` and `personas_audience_key` must match.',
@@ -57,81 +66,80 @@ function validate(settings: Settings, payloads: Payload[]): void {
     )
   }
 
-  if (!settings.send_google_advertising_id && !settings.send_email) {
+  if (!send_google_advertising_id && !send_email) {
     throw new IntegrationError(
       'At least one of `Send Email` or `Send Google Advertising ID` must be set to `true`.',
       'INVALID_SETTINGS',
       400
     )
   }
+
+  return payloads.filter((payload: Payload) => {
+    const hasEmail = !!payload.email
+    const hasGAID = !!payload.google_advertising_id
+
+    // Must have at least one identifier
+    if (!hasEmail && !hasGAID) return false
+
+    // Include based on the flags
+    const includeEmail = send_email && hasEmail
+    const includeGAID = send_google_advertising_id && hasGAID
+
+    // Must have at least one *included* identifier
+    return includeEmail || includeGAID
+  })
+
 }
 
-async function getDmpSegmentId(
+async function getDmpSegmentIdAndType(
   linkedinApiClient: LinkedInAudiences,
   settings: Settings,
-  payload: Payload,
+  sourceSegmentId: string,
+  segmentName: string,
+  segmentType: SegmentType,
   statsContext: StatsContext | undefined
-): Promise<string> {
+): Promise<{ id: string; type: SegmentType }> {
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:get-dmpSegment`])
-  const res = await linkedinApiClient.getDmpSegment(settings, payload)
+  const res = await linkedinApiClient.getDmpSegment(settings, sourceSegmentId)
   const body = await res.json()
 
   if (body.elements?.length > 0) {
     return body.elements[0].id
   }
 
-  return createDmpSegment(linkedinApiClient, settings, payload, statsContext)
+  return createDmpSegment(linkedinApiClient, settings, sourceSegmentId, segmentName, segmentType, statsContext)
 }
 
 async function createDmpSegment(
   linkedinApiClient: LinkedInAudiences,
   settings: Settings,
-  payload: Payload,
+  sourceSegmentId: string,
+  segmentName: string,
+  segmentType: SegmentType,
   statsContext: StatsContext | undefined
-): Promise<string> {
+): Promise<{ id: string; type: SegmentType }> {
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:create-dmpSegment`])
-  const res = await linkedinApiClient.createDmpSegment(settings, payload)
-  const headers = res.headers.toJSON()
-  return headers['x-linkedin-id']
+  const res = await linkedinApiClient.createDmpSegment(settings, sourceSegmentId, segmentName, segmentType)
+  const { id, type } = res.data
+  return { id, type }
 }
 
-function extractUsers(settings: Settings, payloads: Payload[]): LinkedInUserAudienceJSON[] {
-  const elements: LinkedInUserAudienceJSON[] = []
+function buildJSON(settings: Settings, payloads: Payload[]): LinkedInUserAudienceJSON[] {
+  const elements: LinkedInUserAudienceJSON['elements'] = []
 
   payloads.forEach((payload: Payload) => {
-    if (!payload.email && !payload.google_advertising_id) {
-      return
-    }
-
-    const LinkedInUserAudienceJSON: LinkedInUserAudienceJSON = {
+    const { first_name, last_name, title, company, country } = payload
+    elements.push({
       action: getAction(payload),
-      userIds: getUserIds(settings, payload)
-    }
-
-    if (payload.first_name) {
-      LinkedInUserAudienceJSON.firstName = payload.first_name
-    }
-
-    if (payload.last_name) {
-      LinkedInUserAudienceJSON.lastName = payload.last_name
-    }
-
-    if (payload.title) {
-      LinkedInUserAudienceJSON.title = payload.title
-    }
-
-    if (payload.company) {
-      LinkedInUserAudienceJSON.company = payload.company
-    }
-
-    if (payload.country) {
-      LinkedInUserAudienceJSON.country = payload.country
-    }
-
-    elements.push(LinkedInUserAudienceJSON)
+      userIds: getUserIds(settings, payload),
+      ...(first_name ? { firstName: first_name } : {}),
+      ...(last_name ? { lastName: last_name } : {}),
+      ...(title ? { title } : {}),
+      ...(company ? { company } : {}),
+      ...(country ? { country } : {})
+    })
   })
-
-  return elements
+  return { elements }
 }
 
 function getAction(payload: Payload): 'ADD' | 'REMOVE' {
@@ -158,7 +166,7 @@ function getAction(payload: Payload): 'ADD' | 'REMOVE' {
   return 'ADD'
 }
 
-function getUserIds(settings: Settings, payload: Payload): Record<string, string>[] {
+function getUserIds(settings: Settings, payload: Payload): { idType: 'SHA256_EMAIL'; idValue: string } | { idType: 'GOOGLE_AID'; idValue: string } [] {
   const userIds = []
 
   if (payload.email && settings.send_email === true) {

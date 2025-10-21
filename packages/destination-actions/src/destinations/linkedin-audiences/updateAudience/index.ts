@@ -1,8 +1,9 @@
 import type { ActionDefinition} from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { processPayload } from './functions'
+import { send } from './functions'
 import { fields } from './fields'
+import { SEGMENT_TYPES } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To LinkedIn DMP User Segment',
@@ -10,10 +11,10 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   fields,
   perform: async (request, { settings, payload, statsContext }) => {
-    return processPayload(request, settings, [payload], statsContext)
+    return send(request, settings, [payload],  SEGMENT_TYPES.USER, statsContext)
   },
   performBatch: async (request, { settings, payload, statsContext }) => {
-    return processPayload(request, settings, payload, statsContext)
+    return send(request, settings, payload, SEGMENT_TYPES.USER, statsContext)
   }
 }
 

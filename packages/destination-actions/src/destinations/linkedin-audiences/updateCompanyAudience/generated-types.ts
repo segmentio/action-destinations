@@ -14,6 +14,8 @@ export interface Payload {
      */
     linkedInCompanyId?: string
   }
+  
+  segment_creation_name: string
   /**
    * Specifies if the company should be added or removed from the LinkedIn DMP Company Segment.
    */
