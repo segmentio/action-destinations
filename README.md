@@ -362,6 +362,77 @@ const destination = {
 
 In addition to default values for input fields, you can also specify the defaultSubscription for a given action – this is the FQL query that will be automatically populated when a customer configures a new subscription triggering a given action.
 
+## Password and Secret Fields
+
+When working with sensitive data such as API keys, tokens, passwords, or other credentials, it's critical to properly mark these fields with `type: 'password'`. This ensures proper security handling across Segment's infrastructure, including:
+
+- **UI Security**: Fields are automatically obfuscated in the Segment App interface
+- **Git Sync Integration**: Properly marked password fields are excluded from git sync operations to prevent secrets from being committed to version control
+- **Audit and Compliance**: Enables proper tracking and management of sensitive configuration data
+- **Infrastructure Security**: Ensures secrets are handled securely throughout Segment's data pipeline
+
+### Identifying Fields That Should Use type: 'password'
+
+Fields containing any of the following should always use `type: 'password'`:
+
+- **API Keys**: Any field containing API keys, access keys, or similar authentication tokens
+- **Passwords**: User passwords, service account passwords, or any authentication credentials
+- **Tokens**: Access tokens, refresh tokens, bearer tokens, OAuth tokens, or JWT tokens
+- **Secrets**: Client secrets, shared secrets, or any confidential authentication data
+- **Authorization Codes**: OAuth authorization codes or similar one-time codes
+- **Authentication Data**: Any field used for authentication or authorization purposes
+
+### Keywords to Watch For
+
+When defining field names or descriptions, look for these patterns that often indicate sensitive data:
+
+- Field names containing: `key`, `token`, `secret`, `password`, `code`, `auth`, `credential`, `bearer`
+- Descriptions mentioning: authentication, authorization, credentials, sensitive, confidential
+
+### Example Implementation
+
+```js
+const destination = {
+  authentication: {
+    scheme: 'custom',
+    fields: {
+      apiKey: {
+        label: 'API Key',
+        description: 'Your API key for authentication',
+        type: 'password', // ✅ Correct: API keys should be password type
+        required: true
+      },
+      clientSecret: {
+        label: 'Client Secret',
+        description: 'OAuth client secret',
+        type: 'password', // ✅ Correct: Client secrets should be password type
+        required: true
+      },
+      subdomain: {
+        label: 'Subdomain',
+        description: 'Your account subdomain',
+        type: 'string', // ✅ Correct: Subdomains are not sensitive
+        required: true
+      }
+    }
+  }
+}
+```
+
+### Integration with Segment Services
+
+Proper use of `type: 'password'` is essential for:
+
+1. **Git Sync**: When customers use Segment's git sync feature, password fields are automatically excluded from configuration files that get committed to repositories, preventing accidental exposure of secrets in version control.
+
+2. **Configuration Management**: Password fields receive special handling in Segment's configuration APIs and admin interfaces.
+
+3. **Security Auditing**: Enables Segment to provide proper audit trails and compliance reporting for sensitive configuration changes.
+
+4. **Data Protection**: Ensures sensitive data is encrypted and handled according to security best practices throughout its lifecycle.
+
+**Important**: Always err on the side of caution. If there's any doubt whether a field contains sensitive information, mark it as `type: 'password'`. It's better to be overly protective than to accidentally expose sensitive data.
+
 ## Required Fields
 
 You may configure a field to either be always required, not required, or conditionally required. Validation for required fields is performed both when a user is configuring a mapping in the UI and when an event payload is delivered through a `perform` block.

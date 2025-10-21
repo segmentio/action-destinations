@@ -119,9 +119,23 @@ Please find the below info for _Name of integration_ Catalog entry.
 
 ## Release to Public in the Segment catalog
 
-1. Once at least 1 customer successfully uses the integration, let us know. We’ll make your destination Public. Any Segment customer can find it in the catalog, and it will be featured on the New & Noteworthy page..
+Before releasing your destination to General Availability (GA), complete this security review checklist:
 
-2. Write a blog post for your company’s blog, write a [recipe](https://segment.com/recipes/) to help customers solve a specific problem using your Integration, and/or work with our Marketing team to be featured in the Segment blog.
+### Security Review Checklist for GA Release
+
+- [ ] **Secret Field Review**: Verify all sensitive fields (API keys, tokens, passwords, client secrets) are properly marked with `type: 'password'`
+- [ ] **Field Validation**: Check all field names and descriptions for keywords that indicate sensitive data: `key`, `token`, `secret`, `password`, `code`, `auth`, `credential`, `bearer`
+- [ ] **Authentication Configuration**: Ensure authentication fields use appropriate types and are properly secured
+- [ ] **Documentation Review**: Confirm all examples and documentation properly demonstrate secure field configuration
+- [ ] **Git Sync Compatibility**: Verify that password fields will be excluded from git sync operations to prevent credential exposure
+
+Refer to the [Password and Secret Fields section in README.md](README.md#password-and-secret-fields) for detailed guidance on proper field configuration.
+
+### Release Process
+
+1. Once at least 1 customer successfully uses the integration, let us know. We'll make your destination Public. Any Segment customer can find it in the catalog, and it will be featured on the New & Noteworthy page..
+
+2. Write a blog post for your company's blog, write a [recipe](https://segment.com/recipes/) to help customers solve a specific problem using your Integration, and/or work with our Marketing team to be featured in the Segment blog.
 
 3. Maintain your integration. Fix bugs, update it if your APIs change, add functionality as requested by customers.
 
