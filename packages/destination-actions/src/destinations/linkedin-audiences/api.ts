@@ -1,9 +1,9 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
 
-import type { Settings } from '../generated-types'
-import type { Payload } from '../updateAudience/generated-types'
-import { BASE_URL, LINKEDIN_SOURCE_PLATFORM } from '../constants'
-import type { ProfileAPIResponse, AdAccountUserResponse, LinkedInAudiencePayload } from '../types'
+import type { Settings } from './generated-types'
+import type { Payload } from './updateAudience/generated-types'
+import { BASE_URL, LINKEDIN_SOURCE_PLATFORM } from './constants'
+import type { ProfileAPIResponse, AdAccountUserResponse, LinkedInAudiencePayload } from './types'
 
 export class LinkedInAudiences {
   request: RequestClient

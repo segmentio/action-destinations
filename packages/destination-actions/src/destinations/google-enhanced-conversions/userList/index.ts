@@ -68,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone: {
       label: 'Phone',
-      description: "The user's phone number. ",
+      description: "The user's phone number.",
       type: 'string',
       default: {
         '@if': {
