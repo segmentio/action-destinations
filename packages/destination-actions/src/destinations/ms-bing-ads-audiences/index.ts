@@ -21,7 +21,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
       customerAccountId: {
         label: 'Customer Account ID',
         description:
-          'The account ID of the Microsoft Advertising account you want to manage. You can find it in the URL when viewing the account in the Microsoft Ads User Interface.',
+          'The account ID of the Microsoft Advertising account you want to manage. You can find it in the URL when viewing the account in the Microsoft Ads User Interface. Not to be confused with Account Number.',
         type: 'string',
         required: true
       },
