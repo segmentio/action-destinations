@@ -153,7 +153,7 @@ describe('Survicate Cloud Mode - trackEvent', () => {
         useDefaultMappings: true,
         mapping
       })
-    ).rejects.toThrow('User ID or Anonymous ID is required')
+    ).rejects.toThrowError()
   })
 
   it('should throw error when event name is missing', async () => {

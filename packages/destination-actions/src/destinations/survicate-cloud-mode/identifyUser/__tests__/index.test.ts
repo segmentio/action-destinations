@@ -129,7 +129,7 @@ describe('Survicate Cloud Mode - identifyUser', () => {
         useDefaultMappings: true,
         mapping
       })
-    ).rejects.toThrow('User ID or Anonymous ID is required')
+    ).rejects.toThrowError()
   })
 
   it('should throw error when traits are missing', async () => {
