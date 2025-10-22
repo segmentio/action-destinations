@@ -9,7 +9,9 @@ const settings: Settings = {
 }
 
 const payload = {
-  type: 'group',
+  type: 'group' as const,
+  userId: 'user123',
+  anonymousId: 'anon123',
   groupId: 'group123',
   traits: {
     name: 'Test Group',
@@ -20,6 +22,8 @@ const payload = {
 } as Partial<SegmentEvent>
 
 const mapping = {
+  userId: { '@path': '$.userId' },
+  anonymousId: { '@path': '$.anonymousId' },
   groupId: { '@path': '$.groupId' },
   traits: { '@path': '$.traits' },
   timestamp: { '@path': '$.timestamp' }
@@ -35,6 +39,8 @@ describe('Survicate Cloud Mode - identifyGroup', () => {
     const event = createTestEvent(payload)
 
     const expectedJson = {
+      userId: 'user123',
+      anonymousId: 'anon123',
       groupId: 'group123',
       traits: {
         group_name: 'Test Group',
@@ -56,6 +62,81 @@ describe('Survicate Cloud Mode - identifyGroup', () => {
     expect(response.length).toBe(1)
   })
 
+  it('should work with only userId (no anonymousId)', async () => {
+    const event = createTestEvent({
+      ...payload,
+      anonymousId: undefined
+    })
+
+    const expectedJson = {
+      userId: 'user123',
+      groupId: 'group123',
+      traits: {
+        group_name: 'Test Group',
+        group_industry: 'Technology',
+        group_size: 100
+      },
+      timestamp: '2023-10-01T00:00:00Z'
+    }
+
+    nock('https://integrations.survicate.com').post('/endpoint/segment/group', expectedJson).reply(200, {})
+
+    const response = await testDestination.testAction('identifyGroup', {
+      event,
+      settings,
+      useDefaultMappings: true,
+      mapping
+    })
+
+    expect(response.length).toBe(1)
+  })
+
+  it('should work with only anonymousId (no userId)', async () => {
+    const event = createTestEvent({
+      ...payload,
+      userId: undefined
+    })
+
+    const expectedJson = {
+      anonymousId: 'anon123',
+      groupId: 'group123',
+      traits: {
+        group_name: 'Test Group',
+        group_industry: 'Technology',
+        group_size: 100
+      },
+      timestamp: '2023-10-01T00:00:00Z'
+    }
+
+    nock('https://integrations.survicate.com').post('/endpoint/segment/group', expectedJson).reply(200, {})
+
+    const response = await testDestination.testAction('identifyGroup', {
+      event,
+      settings,
+      useDefaultMappings: true,
+      mapping
+    })
+
+    expect(response.length).toBe(1)
+  })
+
+  it('should throw error when neither userId nor anonymousId provided', async () => {
+    const event = createTestEvent({
+      ...payload,
+      userId: undefined,
+      anonymousId: undefined
+    })
+
+    await expect(
+      testDestination.testAction('identifyGroup', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping
+      })
+    ).rejects.toThrow('User ID or Anonymous ID is required')
+  })
+
   it('should throw error when groupId is missing', async () => {
     const event = createTestEvent({
       ...payload,
@@ -69,7 +150,7 @@ describe('Survicate Cloud Mode - identifyGroup', () => {
         useDefaultMappings: true,
         mapping
       })
-    ).rejects.toThrowError()
+    ).rejects.toThrow('Group ID is required')
   })
 
   it('should throw error when traits are missing', async () => {
@@ -95,6 +176,8 @@ describe('Survicate Cloud Mode - identifyGroup', () => {
     })
 
     const expectedJson = {
+      userId: 'user123',
+      anonymousId: 'anon123',
       groupId: 'group123',
       traits: {},
       timestamp: '2023-10-01T00:00:00Z'

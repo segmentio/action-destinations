@@ -4,7 +4,7 @@ import { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: 'Track events',
+  description: 'Send events to Survicate',
   platform: 'cloud',
   defaultSubscription: 'type = "track"',
   fields: {

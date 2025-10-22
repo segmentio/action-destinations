@@ -4,7 +4,7 @@ import { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
-  description: 'Sets user identity variables',
+  description: 'Send user traits to Survicate',
   platform: 'cloud',
   defaultSubscription: 'type = "identify"',
   fields: {

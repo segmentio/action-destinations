@@ -4,8 +4,28 @@ import { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify Group',
-  description: '',
+  description: 'Send group traits to Survicate',
+  defaultSubscription: 'type = "group"',
+  platform: 'cloud',
   fields: {
+    userId: {
+      type: 'string',
+      required: true,
+      description: "The user's id",
+      label: 'User ID',
+      default: {
+        '@path': '$.userId'
+      }
+    },
+    anonymousId: {
+      type: 'string',
+      required: false,
+      description: 'An anonymous id',
+      label: 'Anonymous ID',
+      default: {
+        '@path': '$.anonymousId'
+      }
+    },
     groupId: {
       type: 'string',
       required: true,
@@ -29,24 +49,30 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    if (!payload.groupId) {
+    const { userId, anonymousId, groupId, traits, timestamp } = payload
+
+    if (!userId && !anonymousId) {
+      throw new IntegrationError('User ID or Anonymous ID is required', 'Missing required field', 400)
+    }
+
+    if (!groupId) {
       throw new IntegrationError('Group ID is required', 'Missing required field', 400)
     }
 
-    if (!payload.traits) {
+    if (!traits) {
       throw new IntegrationError('Traits are required', 'Missing required field', 400)
     }
 
-    const groupTraits = Object.fromEntries(
-      Object.entries(payload.traits).map(([key, value]) => [`group_${key}`, value])
-    )
+    const groupTraits = Object.fromEntries(Object.entries(traits).map(([key, value]) => [`group_${key}`, value]))
 
-    const eventTimestamp = payload.timestamp || new Date().toISOString()
+    const eventTimestamp = timestamp || new Date().toISOString()
 
     return request(`https://integrations.survicate.com/endpoint/segment/group`, {
       method: 'post',
       json: {
-        groupId: payload.groupId,
+        ...(anonymousId !== undefined && { anonymousId }),
+        ...(userId !== undefined && { userId }),
+        groupId,
         traits: groupTraits,
         timestamp: eventTimestamp
       }
