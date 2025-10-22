@@ -104,7 +104,9 @@ async function getDmpSegmentIdAndType(
 ): Promise<{ id: string; type: SegmentType }> {
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:get-${segmentType === SEGMENT_TYPES.COMPANY ? 'abm-' : ''}dmpSegment`])
   const response = await linkedinApiClient.getDmpSegment(settings, sourceSegmentId)
-  const { id, type } = response.data?.elements?.[0]
+  const { id, type } = response.data?.elements?.[0] || {}
+  console.log('id =', id, 'type =', type)
+  
   if (id && type) {
     return { id, type }
   }
@@ -121,6 +123,9 @@ async function createDmpSegment(
 ): Promise<{ id: string; type: SegmentType }> {
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:create-${segmentType === SEGMENT_TYPES.COMPANY ? 'abm-' : ''}dmpSegment`])
   const res = await linkedinApiClient.createDmpSegment(settings, sourceSegmentId, segmentName, segmentType)
+  
   const { id, type } = res.data
+
+  console.log('id =', id, 'type =', type)
   return { id, type }
 }

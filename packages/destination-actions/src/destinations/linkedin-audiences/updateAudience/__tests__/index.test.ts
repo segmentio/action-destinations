@@ -75,7 +75,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
         .query(urlParams)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: 'USER' }] })
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
 
       await expect(
@@ -99,11 +99,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       urlParams.account = 'urn:li:sponsoredAccount:456'
 
       nock(`${BASE_URL}/dmpSegments`).get(/.*/).query(urlParams).reply(200, { elements: [] })
-      nock(`${BASE_URL}/dmpSegments`)
-        .get(/.*/)
-        .query(urlParams)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-      nock(`${BASE_URL}/dmpSegments`).post(/.*/, createDmpSegmentRequestBody).reply(200)
+      nock(`${BASE_URL}/dmpSegments`).post(/.*/, createDmpSegmentRequestBody).reply(200, { id: 'dmp_segment_id', type: 'USER' })
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
 
       await expect(
@@ -127,7 +123,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
         .query(() => true)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: 'USER' }] })
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
 
       await expect(
@@ -153,7 +149,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
         .query(() => true)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: 'USER' }] })
 
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
         .post(/.*/, (body) => body.elements[0].action === 'ADD')
@@ -181,7 +177,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
         .query(() => true)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: 'USER' }] })
 
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
         .post(/.*/, (body) => body.elements[0].action === 'REMOVE')
@@ -225,7 +221,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
         .query(() => true)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: 'USER' }] })
 
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
         .post(/.*/, (body) => body.elements[0].action === 'ADD')
@@ -273,7 +269,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
         .query(() => true)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: 'USER' }] })
 
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
         .post(/.*/, (body) => body.elements[0].action === 'ADD')
@@ -321,7 +317,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
         .query(() => true)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: 'USER' }] })
 
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
         .post(/.*/, (body) => body.elements[0].action === 'ADD')
@@ -374,7 +370,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
         .query(() => true)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: 'USER' }] })
 
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
         .post(/.*/, (body) => body.elements[0].action === 'ADD')
@@ -432,7 +428,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
         .query(expectedUrlParams)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: 'USER' }] })
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/).reply(200)
 
       await expect(
@@ -482,7 +478,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
         .query(expectedUrlParams)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: 'USER' }] })
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/).reply(200)
 
       await expect(
