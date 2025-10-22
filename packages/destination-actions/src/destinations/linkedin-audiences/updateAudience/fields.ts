@@ -1,5 +1,6 @@
 
 import { InputField } from '@segment/actions-core'
+import { AUDIENCE_ACTION } from '../constants'
 
 export const fields: Record<string, InputField> ={
     dmp_segment_name: {
@@ -121,8 +122,8 @@ export const fields: Record<string, InputField> ={
       type: 'string',
       choices: [
         { label: `Auto Detect`, value: 'AUTO' },
-        { label: `Add`, value: 'ADD' },
-        { label: 'Remove', value: 'REMOVE' }
+        { label: `Add`, value: AUDIENCE_ACTION.ADD },
+        { label: 'Remove', value: AUDIENCE_ACTION.REMOVE }
       ],
       default: 'AUTO'
     },

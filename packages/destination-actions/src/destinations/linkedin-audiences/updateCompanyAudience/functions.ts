@@ -5,7 +5,6 @@ import { AUDIENCE_ACTION } from '../constants'
 
 export function validate(payloads: Payload[], msResponse: MultiStatusResponse, isBatch: boolean): ValidCompanyPayload[] {
   const validPayloads: ValidCompanyPayload[] = []
-  
   payloads.forEach((p, index) => {
     const { identifiers: { companyDomain, linkedInCompanyId } } = p
     if (!companyDomain && !linkedInCompanyId) {
@@ -32,20 +31,16 @@ export function buildJSON(payloads: Payload[]): AudienceJSON<LinkedInCompanyAudi
 
   payloads.forEach((payload) => {
     const action: AudienceAction = payload.action === 'AUTO' ? payload.props[payload.computation_key] === true ? AUDIENCE_ACTION.ADD : AUDIENCE_ACTION.REMOVE : payload.action === AUDIENCE_ACTION.ADD ? AUDIENCE_ACTION.ADD : AUDIENCE_ACTION.REMOVE
-    
-    const { companyDomain, linkedInCompanyId } = payload.identifiers
-    
+    const { companyDomain, linkedInCompanyId } = payload.identifiers    
     const companyIds = [
       ...(companyDomain ? [{ idType: 'DOMAIN' as const, idValue: companyDomain }] : []),
       ...(linkedInCompanyId ? [{ idType: 'LINKEDIN_COMPANY_ID' as const, idValue: linkedInCompanyId }] : [])
     ]
-
     elements.push({
       action,
       companyIds
     })
   })
-
   return { elements }
 }
 

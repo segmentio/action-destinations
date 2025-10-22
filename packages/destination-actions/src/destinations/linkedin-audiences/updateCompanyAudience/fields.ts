@@ -1,5 +1,6 @@
 
 import { InputField } from '@segment/actions-core'
+import { AUDIENCE_ACTION } from '../constants'
 
 export const fields: Record<string, InputField> ={
   identifiers: {
@@ -33,8 +34,8 @@ export const fields: Record<string, InputField> ={
     disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
     choices: [
       { label: `Auto Detect`, value: 'AUTO' },
-      { label: `Add`, value: 'ADD' },
-      { label: 'Remove', value: 'REMOVE' }
+      { label: `Add`, value: AUDIENCE_ACTION.ADD },
+      { label: 'Remove', value: AUDIENCE_ACTION.REMOVE }
     ],
     default: 'AUTO'
   },
