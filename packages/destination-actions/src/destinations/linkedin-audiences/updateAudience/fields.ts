@@ -134,6 +134,6 @@ export const fields: Record<string, InputField> ={
       unsafe_hidden: true,
       required: true,
       multiple: true,
-      default: ['computation_key']
+      default: ['source_segment_id', 'personas_audience_key']
     }
   }
