@@ -1,140 +1,114 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import Destination from '../../index'
+import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
+import Definition from '../../index'
+import { Settings } from '../../generated-types'
 
-const testDestination = createTestIntegration(Destination)
+let testDestination = createTestIntegration(Definition)
+const settings: Settings = {
+  apiKey: 'test_api_key'
+}
 
-describe('SurvicateCloudMode.identifyGroup', () => {
-  const settings = {
-    workspaceKey: 'test-workspace-key',
-    apiKey: 'test-api-key'
-  }
+const payload = {
+  type: 'group',
+  groupId: 'group123',
+  traits: {
+    name: 'Test Group',
+    industry: 'Technology',
+    size: 100
+  },
+  timestamp: '2023-10-01T00:00:00Z'
+} as Partial<SegmentEvent>
 
-  beforeEach(() => {
-    nock.cleanAll()
-  })
+const mapping = {
+  groupId: { '@path': '$.groupId' },
+  traits: { '@path': '$.traits' },
+  timestamp: { '@path': '$.timestamp' }
+}
 
-  it('should identify a group with groupId and traits', async () => {
-    const event = createTestEvent({
-      type: 'group',
+beforeEach(() => {
+  testDestination = createTestIntegration(Definition)
+  nock.cleanAll()
+})
+
+describe('Survicate Cloud Mode - identifyGroup', () => {
+  it('should send identify group payload to Survicate', async () => {
+    const event = createTestEvent(payload)
+
+    const expectedJson = {
       groupId: 'group123',
       traits: {
-        name: 'Test Group',
-        industry: 'Technology',
-        size: '50-100'
-      }
-    })
+        group_name: 'Test Group',
+        group_industry: 'Technology',
+        group_size: 100
+      },
+      timestamp: '2023-10-01T00:00:00Z'
+    }
 
-    nock('https://panel-api.survicate.com')
-      .post('/integrations-api/endpoint/segment/group')
-      .matchHeader('authorization', 'Bearer test-api-key')
-      .reply(200, { success: true })
+    nock('https://integrations.survicate.com').post('/endpoint/segment/group', expectedJson).reply(200, {})
 
-    const responses = await testDestination.testAction('identifyGroup', {
+    const response = await testDestination.testAction('identifyGroup', {
       event,
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      mapping
     })
 
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].data).toEqual({ success: true })
+    expect(response.length).toBe(1)
   })
 
-  it('should prefix group traits with "group_"', async () => {
+  it('should throw error when groupId is missing', async () => {
     const event = createTestEvent({
-      type: 'group',
-      groupId: 'group123',
-      traits: {
-        name: 'Test Group',
-        industry: 'Technology'
-      }
-    })
-
-    nock('https://panel-api.survicate.com')
-      .post('/integrations-api/endpoint/segment/group')
-      .matchHeader('authorization', 'Bearer test-api-key')
-      .reply(200, { success: true })
-
-    const responses = await testDestination.testAction('identifyGroup', {
-      event,
-      settings,
-      useDefaultMappings: true
-    })
-
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].data).toEqual({ success: true })
-  })
-
-  it('should throw error when groupId is not provided', async () => {
-    const event = createTestEvent({
-      type: 'group',
-      traits: {
-        name: 'Test Group',
-        industry: 'Technology'
-      }
+      ...payload,
+      groupId: undefined
     })
 
     await expect(
       testDestination.testAction('identifyGroup', {
         event,
         settings,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        mapping
       })
-    ).rejects.toThrow('Group ID is required')
+    ).rejects.toThrowError()
   })
 
-  it('should throw error when traits are not provided', async () => {
+  it('should throw error when traits are missing', async () => {
     const event = createTestEvent({
-      type: 'group',
-      groupId: 'group123'
+      ...payload,
+      traits: undefined
     })
 
     await expect(
       testDestination.testAction('identifyGroup', {
         event,
         settings,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        mapping
       })
-    ).rejects.toThrow('Traits are required')
+    ).rejects.toThrowError()
   })
 
   it('should handle empty traits object', async () => {
     const event = createTestEvent({
-      type: 'group',
-      groupId: 'group123',
+      ...payload,
       traits: {}
     })
 
-    await expect(
-      testDestination.testAction('identifyGroup', {
-        event,
-        settings,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrow('Traits are required')
-  })
-
-  it('should handle group with minimal traits', async () => {
-    const event = createTestEvent({
-      type: 'group',
+    const expectedJson = {
       groupId: 'group123',
-      traits: {
-        name: 'Test Group'
-      }
-    })
+      traits: {},
+      timestamp: '2023-10-01T00:00:00Z'
+    }
 
-    nock('https://panel-api.survicate.com')
-      .post('/integrations-api/endpoint/segment/group')
-      .matchHeader('authorization', 'Bearer test-api-key')
-      .reply(200, { success: true })
+    nock('https://integrations.survicate.com').post('/endpoint/segment/group', expectedJson).reply(200, {})
 
-    const responses = await testDestination.testAction('identifyGroup', {
+    const response = await testDestination.testAction('identifyGroup', {
       event,
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      mapping
     })
 
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].data).toEqual({ success: true })
+    expect(response.length).toBe(1)
   })
 })

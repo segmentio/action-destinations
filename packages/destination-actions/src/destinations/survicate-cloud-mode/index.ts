@@ -20,7 +20,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      return request(`https://panel-api.survicate.com/integrations-api/endpoint/segment/check`, {
+      return request(`https://integrations.survicate.com/endpoint/segment/check`, {
         method: 'get',
         headers: {
           Authorization: `Bearer ${settings.apiKey}`,
@@ -49,7 +49,7 @@ const destination: DestinationDefinition<Settings> = {
       )
     }
 
-    return request(`https://panel-api.survicate.com/integrations-api/endpoint/segment/gdpr-delete-request`, {
+    return request(`https://integrations.survicate.com/endpoint/segment/gdpr-delete-request`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${settings.apiKey}`,

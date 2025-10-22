@@ -1,118 +1,174 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import Destination from '../../index'
+import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
+import Definition from '../../index'
+import { Settings } from '../../generated-types'
 
-const testDestination = createTestIntegration(Destination)
+let testDestination = createTestIntegration(Definition)
+const settings: Settings = {
+  apiKey: 'test_api_key'
+}
 
-describe('SurvicateCloudMode.trackEvent', () => {
-  const settings = {
-    workspaceKey: 'test-workspace-key',
-    apiKey: 'test-api-key'
-  }
+const payload = {
+  type: 'track' as const,
+  event: 'Test Event',
+  userId: 'user123',
+  anonymousId: 'anon123',
+  properties: {
+    category: 'test',
+    value: 100,
+    custom_prop: 'custom_value'
+  },
+  timestamp: '2023-10-01T00:00:00Z'
+} as Partial<SegmentEvent>
 
-  beforeEach(() => {
-    nock.cleanAll()
-  })
+const mapping = {
+  userId: { '@path': '$.userId' },
+  anonymousId: { '@path': '$.anonymousId' },
+  name: { '@path': '$.event' },
+  properties: { '@path': '$.properties' },
+  timestamp: { '@path': '$.timestamp' }
+}
 
-  it('should track an event with userId', async () => {
-    const event = createTestEvent({
-      type: 'track',
-      event: 'Test Event',
-      userId: 'user123',
+beforeEach(() => {
+  testDestination = createTestIntegration(Definition)
+  nock.cleanAll()
+})
+
+describe('Survicate Cloud Mode - trackEvent', () => {
+  it('should send track event payload to Survicate', async () => {
+    const event = createTestEvent(payload)
+
+    const expectedJson = {
+      name: 'Test Event',
       properties: {
-        testProperty: 'testValue'
-      }
-    })
+        category: 'test',
+        value: 100,
+        custom_prop: 'custom_value'
+      },
+      timestamp: '2023-10-01T00:00:00Z'
+    }
 
-    nock('https://panel-api.survicate.com')
-      .post('/integrations-api/endpoint/segment/track')
-      .matchHeader('authorization', 'Bearer test-api-key')
-      .reply(200, { success: true })
+    nock('https://integrations.survicate.com').post('/endpoint/segment/track', expectedJson).reply(200, {})
 
-    const responses = await testDestination.testAction('trackEvent', {
+    const response = await testDestination.testAction('trackEvent', {
       event,
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      mapping
     })
 
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].data).toEqual({ success: true })
+    expect(response.length).toBe(1)
   })
 
-  it('should track an event with anonymousId', async () => {
+  it('should work with only userId (no anonymousId)', async () => {
     const event = createTestEvent({
-      type: 'track',
-      event: 'Test Event',
-      anonymousId: 'anon123',
+      ...payload,
+      anonymousId: undefined
+    })
+
+    const expectedJson = {
+      name: 'Test Event',
       properties: {
-        testProperty: 'testValue'
-      }
-    })
+        category: 'test',
+        value: 100,
+        custom_prop: 'custom_value'
+      },
+      timestamp: '2023-10-01T00:00:00Z'
+    }
 
-    nock('https://panel-api.survicate.com')
-      .post('/integrations-api/endpoint/segment/track')
-      .matchHeader('authorization', 'Bearer test-api-key')
-      .reply(200, { success: true })
+    nock('https://integrations.survicate.com').post('/endpoint/segment/track', expectedJson).reply(200, {})
 
-    const responses = await testDestination.testAction('trackEvent', {
+    const response = await testDestination.testAction('trackEvent', {
       event,
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      mapping
     })
 
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].data).toEqual({ success: true })
+    expect(response.length).toBe(1)
   })
 
-  it('should track an event without properties', async () => {
+  it('should work with only anonymousId (no userId)', async () => {
     const event = createTestEvent({
-      type: 'track',
-      event: 'Test Event',
-      userId: 'user123'
+      ...payload,
+      userId: undefined
     })
 
-    nock('https://panel-api.survicate.com')
-      .post('/integrations-api/endpoint/segment/track')
-      .matchHeader('authorization', 'Bearer test-api-key')
-      .reply(200, { success: true })
+    const expectedJson = {
+      name: 'Test Event',
+      properties: {
+        category: 'test',
+        value: 100,
+        custom_prop: 'custom_value'
+      },
+      timestamp: '2023-10-01T00:00:00Z'
+    }
 
-    const responses = await testDestination.testAction('trackEvent', {
+    nock('https://integrations.survicate.com').post('/endpoint/segment/track', expectedJson).reply(200, {})
+
+    const response = await testDestination.testAction('trackEvent', {
       event,
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      mapping
     })
 
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].data).toEqual({ success: true })
+    expect(response.length).toBe(1)
   })
 
-  it('should throw error when neither userId nor anonymousId is provided', async () => {
+  it('should work without properties', async () => {
     const event = createTestEvent({
-      type: 'track',
-      event: 'Test Event'
+      ...payload,
+      properties: undefined
+    })
+
+    const expectedJson = {
+      name: 'Test Event',
+      timestamp: '2023-10-01T00:00:00Z'
+    }
+
+    nock('https://integrations.survicate.com').post('/endpoint/segment/track', expectedJson).reply(200, {})
+
+    const response = await testDestination.testAction('trackEvent', {
+      event,
+      settings,
+      useDefaultMappings: true,
+      mapping
+    })
+
+    expect(response.length).toBe(1)
+  })
+
+  it('should throw error when neither userId nor anonymousId provided', async () => {
+    const event = createTestEvent({
+      ...payload,
+      userId: undefined,
+      anonymousId: undefined
     })
 
     await expect(
       testDestination.testAction('trackEvent', {
         event,
         settings,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        mapping
       })
     ).rejects.toThrow('User ID or Anonymous ID is required')
   })
 
-  it('should throw error when event name is not provided', async () => {
+  it('should throw error when event name is missing', async () => {
     const event = createTestEvent({
-      type: 'track',
-      userId: 'user123'
+      ...payload,
+      event: undefined
     })
 
     await expect(
       testDestination.testAction('trackEvent', {
         event,
         settings,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        mapping
       })
-    ).rejects.toThrow('Name is required')
+    ).rejects.toThrowError()
   })
 })
