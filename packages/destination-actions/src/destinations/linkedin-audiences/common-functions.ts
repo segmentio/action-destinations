@@ -33,6 +33,7 @@ export async function send<P, E>(
       return msResponse
     } 
     else {
+      console.log('------------------HERE------------------')
       throw new PayloadValidationError(`The existing DMP Segment with Source Segment Id ${sourceSegmentId} is of type ${type} and cannot be used to update a segment of type ${segmentType}.`)
     }
   }
@@ -122,6 +123,8 @@ async function createDmpSegment(
   statsContext: StatsContext | undefined
 ): Promise<{ id: string; type: SegmentType }> {
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:create-${segmentType === SEGMENT_TYPES.COMPANY ? 'abm-' : ''}dmpSegment`])
+  
+  console.log('calling linkedinApiClient.createDmpSegment with.', sourceSegmentId, segmentName, segmentType )
   const res = await linkedinApiClient.createDmpSegment(settings, sourceSegmentId, segmentName, segmentType)
   
   const { id, type } = res.data

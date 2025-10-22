@@ -537,11 +537,7 @@ describe('LinkedinAudiences.updateAudience', () => {
         .reply(200, { elements: [] })
       nock(`${BASE_URL}/dmpSegments`)
         .post(/.*/, expectedCreateDmpSegmentRequestBody)
-        .reply(200, {}, { 'x-linkedin-id': 'new_dmp_segment_id' })
-      nock(`${BASE_URL}/dmpSegments`)
-        .get(/.*/)
-        .query(() => true)
-        .reply(200, { elements: [{ id: 'new_dmp_segment_id' }] })
+        .reply(200, { id: 'new_dmp_segment_id', type: 'USER'} )
       nock(`${BASE_URL}/dmpSegments/new_dmp_segment_id/users`).post(/.*/).reply(200)
 
       await expect(
@@ -600,11 +596,7 @@ describe('LinkedinAudiences.updateAudience', () => {
         .reply(200, { elements: [] })
       nock(`${BASE_URL}/dmpSegments`)
         .post(/.*/, expectedCreateDmpSegmentRequestBody)
-        .reply(200, {}, { 'x-linkedin-id': 'new_dmp_segment_id' })
-      nock(`${BASE_URL}/dmpSegments`)
-        .get(/.*/)
-        .query(() => true)
-        .reply(200, { elements: [{ id: 'new_dmp_segment_id' }] })
+        .reply(200, { id: 'new_dmp_segment_id', type: 'USER' } )
       nock(`${BASE_URL}/dmpSegments/new_dmp_segment_id/users`).post(/.*/).reply(200)
 
       await expect(
