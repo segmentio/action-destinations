@@ -10,17 +10,17 @@ export interface Payload {
    */
   anonymousId?: string
   /**
-   * The name of the event.
+   * The name of the event
    */
   name: string
   /**
-   * A JSON object containing additional information about the event that will be indexed by FullStory.
+   * Object containing the properties of the event
    */
   properties?: {
     [k: string]: unknown
   }
   /**
-   * The timestamp of the event. Defaults to current time if not provided.
+   * The timestamp of the event. Defaults to current time if not provided
    */
   timestamp?: string
 }

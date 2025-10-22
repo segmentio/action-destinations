@@ -16,7 +16,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The timestamp of the event. Defaults to current time if not provided.
+   * The timestamp of the event. Defaults to current time if not provided
    */
   timestamp?: string
 }
