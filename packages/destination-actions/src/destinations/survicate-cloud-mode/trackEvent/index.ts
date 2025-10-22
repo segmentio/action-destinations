@@ -27,7 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     name: {
-      description: 'The name of the event.',
+      description: 'The name of the event',
       label: 'Name',
       required: true,
       type: 'string',
@@ -36,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     properties: {
-      description: 'A JSON object containing additional information about the event that will be indexed by FullStory.',
+      description: 'Object containing the properties of the event',
       label: 'Properties',
       required: false,
       type: 'object',
@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp: {
       type: 'string',
       required: false,
-      description: 'The timestamp of the event. Defaults to current time if not provided.',
+      description: 'The timestamp of the event. Defaults to current time if not provided',
       label: 'Timestamp',
       default: {
         '@path': '$.timestamp'

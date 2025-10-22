@@ -38,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp: {
       type: 'string',
       required: false,
-      description: 'The timestamp of the event. Defaults to current time if not provided.',
+      description: 'The timestamp of the event. Defaults to current time if not provided',
       label: 'Timestamp',
       default: {
         '@path': '$.timestamp'
