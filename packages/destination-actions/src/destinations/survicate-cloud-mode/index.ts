@@ -1,4 +1,4 @@
-import { IntegrationError, DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import identifyUser from './identifyUser'
 import trackEvent from './trackEvent'
@@ -36,31 +36,6 @@ const destination: DestinationDefinition<Settings> = {
         'Content-Type': 'application/json'
       }
     }
-  },
-
-  onDelete: async (request, { settings, payload }) => {
-    const { userId, anonymousId } = payload
-
-    if (!userId && !anonymousId) {
-      throw new IntegrationError(
-        'Either userId or anonymousId must be provided for GDPR deletion',
-        'Missing required field',
-        400
-      )
-    }
-
-    return request(`https://integrations.survicate.com/endpoint/segment/gdpr-delete-request`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${settings.apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      json: {
-        ...(userId && { userId }),
-        ...(anonymousId && { anonymousId }),
-        timestamp: new Date().toISOString()
-      }
-    })
   },
 
   actions: {
