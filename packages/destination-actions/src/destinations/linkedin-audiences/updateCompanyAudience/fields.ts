@@ -40,7 +40,7 @@ export const fields: Record<string, InputField> ={
   },
   segment_creation_name: {
     label: 'Segment Creation Name',
-    description: 'The name of the segment to create. This field is no longer used after the Segment is created in LinkedIn DMP.',
+    description: 'The name of the segment to create. This field is no longer used after the Segment is created in LinkedIn.',
     type: 'string',
     required: true,
     disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment'],

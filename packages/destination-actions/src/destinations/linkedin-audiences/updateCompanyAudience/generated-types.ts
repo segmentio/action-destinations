@@ -14,18 +14,20 @@ export interface Payload {
      */
     linkedInCompanyId?: string
   }
-  
-  segment_creation_name: string
   /**
    * Specifies if the company should be added or removed from the LinkedIn DMP Company Segment.
    */
   action?: string
   /**
+   * The name of the segment to create. This field is no longer used after the Segment is created in LinkedIn.
+   */
+  segment_creation_name: string
+  /**
    * [Hidden] Segment's friendly name for the Audience
    */
   computation_key: string
   /**
-   * [Hidden] A computed object for track and identify events. This field should not need to be edited.
+   * [Hidden] A computed object for track events. This field should not need to be edited.
    */
   props: {
     [k: string]: unknown

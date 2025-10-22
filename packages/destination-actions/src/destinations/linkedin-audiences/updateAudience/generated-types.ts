@@ -53,4 +53,8 @@ export interface Payload {
    * Specifies if the user should be added or removed from the LinkedIn DMP User Segment.
    */
   dmp_user_action?: string
+  /**
+   * [Hidden] Batch key used to ensure a batch contains payloads from a single Audience only.
+   */
+  batch_keys: string[]
 }
