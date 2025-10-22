@@ -1,125 +1,79 @@
-import { StatsContext, RequestClient, RetryableError, IntegrationError, PayloadValidationError } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
+import { MultiStatusResponse, IntegrationError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
-import { LinkedInAudiences } from '../api'
-import { SegmentType, AudienceAction } from '../types'
-import { LinkedInUserAudienceJSON, LinkedInUserId} from './types'
-import { processHashing } from '../../../lib/hashing-utils'
+import { AudienceJSON,LinkedInUserAudienceElement, AudienceAction, LinkedInUserId, ValidUserPayload} from '../types'
 import { AUDIENCE_ACTION } from '../constants'
+import type { Settings } from '../generated-types'
+import { processHashing } from '../../../lib/hashing-utils'
 
-export async function send(
-  request: RequestClient,
-  settings: Settings,
-  payloads: Payload[],
-  segmentType: SegmentType,
-  statsContext: StatsContext | undefined
-) {
-  const { personas_audience_key: sourceSegmentId, dmp_segment_name: segmentName } = payloads[0]
-  const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
-  const { id, type } = await getDmpSegmentIdAndType(linkedinApiClient, settings, sourceSegmentId, segmentName || sourceSegmentId, segmentType, statsContext)
-  
-  if(type !== segmentType) {
-    throw new PayloadValidationError(`The existing DMP Segment with Source Segment Id ${sourceSegmentId} is of type ${type} and cannot be used to update a segment of type ${segmentType}.`)
-  }
-
-  const validPayloads = validate(settings, payloads)
-
-  if(validPayloads.length === 0) {
-    throw new PayloadValidationError('No valid payloads to process after validation.')  
-  }
-
-  const json = buildJSON(settings, validPayloads)
-
-  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
-    ...statsContext?.tags,
-    `endpoint:add-or-remove-users-from-dmpSegment`
-  ])
-
-  const response = await linkedinApiClient.batchUpdate(id, json, segmentType)
-
-  // At this point, if LinkedIn's API returns a 404 error, it's because the audience
-  // Segment just created isn't available yet for updates via this endpoint.
-  // Audiences are usually available to accept batches of data 1 - 2 minutes after
-  // they're created. Here, we'll throw an error and let Centrifuge handle the retry.
-  if (response.status !== 200) {
-    throw new RetryableError('Error while attempting to update LinkedIn DMP Segment. This batch will be retried.')
-  }
-
-  return response
-}
-
-function validate(settings: Settings, payloads: Payload[]): Payload[] {
+export function validate(payloads: Payload[], msResponse: MultiStatusResponse, isBatch: boolean, settings: Settings): ValidUserPayload[] {
   const isAutoOrUndefined = ['AUTO', undefined].includes(payloads[0]?.dmp_user_action)
   const { send_google_advertising_id, send_email } = settings
+  const validPayloads: ValidUserPayload[] = []
 
   if (isAutoOrUndefined && payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
-    throw new IntegrationError(
-      'The value of `source_segment_id` and `personas_audience_key` must match.',
-      'INVALID_SETTINGS',
-      400
-    )
+    if(isBatch){
+      payloads.forEach((_, index) => {
+        msResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errortype: 'BAD_REQUEST',
+          errormessage: "The value of 'source_segment_id' and 'personas_audience_key' must match."
+        })
+      })
+      return validPayloads
+    }
+    else {
+      throw new IntegrationError(
+        'The value of `source_segment_id` and `personas_audience_key` must match.',
+        'BAD_REQUEST',
+        400
+      )
+    }
   }
 
   if (!send_google_advertising_id && !send_email) {
-    throw new IntegrationError(
-      'At least one of `Send Email` or `Send Google Advertising ID` must be set to `true`.',
-      'INVALID_SETTINGS',
-      400
-    )
+    if(isBatch){
+      payloads.forEach((_, index) => {
+        msResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errortype: 'BAD_REQUEST',
+          errormessage: "At least one of 'Send Email' or 'Send Google Advertising ID' setting fields must be set to 'true'."
+        })
+      })
+      return validPayloads
+    }
+    else {
+      throw new IntegrationError(
+        "At least one of 'Send Email' or 'Send Google Advertising ID' setting fields must be set to 'true'.",
+        'BAD_REQUEST',
+        400
+      )
+    }
   }
 
-  const validPayloads = payloads.filter((payload: Payload) => {
-    const hasEmail = !!payload.email
-    const hasGAID = !!payload.google_advertising_id
-
-    // Must have at least one identifier
-    if (!hasEmail && !hasGAID) return false
-
-    // Include based on the flags
+  payloads.forEach((p, index) => {
+    const hasEmail = !!p.email
+    const hasGAID = !!p.google_advertising_id
     const includeEmail = send_email && hasEmail
     const includeGAID = send_google_advertising_id && hasGAID
+    const hasId = includeEmail || includeGAID
 
-    // Must have at least one *included* identifier
-    return includeEmail || includeGAID
+    if(!hasId){
+      // Must have at least one identifier  
+      msResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: "At least one of 'User Email' or 'User Google Advertising ID' fields are required. Make sure to enable the 'Send Email' and / or 'Send Google Advertising ID' setting so that the corresponding identifiers are included."
+      })
+    } 
+    else {
+      validPayloads.push({ ...p, index})
+    }
   })
 
   return validPayloads
 }
 
-async function getDmpSegmentIdAndType(
-  linkedinApiClient: LinkedInAudiences,
-  settings: Settings,
-  sourceSegmentId: string,
-  segmentName: string,
-  segmentType: SegmentType,
-  statsContext: StatsContext | undefined
-): Promise<{ id: string; type: SegmentType }> {
-  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:get-dmpSegment`])
-  const res = await linkedinApiClient.getDmpSegment(settings, sourceSegmentId)
-  const body = await res.json()
-
-  if (body.elements?.length > 0) {
-    return body.elements[0].id
-  }
-
-  return createDmpSegment(linkedinApiClient, settings, sourceSegmentId, segmentName, segmentType, statsContext)
-}
-
-async function createDmpSegment(
-  linkedinApiClient: LinkedInAudiences,
-  settings: Settings,
-  sourceSegmentId: string,
-  segmentName: string,
-  segmentType: SegmentType,
-  statsContext: StatsContext | undefined
-): Promise<{ id: string; type: SegmentType }> {
-  statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:create-dmpSegment`])
-  const res = await linkedinApiClient.createDmpSegment(settings, sourceSegmentId, segmentName, segmentType)
-  const { id, type } = res.data
-  return { id, type }
-}
-
-function buildJSON(settings: Settings, payloads: Payload[]): LinkedInUserAudienceJSON {
+export function buildJSON(payloads: Payload[], settings: Settings): AudienceJSON<LinkedInUserAudienceElement> {
 
   function getAction(payload: Payload): AudienceAction {
     const { dmp_user_action = 'AUTO' } = payload
@@ -165,7 +119,7 @@ function buildJSON(settings: Settings, payloads: Payload[]): LinkedInUserAudienc
     return userIds
   }
 
-  const elements: LinkedInUserAudienceJSON['elements'] = []
+  const elements: LinkedInUserAudienceElement[] = []
 
   payloads.forEach((payload: Payload) => {
     const { first_name, last_name, title, company, country } = payload
@@ -180,4 +134,9 @@ function buildJSON(settings: Settings, payloads: Payload[]): LinkedInUserAudienc
     })
   })
   return { elements }
+}
+
+export function getSegmentSourceIdAndName(payload: Payload): {sourceSegmentId: string, segmentName: string} {
+   const { personas_audience_key: sourceSegmentId, dmp_segment_name: segmentName } = payload
+   return {sourceSegmentId, segmentName: segmentName || sourceSegmentId}
 }

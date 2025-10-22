@@ -1,8 +1,38 @@
 import { HTTPError } from '@segment/actions-core'
 import { SEGMENT_TYPES, AUDIENCE_ACTION } from './constants'
+import { Payload as UserPayload } from './updateAudience/generated-types'
+import { Payload as CompanyPayload } from './updateCompanyAudience/generated-types'
 
 export type SegmentType = typeof SEGMENT_TYPES[keyof typeof SEGMENT_TYPES]
+
 export type AudienceAction = typeof AUDIENCE_ACTION[keyof typeof AUDIENCE_ACTION]
+
+export type ValidUserPayload = (UserPayload & { index: number })
+
+export type ValidCompanyPayload = (CompanyPayload & { index: number })
+
+export interface AudienceJSON<E> {
+  elements: E[]
+}
+
+export interface LinkedInCompanyAudienceElement {
+  action: 'ADD' | 'REMOVE'
+  companyIds: ( { idType: 'DOMAIN'; idValue: string } | { idType: 'LINKEDIN_COMPANY_ID'; idValue: string } )[]
+}
+
+export interface LinkedInUserAudienceElement {
+  action: 'ADD' | 'REMOVE'
+  userIds: LinkedInUserId[]
+  firstName?: string
+  lastName?: string
+  title?: string
+  company?: string
+  country?: string
+}
+
+export type LinkedInUserId =
+  | { idType: 'SHA256_EMAIL'; idValue: string }
+  | { idType: 'GOOGLE_AID'; idValue: string }
 
 export interface RefreshTokenResponse {
   access_token: string
