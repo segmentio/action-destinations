@@ -1,4 +1,4 @@
-import {StatsContext, MultiStatusResponse, RequestClient, PayloadValidationError, JSONLikeObject  } from '@segment/actions-core'
+import {StatsContext, MultiStatusResponse, RequestClient, PayloadValidationError, JSONLikeObject, RetryableError  } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { LinkedInAudiences } from '../api'
@@ -11,6 +11,7 @@ export async function send(
   settings: Settings,
   payloads: Payload[],
   segmentType: SegmentType,
+  isBatch: boolean,
   statsContext: StatsContext | undefined
 ) {
   const msResponse = new MultiStatusResponse()
@@ -20,7 +21,7 @@ export async function send(
 
   if(type !== segmentType) {
     // reject all payloads if Segment Type mismatches
-    if(segmentType === SEGMENT_TYPES.COMPANY){
+    if(isBatch){
       payloads.forEach((_, index) => {
         msResponse.setErrorResponseAtIndex(index, {
           status: 400,
@@ -37,6 +38,15 @@ export async function send(
   
   const validPayloads = validate(payloads, msResponse)
 
+  if(validPayloads.length === 0) {
+    if(isBatch){
+      return msResponse
+    } 
+    else {
+      throw new PayloadValidationError('No valid payloads to process after validation.')
+    }
+  }
+
   const json = buildJSON(validPayloads)
 
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
@@ -44,33 +54,43 @@ export async function send(
     `endpoint:add-or-remove-users-from-${segmentType === SEGMENT_TYPES.COMPANY ? 'abm-' : ''}dmpSegment`
   ])
 
-  const response = await linkedinApiClient.batchUpdate(id, json, SEGMENT_TYPES.COMPANY)
+  const response = await linkedinApiClient.batchUpdate(id, json, segmentType)
 
-  if(segmentType === SEGMENT_TYPES.USER) {
-    return response
+  // At this point, if LinkedIn's API returns a 404 error, it's because the audience
+  // Segment just created isn't available yet for updates via this endpoint.
+  // Audiences are usually available to accept batches of data 1 - 2 minutes after
+  // they're created. Here, we'll throw an error and let Centrifuge handle the retry.
+  if (response.status !== 200) {
+    throw new RetryableError('Error while attempting to update LinkedIn DMP Segment. This batch will be retried.')
+  }
+
+  if(isBatch) {
+    const sentElements = json.elements
+
+    validPayloads.forEach((payload: ValidPayload, index) => {
+      const e = response.data.elements[index]
+      if(e.status >= 200 && e.status < 300) {
+        msResponse.setSuccessResponseAtIndex(payload.index, {
+          status: e.status,
+          sent: payload as unknown as JSONLikeObject,
+          body: sentElements[index]
+        })
+      } 
+      else {
+        msResponse.setErrorResponseAtIndex(payload.index, {
+          status: e.status,
+          errortype: 'BAD_REQUEST',
+          errormessage: e.message || 'Failed to update LinkedIn Audience',
+          sent: payload as unknown as JSONLikeObject,
+          body: sentElements[index] 
+        })
+      }
+    })
+    return msResponse
   } 
-
-  const sentElements = json.elements
-
-  validPayloads.forEach((payload: ValidPayload, index) => {
-    const e = response.data.elements[index]
-    if(e.status >= 200 && e.status < 300) {
-      msResponse.setSuccessResponseAtIndex(payload.index, {
-        status: e.status,
-        sent: payload as unknown as JSONLikeObject,
-        body: sentElements[index]
-      })
-    } 
-    else {
-      msResponse.setErrorResponseAtIndex(payload.index, {
-        status: e.status,
-        errortype: 'BAD_REQUEST',
-        errormessage: e.message || 'Failed to update LinkedIn Audience',
-        sent: payload as unknown as JSONLikeObject,
-        body: sentElements[index] 
-      })
-    }
-  })
+  else {
+    return response
+  }
 }
 
 function validate(payloads: Payload[], msResponse: MultiStatusResponse): ValidPayload[] {
@@ -84,7 +104,6 @@ function validate(payloads: Payload[], msResponse: MultiStatusResponse): ValidPa
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: "At least one of 'Company Domain' or 'LinkedIn Company ID' is required in the 'Identifiers' field."
       })
-      validPayloads.push({ ...p, isError: true, index})
     } else {
       validPayloads.push({ ...p, isError: false, index})
     }

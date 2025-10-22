@@ -5,3 +5,8 @@ export const SEGMENT_TYPES = {
   USER: 'USER',
   COMPANY: 'COMPANY'
 } as const
+
+export const AUDIENCE_ACTION = {
+  ADD: 'ADD',
+  REMOVE: 'REMOVE'
+} as const

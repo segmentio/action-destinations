@@ -1,7 +1,8 @@
 import { HTTPError } from '@segment/actions-core'
-import { SEGMENT_TYPES } from './constants'
+import { SEGMENT_TYPES, AUDIENCE_ACTION } from './constants'
 
 export type SegmentType = typeof SEGMENT_TYPES[keyof typeof SEGMENT_TYPES]
+export type AudienceAction = typeof AUDIENCE_ACTION[keyof typeof AUDIENCE_ACTION]
 
 export interface RefreshTokenResponse {
   access_token: string

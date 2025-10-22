@@ -11,10 +11,10 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   fields,
   perform: async (request, { settings, payload, statsContext }) => {
-    return send(request, settings, [payload],  SEGMENT_TYPES.USER, statsContext)
+    return send(request, settings, [payload],  SEGMENT_TYPES.USER, false, statsContext)
   },
   performBatch: async (request, { settings, payload, statsContext }) => {
-    return send(request, settings, payload, SEGMENT_TYPES.USER, statsContext)
+    return send(request, settings, payload, SEGMENT_TYPES.USER, true, statsContext)
   }
 }
 

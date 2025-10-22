@@ -11,10 +11,10 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify"',
   fields,
   perform: async (request, { settings, payload, statsContext }) => {
-    return send(request, settings, [payload], SEGMENT_TYPES.COMPANY, statsContext)
+    return send(request, settings, [payload], SEGMENT_TYPES.COMPANY, false, statsContext)
   },
   performBatch: async (request, { settings, payload, statsContext }) => {
-    return send(request, settings, payload, SEGMENT_TYPES.COMPANY, statsContext)
+    return send(request, settings, payload, SEGMENT_TYPES.COMPANY, true, statsContext)
   }
 }
 
