@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The display name of the LinkedIn DMP Segment. This field is set only when Segment creates a new audience. Updating this field after Segment has created an audience will not update the audience name in LinkedIn.
+   * The name of the segment to create. This field is no longer used after the Segment is created in LinkedIn.
    */
   dmp_segment_name?: string
   /**
-   * Enable batching of requests to the LinkedIn DMP Segment.
+   * [Hidden] Enable batching of requests to the LinkedIn DMP Segment.
    */
   enable_batching?: boolean
   /**
@@ -38,11 +38,11 @@ export interface Payload {
    */
   google_advertising_id?: string
   /**
-   * A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.
+   * [Hidden] A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.
    */
   source_segment_id?: string
   /**
-   * The `audience_key` of the Engage audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.
+   * [Hidden] The `audience_key` of the Engage audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.
    */
   personas_audience_key?: string
   /**
@@ -56,5 +56,5 @@ export interface Payload {
   /**
    * [Hidden] Batch key used to ensure a batch contains payloads from a single Audience only.
    */
-  batch_keys: string[]
+  batch_keys?: string[]
 }
