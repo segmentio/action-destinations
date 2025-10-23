@@ -630,25 +630,6 @@ describe('LinkedinAudiences.updateAudience', () => {
   })
 
   describe('Error cases', () => {
-    it('should fail if `personas_audience_key` field does not match the `source_segment_id` field', async () => {
-      await expect(
-        testDestination.testAction('updateAudience', {
-          event,
-          settings: {
-            ad_account_id: '123',
-            send_email: true,
-            send_google_advertising_id: true
-          },
-          useDefaultMappings: true,
-          auth,
-          mapping: {
-            personas_audience_key: 'mismatched_audience',
-            dmp_user_action: null
-          }
-        })
-      ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
-    })
-
     it('should fail if both `send_email` and `send_google_advertising_id` settings are set to false', async () => {
       await expect(
         testDestination.testAction('updateAudience', {
@@ -664,26 +645,8 @@ describe('LinkedinAudiences.updateAudience', () => {
             personas_audience_key: 'personas_test_audience'
           }
         })
-      ).rejects.toThrow('At least one of `Send Email` or `Send Google Advertising ID` must be set to `true`.')
+      ).rejects.toThrow("At least one of 'Send Email' or 'Send Google Advertising ID' setting fields must be set to 'true'.")
     })
 
-    it('should fail if `personas_audience_key` field does not match the `source_segment_id` field, and `dmp_user_action` is set to auto', async () => {
-      await expect(
-        testDestination.testAction('updateAudience', {
-          event,
-          settings: {
-            ad_account_id: '123',
-            send_email: true,
-            send_google_advertising_id: true
-          },
-          useDefaultMappings: true,
-          auth,
-          mapping: {
-            personas_audience_key: 'mismatched_audience',
-            dmp_user_action: 'AUTO'
-          }
-        })
-      ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
-    })
   })
 })

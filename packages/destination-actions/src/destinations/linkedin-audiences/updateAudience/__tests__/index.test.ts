@@ -612,24 +612,5 @@ describe('LinkedinAudiences.updateAudience', () => {
         })
       ).rejects.toThrow("At least one of 'Send Email' or 'Send Google Advertising ID' setting fields must be set to 'true'.")
     })
-
-    it('should fail if `personas_audience_key` field does not match the `source_segment_id` field, and `dmp_user_action` is set to auto', async () => {
-      await expect(
-        testDestination.testAction('updateAudience', {
-          event,
-          settings: {
-            ad_account_id: '123',
-            send_email: true,
-            send_google_advertising_id: true
-          },
-          useDefaultMappings: true,
-          auth,
-          mapping: {
-            personas_audience_key: 'mismatched_audience',
-            dmp_user_action: 'AUTO'
-          }
-        })
-      ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
-    })
   })
 })

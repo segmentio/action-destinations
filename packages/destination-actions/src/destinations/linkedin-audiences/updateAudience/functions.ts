@@ -6,29 +6,8 @@ import type { Settings } from '../generated-types'
 import { processHashing } from '../../../lib/hashing-utils'
 
 export function validate(payloads: Payload[], msResponse: MultiStatusResponse, isBatch: boolean, settings: Settings): ValidUserPayload[] {
-  const isAutoOrUndefined = ['AUTO', undefined].includes(payloads[0]?.dmp_user_action)
   const { send_google_advertising_id, send_email } = settings
   const validPayloads: ValidUserPayload[] = []
-
-  if (isAutoOrUndefined && payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
-    if(isBatch){
-      payloads.forEach((_, index) => {
-        msResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: 'BAD_REQUEST',
-          errormessage: "The value of 'source_segment_id' and 'personas_audience_key' must match."
-        })
-      })
-      return validPayloads
-    }
-    else {
-      throw new IntegrationError(
-        'The value of `source_segment_id` and `personas_audience_key` must match.',
-        'BAD_REQUEST',
-        400
-      )
-    }
-  }
 
   if (!send_google_advertising_id && !send_email) {
     if(isBatch){
