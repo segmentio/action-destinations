@@ -1,10 +1,9 @@
 import https from 'https'
-
 import type { DestinationDefinition, ModifiedResponse } from '@segment/actions-core'
 import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
-
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
+import updateCompanyAudience from './updateCompanyAudience'
 import { LINKEDIN_API_VERSION } from './constants'
 import { LinkedInAudiences } from './api'
 import type {
@@ -33,16 +32,14 @@ const destination: DestinationDefinition<Settings> = {
       },
       send_email: {
         label: 'Send Email',
-        description:
-          'Whether to send `email` to LinkedIn. This setting applies to all mappings you create in this destination instance.',
+        description: 'Whether to send `email` to LinkedIn when using a User LinkedIn Segment.',
         type: 'boolean',
         default: true,
         required: true
       },
       send_google_advertising_id: {
         label: 'Send Google Advertising ID',
-        description:
-          'Whether to send Google Advertising ID to LinkedIn. This setting applies to all mappings you create in this destination instance.',
+        description: 'Whether to send Google Advertising ID to LinkedIn when using a User LinkedIn Segment.',
         type: 'boolean',
         default: true,
         required: true
@@ -153,7 +150,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    updateAudience
+    updateAudience,
+    updateCompanyAudience
   }
 }
 

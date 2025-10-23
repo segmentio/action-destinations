@@ -6,11 +6,11 @@ export interface Settings {
    */
   ad_account_id: string
   /**
-   * Whether to send `email` to LinkedIn. This setting applies to all mappings you create in this destination instance.
+   * Whether to send `email` to LinkedIn when using a User LinkedIn Segment.
    */
   send_email: boolean
   /**
-   * Whether to send Google Advertising ID to LinkedIn. This setting applies to all mappings you create in this destination instance.
+   * Whether to send Google Advertising ID to LinkedIn when using a User LinkedIn Segment.
    */
   send_google_advertising_id: boolean
 }
