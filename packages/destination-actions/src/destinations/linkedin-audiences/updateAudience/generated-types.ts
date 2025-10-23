@@ -44,7 +44,7 @@ export interface Payload {
   /**
    * The `audience_key` of the Engage audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.
    */
-  personas_audience_key: string
+  personas_audience_key?: string
   /**
    * The name of the current Segment event.
    */

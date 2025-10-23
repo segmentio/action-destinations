@@ -3,7 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { BASE_URL, LINKEDIN_SOURCE_PLATFORM } from '../../constants'
 
-const testDestination = createTestIntegration(Destination)
+let testDestination = createTestIntegration(Destination)
 
 interface AuthTokens {
   accessToken: string
@@ -19,14 +19,30 @@ const event = createTestEvent({
   event: 'Audience Entered',
   type: 'track',
   properties: {
-    audience_key: 'personas_test_audience'
+    company_domain: "companyDomain1.com",
+    linkedin_company_id: 'linkedInCompanyId1',
+    personas_test_audience: true
   },
   context: {
-    device: {
-      advertisingId: '123'
-    },
-    traits: {
-      email: 'testing@testing.com'
+    personas: {
+      computation_key: 'personas_test_audience',
+      computation_class: 'audience'
+    }
+  }
+})
+
+const event2 = createTestEvent({
+  event: 'Audience Entered',
+  type: 'track',
+  properties: {
+    company_domain: "companyDomain2.com",
+    linkedin_company_id: 'linkedInCompanyId2',
+    personas_test_audience: true
+  },
+  context: {
+    personas: {
+      computation_key: 'personas_test_audience',
+      computation_class: 'audience'
     }
   }
 })
@@ -38,594 +54,915 @@ const urlParams = {
   sourcePlatform: LINKEDIN_SOURCE_PLATFORM
 }
 
-const updateUsersRequestBody = {
+const updateCompaniesRequestBody = {
   elements: [
     {
       action: 'ADD',
-      userIds: [
+      companyIds: [
         {
-          idType: 'SHA256_EMAIL',
-          idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+          idType: "DOMAIN",
+          idValue: "companyDomain1.com"
         },
         {
-          idType: 'GOOGLE_AID',
-          idValue: '123'
+          idType: "LINKEDIN_COMPANY_ID",
+          idValue: "linkedInCompanyId1"
         }
       ]
     }
   ]
 }
 
-const createDmpSegmentRequestBody = {
-  name: 'personas_test_audience',
-  sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
-  sourceSegmentId: 'personas_test_audience',
-  account: `urn:li:sponsoredAccount:456`,
-  type: 'USER',
-  destinations: [
+const updateCompaniesResonse = {
+  elements: [
     {
-      destination: 'LINKEDIN'
+      status: 200
+    },
+      {
+      status: 200
     }
   ]
 }
 
-describe('LinkedinAudiences.updateAudience', () => {
+const createDmpSegmentRequestBody = {
+  name: "personas_test_audience",
+  sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
+  sourceSegmentId: "personas_test_audience",
+  account: "urn:li:sponsoredAccount:123",
+  type: "COMPANY",
+  destinations: [
+    {
+      destination: "LINKEDIN"
+    }
+  ]
+}
+
+beforeEach((done) => {
+  testDestination = createTestIntegration(Destination)
+  nock.cleanAll()
+  done()
+})
+
+describe('LinkedinAudiences.updateCompanyAudience', () => {
   describe('Successful cases', () => {
-    it('should succeed if an existing DMP Segment is found', async () => {
+    it('should send the right (non-batch) payload - Segment already exists', async () => {
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
         .query(urlParams)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
-
-      await expect(
-        testDestination.testAction('updateAudience', {
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: "COMPANY" }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/companies`).post(/.*/, updateCompaniesRequestBody).reply(200)
+      
+      const responses = await testDestination.testAction('updateCompanyAudience', {
           event,
           settings: {
             ad_account_id: '123',
-            send_email: true,
-            send_google_advertising_id: true
+            send_email: false,
+            send_google_advertising_id: false
           },
           useDefaultMappings: true,
           auth,
           mapping: {
-            personas_audience_key: 'personas_test_audience'
+            action: 'AUTO',
+            segment_creation_name: { '@path': '$.context.personas.computation_key'},
+            computation_key: { '@path': '$.context.personas.computation_key'}, 
+            computation_class: {'@path': '$.context.personas.computation_class'},
+            enable_batching: true,
+            batch_keys: ['computation_key']   
           }
         })
-      ).resolves.not.toThrowError()
+        expect(responses.length).toBe(2)
     })
 
-    it('should successfully create a new DMP Segment if an existing Segment is not found', async () => {
-      urlParams.account = 'urn:li:sponsoredAccount:456'
+    it('should send the right (batch) payload - Segment already exists', async () => {
 
-      nock(`${BASE_URL}/dmpSegments`).get(/.*/).query(urlParams).reply(200, { elements: [] })
-      nock(`${BASE_URL}/dmpSegments`)
-        .get(/.*/)
-        .query(urlParams)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-      nock(`${BASE_URL}/dmpSegments`).post(/.*/, createDmpSegmentRequestBody).reply(200)
-      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
-
-      await expect(
-        testDestination.testAction('updateAudience', {
-          event,
-          settings: {
-            ad_account_id: '456',
-            send_email: true,
-            send_google_advertising_id: true
-          },
-          useDefaultMappings: true,
-          auth,
-          mapping: {
-            personas_audience_key: 'personas_test_audience'
-          }
-        })
-      ).resolves.not.toThrowError()
-    })
-
-    it('should not throw an error if `dmp_user_action` is not "AUTO", even if `source_segment_id` does not match `personas_audience_key`', async () => {
-      nock(`${BASE_URL}/dmpSegments`)
-        .get(/.*/)
-        .query(() => true)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
-
-      await expect(
-        testDestination.testAction('updateAudience', {
-          event,
-          settings: {
-            ad_account_id: '123',
-            send_email: true,
-            send_google_advertising_id: true
-          },
-          useDefaultMappings: true,
-          auth,
-          mapping: {
-            source_segment_id: 'mismatched_segment',
-            personas_audience_key: 'personas_test_audience',
-            dmp_user_action: 'ADD'
-          }
-        })
-      ).resolves.not.toThrowError()
-    })
-
-    it('should set action to "ADD" if `dmp_user_action` is "ADD"', async () => {
-      nock(`${BASE_URL}/dmpSegments`)
-        .get(/.*/)
-        .query(() => true)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-
-      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
-        .post(/.*/, (body) => body.elements[0].action === 'ADD')
-        .reply(200)
-
-      const response = await testDestination.testAction('updateAudience', {
-        event,
-        settings: {
-          ad_account_id: '123',
-          send_email: true,
-          send_google_advertising_id: true
-        },
-        useDefaultMappings: true,
-        auth,
-        mapping: {
-          personas_audience_key: 'personas_test_audience',
-          dmp_user_action: 'ADD'
-        }
-      })
-
-      expect(response).toBeTruthy()
-    })
-
-    it('should set action to "REMOVE" if `dmp_user_action` is "REMOVE"', async () => {
-      nock(`${BASE_URL}/dmpSegments`)
-        .get(/.*/)
-        .query(() => true)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-
-      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
-        .post(/.*/, (body) => body.elements[0].action === 'REMOVE')
-        .reply(200)
-
-      const response = await testDestination.testAction('updateAudience', {
-        event,
-        settings: {
-          ad_account_id: '123',
-          send_email: true,
-          send_google_advertising_id: true
-        },
-        useDefaultMappings: true,
-        auth,
-        mapping: {
-          personas_audience_key: 'personas_test_audience',
-          dmp_user_action: 'REMOVE'
-        }
-      })
-
-      expect(response).toBeTruthy()
-    })
-
-    it('Email comes from traits.email', async () => {
-      const eventWithTraits = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
-          audience_key: 'personas_test_audience'
-        },
-        traits: {
-          email: 'testing@testing.com'
-        },
-        context: {
-          device: {
-            advertisingId: '123'
-          }
-        }
-      })
-
-      nock(`${BASE_URL}/dmpSegments`)
-        .get(/.*/)
-        .query(() => true)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-
-      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
-        .post(/.*/, (body) => body.elements[0].action === 'ADD')
-        .reply(200)
-
-      const responses = await testDestination.testAction('updateAudience', {
-        event: eventWithTraits,
-        settings: {
-          ad_account_id: '123',
-          send_email: true,
-          send_google_advertising_id: true
-        },
-        useDefaultMappings: true,
-        auth,
-        mapping: {
-          personas_audience_key: 'personas_test_audience',
-          dmp_user_action: 'ADD'
-        }
-      })
-
-      expect(responses).toBeTruthy()
-      expect(responses).toHaveLength(2)
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        '"{\\"elements\\":[{\\"action\\":\\"ADD\\",\\"userIds\\":[{\\"idType\\":\\"SHA256_EMAIL\\",\\"idValue\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\"},{\\"idType\\":\\"GOOGLE_AID\\",\\"idValue\\":\\"123\\"}]}]}"'
-      )
-    })
-
-    it('Email is already a SHA256 hash', async () => {
-      const eventWithTraits = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
-          audience_key: 'personas_test_audience'
-        },
-        traits: {
-          email: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
-        },
-        context: {
-          device: {
-            advertisingId: '123'
-          }
-        }
-      })
-
-      nock(`${BASE_URL}/dmpSegments`)
-        .get(/.*/)
-        .query(() => true)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-
-      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
-        .post(/.*/, (body) => body.elements[0].action === 'ADD')
-        .reply(200)
-
-      const responses = await testDestination.testAction('updateAudience', {
-        event: eventWithTraits,
-        settings: {
-          ad_account_id: '123',
-          send_email: true,
-          send_google_advertising_id: true
-        },
-        useDefaultMappings: true,
-        auth,
-        mapping: {
-          personas_audience_key: 'personas_test_audience',
-          dmp_user_action: 'ADD'
-        }
-      })
-
-      expect(responses).toBeTruthy()
-      expect(responses).toHaveLength(2)
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        '"{\\"elements\\":[{\\"action\\":\\"ADD\\",\\"userIds\\":[{\\"idType\\":\\"SHA256_EMAIL\\",\\"idValue\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\"},{\\"idType\\":\\"GOOGLE_AID\\",\\"idValue\\":\\"123\\"}]}]}"'
-      )
-    })
-
-    it('Email is already a SHA256 hash with smart hashing flag', async () => {
-      const eventWithTraits = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
-          audience_key: 'personas_test_audience'
-        },
-        traits: {
-          email: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
-        },
-        context: {
-          device: {
-            advertisingId: '123'
-          }
-        }
-      })
-
-      nock(`${BASE_URL}/dmpSegments`)
-        .get(/.*/)
-        .query(() => true)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-
-      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
-        .post(/.*/, (body) => body.elements[0].action === 'ADD')
-        .reply(200)
-
-      const responses = await testDestination.testAction('updateAudience', {
-        event: eventWithTraits,
-        settings: {
-          ad_account_id: '123',
-          send_email: true,
-          send_google_advertising_id: true
-        },
-        useDefaultMappings: true,
-        auth,
-        mapping: {
-          personas_audience_key: 'personas_test_audience',
-          dmp_user_action: 'ADD'
-        }
-      })
-
-      expect(responses).toBeTruthy()
-      expect(responses).toHaveLength(2)
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        '"{\\"elements\\":[{\\"action\\":\\"ADD\\",\\"userIds\\":[{\\"idType\\":\\"SHA256_EMAIL\\",\\"idValue\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\"},{\\"idType\\":\\"GOOGLE_AID\\",\\"idValue\\":\\"123\\"}]}]}"'
-      )
-    })
-
-    it('Full payload', async () => {
-      const eventWithTraits = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
-          audience_key: 'personas_test_audience'
-        },
-        traits: {
-          email: 'testing@testing.com',
-          firstName: 'John',
-          lastName: 'Doe',
-          title: 'CEO',
-          company: 'Acme',
-          country: 'US'
-        },
-        context: {
-          device: {
-            advertisingId: '123'
-          }
-        }
-      })
-
-      nock(`${BASE_URL}/dmpSegments`)
-        .get(/.*/)
-        .query(() => true)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-
-      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
-        .post(/.*/, (body) => body.elements[0].action === 'ADD')
-        .reply(200)
-
-      const responses = await testDestination.testAction('updateAudience', {
-        event: eventWithTraits,
-        settings: {
-          ad_account_id: '123',
-          send_email: true,
-          send_google_advertising_id: true
-        },
-        useDefaultMappings: true,
-        auth,
-        mapping: {
-          personas_audience_key: 'personas_test_audience',
-          dmp_user_action: 'ADD'
-        }
-      })
-
-      expect(responses).toBeTruthy()
-      expect(responses).toHaveLength(2)
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        '"{\\"elements\\":[{\\"action\\":\\"ADD\\",\\"userIds\\":[{\\"idType\\":\\"SHA256_EMAIL\\",\\"idValue\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\"},{\\"idType\\":\\"GOOGLE_AID\\",\\"idValue\\":\\"123\\"}],\\"firstName\\":\\"John\\",\\"lastName\\":\\"Doe\\",\\"title\\":\\"CEO\\",\\"company\\":\\"Acme\\",\\"country\\":\\"US\\"}]}"'
-      )
-    })
-
-    it('should use context.personas.computation_key as source_segment_id when properties.audience_key does not exist', async () => {
-      const eventWithComputationKey = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
-          // No audience_key property
-        },
-        context: {
-          personas: {
-            computation_key: 'from_computation_key' // gitleaks:allow
-          },
-          traits: {
-            email: 'testing@testing.com'
-          },
-          device: {
-            advertisingId: '123'
-          }
-        }
-      })
-
-      const expectedUrlParams = {
-        q: 'account',
-        account: 'urn:li:sponsoredAccount:123',
-        sourceSegmentId: 'from_computation_key', // gitleaks:allow
-        sourcePlatform: LINKEDIN_SOURCE_PLATFORM
-      }
-
-      nock(`${BASE_URL}/dmpSegments`)
-        .get(/.*/)
-        .query(expectedUrlParams)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/).reply(200)
-
-      await expect(
-        testDestination.testAction('updateAudience', {
-          event: eventWithComputationKey,
-          settings: {
-            ad_account_id: '123',
-            send_email: true,
-            send_google_advertising_id: true
-          },
-          useDefaultMappings: true,
-          auth,
-          mapping: {
-            personas_audience_key: 'from_computation_key' // gitleaks:allow
-          }
-        })
-      ).resolves.not.toThrowError()
-    })
-
-    it('should prioritize properties.audience_key over context.personas.computation_key when both exist', async () => {
-      const eventWithBothKeys = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
-          audience_key: 'from_properties_audience_key' // gitleaks:allow
-        },
-        context: {
-          personas: {
-            computation_key: 'from_computation_key' // gitleaks:allow
-          },
-          traits: {
-            email: 'testing@testing.com'
-          },
-          device: {
-            advertisingId: '123'
-          }
-        }
-      })
-
-      const expectedUrlParams = {
-        q: 'account',
-        account: 'urn:li:sponsoredAccount:123',
-        sourceSegmentId: 'from_properties_audience_key', // Should use this, not computation_key // gitleaks:allow
-        sourcePlatform: LINKEDIN_SOURCE_PLATFORM
-      }
-
-      nock(`${BASE_URL}/dmpSegments`)
-        .get(/.*/)
-        .query(expectedUrlParams)
-        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/).reply(200)
-
-      await expect(
-        testDestination.testAction('updateAudience', {
-          event: eventWithBothKeys,
-          settings: {
-            ad_account_id: '123',
-            send_email: true,
-            send_google_advertising_id: true
-          },
-          useDefaultMappings: true,
-          auth,
-          mapping: {
-            personas_audience_key: 'from_properties_audience_key' // gitleaks:allow
-          }
-        })
-      ).resolves.not.toThrowError()
-    })
-
-    it('should use context.personas.computation_key as dmp_segment_name when properties.audience_key does not exist', async () => {
-      const eventWithComputationKey = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
-          // No audience_key property
-        },
-        context: {
-          personas: {
-            computation_key: 'from_computation_key' // gitleaks:allow
-          },
-          traits: {
-            email: 'testing@testing.com'
-          },
-          device: {
-            advertisingId: '123'
-          }
-        }
-      })
-
-      const expectedCreateDmpSegmentRequestBody = {
-        name: 'from_computation_key', // gitleaks:allow
-        sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
-        sourceSegmentId: 'from_computation_key', // gitleaks:allow
-        account: `urn:li:sponsoredAccount:123`,
-        type: 'USER',
-        destinations: [
+      const updateCompaniesRequestBody2 = {
+        elements: [
           {
-            destination: 'LINKEDIN'
+            action: 'ADD',
+            companyIds: [
+              {
+                idType: "DOMAIN",
+                idValue: "companyDomain1.com"
+              },
+              {
+                idType: "LINKEDIN_COMPANY_ID",
+                idValue: "linkedInCompanyId1"
+              }
+            ]
+          },
+          {
+            action: 'ADD',
+            companyIds: [
+              {
+                idType: "DOMAIN",
+                idValue: "companyDomain2.com"
+              },
+              {
+                idType: "LINKEDIN_COMPANY_ID",
+                idValue: "linkedInCompanyId2"
+              }
+            ]
           }
         ]
       }
 
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
-        .query(() => true)
-        .reply(200, { elements: [] })
-      nock(`${BASE_URL}/dmpSegments`)
-        .post(/.*/, expectedCreateDmpSegmentRequestBody)
-        .reply(200, {}, { 'x-linkedin-id': 'new_dmp_segment_id' })
-      nock(`${BASE_URL}/dmpSegments`)
-        .get(/.*/)
-        .query(() => true)
-        .reply(200, { elements: [{ id: 'new_dmp_segment_id' }] })
-      nock(`${BASE_URL}/dmpSegments/new_dmp_segment_id/users`).post(/.*/).reply(200)
-
-      await expect(
-        testDestination.testAction('updateAudience', {
-          event: eventWithComputationKey,
-          settings: {
-            ad_account_id: '123',
-            send_email: true,
-            send_google_advertising_id: true
-          },
-          useDefaultMappings: true,
-          auth,
-          mapping: {
-            personas_audience_key: 'from_computation_key' // gitleaks:allow
-          }
-        })
-      ).resolves.not.toThrowError()
-    })
-
-    it('should prioritize properties.audience_key over context.personas.computation_key for dmp_segment_name when both exist', async () => {
-      const eventWithBothKeys = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
-          audience_key: 'from_properties_audience_key' // gitleaks:allow
+        .query(urlParams)
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: "COMPANY" }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/companies`).post(/.*/, updateCompaniesRequestBody2).reply(200, updateCompaniesResonse)
+      
+      const responses = await testDestination.testBatchAction('updateCompanyAudience', {
+        events: [event,event2],
+        settings: {
+          ad_account_id: '123',
+          send_email: false,
+          send_google_advertising_id: false
         },
-        context: {
-          personas: {
-            computation_key: 'from_computation_key' // gitleaks:allow
-          },
-          traits: {
-            email: 'testing@testing.com'
-          },
-          device: {
-            advertisingId: '123'
-          }
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          action: 'AUTO',
+          segment_creation_name: { '@path': '$.context.personas.computation_key'},
+          computation_key: { '@path': '$.context.personas.computation_key'}, 
+          computation_class: {'@path': '$.context.personas.computation_class'},
+          enable_batching: true,
+          batch_keys: ['computation_key']   
         }
       })
+      expect(responses.length).toBe(2)
+    })
 
-      const expectedCreateDmpSegmentRequestBody = {
-        name: 'from_properties_audience_key', // Should use this, not computation_key // gitleaks:allow
-        sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
-        sourceSegmentId: 'from_properties_audience_key', // gitleaks:allow
-        account: `urn:li:sponsoredAccount:123`,
-        type: 'USER',
-        destinations: [
+    it('should get the correct multistatusResponse from a (batch) payload - Segment already exists', async () => {
+
+      const updateCompaniesRequestBody2 = {
+        elements: [
           {
-            destination: 'LINKEDIN'
+            action: 'ADD',
+            companyIds: [
+              {
+                idType: "DOMAIN",
+                idValue: "companyDomain1.com"
+              },
+              {
+                idType: "LINKEDIN_COMPANY_ID",
+                idValue: "linkedInCompanyId1"
+              }
+            ]
+          },
+          {
+            action: 'ADD',
+            companyIds: [
+              {
+                idType: "DOMAIN",
+                idValue: "companyDomain2.com"
+              },
+              {
+                idType: "LINKEDIN_COMPANY_ID",
+                idValue: "linkedInCompanyId2"
+              }
+            ]
           }
         ]
       }
 
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
-        .query(() => true)
-        .reply(200, { elements: [] })
-      nock(`${BASE_URL}/dmpSegments`)
-        .post(/.*/, expectedCreateDmpSegmentRequestBody)
-        .reply(200, {}, { 'x-linkedin-id': 'new_dmp_segment_id' })
+        .query(urlParams)
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: "COMPANY" }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/companies`).post(/.*/, updateCompaniesRequestBody2).reply(200, updateCompaniesResonse)
+      
+      const responses = await testDestination.executeBatch('updateCompanyAudience', {
+        events: [event,event2],
+        settings: {
+          ad_account_id: '123',
+          send_email: false,
+          send_google_advertising_id: false
+        },
+        auth,
+        mapping: {
+          action: 'AUTO',
+          identifiers: {
+            companyDomain: {"@path": "$.properties.company_domain"},
+            linkedInCompanyId: {"@path": "$.properties.linkedin_company_id"},
+          },
+          props: {"@path": "$.properties"},
+          segment_creation_name: { '@path': '$.context.personas.computation_key'},
+          computation_key: { '@path': '$.context.personas.computation_key'}, 
+          computation_class: {'@path': '$.context.personas.computation_class'},
+          enable_batching: true,
+          batch_keys: ['computation_key']   
+        }
+      })
+      expect(responses).toMatchObject([
+        {
+          status: 200,
+          sent: {
+            action: "AUTO",
+            identifiers: {
+              companyDomain: "companyDomain1.com",
+              linkedInCompanyId: "linkedInCompanyId1"
+            },
+            props: {
+              company_domain: "companyDomain1.com",
+              linkedin_company_id: "linkedInCompanyId1",
+              personas_test_audience: true
+            },
+            segment_creation_name: "personas_test_audience",
+            computation_key: "personas_test_audience",
+            computation_class: "audience",
+            enable_batching: true,
+            batch_keys: ["computation_key"],
+            index: 0
+          },
+          body: {
+            elements: [
+              {
+                action: "ADD",
+                companyIds: [
+                  { idType: "DOMAIN", idValue: "companyDomain1.com" },
+                  { idType: "LINKEDIN_COMPANY_ID", idValue: "linkedInCompanyId1" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          status: 200,
+          sent: {
+            action: "AUTO",
+            identifiers: {
+              companyDomain: "companyDomain2.com",
+              linkedInCompanyId: "linkedInCompanyId2"
+            },
+            props: {
+              company_domain: "companyDomain2.com",
+              linkedin_company_id: "linkedInCompanyId2",
+              personas_test_audience: true
+            },
+            segment_creation_name: "personas_test_audience",
+            computation_key: "personas_test_audience",
+            computation_class: "audience",
+            enable_batching: true,
+            batch_keys: ["computation_key"],
+            index: 1
+          },
+          body: {
+            elements: [
+              {
+                action: "ADD",
+                companyIds: [
+                  { idType: "DOMAIN", idValue: "companyDomain2.com" },
+                  { idType: "LINKEDIN_COMPANY_ID", idValue: "linkedInCompanyId2" }
+                ]
+              }
+            ]
+          }
+        }
+      ])
+    })
+
+    it('should get the correct multistatusResponse from a (batch) payload - add and remove - different ID types - Segment already exists', async () => {
+
+      const event3 = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          linkedin_company_id: 'linkedInCompanyId1',
+          personas_test_audience: true
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+
+      const event4 = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          company_domain: "companyDomain2.com",
+          personas_test_audience: false
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+
+      const updateCompaniesRequestBody2 = {
+        elements: [
+          {
+            action: 'ADD',
+            companyIds: [
+              {
+                idType: "LINKEDIN_COMPANY_ID",
+                idValue: "linkedInCompanyId1"
+              }
+            ]
+          },
+          {
+            action: 'REMOVE',
+            companyIds: [
+              {
+                idType: "DOMAIN",
+                idValue: "companyDomain2.com"
+              }
+            ]
+          }
+        ]
+      }
+
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
-        .query(() => true)
-        .reply(200, { elements: [{ id: 'new_dmp_segment_id' }] })
-      nock(`${BASE_URL}/dmpSegments/new_dmp_segment_id/users`).post(/.*/).reply(200)
-
-      await expect(
-        testDestination.testAction('updateAudience', {
-          event: eventWithBothKeys,
-          settings: {
-            ad_account_id: '123',
-            send_email: true,
-            send_google_advertising_id: true
+        .query(urlParams)
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: "COMPANY" }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/companies`).post(/.*/, updateCompaniesRequestBody2).reply(200, updateCompaniesResonse)
+      
+      const responses = await testDestination.executeBatch('updateCompanyAudience', {
+        events: [event3,event4],
+        settings: {
+          ad_account_id: '123',
+          send_email: false,
+          send_google_advertising_id: false
+        },
+        auth,
+        mapping: {
+          action: 'AUTO',
+          identifiers: {
+            companyDomain: {"@path": "$.properties.company_domain"},
+            linkedInCompanyId: {"@path": "$.properties.linkedin_company_id"},
           },
-          useDefaultMappings: true,
-          auth,
-          mapping: {
-            personas_audience_key: 'from_properties_audience_key' // gitleaks:allow
+          props: {"@path": "$.properties"},
+          segment_creation_name: { '@path': '$.context.personas.computation_key'},
+          computation_key: { '@path': '$.context.personas.computation_key'}, 
+          computation_class: {'@path': '$.context.personas.computation_class'},
+          enable_batching: true,
+          batch_keys: ['computation_key']   
+        }
+      })
+      expect(responses).toMatchObject([
+        {
+          status: 200,
+          sent: {
+            action: "AUTO",
+            identifiers: {
+              linkedInCompanyId: "linkedInCompanyId1"
+            },
+            props: {
+              linkedin_company_id: "linkedInCompanyId1",
+              personas_test_audience: true
+            },
+            segment_creation_name: "personas_test_audience",
+            computation_key: "personas_test_audience",
+            computation_class: "audience",
+            enable_batching: true,
+            batch_keys: ["computation_key"],
+            index: 0
+          },
+          body: {
+            elements: [
+              {
+                action: "ADD",
+                companyIds: [
+                  { idType: "LINKEDIN_COMPANY_ID", idValue: "linkedInCompanyId1" }
+                ]
+              }
+            ]
           }
-        })
-      ).resolves.not.toThrowError()
+        },
+        {
+          status: 200,
+          sent: {
+            action: "AUTO",
+            identifiers: {
+              companyDomain: "companyDomain2.com",
+            },
+            props: {
+              company_domain: "companyDomain2.com",
+              personas_test_audience: false
+            },
+            segment_creation_name: "personas_test_audience",
+            computation_key: "personas_test_audience",
+            computation_class: "audience",
+            enable_batching: true,
+            batch_keys: ["computation_key"],
+            index: 1
+          },
+          body: {
+            elements: [
+              {
+                action: "REMOVE",
+                companyIds: [
+                  { idType: "DOMAIN", idValue: "companyDomain2.com" }
+                ]
+              }
+            ]
+          }
+        }
+      ])
+    })
+
+    it('should get the correct multistatusResponse from a (batch) payload - add only - different ID types - Creates new Segment', async () => {
+
+      const event3 = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          linkedin_company_id: 'linkedInCompanyId1',
+          personas_test_audience: true
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+
+      const event4 = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          company_domain: "companyDomain2.com",
+          personas_test_audience: true
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+
+      const updateCompaniesRequestBody2 = {
+        elements: [
+          {
+            action: 'ADD',
+            companyIds: [
+              {
+                idType: "LINKEDIN_COMPANY_ID",
+                idValue: "linkedInCompanyId1"
+              }
+            ]
+          },
+          {
+            action: 'ADD',
+            companyIds: [
+              {
+                idType: "DOMAIN",
+                idValue: "companyDomain2.com"
+              }
+            ]
+          }
+        ]
+      }
+
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(urlParams)
+        .reply(200, { elements: []})
+      
+      nock(`${BASE_URL}/dmpSegments`)
+        .post(/.*/, createDmpSegmentRequestBody)
+        .reply(200, { id: 'dmp_segment_id', type: "COMPANY" })
+
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/companies`).post(/.*/, updateCompaniesRequestBody2).reply(200, updateCompaniesResonse)
+      
+      const responses = await testDestination.executeBatch('updateCompanyAudience', {
+        events: [event3,event4],
+        settings: {
+          ad_account_id: '123',
+          send_email: false,
+          send_google_advertising_id: false
+        },
+        auth,
+        mapping: {
+          action: 'AUTO',
+          identifiers: {
+            companyDomain: {"@path": "$.properties.company_domain"},
+            linkedInCompanyId: {"@path": "$.properties.linkedin_company_id"},
+          },
+          props: {"@path": "$.properties"},
+          segment_creation_name: { '@path': '$.context.personas.computation_key'},
+          computation_key: { '@path': '$.context.personas.computation_key'}, 
+          computation_class: {'@path': '$.context.personas.computation_class'},
+          enable_batching: true,
+          batch_keys: ['computation_key']   
+        }
+      })
+
+      expect(responses).toMatchObject([
+        {
+          status: 200,
+          sent: {
+            action: "AUTO",
+            identifiers: {
+              linkedInCompanyId: "linkedInCompanyId1"
+            },
+            props: {
+              linkedin_company_id: "linkedInCompanyId1",
+              personas_test_audience: true
+            },
+            segment_creation_name: "personas_test_audience",
+            computation_key: "personas_test_audience",
+            computation_class: "audience",
+            enable_batching: true,
+            batch_keys: ["computation_key"],
+            index: 0
+          },
+          body: {
+            elements: [
+              {
+                action: "ADD",
+                companyIds: [
+                  { idType: "LINKEDIN_COMPANY_ID", idValue: "linkedInCompanyId1" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          status: 200,
+          sent: {
+            action: "AUTO",
+            identifiers: {
+              companyDomain: "companyDomain2.com",
+            },
+            props: {
+              company_domain: "companyDomain2.com",
+              personas_test_audience: true
+            },
+            segment_creation_name: "personas_test_audience",
+            computation_key: "personas_test_audience",
+            computation_class: "audience",
+            enable_batching: true,
+            batch_keys: ["computation_key"],
+            index: 1
+          },
+          body: {
+            elements: [
+              {
+                action: "ADD",
+                companyIds: [
+                  { idType: "DOMAIN", idValue: "companyDomain2.com" }
+                ]
+              }
+            ]
+          }
+        }
+      ])
+    })
+
+    it('should get the correct multistatusResponse from a (batch) payload - add only - different ID types - Creates new Segment with name in segment_creation_name field', async () => {
+
+      const event3 = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          linkedin_company_id: 'linkedInCompanyId1',
+          personas_test_audience: true
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+
+      const event4 = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          company_domain: "companyDomain2.com",
+          personas_test_audience: true
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+
+      const updateCompaniesRequestBody2 = {
+        elements: [
+          {
+            action: 'ADD',
+            companyIds: [
+              {
+                idType: "LINKEDIN_COMPANY_ID",
+                idValue: "linkedInCompanyId1"
+              }
+            ]
+          },
+          {
+            action: 'ADD',
+            companyIds: [
+              {
+                idType: "DOMAIN",
+                idValue: "companyDomain2.com"
+              }
+            ]
+          }
+        ]
+      }
+
+      const createDmpSegmentRequestBody2 = {
+        name: "NEW_SEGMENT_NAME_XYZ",
+        sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
+        sourceSegmentId: "personas_test_audience",
+        account: "urn:li:sponsoredAccount:123",
+        type: "COMPANY",
+        destinations: [
+          {
+            destination: "LINKEDIN"
+          }
+        ]
+      }
+
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(urlParams)
+        .reply(200, { elements: []})
+      
+      nock(`${BASE_URL}/dmpSegments`)
+        .post(/.*/, createDmpSegmentRequestBody2)
+        .reply(200, { id: 'dmp_segment_id', type: "COMPANY" })
+
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/companies`).post(/.*/, updateCompaniesRequestBody2).reply(200, updateCompaniesResonse)
+      
+      const responses = await testDestination.executeBatch('updateCompanyAudience', {
+        events: [event3,event4],
+        settings: {
+          ad_account_id: '123',
+          send_email: false,
+          send_google_advertising_id: false
+        },
+        auth,
+        mapping: {
+          action: 'AUTO',
+          identifiers: {
+            companyDomain: {"@path": "$.properties.company_domain"},
+            linkedInCompanyId: {"@path": "$.properties.linkedin_company_id"},
+          },
+          props: {"@path": "$.properties"},
+          segment_creation_name: 'NEW_SEGMENT_NAME_XYZ',
+          computation_key: { '@path': '$.context.personas.computation_key'}, 
+          computation_class: {'@path': '$.context.personas.computation_class'},
+          enable_batching: true,
+          batch_keys: ['computation_key']   
+        }
+      })
+
+      expect(responses).toMatchObject([
+        {
+          status: 200,
+          sent: {
+            action: "AUTO",
+            identifiers: {
+              linkedInCompanyId: "linkedInCompanyId1"
+            },
+            props: {
+              linkedin_company_id: "linkedInCompanyId1",
+              personas_test_audience: true
+            },
+            segment_creation_name: "NEW_SEGMENT_NAME_XYZ",
+            computation_key: "personas_test_audience",
+            computation_class: "audience",
+            enable_batching: true,
+            batch_keys: ["computation_key"],
+            index: 0
+          },
+          body: {
+            elements: [
+              {
+                action: "ADD",
+                companyIds: [
+                  { idType: "LINKEDIN_COMPANY_ID", idValue: "linkedInCompanyId1" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          status: 200,
+          sent: {
+            action: "AUTO",
+            identifiers: {
+              companyDomain: "companyDomain2.com",
+            },
+            props: {
+              company_domain: "companyDomain2.com",
+              personas_test_audience: true
+            },
+            segment_creation_name: "NEW_SEGMENT_NAME_XYZ",
+            computation_key: "personas_test_audience",
+            computation_class: "audience",
+            enable_batching: true,
+            batch_keys: ["computation_key"],
+            index: 1
+          },
+          body: {
+            elements: [
+              {
+                action: "ADD",
+                companyIds: [
+                  { idType: "DOMAIN", idValue: "companyDomain2.com" }
+                ]
+              }
+            ]
+          }
+        }
+      ])
+    })
+
+    it('should let the customer hard code the Action to "ADD" - (batch) payload - Segment already exists', async () => {
+
+      const updateCompaniesRequestBody2 = {
+        elements: [
+          {
+            action: 'ADD',
+            companyIds: [
+              {
+                idType: "DOMAIN",
+                idValue: "companyDomain1.com"
+              },
+              {
+                idType: "LINKEDIN_COMPANY_ID",
+                idValue: "linkedInCompanyId1"
+              }
+            ]
+          },
+          {
+            action: 'ADD',
+            companyIds: [
+              {
+                idType: "DOMAIN",
+                idValue: "companyDomain2.com"
+              },
+              {
+                idType: "LINKEDIN_COMPANY_ID",
+                idValue: "linkedInCompanyId2"
+              }
+            ]
+          }
+        ]
+      }
+
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(urlParams)
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: "COMPANY" }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/companies`).post(/.*/, updateCompaniesRequestBody2).reply(200, updateCompaniesResonse)
+      
+      const event3 = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          company_domain: "companyDomain1.com",
+          linkedin_company_id: 'linkedInCompanyId1',
+          personas_test_audience: false // This should get overridden to true. i.e ignored
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+
+      const event4 = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          company_domain: "companyDomain2.com",
+          linkedin_company_id: 'linkedInCompanyId2',
+          personas_test_audience: true
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+
+      const responses = await testDestination.testBatchAction('updateCompanyAudience', {
+        events: [event3,event4],
+        settings: {
+          ad_account_id: '123',
+          send_email: false,
+          send_google_advertising_id: false
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          action: 'ADD',
+          segment_creation_name: { '@path': '$.context.personas.computation_key'},
+          computation_key: { '@path': '$.context.personas.computation_key'}, 
+          computation_class: {'@path': '$.context.personas.computation_class'},
+          enable_batching: true,
+          batch_keys: ['computation_key']   
+        }
+      })
+      expect(responses.length).toBe(2)
+    })
+
+    it('should let the customer hard code the Action to "REMOVE" - (batch) payload - Segment already exists', async () => {
+
+      const updateCompaniesRequestBody2 = {
+        elements: [
+          {
+            action: 'REMOVE',
+            companyIds: [
+              {
+                idType: "DOMAIN",
+                idValue: "companyDomain1.com"
+              },
+              {
+                idType: "LINKEDIN_COMPANY_ID",
+                idValue: "linkedInCompanyId1"
+              }
+            ]
+          },
+          {
+            action: 'REMOVE',
+            companyIds: [
+              {
+                idType: "DOMAIN",
+                idValue: "companyDomain2.com"
+              },
+              {
+                idType: "LINKEDIN_COMPANY_ID",
+                idValue: "linkedInCompanyId2"
+              }
+            ]
+          }
+        ]
+      }
+
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(urlParams)
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: "COMPANY" }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/companies`).post(/.*/, updateCompaniesRequestBody2).reply(200, updateCompaniesResonse)
+      
+      const event3 = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          company_domain: "companyDomain1.com",
+          linkedin_company_id: 'linkedInCompanyId1',
+          personas_test_audience: true // This should get overridden to false. i.e ignored
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+
+      const event4 = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          company_domain: "companyDomain2.com",
+          linkedin_company_id: 'linkedInCompanyId2',
+          personas_test_audience: false
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+
+      const responses = await testDestination.testBatchAction('updateCompanyAudience', {
+        events: [event3,event4],
+        settings: {
+          ad_account_id: '123',
+          send_email: false,
+          send_google_advertising_id: false
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          action: 'REMOVE',
+          segment_creation_name: { '@path': '$.context.personas.computation_key'},
+          computation_key: { '@path': '$.context.personas.computation_key'}, 
+          computation_class: {'@path': '$.context.personas.computation_class'},
+          enable_batching: true,
+          batch_keys: ['computation_key']   
+        }
+      })
+      expect(responses.length).toBe(2)
     })
   })
 
@@ -640,13 +977,253 @@ describe('LinkedinAudiences.updateAudience', () => {
             send_google_advertising_id: false
           },
           useDefaultMappings: true,
-          auth,
-          mapping: {
-            personas_audience_key: 'personas_test_audience'
-          }
+          auth
         })
       ).rejects.toThrow("At least one of 'Send Email' or 'Send Google Advertising ID' setting fields must be set to 'true'.")
     })
 
+    it('should throw error if no identifiers in (non-batch) payload - Segment already exists', async () => {
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(urlParams)
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: "COMPANY" }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/companies`).post(/.*/, updateCompaniesRequestBody).reply(200)
+      
+      const event3 = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          // company_domain: "companyDomain2.com",
+          // linkedin_company_id: 'linkedInCompanyId2',
+          personas_test_audience: true
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+
+      await expect (testDestination.testAction('updateCompanyAudience', {
+        event: event3,
+        settings: {
+          ad_account_id: '123',
+          send_email: false,
+          send_google_advertising_id: false
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          action: 'AUTO',
+          segment_creation_name: { '@path': '$.context.personas.computation_key'},
+          computation_key: { '@path': '$.context.personas.computation_key'}, 
+          computation_class: {'@path': '$.context.personas.computation_class'},
+          enable_batching: true,
+          batch_keys: ['computation_key']   
+        }
+      })).rejects.toThrow("At least one of 'Company Domain' or 'LinkedIn Company ID' is required in the 'Identifiers' field.")
+    })
+
+    it('multistatus response should be correct when some 200 and some 400 items in (batch) payload - Segment already exists', async () => {
+      
+      const updateCompaniesRequestBody2 = {
+        elements: [
+          {
+            action: 'ADD',
+            companyIds: [
+              {
+                idType: "DOMAIN",
+                idValue: "companyDomain2.com"
+              }
+            ]
+          }
+        ]
+      }
+
+      const updateCompaniesResonse2 = {
+        elements: [
+          {
+            status: 200
+          }
+        ]
+      }
+
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(urlParams)
+        .reply(200, { elements: [{ id: 'dmp_segment_id', type: "COMPANY" }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/companies`).post(/.*/, updateCompaniesRequestBody2).reply(200, updateCompaniesResonse2)
+
+      const event3 = createTestEvent({
+        // NO identifiers for this event - should return a 400 in multistatus response
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          // company_domain: "companyDomain2.com",
+          // linkedin_company_id: 'linkedInCompanyId2',
+          personas_test_audience: true
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+
+      const event4 = createTestEvent({
+        // This event has 1 identifier - should be processed successfully
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          company_domain: "companyDomain2.com",
+          // linkedin_company_id: 'linkedInCompanyId2',
+          personas_test_audience: true
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+      
+      const responses = await testDestination.executeBatch('updateCompanyAudience', {
+        events: [event3, event4],
+        settings: {
+          ad_account_id: '123',
+          send_email: false,
+          send_google_advertising_id: false
+        },
+        auth,
+        mapping: {
+          action: 'AUTO',
+          identifiers: {
+            companyDomain: {"@path": "$.properties.company_domain"},
+            linkedInCompanyId: {"@path": "$.properties.linkedin_company_id"},
+          },
+          props: {"@path": "$.properties"},
+          segment_creation_name: { '@path': '$.context.personas.computation_key'},
+          computation_key: { '@path': '$.context.personas.computation_key'}, 
+          computation_class: {'@path': '$.context.personas.computation_class'},
+          enable_batching: true,
+          batch_keys: ['computation_key']   
+        }
+      })
+
+      expect(responses).toMatchObject([
+        {
+          status: 400,
+          errortype: "PAYLOAD_VALIDATION_FAILED",
+          errormessage: "At least one of 'Company Domain' or 'LinkedIn Company ID' is required in the 'Identifiers' field.",
+          errorreporter: "INTEGRATIONS"
+        },
+        {
+          status: 200,
+          sent: {
+            action: "AUTO",
+            identifiers: {
+              companyDomain: "companyDomain2.com"
+            },
+            props: {
+              company_domain: "companyDomain2.com",
+              personas_test_audience: true
+            },
+            segment_creation_name: "personas_test_audience",
+            computation_key: "personas_test_audience",
+            computation_class: "audience",
+            enable_batching: true,
+            batch_keys: ["computation_key"],
+            index: 1
+          },
+          body: {
+            elements: [
+              {
+                action: "ADD",
+                companyIds: [
+                  { idType: "DOMAIN", idValue: "companyDomain2.com" }
+                ]
+              }
+            ]
+          }
+        }
+      ])
+    })
+  
+    it('multistatus response should be correct when all 400 items in (batch) payload - Segment already exists', async () => {
+      
+      const event3 = createTestEvent({
+        // NO identifiers for this event - should return a 400 in multistatus response
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          // company_domain: "companyDomain2.com",
+          // linkedin_company_id: 'linkedInCompanyId2',
+          personas_test_audience: true
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+
+      const event4 = createTestEvent({
+        // NO identifiers for this event - should return a 400 in multistatus response
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          // company_domain: "companyDomain2.com",
+          // linkedin_company_id: 'linkedInCompanyId2',
+          personas_test_audience: true
+        },
+        context: {
+          personas: {
+            computation_key: 'personas_test_audience',
+            computation_class: 'audience'
+          }
+        }
+      })
+      
+      const responses = await testDestination.executeBatch('updateCompanyAudience', {
+        events: [event3, event4],
+        settings: {
+          ad_account_id: '123',
+          send_email: false,
+          send_google_advertising_id: false
+        },
+        auth,
+        mapping: {
+          action: 'AUTO',
+          identifiers: {
+            companyDomain: {"@path": "$.properties.company_domain"},
+            linkedInCompanyId: {"@path": "$.properties.linkedin_company_id"},
+          },
+          props: {"@path": "$.properties"},
+          segment_creation_name: { '@path': '$.context.personas.computation_key'},
+          computation_key: { '@path': '$.context.personas.computation_key'}, 
+          computation_class: {'@path': '$.context.personas.computation_class'},
+          enable_batching: true,
+          batch_keys: ['computation_key']   
+        }
+      })
+
+      expect(responses).toMatchObject([
+        {
+          status: 400,
+          errortype: "PAYLOAD_VALIDATION_FAILED",
+          errormessage: "At least one of 'Company Domain' or 'LinkedIn Company ID' is required in the 'Identifiers' field.",
+          errorreporter: "INTEGRATIONS"
+        },
+        {
+          status: 400,
+          errortype: "PAYLOAD_VALIDATION_FAILED",
+          errormessage: "At least one of 'Company Domain' or 'LinkedIn Company ID' is required in the 'Identifiers' field.",
+          errorreporter: "INTEGRATIONS"
+        }
+      ])
+    })
   })
 })

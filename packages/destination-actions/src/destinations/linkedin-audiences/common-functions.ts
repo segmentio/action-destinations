@@ -17,11 +17,21 @@ export async function send<P, E>(
 ) {
   const msResponse = new MultiStatusResponse()
   const validPayloads = validate(payloads, msResponse, isBatch, settings)
+
+  if(validPayloads.length === 0) {
+    if(isBatch){
+      return msResponse
+    } 
+    else {
+      throw new PayloadValidationError('No valid payloads to process after validation.')
+    }
+  }
+
   const { sourceSegmentId, segmentName } = getSegmentSourceIdAndName(payloads[0])
   const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
   const { id, type } = await getDmpSegmentIdAndType(linkedinApiClient, settings, sourceSegmentId, segmentName, segmentType, statsContext)
 
-  if(type !== segmentType) {
+  if(type != segmentType) {
     // reject all payloads if Segment Type mismatches
     if(isBatch){
       payloads.forEach((_, index) => {
@@ -38,14 +48,7 @@ export async function send<P, E>(
     }
   }
 
-  if(validPayloads.length === 0) {
-    if(isBatch){
-      return msResponse
-    } 
-    else {
-      throw new PayloadValidationError('No valid payloads to process after validation.')
-    }
-  }
+
 
   const json = buildJSON(validPayloads, settings)
 
@@ -63,7 +66,6 @@ export async function send<P, E>(
   if (response.status !== 200) {
     throw new RetryableError('Error while attempting to update LinkedIn DMP Segment. This batch will be retried.')
   }
-
   if(isBatch) {
     const sentElements = json.elements
 
@@ -73,7 +75,7 @@ export async function send<P, E>(
         msResponse.setSuccessResponseAtIndex(payload.index, {
           status: e.status,
           sent: payload as JSONLikeObject,
-          body: sentElements[index] as JSONLikeObject
+          body: { elements: [sentElements[index]]} as JSONLikeObject
         })
       } 
       else {
@@ -82,7 +84,7 @@ export async function send<P, E>(
           errortype: 'BAD_REQUEST',
           errormessage: e.message || 'Failed to update LinkedIn Audience',
           sent: payload as JSONLikeObject,
-          body: sentElements[index] as JSONLikeObject
+          body: { elements: [sentElements[index]]} as JSONLikeObject
         })
       }
     })

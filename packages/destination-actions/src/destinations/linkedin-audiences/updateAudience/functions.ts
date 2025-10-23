@@ -116,6 +116,6 @@ export function buildJSON(payloads: Payload[], settings: Settings): AudienceJSON
 }
 
 export function getSegmentSourceIdAndName(payload: Payload): {sourceSegmentId: string, segmentName: string} {
-   const { personas_audience_key: sourceSegmentId, dmp_segment_name: segmentName } = payload
-   return {sourceSegmentId, segmentName: segmentName || sourceSegmentId}
+   const { source_segment_id: sourceSegmentId, dmp_segment_name: segmentName } = payload
+   return {sourceSegmentId: sourceSegmentId || "", segmentName: segmentName || sourceSegmentId || ""}
 }

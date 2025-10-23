@@ -114,7 +114,7 @@ export const fields: Record<string, InputField> ={
       description:
         '[Hidden] The `audience_key` of the Engage audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.',
       type: 'string',
-      required: true,
+      required: false,
       unsafe_hidden: true
     },
     event_name: {

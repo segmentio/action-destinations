@@ -34,7 +34,6 @@ export class LinkedInAudiences {
   }
 
   async getDmpSegment(settings: Settings, sourceSegmentId = ''): Promise<ModifiedResponse<GetDMPSegmentResponse>> {
-    console.log('getDmpSegment')
     return this.request(`${BASE_URL}/dmpSegments`, {
       method: 'GET',
       searchParams: {
@@ -47,8 +46,6 @@ export class LinkedInAudiences {
   }
 
   async createDmpSegment(settings: Settings, sourceSegmentId: string, segmentName: string, segmentType: SegmentType): Promise<ModifiedResponse<CreateDMPSegmentResponse>> {
-    
-    console.log('createDmpSegment')
     return this.request(`${BASE_URL}/dmpSegments`, {
       method: 'POST',
       json: {
@@ -68,7 +65,6 @@ export class LinkedInAudiences {
 
   async batchUpdate<E>(dmpSegmentId: string, json: AudienceJSON<E>, segmentType: SegmentType): Promise<ModifiedResponse<LinkedInBatchUpdateResponse>> {
     const url = `${BASE_URL}/dmpSegments/${dmpSegmentId}/${segmentType === SEGMENT_TYPES.COMPANY ? 'companies' : 'users'}`
-    console.log('batchUpdate')
     return this.request(url, {
       method: 'POST',
       headers: {
