@@ -28,7 +28,7 @@ export const fields: Record<string, InputField> ={
     }
   },
   action: {
-    label: 'DMP Company Action',
+    label: 'Company Segment Action',
     description: 'Specifies if the company should be added or removed from the LinkedIn DMP Company Segment.',
     type: 'string',
     disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
