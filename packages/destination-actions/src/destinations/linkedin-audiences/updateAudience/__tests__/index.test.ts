@@ -201,20 +201,14 @@ describe('LinkedinAudiences.updateAudience', () => {
       expect(response).toBeTruthy()
     })
 
-    it('Email comes from traits.email', async () => {
+    it('Email comes from properties.email', async () => {
       const eventWithTraits = createTestEvent({
         event: 'Audience Entered',
         type: 'track',
         properties: {
-          audience_key: 'personas_test_audience'
-        },
-        traits: {
-          email: 'testing@testing.com'
-        },
-        context: {
-          device: {
-            advertisingId: '123'
-          }
+          audience_key: 'personas_test_audience',
+          email: 'testing@testing.com',
+          android_idfa: '123'
         }
       })
 
@@ -254,15 +248,9 @@ describe('LinkedinAudiences.updateAudience', () => {
         event: 'Audience Entered',
         type: 'track',
         properties: {
-          audience_key: 'personas_test_audience'
-        },
-        traits: {
-          email: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
-        },
-        context: {
-          device: {
-            advertisingId: '123'
-          }
+          audience_key: 'personas_test_audience',
+          email: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777',
+          android_idfa: '123'
         }
       })
 
@@ -302,15 +290,9 @@ describe('LinkedinAudiences.updateAudience', () => {
         event: 'Audience Entered',
         type: 'track',
         properties: {
-          audience_key: 'personas_test_audience'
-        },
-        traits: {
-          email: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
-        },
-        context: {
-          device: {
-            advertisingId: '123'
-          }
+          audience_key: 'personas_test_audience',
+          email: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777',
+          android_idfa: '123'
         }
       })
 
@@ -612,24 +594,6 @@ describe('LinkedinAudiences.updateAudience', () => {
   })
 
   describe('Error cases', () => {
-    it('should fail if `personas_audience_key` field does not match the `source_segment_id` field', async () => {
-      await expect(
-        testDestination.testAction('updateAudience', {
-          event,
-          settings: {
-            ad_account_id: '123',
-            send_email: true,
-            send_google_advertising_id: true
-          },
-          useDefaultMappings: true,
-          auth,
-          mapping: {
-            personas_audience_key: 'mismatched_audience',
-            dmp_user_action: null
-          }
-        })
-      ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
-    })
 
     it('should fail if both `send_email` and `send_google_advertising_id` settings are set to false', async () => {
       await expect(
@@ -646,7 +610,7 @@ describe('LinkedinAudiences.updateAudience', () => {
             personas_audience_key: 'personas_test_audience'
           }
         })
-      ).rejects.toThrow('At least one of `Send Email` or `Send Google Advertising ID` must be set to `true`.')
+      ).rejects.toThrow("At least one of 'Send Email' or 'Send Google Advertising ID' setting fields must be set to 'true'.")
     })
 
     it('should fail if `personas_audience_key` field does not match the `source_segment_id` field, and `dmp_user_action` is set to auto', async () => {

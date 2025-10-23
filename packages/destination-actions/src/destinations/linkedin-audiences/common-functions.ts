@@ -16,6 +16,7 @@ export async function send<P, E>(
   statsContext: StatsContext | undefined
 ) {
   const msResponse = new MultiStatusResponse()
+  const validPayloads = validate(payloads, msResponse, isBatch, settings)
   const { sourceSegmentId, segmentName } = getSegmentSourceIdAndName(payloads[0])
   const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
   const { id, type } = await getDmpSegmentIdAndType(linkedinApiClient, settings, sourceSegmentId, segmentName, segmentType, statsContext)
@@ -33,12 +34,9 @@ export async function send<P, E>(
       return msResponse
     } 
     else {
-      console.log('------------------HERE------------------')
       throw new PayloadValidationError(`The existing DMP Segment with Source Segment Id ${sourceSegmentId} is of type ${type} and cannot be used to update a segment of type ${segmentType}.`)
     }
   }
-
-  const validPayloads = validate(payloads, msResponse, isBatch, settings)
 
   if(validPayloads.length === 0) {
     if(isBatch){
@@ -106,8 +104,6 @@ async function getDmpSegmentIdAndType(
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:get-${segmentType === SEGMENT_TYPES.COMPANY ? 'abm-' : ''}dmpSegment`])
   const response = await linkedinApiClient.getDmpSegment(settings, sourceSegmentId)
   const { id, type } = response.data?.elements?.[0] || {}
-  console.log('id =', id, 'type =', type)
-  
   if (id && type) {
     return { id, type }
   }
@@ -123,12 +119,7 @@ async function createDmpSegment(
   statsContext: StatsContext | undefined
 ): Promise<{ id: string; type: SegmentType }> {
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:create-${segmentType === SEGMENT_TYPES.COMPANY ? 'abm-' : ''}dmpSegment`])
-  
-  console.log('calling linkedinApiClient.createDmpSegment with.', sourceSegmentId, segmentName, segmentType )
   const res = await linkedinApiClient.createDmpSegment(settings, sourceSegmentId, segmentName, segmentType)
-  
   const { id, type } = res.data
-
-  console.log('id =', id, 'type =', type)
   return { id, type }
 }
