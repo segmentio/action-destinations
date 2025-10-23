@@ -4,9 +4,8 @@ import { AUDIENCE_ACTION } from '../constants'
 
 export const fields: Record<string, InputField> ={
     dmp_segment_name: {
-      label: 'DMP Segment Display Name',
-      description:
-        'The display name of the LinkedIn DMP Segment. This field is set only when Segment creates a new audience. Updating this field after Segment has created an audience will not update the audience name in LinkedIn.',
+      label: 'Segment Creation Name',
+      description: 'The name of the segment to create. This field is no longer used after the Segment is created in LinkedIn.',
       type: 'string',
       default: {
         '@if': {
@@ -17,8 +16,8 @@ export const fields: Record<string, InputField> ={
       }
     },
     enable_batching: {
-      label: 'Enable Batching',
-      description: 'Enable batching of requests to the LinkedIn DMP Segment.',
+      label: '[Hidden] Enable Batching',
+      description: '[Hidden] Enable batching of requests to the LinkedIn DMP Segment.',
       type: 'boolean',
       default: true,
       unsafe_hidden: true
@@ -31,7 +30,7 @@ export const fields: Record<string, InputField> ={
         '@if': {
           exists: { '@path': '$.context.traits.email' },
           then: { '@path': '$.context.traits.email' },
-          else: { '@path': '$.traits.email' }
+          else: { '@path': '$.properties.email' }
         }
       },
       category: 'hashedPII'
@@ -41,7 +40,7 @@ export const fields: Record<string, InputField> ={
       description: "The user's first name to send to LinkedIn.",
       type: 'string',
       default: {
-        '@path': '$.traits.firstName'
+        '@path': '$.properties.first_name'
       }
     },
     last_name: {
@@ -49,7 +48,7 @@ export const fields: Record<string, InputField> ={
       description: "The user's last name to send to LinkedIn.",
       type: 'string',
       default: {
-        '@path': '$.traits.lastName'
+        '@path': '$.properties.last_name'
       }
     },
     title: {
@@ -57,7 +56,7 @@ export const fields: Record<string, InputField> ={
       description: "The user's title to send to LinkedIn.",
       type: 'string',
       default: {
-        '@path': '$.traits.title'
+        '@path': '$.properties.title'
       }
     },
     company: {
@@ -65,7 +64,7 @@ export const fields: Record<string, InputField> ={
       description: "The user's company to send to LinkedIn.",
       type: 'string',
       default: {
-        '@path': '$.traits.company'
+        '@path': '$.properties.company'
       }
     },
     country: {
@@ -74,22 +73,26 @@ export const fields: Record<string, InputField> ={
         "The user's country to send to LinkedIn. This field accepts an ISO standardized two letter country code e.g. US.",
       type: 'string',
       default: {
-        '@path': '$.traits.country'
+        '@path': '$.properties.country'
       }
     },
     google_advertising_id: {
       label: 'User Google Advertising ID',
       description: "The user's Google Advertising ID to send to LinkedIn.",
       type: 'string',
-      unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at path '$.context.device.advertisingId' in Personas events.
+      unsafe_hidden: false,
       default: {
-        '@path': '$.context.device.advertisingId'
+        '@if': {
+          exists: { '@path': '$.properties.android_idfa' },
+          then: { '@path': '$.properties.android_idfa' },
+          else: { '@path': '$.context.device.advertisingId' }
+        }
       }
     },
     source_segment_id: {
-      label: 'LinkedIn Source Segment ID',
+      label: '[Hidden] LinkedIn Source Segment ID',
       description:
-        "A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.",
+        "[Hidden] A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.",
       type: 'string',
       unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at '$.properties.audience_key' in Personas events and at '$.context.personas.computation_key' for events coming from Journeys v2.
       default: {
@@ -101,11 +104,18 @@ export const fields: Record<string, InputField> ={
       }
     },
     personas_audience_key: {
-      label: 'Segment Engage Audience Key',
+      /* 
+       * History of this field: 
+       * This field was added because batch keys weren’t available before. 
+       * So, the dev who wrote it wanted to force customers to enter a hard coded value so as to ensure all events to be sent to an action are batched together.
+       * This field has now been hidden as the batch_keys field now ensures that all events in a batch are for a unique Audience. 
+      */ 
+      label: '[Hidden] Segment Engage Audience Key',
       description:
-        'The `audience_key` of the Engage audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.',
+        '[Hidden] The `audience_key` of the Engage audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.',
       type: 'string',
-      required: true
+      required: true,
+      unsafe_hidden: true
     },
     event_name: {
       label: 'Event Name',
@@ -132,7 +142,7 @@ export const fields: Record<string, InputField> ={
       description: '[Hidden] Batch key used to ensure a batch contains payloads from a single Audience only.',
       type: 'string',
       unsafe_hidden: true,
-      required: true,
+      required: false,
       multiple: true,
       default: ['source_segment_id', 'personas_audience_key']
     }

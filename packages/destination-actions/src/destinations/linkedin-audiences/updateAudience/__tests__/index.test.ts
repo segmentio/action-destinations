@@ -350,20 +350,14 @@ describe('LinkedinAudiences.updateAudience', () => {
         event: 'Audience Entered',
         type: 'track',
         properties: {
-          audience_key: 'personas_test_audience'
-        },
-        traits: {
+          audience_key: 'personas_test_audience',
           email: 'testing@testing.com',
-          firstName: 'John',
-          lastName: 'Doe',
+          first_name: 'John',
+          last_name: 'Doe',
           title: 'CEO',
           company: 'Acme',
-          country: 'US'
-        },
-        context: {
-          device: {
-            advertisingId: '123'
-          }
+          country: 'US',
+          android_idfa: '123'
         }
       })
 
