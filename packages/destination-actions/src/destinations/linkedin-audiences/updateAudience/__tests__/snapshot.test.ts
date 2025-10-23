@@ -19,7 +19,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/)
       .persist()
       .get(/.*/)
-      .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      .reply(200, { elements: [{ id: 'dmp_segment_id', type: "USER" }] })
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
 
@@ -95,7 +95,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/)
       .persist()
       .get(/.*/)
-      .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      .reply(200, { elements: [{ id: 'dmp_segment_id', type: "USER" }] })
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
 
