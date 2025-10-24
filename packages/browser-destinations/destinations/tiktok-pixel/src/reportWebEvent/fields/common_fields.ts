@@ -1,7 +1,7 @@
 import { InputField } from '@segment/actions-core'
 import { VEHICLE_FIELDS, TRAVEL_FIELDS } from '../constants'
 
-export const commonFields: Record<string, InputField> = {
+export const common_fields: Record<string, InputField> = {
   event_spec_type: {
     label: 'Additional Fields',
     type: 'string',

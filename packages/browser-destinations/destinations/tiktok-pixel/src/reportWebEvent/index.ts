@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { getUser } from '../utils'
 import { getAllProperties } from './utils'
 import { TikTokPixel } from '../types'
-import { commonFields } from './fields/common_fields'
+import { common_fields } from './fields/common_fields'
 import { travel_fields } from './fields/travel_fields'
 import { vehicle_fields } from './fields/vehicle_fields'
 
@@ -15,7 +15,7 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
   platform: 'web',
   defaultSubscription: 'type = "track"',
   fields: {
-    ...commonFields,
+    ...common_fields,
     vehicle_fields,
     travel_fields
   },

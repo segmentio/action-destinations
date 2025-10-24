@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getUser } from '../utils'
 import { TikTokPixel } from '../types'
-import { commonFields } from '../reportWebEvent/fields/common_fields'
+import { common_fields } from '../reportWebEvent/fields/common_fields'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
@@ -13,25 +13,25 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
   defaultSubscription: 'type = "identify"',
   platform: 'web',
   fields: {
-    ...commonFields,
+    ...common_fields,
     phone_number: {
-      ...commonFields.phone_number,
+      ...common_fields.phone_number,
       default: { '@path': '$.traits.phone' }
     },
     email: {
-      ...commonFields.email,
+      ...common_fields.email,
       default: { '@path': '$.traits.email' }
     },
     first_name: {
-      ...commonFields.first_name,
+      ...common_fields.first_name,
       default: { '@path': '$.traits.first_name' }
     },
     last_name: {
-      ...commonFields.last_name,
+      ...common_fields.last_name,
       default: { '@path': '$.traits.last_name' }
     },
     address: {
-      ...commonFields.address,
+      ...common_fields.address,
       default: {
         city: { '@path': '$.traits.address.city' },
         country: { '@path': '$.traits.address.country' },
