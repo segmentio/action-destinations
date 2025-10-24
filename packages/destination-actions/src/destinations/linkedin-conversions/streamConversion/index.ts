@@ -282,6 +282,13 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
         }
       }
     },
+    externalIds: {
+      label: 'External ID',
+      description: "An identifier your organization uses for the user. See [LinkedIn's documentation](https://learn.microsoft.com/en-us/linkedin/marketing/conversions/custom-matching-identifiers?view=li-lms-2025-08) for more details.",
+      type: 'string',
+      multiple: true,
+      required: false
+    },
     enable_batching: {
       label: 'Enable Batching',
       description: 'Enable batching of requests.',

@@ -49,6 +49,10 @@ export interface Payload {
     countryCode?: string
   }
   /**
+   * An identifier your organization uses for the user. See [LinkedIn's documentation](https://learn.microsoft.com/en-us/linkedin/marketing/conversions/custom-matching-identifiers?view=li-lms-2025-08) for more details.
+   */
+  externalIds?: string[]
+  /**
    * Enable batching of requests.
    */
   enable_batching?: boolean
