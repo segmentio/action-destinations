@@ -37,7 +37,7 @@ export async function send<P, E>(
         msResponse.setErrorResponseAtIndex(index, {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: `LinkedIn ${segmentType} Segment creation failed: segmentName: ${segmentName}, Source Segment Id ${sourceSegmentId}, type: ${type}.`,
+          errormessage: `LinkedIn ${segmentType} Segment creation failed: segmentName: ${segmentName}, Source Segment Id ${sourceSegmentId}, type: ${type}, id: ${id}.`,
           sent: payloads[index] as JSONLikeObject,
           body: {segmentName, sourceSegmentId, type, segmentType} as JSONLikeObject
         })
@@ -45,7 +45,7 @@ export async function send<P, E>(
       return msResponse
     } 
     else {
-      throw new PayloadValidationError(`LinkedIn ${segmentType} Segment creation failed: segmentName: ${segmentName}, Source Segment Id ${sourceSegmentId}, type: ${type}.`)
+      throw new PayloadValidationError(`LinkedIn ${segmentType} Segment creation failed: segmentName: ${segmentName}, Source Segment Id ${sourceSegmentId}, type: ${type}, id: ${id}.`)
     }
   }
 
