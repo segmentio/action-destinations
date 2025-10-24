@@ -31,14 +31,34 @@ export async function send<P, E>(
   const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
   const { id, type } = await getDmpSegmentIdAndType(linkedinApiClient, settings, sourceSegmentId, segmentName, segmentType, statsContext)
 
-  if(type != segmentType) {
+  if(!id || typeof type != 'string'){
+    if(isBatch){
+      payloads.forEach((_, index) => {
+        msResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: `LinkedIn ${segmentType} Segment creation failed: segmentName: ${segmentName}, Source Segment Id ${sourceSegmentId}, type: ${type}.`,
+          sent: payloads[index] as JSONLikeObject,
+          body: {segmentName, sourceSegmentId, type, segmentType} as JSONLikeObject
+        })
+      })
+      return msResponse
+    } 
+    else {
+      throw new PayloadValidationError(`LinkedIn ${segmentType} Segment creation failed: segmentName: ${segmentName}, Source Segment Id ${sourceSegmentId}, type: ${type}.`)
+    }
+  }
+
+  if(typeof type == 'string' && type != segmentType) {
     // reject all payloads if Segment Type mismatches
     if(isBatch){
       payloads.forEach((_, index) => {
         msResponse.setErrorResponseAtIndex(index, {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: `The existing DMP Segment with Source Segment Id ${sourceSegmentId} is of type ${type} and cannot be used to update a segment of type ${segmentType}.`
+          errormessage: `The existing DMP Segment with Source Segment Id ${sourceSegmentId} is of type ${type} and cannot be used to update a segment of type ${segmentType}.`,
+          sent: payloads[index] as JSONLikeObject,
+          body: {segmentName, sourceSegmentId, type} as JSONLikeObject
         })
       })
       return msResponse
@@ -47,8 +67,6 @@ export async function send<P, E>(
       throw new PayloadValidationError(`The existing DMP Segment with Source Segment Id ${sourceSegmentId} is of type ${type} and cannot be used to update a segment of type ${segmentType}.`)
     }
   }
-
-
 
   const json = buildJSON(validPayloads, settings)
 
