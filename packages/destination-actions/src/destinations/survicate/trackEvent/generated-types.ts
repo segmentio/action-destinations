@@ -10,7 +10,7 @@ export interface Payload {
    */
   anonymousId?: string
   /**
-   * The name of the event
+   * The event name
    */
   name: string
   /**
