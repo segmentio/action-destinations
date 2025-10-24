@@ -1,5 +1,8 @@
 import { readFileSync } from 'fs'
 import { RequestClient } from '@segment/actions-core'
+import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
+import { IntegrationError, ErrorCodes } from '@segment/actions-core'
+import { v4 as uuidv4 } from '@lukeed/uuid'
 
 export type AWSCredentials = {
   accessKeyId: string
@@ -127,4 +130,39 @@ export async function getAWSCredentialsFromEKS(request: RequestClient): Promise<
   awsCredentialsCache.credentials = credentials
 
   return credentials
+}
+
+export const assumeRole = async (roleArn: string, externalId: string): Promise<AWSCredentials> => {
+  const intermediaryARN = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS as string
+  const intermediaryExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID as string
+
+  const intermediaryCreds = await getSTSCredentials(intermediaryARN, intermediaryExternalId)
+  return getSTSCredentials(roleArn, externalId, intermediaryCreds)
+}
+
+const getSTSCredentials = async (roleId: string, externalId: string, credentials?: AWSCredentials) => {
+  const options = { credentials }
+  const stsClient = new STSClient(options)
+  const roleSessionName: string = uuidv4()
+  const command = new AssumeRoleCommand({
+    RoleArn: roleId,
+    RoleSessionName: roleSessionName,
+    ExternalId: externalId
+  })
+  const result = await stsClient.send(command)
+  if (
+    !result.Credentials ||
+    !result.Credentials.AccessKeyId ||
+    !result.Credentials.SecretAccessKey ||
+    !result.Credentials.SessionToken
+  ) {
+    // TODO: Add more specific error handling
+    throw new IntegrationError('Failed to assume role', ErrorCodes.INVALID_AUTHENTICATION, 403)
+  }
+
+  return {
+    accessKeyId: result.Credentials.AccessKeyId,
+    secretAccessKey: result.Credentials.SecretAccessKey,
+    sessionToken: result.Credentials.SessionToken
+  }
 }
