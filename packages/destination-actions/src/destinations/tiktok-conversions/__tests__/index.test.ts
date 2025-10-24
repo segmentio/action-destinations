@@ -954,7 +954,6 @@ describe('Tiktok Conversions', () => {
               departing_departure_date: '20250901',
               returning_departure_date: '20250901',
               origin_airport: 'test_origin_airport',
-              destination_airport: 'test_destination_airport',
               destination_ids: ['destination_ids_1', 'destination_ids_2'],
               departing_arrival_date: '20250901',
               returning_arrival_date: '20250901',
