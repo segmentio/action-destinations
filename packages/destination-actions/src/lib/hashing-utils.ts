@@ -22,7 +22,7 @@ export const hashConfigs: {
   sha384: { lengthHex: 96, lengthBase64: 64 },
   sha512: { lengthHex: 128, lengthBase64: 88 }
 }
-class SmartHashing {
+export class SmartHashing {
   private preHashed: boolean
 
   /**
