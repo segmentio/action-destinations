@@ -23,8 +23,8 @@ export const fields: Record<string, InputField> ={
       }
     },
     default: {
-      companyDomain: { '@path': '$.properties.company_domain' },
-      linkedInCompanyId: { '@path': '$.properties.linkedin_company_id' }
+      companyDomain: { '@path': '$.traits.company_domain' },
+      linkedInCompanyId: { '@path': '$.traits.linkedin_company_id' }
     }
   },
   action: {
@@ -67,13 +67,19 @@ export const fields: Record<string, InputField> ={
       }
     }
   },
-  props: {
-    label: '[Hidden] Properties object',
-    description: '[Hidden] A computed object for track events. This field should not need to be edited.',
+  traits_or_props: {
+    label: '[Hidden] Traits or Properties object',
+    description: '[Hidden] A computed object for group events. This field should not need to be edited.',
     type: 'object',
     required: true,
     unsafe_hidden: true,
-    default: { '@path': '$.properties' }
+    default: { 
+      '@if': {
+        exists: { '@path': '$.traits' },
+        then: { '@path': '$.traits' },
+        else: { '@path': '$.properties' }
+      }
+    }
   },
   computation_class: {
     label: '[Hidden] Computation Class',

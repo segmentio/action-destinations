@@ -27,9 +27,9 @@ export interface Payload {
    */
   computation_key: string
   /**
-   * [Hidden] A computed object for track events. This field should not need to be edited.
+   * [Hidden] A computed object for group events. This field should not need to be edited.
    */
-  props: {
+  traits_or_props: {
     [k: string]: unknown
   }
   /**

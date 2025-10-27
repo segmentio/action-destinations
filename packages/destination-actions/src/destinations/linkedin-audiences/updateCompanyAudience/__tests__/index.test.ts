@@ -16,9 +16,8 @@ const auth: AuthTokens = {
 }
 
 const event = createTestEvent({
-  event: 'Audience Entered',
-  type: 'track',
-  properties: {
+  type: 'group',
+  traits: {
     company_domain: "companyDomain1.com",
     linkedin_company_id: 'linkedInCompanyId1',
     personas_test_audience: true
@@ -32,9 +31,8 @@ const event = createTestEvent({
 })
 
 const event2 = createTestEvent({
-  event: 'Audience Entered',
-  type: 'track',
-  properties: {
+  type: 'group',
+  traits: {
     company_domain: "companyDomain2.com",
     linkedin_company_id: 'linkedInCompanyId2',
     personas_test_audience: true
@@ -242,10 +240,10 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         mapping: {
           action: 'AUTO',
           identifiers: {
-            companyDomain: {"@path": "$.properties.company_domain"},
-            linkedInCompanyId: {"@path": "$.properties.linkedin_company_id"},
+            companyDomain: {"@path": "$.traits.company_domain"},
+            linkedInCompanyId: {"@path": "$.traits.linkedin_company_id"},
           },
-          props: {"@path": "$.properties"},
+          traits_or_props: {"@path": "$.traits"},
           segment_creation_name: { '@path': '$.context.personas.computation_key'},
           computation_key: { '@path': '$.context.personas.computation_key'}, 
           computation_class: {'@path': '$.context.personas.computation_class'},
@@ -262,7 +260,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
               companyDomain: "companyDomain1.com",
               linkedInCompanyId: "linkedInCompanyId1"
             },
-            props: {
+            traits_or_props: {
               company_domain: "companyDomain1.com",
               linkedin_company_id: "linkedInCompanyId1",
               personas_test_audience: true
@@ -294,7 +292,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
               companyDomain: "companyDomain2.com",
               linkedInCompanyId: "linkedInCompanyId2"
             },
-            props: {
+            traits_or_props: {
               company_domain: "companyDomain2.com",
               linkedin_company_id: "linkedInCompanyId2",
               personas_test_audience: true
@@ -324,9 +322,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
     it('should get the correct multistatusResponse from a (batch) payload - add and remove - different ID types - Segment already exists', async () => {
 
       const event3 = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           linkedin_company_id: 'linkedInCompanyId1',
           personas_test_audience: true
         },
@@ -339,9 +336,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       })
 
       const event4 = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           company_domain: "companyDomain2.com",
           personas_test_audience: false
         },
@@ -393,10 +389,10 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         mapping: {
           action: 'AUTO',
           identifiers: {
-            companyDomain: {"@path": "$.properties.company_domain"},
-            linkedInCompanyId: {"@path": "$.properties.linkedin_company_id"},
+            companyDomain: {"@path": "$.traits.company_domain"},
+            linkedInCompanyId: {"@path": "$.traits.linkedin_company_id"},
           },
-          props: {"@path": "$.properties"},
+          traits_or_props: {"@path": "$.traits"},
           segment_creation_name: { '@path': '$.context.personas.computation_key'},
           computation_key: { '@path': '$.context.personas.computation_key'}, 
           computation_class: {'@path': '$.context.personas.computation_class'},
@@ -412,7 +408,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
             identifiers: {
               linkedInCompanyId: "linkedInCompanyId1"
             },
-            props: {
+            traits_or_props: {
               linkedin_company_id: "linkedInCompanyId1",
               personas_test_audience: true
             },
@@ -441,7 +437,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
             identifiers: {
               companyDomain: "companyDomain2.com",
             },
-            props: {
+            traits_or_props: {
               company_domain: "companyDomain2.com",
               personas_test_audience: false
             },
@@ -469,9 +465,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
     it('should get the correct multistatusResponse from a (batch) payload - add only - different ID types - Creates new Segment', async () => {
 
       const event3 = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           linkedin_company_id: 'linkedInCompanyId1',
           personas_test_audience: true
         },
@@ -484,9 +479,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       })
 
       const event4 = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           company_domain: "companyDomain2.com",
           personas_test_audience: true
         },
@@ -543,10 +537,10 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         mapping: {
           action: 'AUTO',
           identifiers: {
-            companyDomain: {"@path": "$.properties.company_domain"},
-            linkedInCompanyId: {"@path": "$.properties.linkedin_company_id"},
+            companyDomain: {"@path": "$.traits.company_domain"},
+            linkedInCompanyId: {"@path": "$.traits.linkedin_company_id"},
           },
-          props: {"@path": "$.properties"},
+          traits_or_props: {"@path": "$.traits"},
           segment_creation_name: { '@path': '$.context.personas.computation_key'},
           computation_key: { '@path': '$.context.personas.computation_key'}, 
           computation_class: {'@path': '$.context.personas.computation_class'},
@@ -563,7 +557,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
             identifiers: {
               linkedInCompanyId: "linkedInCompanyId1"
             },
-            props: {
+            traits_or_props: {
               linkedin_company_id: "linkedInCompanyId1",
               personas_test_audience: true
             },
@@ -592,7 +586,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
             identifiers: {
               companyDomain: "companyDomain2.com",
             },
-            props: {
+            traits_or_props: {
               company_domain: "companyDomain2.com",
               personas_test_audience: true
             },
@@ -620,9 +614,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
     it('should get the correct multistatusResponse from a (batch) payload - add only - different ID types - Creates new Segment with name in segment_creation_name field', async () => {
 
       const event3 = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           linkedin_company_id: 'linkedInCompanyId1',
           personas_test_audience: true
         },
@@ -635,9 +628,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       })
 
       const event4 = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           company_domain: "companyDomain2.com",
           personas_test_audience: true
         },
@@ -707,10 +699,10 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         mapping: {
           action: 'AUTO',
           identifiers: {
-            companyDomain: {"@path": "$.properties.company_domain"},
-            linkedInCompanyId: {"@path": "$.properties.linkedin_company_id"},
+            companyDomain: {"@path": "$.traits.company_domain"},
+            linkedInCompanyId: {"@path": "$.traits.linkedin_company_id"},
           },
-          props: {"@path": "$.properties"},
+          traits_or_props: {"@path": "$.traits"},
           segment_creation_name: 'NEW_SEGMENT_NAME_XYZ',
           computation_key: { '@path': '$.context.personas.computation_key'}, 
           computation_class: {'@path': '$.context.personas.computation_class'},
@@ -727,7 +719,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
             identifiers: {
               linkedInCompanyId: "linkedInCompanyId1"
             },
-            props: {
+            traits_or_props: {
               linkedin_company_id: "linkedInCompanyId1",
               personas_test_audience: true
             },
@@ -756,7 +748,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
             identifiers: {
               companyDomain: "companyDomain2.com",
             },
-            props: {
+            traits_or_props: {
               company_domain: "companyDomain2.com",
               personas_test_audience: true
             },
@@ -821,9 +813,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/companies`).post(/.*/, updateCompaniesRequestBody2).reply(200, updateCompaniesResonse)
       
       const event3 = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           company_domain: "companyDomain1.com",
           linkedin_company_id: 'linkedInCompanyId1',
           personas_test_audience: false // This should get overridden to true. i.e ignored
@@ -837,9 +828,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       })
 
       const event4 = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           company_domain: "companyDomain2.com",
           linkedin_company_id: 'linkedInCompanyId2',
           personas_test_audience: true
@@ -913,9 +903,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/companies`).post(/.*/, updateCompaniesRequestBody2).reply(200, updateCompaniesResonse)
       
       const event3 = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           company_domain: "companyDomain1.com",
           linkedin_company_id: 'linkedInCompanyId1',
           personas_test_audience: true // This should get overridden to false. i.e ignored
@@ -929,9 +918,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       })
 
       const event4 = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           company_domain: "companyDomain2.com",
           linkedin_company_id: 'linkedInCompanyId2',
           personas_test_audience: false
@@ -990,9 +978,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/companies`).post(/.*/, updateCompaniesRequestBody).reply(200)
       
       const event3 = createTestEvent({
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           // company_domain: "companyDomain2.com",
           // linkedin_company_id: 'linkedInCompanyId2',
           personas_test_audience: true
@@ -1057,9 +1044,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
 
       const event3 = createTestEvent({
         // NO identifiers for this event - should return a 400 in multistatus response
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           // company_domain: "companyDomain2.com",
           // linkedin_company_id: 'linkedInCompanyId2',
           personas_test_audience: true
@@ -1074,9 +1060,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
 
       const event4 = createTestEvent({
         // This event has 1 identifier - should be processed successfully
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           company_domain: "companyDomain2.com",
           // linkedin_company_id: 'linkedInCompanyId2',
           personas_test_audience: true
@@ -1100,10 +1085,10 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         mapping: {
           action: 'AUTO',
           identifiers: {
-            companyDomain: {"@path": "$.properties.company_domain"},
-            linkedInCompanyId: {"@path": "$.properties.linkedin_company_id"},
+            companyDomain: {"@path": "$.traits.company_domain"},
+            linkedInCompanyId: {"@path": "$.traits.linkedin_company_id"},
           },
-          props: {"@path": "$.properties"},
+          traits_or_props: {"@path": "$.traits"},
           segment_creation_name: { '@path': '$.context.personas.computation_key'},
           computation_key: { '@path': '$.context.personas.computation_key'}, 
           computation_class: {'@path': '$.context.personas.computation_class'},
@@ -1126,7 +1111,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
             identifiers: {
               companyDomain: "companyDomain2.com"
             },
-            props: {
+            traits_or_props: {
               company_domain: "companyDomain2.com",
               personas_test_audience: true
             },
@@ -1155,9 +1140,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       
       const event3 = createTestEvent({
         // NO identifiers for this event - should return a 400 in multistatus response
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           // company_domain: "companyDomain2.com",
           // linkedin_company_id: 'linkedInCompanyId2',
           personas_test_audience: true
@@ -1172,9 +1156,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
 
       const event4 = createTestEvent({
         // NO identifiers for this event - should return a 400 in multistatus response
-        event: 'Audience Entered',
-        type: 'track',
-        properties: {
+        type: 'group',
+        traits: {
           // company_domain: "companyDomain2.com",
           // linkedin_company_id: 'linkedInCompanyId2',
           personas_test_audience: true
@@ -1198,10 +1181,10 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         mapping: {
           action: 'AUTO',
           identifiers: {
-            companyDomain: {"@path": "$.properties.company_domain"},
-            linkedInCompanyId: {"@path": "$.properties.linkedin_company_id"},
+            companyDomain: {"@path": "$.traits.company_domain"},
+            linkedInCompanyId: {"@path": "$.traits.linkedin_company_id"},
           },
-          props: {"@path": "$.properties"},
+          traits_or_props: {"@path": "$.traits"},
           segment_creation_name: { '@path': '$.context.personas.computation_key'},
           computation_key: { '@path': '$.context.personas.computation_key'}, 
           computation_class: {'@path': '$.context.personas.computation_class'},
