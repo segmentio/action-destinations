@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import send from './send'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Aws Kinesis',
   slug: 'actions-aws-kinesis',
@@ -22,7 +24,9 @@ const destination: DestinationDefinition<Settings> = {
     // implement this function and should remove it completely.
   },
 
-  actions: {}
+  actions: {
+    send
+  }
 }
 
 export default destination
