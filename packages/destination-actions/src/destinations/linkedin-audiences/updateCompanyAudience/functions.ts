@@ -30,7 +30,7 @@ export function buildJSON(payloads: Payload[]): AudienceJSON<LinkedInCompanyAudi
   const elements: LinkedInCompanyAudienceElement[] = []
 
   payloads.forEach((payload) => {
-    const action: AudienceAction = payload.action === 'AUTO' ? payload.props[payload.computation_key] === true ? AUDIENCE_ACTION.ADD : AUDIENCE_ACTION.REMOVE : payload.action === AUDIENCE_ACTION.ADD ? AUDIENCE_ACTION.ADD : AUDIENCE_ACTION.REMOVE
+    const action: AudienceAction = payload.action === 'AUTO' ? payload.traits_or_props[payload.computation_key] === true ? AUDIENCE_ACTION.ADD : AUDIENCE_ACTION.REMOVE : payload.action === AUDIENCE_ACTION.ADD ? AUDIENCE_ACTION.ADD : AUDIENCE_ACTION.REMOVE
     const { companyDomain, linkedInCompanyId } = payload.identifiers    
     const companyIds = [
       ...(companyDomain ? [{ idType: 'DOMAIN' as const, idValue: companyDomain }] : []),

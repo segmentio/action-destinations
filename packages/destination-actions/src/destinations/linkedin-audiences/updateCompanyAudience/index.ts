@@ -10,7 +10,7 @@ import { LinkedInCompanyAudienceElement } from '../types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To LinkedIn DMP Company Segment',
   description: 'Syncs an Engage Account based Audience to a LinkedIn DMP Company Segment.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "group"',
   fields,
   perform: async (request, { settings, payload, statsContext }) => {
     return send<Payload, LinkedInCompanyAudienceElement>(
