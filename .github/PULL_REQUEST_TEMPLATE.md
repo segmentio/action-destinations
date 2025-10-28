@@ -26,7 +26,3 @@ any of the tasks you completed below during your testing._
 _Please ensure sensitive data is properly protected in your integration._
 
 - [ ] **Reviewed all field definitions** for sensitive data (API keys, tokens, passwords, client secrets) and confirmed they use `type: 'password'`
-- [ ] **Verified authentication fields** are properly marked with `type: 'password'` where appropriate
-- [ ] **Checked field names and descriptions** for keywords indicating sensitive data: `key`, `token`, `secret`, `password`, `code`, `auth`, `credential`, `bearer`
-
-For detailed guidance, see the [Password and Secret Fields section](README.md#password-and-secret-fields) in README.md.

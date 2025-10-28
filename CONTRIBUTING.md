@@ -124,12 +124,6 @@ Before releasing your destination to General Availability (GA), complete this se
 ### Security Review Checklist for GA Release
 
 - [ ] **Secret Field Review**: Verify all sensitive fields (API keys, tokens, passwords, client secrets) are properly marked with `type: 'password'`
-- [ ] **Field Validation**: Check all field names and descriptions for keywords that indicate sensitive data: `key`, `token`, `secret`, `password`, `code`, `auth`, `credential`, `bearer`
-- [ ] **Authentication Configuration**: Ensure authentication fields use appropriate types and are properly secured
-- [ ] **Documentation Review**: Confirm all examples and documentation properly demonstrate secure field configuration
-- [ ] **Git Sync Compatibility**: Verify that password fields will be excluded from git sync operations to prevent credential exposure
-
-Refer to the [Password and Secret Fields section in README.md](README.md#password-and-secret-fields) for detailed guidance on proper field configuration.
 
 ### Release Process
 
