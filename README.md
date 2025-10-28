@@ -362,7 +362,7 @@ const destination = {
 
 In addition to default values for input fields, you can also specify the defaultSubscription for a given action – this is the FQL query that will be automatically populated when a customer configures a new subscription triggering a given action.
 
-## Password and Secret Fields
+## Handling Password and Secret Fields with type: password
 
 When working with sensitive data such as API keys, tokens, passwords, or other credentials, it's critical to properly mark these fields with `type: 'password'`. This ensures proper security handling across Segment's infrastructure, including:
 
