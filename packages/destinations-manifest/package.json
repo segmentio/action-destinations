@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.132.0",
+  "version": "1.133.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -20,7 +20,7 @@
     "@segment/analytics-browser-actions-braze-cloud-plugins": "^1.103.0",
     "@segment/analytics-browser-actions-bucket": "^1.71.0",
     "@segment/analytics-browser-actions-cdpresolution": "^1.77.0",
-    "@segment/analytics-browser-actions-cj": "^1.3.0",
+    "@segment/analytics-browser-actions-cj": "^1.4.0",
     "@segment/analytics-browser-actions-commandbar": "^1.90.0",
     "@segment/analytics-browser-actions-contentstack-web": "^1.33.0",
     "@segment/analytics-browser-actions-devrev": "^1.77.0",
@@ -28,7 +28,7 @@
     "@segment/analytics-browser-actions-friendbuy": "^1.91.0",
     "@segment/analytics-browser-actions-fullsession": "^1.2.0",
     "@segment/analytics-browser-actions-fullstory": "^1.92.0",
-    "@segment/analytics-browser-actions-google-analytics-4": "^1.99.0",
+    "@segment/analytics-browser-actions-google-analytics-4": "^1.100.0",
     "@segment/analytics-browser-actions-google-campaign-manager": "^1.81.0",
     "@segment/analytics-browser-actions-heap": "^1.90.0",
     "@segment/analytics-browser-actions-hubspot": "^1.90.0",
