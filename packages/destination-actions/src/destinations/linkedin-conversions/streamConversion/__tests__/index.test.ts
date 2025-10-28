@@ -166,6 +166,192 @@ describe('LinkedinConversions.streamConversion', () => {
     ).resolves.not.toThrowError()
   })
 
+  it('should successfully send the event with externalIds field as an array', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        conversionValue: {
+          currencyCode: 'USD',
+          amount: '100'
+        },
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ],
+          userInfo: {
+            firstName: 'mike',
+            lastName: 'smith',
+            title: 'software engineer',
+            companyName: 'microsoft',
+            countryCode: 'US'
+          },
+          externalIds: ['external_id_12345']
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          conversionValue: {
+            currencyCode: 'USD',
+            amount: { '@path': '$.context.traits.value' }
+          },
+          userInfo: {
+            firstName: { '@path': '$.context.traits.first_name' },
+            lastName: { '@path': '$.context.traits.last_name' },
+            title: { '@path': '$.context.traits.title' },
+            companyName: { '@path': '$.context.traits.companyName' },
+            countryCode: { '@path': '$.context.traits.countryCode' }
+          },
+          externalIds: ['external_id_12345'],
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should successfully send the event with externalIds field as a string', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        conversionValue: {
+          currencyCode: 'USD',
+          amount: '100'
+        },
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ],
+          userInfo: {
+            firstName: 'mike',
+            lastName: 'smith',
+            title: 'software engineer',
+            companyName: 'microsoft',
+            countryCode: 'US'
+          },
+          externalIds: ['external_id_12345']
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          conversionValue: {
+            currencyCode: 'USD',
+            amount: { '@path': '$.context.traits.value' }
+          },
+          userInfo: {
+            firstName: { '@path': '$.context.traits.first_name' },
+            lastName: { '@path': '$.context.traits.last_name' },
+            title: { '@path': '$.context.traits.title' },
+            companyName: { '@path': '$.context.traits.companyName' },
+            countryCode: { '@path': '$.context.traits.countryCode' }
+          },
+          externalIds: 'external_id_12345',
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should successfully send the event when externalIds array contains more than 1 item', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        conversionValue: {
+          currencyCode: 'USD',
+          amount: '100'
+        },
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ],
+          userInfo: {
+            firstName: 'mike',
+            lastName: 'smith',
+            title: 'software engineer',
+            companyName: 'microsoft',
+            countryCode: 'US'
+          },
+          externalIds: ['external_id_12345']
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          conversionValue: {
+            currencyCode: 'USD',
+            amount: { '@path': '$.context.traits.value' }
+          },
+          userInfo: {
+            firstName: { '@path': '$.context.traits.first_name' },
+            lastName: { '@path': '$.context.traits.last_name' },
+            title: { '@path': '$.context.traits.title' },
+            companyName: { '@path': '$.context.traits.companyName' },
+            countryCode: { '@path': '$.context.traits.countryCode' }
+          },
+          externalIds: ['external_id_12345', 'external_id_67890'], // second item will be dropped
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
   it('should successfully send a batch request with all fields', async () => {
     nock(`${BASE_URL}/conversionEvents`)
       .post('', {
