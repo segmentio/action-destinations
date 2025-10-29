@@ -31,11 +31,10 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: async (_, { settings }) => {
       const { iamRoleArn, iamExternalId } = settings
-      console.log(123)
       if (!validateIamRoleArnFormat(iamRoleArn)) {
         throw new IntegrationError('The provided IAM Role ARN format is not valid', 'INVALID_IAM_ROLE_ARN_FORMAT', 400)
       }
-      console.log(234)
+
       await assumeRole(iamRoleArn, iamExternalId, APP_AWS_REGION)
     }
   },
