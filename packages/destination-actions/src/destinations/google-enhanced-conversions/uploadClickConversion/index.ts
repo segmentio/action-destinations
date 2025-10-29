@@ -55,6 +55,15 @@ const action: ActionDefinition<Settings, Payload> = {
         'The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14.',
       type: 'string'
     },
+    user_ip_address: {
+      label: 'User IP Address',
+      description:
+        'The IP address of the user who initiated the conversion.',
+      type: 'string',
+      default: {
+        '@path': '$.context.ip'
+      }
+    },
     session_attributes_encoded: {
       label: 'Session Attributes (Encoded)',
       description:
@@ -285,6 +294,7 @@ const action: ActionDefinition<Settings, Payload> = {
       gclid: payload.gclid,
       gbraid: payload.gbraid,
       wbraid: payload.wbraid,
+      userIpAddress: payload.user_ip_address,
       sessionAttributesEncoded: payload.session_attributes_encoded,
       orderId: payload.order_id,
       conversionValue: payload.value,
@@ -392,6 +402,7 @@ const action: ActionDefinition<Settings, Payload> = {
           gclid: payload.gclid,
           gbraid: payload.gbraid,
           wbraid: payload.wbraid,
+          userIpAddress: payload.user_ip_address,
           sessionAttributesEncoded: payload.session_attributes_encoded,
           orderId: payload.order_id,
           conversionValue: payload.value,
