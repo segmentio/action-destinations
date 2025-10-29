@@ -36,14 +36,14 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.properties.awsRegion' }
     }
   },
-  perform: async (_requests, { _settings, _payload }) => {
+  perform: async (_requests, _data) => {
     // Make your partner api request here!
     // return request('https://example.com', {
     //   method: 'post',
     //   json: data.payload
     // })
   },
-  performBatch: async (_requests, { _settings, _payload }) => {
+  performBatch: async (_requests, _data) => {
     // Example performBatch implementation
     // for (const batch of requests) {
     //   await sendBatchedDataToKinesis(batch, settings)

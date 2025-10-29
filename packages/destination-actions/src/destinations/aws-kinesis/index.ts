@@ -3,6 +3,7 @@ import type { Settings } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { assumeRole } from '../../lib/AWS/sts'
 import { validateIamRoleArnFormat } from './utils'
+import { APP_AWS_REGION } from '../../lib/AWS/utils'
 
 import send from './send'
 
@@ -34,7 +35,7 @@ const destination: DestinationDefinition<Settings> = {
         throw new IntegrationError('The provided IAM Role ARN format is not valid', 'INVALID_IAM_ROLE_ARN_FORMAT', 400)
       }
 
-      return assumeRole(iamRoleArn, iamExternalId)
+      await assumeRole(iamRoleArn, iamExternalId, APP_AWS_REGION)
     }
   },
 

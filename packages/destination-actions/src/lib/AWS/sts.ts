@@ -132,16 +132,15 @@ export async function getAWSCredentialsFromEKS(request: RequestClient): Promise<
   return credentials
 }
 
-export const assumeRole = async (roleArn: string, externalId: string): Promise<AWSCredentials> => {
+export const assumeRole = async (roleArn: string, externalId: string, region: string): Promise<AWSCredentials> => {
   const intermediaryARN = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS as string
   const intermediaryExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID as string
-
-  const intermediaryCreds = await getSTSCredentials(intermediaryARN, intermediaryExternalId)
-  return getSTSCredentials(roleArn, externalId, intermediaryCreds)
+  const intermediaryCreds = await getSTSCredentials(intermediaryARN, intermediaryExternalId, region)
+  return getSTSCredentials(roleArn, externalId, region, intermediaryCreds)
 }
 
-const getSTSCredentials = async (roleId: string, externalId: string, credentials?: AWSCredentials) => {
-  const options = { credentials }
+const getSTSCredentials = async (roleId: string, externalId: string, region: string, credentials?: AWSCredentials) => {
+  const options = { credentials, region: region }
   const stsClient = new STSClient(options)
   const roleSessionName: string = uuidv4()
   const command = new AssumeRoleCommand({
@@ -156,7 +155,6 @@ const getSTSCredentials = async (roleId: string, externalId: string, credentials
     !result.Credentials.SecretAccessKey ||
     !result.Credentials.SessionToken
   ) {
-    // TODO: Add more specific error handling
     throw new IntegrationError('Failed to assume role', ErrorCodes.INVALID_AUTHENTICATION, 403)
   }
 
