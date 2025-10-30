@@ -1,4 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import audienceEnteredS3 from './audienceEnteredS3'
@@ -31,7 +32,23 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     audienceEnteredS3,
     audienceEnteredSFTP
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Entered',
+      partnerAction: 'audienceEnteredS3',
+      mapping: defaultValues(audienceEnteredS3.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_entered_track'
+    },
+    {
+      name: 'Entities Audience Entered',
+      partnerAction: 'audienceEnteredSFTP',
+      mapping: defaultValues(audienceEnteredSFTP.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_entered_track'
+    }
+  ]
 }
 
 export default destination
