@@ -29,7 +29,7 @@ export {
 } from './mapping-kit/value-keys'
 export { createTestEvent } from './create-test-event'
 export { createTestIntegration } from './create-test-integration'
-export { default as createInstance } from './request-client'
+export { default as createInstance, RequestTimeoutError } from './request-client'
 export { default as createRequestClient } from './create-request-client'
 export { defaultValues } from './defaults'
 export {
