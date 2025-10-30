@@ -1,5 +1,9 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { IntegrationError } from '@segment/actions-core'
+import { assumeRole } from '../../lib/AWS/sts'
+import { validateIamRoleArnFormat } from './utils'
+import { APP_AWS_REGION } from '../../lib/AWS/utils'
 
 import send from './send'
 
@@ -10,18 +14,29 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'custom',
-    fields: {},
-    testAuthentication: (_) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
-    }
-  },
+    fields: {
+      iamRoleArn: {
+        label: 'IAM Role ARN',
+        description: 'The ARN of the IAM Role to assume for sending data to Kinesis.',
+        type: 'string',
+        required: true
+      },
+      iamExternalId: {
+        label: 'IAM External ID',
+        description:
+          'The external ID to use when assuming the IAM Role. Generate a secure string and treat it like a password.  This is often used as an additional security measure.',
+        type: 'password',
+        required: true
+      }
+    },
+    testAuthentication: async (_, { settings }) => {
+      const { iamRoleArn, iamExternalId } = settings
+      if (!validateIamRoleArnFormat(iamRoleArn)) {
+        throw new IntegrationError('The provided IAM Role ARN format is not valid', 'INVALID_IAM_ROLE_ARN_FORMAT', 400)
+      }
 
-  onDelete: async (_, _1) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
+      await assumeRole(iamRoleArn, iamExternalId, APP_AWS_REGION)
+    }
   },
 
   actions: {
