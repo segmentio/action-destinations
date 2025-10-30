@@ -58,7 +58,6 @@ async function executeSFTPOperation(
   }
 
   if (signal) {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     if (signal.aborted) {
       await abortSFTP()
     }
@@ -69,7 +68,6 @@ async function executeSFTPOperation(
   let retVal
   try {
     retVal = await action(sftp)
-    // if (timeoutError) throw timeoutError
   } catch (e: unknown) {
     const sftpError = e as SFTPError
     if (sftpError) {
