@@ -52,16 +52,6 @@ async function executeSFTPOperation(
   const connectionConfig = createConnectionConfig(settings)
   await sftp.connect(connectionConfig)
 
-  // let timeoutError
-  // const timeout = setTimeout(() => {
-  //   void sftp.end().catch((err) => {
-  //     console.error(err)
-  //   })
-  //   timeoutError = new SelfTimeoutError(
-  //     `Did not complete SFTP operation under allotted time: ${DEFAULT_REQUEST_TIMEOUT}`
-  //   )
-  // }, DEFAULT_REQUEST_TIMEOUT)
-
   const abortSFTP = async () => {
     await sftp.end()
     throw new RequestTimeoutError()
@@ -89,12 +79,9 @@ async function executeSFTPOperation(
     }
     throw e
   } finally {
-    // // clearTimeout(timeout)
-    // if (!timeoutError) {
     await sftp.end()
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     signal?.removeEventListener('abort', abortSFTP)
-    // }
   }
 
   return retVal
