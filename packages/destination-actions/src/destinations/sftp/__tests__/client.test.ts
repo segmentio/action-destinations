@@ -400,13 +400,6 @@ MN
       })
 
       it('should throw timeout error when operation takes too long', async () => {
-        // Mock setTimeout to immediately execute the timeout callback
-        // const originalSetTimeout = global.setTimeout
-        // global.setTimeout = ((callback: Function) => {
-        //   callback()
-        //   return 123 as any
-        // }) as any
-
         Client.prototype.connect = jest.fn().mockImplementation(() => new Promise((r) => setTimeout(r, 11500)))
         Client.prototype.list = jest.fn().mockResolvedValue([])
         Client.prototype.end = jest.fn().mockResolvedValue(undefined)
@@ -414,8 +407,6 @@ MN
         await expect(testSFTPConnection(passwordSettings)).rejects.toThrow(
           'Request timed out before receiving a response'
         )
-
-        // global.setTimeout = originalSetTimeout
       }, 12000)
 
       it('should handle connection errors with cleanup', async () => {
