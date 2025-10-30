@@ -62,11 +62,22 @@ const action: ActionDefinition<Settings, Payload> = {
         'The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14.',
       type: 'string'
     },
+    user_ip_address: {
+      label: 'User IP Address',
+      description: 'The IP address of the user who initiated the conversion.',
+      type: 'string',
+      default: {
+        '@path': '$.context.ip'
+      }
+    },
     session_attributes_encoded: {
       label: 'Session Attributes (Encoded)',
       description:
         "A base64url-encoded JSON string containing session attributes collected from the user's browser. This provides additional attribution context if gclid, gbraid, or user identifiers are missing.",
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.integrations.Google Ads Conversions.session_attributes_encoded'
+      }
     },
     conversion_timestamp: {
       label: 'Conversion Timestamp',
@@ -293,6 +304,7 @@ const action: ActionDefinition<Settings, Payload> = {
         gclid: payload.gclid,
         gbraid: payload.gbraid,
         wbraid: payload.wbraid,
+        userIpAddress: payload.user_ip_address,
         sessionAttributesEncoded: payload.session_attributes_encoded,
         orderId: payload.order_id,
         conversionValue: payload.value,
@@ -406,6 +418,7 @@ const action: ActionDefinition<Settings, Payload> = {
           gclid: payloadItem.gclid,
           gbraid: payloadItem.gbraid,
           wbraid: payloadItem.wbraid,
+          userIpAddress: payloadItem.user_ip_address,
           sessionAttributesEncoded: payloadItem.session_attributes_encoded,
           orderId: payloadItem.order_id,
           conversionValue: payloadItem.value,

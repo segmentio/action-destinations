@@ -18,6 +18,10 @@ export interface Payload {
    */
   wbraid?: string
   /**
+   * The IP address of the user who initiated the conversion.
+   */
+  user_ip_address?: string
+  /**
    * A base64url-encoded JSON string containing session attributes collected from the user's browser. This provides additional attribution context if gclid, gbraid, or user identifiers are missing.
    */
   session_attributes_encoded?: string
