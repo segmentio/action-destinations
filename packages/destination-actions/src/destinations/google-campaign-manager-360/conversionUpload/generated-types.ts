@@ -178,4 +178,8 @@ export interface Payload {
      */
     unitPrice: number
   }[]
+  /**
+   * Max number of events to upload in each batch request.
+   */
+  batch_size?: number
 }

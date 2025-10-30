@@ -318,5 +318,13 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
         }
       ]
     }
+  },
+  batch_size: {
+    label: 'Batch Size',
+    description: 'Max number of events to upload in each batch request.',
+    type: 'number',
+    required: false,
+    unsafe_hidden: true,
+    default: 2000
   }
 }
