@@ -3,7 +3,7 @@ import { Settings } from '../generated-types'
 import { Client } from './client'
 import { RawMapping, ColumnHeader } from './types'
 
-export async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping) {
+export async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping, signal?: AbortSignal) {
   const delimiter = payloads[0]?.delimiter
   const actionColName = payloads[0]?.audience_action_column_name
   const batchColName = payloads[0]?.batch_size_column_name
@@ -31,7 +31,8 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
     fileContent,
     payloads[0]?.filename_prefix ?? '',
     payloads[0]?.s3_aws_folder_name ?? '',
-    payloads[0]?.file_extension
+    payloads[0]?.file_extension,
+    signal
   )
 }
 
