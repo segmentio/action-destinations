@@ -56,7 +56,8 @@ export class Client {
     fileContent: string | Buffer,
     filename_prefix: string,
     s3_aws_folder_name: string,
-    fileExtension: string
+    fileExtension: string,
+    signal?: AbortSignal
   ) {
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
@@ -97,7 +98,7 @@ export class Client {
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      await s3Client.send(new PutObjectCommand(uploadParams))
+      await s3Client.send(new PutObjectCommand(uploadParams), { abortSignal: signal })
       return { statusCode: 200, message: 'Upload successful' }
     } catch (err) {
       if (isAWSError(err)) {
