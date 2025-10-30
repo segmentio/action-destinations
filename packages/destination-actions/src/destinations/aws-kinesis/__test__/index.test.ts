@@ -2,6 +2,8 @@ import destination from '../index'
 import { assumeRole } from '../../../lib/AWS/sts'
 import { validateIamRoleArnFormat } from '../utils'
 import { APP_AWS_REGION } from '../../../lib/AWS/utils'
+import type { Settings } from '../generated-types'
+import { createTestIntegration } from '@segment/actions-core'
 
 // --- Mock all dependencies ---
 jest.mock('../../../lib/AWS/sts', () => ({
@@ -25,10 +27,10 @@ jest.mock('../../../lib/AWS/utils', () => ({
   APP_AWS_REGION: 'us-east-1'
 }))
 
-describe('AWS Kinesis Destination - testAuthentication', () => {
-  const testAuth = destination.authentication!.testAuthentication!
+const testDestination = createTestIntegration(destination)
 
-  const validSettings = {
+describe('AWS Kinesis Destination - testAuthentication', () => {
+  const validSettings: Settings = {
     iamRoleArn: 'arn:aws:iam::123456789012:role/MyRole',
     iamExternalId: 'external-id'
   }
@@ -45,7 +47,7 @@ describe('AWS Kinesis Destination - testAuthentication', () => {
       sessionToken: 'TOKEN...'
     })
 
-    await expect(testAuth({}, { settings: validSettings })).resolves.not.toThrow()
+    await expect(testDestination.testAuthentication(validSettings)).resolves.not.toThrow()
 
     expect(validateIamRoleArnFormat).toHaveBeenCalledWith(validSettings.iamRoleArn)
     expect(assumeRole).toHaveBeenCalledWith(validSettings.iamRoleArn, validSettings.iamExternalId, APP_AWS_REGION)
@@ -54,7 +56,7 @@ describe('AWS Kinesis Destination - testAuthentication', () => {
   it('should throw IntegrationError if IAM Role ARN format is invalid', async () => {
     ;(validateIamRoleArnFormat as jest.Mock).mockReturnValue(false)
 
-    const result = testAuth({}, { settings: validSettings })
+    const result = testDestination.testAuthentication(validSettings)
 
     await expect(result).rejects.toMatchObject({
       name: 'IntegrationError',
@@ -70,6 +72,6 @@ describe('AWS Kinesis Destination - testAuthentication', () => {
     ;(validateIamRoleArnFormat as jest.Mock).mockReturnValue(true)
     ;(assumeRole as jest.Mock).mockRejectedValue(new Error('AssumeRole failed'))
 
-    await expect(testAuth({}, { settings: validSettings })).rejects.toThrow('AssumeRole failed')
+    await expect(testDestination.testAuthentication(validSettings)).rejects.toThrow('AssumeRole failed')
   })
 })
