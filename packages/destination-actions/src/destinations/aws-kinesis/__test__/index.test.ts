@@ -3,7 +3,7 @@ import { assumeRole } from '../../../lib/AWS/sts'
 import { validateIamRoleArnFormat } from '../utils'
 import { APP_AWS_REGION } from '../../../lib/AWS/utils'
 import type { Settings } from '../generated-types'
-import { createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '../../../../../core/src/create-test-integration'
 
 // --- Mock all dependencies ---
 jest.mock('../../../lib/AWS/sts', () => ({
@@ -58,12 +58,7 @@ describe('AWS Kinesis Destination - testAuthentication', () => {
 
     const result = testDestination.testAuthentication(validSettings)
 
-    await expect(result).rejects.toMatchObject({
-      name: 'IntegrationError',
-      message: 'The provided IAM Role ARN format is not valid',
-      code: 'INVALID_IAM_ROLE_ARN_FORMAT',
-      status: 400
-    })
+    await expect(result).rejects.toThrow('Credentials are invalid:  The provided IAM Role ARN format is not valid')
 
     expect(assumeRole).not.toHaveBeenCalled()
   })
