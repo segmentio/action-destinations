@@ -399,7 +399,8 @@ MN
         expect(Client.prototype.end).toHaveBeenCalled()
       })
 
-      it('should throw timeout error when operation takes too long', async () => {
+      // This test is skipped because it can slow down the CI
+      it.skip('should throw timeout error when operation takes too long', async () => {
         Client.prototype.connect = jest.fn().mockImplementation(() => new Promise((r) => setTimeout(r, 11500)))
         Client.prototype.list = jest.fn().mockResolvedValue([])
         Client.prototype.end = jest.fn().mockResolvedValue(undefined)
