@@ -188,11 +188,17 @@ function normalizeSSHKey(key = ''): string {
  */
 async function testSFTPConnection(settings: Settings): Promise<unknown> {
   const sftp = new Client()
-  return executeSFTPOperation(sftp, settings, '/', async (sftp) => {
-    // Simply attempt to list the root directory to test connection
-    // This is a minimal operation that tests authentication and basic connectivity
-    return sftp.list('/')
-  })
+  return executeSFTPOperation(
+    sftp,
+    settings,
+    '/',
+    async (sftp) => {
+      // Simply attempt to list the root directory to test connection
+      // This is a minimal operation that tests authentication and basic connectivity
+      return sftp.list('/')
+    },
+    AbortSignal.timeout(10000)
+  ) // 10 second timeout for test connection
 }
 
 export { Client, executeSFTPOperation, normalizeSSHKey, testSFTPConnection, uploadSFTP }
