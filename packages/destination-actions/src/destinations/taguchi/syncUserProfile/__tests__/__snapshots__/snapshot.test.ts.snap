@@ -8,9 +8,6 @@ Array [
       "address2": "Testville",
       "address3": "TS",
       "country": "Test Country",
-      "custom": Object {
-        "phone": "+1234567890",
-      },
       "dob": "2024-06-10",
       "email": "test@example.com",
       "firstname": "Test",
@@ -27,6 +24,7 @@ Array [
         },
       ],
       "organizationId": 123,
+      "phone": "+1234567890",
       "postcode": "12345",
       "ref": "test-user-123",
       "state": "Test State",
