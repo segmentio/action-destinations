@@ -64,8 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_ip_address: {
       label: 'User IP Address',
-      description:
-        'The IP address of the user who initiated the conversion.',
+      description: 'The IP address of the user who initiated the conversion.',
       type: 'string',
       default: {
         '@path': '$.context.ip'
@@ -75,7 +74,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Session Attributes (Encoded)',
       description:
         "A base64url-encoded JSON string containing session attributes collected from the user's browser. This provides additional attribution context if gclid, gbraid, or user identifiers are missing.",
-      type: 'string'
+      type: 'string',
+      default: {
+        '@path': '$.integrations.Google Ads Conversions.session_attributes_encoded'
+      }
     },
     conversion_timestamp: {
       label: 'Conversion Timestamp',
