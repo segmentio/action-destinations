@@ -42,17 +42,32 @@ async function uploadSFTP(
   const abortHandler = new Promise((_, reject) => {
     signal?.addEventListener('abort', () => onabort(reject))
   })
-  const uploadHandler = sftp.fastPutFromBuffer(fileContent, path.posix.join(sftpFolderPath, filename), {
-    concurrency: 64,
-    chunkSize: 32768
-  })
 
-  await Promise.race([abortHandler, uploadHandler]).finally(() => {
+  // Define the target path
+  const targetPath = path.posix.join(sftpFolderPath, filename)
+
+  try {
+    // Execute the upload operation
+    const uploadHandler = sftp.fastPutFromBuffer(fileContent, targetPath, {
+      concurrency: 64,
+      chunkSize: 32768
+    })
+
+    await Promise.race([abortHandler, uploadHandler])
+  } catch (e: unknown) {
+    const sftpError = e as SFTPError
+    if (sftpError) {
+      if (sftpError.code === SFTPErrorCode.NO_SUCH_FILE) {
+        throw new PayloadValidationError(`Could not find path: ${sftpFolderPath}`)
+      }
+    }
+    throw e
+  } finally {
     signal?.removeEventListener('abort', () => onabort)
     sftp.end().catch(() => {
       // Ignore errors on cleanup
     })
-  })
+  }
 }
 
 async function executeSFTPOperation(
