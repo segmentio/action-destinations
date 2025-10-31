@@ -55,7 +55,6 @@ describe('ajs-integration', () => {
     })
 
     const updatedCtx = await snapPlugin.track?.(ctx)
-    console.log('updatedCtx:', updatedCtx)
     const snapIntegrationsObj = updatedCtx?.event?.integrations['Snap Conversions Api']
     expect(snapIntegrationsObj[clickIdIntegrationFieldName]).toEqual('dummyQuerystringValue')
   })
