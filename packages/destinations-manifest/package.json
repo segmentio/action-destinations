@@ -54,6 +54,7 @@
     "@segment/analytics-browser-actions-vwo": "^1.94.0",
     "@segment/analytics-browser-actions-wiseops": "^1.92.0",
     "@segment/analytics-browser-hubble-web": "^1.77.0",
+    "@segment/analytics-browser-actions-google-enhanced-conversions-plugins": "^1.0.0",
     "@segment/browser-destination-runtime": "^1.90.0"
   }
 }
