@@ -5,11 +5,12 @@ import { storageFallback } from './utils'
 import { STORAGE_LOCATION } from './constants'
 import { UniversalStorage } from '@segment/analytics-next'
 import sessionAttributesEncoded from './sessionAttributesEncoded'
+import btoa from 'btoa-lite'
 
 export const destination: BrowserDestinationDefinition<Settings, {}> = {
   name: 'Google Enhanced Conversions Browser Plugins',
   mode: 'device',
-  description: 'Browser plugin to enrich Segment event payloads with Google Enhanced Conversions values.',
+  description: 'Browser plugin to enrich Segment event payloads with data specifically for Google Enhanced Conversions.',
   initialize: async ({ analytics }) => {
     const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
     const urlParams = new URLSearchParams(window.location.search) || []
@@ -25,6 +26,7 @@ export const destination: BrowserDestinationDefinition<Settings, {}> = {
       params["session_start_time_usec"] = (
         new Date().getTime() * 1000
       ).toString()
+
       params["landing_page_url"] = window.location.href
       params["landing_page_referrer"] = document.referrer
       params["landing_page_user_agent"] = navigator.userAgent

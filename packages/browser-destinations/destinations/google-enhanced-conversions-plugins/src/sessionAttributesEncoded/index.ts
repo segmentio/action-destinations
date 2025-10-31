@@ -16,7 +16,6 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
   perform: (_, { context, analytics }) => {
     const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
     const sessionAttributesEncoded: string | null = storage.get(STORAGE_LOCATION)
-
     if (sessionAttributesEncoded) {
       const integrationsData: Record<string, string> = {}
       integrationsData[INTEGRATION_FIELD_NAME] = sessionAttributesEncoded
@@ -24,7 +23,6 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
         context.updateEvent(`integrations.${DESTINATION_NAME}`, integrationsData)
       }
     }
-
     return
   }
 }
