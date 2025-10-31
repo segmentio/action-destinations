@@ -219,6 +219,14 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
   return timestamp.replace(/T/, ' ').replace(/(\.\d+)?Z/, '+00:00')
 }
 
+export function timestampToEpochMicroseconds(timestamp: string): string | undefined {
+  const date = new Date(timestamp)
+  if (!isNaN(date.getTime())) {
+    return (date.getTime() * 1000).toString()
+  }
+  return undefined
+}
+
 export function getApiVersion(features?: Features, statsContext?: StatsContext): string {
   const statsClient = statsContext?.statsClient
   const tags = statsContext?.tags
