@@ -6,7 +6,7 @@ import { STORAGE_LOCATION, INTEGRATION_FIELD_NAME, DESTINATION_NAME } from '../c
 import { UniversalStorage } from '@segment/analytics-next'
 
 const action: BrowserActionDefinition<Settings, {}, Payload> = {
-  title: 'Session Attributes Encoded Enrichment Plugin',
+  title: 'Session Attributes Encoded Plugin',
   description: 'Enriches Segment payloads with Session Attributes Encoded values from the page URL.',
   platform: 'web',
   hidden: false,
