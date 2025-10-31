@@ -24,6 +24,9 @@ jobs:
     env:
       HUSKY: 0
       NX_DISABLE_DB: true
+      BASE_BRANCH: ${{ github.event.inputs.base_branch }}
+      BRANCH: ${{ github.event.inputs.branch }}
+      RUN_ID: ${{ github.event.inputs.run_id }}
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -33,7 +36,7 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-          ref: ${{ github.event.inputs.base_branch }}
+          ref: ${{ env.BASE_BRANCH }}
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -44,8 +47,8 @@ jobs:
 
       - name: Checkout branch
         run: |
-          git checkout -b ${{ github.event.inputs.branch }}
-          git push origin ${{ github.event.inputs.branch }}
+          git checkout -b ${{ env.BRANCH }}
+          git push origin ${{ env.BRANCH }}
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
@@ -61,10 +64,10 @@ jobs:
       - name: Version Packages
         run: |
           # minor version bump for main branch and patch for hotfixes
-          if [ "${{ github.event.inputs.base_branch }}" == "main" ]; then
-            yarn lerna version minor --yes --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private
+          if [ "${{ env.BASE_BRANCH }}" == "main" ]; then
+            yarn lerna version minor --yes --allow-branch ${{ env.BRANCH }} --no-git-tag-version --no-commit-hooks --no-private
           else
-            yarn lerna version patch --yes --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private
+            yarn lerna version patch --yes --allow-branch ${{ env.BRANCH }} --no-git-tag-version --no-commit-hooks --no-private
           fi
 
       - name: Commit and push
@@ -83,13 +86,13 @@ jobs:
           echo "$packages_published" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
           git commit -m "Publish"
-          git push origin ${{ github.event.inputs.branch }}
+          git push origin ${{ env.BRANCH }}
 
       - name: Create PR
         if: ${{ steps.commit_and_push.outputs.SKIP_PR != 'true' }}
         run: |
           pr_message="This PR was opened by GithHub Actions. Whenever you're ready to publish the packages, merge this PR."
           description="$(printf "%s\n # Packages\n%s" "$pr_message" "${{ steps.commit_and_push.outputs.packages_published }}")"
-          gh pr create --base ${{ github.event.inputs.base_branch }} --head ${{ github.event.inputs.branch }} --title "Publish" --body "$description"
+          gh pr create --base ${{ env.BASE_BRANCH }} --head ${{ env.BRANCH }} --title "Publish" --body "$description"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
