@@ -685,6 +685,71 @@ describe('GoogleEnhancedConversions', () => {
       )
       expect(responses[0].status).toBe(201)
     })
+
+    it('sends sessionAttributesKeyValuePairs when provided and sessionAttributesEncoded not provided', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          gclid: '54321',
+          email: 'test@gmail.com',
+          orderId: '1234',
+          total: '200',
+          currency: 'USD',
+          gad_source: 'Google',
+          gad_campaignid: '2142354',
+          products: [
+            {
+              product_id: '1234',
+              quantity: 3,
+              price: 10.99
+            }
+          ]
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .reply(201, { results: [{}] })
+
+      const responses = await testDestination.testAction('uploadClickConversion', {
+        event,
+        mapping: {
+          conversion_action: '12345',
+          session_attributes_encoded: null,
+          session_attributes_key_value_pairs: {
+            gad_source: {
+              '@path': '$.properties.gad_source'
+            },
+            gad_campaignid: {
+              '@path': '$.properties.gad_campaignid'
+            },
+            landing_page_url: {
+              '@path': '$.context.page.url'
+            },
+            session_start_time_usec: {
+              '@path': '$.timestamp'
+            },
+            landing_page_referrer: {
+              '@path': '$.context.page.referrer'
+            },
+            landing_page_user_agent: {
+              '@path': '$.context.userAgent'
+            }
+          },
+          __segment_internal_sync_mode: 'add'
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        }
+      })
+
+      expect(responses[0].options.body).toBe(
+        "{\"conversions\":[{\"conversionAction\":\"customers/1234/conversionActions/12345\",\"conversionDateTime\":\"2021-06-10 18:08:04+00:00\",\"userIpAddress\":\"8.8.8.8\",\"sessionAttributesKeyValuePairs\":{\"gadSource\":\"Google\",\"gadCampaignId\":\"2142354\",\"landingPageUrl\":\"https://segment.com/academy/\",\"sessionStartTimeUsec\":\"1623348484000000\",\"landingPageUserAgent\":\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\"},\"orderId\":\"1234\",\"conversionValue\":200,\"currencyCode\":\"USD\",\"cartData\":{\"items\":[{\"productId\":\"1234\",\"quantity\":3,\"unitPrice\":10.99}]},\"userIdentifiers\":[{\"hashedEmail\":\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\"}]}],\"partialFailure\":true}"
+      )
+      expect(responses[0].status).toBe(201)
+    })
   })
 
   describe('uploadClickConversion Batch Event', () => {
@@ -1505,6 +1570,94 @@ describe('GoogleEnhancedConversions', () => {
 
       expect(responses[0].options.body).toBe(
         '{"conversions":[{"conversionAction":"customers/1234/conversionActions/12345","conversionDateTime":"2021-06-10 18:08:04+00:00","userIpAddress":"8.8.8.8","sessionAttributesEncoded":"eyJzZXNzaW9uX3N0YXJ0X3RpbWVfdXNlYyI6IjE3NTIxNDgxOTgwNzMwMDAiLCJsYW5kaW5nX3BhZ2VfdXJsIjoiaHR0cHM6Ly9yby5jby93ZWlnaHQtbG9zcy9jaGVja2VyLXBhdGgvP2djbGlkPTIxNDIzNTQiLCJsYW5kaW5nX3BhZ2VfcmVmZXJyZXIiOiIiLCJsYW5kaW5nX3BhZ2VfdXNlcl9hZ2VudCI6Ik1vemlsbGEvNS4wIChNYWNpbnRvc2g7IEludGVsIE1hYyBPUyBYIDEwXzE1XzcpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xMzcuMC4wLjAgU2FmYXJpLzUzNy4zNiJ9","orderId":"1234","conversionValue":200,"currencyCode":"USD","cartData":{"items":[{"productId":"1234","quantity":3,"unitPrice":10.99}]},"userIdentifiers":[{"hashedEmail":"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9"}]},{"conversionAction":"customers/1234/conversionActions/12345","conversionDateTime":"2021-06-10 18:08:04+00:00","userIpAddress":"8.8.8.8","sessionAttributesEncoded":"eyJzZXNzaW9uX3N0YXJ0X3RpbWVfdXNlYyI6IjE3NTIxNDgxOTgwNzMwMDAiLCJsYW5kaW5nX3BhZ2VfdXJsIjoiaHR0cHM6Ly9yby5jby93ZWlnaHQtbG9zcy9jaGVja2VyLXBhdGgvP2djbGlkPTIxNDIzNTQiLCJsYW5kaW5nX3BhZ2VfcmVmZXJyZXIiOiIiLCJsYW5kaW5nX3BhZ2VfdXNlcl9hZ2VudCI6Ik1vemlsbGEvNS4wIChNYWNpbnRvc2g7IEludGVsIE1hYyBPUyBYIDEwXzE1XzcpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS8xMzcuMC4wLjAgU2FmYXJpLzUzNy4zNiJ9","orderId":"1234","conversionValue":200,"currencyCode":"USD","cartData":{"items":[{"productId":"1234","quantity":3,"unitPrice":10.99}]},"userIdentifiers":[{"hashedEmail":"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47"}]}],"partialFailure":true}'
+      )
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
+
+    it('sends sessionAttributesKeyValuePairs when provided and sessionAttributesEncoded not provided', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 1',
+          properties: {
+            gclid: '54321',
+            email: 'test1@gmail.com',
+            orderId: '1234',
+            total: '200',
+            currency: 'USD',
+            gad_source: 'Google',
+            gad_campaignid: '2142354',
+            products: [
+              {
+                product_id: '1234',
+                quantity: 3,
+                price: 10.99
+              }
+            ]
+          }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 2',
+          properties: {
+            gclid: '54321',
+            email: 'test2@gmail.com',
+            orderId: '1234',
+            total: '200',
+            currency: 'USD',
+            gad_source: 'Giggle',
+            gad_campaignid: '9998776',
+            products: [
+              {
+                product_id: '1234',
+                quantity: 3,
+                price: 10.99
+              }
+            ]
+          }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .reply(201, { results: [{}] })
+
+      const responses = await testDestination.testBatchAction('uploadClickConversion', {
+        events,
+        mapping: {
+          conversion_action: '12345',
+          session_attributes_encoded: null,
+          session_attributes_key_value_pairs: {
+            gad_source: {
+              '@path': '$.properties.gad_source'
+            },
+            gad_campaignid: {
+              '@path': '$.properties.gad_campaignid'
+            },
+            landing_page_url: {
+              '@path': '$.context.page.url'
+            },
+            session_start_time_usec: {
+              '@path': '$.timestamp'
+            },
+            landing_page_referrer: {
+              '@path': '$.context.page.referrer'
+            },
+            landing_page_user_agent: {
+              '@path': '$.context.userAgent'
+            }
+          },          
+          __segment_internal_sync_mode: 'add'
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        }
+      })
+
+      expect(responses[0].options.body).toBe(
+        "{\"conversions\":[{\"conversionAction\":\"customers/1234/conversionActions/12345\",\"conversionDateTime\":\"2021-06-10 18:08:04+00:00\",\"userIpAddress\":\"8.8.8.8\",\"sessionAttributesKeyValuePairs\":{\"gadSource\":\"Google\",\"gadCampaignId\":\"2142354\",\"landingPageUrl\":\"https://segment.com/academy/\",\"sessionStartTimeUsec\":\"1623348484000000\",\"landingPageUserAgent\":\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\"},\"orderId\":\"1234\",\"conversionValue\":200,\"currencyCode\":\"USD\",\"cartData\":{\"items\":[{\"productId\":\"1234\",\"quantity\":3,\"unitPrice\":10.99}]},\"userIdentifiers\":[{\"hashedEmail\":\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\"}]},{\"conversionAction\":\"customers/1234/conversionActions/12345\",\"conversionDateTime\":\"2021-06-10 18:08:04+00:00\",\"userIpAddress\":\"8.8.8.8\",\"sessionAttributesKeyValuePairs\":{\"gadSource\":\"Giggle\",\"gadCampaignId\":\"9998776\",\"landingPageUrl\":\"https://segment.com/academy/\",\"sessionStartTimeUsec\":\"1623348484000000\",\"landingPageUserAgent\":\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\"},\"orderId\":\"1234\",\"conversionValue\":200,\"currencyCode\":\"USD\",\"cartData\":{\"items\":[{\"productId\":\"1234\",\"quantity\":3,\"unitPrice\":10.99}]},\"userIdentifiers\":[{\"hashedEmail\":\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\"}]}],\"partialFailure\":true}"
       )
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
