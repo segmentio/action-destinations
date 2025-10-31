@@ -4083,15 +4083,15 @@
   dependencies:
     "@types/node" "^18.11.15"
 
-"@segment/actions-core@^3.121.0", "@segment/actions-core@^3.160.0":
-  version "3.160.0"
-  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.160.0.tgz#3aae9a3c68dcacf0163e47cf3e12e1c51259dbae"
-  integrity sha512-zoVvIoGXwM9NArue1b7BoYdq1yb+QBTQk92bXOCPJVLOobUz5NjPYOKfKK8owRylEAMlw+PHGcN62qnNEuC+Lw==
+"@segment/actions-core@3.160.1-staging-e294112ef.0":
+  version "3.160.1-staging-e294112ef.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.160.1-staging-e294112ef.0.tgz#e719c57125d6e359300a880b572fc54b6628917c"
+  integrity sha512-M9NsDIwoy/JNpWus8Y8JI58zkZ+XXc1txeaPHsZEaXGQAgQ2TmHAVtytw7tt4X0cLNNkYBQXB+qZRYzDXj/tsA==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
     "@segment/action-emitters" "^1.3.6"
-    "@segment/ajv-human-errors" "^2.15.0"
-    "@segment/destination-subscriptions" "^3.37.0"
+    "@segment/ajv-human-errors" "2.15.1-staging-ea6c83c19.0"
+    "@segment/destination-subscriptions" "3.37.1-staging-ea6c83c19.0"
     "@types/node" "^22.13.1"
     aggregate-error "^3.1.0"
     ajv "^8.6.3"
