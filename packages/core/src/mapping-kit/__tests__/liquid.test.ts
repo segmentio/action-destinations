@@ -114,7 +114,7 @@ describe('@liquid', () => {
   })
 
   describe('disabled liquid tags', () => {
-    const disabledTags = ['case', 'include', 'layout', 'render', 'tablerow']
+    const disabledTags = ['case', 'for', 'include', 'layout', 'render', 'tablerow']
 
     disabledTags.forEach((tag) => {
       test(`tag: ${tag} is disabled`, () => {
@@ -137,6 +137,7 @@ describe('@liquid', () => {
       'group_by_exp',
       'has',
       'has_exp',
+      'map',
       'newline_to_br',
       'reject',
       'reject_exp',
