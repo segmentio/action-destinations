@@ -56,6 +56,9 @@ When reviewing pull requests, thoroughly check the following areas:
 - Look for consistent naming conventions and code style
 - Ensure code is well-documented with clear comments
 - Verify types are properly defined and used
+- **Security and Secret Detection**: Carefully review all field definitions for sensitive data that should use `type: 'password'`
+  - Refer to the Secret Fields section in README.md for detailed guidance
+  - Remember: It's better to be overly cautious and suggest `type: 'password'` than to miss a potential security vulnerability
 
 ### 3. Breaking Changes Prevention
 
