@@ -94,7 +94,8 @@ export interface ClickConversionRequestObjectInterface {
   gbraid: string | undefined
   wbraid: string | undefined
   userIpAddress?: string | undefined
-  sessionAttributesEncoded: string | undefined
+  sessionAttributesEncoded?: string
+  sessionAttributesKeyValuePairs?: { [key: string]: string }
   orderId: string | undefined
   userIdentifiers: UserIdentifierInterface[]
 }

@@ -23,7 +23,8 @@ import {
   commonEmailValidation,
   getConversionActionDynamicData,
   memoizedGetCustomVariables,
-  formatPhone
+  formatPhone,
+  timestampToEpochMicroseconds
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 import { processHashing } from '../../../lib/hashing-utils'
@@ -73,10 +74,77 @@ const action: ActionDefinition<Settings, Payload> = {
     session_attributes_encoded: {
       label: 'Session Attributes (Encoded)',
       description:
-        "A base64url-encoded JSON string containing session attributes collected from the user's browser. This provides additional attribution context if gclid, gbraid, or user identifiers are missing.",
+        "A base64url-encoded JSON string containing session attributes collected from the user's browser. Provides additional attribution context if gclid, gbraid, or user identifiers are missing. ",
       type: 'string',
       default: {
         '@path': '$.integrations.Google Ads Conversions.session_attributes_encoded'
+      }
+    },
+    session_attributes_key_value_pairs: {
+      label: 'Session Attributes (Key Value Pairs)',
+      description:
+        "An alternative to the 'Session Attributes (Encoded)' field which can be used for Offline Conversions. If both 'Session Attributes (Encoded)' and 'Session Attributes (Key Value Pairs)' are provided, the encoded field takes precedence.",
+      type: 'object',
+      additionalProperties: false,
+      defaultObjectUI: 'keyvalue',
+      properties: {
+        gad_source: {
+          label: 'GAD Source',
+          description:
+            "An aggregate parameter served in the URL to identify the source of traffic originating from ads. See [Google's docs](https://support.google.com/google-ads/answer/16193746?sjid=2692215861659291994)",
+          type: 'string'
+        },
+        gad_campaignid: {
+          label: 'GAD Campaign ID',
+          description:
+            "The ID of the specific ad campaign that drove the ad click. See [Google's docs](https://support.google.com/google-ads/answer/16193746?sjid=2692215861659291994)",
+          type: 'string'
+        },
+        landing_page_url: {
+          label: 'Landing Page URL',
+          description:
+            'The full URL of the landing page on your website. This indicates the specific page the user first arrived on.',
+          type: 'string'
+        },
+        session_start_time_usec: {
+          label: 'Session Start Time',
+          description:
+            "The timestamp of when the user's session began on your website. This helps track the duration of user visits. The format should be a full ISO 8601 string containing microseconds.",
+          type: 'string',
+          format: 'date-time'
+        },
+        landing_page_referrer: {
+          label: 'Landing Page Referrer',
+          description:
+            "The URL of the webpage that linked the user to your website. This helps understand the traffic sources leading to your site. See [Google's docs](https://support.google.com/google-ads/answer/2382957?sjid=658827203196258052)",
+          type: 'string'
+        },
+        landing_page_user_agent: {
+          label: 'Landing Page User Agent',
+          description:
+            "A string that identifies the user's browser and operating system. This information can be useful for understanding the technical environment of your users.",
+          type: 'string'
+        }
+      },
+      default: {
+        gad_source: {
+          '@path': '$.properties.gad_source'
+        },
+        gad_campaignid: {
+          '@path': '$.properties.gad_campaignid'
+        },
+        landing_page_url: {
+          '@path': '$.context.page.url'
+        },
+        session_start_time_usec: {
+          '@path': '$.timestamp'
+        },
+        landing_page_referrer: {
+          '@path': '$.context.page.referrer'
+        },
+        landing_page_user_agent: {
+          '@path': '$.context.userAgent'
+        }
       }
     },
     conversion_timestamp: {
@@ -298,6 +366,31 @@ const action: ActionDefinition<Settings, Payload> = {
         })
       }
 
+      const {
+        session_attributes_encoded,
+        session_attributes_key_value_pairs: {
+          gad_source,
+          gad_campaignid,
+          landing_page_url,
+          session_start_time_usec,
+          landing_page_referrer,
+          landing_page_user_agent
+        } = {}
+      } = payload
+
+      const sessionStartTimeUsec = session_start_time_usec
+        ? timestampToEpochMicroseconds(session_start_time_usec)
+        : undefined
+
+      const sessionAttributesKeyValuePairs = {
+        ...(gad_source ? { gadSource: gad_source } : {}),
+        ...(gad_campaignid ? { gadCampaignId: gad_campaignid } : {}),
+        ...(landing_page_url ? { landingPageUrl: landing_page_url } : {}),
+        ...(sessionStartTimeUsec ? { sessionStartTimeUsec } : {}),
+        ...(landing_page_referrer ? { landingPageReferrer: landing_page_referrer } : {}),
+        ...(landing_page_user_agent ? { landingPageUserAgent: landing_page_user_agent } : {})
+      }
+
       const request_object: ClickConversionRequestObjectInterface = {
         conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
         conversionDateTime: convertTimestamp(payload.conversion_timestamp),
@@ -305,7 +398,10 @@ const action: ActionDefinition<Settings, Payload> = {
         gbraid: payload.gbraid,
         wbraid: payload.wbraid,
         userIpAddress: payload.user_ip_address,
-        sessionAttributesEncoded: payload.session_attributes_encoded,
+        ...(session_attributes_encoded ? { sessionAttributesEncoded: session_attributes_encoded } : {}),
+        ...(!session_attributes_encoded && Object.keys(sessionAttributesKeyValuePairs).length > 0
+          ? { sessionAttributesKeyValuePairs }
+          : {}),
         orderId: payload.order_id,
         conversionValue: payload.value,
         currencyCode: payload.currency,
@@ -412,6 +508,31 @@ const action: ActionDefinition<Settings, Payload> = {
           })
         }
 
+        const {
+          session_attributes_encoded,
+          session_attributes_key_value_pairs: {
+            gad_source,
+            gad_campaignid,
+            landing_page_url,
+            session_start_time_usec,
+            landing_page_referrer,
+            landing_page_user_agent
+          } = {}
+        } = payloadItem
+
+        const sessionStartTimeUsec = session_start_time_usec
+          ? timestampToEpochMicroseconds(session_start_time_usec)
+          : undefined
+
+        const sessionAttributesKeyValuePairs = {
+          ...(gad_source ? { gadSource: gad_source } : {}),
+          ...(gad_campaignid ? { gadCampaignId: gad_campaignid } : {}),
+          ...(landing_page_url ? { landingPageUrl: landing_page_url } : {}),
+          ...(sessionStartTimeUsec ? { sessionStartTimeUsec } : {}),
+          ...(landing_page_referrer ? { landingPageReferrer: landing_page_referrer } : {}),
+          ...(landing_page_user_agent ? { landingPageUserAgent: landing_page_user_agent } : {})
+        }
+
         const request_object: ClickConversionRequestObjectInterface = {
           conversionAction: `customers/${settings.customerId}/conversionActions/${payloadItem.conversion_action}`,
           conversionDateTime: convertTimestamp(payloadItem.conversion_timestamp),
@@ -419,7 +540,10 @@ const action: ActionDefinition<Settings, Payload> = {
           gbraid: payloadItem.gbraid,
           wbraid: payloadItem.wbraid,
           userIpAddress: payloadItem.user_ip_address,
-          sessionAttributesEncoded: payloadItem.session_attributes_encoded,
+          ...(session_attributes_encoded ? { sessionAttributesEncoded: session_attributes_encoded } : {}),
+          ...(!session_attributes_encoded && Object.keys(sessionAttributesKeyValuePairs).length > 0
+            ? { sessionAttributesKeyValuePairs }
+            : {}),
           orderId: payloadItem.order_id,
           conversionValue: payloadItem.value,
           currencyCode: payloadItem.currency,
