@@ -389,7 +389,7 @@ const action: ActionDefinition<Settings, Payload> = {
       gclid: payload.gclid,
       gbraid: payload.gbraid,
       wbraid: payload.wbraid,
-      userIpAddress: payload.user_ip_address,
+      ...(payload.user_ip_address ? { userIpAddress: payload.user_ip_address } : {}),
       ...(session_attributes_encoded ? { sessionAttributesEncoded: session_attributes_encoded } : {}),
       ...(!session_attributes_encoded && Object.keys(sessionAttributesKeyValuePairs).length > 0
         ? { sessionAttributesKeyValuePairs }
@@ -525,7 +525,7 @@ const action: ActionDefinition<Settings, Payload> = {
           gclid: payload.gclid,
           gbraid: payload.gbraid,
           wbraid: payload.wbraid,
-          userIpAddress: payload.user_ip_address,
+          ...(payload.user_ip_address ? { userIpAddress: payload.user_ip_address } : {}),
           ...(session_attributes_encoded ? { sessionAttributesEncoded: session_attributes_encoded } : {}),
           ...(!session_attributes_encoded && Object.keys(sessionAttributesKeyValuePairs).length > 0
             ? { sessionAttributesKeyValuePairs }

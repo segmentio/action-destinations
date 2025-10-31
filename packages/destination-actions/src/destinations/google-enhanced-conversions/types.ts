@@ -93,7 +93,7 @@ export interface ClickConversionRequestObjectInterface {
   gclid: string | undefined
   gbraid: string | undefined
   wbraid: string | undefined
-  userIpAddress?: string | undefined
+  userIpAddress?: string
   sessionAttributesEncoded?: string
   sessionAttributesKeyValuePairs?: { [key: string]: string }
   orderId: string | undefined
