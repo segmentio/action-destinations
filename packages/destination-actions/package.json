@@ -46,7 +46,7 @@
     "@aws-sdk/client-sts": "3.614.0",
     "@bufbuild/protobuf": "^2.2.3",
     "@segment/a1-notation": "^2.1.4",
-    "@segment/actions-core": "3.160.1-staging-e294112ef.0",
+    "@segment/actions-core": "3.161.0",
     "@segment/actions-shared": "1.141.1-staging-e294112ef.0",
     "@types/node": "^22.13.1",
     "ajv-formats": "^2.1.1",
