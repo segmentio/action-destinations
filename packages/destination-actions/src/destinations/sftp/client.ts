@@ -4,6 +4,7 @@ import Client from 'ssh2-sftp-client'
 import { SFTP_DEFAULT_PORT } from './constants'
 import { Settings } from './generated-types'
 import { sftpConnectionConfig } from './types'
+import { SFTClientCustom } from './sftp-wrapper'
 
 enum SFTPErrorCode {
   NO_SUCH_FILE = 2
@@ -29,17 +30,29 @@ async function uploadSFTP(
   fileContent: Buffer,
   signal?: AbortSignal
 ) {
-  const sftp = new Client()
-  return executeSFTPOperation(
-    sftp,
-    settings,
-    sftpFolderPath,
-    async (sftp) => {
-      const targetPath = path.join(sftpFolderPath, filename)
-      return sftp.put(fileContent, targetPath)
-    },
-    signal
-  )
+  const sftp = new SFTClientCustom()
+  await sftp.connect(createConnectionConfig(settings))
+
+  const onabort = (reject: (reason?: any) => void) => {
+    sftp.end().catch(() => {
+      // Ignore errors on abort
+    })
+    reject(new RequestTimeoutError())
+  }
+  const abortHandler = new Promise((_, reject) => {
+    signal?.addEventListener('abort', () => onabort(reject))
+  })
+  const uploadHandler = sftp.fastPutFromBuffer(fileContent, path.posix.join(sftpFolderPath, filename), {
+    concurrency: 64,
+    chunkSize: 32768
+  })
+
+  await Promise.race([abortHandler, uploadHandler]).finally(() => {
+    signal?.removeEventListener('abort', () => onabort)
+    sftp.end().catch(() => {
+      // Ignore errors on cleanup
+    })
+  })
 }
 
 async function executeSFTPOperation(
