@@ -4,7 +4,7 @@ import { Settings } from './generated-types'
 import { Payload } from './syncEvents/generated-types'
 import { ColumnHeader, RawMapping } from './types'
 
-async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping) {
+async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping, signal?: AbortSignal) {
   const {
     delimiter,
     audience_action_column_name,
@@ -33,7 +33,7 @@ async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapp
 
   const msResponse = new MultiStatusResponse()
   try {
-    await uploadSFTP(settings, sftp_folder_path, filename, fileContent)
+    await uploadSFTP(settings, sftp_folder_path, filename, fileContent, signal)
     payloads.forEach((payload, index) => {
       const row = rowsObservabilityArray[index] ?? ''
       msResponse.setSuccessResponseAtIndex(index, {
