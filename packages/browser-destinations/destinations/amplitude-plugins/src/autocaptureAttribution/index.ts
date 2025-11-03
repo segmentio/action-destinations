@@ -3,32 +3,28 @@ import { UniversalStorage } from '@segment/analytics-next'
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { getAttributionsFromURL, getAttributionsFromStorage, getAttributionsDiff } from './functions'
+import { getAttributionsFromURL, getAttributionsFromStorage, setAttributionsInStorage } from './functions'
 import { AttributionValues } from './types'
+import { DESTINATION_INTEGRATION_NAME } from '../constants'
 
 const action: BrowserActionDefinition<Settings, {}, Payload> = {
   title: 'Autocapture Attribution Plugin',
-  description: 'Captures attribution details from the URL and attaches it to every Amplitude browser based event.',
+  description: 'Captures attribution details from the URL and attaches them to every Amplitude browser based event.',
   platform: 'web',
-  hidden: false,
   defaultSubscription: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
-  fields: {
-    autocaptureAttribution: {
-      label: 'Autocapture Attribution',
-      type: 'boolean',
-      required: true,
-      description: 'Whether to automatically capture latest interaction attribution data from the URL.'
-    }
-  },
+  fields: {},
   lifecycleHook: 'enrichment',
-  perform: (_, { context, payload, analytics }) => {
-    if (payload.autocaptureAttribution) {
-      const urlAttributions = getAttributionsFromURL(window.location.search)
-      const cachedAttributions = getAttributionsFromStorage(analytics.storage as UniversalStorage<Record<string, AttributionValues>>)
-      if (context.event.integrations?.All !== false || context.event.integrations['Actions Amplitude']) {
-        context.updateEvent('integrations.Actions Amplitude', {})
-        context.updateEvent('integrations.Actions Amplitude.autocapture_attribution', getAttributionsDiff(cachedAttributions, urlAttributions))
-      }
+  perform: (_, { context, analytics }) => {
+    const urlAttributions = getAttributionsFromURL(window.location.search)
+    const cachedAttributions = getAttributionsFromStorage(analytics.storage as UniversalStorage<Record<string, Partial<AttributionValues>>>)
+    
+    if (context.event.integrations?.All !== false || context.event.integrations[DESTINATION_INTEGRATION_NAME]) {
+      context.updateEvent(`integrations.${DESTINATION_INTEGRATION_NAME}`, {})
+      context.updateEvent(`integrations.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution`, { old: cachedAttributions, new: urlAttributions })
+    }
+    
+    if(Object.entries(urlAttributions).length >0) {
+      setAttributionsInStorage(analytics.storage as UniversalStorage<Record<string, Partial<AttributionValues>>>, urlAttributions)
     }
     return
   }
