@@ -35,4 +35,8 @@ export interface Payload {
    * Specify the column name to store the batch size when the event is sent to SFTP. Leave blank if no column is required
    */
   batch_size_column_name?: string
+  /**
+   * Enable concurrent writes when uploading files to SFTP. Improves performance for large files.
+   */
+  useConcurrentWrites?: boolean
 }

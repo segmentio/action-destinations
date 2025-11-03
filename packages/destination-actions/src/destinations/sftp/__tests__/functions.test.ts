@@ -1,5 +1,5 @@
 import { MultiStatusResponse } from '@segment/actions-core'
-import { uploadSFTP } from '../client'
+import { uploadSFTP } from '../upload'
 import { SFTP_DEFAULT_PORT } from '../constants'
 import {
   clean,
@@ -15,7 +15,7 @@ import type { Payload } from '../syncEvents/generated-types'
 import type { ColumnHeader, RawMapping } from '../types'
 
 // Mock the client functions
-jest.mock('../client')
+jest.mock('../upload')
 const mockUploadSFTP = uploadSFTP as jest.MockedFunction<typeof uploadSFTP>
 
 // Test helpers and shared data
@@ -416,6 +416,7 @@ describe('send', () => {
         enable_batching: true,
         file_extension: 'csv',
         batch_size: 100000,
+        useConcurrentWrites: true,
         columns: {
           email: 'test@example.com',
           name: 'John Doe'
@@ -425,13 +426,15 @@ describe('send', () => {
 
     const signal = AbortSignal.timeout(0)
 
-    await send(payloads, mockSettings, mockRawMapping, signal)
+    await send(payloads, mockSettings, mockRawMapping, undefined, signal)
 
     expect(mockUploadSFTP).toHaveBeenCalledWith(
       mockSettings,
       '/uploads',
       expect.any(String), // filename
-      expect.any(Buffer), // file content
+      expect.any(Buffer), // file content,
+      true, // useConcurrentWrites
+      undefined, // logger
       signal
     )
   })

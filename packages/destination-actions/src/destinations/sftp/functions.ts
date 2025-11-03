@@ -1,17 +1,25 @@
 import { ErrorCodes, JSONLikeObject, MultiStatusResponse, PayloadValidationError } from '@segment/actions-core'
-import { uploadSFTP } from './client'
+import { uploadSFTP } from './upload'
 import { Settings } from './generated-types'
 import { Payload } from './syncEvents/generated-types'
 import { ColumnHeader, RawMapping } from './types'
+import { Logger } from '@segment/actions-core'
 
-async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping, signal?: AbortSignal) {
+async function send(
+  payloads: Payload[],
+  settings: Settings,
+  rawMapping: RawMapping,
+  logger?: Logger,
+  signal?: AbortSignal
+) {
   const {
     delimiter,
     audience_action_column_name,
     batch_size_column_name,
     filename_prefix,
     file_extension,
-    sftp_folder_path
+    sftp_folder_path,
+    useConcurrentWrites
   } = payloads[0]
 
   const headers: ColumnHeader[] = createHeaders(
@@ -33,7 +41,7 @@ async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapp
 
   const msResponse = new MultiStatusResponse()
   try {
-    await uploadSFTP(settings, sftp_folder_path, filename, fileContent, signal)
+    await uploadSFTP(settings, sftp_folder_path, filename, fileContent, useConcurrentWrites, logger, signal)
     payloads.forEach((payload, index) => {
       const row = rowsObservabilityArray[index] ?? ''
       msResponse.setSuccessResponseAtIndex(index, {

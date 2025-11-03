@@ -1,10 +1,23 @@
-import { normalizeSSHKey, testSFTPConnection, uploadSFTP } from '../client'
+import { normalizeSSHKey, testSFTPConnection, uploadSFTP } from '../upload'
 import { SFTP_DEFAULT_PORT } from '../constants'
 import { Settings } from '../generated-types'
+import { SFTPWrapper } from '../client'
 
 import Client from 'ssh2-sftp-client'
 
 jest.mock('ssh2-sftp-client')
+const mockSftpInstance = {
+  connect: jest.fn().mockResolvedValue({}),
+  fastPutFromBuffer: jest.fn().mockResolvedValue(undefined),
+  put: jest.fn().mockResolvedValue('success'),
+  end: jest.fn().mockResolvedValue(undefined)
+}
+
+jest.mock('../client', () => {
+  return {
+    SFTPWrapper: jest.fn().mockImplementation(() => mockSftpInstance)
+  }
+})
 
 // Shared test data and helpers
 const passwordSettings: Settings = {
@@ -31,64 +44,92 @@ describe('SFTP Client', () => {
 
   describe('uploadSFTP success cases', () => {
     beforeEach(() => {
-      Client.prototype.connect = jest.fn().mockResolvedValue(undefined)
-      Client.prototype.put = jest.fn().mockResolvedValue(undefined)
-      Client.prototype.end = jest.fn().mockResolvedValue(undefined)
+      // Reset mocks
+      jest.clearAllMocks()
     })
 
     it('uploads file successfully with password authentication', async () => {
       await uploadSFTP(passwordSettings, 'sftp_folder_path', 'filename', Buffer.from('test content'))
 
-      expect(Client.prototype.connect).toHaveBeenCalledWith({
+      expect(SFTPWrapper).toHaveBeenCalled()
+      expect(mockSftpInstance.connect).toHaveBeenCalledWith({
         host: 'sftp_host',
         port: SFTP_DEFAULT_PORT,
         username: 'sftp_username',
         password: 'sftp_password'
       })
-      expect(Client.prototype.put).toHaveBeenCalled()
+      expect(mockSftpInstance.put).toHaveBeenCalled()
+      expect(mockSftpInstance.end).toHaveBeenCalled()
     })
 
     it('uploads file successfully with SSH key authentication', async () => {
       await uploadSFTP(sshKeySettings, 'sftp_folder_path', 'filename', Buffer.from('test content'))
 
-      expect(Client.prototype.connect).toHaveBeenCalledWith({
+      expect(SFTPWrapper).toHaveBeenCalled()
+      expect(mockSftpInstance.connect).toHaveBeenCalledWith({
         host: 'sftp_host',
         port: SFTP_DEFAULT_PORT,
         username: 'sftp_username',
         privateKey: 'sftp_ssh_key'
       })
-      expect(Client.prototype.put).toHaveBeenCalled()
+      expect(mockSftpInstance.put).toHaveBeenCalled()
+      expect(mockSftpInstance.end).toHaveBeenCalled()
+    })
+
+    it('uploads using fastPutFromBuffer when useConcurrency is true', async () => {
+      await uploadSFTP(sshKeySettings, 'sftp_folder_path', 'filename', Buffer.from('test content'), true)
+
+      expect(SFTPWrapper).toHaveBeenCalled()
+      expect(mockSftpInstance.connect).toHaveBeenCalledWith({
+        host: 'sftp_host',
+        port: SFTP_DEFAULT_PORT,
+        username: 'sftp_username',
+        privateKey: 'sftp_ssh_key'
+      })
+      expect(mockSftpInstance.fastPutFromBuffer).toHaveBeenCalled()
+      expect(mockSftpInstance.end).toHaveBeenCalled()
     })
   })
 
   describe('uploadSFTP error handling', () => {
-    it('throws PayloadValidationError for NO_SUCH_FILE SFTP error', async () => {
-      Client.prototype.connect = jest.fn().mockResolvedValue(undefined)
-      Client.prototype.end = jest.fn().mockResolvedValue(undefined)
+    beforeEach(() => {
+      jest.clearAllMocks()
 
+      // Reset the default mock behavior
+      mockSftpInstance.connect.mockResolvedValue({})
+      mockSftpInstance.put.mockResolvedValue(undefined)
+      mockSftpInstance.end.mockResolvedValue(undefined)
+    })
+
+    it('throws PayloadValidationError for NO_SUCH_FILE SFTP error', async () => {
       // Mock SFTP error with NO_SUCH_FILE code
       const sftpError = new Error('No such file') as any
       sftpError.code = 2 // SFTPErrorCode.NO_SUCH_FILE
-      Client.prototype.put = jest.fn().mockRejectedValue(sftpError)
+      mockSftpInstance.put.mockRejectedValue(sftpError)
 
       // Should throw PayloadValidationError for NO_SUCH_FILE
       await expect(
         uploadSFTP(passwordSettings, '/nonexistent/path', 'filename', Buffer.from('test content'))
       ).rejects.toThrow('Could not find path: /nonexistent/path')
+
+      expect(mockSftpInstance.connect).toHaveBeenCalled()
+      expect(mockSftpInstance.put).toHaveBeenCalled()
+      expect(mockSftpInstance.end).toHaveBeenCalled()
     })
 
     it('re-throws non-SFTP errors unchanged', async () => {
-      Client.prototype.connect = jest.fn().mockResolvedValue(undefined)
-      Client.prototype.end = jest.fn().mockResolvedValue(undefined)
-
       // Mock generic error (not SFTP-specific)
       const genericError = new Error('Network error')
-      Client.prototype.put = jest.fn().mockRejectedValue(genericError)
+      mockSftpInstance.put.mockRejectedValue(genericError)
 
       // Should re-throw the generic error unchanged
       await expect(uploadSFTP(passwordSettings, '/uploads', 'filename', Buffer.from('test content'))).rejects.toThrow(
         'Network error'
       )
+
+      expect(mockSftpInstance.connect).toHaveBeenCalled()
+      expect(mockSftpInstance.put).toHaveBeenCalled()
+      expect(mockSftpInstance.end).toHaveBeenCalled()
     })
   })
 

@@ -100,6 +100,10 @@ export interface Payload {
    */
   batch_size_column_name?: string
   /**
+   * Enable concurrent writes when uploading files to SFTP. Improves performance for large files.
+   */
+  useConcurrentWrites?: boolean
+  /**
    * Name of the column to contain the action for the audience. true if the user is in the audience, false if not.
    */
   audience_action_column_name?: string
