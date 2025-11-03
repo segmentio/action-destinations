@@ -1,21 +1,21 @@
-import { normalizeSSHKey, testSFTPConnection, uploadSFTP } from '../client'
+import { normalizeSSHKey, testSFTPConnection, uploadSFTP } from '../upload'
 import { SFTP_DEFAULT_PORT } from '../constants'
 import { Settings } from '../generated-types'
-import { SFTClientCustom } from '../sftp-wrapper'
+import { SFTPWrapper } from '../client'
 
 import Client from 'ssh2-sftp-client'
 
 jest.mock('ssh2-sftp-client')
-// Create a global mock instance that we can reference directly
 const mockSftpInstance = {
   connect: jest.fn().mockResolvedValue({}),
   fastPutFromBuffer: jest.fn().mockResolvedValue(undefined),
+  put: jest.fn().mockResolvedValue('success'),
   end: jest.fn().mockResolvedValue(undefined)
 }
 
-jest.mock('../sftp-wrapper', () => {
+jest.mock('../client', () => {
   return {
-    SFTClientCustom: jest.fn().mockImplementation(() => mockSftpInstance)
+    SFTPWrapper: jest.fn().mockImplementation(() => mockSftpInstance)
   }
 })
 
@@ -51,21 +51,35 @@ describe('SFTP Client', () => {
     it('uploads file successfully with password authentication', async () => {
       await uploadSFTP(passwordSettings, 'sftp_folder_path', 'filename', Buffer.from('test content'))
 
-      expect(SFTClientCustom).toHaveBeenCalled()
+      expect(SFTPWrapper).toHaveBeenCalled()
       expect(mockSftpInstance.connect).toHaveBeenCalledWith({
         host: 'sftp_host',
         port: SFTP_DEFAULT_PORT,
         username: 'sftp_username',
         password: 'sftp_password'
       })
-      expect(mockSftpInstance.fastPutFromBuffer).toHaveBeenCalled()
+      expect(mockSftpInstance.put).toHaveBeenCalled()
       expect(mockSftpInstance.end).toHaveBeenCalled()
     })
 
     it('uploads file successfully with SSH key authentication', async () => {
       await uploadSFTP(sshKeySettings, 'sftp_folder_path', 'filename', Buffer.from('test content'))
 
-      expect(SFTClientCustom).toHaveBeenCalled()
+      expect(SFTPWrapper).toHaveBeenCalled()
+      expect(mockSftpInstance.connect).toHaveBeenCalledWith({
+        host: 'sftp_host',
+        port: SFTP_DEFAULT_PORT,
+        username: 'sftp_username',
+        privateKey: 'sftp_ssh_key'
+      })
+      expect(mockSftpInstance.put).toHaveBeenCalled()
+      expect(mockSftpInstance.end).toHaveBeenCalled()
+    })
+
+    it('uploads using fastPutFromBuffer when useConcurrency is true', async () => {
+      await uploadSFTP(sshKeySettings, 'sftp_folder_path', 'filename', Buffer.from('test content'), true)
+
+      expect(SFTPWrapper).toHaveBeenCalled()
       expect(mockSftpInstance.connect).toHaveBeenCalledWith({
         host: 'sftp_host',
         port: SFTP_DEFAULT_PORT,
@@ -83,7 +97,7 @@ describe('SFTP Client', () => {
 
       // Reset the default mock behavior
       mockSftpInstance.connect.mockResolvedValue({})
-      mockSftpInstance.fastPutFromBuffer.mockResolvedValue(undefined)
+      mockSftpInstance.put.mockResolvedValue(undefined)
       mockSftpInstance.end.mockResolvedValue(undefined)
     })
 
@@ -91,7 +105,7 @@ describe('SFTP Client', () => {
       // Mock SFTP error with NO_SUCH_FILE code
       const sftpError = new Error('No such file') as any
       sftpError.code = 2 // SFTPErrorCode.NO_SUCH_FILE
-      mockSftpInstance.fastPutFromBuffer.mockRejectedValue(sftpError)
+      mockSftpInstance.put.mockRejectedValue(sftpError)
 
       // Should throw PayloadValidationError for NO_SUCH_FILE
       await expect(
@@ -99,22 +113,22 @@ describe('SFTP Client', () => {
       ).rejects.toThrow('Could not find path: /nonexistent/path')
 
       expect(mockSftpInstance.connect).toHaveBeenCalled()
-      expect(mockSftpInstance.fastPutFromBuffer).toHaveBeenCalled()
+      expect(mockSftpInstance.put).toHaveBeenCalled()
       expect(mockSftpInstance.end).toHaveBeenCalled()
     })
 
     it('re-throws non-SFTP errors unchanged', async () => {
       // Mock generic error (not SFTP-specific)
       const genericError = new Error('Network error')
-      mockSftpInstance.fastPutFromBuffer.mockRejectedValue(genericError)
+      mockSftpInstance.put.mockRejectedValue(genericError)
 
       // Should re-throw the generic error unchanged
-      await expect(
-        uploadSFTP(passwordSettings, '/uploads', 'filename', Buffer.from('test content'))
-      ).rejects.toThrow('Network error')
+      await expect(uploadSFTP(passwordSettings, '/uploads', 'filename', Buffer.from('test content'))).rejects.toThrow(
+        'Network error'
+      )
 
       expect(mockSftpInstance.connect).toHaveBeenCalled()
-      expect(mockSftpInstance.fastPutFromBuffer).toHaveBeenCalled()
+      expect(mockSftpInstance.put).toHaveBeenCalled()
       expect(mockSftpInstance.end).toHaveBeenCalled()
     })
   })

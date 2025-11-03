@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import { testSFTPConnection } from './client'
+import { testSFTPConnection } from './upload'
 import { SFTP_DEFAULT_PORT } from './constants'
 import syncEvents from './syncEvents'
 import syncModelToSFTP from './syncModelToSFTP'

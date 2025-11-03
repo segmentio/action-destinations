@@ -14,9 +14,6 @@ describe('SFTPWrapper', () => {
     error: jest.fn()
   }
 
-  // Increase Jest timeout for all tests in this file
-  jest.setTimeout(20000)
-
   beforeEach(() => {
     jest.clearAllMocks()
 

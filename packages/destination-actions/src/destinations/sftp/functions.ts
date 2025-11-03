@@ -1,5 +1,5 @@
 import { ErrorCodes, JSONLikeObject, MultiStatusResponse, PayloadValidationError } from '@segment/actions-core'
-import { uploadSFTP } from './client'
+import { uploadSFTP } from './upload'
 import { Settings } from './generated-types'
 import { Payload } from './syncEvents/generated-types'
 import { ColumnHeader, RawMapping } from './types'

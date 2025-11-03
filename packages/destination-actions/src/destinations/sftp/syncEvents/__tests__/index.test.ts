@@ -45,15 +45,16 @@ const mockedEvents: SegmentEvent[] = Array.from({ length: 50 }, (_, i) => ({
 // Create a global mock instance that we can reference directly
 const mockSftpInstance = {
   connect: jest.fn().mockResolvedValue({}),
+  put: jest.fn().mockResolvedValue(undefined),
   fastPutFromBuffer: jest.fn().mockResolvedValue(undefined),
   end: jest.fn().mockResolvedValue(undefined)
 }
 
 // Mock both the ssh2-sftp-client and our custom wrapper
 jest.mock('ssh2-sftp-client')
-jest.mock('../../sftp-wrapper', () => {
+jest.mock('../../client', () => {
   return {
-    SFTClientCustom: jest.fn().mockImplementation(() => mockSftpInstance)
+    SFTPWrapper: jest.fn().mockImplementation(() => mockSftpInstance)
   }
 })
 
@@ -64,6 +65,7 @@ describe('syncEvents', () => {
 
     // Reset mock implementations
     mockSftpInstance.connect.mockResolvedValue({})
+    mockSftpInstance.put.mockResolvedValue(undefined)
     mockSftpInstance.fastPutFromBuffer.mockResolvedValue(undefined)
     mockSftpInstance.end.mockResolvedValue(undefined)
   })
@@ -138,7 +140,7 @@ describe('syncEvents', () => {
         username: 'testuser',
         password: 'testpass'
       })
-      expect(mockSftpInstance.fastPutFromBuffer).toHaveBeenCalled()
+      expect(mockSftpInstance.put).toHaveBeenCalled()
       expect(mockSftpInstance.end).toHaveBeenCalled()
     })
   })
@@ -238,7 +240,7 @@ describe('syncEvents', () => {
 describe('Integration Tests', () => {
   // Helper function to get readable calls for snapshots
   const getReadableCalls = () => {
-    return mockSftpInstance.fastPutFromBuffer.mock.calls.map((call: any) => {
+    return mockSftpInstance.put.mock.calls.map((call: any) => {
       const [fileContent, path] = call
       return {
         path,
@@ -247,7 +249,7 @@ describe('Integration Tests', () => {
     })
   }
 
-  beforeEach(() => mockSftpInstance.fastPutFromBuffer.mockClear())
+  beforeEach(() => mockSftpInstance.put.mockClear())
 
   it('should work with default mappings', async () => {
     const testEvent = createTestEvent({
@@ -282,7 +284,8 @@ describe('Integration Tests', () => {
       filename_prefix: 'test_filename_',
       enable_batching: true,
       batch_size: 100000,
-      file_extension: 'csv'
+      file_extension: 'csv',
+      useConcurrentWrites: false
     }
 
     const testEvent = createTestEvent({
@@ -302,7 +305,7 @@ describe('Integration Tests', () => {
     })
 
     // Verify the file was uploaded with expected content
-    const calls = mockSftpInstance.fastPutFromBuffer.mock.calls
+    const calls = mockSftpInstance.put.mock.calls
     expect(calls.length).toBeGreaterThan(0)
     // Check that the buffer was passed and the path matches expected format
     expect(calls[0][0]).toBeInstanceOf(Buffer)
@@ -321,7 +324,8 @@ describe('Integration Tests', () => {
       filename_prefix: 'test_filename_',
       enable_batching: true,
       batch_size: 100000,
-      file_extension: 'csv'
+      file_extension: 'csv',
+      useConcurrentWrites: false
     }
 
     const testEvents = [
@@ -392,6 +396,7 @@ describe('Integration Tests', () => {
       filename_prefix: 'test_filename_',
       enable_batching: true,
       batch_size: 100000,
+      useConcurrentWrites: false,
       file_extension: 'csv'
     }
 
@@ -429,6 +434,7 @@ describe('Integration Tests', () => {
       enable_batching: true,
       batch_size: 100000,
       file_extension: 'csv',
+      useConcurrentWrites: false,
       columns: {
         'Event Name': { '@path': '$.event' },
         'Event Type': { '@path': '$.type' },
@@ -545,6 +551,7 @@ describe('Integration Tests', () => {
       enable_batching: true,
       batch_size: 100000,
       file_extension: 'csv',
+      useConcurrentWrites: false,
       columns: {
         'User ID': { '@path': '$.userId' },
         'Full Properties': { '@path': '$.properties' },
