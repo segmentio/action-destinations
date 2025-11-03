@@ -1,4 +1,4 @@
-export const KEYS = [
+export const AMPLITUDE_ATTRIBUTION_KEYS = [
   'utm_source',
   'utm_medium',
   'utm_campaign',
@@ -18,4 +18,4 @@ export const KEYS = [
   'twclid'
 ] as const
 
-export const ATTRIBUTION_STORAGE_KEY = 'amplitude-attribution-params'
+export const AMPLITUDE_ATTRIBUTION_STORAGE_KEY = 'amplitude-attribution-params'
