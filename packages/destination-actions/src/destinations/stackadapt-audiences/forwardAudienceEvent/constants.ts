@@ -8,13 +8,6 @@ export const GQL_ENDPOINT = 'https://api.stackadapt.com/graphql'
 // This is the single source of truth for all profile field definitions
 export const PROFILE_DEFAULT_FIELDS: ProfileFieldConfig[] = [
   {
-    key: 'user_id',
-    label: 'User ID',
-    type: 'string',
-    description: 'The unique identifier for the user',
-    isPii: false
-  },
-  {
     key: 'email',
     label: 'Email',
     type: 'string',
