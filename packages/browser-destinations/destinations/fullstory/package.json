@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-fullstory",
-  "version": "1.92.1-staging-33c823382.0",
+  "version": "1.92.1-staging-9ba83a8de.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -17,7 +17,7 @@
   "dependencies": {
     "@fullstory/browser": "^2.0.3",
     "@segment/actions-core": "3.160.1-staging-e294112ef.0",
-    "@segment/browser-destination-runtime": "1.89.1-staging-33c823382.0"
+    "@segment/browser-destination-runtime": "1.89.1-staging-9ba83a8de.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
