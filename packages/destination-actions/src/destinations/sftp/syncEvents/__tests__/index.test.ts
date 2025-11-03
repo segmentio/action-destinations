@@ -4,7 +4,6 @@ import { join } from 'path'
 import { SFTP_DEFAULT_PORT } from '../../constants'
 import { Settings } from '../../generated-types'
 import Destination from '../../index'
-import { SFTClientCustom } from '../../sftp-wrapper'
 
 const testDestination = createTestIntegration(Destination)
 const settings: Settings = {

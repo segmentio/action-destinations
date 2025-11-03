@@ -4,7 +4,9 @@ import Client from 'ssh2-sftp-client'
 import { SFTP_DEFAULT_PORT } from './constants'
 import { Settings } from './generated-types'
 import { sftpConnectionConfig } from './types'
-import { SFTClientCustom } from './sftp-wrapper'
+import sftp from 'ssh2-sftp-client'
+import ssh2 from 'ssh2'
+import { Logger } from '@segment/actions-core'
 
 enum SFTPErrorCode {
   NO_SUCH_FILE = 2
@@ -28,45 +30,22 @@ async function uploadSFTP(
   sftpFolderPath: string,
   filename: string,
   fileContent: Buffer,
+  useConcurrentWrites?: boolean,
+  logger?: Logger,
   signal?: AbortSignal
 ) {
-  const sftp = new SFTClientCustom()
-  await sftp.connect(createConnectionConfig(settings))
-
-  const onabort = (reject: (reason?: any) => void) => {
-    sftp.end().catch(() => {
-      // Ignore errors on abort
-    })
-    reject(new RequestTimeoutError())
-  }
-  const abortHandler = new Promise((_, reject) => {
-    signal?.addEventListener('abort', () => onabort(reject))
-  })
-
-  // Define the target path
-  const targetPath = path.posix.join(sftpFolderPath, filename)
-
+  const sftp = new SFTPWrapper('uploadSFTP', signal, logger)
   try {
-    // Execute the upload operation
-    const uploadHandler = sftp.fastPutFromBuffer(fileContent, targetPath, {
-      concurrency: 64,
-      chunkSize: 32768
-    })
-
-    await Promise.race([abortHandler, uploadHandler])
-  } catch (e: unknown) {
-    const sftpError = e as SFTPError
-    if (sftpError) {
-      if (sftpError.code === SFTPErrorCode.NO_SUCH_FILE) {
-        throw new PayloadValidationError(`Could not find path: ${sftpFolderPath}`)
-      }
+    await sftp.connect(createConnectionConfig(settings))
+    const remoteFilePath = path.posix.join(sftpFolderPath, filename)
+    if (useConcurrentWrites) {
+      return await sftp.fastPutFromBuffer(fileContent, remoteFilePath)
+    } else {
+      return await sftp.put(fileContent, remoteFilePath)
     }
-    throw e
   } finally {
-    signal?.removeEventListener('abort', () => onabort)
-    sftp.end().catch(() => {
-      // Ignore errors on cleanup
-    })
+    // Clean up the SFTP connection and abort listener
+    await sftp.end()
   }
 }
 
@@ -225,6 +204,161 @@ async function testSFTPConnection(settings: Settings): Promise<unknown> {
     },
     AbortSignal.timeout(10000)
   ) // 10 second timeout for test connection
+}
+
+// SFTP Wrapper class to handle SFTP operations with abort signal and logging
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+export class SFTPWrapper {
+  private readonly sftp: sftp
+  private client: ssh2.SFTPWrapper
+  private readonly signal?: AbortSignal
+  private readonly logger?: Logger
+  private abortHandler?: () => void
+
+  constructor(name?: string, signal?: AbortSignal, logger?: Logger) {
+    this.sftp = new Client(name)
+    this.signal = signal
+    this.logger = logger
+  }
+
+  private addAbortListener() {
+    // If the signal is already aborted, throw immediately
+    if (this.signal?.aborted) throw new RequestTimeoutError()
+
+    // Store the handler so we can remove it later (only add once)
+    if (!this.abortHandler) {
+      this.abortHandler = () => {
+        // Reject all pending operations
+        const error = new RequestTimeoutError()
+        // Close the SFTP connection
+        this.sftp.end().catch((err: unknown) => {
+          this.logger?.warn('Unexpected error while closing SFTP connection during abort:', String(err))
+        })
+        throw error
+      }
+
+      this.signal?.addEventListener('abort', this.abortHandler, { once: true })
+    }
+  }
+
+  private removeAbortListener() {
+    if (this.abortHandler && this.signal) {
+      this.signal.removeEventListener('abort', this.abortHandler)
+      this.abortHandler = undefined
+    }
+  }
+
+  async connect(options: sftp.ConnectOptions) {
+    this.addAbortListener()
+    try {
+      this.client = await this.sftp.connect(options)
+      return this.client
+    } catch (error) {
+      this.logger?.error('Error connecting to SFTP server:', String(error))
+      throw error
+    }
+  }
+
+  async put(buffer: Buffer, remoteFilePath: string, options: sftp.TransferOptions = {}): Promise<string> {
+    if (!this.client) {
+      throw new Error('SFTP Client not connected. Call connect first.')
+    }
+
+    this.addAbortListener()
+
+    try {
+      return await this.sftp.put(buffer, remoteFilePath, options)
+    } catch (error) {
+      this.logger?.error('Error uploading file to SFTP server:', String(error))
+      throw error
+    }
+  }
+
+  async fastPutFromBuffer(
+    input: Buffer,
+    remoteFilePath: string,
+    options: sftp.FastPutTransferOptions = {
+      concurrency: 64,
+      chunkSize: 32768
+    }
+  ): Promise<void> {
+    if (!this.client) {
+      throw new Error('SFTP Client not connected. Call connect first.')
+    }
+    this.addAbortListener()
+    try {
+      return this._fastXferFromBuffer(input, remoteFilePath, options)
+    } catch (error) {
+      this.logger?.error('Error uploading buffer to SFTP server:', String(error))
+      throw error
+    }
+  }
+
+  private async _fastXferFromBuffer(
+    input: Buffer,
+    remoteFilePath: string,
+    options: sftp.FastPutTransferOptions
+  ): Promise<void> {
+    const fsize = input.length
+    return new Promise<void>((resolve, reject) => {
+      this.client.open(remoteFilePath, 'w', (err, handle) => {
+        if (err) {
+          return reject(new Error(`Error opening remote file: ${err.message}`))
+        }
+        const concurrency = options.concurrency || 64
+        const chunkSize = options.chunkSize || 32768
+        const readBuffer = input
+        const writeBuffer = Buffer.alloc(chunkSize)
+        let position = 0
+        let writeRequests: Promise<void>[] = []
+
+        const writeChunk = (chunkPos: number): Promise<void> => {
+          return new Promise((chunkResolve, chunkReject) => {
+            const bytesToWrite = Math.min(chunkSize, fsize - chunkPos)
+            if (bytesToWrite <= 0) {
+              return chunkResolve()
+            }
+            readBuffer.copy(writeBuffer, 0, chunkPos, chunkPos + bytesToWrite)
+            this.client.write(handle, writeBuffer, 0, bytesToWrite, chunkPos, (writeErr) => {
+              if (writeErr) {
+                return chunkReject(new Error(`Error writing to remote file: ${writeErr.message}`))
+              }
+              chunkResolve()
+            })
+          })
+        }
+
+        const processWrites = async () => {
+          while (position < fsize) {
+            writeRequests.push(writeChunk(position))
+            position += chunkSize
+            if (writeRequests.length >= concurrency) {
+              await Promise.all(writeRequests)
+              writeRequests = []
+              options?.step?.(Math.min(position, fsize), chunkSize, fsize)
+            }
+          }
+          await Promise.all(writeRequests)
+        }
+
+        processWrites()
+          .then(() => resolve())
+          .catch((err) => reject(err))
+          .finally(() => {
+            this.client.close(handle, (closeErr) => {
+              if (closeErr) {
+                this.logger?.warn('Error closing remote file handle:', String(closeErr.message))
+              }
+            })
+          })
+      })
+    })
+  }
+
+  async end() {
+    this.removeAbortListener()
+    return this.sftp.end()
+  }
 }
 
 export { Client, executeSFTPOperation, normalizeSSHKey, testSFTPConnection, uploadSFTP }
