@@ -46,7 +46,6 @@ describe('ajs-integration', () => {
       }
     })
 
-
     /* 
      *  First we test that the attributions from the URL are captured and added to the event
      */
@@ -69,6 +68,40 @@ describe('ajs-integration', () => {
       }
     )
 
+    /* 
+     *  Then we test the what happens when exact same attributions from the URL are captured and added to the next event
+     */
+    const updatedCtx1 = await autocaptureAttributionPlugin.track?.(ctx)
+    const ampIntegrationsObj1 = updatedCtx1?.event?.integrations[DESTINATION_INTEGRATION_NAME]
+    expect(ampIntegrationsObj1).toEqual(
+      {
+        autocapture_attribution: {
+          new: {
+            gbraid: "gbraid5678",
+            gclid: "gclid1234",
+            utm_campaign: "spring_sale",
+            utm_content: "ad1",
+            utm_medium: "cpc",
+            utm_source: "google",
+            utm_term: "running shoes",
+          },
+          old: {
+            gbraid: "gbraid5678",
+            gclid: "gclid1234",
+            utm_campaign: "spring_sale",
+            utm_content: "ad1",
+            utm_medium: "cpc",
+            utm_source: "google",
+            utm_term: "running shoes",
+          }
+        }
+      }
+    )
+
+
+    /* 
+     *  Then we test that the new attributes from the URL are captured, the old cached values are retrieved
+     */
     Object.defineProperty(window, 'location', {
       value: {
         search: '?utm_source=email'
@@ -76,9 +109,6 @@ describe('ajs-integration', () => {
       writable: true
     })
 
-    /* 
-     *  Then we test that the new attributes from the URL are captured, the old cached values are retrieved
-     */
     const updatedCtx2 = await autocaptureAttributionPlugin.track?.(ctx)
     const ampIntegrationsObj2 = updatedCtx2?.event?.integrations[DESTINATION_INTEGRATION_NAME]
 
@@ -101,7 +131,9 @@ describe('ajs-integration', () => {
       }
     )
 
-
+    /* 
+     *  Then we test when there are no new URL attribution values - the last cached attribution values are passed correctly in the payload
+     */
     Object.defineProperty(window, 'location', {
       value: {
         search: '?'
@@ -109,10 +141,6 @@ describe('ajs-integration', () => {
       writable: true
     })
 
-
-    /* 
-     *  Then we test when there are no new URL attribution values - the last cached attribution values are passed correctly in the payload
-     */
     const updatedCtx3 = await autocaptureAttributionPlugin.track?.(ctx)
     const ampIntegrationsObj3 = updatedCtx3?.event?.integrations[DESTINATION_INTEGRATION_NAME]
 
@@ -128,6 +156,9 @@ describe('ajs-integration', () => {
     )
 
 
+    /* 
+     *  Then we test when there are non attreibution URL params - the last cached attribution values are passed correctly in the payload
+     */
     Object.defineProperty(window, 'location', {
       value: {
         search: '?some_fake_non_attribution_param=12345'
@@ -135,9 +166,6 @@ describe('ajs-integration', () => {
       writable: true
     })
 
-    /* 
-     *  Then we test when there are non attreibution URL params - the last cached attribution values are passed correctly in the payload
-     */
     const updatedCtx4 = await autocaptureAttributionPlugin.track?.(ctx)
     const ampIntegrationsObj4 = updatedCtx4?.event?.integrations[DESTINATION_INTEGRATION_NAME]
 
@@ -152,6 +180,9 @@ describe('ajs-integration', () => {
       }
     )
 
+    /* 
+     *  Finally we test with a completely new attribution parameter
+     */
     Object.defineProperty(window, 'location', {
       value: {
         search: '?ttclid=uyiuyiuy'
@@ -159,9 +190,6 @@ describe('ajs-integration', () => {
       writable: true
     })
 
-    /* 
-     *  Finally we test with a completely new attribution parameter
-     */
     const updatedCtx5 = await autocaptureAttributionPlugin.track?.(ctx)
     const ampIntegrationsObj5 = updatedCtx5?.event?.integrations[DESTINATION_INTEGRATION_NAME]
 
