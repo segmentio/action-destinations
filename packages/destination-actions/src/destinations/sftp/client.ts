@@ -34,7 +34,15 @@ async function uploadSFTP(
   logger?: Logger,
   signal?: AbortSignal
 ) {
-  const sftp = new SFTPWrapper('uploadSFTP', signal, logger)
+  const sftp = new SFTPWrapper('uploadSFTP', logger)
+  signal?.throwIfAborted()
+  const abortListener = () => {
+    sftp.end().catch(() => {
+      logger?.warn('Failed to close SFTP connection')
+    })
+    throw new RequestTimeoutError()
+  }
+  signal?.addEventListener('abort', abortListener)
   try {
     await sftp.connect(createConnectionConfig(settings))
     const remoteFilePath = path.posix.join(sftpFolderPath, filename)
@@ -46,6 +54,7 @@ async function uploadSFTP(
   } finally {
     // Clean up the SFTP connection and abort listener
     await sftp.end()
+    signal?.removeEventListener('abort', abortListener)
   }
 }
 
@@ -54,23 +63,21 @@ async function executeSFTPOperation(
   settings: Settings,
   sftpFolderPath: string,
   action: { (sftp: Client): Promise<unknown> },
+  logger?: Logger,
   signal?: AbortSignal
 ) {
   const connectionConfig = createConnectionConfig(settings)
   await sftp.connect(connectionConfig)
 
-  const abortSFTP = async () => {
-    await sftp.end()
+  const abortSFTP = () => {
+    sftp.end().catch(() => {
+      logger?.warn('Failed to close SFTP connection')
+    })
     throw new RequestTimeoutError()
   }
 
-  if (signal) {
-    if (signal.aborted) {
-      await abortSFTP()
-    }
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    signal.addEventListener('abort', abortSFTP, { once: true })
-  }
+  signal?.throwIfAborted()
+  signal?.addEventListener('abort', abortSFTP, { once: true })
 
   let retVal
   try {
@@ -202,6 +209,7 @@ async function testSFTPConnection(settings: Settings): Promise<unknown> {
       // This is a minimal operation that tests authentication and basic connectivity
       return sftp.list('/')
     },
+    undefined,
     AbortSignal.timeout(10000)
   ) // 10 second timeout for test connection
 }
@@ -211,45 +219,14 @@ async function testSFTPConnection(settings: Settings): Promise<unknown> {
 export class SFTPWrapper {
   private readonly sftp: sftp
   private client: ssh2.SFTPWrapper
-  private readonly signal?: AbortSignal
   private readonly logger?: Logger
-  private abortHandler?: () => void
 
-  constructor(name?: string, signal?: AbortSignal, logger?: Logger) {
+  constructor(name?: string, logger?: Logger) {
     this.sftp = new Client(name)
-    this.signal = signal
     this.logger = logger
   }
 
-  private addAbortListener() {
-    // If the signal is already aborted, throw immediately
-    if (this.signal?.aborted) throw new RequestTimeoutError()
-
-    // Store the handler so we can remove it later (only add once)
-    if (!this.abortHandler) {
-      this.abortHandler = () => {
-        // Reject all pending operations
-        const error = new RequestTimeoutError()
-        // Close the SFTP connection
-        this.sftp.end().catch((err: unknown) => {
-          this.logger?.warn('Unexpected error while closing SFTP connection during abort:', String(err))
-        })
-        throw error
-      }
-
-      this.signal?.addEventListener('abort', this.abortHandler, { once: true })
-    }
-  }
-
-  private removeAbortListener() {
-    if (this.abortHandler && this.signal) {
-      this.signal.removeEventListener('abort', this.abortHandler)
-      this.abortHandler = undefined
-    }
-  }
-
   async connect(options: sftp.ConnectOptions) {
-    this.addAbortListener()
     try {
       this.client = await this.sftp.connect(options)
       return this.client
@@ -263,8 +240,6 @@ export class SFTPWrapper {
     if (!this.client) {
       throw new Error('SFTP Client not connected. Call connect first.')
     }
-
-    this.addAbortListener()
 
     try {
       return await this.sftp.put(buffer, remoteFilePath, options)
@@ -285,7 +260,6 @@ export class SFTPWrapper {
     if (!this.client) {
       throw new Error('SFTP Client not connected. Call connect first.')
     }
-    this.addAbortListener()
     try {
       return this._fastXferFromBuffer(input, remoteFilePath, options)
     } catch (error) {
@@ -356,7 +330,6 @@ export class SFTPWrapper {
   }
 
   async end() {
-    this.removeAbortListener()
     return this.sftp.end()
   }
 }
