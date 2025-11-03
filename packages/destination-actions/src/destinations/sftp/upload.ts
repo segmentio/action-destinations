@@ -7,7 +7,7 @@ import { sftpConnectionConfig } from './types'
 
 import { Logger } from '@segment/actions-core'
 import { SFTPWrapper } from './client'
-import { IntegrationError } from '@segment/actions-core/*'
+import { IntegrationError } from '@segment/actions-core'
 
 enum SFTPErrorCode {
   NO_SUCH_FILE = 2
