@@ -7,7 +7,7 @@ import ssh2 from 'ssh2'
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 export class SFTPWrapper {
   private readonly sftp: Client
-  private client: ssh2.SFTPWrapper
+  private client?: ssh2.SFTPWrapper
   private readonly logger?: Logger
 
   constructor(name?: string, logger?: Logger) {
@@ -64,7 +64,7 @@ export class SFTPWrapper {
   ): Promise<void> {
     const fsize = input.length
     return new Promise<void>((resolve, reject) => {
-      this.client.open(remoteFilePath, 'w', (err, handle) => {
+      this.client?.open(remoteFilePath, 'w', (err, handle) => {
         if (err) {
           return reject(new Error(`Error opening remote file: ${err.message}`))
         }
@@ -80,7 +80,7 @@ export class SFTPWrapper {
             if (bytesToWrite <= 0) {
               return chunkResolve()
             }
-            this.client.write(handle, readBuffer, chunkPos, bytesToWrite, chunkPos, (writeErr) => {
+            this.client?.write(handle, readBuffer, chunkPos, bytesToWrite, chunkPos, (writeErr) => {
               if (writeErr) {
                 return chunkReject(new Error(`Error writing to remote file: ${writeErr.message}`))
               }
@@ -106,7 +106,7 @@ export class SFTPWrapper {
           .then(() => resolve())
           .catch((err) => reject(err))
           .finally(() => {
-            this.client.close(handle, (closeErr) => {
+            this.client?.close(handle, (closeErr) => {
               if (closeErr) {
                 this.logger?.warn('Error closing remote file handle:', String(closeErr.message))
               }
