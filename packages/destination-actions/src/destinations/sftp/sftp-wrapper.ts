@@ -71,7 +71,6 @@ export class SFTPWrapper {
         const concurrency = options.concurrency || 64
         const chunkSize = options.chunkSize || 32768
         const readBuffer = input
-        const writeBuffer = Buffer.alloc(chunkSize)
         let position = 0
         let writeRequests: Promise<void>[] = []
 
@@ -81,8 +80,7 @@ export class SFTPWrapper {
             if (bytesToWrite <= 0) {
               return chunkResolve()
             }
-            readBuffer.copy(writeBuffer, 0, chunkPos, chunkPos + bytesToWrite)
-            this.client.write(handle, writeBuffer, 0, bytesToWrite, chunkPos, (writeErr) => {
+            this.client.write(handle, readBuffer, chunkPos, bytesToWrite, chunkPos, (writeErr) => {
               if (writeErr) {
                 return chunkReject(new Error(`Error writing to remote file: ${writeErr.message}`))
               }

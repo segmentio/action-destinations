@@ -179,7 +179,7 @@ function formatAndThrowError(e: any, path = '/'): never {
       throw new PayloadValidationError(`Could not find path: ${path}`)
     }
   }
-  throw new IntegrationError(`SFTP Error: ${e.message}`, 'SFTP_ERROR', 500)
+  throw new IntegrationError(`SFTP Error: ${e.message || 'Unknown error'}`, 'SFTP_ERROR', 500)
 }
 
 export { normalizeSSHKey, testSFTPConnection, uploadSFTP }
