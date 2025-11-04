@@ -1,4 +1,4 @@
-import { SFTPWrapper } from '../client'
+import { SFTPWrapper } from '../sftp-wrapper'
 import Client from 'ssh2-sftp-client'
 
 // Mock the ssh2-sftp-client module

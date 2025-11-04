@@ -245,12 +245,13 @@ const audienceFields: Record<string, InputField> = {
   traits_or_props,
   computation_key
 }
-const enableConcurrentWrites: InputField = {
+const useConcurrentWrites: InputField = {
   label: 'Use Concurrent Writes',
-  description: 'Enable concurrent writes when uploading files to SFTP. Improves performance for large files.',
+  description:
+    'Enable concurrent writes when uploading files to SFTP. This can improve upload performance for large files. However, it may not be supported by all SFTP servers. Test with your server for compatibility.',
   type: 'boolean',
   required: false,
-  default: true
+  default: false
 }
 export const baseFields: Record<string, InputField> = {
   columns: columnsNoDefaultMappings,
@@ -261,7 +262,7 @@ export const baseFields: Record<string, InputField> = {
   enable_batching,
   batch_size,
   batch_size_column_name,
-  useConcurrentWrites: enableConcurrentWrites
+  useConcurrentWrites
 }
 export const commonFields: Record<string, InputField> = {
   ...baseFields,

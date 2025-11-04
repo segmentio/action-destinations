@@ -1,7 +1,7 @@
-import { normalizeSSHKey, testSFTPConnection, uploadSFTP } from '../upload'
+import { normalizeSSHKey, testSFTPConnection, uploadSFTP } from '../client'
 import { SFTP_DEFAULT_PORT } from '../constants'
 import { Settings } from '../generated-types'
-import { SFTPWrapper } from '../client'
+import { SFTPWrapper } from '../sftp-wrapper'
 
 import Client from 'ssh2-sftp-client'
 
@@ -13,7 +13,7 @@ const mockSftpInstance = {
   end: jest.fn().mockResolvedValue(undefined)
 }
 
-jest.mock('../client', () => {
+jest.mock('../sftp-wrapper', () => {
   return {
     SFTPWrapper: jest.fn().mockImplementation(() => mockSftpInstance)
   }

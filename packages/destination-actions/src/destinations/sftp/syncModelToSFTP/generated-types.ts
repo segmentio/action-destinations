@@ -36,7 +36,7 @@ export interface Payload {
    */
   batch_size_column_name?: string
   /**
-   * Enable concurrent writes when uploading files to SFTP. Improves performance for large files.
+   * Enable concurrent writes when uploading files to SFTP. This can improve upload performance for large files. However, it may not be supported by all SFTP servers. Test with your server for compatibility.
    */
   useConcurrentWrites?: boolean
 }

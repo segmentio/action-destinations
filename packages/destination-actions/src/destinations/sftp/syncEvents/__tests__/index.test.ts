@@ -52,7 +52,7 @@ const mockSftpInstance = {
 
 // Mock both the ssh2-sftp-client and our custom wrapper
 jest.mock('ssh2-sftp-client')
-jest.mock('../../client', () => {
+jest.mock('../../sftp-wrapper', () => {
   return {
     SFTPWrapper: jest.fn().mockImplementation(() => mockSftpInstance)
   }
@@ -272,7 +272,7 @@ describe('Integration Tests', () => {
 
     // Verify that the SFTP client was called
     expect(mockSftpInstance.connect).toHaveBeenCalled()
-    expect(mockSftpInstance.fastPutFromBuffer).toHaveBeenCalled()
+    expect(mockSftpInstance.put).toHaveBeenCalled()
     expect(mockSftpInstance.end).toHaveBeenCalled()
   })
 
