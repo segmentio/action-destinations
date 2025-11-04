@@ -33,7 +33,8 @@ async function uploadSFTP(
   signal?: AbortSignal
 ) {
   const sftp = new SFTPWrapper('uploadSFTP', logger)
-  signal?.throwIfAborted()
+  signal?.throwIfAborted() // exit early if already aborted
+  // Set up abort listener to clean up SFTP connection on abort
   const abortListener = () => {
     sftp.end().catch(() => {
       logger?.warn('Failed to close SFTP connection')
