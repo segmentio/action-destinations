@@ -27,7 +27,7 @@ describe('Slack', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchObject({
-        icon_url: 'https://logo.clearbit.com/segment.com',
+        icon_url: 'https://cdn.brandfetch.io/segment.com/lettermark?c=1idN1Q_QikZtdcPcryr',
         text: 'test',
         username: 'Segment',
         channel: 'general'

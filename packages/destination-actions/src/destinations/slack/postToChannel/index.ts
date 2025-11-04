@@ -41,7 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Icon URL',
       description: 'The URL of the image that appears next to the User.',
       type: 'string',
-      default: 'https://logo.clearbit.com/segment.com'
+      default: 'https://cdn.brandfetch.io/segment.com/lettermark?c=1idN1Q_QikZtdcPcryr'
     }
   },
 
