@@ -1,13 +1,10 @@
-import { PayloadValidationError, RequestTimeoutError } from '@segment/actions-core'
+import { PayloadValidationError, RequestTimeoutError, Logger, IntegrationError } from '@segment/actions-core'
 import path from 'path'
 import Client from 'ssh2-sftp-client'
 import { SFTP_DEFAULT_PORT } from './constants'
 import { Settings } from './generated-types'
 import { sftpConnectionConfig } from './types'
-
-import { Logger } from '@segment/actions-core'
 import { SFTPWrapper } from './client'
-import { IntegrationError } from '@segment/actions-core/*'
 
 enum SFTPErrorCode {
   NO_SUCH_FILE = 2
