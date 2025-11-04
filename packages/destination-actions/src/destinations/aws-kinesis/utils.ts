@@ -37,7 +37,7 @@ export const sendDataToKinesis = async (
   // 5. Multi status response
 }
 
-const populatePayload = (
+export const populatePayload = (
   payloads: Payload[],
   streamToAwsRegion: Map<string, string>,
   streamToPayloads = new Map<string, Payload[][]>()
@@ -63,7 +63,7 @@ const populatePayload = (
   })
 }
 
-const sendToKinesis = async (
+export const sendToKinesis = async (
   iamRoleArn: string,
   iamExternalId: string,
   streamToAwsRegion: Map<string, string>,
@@ -79,7 +79,7 @@ const sendToKinesis = async (
   }
 }
 
-const sendBatchToKinesis = async (
+export const sendBatchToKinesis = async (
   logger: Logger | undefined,
   streamName: string,
   awsRegion: string,

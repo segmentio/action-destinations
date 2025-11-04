@@ -1,5 +1,5 @@
 import { createTestIntegration } from '@segment/actions-core'
-import Definition from '../index' // this imports your action definition file
+import Definition from '../index'
 import * as utils from '../utils'
 
 const testDestination = createTestIntegration(Definition)
