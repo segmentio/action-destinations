@@ -1,6 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { AWS_REGIONS } from '../../../lib/AWS/utils'
+import { sendDataToKinesis } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
@@ -33,11 +35,15 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The AWS region where the Kinesis stream is located',
       type: 'string',
       required: true,
-      default: { '@path': '$.properties.awsRegion' }
+      default: { '@path': '$.properties.awsRegion' },
+      choices: AWS_REGIONS
     }
   },
-  perform: async (_request, _data) => {
-    // Todo implement functionality
+  perform: async (_requests, { settings, payload, statsContext, logger }) => {
+    await sendDataToKinesis(settings, [payload], statsContext, logger)
+  },
+  performBatch: async (_requests, { settings, payload, statsContext, logger }) => {
+    await sendDataToKinesis(settings, payload, statsContext, logger)
   }
 }
 
