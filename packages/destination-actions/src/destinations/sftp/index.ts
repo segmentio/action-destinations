@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import { testSFTPConnection } from './client'
-import { SFTP_DEFAULT_PORT } from './constants'
+import { SFTP_DEFAULT_PORT, UploadStrategy } from './constants'
 import syncEvents from './syncEvents'
 import syncModelToSFTP from './syncModelToSFTP'
 
@@ -89,6 +89,21 @@ const destination: DestinationDefinition<Settings> = {
             }
           ]
         }
+      },
+      uploadStrategy: {
+        label: 'Upload Strategy',
+        description: 'Select the upload strategy to use when uploading files to the SFTP server.',
+        type: 'string',
+        choices: [
+          { label: 'Standard [Supported by all SFTP servers]', value: UploadStrategy.STANDARD },
+          {
+            label:
+              'Concurrent [Improves upload time but may not be supported by all SFTP servers. Test and enable if supported.]',
+            value: UploadStrategy.CONCURRENT
+          }
+        ],
+        default: UploadStrategy.STANDARD,
+        required: false
       }
     },
     testAuthentication: async (_, { settings }) => await testSFTPConnection(settings)

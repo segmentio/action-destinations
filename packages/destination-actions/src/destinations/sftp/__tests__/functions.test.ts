@@ -1,6 +1,6 @@
 import { MultiStatusResponse } from '@segment/actions-core'
 import { uploadSFTP } from '../client'
-import { SFTP_DEFAULT_PORT } from '../constants'
+import { SFTP_DEFAULT_PORT, UploadStrategy } from '../constants'
 import {
   clean,
   createFilename,
@@ -416,7 +416,6 @@ describe('send', () => {
         enable_batching: true,
         file_extension: 'csv',
         batch_size: 100000,
-        useConcurrentWrites: true,
         columns: {
           email: 'test@example.com',
           name: 'John Doe'
@@ -425,15 +424,15 @@ describe('send', () => {
     ]
 
     const signal = AbortSignal.timeout(0)
+    const settings = { ...mockSettings, uploadStrategy: UploadStrategy.CONCURRENT }
 
-    await send(payloads, mockSettings, mockRawMapping, undefined, signal)
+    await send(payloads, settings, mockRawMapping, undefined, signal)
 
     expect(mockUploadSFTP).toHaveBeenCalledWith(
-      mockSettings,
+      settings,
       '/uploads',
       expect.any(String), // filename
       expect.any(Buffer), // file content,
-      true, // useConcurrentWrites
       undefined, // logger
       signal
     )

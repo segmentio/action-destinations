@@ -1,5 +1,6 @@
+import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 import { normalizeSSHKey, testSFTPConnection, uploadSFTP } from '../client'
-import { SFTP_DEFAULT_PORT } from '../constants'
+import { SFTP_DEFAULT_PORT, UploadStrategy } from '../constants'
 import { Settings } from '../generated-types'
 import { SFTPWrapper } from '../sftp-wrapper'
 
@@ -76,8 +77,13 @@ describe('SFTP Client', () => {
       expect(mockSftpInstance.end).toHaveBeenCalled()
     })
 
-    it('uploads using fastPutFromBuffer when useConcurrency is true', async () => {
-      await uploadSFTP(sshKeySettings, 'sftp_folder_path', 'filename', Buffer.from('test content'), true)
+    it('uploads using fastPutFromBuffer when upload strategy is concurrent', async () => {
+      await uploadSFTP(
+        { ...sshKeySettings, uploadStrategy: UploadStrategy.CONCURRENT },
+        'sftp_folder_path',
+        'filename',
+        Buffer.from('test content')
+      )
 
       expect(SFTPWrapper).toHaveBeenCalled()
       expect(mockSftpInstance.connect).toHaveBeenCalledWith({
@@ -309,6 +315,7 @@ MIIEpAIBAAKCAQEA1234567890
 
   describe('testSFTPConnection', () => {
     beforeEach(() => {
+      jest.useRealTimers()
       jest.clearAllMocks()
       jest.clearAllTimers()
     })
@@ -440,16 +447,20 @@ MN
         expect(Client.prototype.end).toHaveBeenCalled()
       })
 
-      // This test is skipped because it can slow down the CI
-      it.skip('should throw timeout error when operation takes too long', async () => {
+      it('should throw timeout error when operation takes too long', async () => {
+        jest.useFakeTimers()
         Client.prototype.connect = jest.fn().mockImplementation(() => new Promise((r) => setTimeout(r, 11500)))
         Client.prototype.list = jest.fn().mockResolvedValue([])
         Client.prototype.end = jest.fn().mockResolvedValue(undefined)
 
-        await expect(testSFTPConnection(passwordSettings)).rejects.toThrow(
-          'Request timed out before receiving a response'
-        )
-      }, 12000)
+        // Start the async operation
+        const promise = testSFTPConnection(passwordSettings)
+
+        // Advance timers to trigger the timeout
+        jest.advanceTimersByTime(DEFAULT_REQUEST_TIMEOUT)
+
+        await expect(promise).rejects.toThrow('SFTP connection timed out')
+      })
 
       it('should handle connection errors with cleanup', async () => {
         const connectionError = new Error('Connection refused')

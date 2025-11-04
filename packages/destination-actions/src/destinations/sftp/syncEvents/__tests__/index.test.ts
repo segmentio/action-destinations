@@ -284,8 +284,7 @@ describe('Integration Tests', () => {
       filename_prefix: 'test_filename_',
       enable_batching: true,
       batch_size: 100000,
-      file_extension: 'csv',
-      useConcurrentWrites: false
+      file_extension: 'csv'
     }
 
     const testEvent = createTestEvent({
@@ -324,8 +323,7 @@ describe('Integration Tests', () => {
       filename_prefix: 'test_filename_',
       enable_batching: true,
       batch_size: 100000,
-      file_extension: 'csv',
-      useConcurrentWrites: false
+      file_extension: 'csv'
     }
 
     const testEvents = [
@@ -396,7 +394,6 @@ describe('Integration Tests', () => {
       filename_prefix: 'test_filename_',
       enable_batching: true,
       batch_size: 100000,
-      useConcurrentWrites: false,
       file_extension: 'csv'
     }
 
@@ -434,7 +431,6 @@ describe('Integration Tests', () => {
       enable_batching: true,
       batch_size: 100000,
       file_extension: 'csv',
-      useConcurrentWrites: false,
       columns: {
         'Event Name': { '@path': '$.event' },
         'Event Type': { '@path': '$.type' },
@@ -551,7 +547,6 @@ describe('Integration Tests', () => {
       enable_batching: true,
       batch_size: 100000,
       file_extension: 'csv',
-      useConcurrentWrites: false,
       columns: {
         'User ID': { '@path': '$.userId' },
         'Full Properties': { '@path': '$.properties' },

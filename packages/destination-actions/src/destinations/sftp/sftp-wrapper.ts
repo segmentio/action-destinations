@@ -4,6 +4,11 @@ import { Logger } from '@segment/actions-core'
 import Client from 'ssh2-sftp-client'
 import ssh2 from 'ssh2'
 
+interface FastPutFromBufferOptions {
+  concurrency?: number
+  chunkSize?: number
+}
+
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 export class SFTPWrapper {
   private readonly sftp: Client
@@ -38,13 +43,12 @@ export class SFTPWrapper {
     }
   }
 
+  // Custom implementation of fastPut from Buffer
+  // This method uploads a Buffer to the SFTP server using concurrent writes
   async fastPutFromBuffer(
     input: Buffer,
     remoteFilePath: string,
-    options: Client.FastPutTransferOptions = {
-      concurrency: 64,
-      chunkSize: 32768
-    }
+    options: FastPutFromBufferOptions = {}
   ): Promise<void> {
     if (!this.client) {
       throw new Error('SFTP Client not connected. Call connect first.')
@@ -60,10 +64,11 @@ export class SFTPWrapper {
   private async _fastXferFromBuffer(
     input: Buffer,
     remoteFilePath: string,
-    options: Client.FastPutTransferOptions
+    options: FastPutFromBufferOptions
   ): Promise<void> {
     const fsize = input.length
     return new Promise<void>((resolve, reject) => {
+      // Open the connection to the remote file
       this.client?.open(remoteFilePath, 'w', (err, handle) => {
         if (err) {
           return reject(new Error(`Error opening remote file: ${err.message}`))
@@ -74,6 +79,7 @@ export class SFTPWrapper {
         let position = 0
         let writeRequests: Promise<void>[] = []
 
+        // function that writes a chunk to the remote file
         const writeChunk = (chunkPos: number): Promise<void> => {
           return new Promise((chunkResolve, chunkReject) => {
             const bytesToWrite = Math.min(chunkSize, fsize - chunkPos)
@@ -89,6 +95,7 @@ export class SFTPWrapper {
           })
         }
 
+        // function that splits the writes into concurrent requests and processes them
         const processWrites = async () => {
           while (position < fsize) {
             writeRequests.push(writeChunk(position))
@@ -96,37 +103,28 @@ export class SFTPWrapper {
             if (writeRequests.length >= concurrency) {
               await Promise.all(writeRequests)
               writeRequests = []
-              options?.step?.(Math.min(position, fsize), chunkSize, fsize)
             }
           }
           await Promise.all(writeRequests)
         }
 
-        const closeHandle = (): Promise<void> => {
-          return new Promise((closeResolve) => {
+        processWrites()
+          .then(resolve)
+          .catch(reject)
+          .finally(() => {
+            // we don't care if close fails here because we expect the caller to call sftp.end() eventually
             this.client?.close(handle, (closeErr) => {
               if (closeErr) {
                 this.logger?.warn('Error closing remote file handle:', String(closeErr.message))
               }
-              closeResolve()
             })
-          })
-        }
-
-        processWrites()
-          .then(async () => {
-            await closeHandle()
-            resolve()
-          })
-          .catch(async (err) => {
-            await closeHandle()
-            reject(err)
           })
       })
     })
   }
 
   async end() {
+    // Close the SFTP connection
     return this.sftp.end()
   }
 }
