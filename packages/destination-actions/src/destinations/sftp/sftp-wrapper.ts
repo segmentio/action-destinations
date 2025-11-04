@@ -38,6 +38,8 @@ export class SFTPWrapper {
     }
   }
 
+  // Custom implementation of fastPut from Buffer
+  // This method uploads a Buffer to the SFTP server using concurrent writes
   async fastPutFromBuffer(
     input: Buffer,
     remoteFilePath: string,
