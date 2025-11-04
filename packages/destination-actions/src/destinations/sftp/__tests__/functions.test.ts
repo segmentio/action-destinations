@@ -1,5 +1,5 @@
 import { MultiStatusResponse } from '@segment/actions-core'
-import { uploadSFTP } from '../upload'
+import { uploadSFTP } from '../client'
 import { SFTP_DEFAULT_PORT } from '../constants'
 import {
   clean,
@@ -15,7 +15,7 @@ import type { Payload } from '../syncEvents/generated-types'
 import type { ColumnHeader, RawMapping } from '../types'
 
 // Mock the client functions
-jest.mock('../upload')
+jest.mock('../client')
 const mockUploadSFTP = uploadSFTP as jest.MockedFunction<typeof uploadSFTP>
 
 // Test helpers and shared data

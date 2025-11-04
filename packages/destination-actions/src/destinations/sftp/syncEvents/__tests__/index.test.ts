@@ -52,7 +52,7 @@ const mockSftpInstance = {
 
 // Mock both the ssh2-sftp-client and our custom wrapper
 jest.mock('ssh2-sftp-client')
-jest.mock('../../client', () => {
+jest.mock('../../sftp-wrapper', () => {
   return {
     SFTPWrapper: jest.fn().mockImplementation(() => mockSftpInstance)
   }

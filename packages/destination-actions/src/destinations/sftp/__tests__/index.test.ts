@@ -1,10 +1,10 @@
-import { testSFTPConnection } from '../upload'
+import { testSFTPConnection } from '../client'
 import { SFTP_DEFAULT_PORT } from '../constants'
 import { Settings } from '../generated-types'
 import destination from '../index'
 
 // Mock the client module
-jest.mock('../upload')
+jest.mock('../client')
 const mockTestSFTPConnection = testSFTPConnection as jest.MockedFunction<typeof testSFTPConnection>
 
 describe('SFTP Destination', () => {
