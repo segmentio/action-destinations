@@ -12,14 +12,14 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify" or type = "track" or type = "page" or type = "screen" or type = "group"',
   fields: baseFields,
   perform: async (_, data) => {
-    const { payload, settings } = data
+    const { payload, settings, signal } = data
     const rawMapping: RawMapping = (data as unknown as Data).rawMapping
-    return send([payload], settings, rawMapping)
+    return send([payload], settings, rawMapping, signal)
   },
   performBatch: async (_, data) => {
-    const { payload, settings } = data
+    const { payload, settings, signal } = data
     const rawMapping: RawMapping = (data as unknown as Data).rawMapping
-    return send(payload, settings, rawMapping)
+    return send(payload, settings, rawMapping, signal)
   }
 }
 

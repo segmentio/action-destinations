@@ -423,13 +423,16 @@ describe('send', () => {
       }
     ]
 
-    await send(payloads, mockSettings, mockRawMapping)
+    const signal = AbortSignal.timeout(0)
+
+    await send(payloads, mockSettings, mockRawMapping, signal)
 
     expect(mockUploadSFTP).toHaveBeenCalledWith(
       mockSettings,
       '/uploads',
       expect.any(String), // filename
-      expect.any(Buffer) // file content
+      expect.any(Buffer), // file content
+      signal
     )
   })
 

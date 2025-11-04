@@ -51,8 +51,8 @@ export const email: InputField = {
   },
   default: {
     '@if': {
-      exists: { '@path': '$.traits.email' },
-      then: { '@path': '$.traits.email' },
+      exists: { '@path': '$.context.traits.email' },
+      then: { '@path': '$.context.traits.email' },
       else: { '@path': '$.properties.email' }
     }
   },
@@ -75,23 +75,18 @@ export const crm_id: InputField = {
 }
 
 export const traits_or_props: InputField = {
-  label: 'Traits or Properties',
-  description: 'Hidden field: traits object from identify() payloads or properties object from track() payloads.',
+  label: '[Hidden] Traits or Properties',
+  description:
+    '[Hidden] properties object from track() payloads. Note: identify calls are not handled and are disabled in the Partner Portal.',
   type: 'object',
   required: true,
   unsafe_hidden: true,
-  default: {
-    '@if': {
-      exists: { '@path': '$.traits' },
-      then: { '@path': '$.traits' },
-      else: { '@path': '$.properties' }
-    }
-  }
+  default: { '@path': '$.properties' }
 }
 
 export const audience_key: InputField = {
-  label: 'Audience Key',
-  description: 'Hidden field: The Engage Audience Key / Slug.',
+  label: '[Hidden] Audience Key',
+  description: '[Hidden]: The Engage Audience Key / Slug.',
   type: 'string',
   required: true,
   unsafe_hidden: true,
@@ -111,19 +106,21 @@ export const enable_batching: InputField = {
 }
 
 export const batch_size: InputField = {
-  label: 'Batch Size',
+  label: '[Hidden] Batch Size',
   description:
-    'The number of user syncs to include in each batch when batching is enabled. Must be between 1 and 1000.',
+    '[Hidden] The number of user syncs to include in each batch when batching is enabled. Must be between 1 and 1000.',
   type: 'number',
   required: true,
   default: 1000,
+  minimum: 1,
+  maximum: 1000,
   unsafe_hidden: true
 }
 
 export const batch_keys: InputField = {
-  label: 'Batch Keys',
+  label: '[Hidden] Batch Keys',
   description:
-    'The keys to use for batching user syncs. Users with the same values for these keys will be grouped together in the same batch.',
+    '[Hidden] The keys to use for batching user syncs. Users with the same values for these keys will be grouped together in the same batch.',
   type: 'string',
   required: false,
   default: ['identifier_type', 'audience_id'],

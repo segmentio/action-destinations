@@ -24,6 +24,14 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Created under Settings > API Integration in the Topsort Manager Platform.',
         type: 'password',
         required: true
+      },
+      skipZeroPricePurchases: {
+        label: 'Skip Zero Price Purchases',
+        description:
+          'When enabled, purchase events with items that have zero or missing unit price will be filtered out.',
+        type: 'boolean',
+        required: false,
+        default: false
       }
     }
   },

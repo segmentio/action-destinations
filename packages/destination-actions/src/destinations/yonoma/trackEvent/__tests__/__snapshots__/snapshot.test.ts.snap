@@ -1,21 +1,45 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for Yonoma's sendEvent destination action: all fields 1`] = `
+exports[`Testing snapshot for Yonoma's trackEvent destination action: all fields 1`] = `
 Object {
-  "event": "CIoJPe",
-  "listId": "CIoJPe",
-  "properties": Object {
-    "testType": "CIoJPe",
+  "campaign": Object {
+    "content": "P3r]ZJVXKJyyzah",
+    "medium": "P3r]ZJVXKJyyzah",
+    "name": "P3r]ZJVXKJyyzah",
+    "source": "P3r]ZJVXKJyyzah",
+    "term": "P3r]ZJVXKJyyzah",
   },
-  "timestamp": "2063-02-13T04:28:33.062Z",
-  "userId": "CIoJPe",
+  "email": "test@test.com",
+  "event": "P3r]ZJVXKJyyzah",
+  "ip": "P3r]ZJVXKJyyzah",
+  "listId": "P3r]ZJVXKJyyzah",
+  "location": Object {
+    "city": "P3r]ZJVXKJyyzah",
+    "country": "P3r]ZJVXKJyyzah",
+    "region": "P3r]ZJVXKJyyzah",
+  },
+  "page": Object {
+    "path": "P3r]ZJVXKJyyzah",
+    "referrer": "P3r]ZJVXKJyyzah",
+    "search": "P3r]ZJVXKJyyzah",
+    "title": "P3r]ZJVXKJyyzah",
+    "url": "P3r]ZJVXKJyyzah",
+  },
+  "properties": Object {
+    "testType": "P3r]ZJVXKJyyzah",
+  },
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "userAgent": "P3r]ZJVXKJyyzah",
+  "userId": "user1234",
 }
 `;
 
-exports[`Testing snapshot for Yonoma's sendEvent destination action: required fields 1`] = `
+exports[`Testing snapshot for Yonoma's trackEvent destination action: required fields 1`] = `
 Object {
-  "event": "CIoJPe",
-  "listId": "CIoJPe",
+  "email": "test@test.com",
+  "event": "P3r]ZJVXKJyyzah",
+  "listId": "P3r]ZJVXKJyyzah",
+  "timestamp": "2024-01-01T00:00:00.000Z",
   "userId": "testuserid",
 }
 `;
