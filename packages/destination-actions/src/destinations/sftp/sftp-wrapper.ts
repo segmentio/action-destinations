@@ -107,7 +107,7 @@ export class SFTPWrapper {
 
         processWrites()
           .then(resolve)
-          .catch(resolve)
+          .catch(reject)
           .finally(() => {
             // we don't care if close fails here because we expect the caller to call sftp.end() eventually
             this.client?.close(handle, (closeErr) => {
