@@ -272,7 +272,7 @@ describe('Integration Tests', () => {
 
     // Verify that the SFTP client was called
     expect(mockSftpInstance.connect).toHaveBeenCalled()
-    expect(mockSftpInstance.fastPutFromBuffer).toHaveBeenCalled()
+    expect(mockSftpInstance.put).toHaveBeenCalled()
     expect(mockSftpInstance.end).toHaveBeenCalled()
   })
 
