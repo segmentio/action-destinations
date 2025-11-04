@@ -8,7 +8,7 @@ Object {
       "event_at": "2021-02-01T00:00:00.000Z",
       "event_metadata": Object {
         "conversion_id": "4fbe858b31ee34144cc3d009fd4636ef20fb342e095570d49a9898bb8d77598e",
-        "currency": "EUR",
+        "currency": "HNL",
         "item_count": -2840640572358656,
         "products": Array [
           Object {
@@ -78,7 +78,7 @@ Object {
       "event_at": "2021-02-01T00:00:00.000Z",
       "event_metadata": Object {
         "conversion_id": "f136d03523cc17ecdfe2a4df68a819e5e98f6981316b7e50e1a8b34b018c70ae",
-        "currency": "GBP",
+        "currency": "NGN",
         "item_count": 2091000289820672,
         "products": Array [
           Object {
