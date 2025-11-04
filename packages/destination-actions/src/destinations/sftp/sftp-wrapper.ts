@@ -102,15 +102,25 @@ export class SFTPWrapper {
           await Promise.all(writeRequests)
         }
 
-        processWrites()
-          .then(() => resolve())
-          .catch((err) => reject(err))
-          .finally(() => {
+        const closeHandle = (): Promise<void> => {
+          return new Promise((closeResolve) => {
             this.client?.close(handle, (closeErr) => {
               if (closeErr) {
                 this.logger?.warn('Error closing remote file handle:', String(closeErr.message))
               }
+              closeResolve()
             })
+          })
+        }
+
+        processWrites()
+          .then(async () => {
+            await closeHandle()
+            resolve()
+          })
+          .catch(async (err) => {
+            await closeHandle()
+            reject(err)
           })
       })
     })
