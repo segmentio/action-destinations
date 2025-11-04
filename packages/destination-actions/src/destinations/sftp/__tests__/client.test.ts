@@ -1,6 +1,6 @@
 import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 import { normalizeSSHKey, testSFTPConnection, uploadSFTP } from '../client'
-import { SFTP_DEFAULT_PORT } from '../constants'
+import { SFTP_DEFAULT_PORT, UploadStrategy } from '../constants'
 import { Settings } from '../generated-types'
 import { SFTPWrapper } from '../sftp-wrapper'
 
@@ -77,8 +77,13 @@ describe('SFTP Client', () => {
       expect(mockSftpInstance.end).toHaveBeenCalled()
     })
 
-    it('uploads using fastPutFromBuffer when useConcurrency is true', async () => {
-      await uploadSFTP(sshKeySettings, 'sftp_folder_path', 'filename', Buffer.from('test content'), true)
+    it('uploads using fastPutFromBuffer when upload strategy is concurrent', async () => {
+      await uploadSFTP(
+        { ...sshKeySettings, uploadStrategy: UploadStrategy.CONCURRENT },
+        'sftp_folder_path',
+        'filename',
+        Buffer.from('test content')
+      )
 
       expect(SFTPWrapper).toHaveBeenCalled()
       expect(mockSftpInstance.connect).toHaveBeenCalledWith({

@@ -68,6 +68,7 @@ export class SFTPWrapper {
   ): Promise<void> {
     const fsize = input.length
     return new Promise<void>((resolve, reject) => {
+      // Open the connection to the remote file
       this.client?.open(remoteFilePath, 'w', (err, handle) => {
         if (err) {
           return reject(new Error(`Error opening remote file: ${err.message}`))
@@ -78,6 +79,7 @@ export class SFTPWrapper {
         let position = 0
         let writeRequests: Promise<void>[] = []
 
+        // function that writes a chunk to the remote file
         const writeChunk = (chunkPos: number): Promise<void> => {
           return new Promise((chunkResolve, chunkReject) => {
             const bytesToWrite = Math.min(chunkSize, fsize - chunkPos)
@@ -93,6 +95,7 @@ export class SFTPWrapper {
           })
         }
 
+        // function that splits the writes into concurrent requests and processes them
         const processWrites = async () => {
           while (position < fsize) {
             writeRequests.push(writeChunk(position))
@@ -121,6 +124,7 @@ export class SFTPWrapper {
   }
 
   async end() {
+    // Close the SFTP connection
     return this.sftp.end()
   }
 }

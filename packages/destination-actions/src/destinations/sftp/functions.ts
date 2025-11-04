@@ -18,8 +18,7 @@ async function send(
     batch_size_column_name,
     filename_prefix,
     file_extension,
-    sftp_folder_path,
-    useConcurrentWrites
+    sftp_folder_path
   } = payloads[0]
 
   const headers: ColumnHeader[] = createHeaders(
@@ -41,7 +40,7 @@ async function send(
 
   const msResponse = new MultiStatusResponse()
   try {
-    await uploadSFTP(settings, sftp_folder_path, filename, fileContent, useConcurrentWrites, logger, signal)
+    await uploadSFTP(settings, sftp_folder_path, filename, fileContent, logger, signal)
     payloads.forEach((payload, index) => {
       const row = rowsObservabilityArray[index] ?? ''
       msResponse.setSuccessResponseAtIndex(index, {
