@@ -4,6 +4,11 @@ import { Logger } from '@segment/actions-core'
 import Client from 'ssh2-sftp-client'
 import ssh2 from 'ssh2'
 
+interface FastPutFromBufferOptions {
+  concurrency?: number
+  chunkSize?: number
+}
+
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 export class SFTPWrapper {
   private readonly sftp: Client
@@ -43,10 +48,7 @@ export class SFTPWrapper {
   async fastPutFromBuffer(
     input: Buffer,
     remoteFilePath: string,
-    options: Client.FastPutTransferOptions = {
-      concurrency: 64,
-      chunkSize: 32768
-    }
+    options: FastPutFromBufferOptions = {}
   ): Promise<void> {
     if (!this.client) {
       throw new Error('SFTP Client not connected. Call connect first.')
@@ -62,7 +64,7 @@ export class SFTPWrapper {
   private async _fastXferFromBuffer(
     input: Buffer,
     remoteFilePath: string,
-    options: Client.FastPutTransferOptions
+    options: FastPutFromBufferOptions
   ): Promise<void> {
     const fsize = input.length
     return new Promise<void>((resolve, reject) => {
@@ -98,7 +100,6 @@ export class SFTPWrapper {
             if (writeRequests.length >= concurrency) {
               await Promise.all(writeRequests)
               writeRequests = []
-              options?.step?.(Math.min(position, fsize), chunkSize, fsize)
             }
           }
           await Promise.all(writeRequests)
