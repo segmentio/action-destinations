@@ -1,4 +1,10 @@
-import { PayloadValidationError, RequestTimeoutError, Logger, IntegrationError } from '@segment/actions-core'
+import {
+  PayloadValidationError,
+  RequestTimeoutError,
+  Logger,
+  IntegrationError,
+  DEFAULT_REQUEST_TIMEOUT
+} from '@segment/actions-core'
 import path from 'path'
 import Client from 'ssh2-sftp-client'
 import { SFTP_DEFAULT_PORT } from './constants'
@@ -160,7 +166,18 @@ function normalizeSSHKey(key = ''): string {
  */
 async function testSFTPConnection(settings: Settings): Promise<unknown> {
   const sftp = new Client()
-  let res
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => {
+      reject(new RequestTimeoutError('SFTP connection timed out'))
+    }, DEFAULT_REQUEST_TIMEOUT)
+  })
+  // Throws if connection or listing fails
+  // Otherwise resolves with the list of files in the root directory
+  return Promise.race([timeoutPromise, connectAndList(sftp, settings)])
+}
+
+async function connectAndList(sftp: Client, settings: Settings): Promise<Client.FileInfo[]> {
+  let res: Client.FileInfo[]
   try {
     await sftp.connect(createConnectionConfig(settings))
     res = await sftp.list('/')
