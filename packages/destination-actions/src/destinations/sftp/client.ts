@@ -51,7 +51,7 @@ async function uploadSFTP(
       return await sftp.put(fileContent, remoteFilePath)
     }
   } catch (e) {
-    formatAndThrowError(e, sftpFolderPath)
+    formatAndThrowError(e as Error, sftpFolderPath)
   } finally {
     // Clean up the SFTP connection and abort listener
     await sftp.end()
@@ -165,14 +165,14 @@ async function testSFTPConnection(settings: Settings): Promise<unknown> {
     await sftp.connect(createConnectionConfig(settings))
     res = await sftp.list('/')
   } catch (e) {
-    formatAndThrowError(e)
+    formatAndThrowError(e as Error)
   } finally {
     await sftp.end()
   }
   return res
 }
 
-function formatAndThrowError(e: any, path = '/'): never {
+function formatAndThrowError(e: Error, path = '/'): never {
   const sftpError = e as SFTPError
   if (sftpError) {
     if (sftpError.code === SFTPErrorCode.NO_SUCH_FILE) {
