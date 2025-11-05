@@ -339,9 +339,10 @@ describe('Webhook Audience Tests', () => {
         settings: { sharedSecret: 'secret' },
         payload
       })
+      expect(result).toBeDefined()
       expect(result).toHaveProperty('headers')
-      expect(result.headers).toHaveProperty('X-Signature')
-      expect(typeof result.headers['X-Signature']).toBe('string')
+      expect(result?.headers).toHaveProperty('X-Signature')
+      expect(typeof result?.headers?.['X-Signature']).toBe('string')
     })
 
     it('should generate X-Signature header with sharedSecret and array payload', () => {
@@ -350,9 +351,10 @@ describe('Webhook Audience Tests', () => {
         settings: { sharedSecret: 'secret' },
         payload
       })
+      expect(result).toBeDefined()
       expect(result).toHaveProperty('headers')
-      expect(result.headers).toHaveProperty('X-Signature')
-      expect(typeof result.headers['X-Signature']).toBe('string')
+      expect(result?.headers).toHaveProperty('X-Signature')
+      expect(typeof result?.headers?.['X-Signature']).toBe('string')
     })
 
     it('should return empty object when payload has no data field', () => {
