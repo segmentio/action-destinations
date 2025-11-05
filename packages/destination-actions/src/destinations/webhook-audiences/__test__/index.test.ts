@@ -99,6 +99,32 @@ describe('Webhook Audience Tests', () => {
         })
       ).rejects.toThrow()
     })
+
+    it('should fail when extras contains invalid JSON', async () => {
+      const fakeUrl = 'http://segmentfake.xyz'
+      await expect(
+        testDestination.createAudience({
+          audienceName: 'My Cool Audience',
+          audienceSettings: {
+            extras: 'not valid json{'
+          },
+          settings: { createAudienceUrl: fakeUrl }
+        })
+      ).rejects.toThrow(/Invalid extraSettings JSON/)
+    })
+
+    it('should handle missing externalId with proper error wrapping', async () => {
+      const fakeUrl = 'http://segmentfake.xyz'
+      nock(fakeUrl).post('/').reply(200, { someOtherField: 'value' })
+
+      await expect(
+        testDestination.createAudience({
+          audienceName: 'My Cool Audience',
+          audienceSettings: {},
+          settings: { createAudienceUrl: fakeUrl }
+        })
+      ).rejects.toThrow(/Invalid response from create audience request/)
+    })
   })
 
   describe('getAudience', () => {
@@ -181,6 +207,32 @@ describe('Webhook Audience Tests', () => {
           audienceSettings: {}
         })
       ).rejects.toThrow()
+    })
+
+    it('should fail when extras contains invalid JSON', async () => {
+      const fakeUrl = 'http://segmentfake.xyz'
+      await expect(
+        testDestination.getAudience({
+          externalId: 'abc123xyz',
+          settings: { getAudienceUrl: fakeUrl },
+          audienceSettings: {
+            extras: 'not valid json{'
+          }
+        })
+      ).rejects.toThrow(/Invalid extraSettings JSON/)
+    })
+
+    it('should handle missing externalId with proper error wrapping', async () => {
+      const fakeUrl = 'http://segmentfake.xyz'
+      nock(fakeUrl).post('/').reply(200, { someOtherField: 'value' })
+
+      await expect(
+        testDestination.getAudience({
+          externalId: 'abc123xyz',
+          settings: { getAudienceUrl: fakeUrl },
+          audienceSettings: {}
+        })
+      ).rejects.toThrow(/Invalid response from get audience request/)
     })
   })
 
