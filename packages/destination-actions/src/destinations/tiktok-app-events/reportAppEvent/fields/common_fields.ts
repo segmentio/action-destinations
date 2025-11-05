@@ -87,28 +87,23 @@ export const common_fields: Record<string, InputField> = {
     type: 'object',
     description: 'Information about the mobile app where the event took place. This field is an allowlist-only feature. If you would like to access it, please contact your TikTok representative.',
     defaultObjectUI: 'keyvalue',
+    required: true,
     properties: {
       app_id: {
         label: 'Mobile App ID',
         description: 'For iOS Apps use the app ID found in the App Store URL. For Android Apps in the Google Play store, use the app ID found in the Google Play store URL. For Android Apps not in the Google Play store, use the package name.',
         type: 'string',
-
+        required: true
       },
       app_name: {
         label: 'App Name',
         description: 'The name of the mobile app.',
-        type: 'string',
-        default: {
-          '@path': '$.context.app.name'
-        }
+        type: 'string'
       },
       app_version: {
         label: 'App Version',
         description: 'The version of the mobile app.',
-        type: 'string',
-        default: {
-          '@path': '$.context.app.version'
-        }
+        type: 'string'
       }
     },
     default: {
@@ -169,6 +164,20 @@ export const common_fields: Record<string, InputField> = {
         description: 'Attribution provider.',
         type: 'string'
       }
+    }, 
+    default: {
+      campaign_id: {
+        '@path': '$.properties.campaign.name'
+      },
+      ad_id: {
+        '@path': '$.properties.campaign.ad_group'
+      },
+      creative_id: {
+        '@path': '$.properties.campaign.ad_creative'
+      },
+      attribution_provider: {
+        '@path': '$.properties.provider'
+      }
     }
   },
   device_details: {
@@ -191,6 +200,11 @@ export const common_fields: Record<string, InputField> = {
         description: 'The operating system version of the device.',
         type: 'string'
       },
+      ad_tracking_enabled: {
+        label: 'Ad Tracking Enabled',
+        description: 'Indicates whether the user has limited ad tracking on their device.',
+        type: 'boolean'
+      }
     },
     default: {
       device_type: {
@@ -201,6 +215,9 @@ export const common_fields: Record<string, InputField> = {
       },
       device_version: {
         '@path': '$.context.device.version'
+      },
+      ad_tracking_enabled: {
+        '@path': '$.context.device.adTrackingEnabled'
       }
     }
   },
@@ -229,7 +246,7 @@ export const common_fields: Record<string, InputField> = {
   },
   att_status: {
     label: 'App Tracking Transparency Status',
-    description: "The App Tracking Transparency (ATT) status of the user on iOS devices. This field is required when sending events from iOS 14.5+ devices but should be set to 'Not Applicable' if the iOS version is below 14 or the device is running Android.",
+    description: "The App Tracking Transparency (ATT) status of the user on iOS devices. This field is required when sending events from iOS 14.5+ devices but should be set to 'Not Applicable' if the iOS version is below 14 or the device is running Android. Selecting AUTO will allow Segment to determine the value to send based on Mobile platform, version, and ad tracking settings.",
     type: 'string',
     required: true,
     choices: [
@@ -237,9 +254,10 @@ export const common_fields: Record<string, InputField> = {
       { label: 'Denied', value: 'DENIED' },
       { label: 'Not Determined', value: 'NOT_DETERMINED' },
       { label: 'Restricted', value: 'RESTRICTED' },
-      { label: 'Not Applicable', value: 'NOT_APPLICABLE' }
+      { label: 'Not Applicable', value: 'NOT_APPLICABLE' },
+      { label: 'AUTO', value: 'AUTO' }
     ],
-    default: 'NOT_DETERMINED'
+    default: 'AUTO'
   },
   ip: {
     label: 'IP Address',

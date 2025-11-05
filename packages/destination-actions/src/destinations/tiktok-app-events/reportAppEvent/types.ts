@@ -3,7 +3,7 @@ import { APP_STATUS } from '../constants'
 export interface TTJSON {
   event_source: string
   event_source_id: string
-  partner_name: string
+  partner_name: 'Segment'
   test_event_code?: string
   data: TTDataItem[]
 }
@@ -20,9 +20,9 @@ interface TTDataItem {
 }
 
 export interface TTUser {
-  external_id: string[]
-  phone: string[]
-  email: string[]
+  external_id?: string[]
+  phone?: string[]
+  email?: string[]
   idfa?: string
   idfv?: string
   ip?: string
@@ -34,7 +34,7 @@ export interface TTUser {
 export type AppStatus = typeof APP_STATUS[keyof typeof APP_STATUS]
 
 export interface TTApp {
-  app_id?: string,
+  app_id: string,
   app_name?: string,
   app_version?: string
 }

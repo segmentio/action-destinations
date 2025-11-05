@@ -68,9 +68,9 @@ function getUser(payload: Payload): TTUser {
   const idfa = getIDFA(payload)
 
   const requestUser: TTUser = {
-    external_id: userIds,
-    phone: phone_numbers,
-    email: emails,
+    ...(userIds && userIds.length > 0 ? { external_id: userIds } : {}), // Jae to check if external ids are supported with app events
+    ...(phone_numbers && phone_numbers.length > 0 ? { phone: phone_numbers } : {}),
+    ...(emails && emails.length > 0 ? { email: emails } : {}),
     ...(idfa ? { idfa } : {}),
     ...(gaid ? { gaid } : {}),
     ...(device_id && device_type === 'iOS' ? { idfv: device_id } : {}),
@@ -153,20 +153,28 @@ function getATTStatus(payload: Payload): AppStatus {
     att_status, 
     device_details: {
       device_type,
-      device_version
+      device_version,
+      ad_tracking_enabled
     } = {}
   } = payload
 
-  if(device_type !== 'iOS') {
-    return 'NOT_APPLICABLE'
-  } 
-  else {
-    if(device_version && isVersionLower(device_version, '14.0.0')) {
-      return 'NOT_APPLICABLE'      
+  if(att_status === 'AUTO') {
+    if(device_type !== 'iOS') {
+      return 'NOT_APPLICABLE'
+    } 
+    else {
+      if(device_version && isVersionLower(device_version, '14.0.0')) {
+        return 'NOT_APPLICABLE'      
+      }
     }
+    if(typeof ad_tracking_enabled === 'boolean') {
+      return ad_tracking_enabled ? 'AUTHORIZED' : 'DENIED'
+    }
+    return 'NOT_DETERMINED'
   }
-
-  return att_status as AppStatus
+  else {
+    return att_status as AppStatus
+  }
 }
 
 function getApp(payload: Payload): TTApp {
@@ -177,7 +185,7 @@ function getApp(payload: Payload): TTApp {
   } = payload.app || {}
 
   const app: TTApp = {
-    ...(app_id ? { app_id } : {}),
+    app_id,
     ...(app_name ? { app_name } : {}),
     ...(app_version ? { app_version } : {})
   }

@@ -36,11 +36,11 @@ export interface Payload {
   /**
    * Information about the mobile app where the event took place. This field is an allowlist-only feature. If you would like to access it, please contact your TikTok representative.
    */
-  app?: {
+  app: {
     /**
      * For iOS Apps use the app ID found in the App Store URL. For Android Apps in the Google Play store, use the app ID found in the Google Play store URL. For Android Apps not in the Google Play store, use the package name.
      */
-    app_id?: string
+    app_id: string
     /**
      * The name of the mobile app.
      */
@@ -103,6 +103,8 @@ export interface Payload {
      * The operating system version of the device.
      */
     device_version?: string
+
+    ad_tracking_enabled?: boolean 
   }
   /**
    * Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok. TikTok Conversions Destination supports both string and string[] types for sending external ID(s).
