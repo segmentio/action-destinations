@@ -125,6 +125,31 @@ describe('Webhook Audience Tests', () => {
         })
       ).rejects.toThrow(/Invalid response from create audience request/)
     })
+
+    it('should work when audienceSettings is undefined', async () => {
+      const fakeUrl = 'http://segmentfake.xyz'
+      nock(fakeUrl).post('/').reply(200, { externalId: 'abc123' })
+
+      const result = await testDestination.createAudience({
+        audienceName: 'My Cool Audience',
+        settings: { createAudienceUrl: fakeUrl }
+      })
+
+      expect(result).toEqual({ externalId: 'abc123' })
+    })
+
+    it('should work when extras is empty string', async () => {
+      const fakeUrl = 'http://segmentfake.xyz'
+      nock(fakeUrl).post('/').reply(200, { externalId: 'abc123' })
+
+      const result = await testDestination.createAudience({
+        audienceName: 'My Cool Audience',
+        audienceSettings: { extras: '' },
+        settings: { createAudienceUrl: fakeUrl }
+      })
+
+      expect(result).toEqual({ externalId: 'abc123' })
+    })
   })
 
   describe('getAudience', () => {
@@ -234,6 +259,31 @@ describe('Webhook Audience Tests', () => {
         })
       ).rejects.toThrow(/Invalid response from get audience request/)
     })
+
+    it('should work when audienceSettings is undefined', async () => {
+      const fakeUrl = 'http://segmentfake.xyz'
+      nock(fakeUrl).post('/').reply(200, { externalId: 'abc123' })
+
+      const result = await testDestination.getAudience({
+        externalId: 'abc123',
+        settings: { getAudienceUrl: fakeUrl }
+      })
+
+      expect(result).toEqual({ externalId: 'abc123' })
+    })
+
+    it('should work when extras is empty string', async () => {
+      const fakeUrl = 'http://segmentfake.xyz'
+      nock(fakeUrl).post('/').reply(200, { externalId: 'abc123' })
+
+      const result = await testDestination.getAudience({
+        externalId: 'abc123',
+        audienceSettings: { extras: '' },
+        settings: { getAudienceUrl: fakeUrl }
+      })
+
+      expect(result).toEqual({ externalId: 'abc123' })
+    })
   })
 
   it('send through audience extra settings', async () => {
@@ -264,5 +314,54 @@ describe('Webhook Audience Tests', () => {
     const response = responses[0]
     const json = await response.json()
     expect(json['nice']).toBe('ok')
+  })
+
+  describe('extendRequest', () => {
+    it('should return empty object when payload is undefined', () => {
+      const result = testDestination.extendRequest?.({
+        settings: { sharedSecret: 'secret' },
+        payload: undefined
+      })
+      expect(result).toEqual({})
+    })
+
+    it('should return empty object when no sharedSecret is provided', () => {
+      const result = testDestination.extendRequest?.({
+        settings: {},
+        payload: { data: { test: 'value' } }
+      })
+      expect(result).toEqual({})
+    })
+
+    it('should generate X-Signature header with sharedSecret and single payload', () => {
+      const payload = { data: { test: 'value' } }
+      const result = testDestination.extendRequest?.({
+        settings: { sharedSecret: 'secret' },
+        payload
+      })
+      expect(result).toHaveProperty('headers')
+      expect(result.headers).toHaveProperty('X-Signature')
+      expect(typeof result.headers['X-Signature']).toBe('string')
+    })
+
+    it('should generate X-Signature header with sharedSecret and array payload', () => {
+      const payload = [{ data: { test: 'value' } }]
+      const result = testDestination.extendRequest?.({
+        settings: { sharedSecret: 'secret' },
+        payload
+      })
+      expect(result).toHaveProperty('headers')
+      expect(result.headers).toHaveProperty('X-Signature')
+      expect(typeof result.headers['X-Signature']).toBe('string')
+    })
+
+    it('should return empty object when payload has no data field', () => {
+      const payload = { something: 'else' }
+      const result = testDestination.extendRequest?.({
+        settings: { sharedSecret: 'secret' },
+        payload
+      })
+      expect(result).toEqual({})
+    })
   })
 })
