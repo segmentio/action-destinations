@@ -8,7 +8,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "group"',
   platform: 'cloud',
   fields: {
-    userId: {
+    user_id: {
       type: 'string',
       required: true,
       description: "The user's id",
@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-    anonymousId: {
+    anonymous_id: {
       type: 'string',
       required: false,
       description: 'An anonymous id',
@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.anonymousId'
       }
     },
-    groupId: {
+    group_id: {
       type: 'string',
       required: true,
       description: 'The group id',
@@ -50,18 +50,18 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    const { userId, anonymousId, groupId, traits, timestamp } = payload
+    const { user_id, anonymous_id, group_id, traits, timestamp } = payload
 
-    if (!userId && !anonymousId) {
+    if (!user_id && !anonymous_id) {
       throw new PayloadValidationError("'User ID' or 'Anonymous ID' is required")
     }
 
     return request(`https://integrations.survicate.com/endpoint/segment/group`, {
       method: 'post',
       json: {
-        ...(userId ? { userId } : {}),
-        ...(anonymousId ? { anonymousId } : {}),
-        groupId,
+        ...(user_id ? { user_id } : {}),
+        ...(anonymous_id ? { anonymous_id } : {}),
+        group_id,
         traits: Object.fromEntries(Object.entries(traits).map(([key, value]) => [`group_${key}`, value])),
         timestamp
       }

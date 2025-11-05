@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your Survicate API key
+   * Your Destination Key
    */
   apiKey: string
 }
