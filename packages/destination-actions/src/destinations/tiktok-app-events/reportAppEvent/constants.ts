@@ -1,9 +1,0 @@
-export const APP = 'app' 
-
-export const APP_STATUS = {
-    AUTHORIZED: 'AUTHORIZED',
-    DENIED: 'DENIED',
-    NOT_DETERMINED: 'NOT_DETERMINED',
-    RESTRICTED: 'RESTRICTED',
-    NOT_APPLICABLE: 'NOT_APPLICABLE'
-} as const 

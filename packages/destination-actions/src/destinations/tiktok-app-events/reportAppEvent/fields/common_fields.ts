@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core'
-import { APP } from '../constants'
+import { APP, APP_STANDARD_EVENT_NAMES } from '../../constants'
 
 export const common_fields: Record<string, InputField> = {
   event_source: {
@@ -27,7 +27,7 @@ export const common_fields: Record<string, InputField> = {
     type: 'string',
     required: true,
     description:
-      'Conversion event name. Please refer to the "Supported Web Events" section on in TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.'
+      'Conversion event name. Please refer to the "App Standard Events" section on in TikTok’s [Supported events documentation](https://business-api.tiktok.com/portal/docs?id=1771101186666498) for accepted event names.'
   },
   event_id: {
     label: 'Event ID',
@@ -272,7 +272,17 @@ export const common_fields: Record<string, InputField> = {
       quantity: {
         label: 'Quantity',
         description: 'Number of items.',
-        type: 'number'
+        type: 'number',
+        required: {
+          match: 'any',
+          conditions: [
+            {
+                fieldKey: 'event',
+                operator: 'is',
+                value: APP_STANDARD_EVENT_NAMES.PURCHASE
+            }
+          ]
+        }
       },
       content_category: {
         label: 'Content Category',
@@ -282,7 +292,37 @@ export const common_fields: Record<string, InputField> = {
       content_id: {
         label: 'Content ID',
         description: 'ID of the product item.',
-        type: 'string'
+        type: 'string',
+        required: {
+          match: 'any',
+          conditions: [
+            {
+                fieldKey: 'event',
+                operator: 'is',
+                value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
+            },
+            {
+                fieldKey: 'event',
+                operator: 'is',
+                value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
+            },
+            {
+                fieldKey: 'event',
+                operator: 'is',
+                value: APP_STANDARD_EVENT_NAMES.CHECKOUT
+            },
+              {
+                fieldKey: 'event',
+                operator: 'is',
+                value: APP_STANDARD_EVENT_NAMES.PURCHASE
+            },
+            {
+                fieldKey: 'event',
+                operator: 'is',
+                value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
+            }
+          ]
+        }
       },
       content_name: {
         label: 'Content Name',
@@ -294,6 +334,36 @@ export const common_fields: Record<string, InputField> = {
         description: 'Brand name of the product item.',
         type: 'string'
       }
+    },
+    required: {
+      match: 'any',
+      conditions: [
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.CHECKOUT
+        },
+          {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.PURCHASE
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
+        }
+      ]
     }
   },
   content_ids: {
@@ -323,7 +393,37 @@ export const common_fields: Record<string, InputField> = {
       { label: 'product', value: 'product' },
       { label: 'product_group', value: 'product_group' }
     ],
-    default: 'product'
+    default: 'product',
+    required: {
+      match: 'any',
+      conditions: [
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.CHECKOUT
+        },
+          {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.PURCHASE
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
+        }
+      ]
+    }
   },
   currency: {
     label: 'Currency',
@@ -331,6 +431,36 @@ export const common_fields: Record<string, InputField> = {
     description: 'Currency for the value specified as ISO 4217 code.',
     default: {
       '@path': '$.properties.currency'
+    },
+    required: {
+      match: 'any',
+      conditions: [
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.CHECKOUT
+        },
+          {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.PURCHASE
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
+        }
+      ]
     }
   },
   value: {
@@ -343,12 +473,67 @@ export const common_fields: Record<string, InputField> = {
         then: { '@path': '$.properties.value' },
         else: { '@path': '$.properties.revenue' }
       }
+    },
+    required: {
+      match: 'any',
+      conditions: [
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.CHECKOUT
+        },
+          {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.PURCHASE
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
+        }
+      ]
     }
   },
   description: {
     label: 'Description',
     type: 'string',
-    description: 'A string description of the item or page.'
+    description: 'A string description of the item or page.',
+    required: {
+      match: 'any',
+      conditions: [
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.PURCHASE
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
+        }
+      ]
+    }
   },
   limited_data_use: {
     label: 'Limited Data Use',
