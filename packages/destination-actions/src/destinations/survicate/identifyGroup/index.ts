@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     user_id: {
       type: 'string',
-      required: true,
+      required: false,
       description: "The user's id",
       label: 'User ID',
       default: {
