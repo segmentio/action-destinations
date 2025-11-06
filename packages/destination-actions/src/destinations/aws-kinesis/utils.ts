@@ -12,16 +12,12 @@ export const validateIamRoleArnFormat = (arn: string): boolean => {
   return iamRoleArnRegex.test(arn)
 }
 
-export const sendDataToKinesis = async (
+export const send = async (
   settings: Settings,
   payloads: Payload[],
   _statsContext: StatsContext | undefined,
   logger: Logger | undefined
 ): Promise<void> => {
-  // transform and send
-  if (!Array.isArray(payloads) || payloads.length === 0) {
-    throw new Error('payloads must be a non-empty array')
-  }
 
   const streamToAwsRegion: Map<string, string> = new Map<string, string>()
   const streamToPayloads = new Map<string, Payload[][]>() // array of batches
@@ -42,8 +38,10 @@ export const populatePayload = (
   streamToAwsRegion: Map<string, string>,
   streamToPayloads = new Map<string, Payload[][]>()
 ): void => {
+  
+  const { awsRegion, streamName } = payloads
+  
   payloads.forEach((payload) => {
-    const { streamName, awsRegion } = payload
 
     if (!streamToAwsRegion.get(streamName)) {
       streamToAwsRegion.set(streamName, awsRegion)
