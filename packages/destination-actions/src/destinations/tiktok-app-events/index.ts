@@ -26,7 +26,7 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request ) => {
+    testAuthentication: (_ ) => {
       // // Return a request that tests/validates the user's credentials.
       // // Send a blank event to events API.
       // return request('https://business-api.tiktok.com/open_api/v1.3/pixel/track/', {

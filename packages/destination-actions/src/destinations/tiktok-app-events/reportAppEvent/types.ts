@@ -1,4 +1,4 @@
-import { APP_STATUS } from '../constants'
+import { APP_STATUS } from './constants'
 
 export interface TTJSON {
   event_source: string

@@ -1,5 +1,6 @@
 import { InputField } from '@segment/actions-core'
-import { APP, APP_STANDARD_EVENT_NAMES } from '../../constants'
+import { APP_STANDARD_EVENT_NAMES } from '../../presets'
+import { APP, APP_STATUS } from '../constants'
 
 export const common_fields: Record<string, InputField> = {
   event_source: {
@@ -250,14 +251,14 @@ export const common_fields: Record<string, InputField> = {
     type: 'string',
     required: true,
     choices: [
-      { label: 'Authorized', value: 'AUTHORIZED' },
-      { label: 'Denied', value: 'DENIED' },
-      { label: 'Not Determined', value: 'NOT_DETERMINED' },
-      { label: 'Restricted', value: 'RESTRICTED' },
-      { label: 'Not Applicable', value: 'NOT_APPLICABLE' },
-      { label: 'AUTO', value: 'AUTO' }
+      { label: APP_STATUS.AUTHORIZED, value: APP_STATUS.AUTHORIZED },
+      { label: APP_STATUS.DENIED , value: APP_STATUS.DENIED },
+      { label: APP_STATUS.NOT_DETERMINED, value: APP_STATUS.NOT_DETERMINED },
+      { label: APP_STATUS.RESTRICTED, value: APP_STATUS.RESTRICTED },
+      { label: APP_STATUS.NOT_APPLICABLE, value: APP_STATUS.NOT_APPLICABLE },
+      { label: APP_STATUS.AUTO, value: APP_STATUS.AUTO }
     ],
-    default: 'AUTO'
+    default: APP_STATUS.AUTO
   },
   ip: {
     label: 'IP Address',

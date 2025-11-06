@@ -2,6 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { formatEmails, formatPhones, formatUserIds, formatIDFA } from './formatter'
 import { TTJSON, TTBaseProps, TTUser, TTApp, TTAd, AppStatus } from './types'
+import { APP_STATUS } from './constants'
 
 export function send(request: RequestClient, payload: Payload) {
   const {
@@ -83,6 +84,35 @@ function getUser(payload: Payload): TTUser {
   return requestUser
 }
 
+function getATTStatus(payload: Payload): AppStatus {
+  const { 
+    att_status, 
+    device_details: {
+      device_type,
+      device_version,
+      ad_tracking_enabled
+    } = {}
+  } = payload
+
+  if(att_status === 'AUTO') {
+    if(device_type !== 'iOS') {
+      return APP_STATUS.NOT_APPLICABLE
+    } 
+    else {
+      if(device_version && isVersionLower(device_version, '14.0.0')) {
+        return APP_STATUS.NOT_APPLICABLE      
+      }
+    }
+    if(typeof ad_tracking_enabled === 'boolean') {
+      return ad_tracking_enabled ? APP_STATUS.AUTHORIZED : APP_STATUS.DENIED
+    }
+    return APP_STATUS.NOT_DETERMINED
+  }
+  else {
+    return att_status as AppStatus
+  }
+}
+
 function getIDFA(payload: Payload): string | undefined {
   const { 
     advertising_id,
@@ -146,35 +176,6 @@ function getProps(payload: Payload): TTBaseProps {
   }
 
   return requestProperties
-}
-
-function getATTStatus(payload: Payload): AppStatus {
-  const { 
-    att_status, 
-    device_details: {
-      device_type,
-      device_version,
-      ad_tracking_enabled
-    } = {}
-  } = payload
-
-  if(att_status === 'AUTO') {
-    if(device_type !== 'iOS') {
-      return 'NOT_APPLICABLE'
-    } 
-    else {
-      if(device_version && isVersionLower(device_version, '14.0.0')) {
-        return 'NOT_APPLICABLE'      
-      }
-    }
-    if(typeof ad_tracking_enabled === 'boolean') {
-      return ad_tracking_enabled ? 'AUTHORIZED' : 'DENIED'
-    }
-    return 'NOT_DETERMINED'
-  }
-  else {
-    return att_status as AppStatus
-  }
 }
 
 function getApp(payload: Payload): TTApp {
