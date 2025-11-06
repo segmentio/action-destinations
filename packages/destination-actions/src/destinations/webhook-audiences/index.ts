@@ -36,8 +36,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceFields: {
     extras: {
       type: 'string',
-      label: `Extra json fields to pass on to every request.  Note: "${externalIdKey}" and "${audienceNameKey}" are reserved.`,
-      description: `Extra json fields to pass on to every request. Note: "${externalIdKey}" and "${audienceNameKey}" are reserved.`
+      label: `Extra JSON fields to pass on to every request (as a JSON string)`,
+      description: `Extra JSON fields to pass on to every request. This must be a valid JSON string (e.g., "{\\"hello\\": \\"world\\", \\"foo\\": \\"bar\\"}"). The JSON will be parsed and merged into each request payload. Note: "${externalIdKey}" and "${audienceNameKey}" are reserved keys and cannot be used.`
     }
   },
   audienceConfig: {
@@ -67,10 +67,19 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         jsonOutput = await response.json()
 
         if (!jsonOutput[externalIdKey]) {
-          throw new IntegrationError(`Missing ${externalIdKey} in response`, 'INVALID_RESPONSE', 400)
+          throw new IntegrationError(
+            `Missing ${externalIdKey} in response (status: ${response.status})`,
+            'INVALID_RESPONSE',
+            400
+          )
         }
-      } catch {
-        throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        throw new IntegrationError(
+          `Invalid response from get audience request (status: ${response.status}): ${errorMessage}`,
+          'INVALID_RESPONSE',
+          400
+        )
       }
 
       return {
@@ -98,9 +107,25 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         }
       })
 
-      const jsonOutput = await response.json()
-      if (!jsonOutput[externalIdKey]) {
-        throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
+      let jsonOutput
+
+      try {
+        jsonOutput = await response.json()
+
+        if (!jsonOutput[externalIdKey]) {
+          throw new IntegrationError(
+            `Missing ${externalIdKey} in response (status: ${response.status})`,
+            'INVALID_RESPONSE',
+            400
+          )
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        throw new IntegrationError(
+          `Invalid response from create audience request (status: ${response.status}): ${errorMessage}`,
+          'INVALID_RESPONSE',
+          400
+        )
       }
 
       return {

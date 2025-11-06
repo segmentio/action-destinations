@@ -1,9 +1,16 @@
-import { PayloadValidationError, RequestTimeoutError } from '@segment/actions-core'
+import {
+  PayloadValidationError,
+  RequestTimeoutError,
+  Logger,
+  IntegrationError,
+  DEFAULT_REQUEST_TIMEOUT
+} from '@segment/actions-core'
 import path from 'path'
 import Client from 'ssh2-sftp-client'
-import { SFTP_DEFAULT_PORT } from './constants'
+import { SFTP_DEFAULT_PORT, UploadStrategy } from './constants'
 import { Settings } from './generated-types'
 import { sftpConnectionConfig } from './types'
+import { SFTPWrapper } from './sftp-wrapper'
 
 enum SFTPErrorCode {
   NO_SUCH_FILE = 2
@@ -20,6 +27,9 @@ interface SFTPError extends Error {
  * @param sftpFolderPath - The target folder path on the SFTP server.
  * @param filename - The name of the file to upload.
  * @param fileContent - The content of the file to upload as a Buffer.
+ * @param uploadStrategy - The upload strategy to use (standard or concurrent).
+ * @param logger - Optional logger for logging messages.
+ * @param signal - Optional AbortSignal to handle request cancellation.
  * @returns A promise that resolves when the file is successfully uploaded.
  */
 async function uploadSFTP(
@@ -27,62 +37,36 @@ async function uploadSFTP(
   sftpFolderPath: string,
   filename: string,
   fileContent: Buffer,
+  logger?: Logger,
   signal?: AbortSignal
 ) {
-  const sftp = new Client()
-  return executeSFTPOperation(
-    sftp,
-    settings,
-    sftpFolderPath,
-    async (sftp) => {
-      const targetPath = path.join(sftpFolderPath, filename)
-      return sftp.put(fileContent, targetPath)
-    },
-    signal
-  )
-}
+  const sftp = new SFTPWrapper('uploadSFTP', logger)
 
-async function executeSFTPOperation(
-  sftp: Client,
-  settings: Settings,
-  sftpFolderPath: string,
-  action: { (sftp: Client): Promise<unknown> },
-  signal?: AbortSignal
-) {
-  const connectionConfig = createConnectionConfig(settings)
-  await sftp.connect(connectionConfig)
-
-  const abortSFTP = async () => {
-    await sftp.end()
+  signal?.throwIfAborted() // exit early if already aborted
+  // Set up abort listener to clean up SFTP connection on abort
+  const abortListener = () => {
+    sftp.end().catch(() => {
+      logger?.warn('Failed to close SFTP connection')
+    })
     throw new RequestTimeoutError()
   }
+  signal?.addEventListener('abort', abortListener, { once: true })
 
-  if (signal) {
-    if (signal.aborted) {
-      await abortSFTP()
-    }
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    signal.addEventListener('abort', abortSFTP, { once: true })
-  }
-
-  let retVal
   try {
-    retVal = await action(sftp)
-  } catch (e: unknown) {
-    const sftpError = e as SFTPError
-    if (sftpError) {
-      if (sftpError.code === SFTPErrorCode.NO_SUCH_FILE) {
-        throw new PayloadValidationError(`Could not find path: ${sftpFolderPath}`)
-      }
+    await sftp.connect(createConnectionConfig(settings))
+    const remoteFilePath = path.posix.join(sftpFolderPath, filename)
+    if (settings.uploadStrategy === UploadStrategy.CONCURRENT) {
+      return await sftp.fastPutFromBuffer(fileContent, remoteFilePath)
+    } else {
+      return await sftp.put(fileContent, remoteFilePath)
     }
-    throw e
+  } catch (e) {
+    formatAndThrowError(e as Error, sftpFolderPath)
   } finally {
+    // Clean up the SFTP connection and abort listener
     await sftp.end()
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    signal?.removeEventListener('abort', abortSFTP)
+    signal?.removeEventListener('abort', abortListener)
   }
-
-  return retVal
 }
 
 function createConnectionConfig(settings: Settings): sftpConnectionConfig {
@@ -186,17 +170,37 @@ function normalizeSSHKey(key = ''): string {
  */
 async function testSFTPConnection(settings: Settings): Promise<unknown> {
   const sftp = new Client()
-  return executeSFTPOperation(
-    sftp,
-    settings,
-    '/',
-    async (sftp) => {
-      // Simply attempt to list the root directory to test connection
-      // This is a minimal operation that tests authentication and basic connectivity
-      return sftp.list('/')
-    },
-    AbortSignal.timeout(10000)
-  ) // 10 second timeout for test connection
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => {
+      reject(new RequestTimeoutError('SFTP connection timed out'))
+    }, DEFAULT_REQUEST_TIMEOUT)
+  })
+  // Throws if connection or listing fails
+  // Otherwise resolves with the list of files in the root directory
+  return Promise.race([timeoutPromise, connectAndList(sftp, settings)])
 }
 
-export { Client, executeSFTPOperation, normalizeSSHKey, testSFTPConnection, uploadSFTP }
+async function connectAndList(sftp: Client, settings: Settings): Promise<Client.FileInfo[]> {
+  let res: Client.FileInfo[]
+  try {
+    await sftp.connect(createConnectionConfig(settings))
+    res = await sftp.list('/')
+  } catch (e) {
+    formatAndThrowError(e as Error)
+  } finally {
+    await sftp.end()
+  }
+  return res
+}
+
+function formatAndThrowError(e: Error, path = '/'): never {
+  const sftpError = e as SFTPError
+  if (sftpError) {
+    if (sftpError.code === SFTPErrorCode.NO_SUCH_FILE) {
+      throw new PayloadValidationError(`Could not find path: ${path}`)
+    }
+  }
+  throw new IntegrationError(`SFTP Error: ${e.message || 'Unknown error'}`, 'SFTP_ERROR', 500)
+}
+
+export { normalizeSSHKey, testSFTPConnection, uploadSFTP }
