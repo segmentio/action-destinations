@@ -1,6 +1,45 @@
 import { InputField } from '@segment/actions-core'
-import { APP_STANDARD_EVENT_NAMES } from '../../presets'
 import { APP, APP_STATUS } from '../constants'
+
+export const PRODUCT_MAPPING_TYPE = {
+    MULTIPLE: 'MULTIPLE',
+    SINGLE: 'SINGLE',
+    NONE: 'NONE'
+}
+
+export const STANDARD_EVENTS = [
+  ['ACHIEVE_LEVEL', 'AchieveLevel', 'Achieve a level', 'Level Achieved', PRODUCT_MAPPING_TYPE.NONE],
+  ['ADD_PAYMENT_INFO', 'AddPaymentInfo', 'Add payment information', 'Payment Info Entered', PRODUCT_MAPPING_TYPE.NONE],
+  ['ADD_TO_CART', 'AddToCart', 'Add to cart', 'Product Added', PRODUCT_MAPPING_TYPE.SINGLE],
+  ['ADD_TO_WISHLIST', 'AddToWishlist', 'Add to wishlist', 'Product Added to Wishlist', PRODUCT_MAPPING_TYPE.SINGLE],
+  ['CHECKOUT', 'Checkout', 'Place an order', 'Checkout Started', PRODUCT_MAPPING_TYPE.MULTIPLE],
+  ['COMPLETE_TUTORIAL', 'CompleteTutorial', 'Complete the tutorial', 'Tutorial Completed', PRODUCT_MAPPING_TYPE.NONE],
+  ['CREATE_GROUP', 'CreateGroup', 'Create a group', 'Group Created', PRODUCT_MAPPING_TYPE.NONE],
+  ['CREATE_ROLE', 'CreateRole', 'Create a role', 'Role Created', PRODUCT_MAPPING_TYPE.NONE],
+  ['GENERATE_LEAD', 'GenerateLead', 'Generate a lead', 'Lead Generated', PRODUCT_MAPPING_TYPE.NONE],
+  ['IN_APP_AD_CLICK', 'InAppADClick', 'In-app ad click', 'Application Ad Clicked', PRODUCT_MAPPING_TYPE.NONE],
+  ['IN_APP_AD_IMPR', 'InAppADImpr', 'In-app ad impression', 'Application Ad Served', PRODUCT_MAPPING_TYPE.NONE],
+  ['INSTALL_APP', 'InstallApp', 'Install the app', 'Application Installed', PRODUCT_MAPPING_TYPE.NONE],
+  ['JOIN_GROUP', 'JoinGroup', 'Join a group', 'Group Joined', PRODUCT_MAPPING_TYPE.NONE],
+  ['LAUNCH_APP', 'LaunchAPP', 'Launch the app', 'Application Opened', PRODUCT_MAPPING_TYPE.NONE],
+  ['LOAN_APPLICATION', 'LoanApplication', 'Apply for a loan', 'Loan Application Submitted', PRODUCT_MAPPING_TYPE.NONE],
+  ['LOAN_APPROVAL', 'LoanApproval', 'Loan is approved', 'Loan Approved', PRODUCT_MAPPING_TYPE.NONE],
+  ['LOAN_DISBURSAL', 'LoanDisbursal', 'Loan is disbursed', 'Loan Disbursed', PRODUCT_MAPPING_TYPE.NONE],
+  ['LOGIN', 'Login', 'Log in successfully', 'Signed In', PRODUCT_MAPPING_TYPE.NONE],
+  ['PURCHASE', 'Purchase', 'Complete payment', 'Order Completed', PRODUCT_MAPPING_TYPE.MULTIPLE],
+  ['RATE', 'Rate', 'Rate', 'Rating Completed', PRODUCT_MAPPING_TYPE.NONE],
+  ['REGISTRATION', 'Registration', 'Complete the registration', 'Signed Up', PRODUCT_MAPPING_TYPE.NONE],
+  ['SEARCH', 'Search', 'Search', 'Products Searched', PRODUCT_MAPPING_TYPE.NONE],
+  ['SPEND_CREDITS', 'SpendCredits', 'Spend credits', 'Credits Spent', PRODUCT_MAPPING_TYPE.NONE],
+  ['START_TRIAL', 'StartTrial', 'Start the trial', 'Trial Started', PRODUCT_MAPPING_TYPE.NONE],
+  ['SUBSCRIBE', 'Subscribe', 'Subscribe', 'User Subscribed', PRODUCT_MAPPING_TYPE.NONE],
+  ['UNLOCK_ACHIEVEMENT', 'UnlockAchievement', 'Unlock an achievement', 'Achievement Unlocked', PRODUCT_MAPPING_TYPE.NONE],
+  ['VIEW_CONTENT', 'ViewContent', 'View details', 'Product Viewed', PRODUCT_MAPPING_TYPE.SINGLE]
+] as const
+
+const APP_STANDARD_EVENT_NAMES = Object.fromEntries(
+  STANDARD_EVENTS.map(([constantKey, standardEventName, ,]) => [constantKey, standardEventName])
+)
 
 export const common_fields: Record<string, InputField> = {
   event_source: {
@@ -16,12 +55,6 @@ export const common_fields: Record<string, InputField> = {
         label: 'The events took place on a Mobile App.'
       }
     ]
-  },
-  tiktok_app_id: {
-    label: 'TikTok App ID',
-    type: 'string',
-    required: true,
-    description: 'Your TikTok App ID. Please see TikTok’s [Events API documentation](TODO) for information on how to find this value.'
   },
   event: {
     label: 'Event Name',
@@ -184,6 +217,7 @@ export const common_fields: Record<string, InputField> = {
   device_details: {
     label: 'Device Details',
     type: 'object',
+    defaultObjectUI: 'keyvalue',
     description: 'Mobile device details.',
     properties: {
       device_type: {
@@ -215,7 +249,7 @@ export const common_fields: Record<string, InputField> = {
         '@path': '$.context.device.id'
       },
       device_version: {
-        '@path': '$.context.device.version'
+        '@path': '$.context.os.version'
       },
       ad_tracking_enabled: {
         '@path': '$.context.device.adTrackingEnabled'
@@ -311,37 +345,7 @@ export const common_fields: Record<string, InputField> = {
       content_id: {
         label: 'Content ID',
         description: 'ID of the product item.',
-        type: 'string',
-        required: {
-          match: 'any',
-          conditions: [
-            {
-                fieldKey: 'event',
-                operator: 'is',
-                value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
-            },
-            {
-                fieldKey: 'event',
-                operator: 'is',
-                value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
-            },
-            {
-                fieldKey: 'event',
-                operator: 'is',
-                value: APP_STANDARD_EVENT_NAMES.CHECKOUT
-            },
-              {
-                fieldKey: 'event',
-                operator: 'is',
-                value: APP_STANDARD_EVENT_NAMES.PURCHASE
-            },
-            {
-                fieldKey: 'event',
-                operator: 'is',
-                value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
-            }
-          ]
-        }
+        type: 'string'
       },
       content_name: {
         label: 'Content Name',
@@ -380,7 +384,7 @@ export const common_fields: Record<string, InputField> = {
         {
             fieldKey: 'event',
             operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
+            value: APP_STANDARD_EVENT_NAMES.SUBSCRIBE
         }
       ]
     }
@@ -527,32 +531,7 @@ export const common_fields: Record<string, InputField> = {
   description: {
     label: 'Description',
     type: 'string',
-    description: 'A string description of the item or page.',
-    required: {
-      match: 'any',
-      conditions: [
-        {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
-        },
-        {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
-        },
-        {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.PURCHASE
-        },
-        {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
-        }
-      ]
-    }
+    description: 'A string description of the item or page.'
   },
   limited_data_use: {
     label: 'Limited Data Use',

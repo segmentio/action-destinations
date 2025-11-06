@@ -1,19 +1,22 @@
-import { RequestClient } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import { Payload } from './generated-types'
+import { Settings } from '../generated-types'
 import { formatEmails, formatPhones, formatUserIds, formatIDFA } from './formatter'
 import { TTJSON, TTBaseProps, TTUser, TTApp, TTAd, AppStatus } from './types'
 import { APP_STATUS } from './constants'
+import { STANDARD_EVENTS, PRODUCT_MAPPING_TYPE } from '../reportAppEvent/fields/common_fields'
 
-export function send(request: RequestClient, payload: Payload) {
+export function send(request: RequestClient, payload: Payload, settings: Settings): Promise<unknown> {
   const {
     event_source,
-    tiktok_app_id,
     event,
     event_id,
     test_event_code,
     limited_data_use,
     timestamp
   } = payload
+
+  const { appID } = settings
 
   const user = getUser(payload)
   const properties = getProps(payload)
@@ -22,7 +25,7 @@ export function send(request: RequestClient, payload: Payload) {
  
   const requestJson: TTJSON = {
     event_source,
-    event_source_id: tiktok_app_id,
+    event_source_id: appID,
     partner_name: 'Segment',
     ...(test_event_code ? { test_event_code } : {}),
     data: [
@@ -40,6 +43,8 @@ export function send(request: RequestClient, payload: Payload) {
       }
     ]
   }
+
+  console.log(JSON.stringify(requestJson, null, 2))
 
   return request('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
     method: 'post',
@@ -74,7 +79,7 @@ function getUser(payload: Payload): TTUser {
     ...(emails && emails.length > 0 ? { email: emails } : {}),
     ...(idfa ? { idfa } : {}),
     ...(gaid ? { gaid } : {}),
-    ...(device_id && device_type === 'iOS' ? { idfv: device_id } : {}),
+    ...(device_id && device_type?.toLocaleLowerCase() === 'ios' ? { idfv: device_id } : {}),
     ...(attStatus ? { att_status: attStatus } : {}),
     ...(ip ? { ip } : {}),
     ...(user_agent ? { user_agent } : {}),
@@ -95,7 +100,7 @@ function getATTStatus(payload: Payload): AppStatus {
   } = payload
 
   if(att_status === 'AUTO') {
-    if(device_type !== 'iOS') {
+    if(device_type?.toLocaleLowerCase() !== 'ios') {
       return APP_STATUS.NOT_APPLICABLE
     } 
     else {
@@ -121,7 +126,7 @@ function getIDFA(payload: Payload): string | undefined {
     } = {}
   } = payload
 
-  if(device_type === 'iOS' && advertising_id) {
+  if(device_type?.toLocaleLowerCase() === 'ios' && advertising_id) {
     return formatIDFA(advertising_id)
   }
 
@@ -136,7 +141,7 @@ function getGAID(payload: Payload): string | undefined {
     } = {}
   } = payload
 
-  if(device_type === 'Android' && advertising_id) {
+  if(device_type?.toLocaleLowerCase() === 'android' && advertising_id) {
     return advertising_id.toLocaleLowerCase().trim()
   }
 
@@ -145,6 +150,7 @@ function getGAID(payload: Payload): string | undefined {
 
 function getProps(payload: Payload): TTBaseProps {
   const {
+    event,
     content_type,
     currency,
     value,
@@ -154,6 +160,19 @@ function getProps(payload: Payload): TTBaseProps {
     search_string,
     contents
   } = payload
+
+  if (
+    [
+      PRODUCT_MAPPING_TYPE.SINGLE, PRODUCT_MAPPING_TYPE.MULTIPLE].includes(
+      STANDARD_EVENTS.find(([ , standardEventName ]) => standardEventName === event)?.[4] || ""
+    )
+  ) {
+    contents?.forEach(content => {
+      if (!content.content_id) {
+        throw new PayloadValidationError(`content_id is required for event ${event}`);
+      }
+    })
+  }
 
   const requestProperties: TTBaseProps = {
     contents: contents
@@ -179,8 +198,9 @@ function getProps(payload: Payload): TTBaseProps {
 }
 
 function getApp(payload: Payload): TTApp {
+
   const { 
-    app_id, 
+    app_id,
     app_name, 
     app_version 
   } = payload.app || {}

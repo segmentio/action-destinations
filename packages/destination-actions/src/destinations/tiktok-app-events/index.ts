@@ -1,7 +1,52 @@
-import { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import reportAppEvent from './reportAppEvent'
-import { presets } from './presets'
+import { STANDARD_EVENTS, PRODUCT_MAPPING_TYPE } from './reportAppEvent/fields/common_fields'
+
+const productProperties = {
+  price: {
+    '@path': '$.price'
+  },
+  quantity: {
+    '@path': '$.quantity'
+  },
+  content_category: {
+    '@path': '$.category'
+  },
+  content_id: {
+    '@path': '$.product_id'
+  },
+  content_name: {
+    '@path': '$.name'
+  },
+  brand: {
+    '@path': '$.brand'
+  }
+}
+
+const singleProductContents = {
+  ...defaultValues(reportAppEvent.fields),
+  contents: {
+    '@arrayPath': [
+      '$.properties',
+      {
+        ...productProperties
+      }
+    ]
+  }
+}
+
+const multiProductContents = {
+  ...defaultValues(reportAppEvent.fields),
+  contents: {
+    '@arrayPath': [
+      '$.properties.products',
+      {
+        ...productProperties
+      }
+    ]
+  }
+}
 
 const destination: DestinationDefinition<Settings> = {
   name: 'TikTok App Events',
@@ -47,7 +92,23 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  presets,
+  presets: STANDARD_EVENTS.map(
+    ([, fieldValue, description, segmentEventName, productMappingType]) => ({
+      type: 'automatic',
+      partnerAction: 'reportAppEvent',
+      name: description,
+      subscribe: `event = "${segmentEventName}"`,
+      mapping: {
+        ...defaultValues(reportAppEvent.fields),
+        event: fieldValue,
+        ...(productMappingType === PRODUCT_MAPPING_TYPE.SINGLE
+        ? singleProductContents
+        : productMappingType === PRODUCT_MAPPING_TYPE.MULTIPLE
+        ? multiProductContents
+        : {})
+      }
+    })
+  ),
   actions: {
     reportAppEvent
   }

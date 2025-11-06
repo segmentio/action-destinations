@@ -6,11 +6,7 @@ export interface Payload {
    */
   event_source: string
   /**
-   * Your TikTok App ID. Please see TikTok’s [Events API documentation](TODO) for information on how to find this value.
-   */
-  tiktok_app_id: string
-  /**
-   * Conversion event name. Please refer to the "Supported Web Events" section on in TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.
+   * Conversion event name. Please refer to the "App Standard Events" section on in TikTok’s [Supported events documentation](https://business-api.tiktok.com/portal/docs?id=1771101186666498) for accepted event names.
    */
   event: string
   /**
@@ -103,8 +99,10 @@ export interface Payload {
      * The operating system version of the device.
      */
     device_version?: string
-
-    ad_tracking_enabled?: boolean 
+    /**
+     * Indicates whether the user has limited ad tracking on their device.
+     */
+    ad_tracking_enabled?: boolean
   }
   /**
    * Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok. TikTok Conversions Destination supports both string and string[] types for sending external ID(s).
@@ -115,7 +113,7 @@ export interface Payload {
    */
   locale?: string
   /**
-   * The App Tracking Transparency (ATT) status of the user on iOS devices. This field is required when sending events from iOS 14.5+ devices but should be set to 'Not Applicable' if the iOS version is below 14 or the device is running Android.
+   * The App Tracking Transparency (ATT) status of the user on iOS devices. This field is required when sending events from iOS 14.5+ devices but should be set to 'Not Applicable' if the iOS version is below 14 or the device is running Android. Selecting AUTO will allow Segment to determine the value to send based on Mobile platform, version, and ad tracking settings.
    */
   att_status: string
   /**

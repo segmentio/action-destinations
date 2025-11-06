@@ -11,8 +11,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     ...common_fields
   },
-  perform: (request, { payload }) => {
-    return send(request, payload)
+  perform: (request, { payload, settings }) => {
+    return send(request, payload, settings)
   }
 }
 
