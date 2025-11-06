@@ -7,6 +7,9 @@ import { APP_STATUS } from './constants'
 import { STANDARD_EVENTS, PRODUCT_MAPPING_TYPE } from '../reportAppEvent/fields/common_fields'
 
 export function send(request: RequestClient, payload: Payload, settings: Settings): Promise<unknown> {
+  
+    console.log(JSON.stringify(payload, null, 2))
+  
   const {
     event_source,
     event,
@@ -177,12 +180,12 @@ function getProps(payload: Payload): TTBaseProps {
   const requestProperties: TTBaseProps = {
     contents: contents
       ? contents.map(({ price, quantity, content_category, content_id, content_name, brand }) => ({
-          price: price ?? undefined,
-          quantity: quantity ?? undefined,
-          content_category: content_category ?? undefined,
-          content_id: content_id ?? undefined,
-          content_name: content_name ?? undefined,
-          brand: brand ?? undefined
+          ...(price ? { price } : {}),
+          ...(typeof quantity === 'number' ? { quantity } : {}),
+          ...(content_category ? { content_category } : {}),
+          ...(content_id ? { content_id } : {}),
+          ...(content_name ? { content_name } : {}),
+          ...(brand ? { brand } : {})
         }))
       : [],
     ...(content_type !== undefined && { content_type }),

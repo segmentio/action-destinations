@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 import reportAppEvent from './reportAppEvent'
 import { STANDARD_EVENTS, PRODUCT_MAPPING_TYPE } from './reportAppEvent/fields/common_fields'
 
-const productProperties = {
+export const productProperties = {
   price: {
     '@path': '$.price'
   },
