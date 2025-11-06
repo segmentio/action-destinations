@@ -16,7 +16,12 @@ const action: ActionDefinition<Settings, Payload> = {
     keys: { ...keys, required: true, dynamic: true },
     values: { ...values_dataExtensionFields, dynamic: true },
     enable_batching: enable_batching,
-    batch_size: batch_size
+    batch_size: {
+      ...batch_size,
+      default: 30000,
+      description: 'Maximum number of events to include in each batch for async operations. Defaults to 30000.',
+      unsafe_hidden: false
+    }
   },
   dynamicFields: {
     keys: {
