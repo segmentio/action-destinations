@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...batch_size,
       minimum: 10,
       default: 30000,
-      maximum: 30000,
+      maximum: 32000,
       description: 'Maximum number of events to include in each batch for async operations. Defaults to 30000.',
       unsafe_hidden: false
     }
