@@ -8,8 +8,7 @@ import sendCustomEvent from './sendCustomEvent'
 
 import dayjs from '../../lib/dayjs'
 
-
-export const API_URL = "https://api.converscience.com/events"
+export const API_URL = 'https://api.converscience.com/events'
 
 export function formatTimestampAsUnixSeconds(ISOTimestamp: string | number) {
   return dayjs.utc(ISOTimestamp).unix()
@@ -32,7 +31,7 @@ const destination: DestinationDefinition<Settings> = {
       client_secret: {
         label: 'Client Secret',
         description: 'Your Actable-supplied Client Secret.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

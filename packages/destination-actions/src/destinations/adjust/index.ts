@@ -25,13 +25,13 @@ const destination: DestinationDefinition<Settings> = {
       default_app_token: {
         label: 'Default App Token',
         description: 'The app token for your Adjust account. This can be overridden in the event mapping.',
-        type: 'string',
+        type: 'password',
         required: false
       },
       default_event_token: {
         label: 'Default Event Token',
         description: 'The default event token. This can be overridden in the event mapping.',
-        type: 'string',
+        type: 'password',
         required: false
       }
     }
