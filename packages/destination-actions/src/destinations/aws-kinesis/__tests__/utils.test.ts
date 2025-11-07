@@ -1,15 +1,9 @@
-import {
-  validateIamRoleArnFormat,
-  sendDataToKinesis,
-  populatePayload,
-  sendToKinesis,
-  sendBatchToKinesis
-} from '../utils'
+import { validateIamRoleArnFormat, send } from '../utils'
 import { Payload } from '../send/generated-types'
 import { KinesisClient, PutRecordsCommand } from '@aws-sdk/client-kinesis'
 import { assumeRole } from '../../../lib/AWS/sts'
-import * as utils from '../utils'
-import { APP_AWS_REGION } from '../../../lib/AWS/utils'
+import { IntegrationError } from '@segment/actions-core'
+import { Logger } from '@segment/actions-core/destination-kit'
 
 describe('validateIamRoleArnFormat', () => {
   it('should return true for a valid IAM Role ARN', () => {
@@ -66,165 +60,82 @@ describe('validateIamRoleArnFormat', () => {
   })
 })
 
-jest.mock('@aws-sdk/client-kinesis', () => ({
-  KinesisClient: jest.fn().mockImplementation(() => ({
-    send: jest.fn().mockResolvedValue({ Records: [] })
-  })),
-  PutRecordsCommand: jest.fn()
-}))
+jest.mock('@aws-sdk/client-kinesis')
+jest.mock('../../../lib/AWS/sts')
 
-jest.mock('../../../lib/AWS/sts', () => ({
-  assumeRole: jest.fn()
-}))
+const mockSend = jest.fn()
+const mockLogger: Partial<Logger> = {
+  crit: jest.fn(),
+  info: jest.fn(),
+  warn: jest.fn()
+}
 
-jest.mock('../../../lib/AWS/utils', () => ({
-  APP_AWS_REGION: 'us-east-1'
-}))
-
-describe('AWS Kinesis Utils', () => {
-  const mockLogger = {
-    crit: jest.fn(),
-    info: jest.fn(),
-    error: jest.fn()
+describe('Kinesis send', () => {
+  const mockSettings = {
+    iamRoleArn: 'arn:aws:iam::123456789012:role/TestRole',
+    iamExternalId: 'ext-id'
   }
+
+  const mockPayloads: Payload[] = [
+    {
+      streamName: 'test-stream',
+      awsRegion: 'us-east-1',
+      partitionKey: 'pk-1',
+      payload: { data: 'test message' },
+      max_batch_size: 500,
+      batch_keys: ['awsRegion']
+    }
+  ]
 
   beforeEach(() => {
     jest.clearAllMocks()
-  })
-
-  // ---------------------------------------------------------------------------
-  // populatePayload
-  // ---------------------------------------------------------------------------
-  describe('populatePayload', () => {
-    it('should group payloads by stream and region with batching', () => {
-      const payloads: Payload[] = Array.from({ length: 1002 }).map((_, i) => ({
-        streamName: 'my-stream',
-        awsRegion: 'us-east-1',
-        partitionKey: `key-${i}`,
-        payload: { data: `value-${i}` }
-      }))
-
-      const streamToAwsRegion = new Map<string, string>()
-      const streamToPayloads = new Map<string, any[][]>()
-
-      populatePayload(payloads, streamToAwsRegion, streamToPayloads)
-
-      expect(streamToAwsRegion.get('my-stream')).toBe('us-east-1')
-      const batches = streamToPayloads.get('my-stream')!
-      expect(batches.length).toBe(2) // 1000 + 2
-      expect(batches[0].length).toBe(1000)
-      expect(batches[1].length).toBe(2)
+    ;(assumeRole as jest.Mock).mockResolvedValue({
+      accessKeyId: 'mockAccess',
+      secretAccessKey: 'mockSecret',
+      sessionToken: 'mockToken'
     })
+    ;(KinesisClient as unknown as jest.Mock).mockImplementation(() => ({
+      send: mockSend
+    }))
   })
 
-  // ---------------------------------------------------------------------------
-  // sendBatchToKinesis
-  // ---------------------------------------------------------------------------
-  describe('sendBatchToKinesis', () => {
-    it('should send data to Kinesis successfully', async () => {
-      const mockCredentials = { accessKeyId: 'AKIA', secretAccessKey: 'SECRET' }
+  it('should throw IntegrationError if partitionKey is missing', async () => {
+    const invalidPayload = [
+      { ...mockPayloads[0], partitionKey: '' } // missing partitionKey
+    ]
 
-      const batch = [
-        { partitionKey: 'p1', data: 'foo' },
-        { partitionKey: 'p2', data: 'bar' }
-      ] as any
+    await expect(send(mockSettings, invalidPayload, undefined, mockLogger as Logger)).rejects.toThrow(IntegrationError)
 
-      await sendBatchToKinesis(mockLogger as any, 'my-stream', 'us-east-1', mockCredentials, batch)
+    expect(mockLogger.crit).not.toHaveBeenCalled()
+  })
 
-      expect(PutRecordsCommand).toHaveBeenCalledWith(
-        expect.objectContaining({
-          StreamName: 'my-stream',
-          Records: expect.any(Array)
-        })
-      )
-      expect(KinesisClient).toHaveBeenCalledWith({
+  it('should create Kinesis client and send records successfully', async () => {
+    mockSend.mockResolvedValueOnce({ Records: [] })
+
+    await send(mockSettings, mockPayloads, undefined, mockLogger as Logger)
+
+    expect(assumeRole).toHaveBeenCalledWith(
+      mockSettings.iamRoleArn,
+      mockSettings.iamExternalId,
+      expect.any(String) // region
+    )
+
+    expect(KinesisClient).toHaveBeenCalledWith(
+      expect.objectContaining({
         region: 'us-east-1',
-        credentials: mockCredentials
+        credentials: expect.any(Object)
       })
-    })
+    )
 
-    it('should log and rethrow errors on failure', async () => {
-      ;(KinesisClient as jest.Mock).mockImplementationOnce(() => ({
-        send: jest.fn().mockRejectedValue(new Error('Network error'))
-      }))
-
-      const batch = [{ partitionKey: 'p1', data: 'foo' }] as any
-
-      await expect(sendBatchToKinesis(mockLogger as any, 'stream', 'region', {}, batch)).rejects.toThrow(
-        'Network error'
-      )
-
-      expect(mockLogger.crit).toHaveBeenCalledWith('Failed to send batch to Kinesis:', expect.any(Error))
-    })
+    expect(mockSend).toHaveBeenCalledWith(expect.any(PutRecordsCommand))
   })
 
-  // ---------------------------------------------------------------------------
-  // sendToKinesis
-  // ---------------------------------------------------------------------------
-  describe('sendToKinesis', () => {
-    it('should assume role and send all batches', async () => {
-      ;(assumeRole as jest.Mock).mockResolvedValue({ key: 'creds' })
+  it('should log and rethrow error when Kinesis send fails', async () => {
+    const error = new Error('Kinesis failure')
+    mockSend.mockRejectedValueOnce(error)
 
-      const streamToAwsRegion = new Map([['stream1', 'us-east-1']])
-      const streamToPayloads = new Map([
-        [
-          'stream1',
-          [
-            [
-              {
-                streamName: 'my-stream',
-                awsRegion: 'us-east-1',
-                partitionKey: `key-0`,
-                payload: { data: `value-0` }
-              },
-              {
-                streamName: 'my-stream',
-                awsRegion: 'us-east-1',
-                partitionKey: `key-1`,
-                payload: { data: `value-1` }
-              }
-            ]
-          ]
-        ]
-      ])
+    await expect(send(mockSettings, mockPayloads, undefined, mockLogger as Logger)).rejects.toThrow('Kinesis failure')
 
-      await sendToKinesis(
-        'arn:aws:iam::123:role/Test',
-        'ext-id',
-        streamToAwsRegion,
-        streamToPayloads,
-        mockLogger as any
-      )
-
-      expect(assumeRole).toHaveBeenCalledWith('arn:aws:iam::123:role/Test', 'ext-id', APP_AWS_REGION)
-      expect(KinesisClient).toHaveBeenCalled()
-      expect(PutRecordsCommand).toHaveBeenCalled()
-    })
-  })
-
-  // ---------------------------------------------------------------------------
-  // sendDataToKinesis
-  // ---------------------------------------------------------------------------
-  describe('sendDataToKinesis', () => {
-    const settings = {
-      iamRoleArn: 'arn:aws:iam::123456789012:role/MyRole',
-      iamExternalId: 'external-id'
-    }
-
-    it('should throw error if payloads array is empty', async () => {
-      await expect(sendDataToKinesis(settings as any, [], undefined, mockLogger as any)).rejects.toThrow(
-        'payloads must be a non-empty array'
-      )
-    })
-
-    it('should populate payloads and call sendToKinesis', async () => {
-      const payloads = [{ streamName: 'test-stream', awsRegion: 'us-east-1', partitionKey: '1' }]
-      const spy = jest.spyOn(utils, 'sendToKinesis').mockResolvedValue(() => {})
-
-      await sendDataToKinesis(settings as any, payloads as any, undefined, mockLogger as any)
-
-      expect(spy).toHaveBeenCalled()
-      spy.mockRestore()
-    })
+    expect(mockLogger.crit).toHaveBeenCalledWith('Failed to send batch to Kinesis:', error)
   })
 })
