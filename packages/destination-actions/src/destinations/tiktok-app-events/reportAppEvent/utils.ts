@@ -6,10 +6,7 @@ import { TTJSON, TTBaseProps, TTUser, TTApp, TTAd, AppStatus } from './types'
 import { APP_STATUS } from './constants'
 import { STANDARD_EVENTS, PRODUCT_MAPPING_TYPE } from '../reportAppEvent/fields/common_fields'
 
-export function send(request: RequestClient, payload: Payload, settings: Settings): Promise<unknown> {
-  
-    console.log(JSON.stringify(payload, null, 2))
-  
+export function send(request: RequestClient, payload: Payload, settings: Settings): Promise<unknown> {  
   const {
     event_source,
     event,
@@ -46,8 +43,6 @@ export function send(request: RequestClient, payload: Payload, settings: Setting
       }
     ]
   }
-
-  console.log(JSON.stringify(requestJson, null, 2))
 
   return request('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
     method: 'post',
