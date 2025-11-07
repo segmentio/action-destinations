@@ -1,0 +1,732 @@
+import { InputField } from '@segment/actions-core'
+import { APP, APP_STATUS } from '../constants'
+import { StandardEventItem } from '../types' 
+
+export const PRODUCT_MAPPING_TYPE = {
+    MULTIPLE: 'MULTIPLE',
+    SINGLE: 'SINGLE',
+    NONE: 'NONE'
+} as const
+
+export const STANDARD_EVENTS: StandardEventItem[] = [
+  {
+    key: 'ACHIEVE_LEVEL',
+    ttEventName: 'AchieveLevel',
+    description: 'Achieve a level',
+    segmentEventName: 'Level Achieved',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'ADD_PAYMENT_INFO',
+    ttEventName: 'AddPaymentInfo',
+    description: 'Add payment information',
+    segmentEventName: 'Payment Info Entered',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'ADD_TO_CART',
+    ttEventName: 'AddToCart',
+    description: 'Add to cart',
+    segmentEventName: 'Product Added',
+    productMappingType: PRODUCT_MAPPING_TYPE.SINGLE,
+  },
+  {
+    key: 'ADD_TO_WISHLIST',
+    ttEventName: 'AddToWishlist',
+    description: 'Add to wishlist',
+    segmentEventName: 'Product Added to Wishlist',
+    productMappingType: PRODUCT_MAPPING_TYPE.SINGLE,
+  },
+  {
+    key: 'CHECKOUT',
+    ttEventName: 'Checkout',
+    description: 'Place an order',
+    segmentEventName: 'Checkout Started',
+    productMappingType: PRODUCT_MAPPING_TYPE.MULTIPLE,
+  },
+  {
+    key: 'COMPLETE_TUTORIAL',
+    ttEventName: 'CompleteTutorial',
+    description: 'Complete the tutorial',
+    segmentEventName: 'Tutorial Completed',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'CREATE_GROUP',
+    ttEventName: 'CreateGroup',
+    description: 'Create a group',
+    segmentEventName: 'Group Created',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'CREATE_ROLE',
+    ttEventName: 'CreateRole',
+    description: 'Create a role',
+    segmentEventName: 'Role Created',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'GENERATE_LEAD',
+    ttEventName: 'GenerateLead',
+    description: 'Generate a lead',
+    segmentEventName: 'Lead Generated',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'IN_APP_AD_CLICK',
+    ttEventName: 'InAppADClick',
+    description: 'In-app ad click',
+    segmentEventName: 'Application Ad Clicked',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'IN_APP_AD_IMPR',
+    ttEventName: 'InAppADImpr',
+    description: 'In-app ad impression',
+    segmentEventName: 'Application Ad Served',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'INSTALL_APP',
+    ttEventName: 'InstallApp',
+    description: 'Install the app',
+    segmentEventName: 'Application Installed',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'JOIN_GROUP',
+    ttEventName: 'JoinGroup',
+    description: 'Join a group',
+    segmentEventName: 'Group Joined',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'LAUNCH_APP',
+    ttEventName: 'LaunchAPP',
+    description: 'Launch the app',
+    segmentEventName: 'Application Opened',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'LOAN_APPLICATION',
+    ttEventName: 'LoanApplication',
+    description: 'Apply for a loan',
+    segmentEventName: 'Loan Application Submitted',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'LOAN_APPROVAL',
+    ttEventName: 'LoanApproval',
+    description: 'Loan is approved',
+    segmentEventName: 'Loan Approved',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'LOAN_DISBURSAL',
+    ttEventName: 'LoanDisbursal',
+    description: 'Loan is disbursed',
+    segmentEventName: 'Loan Disbursed',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'LOGIN',
+    ttEventName: 'Login',
+    description: 'Log in successfully',
+    segmentEventName: 'Signed In',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'PURCHASE',
+    ttEventName: 'Purchase',
+    description: 'Complete payment',
+    segmentEventName: 'Order Completed',
+    productMappingType: PRODUCT_MAPPING_TYPE.MULTIPLE,
+  },
+  {
+    key: 'RATE',
+    ttEventName: 'Rate',
+    description: 'Rate',
+    segmentEventName: 'Rating Completed',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'REGISTRATION',
+    ttEventName: 'Registration',
+    description: 'Complete the registration',
+    segmentEventName: 'Signed Up',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'SEARCH',
+    ttEventName: 'Search',
+    description: 'Search',
+    segmentEventName: 'Products Searched',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'SPEND_CREDITS',
+    ttEventName: 'SpendCredits',
+    description: 'Spend credits',
+    segmentEventName: 'Credits Spent',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'START_TRIAL',
+    ttEventName: 'StartTrial',
+    description: 'Start the trial',
+    segmentEventName: 'Trial Started',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'SUBSCRIBE',
+    ttEventName: 'Subscribe',
+    description: 'Subscribe',
+    segmentEventName: 'User Subscribed',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'UNLOCK_ACHIEVEMENT',
+    ttEventName: 'UnlockAchievement',
+    description: 'Unlock an achievement',
+    segmentEventName: 'Achievement Unlocked',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'VIEW_CONTENT',
+    ttEventName: 'ViewContent',
+    description: 'View details',
+    segmentEventName: 'Product Viewed',
+    productMappingType: PRODUCT_MAPPING_TYPE.SINGLE,
+  },
+] as const
+
+export const APP_STANDARD_EVENT_NAMES = STANDARD_EVENTS.reduce((acc, item) => {
+  acc[item.key] = item.ttEventName
+  return acc
+}, {} as Record<string, string>)
+
+export const common_fields: Record<string, InputField> = {
+  event_source: {
+    label: 'Event Source',
+    type: 'string',
+    required: true,
+    description:
+      "The type of events you are uploading through TikTok Events API. For non mobile related events use one of the following Integrations: [TikTok Conversions](https://segment.com/docs/connections/destinations/catalog/tiktok-conversions/), [TikTok Offline Conversions](https://segment.com/docs/connections/destinations/catalog/actions-tiktok-offline-conversions) or [TikTok Pixel](https://segment.com/docs/connections/destinations/catalog/actions-tiktok-pixel).",
+    default: APP,
+    choices: [
+      {
+        value: APP,
+        label: 'The events took place on a Mobile App.'
+      }
+    ]
+  },
+  event: {
+    label: 'Event Name',
+    type: 'string',
+    required: true,
+    description:
+      'Conversion event name. Please refer to the "App Standard Events" section on in TikTok’s [Supported events documentation](https://business-api.tiktok.com/portal/docs?id=1771101186666498) for accepted event names.'
+  },
+  event_id: {
+    label: 'Event ID',
+    type: 'string',
+    description: 'Any hashed ID that can identify a unique user/session.',
+    default: {
+      '@path': '$.messageId'
+    }
+  },
+  timestamp: {
+    label: 'Event Timestamp',
+    type: 'string',
+    description: 'Timestamp that the event took place, in ISO 8601 format.',
+    default: {
+      '@path': '$.timestamp'
+    }
+  },
+  phone_number: {
+    label: 'Phone Number',
+    description:
+      'A single phone number or array of phone numbers in E.164 standard format. Segment will hash this value before sending to TikTok. e.g. +14150000000. Segment will hash this value before sending to TikTok.',
+    type: 'string',
+    multiple: true,
+    default: {
+      '@if': {
+        exists: { '@path': '$.properties.phone' },
+        then: { '@path': '$.properties.phone' },
+        else: { '@path': '$.context.traits.phone' }
+      }
+    }
+  },
+  email: {
+    label: 'Email',
+    description:
+      'A single email address or an array of email addresses. Segment will hash this value before sending to TikTok.',
+    type: 'string',
+    multiple: true,
+    default: {
+      '@if': {
+        exists: { '@path': '$.properties.email' },
+        then: { '@path': '$.properties.email' },
+        else: { '@path': '$.context.traits.email' }
+      }
+    }
+  },
+  advertising_id: {
+    label: 'Mobile Advertising ID',
+    description:
+      'Identifier for Advertisers (IDFA for iOS devices and AAID for Android devices). Used for mobile app events tracking.',
+    type: 'string',
+    default: {
+      '@path': '$.context.device.advertisingId'
+    }
+  },
+  app: {
+    label: 'App Information',
+    type: 'object',
+    description: 'Information about the mobile app where the event took place. This field is an allowlist-only feature. If you would like to access it, please contact your TikTok representative.',
+    defaultObjectUI: 'keyvalue',
+    required: true,
+    properties: {
+      app_id: {
+        label: 'Mobile App ID',
+        description: 'For iOS Apps use the app ID found in the App Store URL. For Android Apps in the Google Play store, use the app ID found in the Google Play store URL. For Android Apps not in the Google Play store, use the package name.',
+        type: 'string',
+        required: true
+      },
+      app_name: {
+        label: 'App Name',
+        description: 'The name of the mobile app.',
+        type: 'string'
+      },
+      app_version: {
+        label: 'App Version',
+        description: 'The version of the mobile app.',
+        type: 'string'
+      }
+    },
+    default: {
+      app_id: {
+        '@path': '$.context.app.namespace'
+      },
+      app_name: {
+        '@path': '$.context.app.name'
+      },
+      app_version: {
+        '@path': '$.context.app.version'
+      }
+    }
+  },
+  ad: {
+    label: 'Ad Information',
+    type: 'object',
+    description: 'Information about the ad that led to the app event. This field is an allowlist-only feature. If you would like to access it, please contact your TikTok representative.',
+    defaultObjectUI: 'keyvalue',
+    properties: {
+      callback: {
+        label: 'Callback',
+        description: 'Callback information to help attribute events.',
+        type: 'string'
+      },
+      campaign_id: {
+        label: 'Campaign ID',
+        description: 'The TikTok Ad Campaign ID.',
+        type: 'string'
+      },
+      ad_id: {
+        label: 'Ad ID',
+        description: 'Ad group ID.',
+        type: 'string'
+      },
+      creative_id: {
+        label: 'Creative ID',
+        description: 'Ad ID.',
+        type: 'string'
+      },
+      is_retargeting: {
+        label: 'Is Retargeting',
+        description: 'Whether the user is a retargeting user.',
+        type: 'boolean'
+      },
+      attributed: {
+        label: 'Attributed',
+        description: 'Whether the event is attributed.',
+        type: 'boolean'
+      },
+      attribution_type: {
+        label: 'Attribution Type',
+        description: 'Attribution type.',
+        type: 'string'
+      },
+      attribution_provider: {
+        label: 'Attribution Provider',
+        description: 'Attribution provider.',
+        type: 'string'
+      }
+    }, 
+    default: {
+      campaign_id: {
+        '@path': '$.properties.campaign.name'
+      },
+      ad_id: {
+        '@path': '$.properties.campaign.ad_group'
+      },
+      creative_id: {
+        '@path': '$.properties.campaign.ad_creative'
+      },
+      attribution_provider: {
+        '@path': '$.properties.provider'
+      }
+    }
+  },
+  device_details: {
+    label: 'Device Details',
+    type: 'object',
+    defaultObjectUI: 'keyvalue',
+    description: 'Mobile device details.',
+    properties: {
+      device_type: {
+        label: 'Device Type',
+        description: 'Used to help determine which device the Mobile Advertising ID is and Mobile Device ID is for.',
+        type: 'string'
+      },
+      device_id: {
+        label: 'Device ID',
+        description: 'The iOS IDFV. Android Device ID is not supported at this time.',
+        type: 'string'
+      },
+      device_version: {
+        label: 'Device Version',
+        description: 'The operating system version of the device.',
+        type: 'string'
+      },
+      ad_tracking_enabled: {
+        label: 'Ad Tracking Enabled',
+        description: 'Indicates whether the user has limited ad tracking on their device.',
+        type: 'boolean'
+      }
+    },
+    default: {
+      device_type: {
+        '@path': '$.context.device.type'
+      },
+      device_id: {
+        '@path': '$.context.device.id'
+      },
+      device_version: {
+        '@path': '$.context.os.version'
+      },
+      ad_tracking_enabled: {
+        '@path': '$.context.device.adTrackingEnabled'
+      }
+    }
+  },
+  external_id: {
+    label: 'External ID',
+    description:
+      'Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok. TikTok Conversions Destination supports both string and string[] types for sending external ID(s).',
+    type: 'string',
+    multiple: true,
+    default: {
+      '@if': {
+        exists: { '@path': '$.userId' },
+        then: { '@path': '$.userId' },
+        else: { '@path': '$.anonymousId' }
+      }
+    }
+  },
+  locale: {
+    label: 'Locale',
+    description:
+      'The BCP 47 language identifier. For reference, refer to the [IETF BCP 47 standardized code](https://www.rfc-editor.org/rfc/bcp/bcp47.txt).',
+    type: 'string',
+    default: {
+      '@path': '$.context.locale'
+    }
+  },
+  att_status: {
+    label: 'App Tracking Transparency Status',
+    description: "The App Tracking Transparency (ATT) status of the user on iOS devices. This field is required when sending events from iOS 14.5+ devices but should be set to 'Not Applicable' if the iOS version is below 14 or the device is running Android. Selecting AUTO will allow Segment to determine the value to send based on Mobile platform, version, and ad tracking settings.",
+    type: 'string',
+    required: true,
+    choices: [
+      { label: APP_STATUS.AUTHORIZED, value: APP_STATUS.AUTHORIZED },
+      { label: APP_STATUS.DENIED , value: APP_STATUS.DENIED },
+      { label: APP_STATUS.NOT_DETERMINED, value: APP_STATUS.NOT_DETERMINED },
+      { label: APP_STATUS.RESTRICTED, value: APP_STATUS.RESTRICTED },
+      { label: APP_STATUS.NOT_APPLICABLE, value: APP_STATUS.NOT_APPLICABLE },
+      { label: APP_STATUS.AUTO, value: APP_STATUS.AUTO }
+    ],
+    default: APP_STATUS.AUTO
+  },
+  ip: {
+    label: 'IP Address',
+    type: 'string',
+    description: 'IP address of the device.',
+    default: {
+      '@path': '$.context.ip'
+    }
+  },
+  user_agent: {
+    label: 'User Agent',
+    type: 'string',
+    description: 'User agent from the user’s device.',
+    default: {
+      '@path': '$.context.userAgent'
+    }
+  },
+  contents: {
+    label: 'Contents',
+    type: 'object',
+    multiple: true,
+    description: 'Related item details for the event.',
+    defaultObjectUI: 'keyvalue',
+    properties: {
+      price: {
+        label: 'Price',
+        description: 'Price of the item.',
+        type: 'number'
+      },
+      quantity: {
+        label: 'Quantity',
+        description: 'Number of items.',
+        type: 'number',
+        required: {
+          match: 'any',
+          conditions: [
+            {
+                fieldKey: 'event',
+                operator: 'is',
+                value: APP_STANDARD_EVENT_NAMES.PURCHASE
+            }
+          ]
+        }
+      },
+      content_category: {
+        label: 'Content Category',
+        description: 'Category of the product item.',
+        type: 'string'
+      },
+      content_id: {
+        label: 'Content ID',
+        description: 'ID of the product item.',
+        type: 'string'
+      },
+      content_name: {
+        label: 'Content Name',
+        description: 'Name of the product item.',
+        type: 'string'
+      },
+      brand: {
+        label: 'Brand',
+        description: 'Brand name of the product item.',
+        type: 'string'
+      }
+    },
+    required: {
+      match: 'any',
+      conditions: [
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.CHECKOUT
+        },
+          {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.PURCHASE
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.SUBSCRIBE
+        }
+      ]
+    }
+  },
+  content_ids: {
+    label: 'Content IDs',
+    description:
+      "Product IDs associated with the event, such as SKUs. Do not populate this field if the 'Contents' field is populated. This field accepts a single string value or an array of string values.",
+    type: 'string',
+    multiple: true,
+    default: {
+      '@path': '$.properties.content_ids'
+    }
+  },
+  num_items: {
+    label: 'Number of Items',
+    type: 'number',
+    description: 'Number of items when checkout was initiated. Used with the InitiateCheckout event.',
+    default: {
+      '@path': '$.properties.num_items'
+    }
+  },
+  content_type: {
+    label: 'Content Type',
+    description:
+      'Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.',
+    type: 'string',
+    choices: [
+      { label: 'product', value: 'product' },
+      { label: 'product_group', value: 'product_group' }
+    ],
+    default: 'product',
+    required: {
+      match: 'any',
+      conditions: [
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.CHECKOUT
+        },
+          {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.PURCHASE
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
+        }
+      ]
+    }
+  },
+  currency: {
+    label: 'Currency',
+    type: 'string',
+    description: 'Currency for the value specified as ISO 4217 code.',
+    default: {
+      '@path': '$.properties.currency'
+    },
+    required: {
+      match: 'any',
+      conditions: [
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.CHECKOUT
+        },
+          {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.PURCHASE
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
+        }
+      ]
+    }
+  },
+  value: {
+    label: 'Value',
+    type: 'number',
+    description: 'Value of the order or items sold.',
+    default: {
+      '@if': {
+        exists: { '@path': '$.properties.value' },
+        then: { '@path': '$.properties.value' },
+        else: { '@path': '$.properties.revenue' }
+      }
+    },
+    required: {
+      match: 'any',
+      conditions: [
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.CHECKOUT
+        },
+          {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.PURCHASE
+        },
+        {
+            fieldKey: 'event',
+            operator: 'is',
+            value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
+        }
+      ]
+    }
+  },
+  description: {
+    label: 'Description',
+    type: 'string',
+    description: 'A string description of the item or page.'
+  },
+  limited_data_use: {
+    label: 'Limited Data Use',
+    type: 'boolean',
+    description:
+      'Use this field to flag an event for limited data processing. TikTok will recognize this parameter as a request for limited data processing, and will limit its processing activities accordingly if the event shared occurred in an eligible location. To learn more about the Limited Data Use feature, refer to [Events API 2.0 - Limited Data Use](https://ads.tiktok.com/marketing_api/docs?id=1771101204435970).',
+    default: {
+      '@path': '$.properties.limited_data_use'
+    }
+  },
+  test_event_code: {
+    label: 'Test Event Code',
+    type: 'string',
+    description:
+      'Use this field to specify that events should be test events rather than actual traffic. You can find your Test Event Code in your TikTok Events Manager under the "Test Event" tab. You\'ll want to remove your Test Event Code when sending real traffic through this integration.'
+  },
+  search_string: {
+    label: 'Search String',
+    type: 'string',
+    description: 'The text string entered by the user for the search. Optionally used with the Search event.',
+    default: {
+      '@path': '$.properties.search_string'
+    },
+    depends_on: {
+      conditions: [
+        {
+          fieldKey: 'event',
+          operator: 'is',
+          value: 'Search'
+        }
+      ]
+    }
+  }
+}
