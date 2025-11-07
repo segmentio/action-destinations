@@ -81,6 +81,14 @@ export interface ConversionAdjustmentRequestObjectInterface {
   restatementValue?: RestatementValueInterface
 }
 
+export type SessionAttributesKeyValuePairItem =
+  | { name: "gadSource"; value?: string }
+  | { name: "gadCampaignId"; value?: string }
+  | { name: "landingPageUrl"; value?: string }
+  | { name: "sessionStartTimeUsec"; value?: string }
+  | { name: "landingPageReferrer"; value?: string }
+  | { name: "landingPageUserAgent"; value?: string }
+
 export interface ClickConversionRequestObjectInterface {
   cartData: CartDataInterface | undefined
   consent?: ConsentInterface
@@ -95,7 +103,7 @@ export interface ClickConversionRequestObjectInterface {
   wbraid: string | undefined
   userIpAddress?: string
   sessionAttributesEncoded?: string
-  sessionAttributesKeyValuePairs?: { [key: string]: string }
+  sessionAttributesKeyValuePairs?: SessionAttributesKeyValuePairItem[]
   orderId: string | undefined
   userIdentifiers: UserIdentifierInterface[]
 }

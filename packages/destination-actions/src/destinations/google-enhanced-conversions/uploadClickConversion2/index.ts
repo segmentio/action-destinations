@@ -12,7 +12,8 @@ import {
   CartItemInterface,
   PartialErrorResponse,
   ClickConversionRequestObjectInterface,
-  UserIdentifierInterface
+  UserIdentifierInterface,
+  SessionAttributesKeyValuePairItem
 } from '../types'
 import {
   formatCustomVariables,
@@ -378,19 +379,19 @@ const action: ActionDefinition<Settings, Payload> = {
         } = {}
       } = payload
 
-      const sessionStartTimeUsec = session_start_time_usec
+      const sessionStartTimeUsec = typeof session_start_time_usec === 'string'
         ? timestampToEpochMicroseconds(session_start_time_usec)
         : undefined
 
-      const sessionAttributesKeyValuePairs = {
-        ...(gad_source ? { gadSource: gad_source } : {}),
-        ...(gad_campaignid ? { gadCampaignId: gad_campaignid } : {}),
-        ...(landing_page_url ? { landingPageUrl: landing_page_url } : {}),
-        ...(sessionStartTimeUsec ? { sessionStartTimeUsec } : {}),
-        ...(landing_page_referrer ? { landingPageReferrer: landing_page_referrer } : {}),
-        ...(landing_page_user_agent ? { landingPageUserAgent: landing_page_user_agent } : {})
-      }
-
+      const sessionAttributesKeyValuePairs: SessionAttributesKeyValuePairItem[] = [
+        ...(gad_source ? [{ name: "gadSource", value: gad_source } as const] : []),
+        ...(gad_campaignid ? [{ name: "gadCampaignId", value: gad_campaignid } as const] : []),
+        ...(landing_page_url ? [{ name: "landingPageUrl", value: landing_page_url } as const] : []),
+        ...(sessionStartTimeUsec ? [{ name: "sessionStartTimeUsec", value: sessionStartTimeUsec } as const] : []),
+        ...(landing_page_referrer ? [{ name: "landingPageReferrer", value: landing_page_referrer } as const] : []),
+        ...(landing_page_user_agent ? [{ name: "landingPageUserAgent", value: landing_page_user_agent } as const] : [])
+      ]
+      
       const request_object: ClickConversionRequestObjectInterface = {
         conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
         conversionDateTime: convertTimestamp(payload.conversion_timestamp),
@@ -399,7 +400,7 @@ const action: ActionDefinition<Settings, Payload> = {
         wbraid: payload.wbraid,
         ...(payload.user_ip_address ? { userIpAddress: payload.user_ip_address } : {}),
         ...(session_attributes_encoded ? { sessionAttributesEncoded: session_attributes_encoded } : {}),
-        ...(!session_attributes_encoded && Object.keys(sessionAttributesKeyValuePairs).length > 0
+        ...(!session_attributes_encoded && Array.isArray(sessionAttributesKeyValuePairs) && sessionAttributesKeyValuePairs.length > 0
           ? { sessionAttributesKeyValuePairs }
           : {}),
         orderId: payload.order_id,
@@ -520,18 +521,18 @@ const action: ActionDefinition<Settings, Payload> = {
           } = {}
         } = payloadItem
 
-        const sessionStartTimeUsec = session_start_time_usec
+        const sessionStartTimeUsec = typeof session_start_time_usec === 'string'
           ? timestampToEpochMicroseconds(session_start_time_usec)
           : undefined
 
-        const sessionAttributesKeyValuePairs = {
-          ...(gad_source ? { gadSource: gad_source } : {}),
-          ...(gad_campaignid ? { gadCampaignId: gad_campaignid } : {}),
-          ...(landing_page_url ? { landingPageUrl: landing_page_url } : {}),
-          ...(sessionStartTimeUsec ? { sessionStartTimeUsec } : {}),
-          ...(landing_page_referrer ? { landingPageReferrer: landing_page_referrer } : {}),
-          ...(landing_page_user_agent ? { landingPageUserAgent: landing_page_user_agent } : {})
-        }
+        const sessionAttributesKeyValuePairs: SessionAttributesKeyValuePairItem[] = [
+          ...(gad_source ? [{ name: "gadSource", value: gad_source } as const] : []),
+          ...(gad_campaignid ? [{ name: "gadCampaignId", value: gad_campaignid } as const] : []),
+          ...(landing_page_url ? [{ name: "landingPageUrl", value: landing_page_url } as const] : []),
+          ...(sessionStartTimeUsec ? [{ name: "sessionStartTimeUsec", value: sessionStartTimeUsec } as const] : []),
+          ...(landing_page_referrer ? [{ name: "landingPageReferrer", value: landing_page_referrer } as const] : []),
+          ...(landing_page_user_agent ? [{ name: "landingPageUserAgent", value: landing_page_user_agent } as const] : [])
+        ]
 
         const request_object: ClickConversionRequestObjectInterface = {
           conversionAction: `customers/${settings.customerId}/conversionActions/${payloadItem.conversion_action}`,
@@ -541,9 +542,9 @@ const action: ActionDefinition<Settings, Payload> = {
           wbraid: payloadItem.wbraid,
           ...(payloadItem.user_ip_address ? { userIpAddress: payloadItem.user_ip_address } : {}),
           ...(session_attributes_encoded ? { sessionAttributesEncoded: session_attributes_encoded } : {}),
-          ...(!session_attributes_encoded && Object.keys(sessionAttributesKeyValuePairs).length > 0
-            ? { sessionAttributesKeyValuePairs }
-            : {}),
+          ...(!session_attributes_encoded && Array.isArray(sessionAttributesKeyValuePairs) && sessionAttributesKeyValuePairs.length > 0
+              ? { sessionAttributesKeyValuePairs }
+              : {}),
           orderId: payloadItem.order_id,
           conversionValue: payloadItem.value,
           currencyCode: payloadItem.currency,

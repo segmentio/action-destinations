@@ -220,6 +220,9 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
 }
 
 export function timestampToEpochMicroseconds(timestamp: string): string | undefined {
+  if(!timestamp){
+    return undefined
+  }
   const date = new Date(timestamp)
   if (!isNaN(date.getTime())) {
     return (date.getTime() * 1000).toString()
