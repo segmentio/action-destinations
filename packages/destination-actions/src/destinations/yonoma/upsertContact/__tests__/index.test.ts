@@ -12,13 +12,6 @@ const payload = {
   type: 'identify',
   userId: 'x_id',
   anonymousId: 'anon_id',
-  context: {
-    page: {
-      title: 'Test Page',
-      url: 'https://example.com/test-page',
-      referrer: 'https://example.com/referrer'
-    }
-  },
   traits: {
     email: 'test@test.com',
     list_id: 'list_id',
@@ -37,7 +30,31 @@ const payload = {
     tags_to_remove: ['tag3'],
     consented: true
   },
-  timestamp: '2023-10-01T00:00:00Z'
+  timestamp: '2023-10-01T00:00:00Z',
+  context: {
+    ip: '127.0.0.1',
+    userAgent:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
+    page: {
+      url: 'https://example.com/page',
+      title: 'Example Page',
+      referrer: 'https://google.com',
+      path: '/page',
+      search: '?query=1'
+    },
+    campaign: {
+      name: 'Summer Sale',
+      source: 'Newsletter',
+      medium: 'Email',
+      term: 'summer',
+      content: 'toplink'
+    },
+    location: {
+      country: 'USA',
+      region: 'California',
+      city: 'San Francisco'
+    }
+  }
 } as Partial<SegmentEvent>
 
 const mapping = {
@@ -47,6 +64,28 @@ const mapping = {
     email: { '@path': '$.traits.email' }
   },
   listId: { '@path': '$.traits.list_id' },
+  timestamp: { '@path': '$.timestamp' },
+  ip: { '@path': '$.context.ip' },
+  userAgent: { '@path': '$.context.userAgent' },
+  page: {
+    title: { '@path': '$.context.page.title' },
+    url: { '@path': '$.context.page.url' },
+    referrer: { '@path': '$.context.page.referrer' },
+    path: { '@path': '$.context.page.path' },
+    search: { '@path': '$.context.page.search' }
+  },
+  campaign: {
+    name: { '@path': '$.context.campaign.name' },
+    source: { '@path': '$.context.campaign.source' },
+    medium: { '@path': '$.context.campaign.medium' },
+    term: { '@path': '$.context.campaign.term' },
+    content: { '@path': '$.context.campaign.content' }
+  },
+  location: {
+    country: { '@path': '$.context.location.country' },
+    region: { '@path': '$.context.location.region' },
+    city: { '@path': '$.context.location.city' }
+  },
   properties: {
     firstName: { '@path': '$.traits.first_name' },
     lastName: { '@path': '$.traits.last_name' },
@@ -80,6 +119,29 @@ describe('Yonoma', () => {
         email: 'test@test.com',
         listId: 'list_id',
         status: true,
+        timestamp: '2023-10-01T00:00:00Z',
+        ip: '127.0.0.1',
+        userAgent:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
+        page: {
+          title: 'Example Page',
+          url: 'https://example.com/page',
+          referrer: 'https://google.com',
+          path: '/page',
+          search: '?query=1'
+        },
+        campaign: {
+          name: 'Summer Sale',
+          source: 'Newsletter',
+          medium: 'Email',
+          term: 'summer',
+          content: 'toplink'
+        },
+        location: {
+          country: 'USA',
+          region: 'California',
+          city: 'San Francisco'
+        },
         properties: {
           firstName: 'Jimmyjoe',
           lastName: 'Doe',
@@ -94,7 +156,7 @@ describe('Yonoma', () => {
           tags_to_remove: ['tag3']
         }
       }
-      nock('https://api.yonoma.io').post('/integration/segment/upsertcontact', jsonUpsertContact).reply(200, {})  
+      nock('https://api.yonoma.io').post('/integration/segment/upsertcontact', jsonUpsertContact).reply(200, {})
 
       const response = await testDestination.testAction('upsertContact', {
         event,
@@ -123,6 +185,29 @@ describe('Yonoma', () => {
         email: 'test@test.com',
         listId: 'list_id',
         status: true,
+        timestamp: '2023-10-01T00:00:00Z',
+        ip: '127.0.0.1',
+        userAgent:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
+        page: {
+          title: 'Example Page',
+          url: 'https://example.com/page',
+          referrer: 'https://google.com',
+          path: '/page',
+          search: '?query=1'
+        },
+        campaign: {
+          name: 'Summer Sale',
+          source: 'Newsletter',
+          medium: 'Email',
+          term: 'summer',
+          content: 'toplink'
+        },
+        location: {
+          country: 'USA',
+          region: 'California',
+          city: 'San Francisco'
+        },
         properties: {
           firstName: 'Jimmyjoe',
           lastName: 'Doe',

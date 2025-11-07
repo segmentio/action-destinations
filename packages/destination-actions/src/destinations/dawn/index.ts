@@ -17,7 +17,7 @@ const destination: DestinationDefinition<Settings> = {
       writeKey: {
         label: 'Dawn Write Key',
         description: 'Get your key at app.dawnai.com',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

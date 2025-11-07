@@ -32,7 +32,7 @@ const destination: DestinationDefinition<Settings> = {
       apiSecret: {
         label: 'API Secret',
         description: 'An API SECRET generated for endpoint usage',
-        type: 'string',
+        type: 'password',
         required: true
       }
     }

@@ -1,6 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { sendRefreshTokenReq } from './auth-utils'
+import { createHmac } from 'crypto'
 
 import send from './send'
 
@@ -26,12 +27,24 @@ const destination: DestinationDefinition<SettingsWithDynamicAuth> = {
       return res
     }
   },
-  extendRequest: ({ settings, auth }) => {
+  extendRequest: ({ settings, auth, payload }) => {
     const { dynamicAuthSettings } = settings
+    let xSignatureHeader
+
+    if (payload) {
+      const payloadData = payload.length ? payload[0]['data'] : payload['data']
+      if (settings.sharedSecret && payloadData) {
+        const digest = createHmac('sha1', settings.sharedSecret)
+          .update(JSON.stringify(payloadData), 'utf8')
+          .digest('hex')
+        xSignatureHeader = { 'X-Signature': digest }
+      }
+    }
+
     let accessToken
     let tokenPrefix = 'Bearer'
     if (dynamicAuthSettings?.oauth?.type === 'noAuth') {
-      return {}
+      return xSignatureHeader ? { headers: xSignatureHeader } : {}
     }
     if (dynamicAuthSettings?.bearer) {
       accessToken = dynamicAuthSettings?.bearer?.bearerToken
@@ -41,7 +54,8 @@ const destination: DestinationDefinition<SettingsWithDynamicAuth> = {
     }
     return {
       headers: {
-        authorization: `${tokenPrefix} ${accessToken}`
+        authorization: `${tokenPrefix} ${accessToken}`,
+        ...(xSignatureHeader || {})
       }
     }
   },

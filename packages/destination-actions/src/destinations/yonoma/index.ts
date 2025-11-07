@@ -2,7 +2,6 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import upsertContact from './upsertContact'
 import trackEvent from './trackEvent'
-import sendEvent from './sendEvent'
 import trackPageView from './trackPageView'
 
 const destination: DestinationDefinition<Settings> = {
@@ -16,7 +15,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Your Yonoma API key.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },
@@ -27,17 +26,17 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest: ({ settings }) => {
-    return { 
+    return {
       headers: {
-        "User-Agent": "Segment",
-        "Content-Type": "application/json",
-        'Authorization': `Bearer ${settings.apiKey}` } 
+        'User-Agent': 'Segment',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${settings.apiKey}`
+      }
     }
   },
   actions: {
     upsertContact,
     trackEvent,
-    sendEvent,
     trackPageView
   }
 }

@@ -6,13 +6,13 @@ export interface Payload {
    */
   audience_id: string
   /**
-   * Hidden field: traits object from identify() payloads or properties object from track() payloads.
+   * [Hidden] properties object from track() payloads. Note: identify calls are not handled and are disabled in the Partner Portal.
    */
   traits_or_props: {
     [k: string]: unknown
   }
   /**
-   * Hidden field: The Engage Audience Key / Slug.
+   * [Hidden]: The Engage Audience Key / Slug.
    */
   audience_key: string
   /**
@@ -32,7 +32,7 @@ export interface Payload {
    */
   enable_batching: boolean
   /**
-   * The number of user syncs to include in each batch when batching is enabled. Must be between 1 and 1000.
+   * [Hidden] The number of user syncs to include in each batch when batching is enabled. Must be between 1 and 1000.
    */
   batch_size: number
   /**

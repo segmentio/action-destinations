@@ -57,7 +57,8 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
 
     const event = createTestEvent({
       type: 'identify',
-      traits: { email: 'demo@segment.com', aud_key: true }
+      properties: { aud_key: true },
+      context: { traits: { email: 'demo@segment.com' } }
     })
 
     const response = await testDestination.testAction('syncAudiences', {
@@ -84,7 +85,7 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
 
     const event = createTestEvent({
       type: 'identify',
-      traits: { email: 'remove@segment.com' }
+      context: { traits: { email: 'remove@segment.com' } }
     })
 
     const response = await testDestination.testAction('syncAudiences', {
@@ -112,7 +113,7 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
     const event = createTestEvent({
       type: 'identify',
       userId: 'crm_123',
-      traits: { aud_key: true }
+      properties: { aud_key: true }
     })
 
     const response = await testDestination.testAction('syncAudiences', {
@@ -141,8 +142,16 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       .reply(200, {})
 
     const events = [
-      createTestEvent({ type: 'identify', traits: { email: 'one@segment.com', aud_key: true } }),
-      createTestEvent({ type: 'identify', traits: { email: 'two@segment.com', aud_key: true } })
+      createTestEvent({
+        type: 'identify',
+        properties: { aud_key: true },
+        context: { traits: { email: 'one@segment.com' } }
+      }),
+      createTestEvent({
+        type: 'identify',
+        properties: { aud_key: true },
+        context: { traits: { email: 'two@segment.com' } }
+      })
     ]
 
     const response = await testDestination.testBatchAction('syncAudiences', {
@@ -171,8 +180,8 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       .reply(200, {})
 
     const events = [
-      createTestEvent({ type: 'identify', traits: { email: 'bye1@segment.com' } }),
-      createTestEvent({ type: 'identify', traits: { email: 'bye2@segment.com' } })
+      createTestEvent({ type: 'identify', context: { traits: { email: 'bye1@segment.com' } } }),
+      createTestEvent({ type: 'identify', context: { traits: { email: 'bye2@segment.com' } } })
     ]
 
     const response = await testDestination.testBatchAction('syncAudiences', {
@@ -198,8 +207,8 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       .reply(200, {})
 
     const events = [
-      createTestEvent({ type: 'identify', userId: 'crm_111', traits: { aud_key: true } }),
-      createTestEvent({ type: 'identify', userId: 'crm_222', traits: { aud_key: true } })
+      createTestEvent({ type: 'identify', userId: 'crm_111', properties: { aud_key: true } }),
+      createTestEvent({ type: 'identify', userId: 'crm_222', properties: { aud_key: true } })
     ]
 
     const response = await testDestination.testBatchAction('syncAudiences', {
@@ -217,7 +226,11 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
 
     const events = [
       // Add events
-      createTestEvent({ type: 'identify', traits: { email: 'add1@segment.com', aud_key: true } })
+      createTestEvent({
+        type: 'identify',
+        traits: { aud_key: true },
+        context: { traits: { email: 'add1@segment.com' } }
+      })
     ]
 
     const response = await testDestination.testBatchAction('syncAudiences', {
@@ -261,7 +274,13 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       throw customError
     })
 
-    const events = [createTestEvent({ type: 'identify', traits: { email: 'test@segment.com', aud_key: true } })]
+    const events = [
+      createTestEvent({
+        type: 'identify',
+        properties: { aud_key: true },
+        context: { traits: { email: 'test@segment.com' } }
+      })
+    ]
 
     // Expect the testBatchAction to throw the custom error
     await expect(

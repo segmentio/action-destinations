@@ -52,7 +52,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Your UserMotion API Key',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

@@ -1,16 +1,14 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
-import forwardProfile from './forwardProfile'
 import forwardAudienceEvent from './forwardAudienceEvent'
-import { AdvertiserScopesResponse } from './types'
+import { AdvertiserScopesResponse } from './common-types'
 import { sha256hash } from './common-functions'
-import { EXTERNAL_PROVIDER, GQL_ENDPOINT } from './constants'
+import { EXTERNAL_PROVIDER, GQL_ENDPOINT } from './common-constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'StackAdapt Audiences',
   slug: 'actions-stackadapt-audiences',
-  description: 'Send Segment Audience and user profile details to StackAdapt',
+  description: 'Sync Segment Engage Audiences as well as user profile details to StackAdapt',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
@@ -18,13 +16,13 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'GraphQL Token',
         description: 'Your StackAdapt GQL API Token',
-        type: 'string',
+        type: 'password',
         required: true
       },
       advertiser_id: {
-        label: "Advertiser ID",
-        description: "The StackAdapt advertiser ID to add the profile to.",
-        type: 'string', 
+        label: 'Advertiser ID',
+        description: 'The StackAdapt advertiser ID to add the profile to.',
+        type: 'string',
         required: true
       }
     },
@@ -110,7 +108,6 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    forwardProfile,
     forwardAudienceEvent
   }
 }

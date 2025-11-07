@@ -14,7 +14,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'The API Key is available via Dub Dashboard: https://app.dub.co/settings/tokens',
-        type: 'string',
+        type: 'password',
         required: true
       }
     }

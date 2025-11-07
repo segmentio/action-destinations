@@ -66,7 +66,7 @@ export interface Settings {
    */
   pageView?: boolean
   /**
-   * A custom domain to load the Google Analytics script from.
+   * A custom domain to load the Google Analytics script from. For more information see [Google's Documentation](https://developers.google.com/tag-platform/tag-manager/server-side/dependency-serving?tag=gtag&option=cdn).
    */
   domain?: string
 }
