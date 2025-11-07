@@ -1,4 +1,4 @@
-import { formatEmails, formatPhones } from '../reportAppEvent/formatter'
+import { formatEmails, formatPhones, formatAdvertisingId } from '../reportAppEvent/formatter'
 
 describe('Tiktok Conversions Formatter', () => {
   describe('formatEmails', () => {
@@ -38,6 +38,23 @@ describe('Tiktok Conversions Formatter', () => {
       ]
       const result = formatPhones(phones, { 'smart-hashing': true })
       expect(result).toEqual(phones)
+    })
+  })
+
+  describe('formatAdvertisingId', () => {
+    it('should hash and encode iOS advertising IDs correctly by lowercasing it before hashing', () => {
+      const result = formatAdvertisingId("7A3CBEA0-BDF5-11E4-8DFC-AA07A5B093DB", true)
+      expect(result).toEqual('08f1f8e9e433f685c514154e1a5b0dfe1885c6f140a7e3eff08a037bda13dcc1')
+    })
+
+    it('should hash and encode Android advertising IDs correctly', () => {
+      const result = formatAdvertisingId("7A3CBEA0-BDF5-11E4-8DFC-AA07A5B093DB", false)
+      expect(result).toEqual('d476ca08c0b93013e1dd2ca4d59b225c927355ce5bf6e0cfd222590a89c7dedb')
+    })
+
+    it('should not hash and encode already hashed advertising IDs', () => {
+      const result = formatAdvertisingId("08f1f8e9e433f685c514154e1a5b0dfe1885c6f140a7e3eff08a037bda13dcc1", false)
+      expect(result).toEqual('08f1f8e9e433f685c514154e1a5b0dfe1885c6f140a7e3eff08a037bda13dcc1')
     })
   })
 })
