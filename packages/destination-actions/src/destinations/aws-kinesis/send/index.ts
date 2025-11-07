@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { AWS_REGIONS } from '../../../lib/AWS/utils'
-import { sendDataToKinesis } from '../utils'
+import { send } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
@@ -40,10 +40,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (_requests, { settings, payload, statsContext, logger }) => {
-    await sendDataToKinesis(settings, [payload], statsContext, logger)
+    await send(settings, [payload], statsContext, logger)
   },
   performBatch: async (_requests, { settings, payload, statsContext, logger }) => {
-    await sendDataToKinesis(settings, payload, statsContext, logger)
+    await send(settings, payload, statsContext, logger)
   }
 }
 
