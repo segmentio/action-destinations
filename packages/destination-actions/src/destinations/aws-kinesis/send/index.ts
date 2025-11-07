@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { AWS_REGIONS } from '../../../lib/AWS/utils'
+import { AWS_REGIONS } from '@segment/actions-shared'
 import { send } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -28,15 +28,32 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The name of the Kinesis stream to send records to',
       type: 'string',
       required: true,
-      default: { '@path': '$.properties.streamName' }
+      disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
     },
     awsRegion: {
       label: 'AWS Region',
       description: 'The AWS region where the Kinesis stream is located',
       type: 'string',
       required: true,
-      default: { '@path': '$.properties.awsRegion' },
-      choices: AWS_REGIONS
+      choices: AWS_REGIONS,
+      disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      default: ['awsRegion', 'streamName', 'partitionKey'],
+      multiple: true
+    },
+    max_batch_size: {
+      label: 'Max Batch Size',
+      description: 'The maximum number of payloads to include in a batch.',
+      type: 'number',
+      required: true,
+      minimum: 1,
+      maximum: 500,
+      default: 500
     }
   },
   perform: async (_requests, { settings, payload, statsContext, logger }) => {

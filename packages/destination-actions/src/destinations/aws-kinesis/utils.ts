@@ -3,7 +3,7 @@ import type { Payload } from './send/generated-types'
 import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
 import { KinesisClient, PutRecordsCommand, PutRecordsRequestEntry } from '@aws-sdk/client-kinesis'
 import { assumeRole } from '../../lib/AWS/sts'
-import { APP_AWS_REGION } from '../../lib/AWS/utils'
+import { APP_AWS_REGION } from '@segment/actions-shared'
 import { NodeHttpHandler } from '@smithy/node-http-handler'
 import { IntegrationError } from '@segment/actions-core'
 
