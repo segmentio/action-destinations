@@ -1,5 +1,3 @@
-
-
 export interface TrackPageEventJSON {
   userId?: string
   anonymousId?: string

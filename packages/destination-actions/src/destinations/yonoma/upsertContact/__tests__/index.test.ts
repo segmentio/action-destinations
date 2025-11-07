@@ -32,26 +32,27 @@ const payload = {
   },
   timestamp: '2023-10-01T00:00:00Z',
   context: {
-    ip: "127.0.0.1",
-    userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
+    ip: '127.0.0.1',
+    userAgent:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
     page: {
-      url: "https://example.com/page",
-      title: "Example Page",
-      referrer: "https://google.com",
-      path: "/page",
-      search: "?query=1"
+      url: 'https://example.com/page',
+      title: 'Example Page',
+      referrer: 'https://google.com',
+      path: '/page',
+      search: '?query=1'
     },
     campaign: {
-      name: "Summer Sale",
-      source: "Newsletter",
-      medium: "Email",
-      term: "summer",
-      content: "toplink"
+      name: 'Summer Sale',
+      source: 'Newsletter',
+      medium: 'Email',
+      term: 'summer',
+      content: 'toplink'
     },
     location: {
-      country: "USA",
-      region: "California",
-      city: "San Francisco"
+      country: 'USA',
+      region: 'California',
+      city: 'San Francisco'
     }
   }
 } as Partial<SegmentEvent>
@@ -66,7 +67,7 @@ const mapping = {
   timestamp: { '@path': '$.timestamp' },
   ip: { '@path': '$.context.ip' },
   userAgent: { '@path': '$.context.userAgent' },
-   page: {
+  page: {
     title: { '@path': '$.context.page.title' },
     url: { '@path': '$.context.page.url' },
     referrer: { '@path': '$.context.page.referrer' },
@@ -120,7 +121,8 @@ describe('Yonoma', () => {
         status: true,
         timestamp: '2023-10-01T00:00:00Z',
         ip: '127.0.0.1',
-        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
+        userAgent:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
         page: {
           title: 'Example Page',
           url: 'https://example.com/page',
@@ -154,7 +156,7 @@ describe('Yonoma', () => {
           tags_to_remove: ['tag3']
         }
       }
-      nock('https://api.yonoma.io').post('/integration/segment/upsertcontact', jsonUpsertContact).reply(200, {})  
+      nock('https://api.yonoma.io').post('/integration/segment/upsertcontact', jsonUpsertContact).reply(200, {})
 
       const response = await testDestination.testAction('upsertContact', {
         event,
@@ -185,7 +187,8 @@ describe('Yonoma', () => {
         status: true,
         timestamp: '2023-10-01T00:00:00Z',
         ip: '127.0.0.1',
-        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
+        userAgent:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
         page: {
           title: 'Example Page',
           url: 'https://example.com/page',

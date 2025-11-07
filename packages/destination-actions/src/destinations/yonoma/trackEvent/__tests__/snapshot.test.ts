@@ -21,7 +21,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
-    event.userId = "testuserid"
+    event.userId = 'testuserid'
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
@@ -31,7 +31,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
           userId: { '@path': '$.userId' },
           email: 'test@test.com'
         },
-        timestamp: "2024-01-01T00:00:00.000Z",
+        timestamp: '2024-01-01T00:00:00.000Z'
       },
       settings: settingsData,
       auth: undefined
@@ -71,7 +71,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
           userId: { '@path': '$.userId' },
           email: 'test@test.com'
         },
-        timestamp: "2024-01-01T00:00:00.000Z",
+        timestamp: '2024-01-01T00:00:00.000Z'
       },
       settings: settingsData,
       auth: undefined

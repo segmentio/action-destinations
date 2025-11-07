@@ -13,10 +13,10 @@ export interface OperationType {
 export interface AddRemoveUsersJSON {
   users: [
     {
-      schema: ["EMAIL_SHA256"] | ["PHONE_SHA256"] | ["MOBILE_AD_ID_SHA256"],
+      schema: ['EMAIL_SHA256'] | ['PHONE_SHA256'] | ['MOBILE_AD_ID_SHA256']
       data: [string][]
     }
   ]
 }
 
-export type SchemaType = typeof SCHEMA_TYPES[keyof typeof SCHEMA_TYPES];
+export type SchemaType = typeof SCHEMA_TYPES[keyof typeof SCHEMA_TYPES]

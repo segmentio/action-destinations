@@ -1,5 +1,3 @@
-
-
 export interface TrackEventJSON {
   event: string
   userId: string
@@ -31,6 +29,4 @@ export interface TrackEventJSON {
   properties?: {
     [key: string]: unknown
   }
-
-
 }

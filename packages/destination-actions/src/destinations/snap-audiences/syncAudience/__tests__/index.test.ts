@@ -31,9 +31,9 @@ const addPayload1: Partial<SegmentEvent> = {
     },
     personas: {
       audience_settings: {
-          customAudienceName: "audience name 1",
-          description: "audience description blah",
-          retention_in_days: 90
+        customAudienceName: 'audience name 1',
+        description: 'audience description blah',
+        retention_in_days: 90
       },
       computation_class: 'audience',
       external_audience_id: external_audience_id_value,
@@ -49,8 +49,8 @@ const addPayload2 = {
   ...addPayload1,
   properties: {
     snap_test_audience: true,
-    phone: '+2222222222',
-  },
+    phone: '+2222222222'
+  }
 }
 
 const addPayload3 = {
@@ -59,10 +59,10 @@ const addPayload3 = {
     android_idfa: 'android_idfa_3333333333',
     snap_test_audience: true,
     email: 'test33333333@gmail.com'
-  },
+  }
 }
 
-const removePayload1 = { 
+const removePayload1 = {
   ...addPayload1,
   event: 'Audience Exited',
   properties: {
@@ -72,17 +72,17 @@ const removePayload1 = {
   }
 }
 
-const removePayload2 = { 
+const removePayload2 = {
   ...addPayload1,
   event: 'Audience Exited',
   properties: {
     android_idfa: 'android_idfa_5555555555',
     snap_test_audience: false,
-    phone: '+5555555555',
+    phone: '+5555555555'
   }
 }
 
-const removePayload3 = { 
+const removePayload3 = {
   ...addPayload1,
   event: 'Audience Exited',
   properties: {
@@ -94,15 +94,15 @@ const removePayload3 = {
 }
 
 const mapping = {
-    external_audience_id: { "@path": "$.context.personas.external_audience_id"},
-    audienceKey: { "@path": "$.context.personas.computation_key"},
-    props: {"@path": "$.properties"},
-    phone: {"@path": "$.properties.phone"},
-    email: {"@path": "$.properties.email"},
-    advertising_id: {"@path": "$.properties.android_idfa"},
-    enable_batching: true, 
-    max_batch_size: 1000,
-    batch_keys: ["external_audience_id"]
+  external_audience_id: { '@path': '$.context.personas.external_audience_id' },
+  audienceKey: { '@path': '$.context.personas.computation_key' },
+  props: { '@path': '$.properties' },
+  phone: { '@path': '$.properties.phone' },
+  email: { '@path': '$.properties.email' },
+  advertising_id: { '@path': '$.properties.android_idfa' },
+  enable_batching: true,
+  max_batch_size: 1000,
+  batch_keys: ['external_audience_id']
 }
 
 describe('Snapchat Audiences syncAudience', () => {
@@ -152,121 +152,97 @@ describe('Snapchat Audiences syncAudience', () => {
       It also dedupes where there are duplicate identifiers in the same batch (e.g. email only and email + phone in same batch)
     */
     const events = [
-      createTestEvent(addPayload1), 
-      createTestEvent(addPayload2), 
-      createTestEvent(addPayload3), 
-      createTestEvent(removePayload1), 
-      createTestEvent(removePayload2), 
+      createTestEvent(addPayload1),
+      createTestEvent(addPayload2),
+      createTestEvent(addPayload3),
+      createTestEvent(removePayload1),
+      createTestEvent(removePayload2),
       createTestEvent(removePayload3)
     ]
 
-    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`, {
-      users: [
-        {
-          schema: [
-            "EMAIL_SHA256"
-          ],
-          data: [
-            [
-              "28a12fd153fd0b60d1d8d696d8ea07ea387988bf0c906d7aeefecf17add3af48"
-            ],
-            [
-              "4ea60569f5d7920a08c4568b03a70129c9cfab26a48f44978e4626545084c2ab"
+    nock('https://adsapi.snapchat.com')
+      .post(`/v1/segments/${external_audience_id_value}/users`, {
+        users: [
+          {
+            schema: ['EMAIL_SHA256'],
+            data: [
+              ['28a12fd153fd0b60d1d8d696d8ea07ea387988bf0c906d7aeefecf17add3af48'],
+              ['4ea60569f5d7920a08c4568b03a70129c9cfab26a48f44978e4626545084c2ab']
             ]
-          ]
-        }
-      ]
-    }).reply(200, {})
+          }
+        ]
+      })
+      .reply(200, {})
 
-    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`, {
-      users: [
-        {
-          schema: [
-            "PHONE_SHA256"
-          ],
-          data: [
-            [
-              "d2d02ea74de2c9fab1d802db969c18d409a8663a9697977bb1c98ccdd9de4372"
-            ],
-            [
-              "965f69baefb60286c60262b40dcf40717a2227eef5db00c9b717d5de24453511"
+    nock('https://adsapi.snapchat.com')
+      .post(`/v1/segments/${external_audience_id_value}/users`, {
+        users: [
+          {
+            schema: ['PHONE_SHA256'],
+            data: [
+              ['d2d02ea74de2c9fab1d802db969c18d409a8663a9697977bb1c98ccdd9de4372'],
+              ['965f69baefb60286c60262b40dcf40717a2227eef5db00c9b717d5de24453511']
             ]
-          ]
-        }
-      ]
-    }).reply(200, {})
+          }
+        ]
+      })
+      .reply(200, {})
 
-    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`, {
-      users: [
-        {
-          schema: [
-            "MOBILE_AD_ID_SHA256"
-          ],
-          data: [
-            [
-              "13d1ebc093bac8f450b3ae0fba5684587b467f37a9fe17aa45640235e236bdbf"
-            ],
-            [
-              "ba27e74fa326339ee2d31b9c387d7242b0913f5f1a84bbfb9f2001443a97e250"
+    nock('https://adsapi.snapchat.com')
+      .post(`/v1/segments/${external_audience_id_value}/users`, {
+        users: [
+          {
+            schema: ['MOBILE_AD_ID_SHA256'],
+            data: [
+              ['13d1ebc093bac8f450b3ae0fba5684587b467f37a9fe17aa45640235e236bdbf'],
+              ['ba27e74fa326339ee2d31b9c387d7242b0913f5f1a84bbfb9f2001443a97e250']
             ]
-          ]
-        }
-      ]
-    }).reply(200, {})
+          }
+        ]
+      })
+      .reply(200, {})
 
-    nock('https://adsapi.snapchat.com').delete(`/v1/segments/${external_audience_id_value}/users`, {
-      users: [
-        {
-          schema: [
-            "EMAIL_SHA256"
-          ],
-          data: [
-            [
-              "7a9285ba929efbeba9c57ccf24f782a07c94648854b28b9b508b7eb332abea6f"
-            ],
-            [
-              "f3781dfc9dc62f55fa9c328b3ac5ff0818465be19a0914ba18144fc1a85ead56"
+    nock('https://adsapi.snapchat.com')
+      .delete(`/v1/segments/${external_audience_id_value}/users`, {
+        users: [
+          {
+            schema: ['EMAIL_SHA256'],
+            data: [
+              ['7a9285ba929efbeba9c57ccf24f782a07c94648854b28b9b508b7eb332abea6f'],
+              ['f3781dfc9dc62f55fa9c328b3ac5ff0818465be19a0914ba18144fc1a85ead56']
             ]
-          ]
-        }
-      ]
-    }).reply(200, {})
+          }
+        ]
+      })
+      .reply(200, {})
 
-    nock('https://adsapi.snapchat.com').delete(`/v1/segments/${external_audience_id_value}/users`, {
-      users: [
-        {
-          schema: [
-            "PHONE_SHA256"
-          ],
-          data: [
-            [
-              "f12a38838db97f7767c61d3922fa073656e407f00d8dc7337e5b5d0b009221da"
-            ],
-            [
-              "a5ad7e6d5225ad00c5f05ddb6bb3b1597a843cc92f6cf188490ffcb88a1ef4ef"
+    nock('https://adsapi.snapchat.com')
+      .delete(`/v1/segments/${external_audience_id_value}/users`, {
+        users: [
+          {
+            schema: ['PHONE_SHA256'],
+            data: [
+              ['f12a38838db97f7767c61d3922fa073656e407f00d8dc7337e5b5d0b009221da'],
+              ['a5ad7e6d5225ad00c5f05ddb6bb3b1597a843cc92f6cf188490ffcb88a1ef4ef']
             ]
-          ]
-        }
-      ]
-    }).reply(200, {})
+          }
+        ]
+      })
+      .reply(200, {})
 
-    nock('https://adsapi.snapchat.com').delete(`/v1/segments/${external_audience_id_value}/users`, {
-      users: [
-        {
-          schema: [
-            "MOBILE_AD_ID_SHA256"
-          ],
-          data: [
-            [
-              "ffb1512ae0d32e7bd9832ef56bd4350ca99222568b1ae92dcb4c26713b2e2440"
-            ],
-            [
-              "ca762f074b5d8053914f2b2dd1ccb2974cf7f65eede73508166c251d5057a782"
+    nock('https://adsapi.snapchat.com')
+      .delete(`/v1/segments/${external_audience_id_value}/users`, {
+        users: [
+          {
+            schema: ['MOBILE_AD_ID_SHA256'],
+            data: [
+              ['ffb1512ae0d32e7bd9832ef56bd4350ca99222568b1ae92dcb4c26713b2e2440'],
+              ['ca762f074b5d8053914f2b2dd1ccb2974cf7f65eede73508166c251d5057a782']
             ]
-          ]
-        }
-      ]
-    }).reply(200, {})
+          }
+        ]
+      })
+      .reply(200, {})
 
     const responses = await testDestination.testBatchAction('syncAudience', {
       events,
@@ -278,7 +254,6 @@ describe('Snapchat Audiences syncAudience', () => {
   })
 
   it('Multistatus response should include successes and failures', async () => {
-    
     const noIdsPayload = {
       ...addPayload1,
       properties: {
@@ -286,55 +261,40 @@ describe('Snapchat Audiences syncAudience', () => {
       }
     }
 
-    const events = [
-      createTestEvent(noIdsPayload),
-      createTestEvent(addPayload1)
-    ]
+    const events = [createTestEvent(noIdsPayload), createTestEvent(addPayload1)]
 
-    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`, {
-      users: [
-        {
-          schema: [
-            "EMAIL_SHA256"
-          ],
-          data: [
-            [
-              "28a12fd153fd0b60d1d8d696d8ea07ea387988bf0c906d7aeefecf17add3af48"
-            ]
-          ]
-        }
-      ]
-    }).reply(200, {})
+    nock('https://adsapi.snapchat.com')
+      .post(`/v1/segments/${external_audience_id_value}/users`, {
+        users: [
+          {
+            schema: ['EMAIL_SHA256'],
+            data: [['28a12fd153fd0b60d1d8d696d8ea07ea387988bf0c906d7aeefecf17add3af48']]
+          }
+        ]
+      })
+      .reply(200, {})
 
-    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`, {
-      users: [
-        {
-          schema: [
-            "MOBILE_AD_ID_SHA256"
-          ],
-          data: [
-            [
-              "13d1ebc093bac8f450b3ae0fba5684587b467f37a9fe17aa45640235e236bdbf"
-            ]
-          ]
-        }
-      ]
-    }).reply(200, {})
+    nock('https://adsapi.snapchat.com')
+      .post(`/v1/segments/${external_audience_id_value}/users`, {
+        users: [
+          {
+            schema: ['MOBILE_AD_ID_SHA256'],
+            data: [['13d1ebc093bac8f450b3ae0fba5684587b467f37a9fe17aa45640235e236bdbf']]
+          }
+        ]
+      })
+      .reply(200, {})
 
-    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`, {
-      users: [
-        {
-          schema: [
-            "PHONE_SHA256"
-          ],
-          data: [
-            [
-              "d2d02ea74de2c9fab1d802db969c18d409a8663a9697977bb1c98ccdd9de4372"
-            ]
-          ]
-        }
-      ]
-    }).reply(200, {})
+    nock('https://adsapi.snapchat.com')
+      .post(`/v1/segments/${external_audience_id_value}/users`, {
+        users: [
+          {
+            schema: ['PHONE_SHA256'],
+            data: [['d2d02ea74de2c9fab1d802db969c18d409a8663a9697977bb1c98ccdd9de4372']]
+          }
+        ]
+      })
+      .reply(200, {})
 
     const response = await testDestination.executeBatch('syncAudience', {
       events,
@@ -345,12 +305,12 @@ describe('Snapchat Audiences syncAudience', () => {
     expect(response).toMatchObject([
       {
         status: 400,
-        errortype: "PAYLOAD_VALIDATION_FAILED",
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'One of "email" or "phone" or "Mobile Advertising ID" is required.'
       },
       {
         status: 200,
-        body: "{\"external_audience_id\":\"123456789\",\"audienceKey\":\"snap_test_audience\",\"props\":{\"android_idfa\":\"android_idfa_1111111111\",\"snap_test_audience\":true,\"phone\":\"+1111111111\",\"email\":\"test11111111@gmail.com\"},\"phone\":\"+1111111111\",\"email\":\"test11111111@gmail.com\",\"advertising_id\":\"android_idfa_1111111111\",\"enable_batching\":true,\"max_batch_size\":1000,\"batch_keys\":[\"external_audience_id\"],\"index\":1}"
+        body: '{"external_audience_id":"123456789","audienceKey":"snap_test_audience","props":{"android_idfa":"android_idfa_1111111111","snap_test_audience":true,"phone":"+1111111111","email":"test11111111@gmail.com"},"phone":"+1111111111","email":"test11111111@gmail.com","advertising_id":"android_idfa_1111111111","enable_batching":true,"max_batch_size":1000,"batch_keys":["external_audience_id"],"index":1}'
       }
     ])
   })

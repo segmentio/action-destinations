@@ -37,7 +37,6 @@ describe('stringifyJsonWithEscapedQuotes', () => {
     expect(stringifyJsonWithEscapedQuotes(true)).toBe('true')
     expect(stringifyJsonWithEscapedQuotes(null)).toBe('null')
   })
-
 })
 
 describe('stringifyMappingSchemaForGraphQL', () => {
@@ -59,7 +58,7 @@ describe('stringifyMappingSchemaForGraphQL', () => {
     expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
   })
 
-  it('should transform type field when it\'s already uppercase', () => {
+  it("should transform type field when it's already uppercase", () => {
     const input = { type: 'STRING' }
     const expected = '{type:STRING}'
     expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
@@ -82,7 +81,8 @@ describe('stringifyMappingSchemaForGraphQL', () => {
         label: 'Email Address'
       }
     ]
-    const expected = '[{incomingKey:"userId",destinationKey:"external_id",type:STRING,isPii:false,label:"External Profile ID"},{incomingKey:"email",destinationKey:"email",type:STRING,isPii:true,label:"Email Address"}]'
+    const expected =
+      '[{incomingKey:"userId",destinationKey:"external_id",type:STRING,isPii:false,label:"External Profile ID"},{incomingKey:"email",destinationKey:"email",type:STRING,isPii:true,label:"Email Address"}]'
     expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
   })
 
@@ -130,4 +130,4 @@ describe('stringifyMappingSchemaForGraphQL', () => {
     const expected = '{field:{incomingKey:"nested",type:STRING},type:OBJECT}'
     expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
   })
-}) 
+})

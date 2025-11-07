@@ -50,6 +50,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: true,
       unsafe_hidden: true
     },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      required: false,
+      default: 1000
+    },
     batch_keys: {
       label: 'Batch Keys',
       description: 'The keys to use for batching the events.',

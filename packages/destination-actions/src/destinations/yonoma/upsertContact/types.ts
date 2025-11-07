@@ -1,5 +1,3 @@
-
-
 export interface UpsertContactJSON {
   userId: string
   anonymousId?: string

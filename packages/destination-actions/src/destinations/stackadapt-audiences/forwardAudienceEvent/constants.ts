@@ -1,4 +1,4 @@
-import { ProfileFieldConfig } from './types' 
+import { ProfileFieldConfig } from './types'
 
 export const EXTERNAL_PROVIDER = 'segment_io'
 
@@ -12,77 +12,77 @@ export const PROFILE_DEFAULT_FIELDS: ProfileFieldConfig[] = [
     label: 'Email',
     type: 'string',
     description: 'The email address of the user',
-    isPii: true,
+    isPii: true
   },
   {
     key: 'first_name',
     label: 'First Name',
     type: 'string',
     description: "The user's first name",
-    isPii: true,
+    isPii: true
   },
   {
     key: 'last_name',
     label: 'Last Name',
     type: 'string',
     description: "The user's last name",
-    isPii: true,
+    isPii: true
   },
   {
     key: 'phone',
     label: 'Phone',
     type: 'string',
     description: 'The phone number of the user',
-    isPii: true,
+    isPii: true
   },
   {
     key: 'address',
     label: 'Address',
     type: 'string',
     description: 'The address of the user',
-    isPii: true,
+    isPii: true
   },
   {
     key: 'city',
     label: 'City',
     type: 'string',
     description: 'The city of the user',
-    isPii: false,
+    isPii: false
   },
   {
     key: 'state',
     label: 'State',
     type: 'string',
     description: 'The state of the user',
-    isPii: false,
+    isPii: false
   },
   {
     key: 'country',
     label: 'Country',
     type: 'string',
     description: 'The country of the user',
-    isPii: false,
+    isPii: false
   },
   {
     key: 'postal_code',
     label: 'Postal Code',
     type: 'string',
     description: 'The postal code of the user',
-    isPii: false,
+    isPii: false
   },
   {
     key: 'timezone',
     label: 'Timezone',
     type: 'string',
     description: 'The timezone of the user',
-    isPii: false,
+    isPii: false
   },
   {
     key: 'birth_date',
     label: 'Birth Date',
     type: 'date',
     description: 'The birth date of the user',
-    isPii: true,
+    isPii: true
   }
 ]
 

@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.properties.email' }
         }
-      } 
+      }
     }
   },
   perform: async (request, { payload, settings }) => {

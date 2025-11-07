@@ -31,17 +31,18 @@ export const fields: Record<string, InputField> = {
   },
   phone: {
     label: 'Phone',
-    description: "If using phone as the identifier an additional setup step is required when connecting the Destination to the Audience. Please ensure that 'phone' is configured as an additional identifier in the Audience settings tab.",
+    description:
+      "If using phone as the identifier an additional setup step is required when connecting the Destination to the Audience. Please ensure that 'phone' is configured as an additional identifier in the Audience settings tab.",
     type: 'string',
     required: false,
-    default: { '@path': '$.properties.phone' },
+    default: { '@path': '$.properties.phone' }
   },
   email: {
     label: 'Email',
     description: "The user's email address.",
     type: 'string',
     required: false,
-    default: { '@path': '$.properties.email' },
+    default: { '@path': '$.properties.email' }
   },
   advertising_id: {
     label: 'Mobile Advertising ID',
@@ -49,7 +50,7 @@ export const fields: Record<string, InputField> = {
       "If using Mobile Ad ID as the identifier an additional setup step is required when connecting the Destination to the Audience. Please ensure that 'ios.idfa' is configured to 'ios_idfa' and 'android.idfa' is configured to 'android_idfa' in the Audience settings tab.",
     type: 'string',
     required: false,
-    default: { 
+    default: {
       '@if': {
         exists: { '@path': '$.properties.android_idfa' },
         then: { '@path': '$.properties.android_idfa' },
@@ -68,7 +69,8 @@ export const fields: Record<string, InputField> = {
   },
   max_batch_size: {
     label: 'Max Batch Size',
-    description: 'Maximum number of API calls to include in a batch. Defaults to 100,000 which is the maximum allowed by Snap.',
+    description:
+      'Maximum number of API calls to include in a batch. Defaults to 100,000 which is the maximum allowed by Snap.',
     type: 'number',
     required: true,
     readOnly: true,
@@ -79,7 +81,8 @@ export const fields: Record<string, InputField> = {
   },
   batch_keys: {
     label: 'Batch Keys',
-    description: 'The keys to use for batching the events. Ensures events from different audiences are sent in separate batches. This is Segment default behavior with Engage Audiences anyway.',
+    description:
+      'The keys to use for batching the events. Ensures events from different audiences are sent in separate batches. This is Segment default behavior with Engage Audiences anyway.',
     type: 'string',
     unsafe_hidden: true,
     required: false,

@@ -30,10 +30,10 @@ describe('Snap Audiences', () => {
         .post(`/v1/adaccounts/${ad_account_id}/segments`, {
           segments: [
             {
-              name: "Custom Name",
-              source_type: "FIRST_PARTY",
-              ad_account_id: "22222222",
-              description: "Audience Snap Audience Name created by Segment",
+              name: 'Custom Name',
+              source_type: 'FIRST_PARTY',
+              ad_account_id: '22222222',
+              description: 'Audience Snap Audience Name created by Segment',
               retention_in_days: 9999
             }
           ]

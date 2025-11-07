@@ -35,7 +35,7 @@ export interface Mapping {
   destinationKey: string
   label: string
   type: string
-  isPii: boolean  
+  isPii: boolean
   value?: string
 }
 

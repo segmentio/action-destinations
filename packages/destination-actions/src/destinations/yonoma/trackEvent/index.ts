@@ -6,7 +6,8 @@ import { TRACK_EVENT_URL } from './constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: 'Capture behavioral events for both known and anonymous users to build a complete activity timeline in Yonoma.',
+  description:
+    'Capture behavioral events for both known and anonymous users to build a complete activity timeline in Yonoma.',
   defaultSubscription: 'type = "track"',
   fields: {
     event: {
@@ -56,7 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
     listId: {
       label: 'List ID',
       type: 'string',
-      description: "The Yonoma list to add the contact to.",
+      description: 'The Yonoma list to add the contact to.',
       required: true,
       default: {
         '@if': {
@@ -66,14 +67,14 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    timestamp: {  
+    timestamp: {
       label: 'Timestamp',
       type: 'string',
       description: 'The timestamp of the event. Defaults to the current time if not provided.',
       format: 'date-time',
       default: { '@path': '$.timestamp' }
     },
-    ip: {  
+    ip: {
       label: 'IP Address',
       type: 'string',
       description: 'The IP address of the user. Defaults to the current user IP if not provided.',
@@ -199,27 +200,22 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.properties' }
     }
   },
-  perform: async (request, {payload}) => {
+  perform: async (request, { payload }) => {
     const {
       event,
-      identifiers: {
-        userId,
-        email
-      },
-      identifiers: {
-        anonymousId
-      } = {},
+      identifiers: { userId, email },
+      identifiers: { anonymousId } = {},
       listId,
       timestamp,
-      ip, 
-      userAgent, 
-      page, 
+      ip,
+      userAgent,
+      page,
       campaign,
       location,
       properties
     } = payload
 
-    if(!userId && !email && !anonymousId) {
+    if (!userId && !email && !anonymousId) {
       throw new PayloadValidationError('At least one identifier (userId, email, or anonymousId) is required.')
     }
 
@@ -231,7 +227,7 @@ const action: ActionDefinition<Settings, Payload> = {
       userId,
       ...(anonymousId ? { anonymousId } : {}),
       email,
-      listId, 
+      listId,
       timestamp,
       ip,
       userAgent,
@@ -245,7 +241,6 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json
     })
-  
   }
 }
 
