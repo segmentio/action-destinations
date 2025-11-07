@@ -92,23 +92,28 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  presets: STANDARD_EVENTS.map(
-    ([, fieldValue, description, segmentEventName, productMappingType]) => ({
-      type: 'automatic',
-      partnerAction: 'reportAppEvent',
-      name: description,
-      subscribe: `event = "${segmentEventName}"`,
-      mapping: {
-        ...defaultValues(reportAppEvent.fields),
-        event: fieldValue,
-        ...(productMappingType === PRODUCT_MAPPING_TYPE.SINGLE
+presets: STANDARD_EVENTS.map(
+  ({
+    segmentEventName,
+    productMappingType,
+    ttEventName,
+    description
+  }) => ({
+    type: 'automatic',
+    partnerAction: 'reportAppEvent',
+    name: description,
+    subscribe: `event = "${segmentEventName}"`,
+    mapping: {
+      ...defaultValues(reportAppEvent.fields),
+      event: ttEventName, 
+      ...(productMappingType === PRODUCT_MAPPING_TYPE.SINGLE
         ? singleProductContents
         : productMappingType === PRODUCT_MAPPING_TYPE.MULTIPLE
         ? multiProductContents
         : {})
-      }
-    })
-  ),
+    }
+  })
+),
   actions: {
     reportAppEvent
   }

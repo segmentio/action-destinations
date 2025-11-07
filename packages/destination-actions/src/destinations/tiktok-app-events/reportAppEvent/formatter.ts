@@ -1,4 +1,4 @@
-import { processHashing, SmartHashing } from '../../../lib/hashing-utils'
+import { processHashing } from '../../../lib/hashing-utils'
 /**
  * Convert emails to lower case, and hash in SHA256.
  */
@@ -12,20 +12,11 @@ export const formatEmails = (email_addresses: string[] | undefined): string[] =>
   return result
 }
 
-export const formatIDFA = (idfa: string | undefined): string => {
-  if(!idfa) {
-    return ''
-  } 
-  const smartHashing = new SmartHashing()
-  const isHashed = smartHashing.isAlreadyHashed(idfa.trim())
-
-  if(isHashed) {
-    return idfa.toLowerCase().trim()
-  } 
-  else {
-    return idfa.toUpperCase().trim()
-  }
-} 
+export const formatAdvertisingId = (id: string | undefined, lowerCase: boolean): string | undefined => {
+  if (!id) return undefined
+  const processed = lowerCase ? id.toLocaleLowerCase().trim() : id.trim()
+  return hashAndEncode(processed)
+}
 
 /**
  * Convert string to match E.164 phone number pattern (e.g. +1234567890)

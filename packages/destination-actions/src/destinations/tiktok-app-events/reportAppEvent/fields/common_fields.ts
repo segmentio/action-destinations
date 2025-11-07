@@ -1,45 +1,209 @@
 import { InputField } from '@segment/actions-core'
 import { APP, APP_STATUS } from '../constants'
+import { StandardEventItem } from '../types' 
 
 export const PRODUCT_MAPPING_TYPE = {
     MULTIPLE: 'MULTIPLE',
     SINGLE: 'SINGLE',
     NONE: 'NONE'
-}
+} as const
 
-export const STANDARD_EVENTS = [
-  ['ACHIEVE_LEVEL', 'AchieveLevel', 'Achieve a level', 'Level Achieved', PRODUCT_MAPPING_TYPE.NONE],
-  ['ADD_PAYMENT_INFO', 'AddPaymentInfo', 'Add payment information', 'Payment Info Entered', PRODUCT_MAPPING_TYPE.NONE],
-  ['ADD_TO_CART', 'AddToCart', 'Add to cart', 'Product Added', PRODUCT_MAPPING_TYPE.SINGLE],
-  ['ADD_TO_WISHLIST', 'AddToWishlist', 'Add to wishlist', 'Product Added to Wishlist', PRODUCT_MAPPING_TYPE.SINGLE],
-  ['CHECKOUT', 'Checkout', 'Place an order', 'Checkout Started', PRODUCT_MAPPING_TYPE.MULTIPLE],
-  ['COMPLETE_TUTORIAL', 'CompleteTutorial', 'Complete the tutorial', 'Tutorial Completed', PRODUCT_MAPPING_TYPE.NONE],
-  ['CREATE_GROUP', 'CreateGroup', 'Create a group', 'Group Created', PRODUCT_MAPPING_TYPE.NONE],
-  ['CREATE_ROLE', 'CreateRole', 'Create a role', 'Role Created', PRODUCT_MAPPING_TYPE.NONE],
-  ['GENERATE_LEAD', 'GenerateLead', 'Generate a lead', 'Lead Generated', PRODUCT_MAPPING_TYPE.NONE],
-  ['IN_APP_AD_CLICK', 'InAppADClick', 'In-app ad click', 'Application Ad Clicked', PRODUCT_MAPPING_TYPE.NONE],
-  ['IN_APP_AD_IMPR', 'InAppADImpr', 'In-app ad impression', 'Application Ad Served', PRODUCT_MAPPING_TYPE.NONE],
-  ['INSTALL_APP', 'InstallApp', 'Install the app', 'Application Installed', PRODUCT_MAPPING_TYPE.NONE],
-  ['JOIN_GROUP', 'JoinGroup', 'Join a group', 'Group Joined', PRODUCT_MAPPING_TYPE.NONE],
-  ['LAUNCH_APP', 'LaunchAPP', 'Launch the app', 'Application Opened', PRODUCT_MAPPING_TYPE.NONE],
-  ['LOAN_APPLICATION', 'LoanApplication', 'Apply for a loan', 'Loan Application Submitted', PRODUCT_MAPPING_TYPE.NONE],
-  ['LOAN_APPROVAL', 'LoanApproval', 'Loan is approved', 'Loan Approved', PRODUCT_MAPPING_TYPE.NONE],
-  ['LOAN_DISBURSAL', 'LoanDisbursal', 'Loan is disbursed', 'Loan Disbursed', PRODUCT_MAPPING_TYPE.NONE],
-  ['LOGIN', 'Login', 'Log in successfully', 'Signed In', PRODUCT_MAPPING_TYPE.NONE],
-  ['PURCHASE', 'Purchase', 'Complete payment', 'Order Completed', PRODUCT_MAPPING_TYPE.MULTIPLE],
-  ['RATE', 'Rate', 'Rate', 'Rating Completed', PRODUCT_MAPPING_TYPE.NONE],
-  ['REGISTRATION', 'Registration', 'Complete the registration', 'Signed Up', PRODUCT_MAPPING_TYPE.NONE],
-  ['SEARCH', 'Search', 'Search', 'Products Searched', PRODUCT_MAPPING_TYPE.NONE],
-  ['SPEND_CREDITS', 'SpendCredits', 'Spend credits', 'Credits Spent', PRODUCT_MAPPING_TYPE.NONE],
-  ['START_TRIAL', 'StartTrial', 'Start the trial', 'Trial Started', PRODUCT_MAPPING_TYPE.NONE],
-  ['SUBSCRIBE', 'Subscribe', 'Subscribe', 'User Subscribed', PRODUCT_MAPPING_TYPE.NONE],
-  ['UNLOCK_ACHIEVEMENT', 'UnlockAchievement', 'Unlock an achievement', 'Achievement Unlocked', PRODUCT_MAPPING_TYPE.NONE],
-  ['VIEW_CONTENT', 'ViewContent', 'View details', 'Product Viewed', PRODUCT_MAPPING_TYPE.SINGLE]
+export const STANDARD_EVENTS: StandardEventItem[] = [
+  {
+    key: 'ACHIEVE_LEVEL',
+    ttEventName: 'AchieveLevel',
+    description: 'Achieve a level',
+    segmentEventName: 'Level Achieved',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'ADD_PAYMENT_INFO',
+    ttEventName: 'AddPaymentInfo',
+    description: 'Add payment information',
+    segmentEventName: 'Payment Info Entered',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'ADD_TO_CART',
+    ttEventName: 'AddToCart',
+    description: 'Add to cart',
+    segmentEventName: 'Product Added',
+    productMappingType: PRODUCT_MAPPING_TYPE.SINGLE,
+  },
+  {
+    key: 'ADD_TO_WISHLIST',
+    ttEventName: 'AddToWishlist',
+    description: 'Add to wishlist',
+    segmentEventName: 'Product Added to Wishlist',
+    productMappingType: PRODUCT_MAPPING_TYPE.SINGLE,
+  },
+  {
+    key: 'CHECKOUT',
+    ttEventName: 'Checkout',
+    description: 'Place an order',
+    segmentEventName: 'Checkout Started',
+    productMappingType: PRODUCT_MAPPING_TYPE.MULTIPLE,
+  },
+  {
+    key: 'COMPLETE_TUTORIAL',
+    ttEventName: 'CompleteTutorial',
+    description: 'Complete the tutorial',
+    segmentEventName: 'Tutorial Completed',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'CREATE_GROUP',
+    ttEventName: 'CreateGroup',
+    description: 'Create a group',
+    segmentEventName: 'Group Created',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'CREATE_ROLE',
+    ttEventName: 'CreateRole',
+    description: 'Create a role',
+    segmentEventName: 'Role Created',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'GENERATE_LEAD',
+    ttEventName: 'GenerateLead',
+    description: 'Generate a lead',
+    segmentEventName: 'Lead Generated',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'IN_APP_AD_CLICK',
+    ttEventName: 'InAppADClick',
+    description: 'In-app ad click',
+    segmentEventName: 'Application Ad Clicked',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'IN_APP_AD_IMPR',
+    ttEventName: 'InAppADImpr',
+    description: 'In-app ad impression',
+    segmentEventName: 'Application Ad Served',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'INSTALL_APP',
+    ttEventName: 'InstallApp',
+    description: 'Install the app',
+    segmentEventName: 'Application Installed',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'JOIN_GROUP',
+    ttEventName: 'JoinGroup',
+    description: 'Join a group',
+    segmentEventName: 'Group Joined',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'LAUNCH_APP',
+    ttEventName: 'LaunchAPP',
+    description: 'Launch the app',
+    segmentEventName: 'Application Opened',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'LOAN_APPLICATION',
+    ttEventName: 'LoanApplication',
+    description: 'Apply for a loan',
+    segmentEventName: 'Loan Application Submitted',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'LOAN_APPROVAL',
+    ttEventName: 'LoanApproval',
+    description: 'Loan is approved',
+    segmentEventName: 'Loan Approved',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'LOAN_DISBURSAL',
+    ttEventName: 'LoanDisbursal',
+    description: 'Loan is disbursed',
+    segmentEventName: 'Loan Disbursed',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'LOGIN',
+    ttEventName: 'Login',
+    description: 'Log in successfully',
+    segmentEventName: 'Signed In',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'PURCHASE',
+    ttEventName: 'Purchase',
+    description: 'Complete payment',
+    segmentEventName: 'Order Completed',
+    productMappingType: PRODUCT_MAPPING_TYPE.MULTIPLE,
+  },
+  {
+    key: 'RATE',
+    ttEventName: 'Rate',
+    description: 'Rate',
+    segmentEventName: 'Rating Completed',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'REGISTRATION',
+    ttEventName: 'Registration',
+    description: 'Complete the registration',
+    segmentEventName: 'Signed Up',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'SEARCH',
+    ttEventName: 'Search',
+    description: 'Search',
+    segmentEventName: 'Products Searched',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'SPEND_CREDITS',
+    ttEventName: 'SpendCredits',
+    description: 'Spend credits',
+    segmentEventName: 'Credits Spent',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'START_TRIAL',
+    ttEventName: 'StartTrial',
+    description: 'Start the trial',
+    segmentEventName: 'Trial Started',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'SUBSCRIBE',
+    ttEventName: 'Subscribe',
+    description: 'Subscribe',
+    segmentEventName: 'User Subscribed',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'UNLOCK_ACHIEVEMENT',
+    ttEventName: 'UnlockAchievement',
+    description: 'Unlock an achievement',
+    segmentEventName: 'Achievement Unlocked',
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+  },
+  {
+    key: 'VIEW_CONTENT',
+    ttEventName: 'ViewContent',
+    description: 'View details',
+    segmentEventName: 'Product Viewed',
+    productMappingType: PRODUCT_MAPPING_TYPE.SINGLE,
+  },
 ] as const
 
-const APP_STANDARD_EVENT_NAMES = Object.fromEntries(
-  STANDARD_EVENTS.map(([constantKey, standardEventName, ,]) => [constantKey, standardEventName])
-)
+export const APP_STANDARD_EVENT_NAMES = STANDARD_EVENTS.reduce((acc, item) => {
+  acc[item.key] = item.ttEventName
+  return acc
+}, {} as Record<string, string>)
 
 export const common_fields: Record<string, InputField> = {
   event_source: {

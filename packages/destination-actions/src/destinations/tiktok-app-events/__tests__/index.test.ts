@@ -135,7 +135,7 @@ describe('Tiktok App Events', () => {
               ip: '0.0.0.0',
               phone: ['2dcdfdf2e17a1da67c29c18e7ad8e7d0db33f7bd060ca0b57283f7de039bc478', '0806656035ae6c32c59071bfeb47c81c1a2eb370e3fca994869e90af24f26073'],
               user_agent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57',
-              idfa: "7A3CBEA0-BDF5-11E4-8DFC-AA07A5B093DB",
+              idfa: "08f1f8e9e433f685c514154e1a5b0dfe1885c6f140a7e3eff08a037bda13dcc1",
               idfv: "B5372DB0-C21E-11E4-8DFC-AA07A5B093DB"
             }
           }
@@ -242,7 +242,7 @@ describe('Tiktok App Events', () => {
               ip: '0.0.0.0',
               phone: ['2dcdfdf2e17a1da67c29c18e7ad8e7d0db33f7bd060ca0b57283f7de039bc478', '0806656035ae6c32c59071bfeb47c81c1a2eb370e3fca994869e90af24f26073'],
               user_agent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57',
-              idfa: "7A3CBEA0-BDF5-11E4-8DFC-AA07A5B093DB",
+              idfa: "08f1f8e9e433f685c514154e1a5b0dfe1885c6f140a7e3eff08a037bda13dcc1",
               idfv: "B5372DB0-C21E-11E4-8DFC-AA07A5B093DB"
             }
           }
@@ -253,7 +253,7 @@ describe('Tiktok App Events', () => {
       })
     })
 
-    it('IDFA should lower cased if already hashed', async () => {
+    it('advertising ID should not be rehashed if already hashed', async () => {
       const event = createTestEvent({
         timestamp: timestamp,
         event: 'Product Added',
@@ -280,7 +280,7 @@ describe('Tiktok App Events', () => {
         context: {
           device: {
             id: "B5372DB0-C21E-11E4-8DFC-AA07A5B093DB",
-            advertisingId: "f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a", // this is an already hashed IDFA
+            advertisingId: "08f1f8e9e433f685c514154e1a5b0dfe1885c6f140a7e3eff08a037bda13dcc1", // already hashed
             adTrackingEnabled: true,
             type: "ios"
           },
@@ -349,7 +349,7 @@ describe('Tiktok App Events', () => {
               ip: '0.0.0.0',
               phone: ['2dcdfdf2e17a1da67c29c18e7ad8e7d0db33f7bd060ca0b57283f7de039bc478', '0806656035ae6c32c59071bfeb47c81c1a2eb370e3fca994869e90af24f26073'],
               user_agent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57',
-              idfa: "f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a",
+              idfa: "08f1f8e9e433f685c514154e1a5b0dfe1885c6f140a7e3eff08a037bda13dcc1",
               idfv: "B5372DB0-C21E-11E4-8DFC-AA07A5B093DB"
             }
           }
@@ -439,8 +439,6 @@ describe('Tiktok App Events', () => {
       })
       ).rejects.toThrowError(new Error('content_id is required for event Checkout'))
     })
-
-
 
   })
 })

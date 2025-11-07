@@ -1,7 +1,7 @@
 import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
-import { formatEmails, formatPhones, formatUserIds, formatIDFA } from './formatter'
+import { formatEmails, formatPhones, formatUserIds, formatAdvertisingId } from './formatter'
 import { TTJSON, TTBaseProps, TTUser, TTApp, TTAd, AppStatus } from './types'
 import { APP_STATUS } from './constants'
 import { STANDARD_EVENTS, PRODUCT_MAPPING_TYPE } from '../reportAppEvent/fields/common_fields'
@@ -73,15 +73,14 @@ function getUser(payload: Payload): TTUser {
   const emails = formatEmails(email)
   const userIds = formatUserIds(external_id)  
   const attStatus = getATTStatus(payload)
-  const gaid = getGAID(payload)
-  const idfa = getIDFA(payload)
+  const advertisingId = getAdvertisingId(payload)
 
   const requestUser: TTUser = {
     ...(userIds && userIds.length > 0 ? { external_id: userIds } : {}), // Jae to check if external ids are supported with app events
     ...(phone_numbers && phone_numbers.length > 0 ? { phone: phone_numbers } : {}),
     ...(emails && emails.length > 0 ? { email: emails } : {}),
-    ...(idfa ? { idfa } : {}),
-    ...(gaid ? { gaid } : {}),
+    ...(advertisingId && device_type?.toLocaleLowerCase() === 'ios' ? { idfa: advertisingId } : {}),
+    ...(advertisingId && device_type?.toLocaleLowerCase() === 'android' ? { gaid: advertisingId } : {}),
     ...(device_id && device_type?.toLocaleLowerCase() === 'ios' ? { idfv: device_id } : {}),
     ...(attStatus ? { att_status: attStatus } : {}),
     ...(ip ? { ip } : {}),
@@ -121,31 +120,24 @@ function getATTStatus(payload: Payload): AppStatus {
   }
 }
 
-function getIDFA(payload: Payload): string | undefined {
+function getAdvertisingId(payload: Payload): string | undefined {
   const { 
     advertising_id,
-    device_details: {
-      device_type
-    } = {}
-  } = payload
+    device_details: { device_type } = {}
+  } = payload;
 
-  if(device_type?.toLocaleLowerCase() === 'ios' && advertising_id) {
-    return formatIDFA(advertising_id)
+  if (!advertising_id || !device_type) {
+    return undefined
   }
 
-  return undefined
-}
+  const platform = device_type.toLocaleLowerCase()
 
-function getGAID(payload: Payload): string | undefined {
-  const { 
-    advertising_id,
-    device_details: {
-      device_type
-    } = {}
-  } = payload
+  if (platform === 'ios') {
+    return formatAdvertisingId(advertising_id, true)
+  }
 
-  if(device_type?.toLocaleLowerCase() === 'android' && advertising_id) {
-    return advertising_id.toLocaleLowerCase().trim()
+  if (platform === 'android') {
+    return formatAdvertisingId(advertising_id, false)
   }
 
   return undefined
@@ -164,11 +156,12 @@ function getProps(payload: Payload): TTBaseProps {
     contents
   } = payload
 
+  const productMappingType = STANDARD_EVENTS.find(
+    (se) => se.ttEventName === event
+  )?.productMappingType
+
   if (
-    [
-      PRODUCT_MAPPING_TYPE.SINGLE, PRODUCT_MAPPING_TYPE.MULTIPLE].includes(
-      STANDARD_EVENTS.find(([ , standardEventName ]) => standardEventName === event)?.[4] || ""
-    )
+    productMappingType && (productMappingType === PRODUCT_MAPPING_TYPE.SINGLE || productMappingType === PRODUCT_MAPPING_TYPE.MULTIPLE)
   ) {
     contents?.forEach(content => {
       if (!content.content_id) {

@@ -1,5 +1,5 @@
 import { APP_STATUS } from './constants'
-
+import { PRODUCT_MAPPING_TYPE } from './fields/common_fields'
 export interface TTJSON {
   event_source: string
   event_source_id: string
@@ -68,4 +68,14 @@ interface TTContentItem {
   content_id?: string
   content_name?: string
   brand?: string
+}
+
+export type ProductMappingType = typeof PRODUCT_MAPPING_TYPE[keyof typeof PRODUCT_MAPPING_TYPE]
+
+export interface StandardEventItem {
+  key: string,
+  ttEventName: string,
+  description: string,
+  segmentEventName: string,
+  productMappingType: ProductMappingType
 }
