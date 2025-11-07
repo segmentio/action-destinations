@@ -3,6 +3,14 @@ import type { BrowserDestinationDefinition } from '@segment/browser-destination-
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import type { Mixpanel } from './types'
 
+import track from './track'
+
+import trackPageView from './trackPageView'
+
+import identify from './identify'
+
+import group from './group'
+
 declare global {
   interface Window {
     mixpanel: Mixpanel
@@ -29,18 +37,19 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       format: 'uri',
       required: true,
       default: 'https://api-js.mixpanel.com'
-    }, 
+    },
     autocapture: {
-      description: 'Enable or disable Mixpanel autocapture functionality. Select "Custom" to specify fine grained control over which events are autocaptured.',
+      description:
+        'Enable or disable Mixpanel autocapture functionality. Select "Custom" to specify fine grained control over which events are autocaptured.',
       label: 'Autocapture',
       type: 'string',
       choices: [
         { label: 'Enabled', value: 'enabled' },
         { label: 'Disabled', value: 'disabled' },
-        { label: 'Custom', value: 'custom' },
+        { label: 'Custom', value: 'custom' }
       ],
       default: 'enabled'
-    }, 
+    },
     autocapture_pageview: {
       description: 'Capture pageview events automatically',
       label: 'Autocapture Pageview',
@@ -54,9 +63,9 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       depends_on: {
         conditions: [
           {
-              fieldKey: 'autocapture',
-              operator: 'is',
-              value: 'custom'
+            fieldKey: 'autocapture',
+            operator: 'is',
+            value: 'custom'
           }
         ]
       }
@@ -69,9 +78,9 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       depends_on: {
         conditions: [
           {
-              fieldKey: 'autocapture',
-              operator: 'is',
-              value: 'custom'
+            fieldKey: 'autocapture',
+            operator: 'is',
+            value: 'custom'
           }
         ]
       }
@@ -84,9 +93,9 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       depends_on: {
         conditions: [
           {
-              fieldKey: 'autocapture',
-              operator: 'is',
-              value: 'custom'
+            fieldKey: 'autocapture',
+            operator: 'is',
+            value: 'custom'
           }
         ]
       }
@@ -99,9 +108,9 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       depends_on: {
         conditions: [
           {
-              fieldKey: 'autocapture',
-              operator: 'is',
-              value: 'custom'
+            fieldKey: 'autocapture',
+            operator: 'is',
+            value: 'custom'
           }
         ]
       }
@@ -114,9 +123,9 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       depends_on: {
         conditions: [
           {
-              fieldKey: 'autocapture',
-              operator: 'is',
-              value: 'custom'
+            fieldKey: 'autocapture',
+            operator: 'is',
+            value: 'custom'
           }
         ]
       }
@@ -129,9 +138,9 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       depends_on: {
         conditions: [
           {
-              fieldKey: 'autocapture',
-              operator: 'is',
-              value: 'custom'
+            fieldKey: 'autocapture',
+            operator: 'is',
+            value: 'custom'
           }
         ]
       }
@@ -144,9 +153,9 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       depends_on: {
         conditions: [
           {
-              fieldKey: 'autocapture',
-              operator: 'is',
-              value: 'custom'
+            fieldKey: 'autocapture',
+            operator: 'is',
+            value: 'custom'
           }
         ]
       }
@@ -159,9 +168,9 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       depends_on: {
         conditions: [
           {
-              fieldKey: 'autocapture',
-              operator: 'is',
-              value: 'custom'
+            fieldKey: 'autocapture',
+            operator: 'is',
+            value: 'custom'
           }
         ]
       }
@@ -181,9 +190,10 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
         { label: 'Local Storage', value: 'localStorage' }
       ],
       default: 'cookie'
-    }, 
+    },
     track_marketing: {
-      description: 'Enable or disable tracking of marketing campaigns in Mixpanel. Includes UTM parameters and click identifiers for various ad platforms.',
+      description:
+        'Enable or disable tracking of marketing campaigns in Mixpanel. Includes UTM parameters and click identifiers for various ad platforms.',
       label: 'Track Marketing Campaigns',
       type: 'boolean',
       default: true
@@ -277,9 +287,9 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
     await deps.resolveWhen(() => window.mixpanel != null, 100)
     const mixpanel = window.mixpanel
 
-    const { 
-      projectToken, 
-      autocapture, 
+    const {
+      projectToken,
+      autocapture,
       autocapture_pageview,
       autocapture_click,
       autocapture_dead_click,
@@ -291,14 +301,17 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
     } = settings
 
     mixpanel.init(projectToken, {
-        // All settings with go in here. Joe to do later. 
+      // All settings with go in here. Joe to do later.
     })
 
     return mixpanel
   },
 
   actions: {
-    
+    track,
+    trackPageView,
+    identify,
+    group
   }
 }
 

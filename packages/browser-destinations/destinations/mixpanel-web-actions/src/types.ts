@@ -1,25 +1,42 @@
+
+export interface People {
+  set(prop: {[k: string]: unknown}): void
+  set_once(prop: {[k: string]: unknown}): void
+  increment(prop: {[k: string]: unknown}): void
+}
+
+export interface Group {
+  set(prop: {[k: string]: unknown}): void
+  set_once(prop: {[k: string]: unknown}): void
+}
+
 export interface Mixpanel {
   init(token: string, config: Partial<Config>, name: string): Mixpanel;
 
   // For Segment page events
   track_pageview(
-    properties?: Dict, // property values can be string, num, bool, array, or object
+    properties?: {
+      [k: string]: unknown
+    },
     options?: { event_name?: string | undefined }
-  ): void;
+  ): void
 
-  // For Segment track events
   track(
     event_name: string,
-    properties?: Dict,
-    optionsOrCallback?: RequestOptions | Callback,
-    callback?: Callback
-  ): void;
+    properties?: {
+      [k: string]: unknown
+    }
+  ): void
 
   // For Segment identify events. Note, traits go in the register call below.
-  identify(unique_id?: string): any;
+  identify(unique_id?: string): void
 
-  // This is how we set traits...
-  people: People;
+  people: People
+
+  get_group(group_key: string, group_id: string): Group
+
+  set_group( group_key: string, group_ids: string): void
+
 
 
 
@@ -28,7 +45,7 @@ export interface Mixpanel {
   disable(events?: string[]): void;
   get_config(prop_name?: string): any;
   get_distinct_id(): any;
-  get_group(group_key: string, group_id: string): Group;
+
   get_property(property_name: string): any;
   has_opted_in_tracking(options?: Partial<HasOptedInOutOptions>): boolean;
   has_opted_out_tracking(options?: Partial<HasOptedInOutOptions>): boolean;
@@ -53,11 +70,8 @@ export interface Mixpanel {
   ): void;
   reset(): void;
   set_config(config: Partial<Config>): void;
-  set_group(
-    group_key: string,
-    group_ids: string | string[] | number | number[],
-    callback?: Callback
-  ): void;
+
+
   time_event(event_name: string): void;
 
   track_forms(
@@ -82,10 +96,4 @@ export interface Mixpanel {
   start_session_recording(): void;
   stop_session_recording(): void;
   get_session_recording_properties(): { $mp_replay_id?: string } | {};
-}
-
-export interface People {
-  set(prop: Dict, callback?: Callback): void;
-  set_once(prop: Dict, callback?: Callback): void;
-  increment(prop: string | Dict, callback?: Callback): void;
 }
