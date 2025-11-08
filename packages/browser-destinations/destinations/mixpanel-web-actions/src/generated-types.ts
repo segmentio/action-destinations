@@ -6,6 +6,10 @@ export interface Settings {
    */
   projectToken: string
   /**
+   * The name for the new mixpanel instance that you want created.
+   */
+  name?: string
+  /**
    * The Mixpanel API host to send data to.
    */
   api_host: string

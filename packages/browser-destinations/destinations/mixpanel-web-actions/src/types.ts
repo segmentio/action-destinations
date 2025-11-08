@@ -13,6 +13,7 @@ export interface People {
 export interface Group {
   set(prop: {[k: string]: unknown}): void
   set_once(prop: {[k: string]: unknown}): void
+  union(list_name: string, values: (string | number | boolean)[]): void
 }
 
 export interface Config {
@@ -45,9 +46,8 @@ export interface Config {
 }
 
 export interface Mixpanel {
-  init(token: string, config: Config): Mixpanel
+  init(token: string, config: Config, name?: string): Mixpanel
 
-  // For Segment page events
   track_pageview(
     properties?: {
       [k: string]: unknown
@@ -62,7 +62,6 @@ export interface Mixpanel {
     }
   ): void
 
-  // For Segment identify events. Note, traits go in the register call below.
   identify(unique_id?: string): void
 
   people: People
@@ -71,10 +70,8 @@ export interface Mixpanel {
 
   set_group( group_key: string, group_ids: string): void
 
-
-
-
   alias(alias: string, original?: string): void;
+
   clear_opt_in_out_tracking(options?: Partial<ClearOptOutInOutOptions>): void;
   disable(events?: string[]): void;
   get_config(prop_name?: string): any;

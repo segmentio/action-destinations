@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * User Profile Properties to set on the user profile in Mixpanel.
    */
-  profile_properties_to_set?: {
+  user_profile_properties_to_set?: {
     /**
      * The name of the user.
      */
@@ -42,13 +42,13 @@ export interface Payload {
   /**
    * User Profile Properties to set once on the user profile in Mixpanel. Values which get set once cannot be overwritten later.
    */
-  profile_properties_to_set_once?: {
+  user_profile_properties_to_set_once?: {
     [k: string]: unknown
   }
   /**
    * User Profile Properties to increment on the user profile in Mixpanel. Values must be numeric.
    */
-  profile_properties_to_increment?: {
+  user_profile_properties_to_increment?: {
     [k: string]: unknown
   }
 }

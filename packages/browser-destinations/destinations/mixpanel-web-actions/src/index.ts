@@ -1,7 +1,7 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
-import type { Mixpanel, PageViewUrlConfigOption, PersistenceOptions } from './types'
+import type { Mixpanel, PageViewUrlConfigOption, PersistenceOptions, Config } from './types'
 import { PAGE_VIEW_URL_CONFIG_OPTIONS, PERSISTENCE_OPTIONS } from './constants'
 import track from './track'
 
@@ -29,6 +29,11 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       label: 'Project Token',
       type: 'string',
       required: true
+    },
+    name: {
+      label: 'Mixpanel Instance Name',
+      description: 'The name for the new mixpanel instance that you want created.',
+      type: 'string'
     },
     api_host: {
       description: 'The Mixpanel API host to send data to.',
@@ -289,6 +294,7 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
 
     const {
       projectToken,
+      name,
       autocapture,
       pageview,
       click,
@@ -302,7 +308,7 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       ...rest
     } = settings
 
-    mixpanel.init(projectToken, {
+    const config: Config = {
       autocapture:
         autocapture === 'custom'
           ? {
@@ -320,7 +326,13 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
           : false,
       persistence: persistence as PersistenceOptions,
       ...rest
-    })
+    }
+
+    if (name) {
+      mixpanel.init(projectToken, config, name)
+    } else {
+      mixpanel.init(projectToken, config)
+    }
     return mixpanel
   },
 
