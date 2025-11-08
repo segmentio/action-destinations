@@ -54,13 +54,21 @@ const action: ActionDefinition<Settings, Payload> = {
       minimum: 1,
       maximum: 500,
       default: 500
+    },
+    batch_bytes: {
+      type: 'number',
+      label: 'Batch Bytes',
+      description: 'The number of bytes to write to kinesis in a single batch. Limit is 1MB per shard',
+      default: 1000000, // 1MB
+      required: true,
+      unsafe_hidden: true
     }
   },
   perform: async (_requests, { settings, payload, statsContext, logger }) => {
-    await send(settings, [payload], statsContext, logger)
+    return await send(settings, [payload], statsContext, logger)
   },
   performBatch: async (_requests, { settings, payload, statsContext, logger }) => {
-    await send(settings, payload, statsContext, logger)
+    return await send(settings, payload, statsContext, logger)
   }
 }
 
