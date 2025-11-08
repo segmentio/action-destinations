@@ -1,8 +1,8 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
-import type { Mixpanel } from './types'
-
+import type { Mixpanel, PageViewUrlConfigOption, PersistenceOptions } from './types'
+import { PAGE_VIEW_URL_CONFIG_OPTIONS, PERSISTENCE_OPTIONS } from './constants'
 import track from './track'
 
 import trackPageView from './trackPageView'
@@ -50,16 +50,16 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       ],
       default: 'enabled'
     },
-    autocapture_pageview: {
+    pageview: {
       description: 'Capture pageview events automatically',
       label: 'Autocapture Pageview',
       type: 'string',
       choices: [
-        { label: 'Full URL', value: 'full-url' },
-        { label: 'URL with Path and Query String', value: 'url-with-path-and-query-string' },
-        { label: 'URL with Path', value: 'url-with-pat' }
+        { label: 'Full URL', value: PAGE_VIEW_URL_CONFIG_OPTIONS.FULL_URL },
+        { label: 'URL with Path and Query String', value: PAGE_VIEW_URL_CONFIG_OPTIONS.URL_WITH_PATH_AND_QUERY_STRING },
+        { label: 'URL with Path', value: PAGE_VIEW_URL_CONFIG_OPTIONS.URL_WITH_PATH }
       ],
-      default: 'full-url',
+      default: PAGE_VIEW_URL_CONFIG_OPTIONS.FULL_URL,
       depends_on: {
         conditions: [
           {
@@ -70,7 +70,7 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
         ]
       }
     },
-    autocapture_click: {
+    click: {
       description: 'Capture click events automatically',
       label: 'Autocapture Click',
       type: 'boolean',
@@ -85,7 +85,7 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
         ]
       }
     },
-    autocapture_dead_click: {
+    dead_click: {
       description: 'Capture dead click events automatically',
       label: 'Autocapture Dead Click',
       type: 'boolean',
@@ -100,7 +100,7 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
         ]
       }
     },
-    autocapture_input: {
+    input: {
       description: 'Capture input events automatically',
       label: 'Autocapture Input',
       type: 'boolean',
@@ -115,7 +115,7 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
         ]
       }
     },
-    autocapture_rage_click: {
+    rage_click: {
       description: 'Capture rage click events automatically',
       label: 'Autocapture Rage Click',
       type: 'boolean',
@@ -130,7 +130,7 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
         ]
       }
     },
-    autocapture_scroll: {
+    scroll: {
       description: 'Capture scroll events automatically',
       label: 'Autocapture Scroll',
       type: 'boolean',
@@ -145,7 +145,7 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
         ]
       }
     },
-    autocapture_submit: {
+    submit: {
       description: 'Capture form submit events automatically',
       label: 'Autocapture Submit',
       type: 'boolean',
@@ -160,7 +160,7 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
         ]
       }
     },
-    autocapture_capture_text_content: {
+    capture_text_content: {
       description: 'Capture text content of elements in autocaptured events',
       label: 'Autocapture Capture Text Content',
       type: 'boolean',
@@ -186,10 +186,10 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       label: 'Persistence Method',
       type: 'string',
       choices: [
-        { label: 'Cookie', value: 'cookie' },
-        { label: 'Local Storage', value: 'localStorage' }
+        { label: 'Cookie', value: PERSISTENCE_OPTIONS.COOKIE },
+        { label: 'Local Storage', value: PERSISTENCE_OPTIONS.LOCAL_STORAGE }
       ],
-      default: 'cookie'
+      default: PERSISTENCE_OPTIONS.COOKIE
     },
     track_marketing: {
       description:
@@ -290,20 +290,37 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
     const {
       projectToken,
       autocapture,
-      autocapture_pageview,
-      autocapture_click,
-      autocapture_dead_click,
-      autocapture_input,
-      autocapture_rage_click,
-      autocapture_scroll,
-      autocapture_submit,
+      pageview,
+      click,
+      dead_click,
+      input,
+      rage_click,
+      scroll,
+      submit,
+      capture_text_content,
+      persistence,
       ...rest
     } = settings
 
     mixpanel.init(projectToken, {
-      // All settings with go in here. Joe to do later.
+      autocapture:
+        autocapture === 'custom'
+          ? {
+              pageview: pageview as PageViewUrlConfigOption,
+              click,
+              dead_click,
+              input,
+              rage_click,
+              scroll,
+              submit,
+              capture_text_content
+            }
+          : autocapture === 'enabled'
+          ? true
+          : false,
+      persistence: persistence as PersistenceOptions,
+      ...rest
     })
-
     return mixpanel
   },
 
