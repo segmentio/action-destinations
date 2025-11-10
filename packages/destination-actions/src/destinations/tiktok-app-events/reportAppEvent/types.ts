@@ -34,8 +34,8 @@ export interface TTUser {
 export type AppStatus = typeof APP_STATUS[keyof typeof APP_STATUS]
 
 export interface TTApp {
-  app_id: string,
-  app_name?: string,
+  app_id: string
+  app_name?: string
   app_version?: string
 }
 
@@ -47,7 +47,7 @@ export interface TTAd {
   is_retargeting?: boolean
   attributed?: boolean
   attribution_type?: string
-  attribution_provider?: string 
+  attribution_provider?: string
 }
 
 export interface TTBaseProps {
@@ -73,9 +73,9 @@ interface TTContentItem {
 export type ProductMappingType = typeof PRODUCT_MAPPING_TYPE[keyof typeof PRODUCT_MAPPING_TYPE]
 
 export interface StandardEventItem {
-  key: string,
-  ttEventName: string,
-  description: string,
-  segmentEventName: string,
+  key: string
+  ttEventName: string
+  description: string
+  segmentEventName: string
   productMappingType: ProductMappingType
 }

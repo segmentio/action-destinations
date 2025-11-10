@@ -62,7 +62,7 @@ const destination: DestinationDefinition<Settings> = {
           'Your TikTok Access Token. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to generate an access token via the TikTok Ads Manager or API.',
         type: 'password',
         required: true
-      }, 
+      },
       appID: {
         label: 'TikTok App ID',
         type: 'string',
@@ -71,7 +71,7 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (_ ) => {
+    testAuthentication: (_) => {
       // // Return a request that tests/validates the user's credentials.
       // // Send a blank event to events API.
       // return request('https://business-api.tiktok.com/open_api/v1.3/pixel/track/', {
@@ -92,28 +92,21 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-presets: STANDARD_EVENTS.map(
-  ({
-    segmentEventName,
-    productMappingType,
-    ttEventName,
-    description
-  }) => ({
+  presets: STANDARD_EVENTS.map(({ segmentEventName, productMappingType, ttEventName, description }) => ({
     type: 'automatic',
     partnerAction: 'reportAppEvent',
     name: description,
     subscribe: `event = "${segmentEventName}"`,
     mapping: {
       ...defaultValues(reportAppEvent.fields),
-      event: ttEventName, 
+      event: ttEventName,
       ...(productMappingType === PRODUCT_MAPPING_TYPE.SINGLE
         ? singleProductContents
         : productMappingType === PRODUCT_MAPPING_TYPE.MULTIPLE
         ? multiProductContents
         : {})
     }
-  })
-),
+  })),
   actions: {
     reportAppEvent
   }
