@@ -78,7 +78,7 @@ export const user_profile_properties_to_set: InputField = {
         email: { '@path': '$.traits.email' },
         phone: { '@path': '$.traits.phone' },
         avatar: { '@path': '$.traits.avatar' },
-        created: { '@path': '$.traits.created_at' }
+        created: { '@path': '$.traits.created' }
     }
 }
 

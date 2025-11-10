@@ -37,6 +37,8 @@ export function sendGroup(mixpanel: Mixpanel, payload: GroupPayload | TrackPaylo
     group_profile_properties_to_union
   } = payload
 
+console.log('sendGroup payload:', JSON.stringify(payload, null, 2));
+
   if (group_key && group_id) {
     mixpanel.set_group(group_key, group_id)
     const group = mixpanel.get_group(group_key, group_id)

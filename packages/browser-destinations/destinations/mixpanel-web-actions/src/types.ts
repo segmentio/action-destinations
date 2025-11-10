@@ -6,6 +6,34 @@ export type PersistenceOptions = typeof PERSISTENCE_OPTIONS[keyof typeof PERSIST
 
 export type AutocaptureOptions = typeof AUTOCAPTURE_OPTIONS[keyof typeof AUTOCAPTURE_OPTIONS]
 
+export interface Mixpanel {
+  init(token: string, config: Config, name?: string): Mixpanel
+
+  track_pageview(
+    properties?: {
+      [k: string]: unknown
+    },
+    options?: { event_name?: string | undefined }
+  ): void
+
+  track(
+    event_name: string,
+    properties?: {
+      [k: string]: unknown
+    }
+  ): void
+
+  identify(unique_id?: string): void
+
+  alias(alias: string, original?: string): void
+
+  get_group(group_key: string, group_id: string): Group
+
+  set_group( group_key: string, group_ids: string): void
+
+  people: People
+}
+
 export interface People {
   set(prop: {[k: string]: unknown}): void
   set_once(prop: {[k: string]: unknown}): void
@@ -47,30 +75,3 @@ export interface Config {
   record_sessions_percent?: number
 }
 
-export interface Mixpanel {
-  init(token: string, config: Config, name?: string): Mixpanel
-
-  track_pageview(
-    properties?: {
-      [k: string]: unknown
-    },
-    options?: { event_name?: string | undefined }
-  ): void
-
-  track(
-    event_name: string,
-    properties?: {
-      [k: string]: unknown
-    }
-  ): void
-
-  identify(unique_id?: string): void
-
-  alias(alias: string, original?: string): void
-
-  people: People
-
-  get_group(group_key: string, group_id: string): Group
-
-  set_group( group_key: string, group_ids: string): void
-}
