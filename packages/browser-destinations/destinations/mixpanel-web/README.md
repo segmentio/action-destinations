@@ -1,4 +1,4 @@
-# @segment/analytics-browser-actions-mixpanel-web-actions
+# @segment/analytics-browser-mixpanel-web-actions
 
 The Mixpanel Web (actions) browser action destination for use with @segment/analytics-next.
 

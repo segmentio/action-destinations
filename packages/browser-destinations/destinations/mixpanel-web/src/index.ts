@@ -20,7 +20,7 @@ declare global {
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
   name: 'Mixpanel Web (actions)',
-  slug: 'actions-mixpanel-web-actions',
+  slug: 'mixpanel-web-actions',
   mode: 'device',
   settings: settingFields,
   initialize: async ({ settings }, deps) => {
