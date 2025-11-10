@@ -5,7 +5,7 @@ import { KinesisClient, PutRecordsCommand, PutRecordsCommandOutput, PutRecordsRe
 import { assumeRole } from '../../lib/AWS/sts'
 import { APP_AWS_REGION } from '@segment/actions-shared'
 import { NodeHttpHandler } from '@smithy/node-http-handler'
-import { IntegrationError, MultiStatusResponse } from '@segment/actions-core'
+import { IntegrationError, MultiStatusResponse, JSONLikeObject } from '@segment/actions-core'
 
 const KINESIS_COMMAND_TIMEOUT_MS = 5000
 
@@ -67,10 +67,22 @@ const handleError = (error: any, statsContext: StatsContext | undefined): void =
 
 const handleMultiStatusResponse = (
   response: PutRecordsCommandOutput,
-  statsContext: StatsContext | undefined
+  statsContext: StatsContext | undefined,
+  payloads: Payload[]
 ): MultiStatusResponse => {
   const multiStatusResponse: MultiStatusResponse = new MultiStatusResponse()
   const { FailedRecordCount, Records } = response
+  if (!FailedRecordCount || FailedRecordCount == 0) {
+    statsContext?.statsClient?.incr('actions_kinesis.successful_record_count', Records?.length || 0, statsContext?.tags)
+    // All records succeeded
+    Records?.forEach((record: any, index: number) => {
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        body: record,
+        sent: payloads[index] as unknown as JSONLikeObject
+      })
+    })
+  }
 
   if (FailedRecordCount && FailedRecordCount > 0) {
     statsContext?.statsClient?.incr('actions_kinesis.failed_record_count', FailedRecordCount, statsContext?.tags)
@@ -85,10 +97,7 @@ const handleMultiStatusResponse = (
       }
     })
   } else {
-    // All records succeeded
-    Records?.forEach((_: any, index: number) => {
-      multiStatusResponse.setSuccessResponseAtIndex(index, { status: 200 })
-    })
+    
   }
 
   return multiStatusResponse
