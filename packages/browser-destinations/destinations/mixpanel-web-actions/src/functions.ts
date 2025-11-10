@@ -11,7 +11,7 @@ export function sendIdentify(mixpanel: Mixpanel, payload: IdentifyPayload | Trac
     user_profile_properties_to_set_once,
     user_profile_properties_to_increment
   } = payload
-  
+
   if(unique_id) {
     mixpanel.identify(unique_id)
   }
@@ -36,8 +36,6 @@ export function sendGroup(mixpanel: Mixpanel, payload: GroupPayload | TrackPaylo
     group_profile_properties_to_set_once,
     group_profile_properties_to_union
   } = payload
-
-console.log('sendGroup payload:', JSON.stringify(payload, null, 2));
 
   if (group_key && group_id) {
     mixpanel.set_group(group_key, group_id)

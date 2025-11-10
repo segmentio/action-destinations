@@ -26,7 +26,8 @@ const action: BrowserActionDefinition<Settings, Mixpanel, Payload> = {
     unique_id: {
       ...unique_id,
       description: 'The unique ID to associate with the user. Settings this value will trigger a Mixpanel identify call before immediately the track event is sent.',
-      default: undefined
+      default: undefined,
+      required: false
     },
     user_profile_properties_to_set: {
       ...user_profile_properties_to_set,

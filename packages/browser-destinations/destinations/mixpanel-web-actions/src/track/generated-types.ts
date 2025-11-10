@@ -14,7 +14,7 @@ export interface Payload {
   /**
    * The unique ID to associate with the user. Settings this value will trigger a Mixpanel identify call before immediately the track event is sent.
    */
-  unique_id: string
+  unique_id?: string
   /**
    * User Profile Properties to set on the user profile in Mixpanel.
    */

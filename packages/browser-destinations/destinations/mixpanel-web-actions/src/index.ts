@@ -10,7 +10,7 @@ import trackPageView from './trackPageView'
 import identify from './identify'
 import group from './group'
 import alias from './alias'
-
+import { initScript } from './init-script'
 declare global {
   interface Window {
     mixpanel: Mixpanel
@@ -24,8 +24,8 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
   mode: 'device',
   settings: settingFields,
   initialize: async ({ settings }, deps) => {
-    await deps.loadScript('https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js')
-    await deps.resolveWhen(() => window.mixpanel != null, 100)
+    await initScript()
+    await deps.resolveWhen(() => window?.mixpanel != null, 100)
     const mixpanel = window.mixpanel
 
     const {
@@ -80,7 +80,7 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
           type: 'automatic'
       },
       {
-          name: 'identify',
+          name: 'Identify',
           subscribe: 'type = "identify"',
           partnerAction: 'identify',
           mapping: defaultValues(identify.fields),
