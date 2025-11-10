@@ -1,7 +1,7 @@
 import { Settings } from '../generated-types'
 import { RequestClient, PayloadValidationError, MultiStatusResponse, JSONLikeObject } from '@segment/actions-core'
 import { TaguchiJSON, JSONItem, ResponseJSON } from './types'
-import { Payload  } from './generated-types'
+import { Payload } from './generated-types'
 
 export function validate(payloads: Payload[]): Payload[] {
   if (payloads.length === 1) {
@@ -14,9 +14,9 @@ export function validate(payloads: Payload[]): Payload[] {
 }
 
 export async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean) {
-  // if(!isBatch){
+  if (!isBatch) {
     validate(payloads)
- // }
+  }
 
   const json: TaguchiJSON = payloads.map((payload) => buildJSON(payload, settings.organizationId))
 
@@ -68,6 +68,7 @@ function buildJSON(payload: Payload, organizationId: string): JSONItem {
       state,
       country,
       postcode,
+      phone,
       gender,
       ...customTraits
     } = {}
@@ -90,6 +91,7 @@ function buildJSON(payload: Payload, organizationId: string): JSONItem {
       ...(state && { state }),
       ...(country && { country }),
       ...(postcode && { postcode }),
+      ...(phone && { phone }),
       ...(gender && { gender }),
       // Add custom traits
       ...buildCustom(customTraits),

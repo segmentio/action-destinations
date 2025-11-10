@@ -32,8 +32,8 @@ describe('Snap Audiences', () => {
             {
               name: 'Custom Name',
               source_type: 'FIRST_PARTY',
-              ad_account_id: ad_account_id,
-              description: '',
+              ad_account_id: '22222222',
+              description: 'Audience Snap Audience Name created by Segment',
               retention_in_days: 9999
             }
           ]
@@ -54,7 +54,4 @@ describe('Snap Audiences', () => {
       expect(res).toEqual({ externalId: audienceId })
     })
   })
-
-  // describe('getAudience', () => {
-  // })
 })

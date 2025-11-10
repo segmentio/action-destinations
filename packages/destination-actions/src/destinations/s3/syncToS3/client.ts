@@ -3,7 +3,7 @@ import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 import { S3Client, PutObjectCommandInput, PutObjectCommand, _Error as AWSError } from '@aws-sdk/client-s3'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 import * as process from 'process'
-import { ErrorCodes, IntegrationError, RetryableError, APIError } from '@segment/actions-core'
+import { ErrorCodes, IntegrationError, RetryableError, APIError, RequestTimeoutError } from '@segment/actions-core'
 import { Credentials } from './types'
 
 export class Client {
@@ -56,7 +56,8 @@ export class Client {
     fileContent: string | Buffer,
     filename_prefix: string,
     s3_aws_folder_name: string,
-    fileExtension: string
+    fileExtension: string,
+    signal?: AbortSignal
   ) {
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
@@ -97,9 +98,15 @@ export class Client {
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      await s3Client.send(new PutObjectCommand(uploadParams))
+      await s3Client.send(new PutObjectCommand(uploadParams), { abortSignal: signal })
       return { statusCode: 200, message: 'Upload successful' }
     } catch (err) {
+      // Handle abort signal error: https://aws.amazon.com/blogs/developer/abortcontroller-in-modular-aws-sdk-for-javascript/
+      if ((err as Error).name === 'AbortError') {
+        // Handle abort error
+        throw new RequestTimeoutError()
+      }
+
       if (isAWSError(err)) {
         // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-client-s3/Interface/_Error/
         if (err.Code && accessDeniedCodes.has(err.Code)) {
