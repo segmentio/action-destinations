@@ -20,27 +20,27 @@ export interface Settings {
   /**
    * Capture pageview events automatically
    */
-  pageview?: string
+  pageview: string
   /**
    * Capture click events automatically
    */
-  click?: boolean
+  click: boolean
   /**
    * Capture dead click events automatically
    */
-  dead_click?: boolean
+  dead_click: boolean
   /**
    * Capture input events automatically
    */
-  input?: boolean
+  input: boolean
   /**
    * Capture rage click events automatically
    */
-  rage_click?: boolean
+  rage_click: boolean
   /**
    * Capture scroll events automatically
    */
-  scroll?: boolean
+  scroll: boolean
   /**
    * Capture form submit events automatically
    */
@@ -48,7 +48,7 @@ export interface Settings {
   /**
    * Capture text content of elements in autocaptured events
    */
-  capture_text_content?: boolean
+  capture_text_content: boolean
   /**
    * Enable or disable cross subdomain cookies for Mixpanel.
    */

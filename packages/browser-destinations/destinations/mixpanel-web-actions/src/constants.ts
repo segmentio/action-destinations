@@ -8,3 +8,9 @@ export const PERSISTENCE_OPTIONS = {
   LOCAL_STORAGE: 'localStorage',
   COOKIE: 'cookie'
 } as const
+
+export const AUTOCAPTURE_OPTIONS = {
+  ENABLED: 'enabled',
+  DISABLED: 'disabled',
+  CUSTOM: 'custom'
+} as const
