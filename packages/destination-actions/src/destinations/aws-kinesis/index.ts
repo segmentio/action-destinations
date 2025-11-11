@@ -35,7 +35,6 @@ const destination: DestinationDefinition<Settings> = {
         throw new IntegrationError('The provided IAM Role ARN format is not valid', 'INVALID_IAM_ROLE_ARN_FORMAT', 400)
       }
 
-      console.log('mzkh ', iamRoleArn, iamExternalId)
       await assumeRole(iamRoleArn, iamExternalId, APP_AWS_REGION)
     }
   },
