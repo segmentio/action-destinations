@@ -30,16 +30,16 @@ function getProps(payload: Payload): TTBaseProps {
   const requestProperties: TTBaseProps = {
     contents: contents
       ? contents.map(({ price, quantity, content_category, content_id, content_name, brand }) => ({
-          price: price ?? undefined,
-          quantity: quantity ?? undefined,
-          content_category: content_category ?? undefined,
-          content_id: content_id ?? undefined,
-          content_name: content_name ?? undefined,
-          brand: brand ?? undefined
+          ...(price !== undefined && { price }),
+          ...(quantity !== undefined && { quantity }),
+          ...(content_category !== undefined && { content_category }),
+          ...(content_id !== undefined && { content_id }),
+          ...(content_name !== undefined && { content_name }),
+          ...(brand !== undefined && { brand })
         }))
       : [],
     ...(content_type !== undefined && { content_type }),
-    ...(currency !== undefined && { currency }),
+    ...( { currency: currency ?? 'USD' } ),
     ...(value !== undefined && { value }),
     ...(query !== undefined && { query }),
     ...(description !== undefined && { description }),

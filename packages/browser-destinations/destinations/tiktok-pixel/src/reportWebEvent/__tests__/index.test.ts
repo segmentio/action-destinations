@@ -2,6 +2,7 @@ import { Analytics, Context } from '@segment/analytics-next'
 import { Subscription } from '@segment/browser-destination-runtime'
 import TikTokDestination, { destination } from '../../index'
 import { TikTokPixel } from '../../types'
+import { TRAVEL_FIELDS, VEHICLE_FIELDS } from '../constants'
 
 describe('TikTokPixel.reportWebEvent', () => {
   const settings = {
@@ -68,14 +69,8 @@ describe('TikTokPixel.reportWebEvent', () => {
     expect(mockTtp.track).toHaveBeenCalledWith(
       'Pageview',
       {
-        content_type: undefined,
         contents: [],
-        currency: 'USD',
-        description: undefined,
-        order_id: undefined,
-        query: undefined,
-        shop_id: undefined,
-        value: undefined
+        currency: 'USD'
       },
       {
         event_id: ''
@@ -137,7 +132,7 @@ describe('TikTokPixel.reportWebEvent', () => {
                 quantity: {
                   '@path': '$.quantity'
                 },
-                content_type: {
+                content_category: {
                   '@path': '$.category'
                 },
                 content_id: {
@@ -183,13 +178,13 @@ describe('TikTokPixel.reportWebEvent', () => {
         products: [
           {
             product_id: '123',
-            category: 'product',
+            category: 'category1',
             quantity: 1,
             price: 1
           },
           {
             product_id: '456',
-            category: 'product',
+            category: 'category1',
             quantity: 2,
             price: 2
           }
@@ -227,8 +222,8 @@ describe('TikTokPixel.reportWebEvent', () => {
       'PlaceAnOrder',
       {
         contents: [
-          { content_id: '123', content_type: 'product', price: 1, quantity: 1 },
-          { content_id: '456', content_type: 'product', price: 2, quantity: 2 }
+          { content_id: '123', content_category: 'category1', price: 1, quantity: 1 },
+          { content_id: '456', content_category: 'category1', price: 2, quantity: 2 }
         ],
         currency: 'USD',
         description: 'test-description',
@@ -293,7 +288,7 @@ describe('TikTokPixel.reportWebEvent', () => {
                 quantity: {
                   '@path': '$.quantity'
                 },
-                content_type: {
+                content_category: {
                   '@path': '$.category'
                 },
                 content_id: {
@@ -337,7 +332,7 @@ describe('TikTokPixel.reportWebEvent', () => {
       },
       properties: {
         product_id: '123',
-        category: 'product',
+        category: 'category1',
         quantity: 1,
         price: 1,
         query: 'test-query',
@@ -372,7 +367,7 @@ describe('TikTokPixel.reportWebEvent', () => {
     expect(mockTtp.track).toHaveBeenCalledWith(
       'AddToCart',
       {
-        contents: [{ content_id: '123', content_type: 'product', price: 1, quantity: 1 }],
+        contents: [{ content_id: '123', content_category: 'category1', price: 1, quantity: 1 }],
         currency: 'USD',
         description: 'test-description',
         query: 'test-query',
@@ -436,7 +431,7 @@ describe('TikTokPixel.reportWebEvent', () => {
                 quantity: {
                   '@path': '$.quantity'
                 },
-                content_type: {
+                content_category: {
                   '@path': '$.category'
                 },
                 content_id: {
@@ -479,7 +474,7 @@ describe('TikTokPixel.reportWebEvent', () => {
       },
       properties: {
         product_id: '123',
-        category: 'product',
+        category: 'category1',
         quantity: 1,
         price: 1,
         query: 'test-query',
@@ -514,7 +509,7 @@ describe('TikTokPixel.reportWebEvent', () => {
     expect(mockTtp.track).toHaveBeenCalledWith(
       'ViewContent',
       {
-        contents: [{ content_id: '123', content_type: 'product', price: 1, quantity: 1 }],
+        contents: [{ content_id: '123', content_category: 'category1', price: 1, quantity: 1 }],
         currency: 'USD',
         description: 'test-description',
         query: 'test-query',
@@ -578,7 +573,7 @@ describe('TikTokPixel.reportWebEvent', () => {
                 quantity: {
                   '@path': '$.quantity'
                 },
-                content_type: {
+                content_category: {
                   '@path': '$.category'
                 },
                 content_id: {
@@ -624,13 +619,13 @@ describe('TikTokPixel.reportWebEvent', () => {
         products: [
           {
             product_id: '123',
-            category: 'product',
+            category: 'category1',
             quantity: 1,
             price: 1
           },
           {
             product_id: '456',
-            category: 'product',
+            category: 'category1',
             quantity: 2,
             price: 2
           }
@@ -668,8 +663,8 @@ describe('TikTokPixel.reportWebEvent', () => {
       'PlaceAnOrder',
       {
         contents: [
-          { content_id: '123', content_type: 'product', price: 1, quantity: 1 },
-          { content_id: '456', content_type: 'product', price: 2, quantity: 2 }
+          { content_id: '123', content_category: 'category1', price: 1, quantity: 1 },
+          { content_id: '456', content_category: 'category1', price: 2, quantity: 2 }
         ],
         currency: 'USD',
         description: 'test-description',
@@ -688,6 +683,7 @@ describe('TikTokPixel.reportWebEvent', () => {
         enabled: true,
         subscribe: 'type="page"',
         mapping: {
+          event_spec_type: TRAVEL_FIELDS,
           event_id: {
             '@path': '$.messageId'
           },
@@ -734,7 +730,7 @@ describe('TikTokPixel.reportWebEvent', () => {
                 quantity: {
                   '@path': '$.quantity'
                 },
-                content_type: {
+                content_category: {
                   '@path': '$.category'
                 },
                 content_id: {
@@ -755,71 +751,73 @@ describe('TikTokPixel.reportWebEvent', () => {
           description: {
             '@path': '$.properties.description'
           },
-          city: {
-            '@path': '$.properties.city'
-          },
-          region: {
-            '@path': '$.properties.region'
-          },
-          country: {
-            '@path': '$.properties.country'
-          },
-          checkin_date: {
-            '@path': '$.properties.checkin_date'
-          },
-          checkout_date: {
-            '@path': '$.properties.checkout_date'
-          },
-          num_adults: {
-            '@path': '$.properties.num_adults'
-          },
-          num_children: {
-            '@path': '$.properties.num_children'
-          },
-          num_infants: {
-            '@path': '$.properties.num_infants'
-          },
-          suggested_hotels: {
-            '@path': '$.properties.suggested_hotels'
-          },
-          departing_departure_date: {
-            '@path': '$.properties.departing_departure_date'
-          },
-          returning_departure_date: {
-            '@path': '$.properties.returning_departure_date'
-          },
-          origin_airport: {
-            '@path': '$.properties.origin_airport'
-          },
-          destination_airport: {
-            '@path': '$.properties.destination_airport'
-          },
-          destination_ids: {
-            '@path': '$.properties.destination_ids'
-          },
-          departing_arrival_date: {
-            '@path': '$.properties.departing_arrival_date'
-          },
-          returning_arrival_date: {
-            '@path': '$.properties.returning_arrival_date'
-          },
-          travel_class: {
-            '@path': '$.properties.travel_class'
-          },
-          user_score: {
-            '@path': '$.properties.user_score'
-          },
-          preferred_num_stops: {
-            '@path': '$.properties.preferred_num_stops'
-          },
-          travel_start: {
-            '@path': '$.properties.travel_start'
-          },
-          travel_end: {
-            '@path': '$.properties.travel_end'
-          },
-          suggested_destinations: {
-            '@path': '$.properties.suggested_destinations'
+          travel_fields: {
+            city: {
+              '@path': '$.properties.city'
+            },
+            region: {
+              '@path': '$.properties.region'
+            },
+            country: {
+              '@path': '$.properties.country'
+            },
+            checkin_date: {
+              '@path': '$.properties.checkin_date'
+            },
+            checkout_date: {
+              '@path': '$.properties.checkout_date'
+            },
+            num_adults: {
+              '@path': '$.properties.num_adults'
+            },
+            num_children: {
+              '@path': '$.properties.num_children'
+            },
+            num_infants: {
+              '@path': '$.properties.num_infants'
+            },
+            suggested_hotels: {
+              '@path': '$.properties.suggested_hotels' // Confirmed this can be a single string or an array of strings
+            },
+            departing_departure_date: {
+              '@path': '$.properties.departing_departure_date'
+            },
+            returning_departure_date: {
+              '@path': '$.properties.returning_departure_date'
+            },
+            origin_airport: {
+              '@path': '$.properties.origin_airport'
+            },
+            destination_airport: {
+              '@path': '$.properties.destination_airport'
+            },
+            destination_ids: {
+              '@path': '$.properties.destination_ids' // Confirmed this can be a single string or an array of strings
+            },
+            departing_arrival_date: {
+              '@path': '$.properties.departing_arrival_date'
+            },
+            returning_arrival_date: {
+              '@path': '$.properties.returning_arrival_date'
+            },
+            travel_class: {
+              '@path': '$.properties.travel_class'
+            },
+            user_score: {
+              '@path': '$.properties.user_score'
+            },
+            preferred_num_stops: {
+              '@path': '$.properties.preferred_num_stops'
+            },
+            travel_start: {
+              '@path': '$.properties.travel_start'
+            },
+            travel_end: {
+              '@path': '$.properties.travel_end'
+            },
+            suggested_destinations: {
+              '@path': '$.properties.suggested_destinations' // Confirmed this can be a single string or an array of strings
+            }
           }
         }
       }
@@ -843,7 +841,7 @@ describe('TikTokPixel.reportWebEvent', () => {
       },
       properties: {
         product_id: '123',
-        category: 'product',
+        category: 'category1',
         quantity: 1,
         price: 1,
         query: 'test-query',
@@ -900,33 +898,36 @@ describe('TikTokPixel.reportWebEvent', () => {
     expect(mockTtp.track).toHaveBeenCalledWith(
       'ViewContent',
       {
-        contents: [{ content_id: '123', content_type: 'product', price: 1, quantity: 1 }],
+        contents: [{ content_id: '123', content_category: 'category1', price: 1, quantity: 1 }],
+        country: "test_country",
         currency: 'USD',
+        departing_arrival_date: "20250901",
+        departing_departure_date: "20250901",
         description: 'test-description',
+        destination_airport: "test_destination_airport",
+        destination_ids: [
+          "destination_ids_1",
+          "destination_ids_2"
+        ],
+        num_adults: 1,
+        num_children: 1,
+        num_infants:1,
+        origin_airport: "test_origin_airport",
+        preferred_num_stops: 0,
+        region: 'test_region',
+        returning_arrival_date: '20250901',
+        returning_departure_date: '20250901',
+        suggested_destinations: ['suggested_destinations_1', 'suggested_destinations_2'],
+        suggested_hotels: ['test_suggested_hotels_1', 'test_suggested_hotels_2'],
+        travel_class: 'eco',
+        travel_start: '20250901',
+        travel_end: '20250901',
+        user_score: 1,
         query: 'test-query',
         value: 10,
         city: 'test_city',
-        region: 'test_region',
-        country: 'test_country',
         checkin_date: 'test_checkin_date',
-        checkout_date: 'test_checkout_date',
-        num_adults: 1,
-        num_children: 1,
-        num_infants: 1,
-        suggested_hotels: ['test_suggested_hotels_1', 'test_suggested_hotels_2'],
-        departing_departure_date: '20250901',
-        returning_departure_date: '20250901',
-        origin_airport: 'test_origin_airport',
-        destination_airport: 'test_destination_airport',
-        destination_ids: ['destination_ids_1', 'destination_ids_2'],
-        departing_arrival_date: '20250901',
-        returning_arrival_date: '20250901',
-        travel_class: 'eco',
-        user_score: 1,
-        preferred_num_stops: 0,
-        travel_start: '20250901',
-        travel_end: '20250901',
-        suggested_destinations: ['suggested_destinations_1', 'suggested_destinations_2']
+        checkout_date: 'test_checkout_date'
       },
       { event_id: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6' }
     )
@@ -940,6 +941,7 @@ describe('TikTokPixel.reportWebEvent', () => {
         enabled: true,
         subscribe: 'type="page"',
         mapping: {
+          event_spec_type: VEHICLE_FIELDS,
           event_id: {
             '@path': '$.messageId'
           },
@@ -986,7 +988,7 @@ describe('TikTokPixel.reportWebEvent', () => {
                 quantity: {
                   '@path': '$.quantity'
                 },
-                content_type: {
+                content_category: {
                   '@path': '$.category'
                 },
                 content_id: {
@@ -1010,56 +1012,70 @@ describe('TikTokPixel.reportWebEvent', () => {
           postal_code: {
             '@path': '$.properties.postal_code'
           },
-          make: {
-            '@path': '$.properties.make'
-          },
-          model: {
-            '@path': '$.properties.model'
-          },
-          year: {
-            '@path': '$.properties.year'
-          },
-          state_of_vehicle: {
-            '@path': '$.properties.state_of_vehicle'
-          },
-          mileage_value: {
-            '@path': '$.properties.mileage_value'
-          },
-          mileage_unit: {
-            '@path': '$.properties.mileage_unit'
-          },
-          exterior_color: {
-            '@path': '$.properties.exterior_color'
-          },
-          transmission: {
-            '@path': '$.properties.transmission'
-          },
-          body_style: {
-            '@path': '$.properties.body_style'
-          },
-          fuel_type: {
-            '@path': '$.properties.fuel_type'
-          },
-          drivetrain: {
-            '@path': '$.properties.drivetrain'
-          },
-          preferred_price_range_min: {
-            '@path': '$.properties.preferred_price_range_min'
-          },
-          preferred_price_range_max: {
-            '@path': '$.properties.preferred_price_range_max'
-          },
-          trim: {
-            '@path': '$.properties.trim'
-          },
-          vin: {
-            '@path': '$.properties.vin'
-          },
-          interior_color: {
-            '@path': '$.properties.interior_color'
-          },
-          condition_of_vehicle: {
-            '@path': '$.properties.condition_of_vehicle'
+          vehicle_fields: {
+            postal_code: {
+              '@path': '$.properties.postal_code'
+            },
+            make: {
+              '@path': '$.properties.make'
+            },
+            model: {
+              '@path': '$.properties.model'
+            },
+            year: {
+              '@path': '$.properties.year'
+            },
+            state_of_vehicle: {
+              '@path': '$.properties.state_of_vehicle'
+            },
+            mileage_value: {
+              '@path': '$.properties.mileage_value'
+            },
+            mileage_unit: {
+              '@path': '$.properties.mileage_unit'
+            },
+            exterior_color: {
+              '@path': '$.properties.exterior_color'
+            },
+            transmission: {
+              '@path': '$.properties.transmission'
+            },
+            body_style: {
+              '@path': '$.properties.body_style'
+            },
+            fuel_type: {
+              '@path': '$.properties.fuel_type'
+            },
+            drivetrain: {
+              '@path': '$.properties.drive_train'
+            },
+            preferred_price_range_min: {
+              '@path': '$.properties.preferred_price_range_min'
+            },
+            preferred_price_range_max: {
+              '@path': '$.properties.preferred_price_range_max'
+            },
+            trim: {
+              '@path': '$.properties.trim'
+            },
+            vin: {
+              '@path': '$.properties.vin'
+            },
+            interior_color: {
+              '@path': '$.properties.interior_color'
+            },
+            condition_of_vehicle: {
+              '@path': '$.properties.condition_of_vehicle'
+            },
+            viewcontent_type: {
+              '@path': '$.properties.viewcontent_type'
+            },
+            search_type: {
+              '@path': '$.properties.search_type'
+            },
+            registration_type: {
+              '@path': '$.properties.registration_type'
+            }
           }
         }
       }
@@ -1083,7 +1099,7 @@ describe('TikTokPixel.reportWebEvent', () => {
       },
       properties: {
         product_id: '123',
-        category: 'product',
+        category: 'category1',
         quantity: 1,
         price: 1,
         query: 'test-query',
@@ -1103,7 +1119,7 @@ describe('TikTokPixel.reportWebEvent', () => {
         transmission: 'Automatic',
         body_style: 'Coupe',
         fuel_type: 'Diesel',
-        drivetrain: 'AWD',
+        drive_train: 'AWD',
         preferred_price_range_min: 1000,
         preferred_price_range_max: 2000,
         trim: 'test_trim',
@@ -1136,7 +1152,7 @@ describe('TikTokPixel.reportWebEvent', () => {
     expect(mockTtp.track).toHaveBeenCalledWith(
       'ViewContent',
       {
-        contents: [{ content_id: '123', content_type: 'product', price: 1, quantity: 1 }],
+        contents: [{ content_id: '123', content_category: 'category1', price: 1, quantity: 1 }],
         currency: 'USD',
         description: 'test-description',
         query: 'test-query',
@@ -1146,15 +1162,13 @@ describe('TikTokPixel.reportWebEvent', () => {
         model: 'test_model',
         year: 2020,
         state_of_vehicle: 'New',
-        mileage_value: 12345,
-        mileage_unit: 'MI',
+        mileage: { unit: 'MI', value: 12345 },
         exterior_color: 'test_exterior_color',
         transmission: 'Automatic',
         body_style: 'Coupe',
         fuel_type: 'Diesel',
         drivetrain: 'AWD',
-        preferred_price_range_min: 1000,
-        preferred_price_range_max: 2000,
+        preferred_price_range: [1000, 2000],
         trim: 'test_trim',
         vin: 'test_vin',
         interior_color: 'test_interior_color',
