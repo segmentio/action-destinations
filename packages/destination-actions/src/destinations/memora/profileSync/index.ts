@@ -3,6 +3,8 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, RetryableError } from '@segment/actions-core'
 
+const API_VERSION = 'v1'
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Profile Sync',
   description:
@@ -62,7 +64,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     try {
-      const response = await request(`http://localhost:80/v1/Services/${serviceId}/Profiles`, {
+      const baseUrl = normalizeBaseUrl(settings.url)
+
+      const response = await request(`${baseUrl}/${API_VERSION}/Services/${serviceId}/Profiles`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -146,3 +150,7 @@ function handleMemoryApiError(error: unknown): never {
 }
 
 export default action
+
+function normalizeBaseUrl(url: string): string {
+  return url.replace(/\/+$/, '')
+}

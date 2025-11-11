@@ -2,6 +2,10 @@
 
 export interface Settings {
   /**
+   * Base URL for the Memora API.
+   */
+  url: string
+  /**
    * A unique Profile Service ID using Twilio Type ID (TTID) format (e.g., mem_service_00000000000000000000000000)
    */
   serviceId: string

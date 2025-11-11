@@ -3,6 +3,8 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, RetryableError } from '@segment/actions-core'
 
+const API_VERSION = 'v1'
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Traits Sync',
   description:
@@ -77,7 +79,9 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Contact information must be provided', 'EMPTY_CONTACT', 400)
     }
     try {
-      const response = await request(`http://localhost:80/v1/Services/${serviceId}/Profiles/${payload.profileId}`, {
+      const baseUrl = normalizeBaseUrl(settings.url)
+
+      const response = await request(`${baseUrl}/${API_VERSION}/Services/${serviceId}/Profiles/${payload.profileId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -164,3 +168,7 @@ function handleMemoraApiError(error: unknown): never {
 }
 
 export default action
+
+function normalizeBaseUrl(url: string): string {
+  return url.replace(/\/+$/, '')
+}
