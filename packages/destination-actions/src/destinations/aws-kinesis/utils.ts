@@ -2,10 +2,17 @@ import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
 import { KinesisClient, PutRecordsCommand, PutRecordsRequestEntry } from '@aws-sdk/client-kinesis'
-import { assumeRole } from '../../lib/AWS/sts'
 import { APP_AWS_REGION } from '@segment/actions-shared'
 import { NodeHttpHandler } from '@smithy/node-http-handler'
-import { IntegrationError } from '@segment/actions-core'
+import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
+import { IntegrationError, ErrorCodes } from '@segment/actions-core'
+import { v4 as uuidv4 } from '@lukeed/uuid'
+
+export type AWSCredentials = {
+  accessKeyId: string
+  secretAccessKey: string
+  sessionToken: string
+}
 
 const KINESIS_COMMAND_TIMEOUT_MS = 5000
 
@@ -75,4 +82,45 @@ export const send = async (
   // 1. Handle Errors and Partial Failures from Kinesis
   // 2. Add logs and metrics
   // 5. Multi status response
+}
+
+export const assumeRole = async (roleArn: string, externalId: string, region: string): Promise<AWSCredentials> => {
+  const intermediaryARN = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS as string
+  const intermediaryExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID as string
+  if (!intermediaryARN || !intermediaryExternalId) {
+    throw new IntegrationError(
+      'Intermediary role ARN or external ID is not set in environment variables',
+      ErrorCodes.INVALID_AUTHENTICATION,
+      500
+    )
+  }
+
+  const intermediaryCreds = await getSTSCredentials(intermediaryARN, intermediaryExternalId, region)
+  return getSTSCredentials(roleArn, externalId, region, intermediaryCreds)
+}
+
+const getSTSCredentials = async (roleId: string, externalId: string, region: string, credentials?: AWSCredentials) => {
+  const options = { credentials, region: region }
+  const stsClient = new STSClient(options)
+  const roleSessionName: string = uuidv4()
+  const command = new AssumeRoleCommand({
+    RoleArn: roleId,
+    RoleSessionName: roleSessionName,
+    ExternalId: externalId
+  })
+  const result = await stsClient.send(command)
+  if (
+    !result.Credentials ||
+    !result.Credentials.AccessKeyId ||
+    !result.Credentials.SecretAccessKey ||
+    !result.Credentials.SessionToken
+  ) {
+    throw new IntegrationError('Failed to assume role', ErrorCodes.INVALID_AUTHENTICATION, 403)
+  }
+
+  return {
+    accessKeyId: result.Credentials.AccessKeyId,
+    secretAccessKey: result.Credentials.SecretAccessKey,
+    sessionToken: result.Credentials.SessionToken
+  }
 }
