@@ -1,8 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
-import { assumeRole } from '../../lib/AWS/sts'
-import { validateIamRoleArnFormat } from './utils'
+import { validateIamRoleArnFormat, assumeRole } from './utils'
 import { APP_AWS_REGION } from '@segment/actions-shared'
 
 import send from './send'
