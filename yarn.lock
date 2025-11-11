@@ -4852,7 +4852,7 @@
   dependencies:
     unfetch "^3.1.1"
 
-"@segment/browser-destination-runtime@^1.6.0", "@segment/browser-destination-runtime@^1.92.0":
+"@segment/browser-destination-runtime@^1.4.0", "@segment/browser-destination-runtime@^1.6.0", "@segment/browser-destination-runtime@^1.92.0":
   version "1.92.0"
   resolved "https://registry.yarnpkg.com/@segment/browser-destination-runtime/-/browser-destination-runtime-1.92.0.tgz#fc35bab7765b8cc45e43e81f660336c1b941c23e"
   integrity sha512-aLqClP672RmHbl03JZzoIWf7195bu/soaIBITnFrv4RXI+1Cp2UPf8r62xrzzhB6v9GN6aZKNfekXh1P9NUtiQ==
