@@ -376,12 +376,12 @@ const action: ActionDefinition<Settings, Payload> = {
       : undefined
 
     const sessionAttributesKeyValuePairs: SessionAttributesKeyValuePairItem[] = [
-      ...(gad_source ? [{ name: "gadSource", value: gad_source } as const] : []),
-      ...(gad_campaignid ? [{ name: "gadCampaignId", value: gad_campaignid } as const] : []),
-      ...(landing_page_url ? [{ name: "landingPageUrl", value: landing_page_url } as const] : []),
-      ...(sessionStartTimeUsec ? [{ name: "sessionStartTimeUsec", value: sessionStartTimeUsec } as const] : []),
-      ...(landing_page_referrer ? [{ name: "landingPageReferrer", value: landing_page_referrer } as const] : []),
-      ...(landing_page_user_agent ? [{ name: "landingPageUserAgent", value: landing_page_user_agent } as const] : [])
+      ...(gad_source ? [{ name: "gad_source", value: gad_source } as const] : []),
+      ...(gad_campaignid ? [{ name: "gad_campaignid", value: gad_campaignid } as const] : []),
+      ...(landing_page_url ? [{ name: "landing_page_url", value: landing_page_url } as const] : []),
+      ...(session_start_time_usec ? [{ name: "session_start_time_usec", value: sessionStartTimeUsec } as const] : []),
+      ...(landing_page_referrer ? [{ name: "landing_page_referrer", value: landing_page_referrer } as const] : []),
+      ...(landing_page_user_agent ? [{ name: "landing_page_user_agent", value: landing_page_user_agent } as const] : [])
     ]
 
     const request_object: ClickConversionRequestObjectInterface = {
@@ -512,12 +512,12 @@ const action: ActionDefinition<Settings, Payload> = {
           : undefined
 
         const sessionAttributesKeyValuePairs: SessionAttributesKeyValuePairItem[] = [
-          ...(gad_source ? [{ name: "gadSource", value: gad_source } as const] : []),
-          ...(gad_campaignid ? [{ name: "gadCampaignId", value: gad_campaignid } as const] : []),
-          ...(landing_page_url ? [{ name: "landingPageUrl", value: landing_page_url } as const] : []),
-          ...(sessionStartTimeUsec ? [{ name: "sessionStartTimeUsec", value: sessionStartTimeUsec } as const] : []),
-          ...(landing_page_referrer ? [{ name: "landingPageReferrer", value: landing_page_referrer } as const] : []),
-          ...(landing_page_user_agent ? [{ name: "landingPageUserAgent", value: landing_page_user_agent } as const] : [])
+          ...(gad_source ? [{ name: "gad_source", value: gad_source } as const] : []),
+          ...(gad_campaignid ? [{ name: "gad_campaignid", value: gad_campaignid } as const] : []),
+          ...(landing_page_url ? [{ name: "landing_page_url", value: landing_page_url } as const] : []),
+          ...(session_start_time_usec ? [{ name: "session_start_time_usec", value: sessionStartTimeUsec } as const] : []),
+          ...(landing_page_referrer ? [{ name: "landing_page_referrer", value: landing_page_referrer } as const] : []),
+          ...(landing_page_user_agent ? [{ name: "landing_page_user_agent", value: landing_page_user_agent } as const] : [])
         ]
 
         const request_object: ClickConversionRequestObjectInterface = {

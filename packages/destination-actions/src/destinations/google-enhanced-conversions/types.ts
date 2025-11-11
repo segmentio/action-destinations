@@ -82,12 +82,12 @@ export interface ConversionAdjustmentRequestObjectInterface {
 }
 
 export type SessionAttributesKeyValuePairItem =
-  | { name: "gadSource"; value?: string }
-  | { name: "gadCampaignId"; value?: string }
-  | { name: "landingPageUrl"; value?: string }
-  | { name: "sessionStartTimeUsec"; value?: string }
-  | { name: "landingPageReferrer"; value?: string }
-  | { name: "landingPageUserAgent"; value?: string }
+  | { name: "gad_source"; value?: string }
+  | { name: "gad_campaignid"; value?: string }
+  | { name: "landing_page_url"; value?: string }
+  | { name: "session_start_time_usec"; value?: string }
+  | { name: "landing_page_referrer"; value?: string }
+  | { name: "landing_page_user_agent"; value?: string }
 
 export interface ClickConversionRequestObjectInterface {
   cartData: CartDataInterface | undefined
