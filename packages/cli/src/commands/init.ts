@@ -2,6 +2,7 @@ import { Command, flags } from '@oclif/command'
 import chalk from 'chalk'
 import ora from 'ora'
 import path from 'path'
+import readPkgUp from 'read-pkg-up'
 import toTitleCase from 'to-title-case'
 import { autoPrompt } from '../lib/prompt'
 import { generateSlug } from '../lib/slugs'
@@ -128,7 +129,13 @@ export default class Init extends Command {
 
     try {
       this.spinner.start(`Creating ${chalk.bold(name)}`)
-      renderTemplates(templatePath, targetDirectory, { ...answers, slugWithoutActions })
+      renderTemplates(templatePath, targetDirectory, {
+        ...answers,
+        slugWithoutActions,
+        browserRuntimeVersion: readPkgUp.sync({
+          cwd: require.resolve('@segment/browser-destination-runtime/plugin')
+        })?.package.version
+      })
       this.spinner.succeed(`Scaffold integration`)
     } catch (err) {
       this.spinner.fail(`Scaffold integration: ${chalk.red((err as Error).message)}`)
