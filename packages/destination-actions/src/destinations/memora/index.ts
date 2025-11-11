@@ -4,6 +4,8 @@ import type { Settings } from './generated-types'
 import profileSync from './profileSync'
 import traitsSync from './traitsSync'
 
+const API_VERSION = 'v1'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Memora',
   slug: 'actions-memora',
@@ -12,6 +14,14 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
+      url: {
+        label: 'Base URL',
+        description: 'Base URL for the Memora API.',
+        type: 'string',
+        format: 'uri',
+        required: true,
+        default: 'https://api.memora.com'
+      },
       serviceId: {
         label: 'Service ID',
         description:
@@ -35,7 +45,9 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: async (request, { settings }) => {
       // Test authentication by making a request to the Memora API
       try {
-        const response = await request(`https://api.memora.com/Services/${settings.serviceId}/Profiles/Bulk`, {
+        const baseUrl = normalizeBaseUrl(settings.url)
+
+        const response = await request(`${baseUrl}/${API_VERSION}/Services/${settings.serviceId}/Profiles/Bulk`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -75,3 +87,7 @@ const destination: DestinationDefinition<Settings> = {
 }
 
 export default destination
+
+function normalizeBaseUrl(url: string): string {
+  return url.replace(/\/+$/, '')
+}
