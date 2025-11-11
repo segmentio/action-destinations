@@ -133,16 +133,17 @@ export async function getAWSCredentialsFromEKS(request: RequestClient): Promise<
 }
 
 export const assumeRole = async (roleArn: string, externalId: string, region: string): Promise<AWSCredentials> => {
-  console.log('mzkh2 ', process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS as string)
-  console.log('mzkh 3', process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID as string)
-  const intermediaryARN =
-    (process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS as string) ||
-    'arn:aws:iam::595280932656:role/customer-s3-stage-action-destination-access'
-  const intermediaryExternalId =
-    (process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID as string) || 'customer-s3-action-destination-stage-role'
-  console.log('mzkh4', intermediaryARN, intermediaryExternalId)
+  const intermediaryARN = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS as string
+  const intermediaryExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID as string
+  if (!intermediaryARN || !intermediaryExternalId) {
+    throw new IntegrationError(
+      'Intermediary role ARN or external ID is not set in environment variables',
+      ErrorCodes.INVALID_AUTHENTICATION,
+      500
+    )
+  }
+
   const intermediaryCreds = await getSTSCredentials(intermediaryARN, intermediaryExternalId, region)
-  console.log('mzkh5', roleArn, externalId)
   return getSTSCredentials(roleArn, externalId, region, intermediaryCreds)
 }
 
