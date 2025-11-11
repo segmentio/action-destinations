@@ -27,8 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Stream Name',
       description: 'The name of the Kinesis stream to send records to',
       type: 'string',
-      required: true,
-      disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+      required: true
     },
     awsRegion: {
       label: 'AWS Region',
@@ -53,7 +52,23 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       minimum: 1,
       maximum: 500,
-      default: 500
+      default: 500,
+      disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Kafka?',
+      description: 'If true, Segment will batch events before sending to Kafka.',
+      default: true,
+      unsafe_hidden: true
+    },
+    batch_bytes: {
+      type: 'number',
+      label: 'Batch Bytes',
+      description: 'The number of bytes to write to the kinesis shard in a single batch. Limit is 1MB.',
+      default: 1000000, // 1MB,
+      required: true,
+      unsafe_hidden: true
     }
   },
   perform: async (_requests, { settings, payload, statsContext, logger }) => {
