@@ -1123,20 +1123,22 @@ export function getSessionAttributesKeyValuePairs(payload: ClickConversionPayloa
     ? timestampToEpochMicroseconds(session_start_time_usec)
     : undefined
 
-  const entries = [
+  const entries: [KeyValueItem['sessionAttributeKey'], string | undefined][] = [
     ['gad_source', gad_source],
     ['gad_campaignid', gad_campaignid],
     ['landing_page_url', landing_page_url],
     ['session_start_time_usec', sessionStartTimeUsec],
     ['landing_page_referrer', landing_page_referrer],
     ['landing_page_user_agent', landing_page_user_agent]
-  ] as const
+  ]
 
   const keyValuePairList: KeyValuePairList = entries
-    .filter((entry): entry is [KeyValueItem['sessionAttributeKey'], string] => !!entry[1])
+    .filter(
+      ([_, value]) => value !== undefined && value !== null && value !== ''
+    )
     .map(([key, value]) => ({
       sessionAttributeKey: key,
-      sessionAttributeValue: value,
+      sessionAttributeValue: value
     }))
 
   return (!session_attributes_encoded && keyValuePairList.length > 0
