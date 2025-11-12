@@ -9,25 +9,12 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event to AWS Kinesis',
   defaultSubscription: 'type = "track" or type = "identify" or type = "page" or type = "screen" or type = "group"',
   fields: {
-    payload: {
-      label: 'Payload',
-      description: 'The data to send to AWS Kinesis',
-      type: 'object',
-      required: true,
-      default: { '@path': '$.' }
-    },
-    partitionKey: {
-      label: 'Partition Key',
-      description: 'The partition key to use for the record',
-      type: 'string',
-      required: true,
-      default: { '@path': '$.messageId' }
-    },
     streamName: {
       label: 'Stream Name',
       description: 'The name of the Kinesis stream to send records to',
       type: 'string',
-      required: true
+      required: true,
+      default: 'mdkhan'
     },
     awsRegion: {
       label: 'AWS Region',
@@ -36,6 +23,20 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       choices: AWS_REGIONS,
       disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+    },
+    partitionKey: {
+      label: 'Partition Key',
+      description: 'The partition key to use for the record',
+      type: 'string',
+      required: true,
+      default: { '@path': '$.messageId' }
+    },
+    payload: {
+      label: 'Payload',
+      description: 'The data to send to AWS Kinesis',
+      type: 'object',
+      required: true,
+      default: { '@path': '$.' }
     },
     batch_keys: {
       label: 'Batch Keys',
