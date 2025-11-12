@@ -28,7 +28,7 @@ export interface Payload {
    */
   max_batch_size: number
   /**
-   * If true, Segment will batch events before sending to Kines.
+   * If true, Segment will batch events before sending to Kinesis.
    */
   enable_batching?: boolean
   /**
