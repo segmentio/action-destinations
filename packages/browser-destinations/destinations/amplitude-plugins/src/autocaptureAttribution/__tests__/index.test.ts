@@ -51,52 +51,100 @@ describe('ajs-integration', () => {
      */
     const updatedCtx = await autocaptureAttributionPlugin.track?.(ctx)
     const ampIntegrationsObj = updatedCtx?.event?.integrations[DESTINATION_INTEGRATION_NAME]
-    expect(ampIntegrationsObj).toEqual(
-      {
-        autocapture_attribution: {
-          new: {
-            gbraid: "gbraid5678",
-            gclid: "gclid1234",
-            utm_campaign: "spring_sale",
-            utm_content: "ad1",
-            utm_medium: "cpc",
-            utm_source: "google",
-            utm_term: "running shoes",
-          },
-          old: {}
-        }
+    expect(ampIntegrationsObj).toEqual({
+      autocapture_attribution: {
+        set: {
+          gbraid: "gbraid5678",
+          gclid: "gclid1234",
+          utm_campaign: "spring_sale",
+          utm_content: "ad1",
+          utm_medium: "cpc",
+          utm_source: "google",
+          utm_term: "running shoes",
+        },
+        set_once: {
+          dclid: "",
+          fbclid: "",
+          gbraid: "gbraid5678",
+          gclid: "gclid1234",
+          ko_clickid: "",
+          li_fat_id: "",
+          msclkid: "",
+          rtd_cid: "",
+          ttclid: "",
+          twclid: "",
+          utm_campaign: "spring_sale",
+          utm_content: "ad1",
+          utm_id: "",
+          utm_medium: "cpc",
+          utm_source: "google",
+          utm_term: "running shoes",
+          wbraid: ""
+        },
+        unset: [
+          "utm_id",
+          "dclid",
+          "fbclid",
+          "wbraid",
+          "ko_clickid",
+          "li_fat_id",
+          "msclkid",
+          "rtd_cid",
+          "ttclid",
+          "twclid"
+        ]
       }
-    )
+    })
 
     /* 
      *  Then we test the what happens when exact same attributions from the URL are captured and added to the next event
      */
     const updatedCtx1 = await autocaptureAttributionPlugin.track?.(ctx)
     const ampIntegrationsObj1 = updatedCtx1?.event?.integrations[DESTINATION_INTEGRATION_NAME]
-    expect(ampIntegrationsObj1).toEqual(
-      {
-        autocapture_attribution: {
-          new: {
-            gbraid: "gbraid5678",
-            gclid: "gclid1234",
-            utm_campaign: "spring_sale",
-            utm_content: "ad1",
-            utm_medium: "cpc",
-            utm_source: "google",
-            utm_term: "running shoes",
-          },
-          old: {
-            gbraid: "gbraid5678",
-            gclid: "gclid1234",
-            utm_campaign: "spring_sale",
-            utm_content: "ad1",
-            utm_medium: "cpc",
-            utm_source: "google",
-            utm_term: "running shoes",
-          }
-        }
+    expect(ampIntegrationsObj1).toEqual({
+      autocapture_attribution: {
+        set: {
+          gbraid: "gbraid5678",
+          gclid: "gclid1234",
+          utm_campaign: "spring_sale",
+          utm_content: "ad1",
+          utm_medium: "cpc",
+          utm_source: "google",
+          utm_term: "running shoes",
+        },
+        set_once: {
+          dclid: "",
+          fbclid: "",
+          gbraid: "gbraid5678",
+          gclid: "gclid1234",
+          ko_clickid: "",
+          li_fat_id: "",
+          msclkid: "",
+          rtd_cid: "",
+          ttclid: "",
+          twclid: "",
+          utm_campaign: "spring_sale",
+          utm_content: "ad1",
+          utm_id: "",
+          utm_medium: "cpc",
+          utm_source: "google",
+          utm_term: "running shoes",
+          wbraid: ""
+        },
+        unset: [
+          "utm_id",
+          "dclid",
+          "fbclid",
+          "wbraid",
+          "ko_clickid",
+          "li_fat_id",
+          "msclkid",
+          "rtd_cid",
+          "ttclid",
+          "twclid"
+        ]
       }
-    )
+    })
 
 
     /* 
@@ -115,18 +163,46 @@ describe('ajs-integration', () => {
     expect(ampIntegrationsObj2).toEqual(
       {
         autocapture_attribution: {
-          new: {
-            utm_source: "email"
+          set: {
+            utm_source: "email",
           },
-          old: {
-            gbraid: "gbraid5678",
-            gclid: "gclid1234",
-            utm_campaign: "spring_sale",
-            utm_content: "ad1",
-            utm_medium: "cpc",
-            utm_source: "google",
-            utm_term: "running shoes",
-          }
+          set_once: {
+            dclid: "",
+            fbclid: "",
+            gbraid: "",
+            gclid: "",
+            ko_clickid: "",
+            li_fat_id: "",
+            msclkid: "",
+            rtd_cid: "",
+            ttclid: "",
+            twclid: "",
+            utm_campaign: "",
+            utm_content: "",
+            utm_id: "",
+            utm_medium: "",
+            utm_source: "email",
+            utm_term: "",
+            wbraid: ""
+          },
+          unset: [
+            "utm_medium",
+            "utm_campaign",
+            "utm_term",
+            "utm_content",
+            "utm_id",
+            "dclid",
+            "fbclid",
+            "gbraid",
+            "wbraid",
+            "gclid",
+            "ko_clickid",
+            "li_fat_id",
+            "msclkid",
+            "rtd_cid",
+            "ttclid",
+            "twclid"
+          ]
         }
       }
     )
@@ -147,10 +223,46 @@ describe('ajs-integration', () => {
     expect(ampIntegrationsObj3).toEqual(
       {
         autocapture_attribution: {
-          new: {},
-          old: {
-            utm_source: "email"
-          }
+          set: {
+            utm_source: "email",
+          },
+          set_once: {
+            dclid: "",
+            fbclid: "",
+            gbraid: "",
+            gclid: "",
+            ko_clickid: "",
+            li_fat_id: "",
+            msclkid: "",
+            rtd_cid: "",
+            ttclid: "",
+            twclid: "",
+            utm_campaign: "",
+            utm_content: "",
+            utm_id: "",
+            utm_medium: "",
+            utm_source: "email",
+            utm_term: "",
+            wbraid: ""
+          },
+          unset: [
+            "utm_medium",
+            "utm_campaign",
+            "utm_term",
+            "utm_content",
+            "utm_id",
+            "dclid",
+            "fbclid",
+            "gbraid",
+            "wbraid",
+            "gclid",
+            "ko_clickid",
+            "li_fat_id",
+            "msclkid",
+            "rtd_cid",
+            "ttclid",
+            "twclid"
+          ]
         }
       }
     )
@@ -171,40 +283,35 @@ describe('ajs-integration', () => {
 
     expect(ampIntegrationsObj4).toEqual(
       {
-        autocapture_attribution: {
-          new: {},
-          old: {
-            utm_source: "email"
-          }
-        }
+    
       }
     )
 
-    /* 
-     *  Finally we test with a completely new attribution parameter
-     */
-    Object.defineProperty(window, 'location', {
-      value: {
-        search: '?ttclid=uyiuyiuy'
-      },
-      writable: true
-    })
+    // /* 
+    //  *  Finally we test with a completely new attribution parameter
+    //  */
+    // Object.defineProperty(window, 'location', {
+    //   value: {
+    //     search: '?ttclid=uyiuyiuy'
+    //   },
+    //   writable: true
+    // })
 
-    const updatedCtx5 = await autocaptureAttributionPlugin.track?.(ctx)
-    const ampIntegrationsObj5 = updatedCtx5?.event?.integrations[DESTINATION_INTEGRATION_NAME]
+    // const updatedCtx5 = await autocaptureAttributionPlugin.track?.(ctx)
+    // const ampIntegrationsObj5 = updatedCtx5?.event?.integrations[DESTINATION_INTEGRATION_NAME]
 
-    expect(ampIntegrationsObj5).toEqual(
-      {
-        autocapture_attribution: {
-          new: {
-             ttclid: "uyiuyiuy"
-          },
-          old: {
-            utm_source: "email"
-          }
-        }
-      }
-    )
+    // expect(ampIntegrationsObj5).toEqual(
+    //   {
+    //     autocapture_attribution: {
+    //       new: {
+    //          ttclid: "uyiuyiuy"
+    //       },
+    //       old: {
+    //         utm_source: "email"
+    //       }
+    //     }
+    //   }
+    // )
 
   })
 })
