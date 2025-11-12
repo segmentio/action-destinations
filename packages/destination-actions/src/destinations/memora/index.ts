@@ -1,8 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import profileSync from './profileSync'
-import traitsSync from './traitsSync'
+import upsertProfile from './upsertProfile'
 
 const API_VERSION = 'v1'
 
@@ -81,8 +80,7 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    profileSync,
-    traitsSync
+    upsertProfile
   }
 }
 
