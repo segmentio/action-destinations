@@ -4,7 +4,7 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getAttributionsFromURL, getAttributionsFromStorage, setAttributionsInStorage } from './functions'
-import { AmplitudeAttributionValues, AMPLITUDE_ATTRIBUTION_KEYS, AmplitudeAttributionKey } from '@segment/actions-shared'
+import { AmplitudeAttributionValues, AMPLITUDE_ATTRIBUTION_KEYS, AmplitudeAttributionKey, AmplitudeSetOnceAttributionValues } from '@segment/actions-shared'
 import { DESTINATION_INTEGRATION_NAME } from '../constants'
 import isEqual from 'lodash/isEqual'
 
@@ -30,14 +30,14 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     const isExcluded = excludeReferrers?.includes(referringDomain)
     const current: Partial<AmplitudeAttributionValues> = isExcluded ? {} : {...getAttributionsFromURL(window.location.search), referrer, referring_domain: referringDomain}
     const previous = getAttributionsFromStorage(analytics.storage as UniversalStorage<Record<string, Partial<AmplitudeAttributionValues>>>)
-    const setOnce: Partial<AmplitudeAttributionValues> = {} 
+    const setOnce: Partial<AmplitudeSetOnceAttributionValues> = {} 
     const set: Partial<AmplitudeAttributionValues> = {}
     const unset: AmplitudeAttributionKey[] = []
     const currentPageHasAttribution = current && Object.values(current).some(v => typeof v === 'string' && v.length > 0)
 
     if (currentPageHasAttribution && !isEqual(current, previous)){   
       AMPLITUDE_ATTRIBUTION_KEYS.forEach(key => {
-        setOnce[key] = current[key] ?? ""
+        setOnce[`initial_${key}`] = current[key] ?? ""
         if(current[key]){
           set[key] = current[key]
         } 
