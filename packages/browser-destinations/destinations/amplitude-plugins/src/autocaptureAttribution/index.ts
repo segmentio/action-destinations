@@ -6,6 +6,7 @@ import type { Payload } from './generated-types'
 import { getAttributionsFromURL, getAttributionsFromStorage, setAttributionsInStorage } from './functions'
 import { AmplitudeAttributionValues, AMPLITUDE_ATTRIBUTION_KEYS, AmplitudeAttributionKey } from '@segment/actions-shared'
 import { DESTINATION_INTEGRATION_NAME } from '../constants'
+import isEqual from 'lodash/isEqual'
 
 const action: BrowserActionDefinition<Settings, {}, Payload> = {
   title: 'Autocapture Attribution Plugin',
@@ -32,39 +33,33 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     const setOnce: Partial<AmplitudeAttributionValues> = {} 
     const set: Partial<AmplitudeAttributionValues> = {}
     const unset: AmplitudeAttributionKey[] = []
-
     const currentPageHasAttribution = current && Object.values(current).some(v => typeof v === 'string' && v.length > 0)
 
-    if (!currentPageHasAttribution) {
-      return
+    if (currentPageHasAttribution && !isEqual(current, previous)){   
+      AMPLITUDE_ATTRIBUTION_KEYS.forEach(key => {
+        setOnce[key] = current[key] ?? ""
+        if(current[key]){
+          set[key] = current[key]
+        } 
+        else{
+          unset.push(key)
+        }
+      })
+      if(Object.entries(current).length >0) {
+        setAttributionsInStorage(analytics.storage as UniversalStorage<Record<string, Partial<AmplitudeAttributionValues>>>, current)
+      }
     }
 
-    AMPLITUDE_ATTRIBUTION_KEYS.forEach(key => {
-      // Always set_once the current values from the URL if there is at least one attribution value present
-      setOnce[key] = current[key] ?? ""
-      if(current[key]){
-        // If there are any attribution values on the page, set them 
-        set[key] = current[key]
-      } 
-      else if(previous[key]){
-        // if there are any previous attribution values which are not in current URL, unset them
-        unset.push(key)
-      }
-    })
-    
     if (context.event.integrations?.All !== false || context.event.integrations[DESTINATION_INTEGRATION_NAME]) {
       context.updateEvent(`integrations.${DESTINATION_INTEGRATION_NAME}`, {})
       context.updateEvent(`integrations.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution`, {
+        autocapture_attribution_enabled: true,
         set_once: setOnce,
         set: set,
         unset: unset
       })
     }
     
-    if(Object.entries(current).length >0) {
-      setAttributionsInStorage(analytics.storage as UniversalStorage<Record<string, Partial<AmplitudeAttributionValues>>>, current)
-    }
-
     return
   }
 }

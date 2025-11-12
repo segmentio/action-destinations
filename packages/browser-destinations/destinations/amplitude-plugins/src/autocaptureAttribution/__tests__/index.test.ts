@@ -47,12 +47,13 @@ describe('ajs-integration', () => {
     })
 
     /* 
-     *  First we test that the attributions from the URL are captured and added to the event
+     *  First event on the page with attribution values will be transmitted with set and set_once values
      */
     const updatedCtx = await autocaptureAttributionPlugin.track?.(ctx)
     const ampIntegrationsObj = updatedCtx?.event?.integrations[DESTINATION_INTEGRATION_NAME]
     expect(ampIntegrationsObj).toEqual({
       autocapture_attribution: {
+        autocapture_attribution_enabled: true,
         set: {
           gbraid: "gbraid5678",
           gclid: "gclid1234",
@@ -97,58 +98,22 @@ describe('ajs-integration', () => {
     })
 
     /* 
-     *  Then we test the what happens when exact same attributions from the URL are captured and added to the next event
+     *  Second event on the same page with attribution values will be transmitted without set and set_once values
      */
     const updatedCtx1 = await autocaptureAttributionPlugin.track?.(ctx)
     const ampIntegrationsObj1 = updatedCtx1?.event?.integrations[DESTINATION_INTEGRATION_NAME]
     expect(ampIntegrationsObj1).toEqual({
       autocapture_attribution: {
-        set: {
-          gbraid: "gbraid5678",
-          gclid: "gclid1234",
-          utm_campaign: "spring_sale",
-          utm_content: "ad1",
-          utm_medium: "cpc",
-          utm_source: "google",
-          utm_term: "running shoes",
-        },
-        set_once: {
-          dclid: "",
-          fbclid: "",
-          gbraid: "gbraid5678",
-          gclid: "gclid1234",
-          ko_clickid: "",
-          li_fat_id: "",
-          msclkid: "",
-          rtd_cid: "",
-          ttclid: "",
-          twclid: "",
-          utm_campaign: "spring_sale",
-          utm_content: "ad1",
-          utm_id: "",
-          utm_medium: "cpc",
-          utm_source: "google",
-          utm_term: "running shoes",
-          wbraid: ""
-        },
-        unset: [
-          "utm_id",
-          "dclid",
-          "fbclid",
-          "wbraid",
-          "ko_clickid",
-          "li_fat_id",
-          "msclkid",
-          "rtd_cid",
-          "ttclid",
-          "twclid"
-        ]
+        autocapture_attribution_enabled: true,
+        set_once: {},
+        set: {},
+        unset: []
       }
     })
 
 
     /* 
-     *  Then we test that the new attributes from the URL are captured, the old cached values are retrieved
+     *  A new URL should result in updated set and unset values being sent in the payload
      */
     Object.defineProperty(window, 'location', {
       value: {
@@ -163,6 +128,7 @@ describe('ajs-integration', () => {
     expect(ampIntegrationsObj2).toEqual(
       {
         autocapture_attribution: {
+          autocapture_attribution_enabled: true,
           set: {
             utm_source: "email",
           },
@@ -208,7 +174,7 @@ describe('ajs-integration', () => {
     )
 
     /* 
-     *  Then we test when there are no new URL attribution values - the last cached attribution values are passed correctly in the payload
+     *  Next a new page load happens which does not have any valid attribution values. No attribution values should be sent in the payload
      */
     Object.defineProperty(window, 'location', {
       value: {
@@ -223,46 +189,10 @@ describe('ajs-integration', () => {
     expect(ampIntegrationsObj3).toEqual(
       {
         autocapture_attribution: {
-          set: {
-            utm_source: "email",
-          },
-          set_once: {
-            dclid: "",
-            fbclid: "",
-            gbraid: "",
-            gclid: "",
-            ko_clickid: "",
-            li_fat_id: "",
-            msclkid: "",
-            rtd_cid: "",
-            ttclid: "",
-            twclid: "",
-            utm_campaign: "",
-            utm_content: "",
-            utm_id: "",
-            utm_medium: "",
-            utm_source: "email",
-            utm_term: "",
-            wbraid: ""
-          },
-          unset: [
-            "utm_medium",
-            "utm_campaign",
-            "utm_term",
-            "utm_content",
-            "utm_id",
-            "dclid",
-            "fbclid",
-            "gbraid",
-            "wbraid",
-            "gclid",
-            "ko_clickid",
-            "li_fat_id",
-            "msclkid",
-            "rtd_cid",
-            "ttclid",
-            "twclid"
-          ]
+          autocapture_attribution_enabled: true,
+          set: {},
+          set_once: {},
+          unset: []
         }
       }
     )
@@ -283,35 +213,75 @@ describe('ajs-integration', () => {
 
     expect(ampIntegrationsObj4).toEqual(
       {
-    
+        autocapture_attribution: {
+          autocapture_attribution_enabled: true,
+          set: {},
+          set_once: {},
+          unset: []
+        }
       }
     )
 
-    // /* 
-    //  *  Finally we test with a completely new attribution parameter
-    //  */
-    // Object.defineProperty(window, 'location', {
-    //   value: {
-    //     search: '?ttclid=uyiuyiuy'
-    //   },
-    //   writable: true
-    // })
+    /* 
+     *  Finally we test with a completely new attribution parameter
+     */
+    Object.defineProperty(window, 'location', {
+      value: {
+        search: '?ttclid=uyiuyiuy'
+      },
+      writable: true
+    })
 
-    // const updatedCtx5 = await autocaptureAttributionPlugin.track?.(ctx)
-    // const ampIntegrationsObj5 = updatedCtx5?.event?.integrations[DESTINATION_INTEGRATION_NAME]
+    const updatedCtx5 = await autocaptureAttributionPlugin.track?.(ctx)
+    const ampIntegrationsObj5 = updatedCtx5?.event?.integrations[DESTINATION_INTEGRATION_NAME]
 
-    // expect(ampIntegrationsObj5).toEqual(
-    //   {
-    //     autocapture_attribution: {
-    //       new: {
-    //          ttclid: "uyiuyiuy"
-    //       },
-    //       old: {
-    //         utm_source: "email"
-    //       }
-    //     }
-    //   }
-    // )
+    expect(ampIntegrationsObj5).toEqual(
+      {
+         autocapture_attribution: {
+          autocapture_attribution_enabled: true,
+          set: {
+            ttclid: "uyiuyiuy"
+          },
+          set_once: {
+            dclid: "",
+            fbclid: "",
+            gbraid: "",
+            gclid: "",
+            ko_clickid: "",
+            li_fat_id: "",
+            msclkid: "",
+            rtd_cid: "",
+            ttclid: "uyiuyiuy",
+            twclid: "",
+            utm_campaign: "",
+            utm_content: "",
+            utm_id: "",
+            utm_medium: "",
+            utm_source: "",
+            utm_term: "",
+            wbraid: ""
+          },
+          unset: [
+            "utm_source",
+            "utm_medium",
+            "utm_campaign",
+            "utm_term",
+            "utm_content",
+            "utm_id",
+            "dclid",
+            "fbclid",
+            "gbraid",
+            "wbraid",
+            "gclid",
+            "ko_clickid",
+            "li_fat_id",
+            "msclkid",
+            "rtd_cid",
+            "twclid"
+          ]
+        }
+      }
+    )
 
   })
 })

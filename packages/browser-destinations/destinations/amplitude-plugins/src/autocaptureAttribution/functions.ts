@@ -19,7 +19,6 @@ export function getAttributionsFromURL(queryString: string): Partial<AmplitudeAt
 
 export function getAttributionsFromStorage(storage: UniversalStorage<Record<string, Partial<AmplitudeAttributionValues>>>): Partial<AmplitudeAttributionValues> {
   const values = storage.get(AMPLITUDE_ATTRIBUTION_STORAGE_KEY)
-  console.log('Retrieved attributions from storage:', values)
   return values ?? {}
 }
 
