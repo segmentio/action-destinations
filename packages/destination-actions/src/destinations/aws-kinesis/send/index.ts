@@ -27,7 +27,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Stream Name',
       description: 'The name of the Kinesis stream to send records to',
       type: 'string',
-      required: true
+      required: true,
+      dynamic: true
     },
     awsRegion: {
       label: 'AWS Region',
@@ -57,8 +58,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     enable_batching: {
       type: 'boolean',
-      label: 'Batch Data to Kafka?',
-      description: 'If true, Segment will batch events before sending to Kafka.',
+      label: 'Batch Data to Kinesis?',
+      description: 'If true, Segment will batch events before sending to Kines.',
       default: true,
       unsafe_hidden: true
     },
