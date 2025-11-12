@@ -8,6 +8,8 @@ import { parseUserAgentProperties } from '../user-agent'
 import type { Payload } from './generated-types'
 import { formatSessionId } from '../convert-timestamp'
 import { userAgentData } from '../properties'
+import { DESTINATION_INTEGRATION_NAME } from '../autocaptueAttributions'
+import { AMPLITUDE_ATTRIBUTION_KEYS } from '@segment/actions-shared'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'time' | 'session_id'> {
   library?: string
@@ -175,6 +177,34 @@ const action: ActionDefinition<Settings, Payload> = {
       additionalProperties: true,
       defaultObjectUI: 'keyvalue'
     },
+    autocaptureAttributionEnabled: {
+      label: 'Autocapture Attribution Enabled',
+      description: 'Utility field used to detect if Autocapture Attribution Plugin is enabled.',
+      type: 'boolean',
+      default: { '@path': `$.context.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution.enabled` },
+      readOnly: true
+    },
+    autocaptureAttributionSet: {
+        label: 'Autocapture Attribution Set',
+        description: 'Utility field used to detect if any attribution values need to be set.',
+        type: 'object',
+        default: { '@path': `$.context.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution.set` },
+        readOnly: true
+      },
+    autocaptureAttributionSetOnce: {
+      label: 'Autocapture Attribution Set Once',
+      description: 'Utility field used to detect if any attribution values need to be set_once.',
+      type: 'object',
+      default: { '@path': `$.context.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution.set_once` },
+      readOnly: true
+    },
+    autocaptureAttributionUnset: {
+      label: 'Autocapture Attribution Unset',
+      description: 'Utility field used to detect if any attribution values need to be unset.',
+      type: 'object',
+      default: { '@path': `$.context.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution.unset` },
+      readOnly: true
+    },
     use_batch_endpoint: {
       label: 'Use Batch Endpoint',
       description:
@@ -259,6 +289,8 @@ const action: ActionDefinition<Settings, Payload> = {
         properties.user_properties = { ...properties.user_properties, [name]: obj }
       }
     }
+
+    
 
     setUserProperties('$setOnce', setOnce)
     setUserProperties('$set', setAlways)

@@ -1,4 +1,6 @@
 export const AMPLITUDE_ATTRIBUTION_KEYS = [
+  'referrer',
+  'referring_domain',
   'utm_source',
   'utm_medium',
   'utm_campaign',

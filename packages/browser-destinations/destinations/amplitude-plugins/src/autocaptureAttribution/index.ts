@@ -25,10 +25,10 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
   lifecycleHook: 'enrichment',
   perform: (_, { context, payload, analytics }) => {
     const referrer = document.referrer
-    const referrerDomain = referrer ? new URL(referrer).hostname : ''
+    const referringDomain = referrer ? new URL(referrer).hostname : ''
     const { excludeReferrers } = payload
-    const isExcluded = excludeReferrers?.includes(referrerDomain)
-    const current = isExcluded ? {} : getAttributionsFromURL(window.location.search)
+    const isExcluded = excludeReferrers?.includes(referringDomain)
+    const current: Partial<AmplitudeAttributionValues> = isExcluded ? {} : {...getAttributionsFromURL(window.location.search), referrer, referring_domain: referringDomain}
     const previous = getAttributionsFromStorage(analytics.storage as UniversalStorage<Record<string, Partial<AmplitudeAttributionValues>>>)
     const setOnce: Partial<AmplitudeAttributionValues> = {} 
     const set: Partial<AmplitudeAttributionValues> = {}
@@ -53,7 +53,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     if (context.event.integrations?.All !== false || context.event.integrations[DESTINATION_INTEGRATION_NAME]) {
       context.updateEvent(`integrations.${DESTINATION_INTEGRATION_NAME}`, {})
       context.updateEvent(`integrations.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution`, {
-        autocapture_attribution_enabled: true,
+        enabled: true,
         set_once: setOnce,
         set: set,
         unset: unset

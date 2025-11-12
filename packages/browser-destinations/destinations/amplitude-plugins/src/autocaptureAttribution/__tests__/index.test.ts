@@ -53,7 +53,7 @@ describe('ajs-integration', () => {
     const ampIntegrationsObj = updatedCtx?.event?.integrations[DESTINATION_INTEGRATION_NAME]
     expect(ampIntegrationsObj).toEqual({
       autocapture_attribution: {
-        autocapture_attribution_enabled: true,
+        enabled: true,
         set: {
           gbraid: "gbraid5678",
           gclid: "gclid1234",
@@ -104,7 +104,7 @@ describe('ajs-integration', () => {
     const ampIntegrationsObj1 = updatedCtx1?.event?.integrations[DESTINATION_INTEGRATION_NAME]
     expect(ampIntegrationsObj1).toEqual({
       autocapture_attribution: {
-        autocapture_attribution_enabled: true,
+        enabled: true,
         set_once: {},
         set: {},
         unset: []
@@ -128,7 +128,7 @@ describe('ajs-integration', () => {
     expect(ampIntegrationsObj2).toEqual(
       {
         autocapture_attribution: {
-          autocapture_attribution_enabled: true,
+          enabled: true,
           set: {
             utm_source: "email",
           },
@@ -189,7 +189,7 @@ describe('ajs-integration', () => {
     expect(ampIntegrationsObj3).toEqual(
       {
         autocapture_attribution: {
-          autocapture_attribution_enabled: true,
+          enabled: true,
           set: {},
           set_once: {},
           unset: []
@@ -214,7 +214,7 @@ describe('ajs-integration', () => {
     expect(ampIntegrationsObj4).toEqual(
       {
         autocapture_attribution: {
-          autocapture_attribution_enabled: true,
+          enabled: true,
           set: {},
           set_once: {},
           unset: []
@@ -238,7 +238,7 @@ describe('ajs-integration', () => {
     expect(ampIntegrationsObj5).toEqual(
       {
          autocapture_attribution: {
-          autocapture_attribution_enabled: true,
+          enabled: true,
           set: {
             ttclid: "uyiuyiuy"
           },
