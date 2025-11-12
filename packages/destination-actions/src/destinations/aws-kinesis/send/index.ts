@@ -13,8 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Stream Name',
       description: 'The name of the Kinesis stream to send records to',
       type: 'string',
-      required: true,
-      default: 'mdkhan'
+      required: true
     },
     awsRegion: {
       label: 'AWS Region',
