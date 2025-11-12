@@ -19,4 +19,12 @@ export interface Payload {
    * The AWS region where the Kinesis stream is located
    */
   awsRegion: string
+  /**
+   * The keys to use for batching the events.
+   */
+  batch_keys?: string[]
+  /**
+   * The maximum number of payloads to include in a batch.
+   */
+  max_batch_size: number
 }
