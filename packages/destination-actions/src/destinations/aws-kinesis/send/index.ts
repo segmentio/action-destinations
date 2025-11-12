@@ -9,26 +9,11 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event to AWS Kinesis',
   defaultSubscription: 'type = "track" or type = "identify" or type = "page" or type = "screen" or type = "group"',
   fields: {
-    payload: {
-      label: 'Payload',
-      description: 'The data to send to AWS Kinesis',
-      type: 'object',
-      required: true,
-      default: { '@path': '$.' }
-    },
-    partitionKey: {
-      label: 'Partition Key',
-      description: 'The partition key to use for the record',
-      type: 'string',
-      required: true,
-      default: { '@path': '$.messageId' }
-    },
     streamName: {
       label: 'Stream Name',
       description: 'The name of the Kinesis stream to send records to',
       type: 'string',
-      required: true,
-      disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+      required: true
     },
     awsRegion: {
       label: 'AWS Region',
@@ -37,6 +22,20 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       choices: AWS_REGIONS,
       disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+    },
+    partitionKey: {
+      label: 'Partition Key',
+      description: 'The partition key to use for the record',
+      type: 'string',
+      required: true,
+      default: { '@path': '$.messageId' }
+    },
+    payload: {
+      label: 'Payload',
+      description: 'The data to send to AWS Kinesis',
+      type: 'object',
+      required: true,
+      default: { '@path': '$.' }
     },
     batch_keys: {
       label: 'Batch Keys',
@@ -53,7 +52,23 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       minimum: 1,
       maximum: 500,
-      default: 500
+      default: 500,
+      disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Kinesis?',
+      description: 'If true, Segment will batch events before sending to Kines.',
+      default: true,
+      unsafe_hidden: true
+    },
+    batch_bytes: {
+      type: 'number',
+      label: 'Batch Bytes',
+      description: 'The number of bytes to write to the kinesis shard in a single batch. Limit is 1MB.',
+      default: 1000000, // 1MB,
+      required: true,
+      unsafe_hidden: true
     }
   },
   perform: async (_requests, { settings, payload, statsContext, logger }) => {

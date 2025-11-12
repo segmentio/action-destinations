@@ -64,7 +64,8 @@ export const send = async (
       Records: entries
     })
 
-    await client.send(command)
+    const response = await client.send(command)
+    console.log('mzkh 7', response)
   } catch (error) {
     logger?.crit('Failed to send batch to Kinesis:', error)
     throw error
