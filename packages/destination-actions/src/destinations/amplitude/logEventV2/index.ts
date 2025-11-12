@@ -9,7 +9,6 @@ import type { Payload } from './generated-types'
 import { formatSessionId } from '../convert-timestamp'
 import { userAgentData } from '../properties'
 import { DESTINATION_INTEGRATION_NAME } from '../autocaptueAttributions'
-import { AMPLITUDE_ATTRIBUTION_KEYS } from '@segment/actions-shared'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'time' | 'session_id'> {
   library?: string
@@ -256,6 +255,10 @@ const action: ActionDefinition<Settings, Payload> = {
       setOnce,
       setAlways,
       add,
+      autocaptureAttributionEnabled,
+      autocaptureAttributionSet,
+      autocaptureAttributionSetOnce,
+      autocaptureAttributionUnset,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
@@ -282,7 +285,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const setUserProperties = (
-      name: '$setOnce' | '$set' | '$add',
+      name: '$setOnce' | '$set' | '$add' | '$unset',
       obj: Payload['setOnce'] | Payload['setAlways'] | Payload['add']
     ) => {
       if (compact(obj)) {
@@ -290,11 +293,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    
-
-    setUserProperties('$setOnce', setOnce)
-    setUserProperties('$set', setAlways)
+    setUserProperties('$setOnce', autocaptureAttributionEnabled ? { ...setOnce, ...autocaptureAttributionSetOnce} : setOnce)
+    setUserProperties('$set', autocaptureAttributionEnabled ? { ...setAlways, ...autocaptureAttributionSet} : setAlways)
     setUserProperties('$add', add)
+    setUserProperties('$unset', autocaptureAttributionEnabled ? { ...autocaptureAttributionUnset} : {})
 
     const events: AmplitudeEvent[] = [
       {
