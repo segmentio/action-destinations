@@ -42,15 +42,21 @@ const mockedEvents: SegmentEvent[] = Array.from({ length: 50 }, (_, i) => ({
   event: 'Audience Entered'
 }))
 
-// Mock the SFTP client
-const mockSftpClient = {
-  connect: jest.fn().mockResolvedValue(undefined),
+// Create a global mock instance that we can reference directly
+const mockSftpInstance = {
+  connect: jest.fn().mockResolvedValue({}),
   put: jest.fn().mockResolvedValue(undefined),
-  end: jest.fn().mockResolvedValue(undefined),
-  exists: jest.fn().mockResolvedValue(true)
+  fastPutFromBuffer: jest.fn().mockResolvedValue(undefined),
+  end: jest.fn().mockResolvedValue(undefined)
 }
 
-jest.mock('ssh2-sftp-client', () => jest.fn(() => mockSftpClient))
+// Mock both the ssh2-sftp-client and our custom wrapper
+jest.mock('ssh2-sftp-client')
+jest.mock('../../sftp-wrapper', () => {
+  return {
+    SFTPWrapper: jest.fn().mockImplementation(() => mockSftpInstance)
+  }
+})
 
 describe('syncEvents', () => {
   beforeEach(() => {
@@ -58,10 +64,10 @@ describe('syncEvents', () => {
     jest.resetModules()
 
     // Reset mock implementations
-    mockSftpClient.connect.mockResolvedValue(undefined)
-    mockSftpClient.put.mockResolvedValue(undefined)
-    mockSftpClient.end.mockResolvedValue(undefined)
-    mockSftpClient.exists.mockResolvedValue(true)
+    mockSftpInstance.connect.mockResolvedValue({})
+    mockSftpInstance.put.mockResolvedValue(undefined)
+    mockSftpInstance.fastPutFromBuffer.mockResolvedValue(undefined)
+    mockSftpInstance.end.mockResolvedValue(undefined)
   })
 
   describe('Action Definition', () => {
@@ -111,7 +117,7 @@ describe('syncEvents', () => {
         settings: sshKeySettings
       })
 
-      expect(mockSftpClient.connect).toHaveBeenCalledWith({
+      expect(mockSftpInstance.connect).toHaveBeenCalledWith({
         host: 'test.example.com',
         port: SFTP_DEFAULT_PORT,
         username: 'testuser',
@@ -128,14 +134,14 @@ describe('syncEvents', () => {
         settings
       })
 
-      expect(mockSftpClient.connect).toHaveBeenCalledWith({
+      expect(mockSftpInstance.connect).toHaveBeenCalledWith({
         host: 'test.example.com',
         port: SFTP_DEFAULT_PORT,
         username: 'testuser',
         password: 'testpass'
       })
-      expect(mockSftpClient.put).toHaveBeenCalled()
-      expect(mockSftpClient.end).toHaveBeenCalled()
+      expect(mockSftpInstance.put).toHaveBeenCalled()
+      expect(mockSftpInstance.end).toHaveBeenCalled()
     })
   })
 
@@ -234,7 +240,7 @@ describe('syncEvents', () => {
 describe('Integration Tests', () => {
   // Helper function to get readable calls for snapshots
   const getReadableCalls = () => {
-    return mockSftpClient.put.mock.calls.map((call: any) => {
+    return mockSftpInstance.put.mock.calls.map((call: any) => {
       const [fileContent, path] = call
       return {
         path,
@@ -243,7 +249,7 @@ describe('Integration Tests', () => {
     })
   }
 
-  beforeEach(() => mockSftpClient.put.mockClear())
+  beforeEach(() => mockSftpInstance.put.mockClear())
 
   it('should work with default mappings', async () => {
     const testEvent = createTestEvent({
@@ -265,9 +271,9 @@ describe('Integration Tests', () => {
     ).resolves.not.toThrow()
 
     // Verify that the SFTP client was called
-    expect(mockSftpClient.connect).toHaveBeenCalled()
-    expect(mockSftpClient.put).toHaveBeenCalled()
-    expect(mockSftpClient.end).toHaveBeenCalled()
+    expect(mockSftpInstance.connect).toHaveBeenCalled()
+    expect(mockSftpInstance.put).toHaveBeenCalled()
+    expect(mockSftpInstance.end).toHaveBeenCalled()
   })
 
   it('should generate correct file output', async () => {
@@ -298,10 +304,11 @@ describe('Integration Tests', () => {
     })
 
     // Verify the file was uploaded with expected content
-    expect(mockSftpClient.put).toHaveBeenCalledWith(
-      expect.any(Buffer),
-      expect.stringMatching(/\/uploads\/test_filename_.*\.csv$/)
-    )
+    const calls = mockSftpInstance.put.mock.calls
+    expect(calls.length).toBeGreaterThan(0)
+    // Check that the buffer was passed and the path matches expected format
+    expect(calls[0][0]).toBeInstanceOf(Buffer)
+    expect(calls[0][1]).toMatch(/\/uploads\/test_filename_.*\.csv$/)
   })
 
   it('should handle batch processing with deterministic output', async () => {

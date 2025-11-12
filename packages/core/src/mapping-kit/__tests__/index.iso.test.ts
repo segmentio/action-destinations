@@ -516,6 +516,14 @@ describe('@json', () => {
     expect(output).toStrictEqual({ neat: ['bar', 'baz'] })
   })
 
+  test('decode_invalid_json_returns_original_string', () => {
+    const output = transform(
+      { neat: { '@json': { mode: 'decode', value: { '@path': '$.foo' } } } },
+      { foo: 'Hello World' }
+    )
+    expect(output).toStrictEqual({ neat: 'Hello World' })
+  })
+
   test('invalid mode', () => {
     expect(() => {
       transform({ neat: { '@json': { mode: 'oops', value: { '@path': '$.foo' } } } }, { foo: 'bar' })

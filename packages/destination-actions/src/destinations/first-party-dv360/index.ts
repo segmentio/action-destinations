@@ -86,7 +86,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Membership Duration Days',
       required: true,
       description:
-        'The duration in days that an entry remains in the audience after the qualifying event. If the audience has no expiration, set the value of this field to 10000. Otherwise, the set value must be greater than 0 and less than or equal to 540.'
+        'The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.'
     }
   },
 
@@ -98,7 +98,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
     createAudience: async (_request, _CreateAudienceInput: _CreateAudienceInput) => {
       // Extract values from input
-      const { audienceName, audienceSettings, statsContext } = _CreateAudienceInput
+      const { audienceName, audienceSettings, statsContext, features } = _CreateAudienceInput
       const auth = _CreateAudienceInput.settings.oauth
       const advertiserId = audienceSettings?.advertiserId?.trim()
       const description = audienceSettings?.description
@@ -165,20 +165,22 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         membershipDurationDays,
         audienceType,
         appId,
-        token
+        token,
+        features,
+        statsContext
       })
 
       // Parse and return the externalId
       const r = await response.json()
       statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
-        externalId: r.firstAndThirdPartyAudienceId
+        externalId: r.firstPartyAndPartnerAudienceId
       }
     },
 
     getAudience: async (_request, _GetAudienceInput: _GetAudienceInput) => {
       // Extract values from input
-      const { audienceSettings, statsContext } = _GetAudienceInput
+      const { audienceSettings, statsContext, features } = _GetAudienceInput
       const auth = _GetAudienceInput.settings.oauth
       const audienceId = _GetAudienceInput.externalId
       const advertiserId = audienceSettings?.advertiserId?.trim()
@@ -223,7 +225,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       // Make API request to get audience details
-      const response = await getAudienceRequest(_request, { advertiserId, audienceId, token })
+      const response = await getAudienceRequest(_request, { advertiserId, audienceId, token, features, statsContext })
 
       if (!response.ok) {
         // Handle non-OK responses
@@ -236,7 +238,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audienceData = await response.json()
       statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
-        externalId: audienceData.firstAndThirdPartyAudienceId
+        externalId: audienceData.firstPartyAndPartnerAudienceId
       }
     }
   },
@@ -261,6 +263,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(removeFromAudContactInfo.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_exited_track'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'addToAudContactInfo',
+      mapping: defaultValues(addToAudContactInfo.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'removeFromAudContactInfo',
+      mapping: defaultValues(removeFromAudContactInfo.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
     },
     {
       name: 'Journeys Step Entered',

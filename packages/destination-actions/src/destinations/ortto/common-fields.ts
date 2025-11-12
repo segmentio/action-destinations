@@ -1,27 +1,6 @@
 import { InputField } from '@segment/actions-core'
 
 export const commonFields: Record<string, InputField> = {
-  timestamp: {
-    label: 'Timestamp',
-    description: 'Event timestamp (ISO 8601)',
-    type: 'string',
-    readOnly: true,
-    format: 'date-time',
-    required: true,
-    default: {
-      '@path': '$.timestamp'
-    }
-  },
-  message_id: {
-    label: 'Message ID',
-    description: 'Message ID',
-    type: 'string',
-    readOnly: true,
-    required: true,
-    default: {
-      '@path': '$.messageId'
-    }
-  },
   enable_batching: {
     type: 'boolean',
     label: 'Batch data',
@@ -136,7 +115,7 @@ export const commonFields: Record<string, InputField> = {
     description: 'An object containing key-value pairs representing custom properties assigned to Contact profile',
     type: 'object',
     defaultObjectUI: 'keyvalue',
-    default:  {
+    default: {
       '@if': {
         exists: { '@path': '$.traits' },
         then: { '@path': '$.traits' },

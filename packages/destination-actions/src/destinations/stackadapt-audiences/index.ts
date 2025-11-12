@@ -1,16 +1,15 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
-import forwardProfile from './forwardProfile'
 import forwardAudienceEvent from './forwardAudienceEvent'
-import { AdvertiserScopesResponse } from './types'
-import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash } from './functions'
+import { AdvertiserScopesResponse } from './common-types'
+import { sha256hash } from './common-functions'
+import { EXTERNAL_PROVIDER, GQL_ENDPOINT } from './common-constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'StackAdapt Audiences',
   slug: 'actions-stackadapt-audiences',
+  description: 'Sync Segment Engage Audiences as well as user profile details to StackAdapt',
   mode: 'cloud',
-
   authentication: {
     scheme: 'custom',
     fields: {
@@ -18,6 +17,12 @@ const destination: DestinationDefinition<Settings> = {
         label: 'GraphQL Token',
         description: 'Your StackAdapt GQL API Token',
         type: 'string',
+        required: true
+      },
+      advertiser_id: {
+        label: "Advertiser ID",
+        description: "The StackAdapt advertiser ID to add the profile to.",
+        type: 'string', 
         required: true
       }
     },
@@ -59,16 +64,20 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  onDelete: async (request, { payload }) => {
+  onDelete: async (request, { payload, settings }) => {
     const userId = payload.userId
     const formattedExternalIds = `["${userId}"]`
     const syncId = sha256hash(String(userId))
+    const advertiserId = settings.advertiser_id
 
     const mutation = `mutation {
       deleteProfilesWithExternalIds(
-        externalIds: ${formattedExternalIds},
-        externalProvider: "${EXTERNAL_PROVIDER}",
-        syncId: "${syncId}"
+        input: {
+          externalIds: ${formattedExternalIds},
+          externalProvider: "${EXTERNAL_PROVIDER}",
+          syncId: "${syncId}",
+          advertiserIds: [${parseInt(advertiserId, 10)}]
+        }
       ) {
         userErrors {
           message
@@ -99,7 +108,6 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    forwardProfile,
     forwardAudienceEvent
   }
 }

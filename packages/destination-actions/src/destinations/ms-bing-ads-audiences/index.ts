@@ -18,17 +18,10 @@ const destination: AudienceDestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      developerToken: {
-        label: 'Developer Token',
-        description:
-          'The developer token for authenticating API requests. You can find it in the Microsoft Advertising User Interface under Settings → Developer Settings.',
-        type: 'password',
-        required: true
-      },
       customerAccountId: {
         label: 'Customer Account ID',
         description:
-          'The account ID of the Microsoft Advertising account you want to manage. You can find it in the URL when viewing the account in the Microsoft Ads User Interface.',
+          'The account ID of the Microsoft Advertising account you want to manage. You can find it in the URL when viewing the account in the Microsoft Ads User Interface. Not to be confused with Account Number.',
         type: 'string',
         required: true
       },
@@ -69,7 +62,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
     return {
       headers: {
         Authorization: `Bearer ${auth?.accessToken}`,
-        DeveloperToken: settings?.developerToken,
+        DeveloperToken: process.env.ACTIONS_MS_BING_ADS_AUDIENCES_DEVELOPER_TOKEN || '',
         CustomerAccountId: settings?.customerAccountId,
         CustomerId: settings?.customerId
       }

@@ -76,3 +76,4 @@ register('686b6e058e93b64b2fe576a3', '@segment/analytics-browser-actions-faceboo
 register('68b82be249b48bae343517c7', '@segment/analytics-browser-actions-ms-bing-capi')
 register('68c14f4eefb643527597844c', '@segment/analytics-browser-actions-fullsession')
 register('68c9611ea98b898fa893cffc', '@segment/analytics-browser-actions-cj')
+register('6911ea13d72d3a16aa306482', '@segment/analytics-browser-mixpanel-web-actions')

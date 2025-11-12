@@ -461,7 +461,9 @@ export class LinkedInConversions {
         eventId: payload.eventId,
         user: {
           userIds,
-          userInfo: payload.userInfo
+          userInfo: payload.userInfo,
+          // only 1 externalId value allowed currently in the externalIds array by LinkedIn currently Oct 2025
+          ...(Array.isArray(payload?.externalIds) && payload.externalIds.length > 0 ? { externalIds: [payload.externalIds[0]] } : {})
         }
       }
     })
@@ -489,7 +491,9 @@ export class LinkedInConversions {
               eventId: payload.eventId,
               user: {
                 userIds,
-                userInfo: payload.userInfo
+                userInfo: payload.userInfo,
+                // only 1 externalId value allowed currently in the externalIds array by LinkedIn currently Oct 2025
+                ...(Array.isArray(payload?.externalIds) && payload.externalIds.length > 0 ? { externalIds: [payload.externalIds[0]] } : {})
               }
             }
           })
