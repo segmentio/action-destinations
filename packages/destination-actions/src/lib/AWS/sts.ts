@@ -137,7 +137,7 @@ export const assumeRole = async (roleArn: string, externalId: string, region: st
   const intermediaryExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID
   if (!intermediaryARN || !intermediaryExternalId) {
     throw new IntegrationError(
-      'Intermediary role ARN or external ID is not set in environment variables',
+      `Intermediary role ARN or external ID is not set in environment variables ${intermediaryARN}, ${intermediaryExternalId}`,
       ErrorCodes.INVALID_AUTHENTICATION,
       500
     )
