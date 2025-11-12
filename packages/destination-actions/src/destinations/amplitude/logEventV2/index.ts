@@ -286,7 +286,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const setUserProperties = (
       name: '$setOnce' | '$set' | '$add' | '$unset',
-      obj: Payload['setOnce'] | Payload['setAlways'] | Payload['add']
+      obj: Payload['setOnce'] | Payload['setAlways'] | Payload['add'] | Payload['autocaptureAttributionUnset']
     ) => {
       if (compact(obj)) {
         properties.user_properties = { ...properties.user_properties, [name]: obj }
@@ -295,8 +295,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     setUserProperties('$setOnce', autocaptureAttributionEnabled ? { ...setOnce, ...autocaptureAttributionSetOnce} : setOnce)
     setUserProperties('$set', autocaptureAttributionEnabled ? { ...setAlways, ...autocaptureAttributionSet} : setAlways)
-    setUserProperties('$add', add)
     setUserProperties('$unset', autocaptureAttributionEnabled ? { ...autocaptureAttributionUnset} : {})
+    setUserProperties('$add', add)
 
     const events: AmplitudeEvent[] = [
       {
