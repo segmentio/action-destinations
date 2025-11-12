@@ -80,15 +80,6 @@ export interface ConversionAdjustmentRequestObjectInterface {
   userAgent: string | undefined
   restatementValue?: RestatementValueInterface
 }
-
-export type SessionAttributesKeyValuePairItem =
-  | { name: "gad_source"; value?: string }
-  | { name: "gad_campaignid"; value?: string }
-  | { name: "landing_page_url"; value?: string }
-  | { name: "session_start_time_usec"; value?: string }
-  | { name: "landing_page_referrer"; value?: string }
-  | { name: "landing_page_user_agent"; value?: string }
-
 export interface ClickConversionRequestObjectInterface {
   cartData: CartDataInterface | undefined
   consent?: ConsentInterface
@@ -103,9 +94,24 @@ export interface ClickConversionRequestObjectInterface {
   wbraid: string | undefined
   userIpAddress?: string
   sessionAttributesEncoded?: string
-  sessionAttributesKeyValuePairs?: SessionAttributesKeyValuePairItem[]
+  sessionAttributesKeyValuePairs?: {
+    keyValuePairs: KeyValuePairList
+  }
   orderId: string | undefined
   userIdentifiers: UserIdentifierInterface[]
+}
+
+export type KeyValuePairList = Array<KeyValueItem>
+
+export type KeyValueItem = {
+  sessionAttributeKey: 
+    'gad_source' 
+  | 'gad_campaignid' 
+  | 'landing_page_url' 
+  | 'session_start_time_usec' 
+  | 'landing_page_referrer' 
+  | 'landing_page_user_agent'
+  sessionAttributeValue?: string 
 }
 
 export interface ConversionActionId {
