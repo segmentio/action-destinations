@@ -9,19 +9,12 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event to AWS Kinesis',
   defaultSubscription: 'type = "track" or type = "identify" or type = "page" or type = "screen" or type = "group"',
   fields: {
-    streamName: {
-      label: 'Stream Name',
-      description: 'The name of the Kinesis stream to send records to',
-      type: 'string',
-      required: true
-    },
-    awsRegion: {
-      label: 'AWS Region',
-      description: 'The AWS region where the Kinesis stream is located',
-      type: 'string',
+    payload: {
+      label: 'Payload',
+      description: 'The data to send to AWS Kinesis',
+      type: 'object',
       required: true,
-      choices: AWS_REGIONS,
-      disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+      default: { '@path': '$.' }
     },
     partitionKey: {
       label: 'Partition Key',
@@ -30,12 +23,20 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: { '@path': '$.messageId' }
     },
-    payload: {
-      label: 'Payload',
-      description: 'The data to send to AWS Kinesis',
-      type: 'object',
+    streamName: {
+      label: 'Stream Name',
+      description: 'The name of the Kinesis stream to send records to',
+      type: 'string',
       required: true,
-      default: { '@path': '$.' }
+      disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+    },
+    awsRegion: {
+      label: 'AWS Region',
+      description: 'The AWS region where the Kinesis stream is located',
+      type: 'string',
+      required: true,
+      choices: AWS_REGIONS,
+      disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
     },
     batch_keys: {
       label: 'Batch Keys',
@@ -71,11 +72,11 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true
     }
   },
-  perform: async (_requests, { settings, payload, statsContext, logger }) => {
-    await send(settings, [payload], statsContext, logger)
+  perform: async (_requests, { settings, payload, statsContext, logger, signal }) => {
+    await send(settings, [payload], statsContext, logger, signal)
   },
-  performBatch: async (_requests, { settings, payload, statsContext, logger }) => {
-    await send(settings, payload, statsContext, logger)
+  performBatch: async (_requests, { settings, payload, statsContext, logger, signal }) => {
+    await send(settings, payload, statsContext, logger, signal)
   }
 }
 

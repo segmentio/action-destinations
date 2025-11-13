@@ -5,6 +5,7 @@ import { KinesisClient, PutRecordsCommand, PutRecordsRequestEntry } from '@aws-s
 import { assumeRole } from '../../lib/AWS/sts'
 import { APP_AWS_REGION } from '@segment/actions-shared'
 import { NodeHttpHandler } from '@smithy/node-http-handler'
+import { RequestTimeoutError } from '@segment/actions-core'
 
 const KINESIS_COMMAND_TIMEOUT_MS = 5000
 
@@ -39,7 +40,8 @@ export const send = async (
   settings: Settings,
   payloads: Payload[],
   _statsContext: StatsContext | undefined,
-  logger: Logger | undefined
+  logger: Logger | undefined,
+  signal?: AbortSignal
 ): Promise<void> => {
   const { iamRoleArn, iamExternalId } = settings
   const { streamName, awsRegion } = payloads[0]
@@ -52,8 +54,14 @@ export const send = async (
       Records: entries
     })
 
-    await client.send(command)
+    await client.send(command, { abortSignal: signal })
   } catch (error) {
+    // Handle abort signal error: https://aws.amazon.com/blogs/developer/abortcontroller-in-modular-aws-sdk-for-javascript/
+    if ((error as Error).name === 'AbortError') {
+      // Handle abort error
+      throw new RequestTimeoutError()
+    }
+
     logger?.crit('Failed to send batch to Kinesis:', error)
     throw error
   }
