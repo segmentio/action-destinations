@@ -8,7 +8,7 @@ const action: ActionDefinition<Settings, Payload> = {
   platform: 'cloud',
   defaultSubscription: 'type = "identify"',
   fields: {
-    userId: {
+    user_id: {
       type: 'string',
       required: false,
       description: "The user's id",
@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-    anonymousId: {
+    anonymous_id: {
       type: 'string',
       required: false,
       description: 'An anonymous id',
@@ -32,7 +32,10 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The Segment traits to be forwarded to Survicate',
       label: 'Traits',
       default: {
-        '@path': '$.traits'
+        '@path': '$.traits',
+        '@fallback': {
+          '@path': '$.context.traits'
+        }
       }
     },
     timestamp: {
@@ -47,17 +50,17 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    const { traits, anonymousId, userId, timestamp } = payload
+    const { traits, anonymous_id, user_id, timestamp } = payload
 
-    if (!userId && !anonymousId) {
+    if (!user_id && !anonymous_id) {
       throw new PayloadValidationError("'User ID' or 'Anonymous ID' is required")
     }
 
     return request(`https://integrations.survicate.com/endpoint/segment/identify`, {
       method: 'post',
       json: {
-        ...(userId ? { userId } : {}),
-        ...(anonymousId ? { anonymousId } : {}),
+        ...(user_id ? { user_id } : {}),
+        ...(anonymous_id ? { anonymous_id } : {}),
         traits,
         timestamp
       }
