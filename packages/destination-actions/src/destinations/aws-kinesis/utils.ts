@@ -3,11 +3,8 @@ import type { Payload } from './send/generated-types'
 import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
 import { KinesisClient, PutRecordsCommand, PutRecordsRequestEntry } from '@aws-sdk/client-kinesis'
 import { assumeRole } from '../../lib/AWS/sts'
-import { APP_AWS_REGION } from '@segment/actions-shared'
-import { NodeHttpHandler } from '@smithy/node-http-handler'
+import { APP_AWS_REGION } from '@segment/action-destinations/src/lib/AWS/utils'
 import { RequestTimeoutError } from '@segment/actions-core'
-
-const KINESIS_COMMAND_TIMEOUT_MS = 5000
 
 export const validateIamRoleArnFormat = (arn: string): boolean => {
   const iamRoleArnRegex = /^arn:aws:iam::\d{12}:role\/[A-Za-z0-9+=,.@_\-/]+$/
@@ -29,10 +26,7 @@ const createKinesisClient = async (
   const credentials = await assumeRole(iamRoleArn, iamExternalId, APP_AWS_REGION)
   return new KinesisClient({
     region: awsRegion,
-    credentials: credentials,
-    requestHandler: new NodeHttpHandler({
-      requestTimeout: KINESIS_COMMAND_TIMEOUT_MS // timeout in milliseconds
-    })
+    credentials: credentials
   })
 }
 

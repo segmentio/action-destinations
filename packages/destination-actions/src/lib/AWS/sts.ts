@@ -133,8 +133,8 @@ export async function getAWSCredentialsFromEKS(request: RequestClient): Promise<
 }
 
 export const assumeRole = async (roleArn: string, externalId: string, region: string): Promise<AWSCredentials> => {
-  const intermediaryARN = process.env.AMAZON_KINESIS_ACTIONS_ROLE_ADDRESS as string // 'arn:aws:iam::355207333203:role/mdkhan-kinesis-intermediate-role'
-  const intermediaryExternalId = process.env.AMAZON_KINESIS_ACTIONS_EXTERNAL_ID as string // 'customer-kinesis-action-destination-stage-role'
+  const intermediaryARN = process.env.AMAZON_KINESIS_ACTIONS_ROLE_ADDRESS as string
+  const intermediaryExternalId = process.env.AMAZON_KINESIS_ACTIONS_EXTERNAL_ID as string
   const intermediaryCreds = await getSTSCredentials(intermediaryARN, intermediaryExternalId, region)
   return getSTSCredentials(roleArn, externalId, region, intermediaryCreds)
 }

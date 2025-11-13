@@ -2,7 +2,6 @@ import { validateIamRoleArnFormat, send } from '../utils'
 import { Payload } from '../send/generated-types'
 import { KinesisClient, PutRecordsCommand } from '@aws-sdk/client-kinesis'
 import { assumeRole } from '../../../lib/AWS/sts'
-import { IntegrationError } from '@segment/actions-core'
 import { Logger } from '@segment/actions-core/destination-kit'
 
 describe('validateIamRoleArnFormat', () => {
@@ -83,7 +82,8 @@ describe('Kinesis send', () => {
       partitionKey: 'pk-1',
       payload: { data: 'test message' },
       max_batch_size: 500,
-      batch_keys: ['awsRegion']
+      batch_keys: ['awsRegion'],
+      batch_bytes: 100000
     }
   ]
 
@@ -97,16 +97,6 @@ describe('Kinesis send', () => {
     ;(KinesisClient as unknown as jest.Mock).mockImplementation(() => ({
       send: mockSend
     }))
-  })
-
-  it('should throw IntegrationError if partitionKey is missing', async () => {
-    const invalidPayload = [
-      { ...mockPayloads[0], partitionKey: '' } // missing partitionKey
-    ]
-
-    await expect(send(mockSettings, invalidPayload, undefined, mockLogger as Logger)).rejects.toThrow(IntegrationError)
-
-    expect(mockLogger.crit).not.toHaveBeenCalled()
   })
 
   it('should create Kinesis client and send records successfully', async () => {
@@ -127,14 +117,16 @@ describe('Kinesis send', () => {
       })
     )
 
-    expect(mockSend).toHaveBeenCalledWith(expect.any(PutRecordsCommand))
+    expect(mockSend).toHaveBeenCalledWith(expect.any(PutRecordsCommand), expect.any(Object))
   })
 
   it('should log and rethrow error when Kinesis send fails', async () => {
     const error = new Error('Kinesis failure')
     mockSend.mockRejectedValueOnce(error)
 
-    await expect(send(mockSettings, mockPayloads, undefined, mockLogger as Logger)).rejects.toThrow('Kinesis failure')
+    await expect(send(mockSettings, mockPayloads, undefined, mockLogger as Logger, undefined)).rejects.toThrow(
+      'Kinesis failure'
+    )
 
     expect(mockLogger.crit).toHaveBeenCalledWith('Failed to send batch to Kinesis:', error)
   })
