@@ -265,7 +265,7 @@ const action: ActionDefinition<Settings, Payload> = {
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
     let options
-
+console.log(JSON.stringify(payload, null, 2))
     if (properties.platform) {
       properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
     }

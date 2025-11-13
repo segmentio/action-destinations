@@ -62,7 +62,13 @@ describe('Amplitude', () => {
         timestamp,
         event: 'Test Event',
         traits: {
-          'some-trait-key': 'some-trait-value'
+          otherTraits: {'some-trait-key': 'some-trait-value'},
+          setTraits: {
+            interests: ['music', 'sports'] // should get sent as normal set
+          },
+          setOnceTraits: {
+            first_name: "Billybob" // should get sent as normal setOnce
+          }
         },
         context: {
           integrations: {
@@ -76,22 +82,50 @@ describe('Amplitude', () => {
             }
           },
           page: {
-            referrer: 'referrer-from-page-context'
+            referrer: 'referrer-from-page-context' // should get dropped
           },
           campaign: {
-            name: 'campaign-name-from-campaign-context',
-            source: 'campaign-source-from-campaign-context',
-            medium: 'campaign-medium-from-campaign-context',
-            term: 'campaign-term-from-campaign-context',
-            content: 'campaign-content-from-campaign-context'
+            name: 'campaign-name-from-campaign-context', // should get dropped
+            source: 'campaign-source-from-campaign-context', // should get dropped
+            medium: 'campaign-medium-from-campaign-context',// should get dropped
+            term: 'campaign-term-from-campaign-context',// should get dropped
+            content: 'campaign-content-from-campaign-context'// should get dropped
           }
         }
       })
 
-      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      const responses = await testDestination.testAction(
+        'logEventV2', 
+        { 
+          event, 
+          useDefaultMappings: true,             
+          mapping: {
+              user_properties: { '@path': '$.traits.otherTraits' },
+              setOnce: {
+                initial_referrer: { '@path': '$.context.page.referrer' },
+                initial_utm_source: { '@path': '$.context.campaign.source' },
+                initial_utm_medium: { '@path': '$.context.campaign.medium' },
+                initial_utm_campaign: { '@path': '$.context.campaign.name' },
+                initial_utm_term: { '@path': '$.context.campaign.term' },
+                initial_utm_content: { '@path': '$.context.campaign.content' },
+                first_name: { '@path': '$.traits.setOnceTraits.first_name' }
+              },
+              setAlways: {
+                referrer: { '@path': '$.context.page.referrer' },
+                utm_source: { '@path': '$.context.campaign.source' },
+                utm_medium: { '@path': '$.context.campaign.medium' },
+                utm_campaign: { '@path': '$.context.campaign.name' },
+                utm_term: { '@path': '$.context.campaign.term' },
+                utm_content: { '@path': '$.context.campaign.content' },
+                interests: { '@path': '$.traits.setTraits.interests' }
+              }
+          }
+        }
+      )
+
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
-      expect(responses[0].options.json).toMatchObject({
+      expect(responses[0].options.json).toEqual({
         api_key: undefined,
         events: [
           {
@@ -104,6 +138,7 @@ describe('Amplitude', () => {
             user_id: "user1234",
             user_properties: {
               $set: {
+                interests: ["music", "sports"], // carried over from the setAlways mapping
                 gclid: "gclid-from-integrations-object",
                 referrer: "referrer-from-integrations-object",
                 referring_domain: "referring-domain-from-integrations-object",
@@ -113,6 +148,7 @@ describe('Amplitude', () => {
                 utm_term: "utm-term-from-integrations-object",
               },
               $setOnce: {
+                first_name: "Billybob", // carried over from the setOnce mapping
                 initial_dclid: "",
                 initial_fbclid: "",
                 initial_gbraid: "",
