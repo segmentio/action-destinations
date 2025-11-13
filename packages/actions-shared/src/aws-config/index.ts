@@ -1,5 +1,3 @@
-export const APP_AWS_REGION = process.env['AWS_REGION'] || `us-west-2`
-
 export const AWS_REGIONS = [
   { label: 'us-east-1', value: 'us-east-1' },
   { label: 'us-east-2', value: 'us-east-2' },

@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your Survicate API key
+   * Your Survicate Destination Key, which you can find in Survicate - Integrations - Segment (Cloud Mode, Actions) - Settings.
    */
   apiKey: string
 }

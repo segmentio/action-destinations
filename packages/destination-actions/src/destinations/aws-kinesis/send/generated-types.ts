@@ -2,16 +2,6 @@
 
 export interface Payload {
   /**
-   * The data to send to AWS Kinesis
-   */
-  payload: {
-    [k: string]: unknown
-  }
-  /**
-   * The partition key to use for the record
-   */
-  partitionKey: string
-  /**
    * The name of the Kinesis stream to send records to
    */
   streamName: string
@@ -19,6 +9,10 @@ export interface Payload {
    * The AWS region where the Kinesis stream is located
    */
   awsRegion: string
+  /**
+   * The partition key to use for the record
+   */
+  partitionKey: string
   /**
    * The keys to use for batching the events.
    */
@@ -28,7 +22,7 @@ export interface Payload {
    */
   max_batch_size: number
   /**
-   * If true, Segment will batch events before sending to Kinesis.
+   * If true, Segment will batch events before sending to Kines.
    */
   enable_batching?: boolean
   /**

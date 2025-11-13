@@ -10,9 +10,9 @@ const settings: Settings = {
 
 const payload = {
   type: 'group' as const,
-  userId: 'user123',
-  anonymousId: 'anon123',
-  groupId: 'group123',
+  user_id: 'user123',
+  anonymous_id: 'anon123',
+  group_id: 'group123',
   traits: {
     name: 'Test Group',
     industry: 'Technology',
@@ -22,9 +22,9 @@ const payload = {
 } as Partial<SegmentEvent>
 
 const mapping = {
-  userId: { '@path': '$.userId' },
-  anonymousId: { '@path': '$.anonymousId' },
-  groupId: { '@path': '$.groupId' },
+  user_id: { '@path': '$.user_id' },
+  anonymous_id: { '@path': '$.anonymous_id' },
+  group_id: { '@path': '$.group_id' },
   traits: { '@path': '$.traits' },
   timestamp: { '@path': '$.timestamp' }
 }
@@ -39,9 +39,9 @@ describe('Survicate Cloud Mode - identifyGroup', () => {
     const event = createTestEvent(payload)
 
     const expectedJson = {
-      userId: 'user123',
-      anonymousId: 'anon123',
-      groupId: 'group123',
+      user_id: 'user123',
+      anonymous_id: 'anon123',
+      group_id: 'group123',
       traits: {
         group_name: 'Test Group',
         group_industry: 'Technology',
@@ -62,10 +62,10 @@ describe('Survicate Cloud Mode - identifyGroup', () => {
     expect(response.length).toBe(1)
   })
 
-  it('should throw error when userId is not provided', async () => {
+  it('should throw error when user_id is not provided', async () => {
     const event = createTestEvent({
       ...payload,
-      userId: undefined
+      user_id: undefined
     })
 
     await expect(
@@ -78,10 +78,10 @@ describe('Survicate Cloud Mode - identifyGroup', () => {
     ).rejects.toThrowError()
   })
 
-  it('should throw error when groupId is missing', async () => {
+  it('should throw error when group_id is missing', async () => {
     const event = createTestEvent({
       ...payload,
-      groupId: undefined
+      group_id: undefined
     })
 
     await expect(

@@ -3,25 +3,12 @@ import type { Payload } from './send/generated-types'
 import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
 import { KinesisClient, PutRecordsCommand, PutRecordsRequestEntry } from '@aws-sdk/client-kinesis'
 import { assumeRole } from '../../lib/AWS/sts'
-import { APP_AWS_REGION } from '@segment/actions-shared'
-import { NodeHttpHandler } from '@smithy/node-http-handler'
-import { IntegrationError } from '@segment/actions-core'
-
-const KINESIS_COMMAND_TIMEOUT_MS = 5000
+import { APP_AWS_REGION } from '@segment/action-destinations/src/lib/AWS/utils'
+import { RequestTimeoutError } from '@segment/actions-core'
 
 export const validateIamRoleArnFormat = (arn: string): boolean => {
   const iamRoleArnRegex = /^arn:aws:iam::\d{12}:role\/[A-Za-z0-9+=,.@_\-/]+$/
   return iamRoleArnRegex.test(arn)
-}
-
-const validatePartitionKey = (partitionKey: string): void => {
-  if (!partitionKey) {
-    throw new IntegrationError(
-      `Partition Key is required in the payload to send data to Kinesis.`,
-      'PARTITION_KEY_MISSING',
-      400
-    )
-  }
 }
 
 const transformPayloads = (payloads: Payload[]): PutRecordsRequestEntry[] => {
@@ -39,10 +26,7 @@ const createKinesisClient = async (
   const credentials = await assumeRole(iamRoleArn, iamExternalId, APP_AWS_REGION)
   return new KinesisClient({
     region: awsRegion,
-    credentials: credentials,
-    requestHandler: new NodeHttpHandler({
-      requestTimeout: KINESIS_COMMAND_TIMEOUT_MS // timeout in milliseconds
-    })
+    credentials: credentials
   })
 }
 
@@ -50,11 +34,11 @@ export const send = async (
   settings: Settings,
   payloads: Payload[],
   _statsContext: StatsContext | undefined,
-  logger: Logger | undefined
+  logger: Logger | undefined,
+  signal?: AbortSignal
 ): Promise<void> => {
   const { iamRoleArn, iamExternalId } = settings
-  const { streamName, awsRegion, partitionKey } = payloads[0]
-  validatePartitionKey(partitionKey)
+  const { streamName, awsRegion } = payloads[0]
   const entries = transformPayloads(payloads)
 
   try {
@@ -64,9 +48,14 @@ export const send = async (
       Records: entries
     })
 
-    const response = await client.send(command)
-    console.log('mzkh 7', response)
+    await client.send(command, { abortSignal: signal })
   } catch (error) {
+    // Handle abort signal error: https://aws.amazon.com/blogs/developer/abortcontroller-in-modular-aws-sdk-for-javascript/
+    if ((error as Error).name === 'AbortError') {
+      // Handle abort error
+      throw new RequestTimeoutError()
+    }
+
     logger?.crit('Failed to send batch to Kinesis:', error)
     throw error
   }
