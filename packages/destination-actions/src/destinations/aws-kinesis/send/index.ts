@@ -9,12 +9,6 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send event to AWS Kinesis',
   defaultSubscription: 'type = "track" or type = "identify" or type = "page" or type = "screen" or type = "group"',
   fields: {
-    streamName: {
-      label: 'Stream Name',
-      description: 'The name of the Kinesis stream to send records to',
-      type: 'string',
-      required: true
-    },
     awsRegion: {
       label: 'AWS Region',
       description: 'The AWS region where the Kinesis stream is located',
@@ -50,24 +44,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number',
       required: true,
       choices: AWS_REGIONS,
-      disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
-    },
-    batch_keys: {
-      label: 'Batch Keys',
-      description: 'The keys to use for batching the events.',
-      type: 'string',
-      unsafe_hidden: true,
-      default: ['awsRegion', 'streamName', 'partitionKey'],
-      multiple: true
-    },
-    max_batch_size: {
-      label: 'Max Batch Size',
-      description: 'The maximum number of payloads to include in a batch.',
-      type: 'number',
-      required: true,
-      minimum: 1,
-      maximum: 500,
-      default: 500,
       disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
     },
     enable_batching: {
