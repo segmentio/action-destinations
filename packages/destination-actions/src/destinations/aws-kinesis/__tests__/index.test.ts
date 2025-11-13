@@ -1,7 +1,7 @@
 import destination from '../index'
 import { assumeRole } from '../../../lib/AWS/sts'
 import { validateIamRoleArnFormat } from '../utils'
-import { APP_AWS_REGION } from '@segment/action-destinations/src/lib/AWS/utils'
+import { APP_AWS_REGION } from '../../../lib/AWS/utils'
 import type { Settings } from '../generated-types'
 import { createTestIntegration } from '../../../../../core/src/create-test-integration'
 
