@@ -5,23 +5,12 @@ import { KinesisClient, PutRecordsCommand, PutRecordsRequestEntry } from '@aws-s
 import { assumeRole } from '../../lib/AWS/sts'
 import { APP_AWS_REGION } from '@segment/actions-shared'
 import { NodeHttpHandler } from '@smithy/node-http-handler'
-import { IntegrationError } from '@segment/actions-core'
 
 const KINESIS_COMMAND_TIMEOUT_MS = 5000
 
 export const validateIamRoleArnFormat = (arn: string): boolean => {
   const iamRoleArnRegex = /^arn:aws:iam::\d{12}:role\/[A-Za-z0-9+=,.@_\-/]+$/
   return iamRoleArnRegex.test(arn)
-}
-
-const validatePartitionKey = (partitionKey: string): void => {
-  if (!partitionKey) {
-    throw new IntegrationError(
-      `Partition Key is required in the payload to send data to Kinesis.`,
-      'PARTITION_KEY_MISSING',
-      400
-    )
-  }
 }
 
 const transformPayloads = (payloads: Payload[]): PutRecordsRequestEntry[] => {
@@ -53,8 +42,7 @@ export const send = async (
   logger: Logger | undefined
 ): Promise<void> => {
   const { iamRoleArn, iamExternalId } = settings
-  const { streamName, awsRegion, partitionKey } = payloads[0]
-  validatePartitionKey(partitionKey)
+  const { streamName, awsRegion } = payloads[0]
   const entries = transformPayloads(payloads)
 
   try {
@@ -64,8 +52,7 @@ export const send = async (
       Records: entries
     })
 
-    const response = await client.send(command)
-    console.log('mzkh 7', response)
+    await client.send(command)
   } catch (error) {
     logger?.crit('Failed to send batch to Kinesis:', error)
     throw error
