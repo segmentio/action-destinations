@@ -9,6 +9,7 @@ import type { Payload } from './generated-types'
 import { formatSessionId } from '../convert-timestamp'
 import { userAgentData } from '../properties'
 import { DESTINATION_INTEGRATION_NAME } from '../autocaptueAttributions'
+import { AMPLITUDE_ATTRIBUTION_KEYS } from '@segment/actions-shared'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'time' | 'session_id'> {
   library?: string
@@ -180,28 +181,29 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Autocapture Attribution Enabled',
       description: 'Utility field used to detect if Autocapture Attribution Plugin is enabled.',
       type: 'boolean',
-      default: { '@path': `$.context.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution.enabled` },
+      default: { '@path': `$.context.integrations.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution.enabled` },
       readOnly: true
     },
     autocaptureAttributionSet: {
         label: 'Autocapture Attribution Set',
         description: 'Utility field used to detect if any attribution values need to be set.',
         type: 'object',
-        default: { '@path': `$.context.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution.set` },
+        default: { '@path': `$.context.integrations.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution.set` },
         readOnly: true
       },
     autocaptureAttributionSetOnce: {
       label: 'Autocapture Attribution Set Once',
       description: 'Utility field used to detect if any attribution values need to be set_once.',
       type: 'object',
-      default: { '@path': `$.context.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution.set_once` },
+      default: { '@path': `$.context.integrations.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution.set_once` },
       readOnly: true
     },
     autocaptureAttributionUnset: {
       label: 'Autocapture Attribution Unset',
       description: 'Utility field used to detect if any attribution values need to be unset.',
-      type: 'object',
-      default: { '@path': `$.context.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution.unset` },
+      type: 'string',
+      multiple: true,
+      default: { '@path': `$.context.integrations.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution.unset` },
       readOnly: true
     },
     use_batch_endpoint: {
@@ -286,17 +288,30 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const setUserProperties = (
       name: '$setOnce' | '$set' | '$add' | '$unset',
-      obj: Payload['setOnce'] | Payload['setAlways'] | Payload['add'] | Payload['autocaptureAttributionUnset']
+      obj: Payload['setOnce'] | Payload['setAlways'] | Payload['add']
     ) => {
+      console.log(name, obj)
       if (compact(obj)) {
         properties.user_properties = { ...properties.user_properties, [name]: obj }
       }
     }
 
+    if (autocaptureAttributionEnabled) {
+      // If autocapture attribution is enabled, we need to make sure that attribution keys are not sent from the setAlways and setOnce fields
+      for (const key of AMPLITUDE_ATTRIBUTION_KEYS) {
+        if( typeof setAlways === "object" && setAlways !== null){
+          delete setAlways[key]
+        }
+        if(typeof setOnce === "object" && setOnce !== null){
+          delete setOnce[`initial_${key}`]
+        }
+      }
+    }
+
     setUserProperties('$setOnce', autocaptureAttributionEnabled ? { ...setOnce, ...autocaptureAttributionSetOnce} : setOnce)
     setUserProperties('$set', autocaptureAttributionEnabled ? { ...setAlways, ...autocaptureAttributionSet} : setAlways)
-    setUserProperties('$unset', autocaptureAttributionEnabled ? { ...autocaptureAttributionUnset} : {})
     setUserProperties('$add', add)
+    properties.user_properties = { ...properties.user_properties, ['$unset']: autocaptureAttributionUnset || []}
 
     const events: AmplitudeEvent[] = [
       {

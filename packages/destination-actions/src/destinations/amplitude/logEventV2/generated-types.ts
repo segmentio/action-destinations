@@ -229,9 +229,7 @@ export interface Payload {
   /**
    * Utility field which is used to funnel autocaptured attributon data which will be unset in Amplitude.
    */
-  autocaptureAttributionUnset?: {
-    [k: string]: unknown
-  }
+  autocaptureAttributionUnset?: string[]
   /**
    * If true, events are sent to Amplitude's `batch` endpoint rather than their `httpapi` events endpoint. Enabling this setting may help reduce 429s – or throttling errors – from Amplitude. More information about Amplitude's throttling is available in [their docs](https://developers.amplitude.com/docs/batch-event-upload-api#429s-in-depth).
    */
