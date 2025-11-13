@@ -1,7 +1,7 @@
 import destination from '../index'
 import { assumeRole } from '../../../lib/AWS/sts'
 import { validateIamRoleArnFormat } from '../utils'
-import { APP_AWS_REGION } from '@segment/actions-shared'
+import { APP_AWS_REGION } from '../../../lib/AWS/utils'
 import type { Settings } from '../generated-types'
 import { createTestIntegration } from '../../../../../core/src/create-test-integration'
 
@@ -21,6 +21,10 @@ jest.mock('@segment/actions-core', () => ({
     code,
     status
   }))
+}))
+
+jest.mock('../../../lib/AWS/utils', () => ({
+  APP_AWS_REGION: 'us-east-1'
 }))
 
 const testDestination = createTestIntegration(destination)
