@@ -4,9 +4,9 @@ import type { Payload } from './generated-types'
 import type { Mixpanel } from '../types'
 
 const action: BrowserActionDefinition<Settings, Mixpanel, Payload> = {
-  title: 'Identify',
-  description: 'Sync user profile data to Mixpanel.',
-  defaultSubscription: 'type = "identify"',
+  title: 'Alias',
+  description: 'Sync alias data to Mixpanel. Use this to replace a Unique ID with a new one.',
+  defaultSubscription: 'type = "alias"',
   platform: 'web',
   fields: {
     alias: {
