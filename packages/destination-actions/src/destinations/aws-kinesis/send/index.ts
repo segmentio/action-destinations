@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { AWS_REGIONS } from '@segment/actions-shared'
+import { AWS_REGIONS } from '@segment/action-destinations/src/lib/AWS/utils'
 import { send } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
