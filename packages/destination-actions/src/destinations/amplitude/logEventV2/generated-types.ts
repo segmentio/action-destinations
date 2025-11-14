@@ -215,19 +215,19 @@ export interface Payload {
    */
   autocaptureAttributionEnabled?: boolean
   /**
-   * Utility field which is used to funnel autocaptured attributon data which will be set in Amplitude.
+   * Utility field used to detect if any attribution values need to be set.
    */
   autocaptureAttributionSet?: {
     [k: string]: unknown
   }
   /**
-   * Utility field which is used to funnel autocaptured attributon data which will be set_once in Amplitude.
+   * Utility field used to detect if any attribution values need to be set_once.
    */
   autocaptureAttributionSetOnce?: {
     [k: string]: unknown
   }
   /**
-   * Utility field which is used to funnel autocaptured attributon data which will be unset in Amplitude.
+   * Utility field used to detect if any attribution values need to be unset.
    */
   autocaptureAttributionUnset?: string[]
   /**
