@@ -89,7 +89,7 @@ function getColumns(payloads: Payload[]): Columns {
 }
 
 async function updateAudience(request: RequestClient, json: UpdateAudienceReq, audienceid: string) {
-  return await request<UpdateAudienceReq>(`https://ads-api.reddit.com/api/v3/custom_audiences/${audienceid}/users`, {
+  return await request<UpdateAudienceReq>(`${REDDIT_ADS_BASE_URL}/custom_audiences/${audienceid}/users`, {
     method: 'PATCH',
     json
   })

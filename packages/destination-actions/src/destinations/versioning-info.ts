@@ -195,3 +195,34 @@ export const GOOGLE_ENHANCED_CONVERSIONS_API_VERSION = 'v19'
  * Google Sheets API Version
  */
 export const GOOGLE_SHEETS_API_VERSION = 'v4'
+
+/**
+ * Aampe API Version (for regional endpoints)
+ */
+export const AAMPE_API_VERSION = 'v1'
+
+/**
+ * LiveLike Cloud API Version
+ */
+export const LIVELIKE_CLOUD_API_VERSION = 'v1'
+
+/**
+ * SendGrid Audiences API Version
+ */
+export const SENDGRID_AUDIENCES_API_VERSION = 'v3'
+
+/**
+ * Microsoft Bing CAPI API Version
+ */
+export const MS_BING_CAPI_API_VERSION = 'v1'
+
+/**
+ * Snap Audiences API Version
+ */
+export const SNAP_AUDIENCES_API_VERSION = 'v1'
+
+/**
+ * Reddit Audiences API Versions
+ */
+export const REDDIT_AUDIENCES_AUTH_API_VERSION = 'v1'
+export const REDDIT_AUDIENCES_ADS_API_VERSION = 'v3'
