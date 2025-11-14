@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { TopsortAPIClient } from '../client'
+import { NormalizeDeviceType } from '../index'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Impression',
@@ -52,13 +53,234 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Additional attribution information.',
       type: 'object',
       required: false,
+      properties: {
+        id: {
+          label: 'Entity ID',
+          description: "The marketplace's ID of the entity associated with the interaction.",
+          type: 'string',
+          required: true
+        },
+        type: {
+          label: 'Entity Type',
+          description: 'The type of entity associated with the interaction.',
+          type: 'string',
+          required: true
+        }
+      },
       default: {
         '@path': '$.properties.additionalAttribution'
+      }
+    },
+    externalVendorId: {
+      label: 'External Vendor ID',
+      description: 'Marketplace provided ID for a vendor.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.properties.externalVendorId'
+      }
+    },
+    entity: {
+      label: 'Entity',
+      description:
+        'Entity is meant for reporting organic events, not sponsored or promoted products. It refers to the object involved in the organic interaction. If resolvedBidId has any value, entity will be disregarded.',
+      type: 'object',
+      required: false,
+      properties: {
+        id: {
+          label: 'Entity ID',
+          description: "The marketplace's ID of the entity associated with the interaction.",
+          type: 'string',
+          required: true
+        },
+        type: {
+          label: 'Entity Type',
+          description: 'The type of entity associated with the interaction.',
+          type: 'string',
+          required: true
+        }
+      },
+      default: {
+        '@path': '$.properties.entity'
+      }
+    },
+    placement: {
+      label: 'Placement',
+      description: 'Placement information for the impression.',
+      type: 'object',
+      required: false,
+      properties: {
+        path: {
+          label: 'Path',
+          description:
+            'URL path of the page triggering the event. For web apps, this can be obtained in JS using window.location.pathname.',
+          type: 'string',
+          required: true
+        },
+        position: {
+          label: 'Position',
+          description: 'Index of the item within a list (e.g., search results, similar products).',
+          type: 'integer',
+          required: false
+        },
+        page: {
+          label: 'Page Number',
+          description: 'For paginated pages, this indicates which page number triggered the event.',
+          type: 'integer',
+          required: false
+        },
+        pageSize: {
+          label: 'Page Size',
+          description: 'For paginated pages, this indicates how many items are in each result page.',
+          type: 'integer',
+          required: false
+        },
+        productId: {
+          label: 'Product ID',
+          description:
+            'The ID of the product associated to the page in which this event occurred. This ID must match the ID provided through the catalog service.',
+          type: 'string',
+          required: false
+        },
+        categoryIds: {
+          label: 'Category IDs',
+          description:
+            'An array of IDs of the categories associated to the page in which this event occurred. These IDs must match the IDs provided through the catalog service.',
+          type: 'string',
+          required: false,
+          multiple: true
+        },
+        searchQuery: {
+          label: 'Search Query',
+          description:
+            'The search string provided by the user. This must match the searchQuery field provided in the auction request.',
+          type: 'string',
+          required: false
+        }
+      },
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.page.path' },
+          then: {
+            '@merge': {
+              objects: [
+                {
+                  path: { '@path': '$.context.page.path' },
+                  position: { '@path': '$.position' }
+                },
+                { '@path': '$.properties.placement' }
+              ],
+              direction: 'right'
+            }
+          },
+          else: { '@path': '$.properties.page' }
+        }
+      }
+    },
+    page: {
+      label: 'Page',
+      description: 'Page information for the impression.',
+      type: 'object',
+      required: false,
+      properties: {
+        type: {
+          label: 'Page Type',
+          description: 'Type of page.',
+          type: 'string',
+          required: true
+        },
+        pageId: {
+          label: 'Page ID',
+          description: 'Identifies the page.',
+          type: 'string',
+          required: true
+        },
+        value: {
+          label: 'Page Value',
+          description: 'Detail of the page, depending on the type.',
+          type: 'string',
+          required: false
+        }
+      },
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.page.type' },
+          then: {
+            '@merge': {
+              objects: [
+                {
+                  value: { '@path': '$.context.page.title' }
+                },
+                { '@path': '$.properties.page' }
+              ],
+              direction: 'right'
+            }
+          },
+          else: { '@path': '$.properties.page' }
+        }
+      }
+    },
+    object: {
+      label: 'Object',
+      description: 'Information regarding an organic or non-sponsored event.',
+      type: 'object',
+      required: false,
+      properties: {
+        type: {
+          label: 'Object Type',
+          description: 'The type of object that is being reported on the interaction.',
+          type: 'string',
+          required: true
+        },
+        assetId: {
+          label: 'Asset ID',
+          description: 'When type is banner, signals the ID of the asset of the banner.',
+          type: 'string',
+          required: false
+        },
+        clickType: {
+          label: 'Click Type',
+          description: 'When type is listing, signals the specific interaction flavor with the listing.',
+          type: 'string',
+          required: false
+        }
+      },
+      default: {
+        '@path': '$.properties.object'
+      }
+    },
+    externalCampaignId: {
+      label: 'External Campaign ID',
+      description: 'Marketplace provided ID for a campaign.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.properties.externalCampaignId'
+      }
+    },
+    deviceType: {
+      label: 'Device Type',
+      description: 'The device the user is on.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.context.device.type'
+      }
+    },
+    channel: {
+      label: 'Channel',
+      description: 'The channel where the event occurred.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.properties.channel'
       }
     }
   },
   perform: (request, { payload, settings }) => {
     const client = new TopsortAPIClient(request, settings)
+
+    payload.deviceType = NormalizeDeviceType(payload.deviceType)
     return client.sendEvent({
       impressions: [payload]
     })
