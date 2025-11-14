@@ -4,6 +4,7 @@ import forwardIdentifyEvent from './forwardIdentifyEvent';
 import forwardGroupEvent from './forwardGroupEvent';
 import forwardTrackEvent from './forwardTrackEvent';
 import { presets } from './presets';
+import { OUTFUNNEL_API_VERSION } from '../versioning-info';
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Outfunnel',
@@ -29,7 +30,7 @@ const destination: DestinationDefinition<Settings> = {
 
     testAuthentication: async (request) => {
       try {
-        return await request('https://api-pls.outfunnel.com/v1/user');
+        return await request(`https://api-pls.outfunnel.com/${OUTFUNNEL_API_VERSION}/user`);
       } catch (error) {
         throw new Error('Test authentication failed');
       }

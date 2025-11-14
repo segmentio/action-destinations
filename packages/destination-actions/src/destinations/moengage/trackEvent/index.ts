@@ -114,7 +114,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const endpoint = getEndpointByRegion(settings.region)
 
-    return request(`${endpoint}/v1/integrations/segment?appId=${settings.api_id}`, {
+    return request(`${endpoint}/${MOENGAGE_API_VERSION}/integrations/segment?appId=${settings.api_id}`, {
       method: 'post',
       json: event,
       headers: {

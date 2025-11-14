@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { TALON_ONE_API_VERSION } from '../../versioning-info'
 import { attribute, addAudienceId, deleteAudienceId, customerProfileId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -28,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
     attributes: { ...attribute }
   },
   perform: (request, { payload }) => {
-    let requestUrl = `https://integration.talon.one/segment/v2/customer_profiles/${payload.customerProfileId}`
+    let requestUrl = `https://integration.talon.one/segment/${TALON_ONE_API_VERSION}/customer_profiles/${payload.customerProfileId}`
     if (payload.skipNonExistingAttributes) {
       requestUrl += '?skipNonExistingAttributes=true'
     }

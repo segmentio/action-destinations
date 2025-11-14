@@ -373,3 +373,33 @@ export const LOOPS_API_VERSION = 'v1'
  * Magellan AI API Version
  */
 export const MAGELLAN_AI_API_VERSION = 'v2'
+
+/**
+ * ABsmartly API version
+ */
+export const ABSMARTLY_API_VERSION = 'v1'
+
+/**
+ * MoEngage API version for Segment integration
+ */
+export const MOENGAGE_API_VERSION = 'v1'
+
+/**
+ * Friendbuy MAPI (Merchant API) version
+ */
+export const FRIENDBUY_MAPI_VERSION = 'v1'
+
+/**
+ * Optimizely Feature Experimentation API version for GDPR requests
+ */
+export const OPTIMIZELY_FEATURE_EXPERIMENTATION_API_VERSION = 'v2'
+
+/**
+ * Outfunnel API version
+ */
+export const OUTFUNNEL_API_VERSION = 'v1'
+
+/**
+ * Talon.One Segment integration API version
+ */
+export const TALON_ONE_API_VERSION = 'v2'
