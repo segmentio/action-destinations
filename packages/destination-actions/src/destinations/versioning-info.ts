@@ -343,3 +343,33 @@ export const HILO_API_VERSION = 'v1'
  * HubSpot CRM API Version
  */
 export const HUBSPOT_API_VERSION = 'v3'
+
+/**
+ * ABsmartly API Version
+ */
+export const ABSMARTLY_API_VERSION = 'v1'
+
+/**
+ * HyperEngage API Version
+ */
+export const HYPERENGAGE_API_VERSION = 'v1'
+
+/**
+ * LaunchDarkly Audiences API Version
+ */
+export const LAUNCHDARKLY_AUDIENCES_API_VERSION = 'v2'
+
+/**
+ * Listrak API Version
+ */
+export const LISTRAK_API_VERSION = 'v1'
+
+/**
+ * Loops API Version
+ */
+export const LOOPS_API_VERSION = 'v1'
+
+/**
+ * Magellan AI API Version
+ */
+export const MAGELLAN_AI_API_VERSION = 'v2'

@@ -1,6 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { LISTRAK_API_VERSION } from '../../versioning-info'
+
+const LISTRAK_BASE_URL = `https://api.listrak.com/email/${LISTRAK_API_VERSION}`
 import { RequestClient } from '@segment/actions-core'
 
 export type SegmentationFieldValue = {
@@ -112,7 +115,7 @@ async function processPayload(request: RequestClient, payload: Payload[]) {
     })
 
   for (const listId in requestsByListId) {
-    await request(`https://api.listrak.com/email/v1/List/${listId}/Contact/SegmentationField`, {
+    await request(`${LISTRAK_BASE_URL}/List/${listId}/Contact/SegmentationField`, {
       method: 'POST',
       json: requestsByListId[listId]
     })

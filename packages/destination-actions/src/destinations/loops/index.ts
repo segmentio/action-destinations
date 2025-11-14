@@ -26,7 +26,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request('https://app.loops.so/api/v1/api-key', { method: 'GET' })
+      return request(`${LOOPS_BASE_URL}/api-key`, { method: 'GET' })
     }
   },
 
@@ -35,7 +35,7 @@ const destination: DestinationDefinition<Settings> = {
     sendEvent
   },
   onDelete: async (request, { payload }) => {
-    return request('https://app.loops.so/api/v1/contacts/delete', {
+    return request(`${LOOPS_BASE_URL}/contacts/delete`, {
       method: 'POST',
       json: {
         userId: [payload.userId]
