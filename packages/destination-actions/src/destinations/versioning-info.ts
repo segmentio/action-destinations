@@ -403,3 +403,38 @@ export const OUTFUNNEL_API_VERSION = 'v1'
  * Talon.One Segment integration API version
  */
 export const TALON_ONE_API_VERSION = 'v2'
+
+/**
+ * Customer.io Track API version
+ */
+export const CUSTOMERIO_TRACK_API_VERSION = 'v2'
+
+/**
+ * Salesforce Marketing Cloud Hub API version
+ */
+export const SALESFORCE_MARKETING_CLOUD_HUB_API_VERSION = 'v1'
+
+/**
+ * Salesforce Marketing Cloud Auth API version
+ */
+export const SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION = 'v2'
+
+/**
+ * Salesforce Marketing Cloud Data API version
+ */
+export const SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION = 'v1'
+
+/**
+ * Responsys Async API version
+ */
+export const RESPONSYS_ASYNC_API_VERSION = 'v1.3'
+
+/**
+ * Rokt Data API version
+ */
+export const ROKT_API_VERSION = 'v3'
+
+/**
+ * Insider Unification API version
+ */
+export const INSIDER_UNIFICATION_API_VERSION = 'v1'

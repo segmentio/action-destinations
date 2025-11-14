@@ -1,9 +1,10 @@
 import { ModifiedResponse, RequestOptions } from '@segment/actions-core'
 import { Payload } from './insiderAudiences/generated-types'
+import { INSIDER_UNIFICATION_API_VERSION } from '../versioning-info'
 
 export const API_BASE = 'https://unification.useinsider.com/api/'
-export const UPSERT_ENDPOINT = 'user/v1/upsert'
-export const DELETE_ATTRIBUTE_ENDPOINT = 'user/v1/attribute/delete'
+export const UPSERT_ENDPOINT = `user/${INSIDER_UNIFICATION_API_VERSION}/upsert`
+export const DELETE_ATTRIBUTE_ENDPOINT = `user/${INSIDER_UNIFICATION_API_VERSION}/attribute/delete`
 const AUDIENCE_TYPE = 'audience'
 const IDENTIFY = 'identify'
 const TRACK = 'track'
