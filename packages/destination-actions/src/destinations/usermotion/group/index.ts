@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { USERMOTION_BASE_URL } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify Company',
@@ -36,7 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    return request('https://api.usermotion.com/v1/group', {
+    return request(`${USERMOTION_BASE_URL}/group`, {
       method: 'post',
       json: {
         id: payload.groupId,

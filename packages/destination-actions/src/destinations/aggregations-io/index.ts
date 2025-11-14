@@ -3,6 +3,9 @@ import { InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import send from './send'
 import { AggregationsAuthError } from './types'
+import { AGGREGATIONS_IO_API_VERSION } from '../versioning-info'
+
+const AGGREGATIONS_BASE_URL = `https://app.aggregations.io/api/${AGGREGATIONS_IO_API_VERSION}`
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Aggregations.io (Actions)',
@@ -29,7 +32,7 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: async (request, { settings }) => {
       try {
         return await request(
-          `https://app.aggregations.io/api/v1/organization/ping-w?ingest_id=${settings.ingest_id}&schema=ARRAY_OF_EVENTS`,
+          `${AGGREGATIONS_BASE_URL}/organization/ping-w?ingest_id=${settings.ingest_id}&schema=ARRAY_OF_EVENTS`,
           {
             method: 'get',
             headers: {

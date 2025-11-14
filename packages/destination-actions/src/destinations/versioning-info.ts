@@ -248,3 +248,18 @@ export const YOTPO_API_VERSION = 'v2'
 export const TWILIO_MESSAGING_API_VERSION = '2010-04-01'
 export const TWILIO_MESSAGING_SERVICES_API_VERSION = 'v1'
 export const TWILIO_CONTENT_API_VERSION = 'v1'
+
+/**
+ * Aggregations.io API Version
+ */
+export const AGGREGATIONS_IO_API_VERSION = 'v1'
+
+/**
+ * Canvas API Version
+ */
+export const CANVAS_API_VERSION = 'v1'
+
+/**
+ * Pipedrive API Version
+ */
+export const PIPEDRIVE_API_VERSION = 'v1'

@@ -59,7 +59,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request('https://api-dev.prodeology.com/api/v1/event-collection/validate-api-key', { method: 'GET' })
+      return request(`${PRODEOLOGY_BASE_URL}/event-collection/validate-api-key`, { method: 'GET' })
     }
   },
   presets,
