@@ -23,7 +23,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request(`https://api.surveysparrow.com/v3/users`, {
+      return request(`${SURVEYSPARROW_BASE_URL}/users`, {
         method: 'get'
       })
     }

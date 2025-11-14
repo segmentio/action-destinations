@@ -73,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload }) => {
     // Auth is injected by extendRequest in the destination root
-    return request('https://api.metronome.com/v1/ingest', {
+    return request(`${METRONOME_BASE_URL}/ingest`, {
       method: 'post',
       json: [serializeEvent(payload)]
     })

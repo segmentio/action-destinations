@@ -226,3 +226,25 @@ export const SNAP_AUDIENCES_API_VERSION = 'v1'
  */
 export const REDDIT_AUDIENCES_AUTH_API_VERSION = 'v1'
 export const REDDIT_AUDIENCES_ADS_API_VERSION = 'v3'
+
+/**
+ * Voyage API Version
+ */
+export const VOYAGE_API_VERSION = 'v1'
+
+/**
+ * Metronome API Version
+ */
+export const METRONOME_API_VERSION = 'v1'
+
+/**
+ * Yotpo API Version
+ */
+export const YOTPO_API_VERSION = 'v2'
+
+/**
+ * Twilio Messaging API Versions
+ */
+export const TWILIO_MESSAGING_API_VERSION = '2010-04-01'
+export const TWILIO_MESSAGING_SERVICES_API_VERSION = 'v1'
+export const TWILIO_CONTENT_API_VERSION = 'v1'
