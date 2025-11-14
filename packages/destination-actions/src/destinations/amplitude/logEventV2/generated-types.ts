@@ -178,7 +178,27 @@ export interface Payload {
     [k: string]: unknown
   }[]
   /**
-   * The following fields will only be set as user properties if they do not already have a value.
+   * Utility field used to detect if Autocapture Attribution Plugin is enabled.
+   */
+  autocaptureAttributionEnabled?: boolean
+  /**
+   * Utility field used to detect if any attribution values need to be set.
+   */
+  autocaptureAttributionSet?: {
+    [k: string]: unknown
+  }
+  /**
+   * Utility field used to detect if any attribution values need to be set_once.
+   */
+  autocaptureAttributionSetOnce?: {
+    [k: string]: unknown
+  }
+  /**
+   * Utility field used to detect if any attribution values need to be unset.
+   */
+  autocaptureAttributionUnset?: string[]
+  /**
+   * The following fields will only be set as user properties if they do not already have a value. If 'Autocapture Attribution' is enabled, UTM and attribution values in this field will be ignored.
    */
   setOnce?: {
     /**
@@ -193,7 +213,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The following fields will be set as user properties for every event.
+   * The following fields will be set as user properties for every event. If 'Autocapture Attribution' is enabled, UTM and attribution values in this field will be ignored.
    */
   setAlways?: {
     referrer?: string

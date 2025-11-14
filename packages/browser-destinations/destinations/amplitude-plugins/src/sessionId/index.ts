@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { UniversalStorage } from '@segment/analytics-next'
+import { UniversalStorage, Analytics } from '@segment/analytics-next'
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { Analytics } from '@segment/analytics-next'
+import { DESTINATION_INTEGRATION_NAME } from '../constants'
 
 function newSessionId(): number {
   return now()
@@ -144,9 +144,9 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
 
     storage.set('analytics_session_id.last_access', newSession)
 
-    if (context.event.integrations?.All !== false || context.event.integrations['Actions Amplitude']) {
-      context.updateEvent('integrations.Actions Amplitude', {})
-      context.updateEvent('integrations.Actions Amplitude.session_id', id)
+    if (context.event.integrations?.All !== false || context.event.integrations[DESTINATION_INTEGRATION_NAME]) {
+      context.updateEvent(`integrations.${DESTINATION_INTEGRATION_NAME}`, {})
+      context.updateEvent(`integrations.${DESTINATION_INTEGRATION_NAME}.session_id`, id)
     }
 
     return
