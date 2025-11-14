@@ -8,9 +8,9 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Additional trait groups to merge into the Memora profile. Keys should match trait group names and values should be objects of traits for that group.
+   * Additional traits to include in the Memora profile, organized by trait group. Keys should match trait group names and values should be objects of traits for that group.
    */
-  traitGroups?: {
+  otherTraits?: {
     [k: string]: unknown
   }
 }
