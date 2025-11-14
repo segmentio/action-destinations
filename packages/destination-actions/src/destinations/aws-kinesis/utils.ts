@@ -57,7 +57,8 @@ export const send = async (
     })
 
     const response = await client.send(command, { abortSignal: signal })
-    return handleMultiStatusResponse(response, statsContext)
+    const multiResp = handleMultiStatusResponse(response, statsContext, payloads)
+    return multiResp
   } catch (error) {
     // Handle abort signal error: https://aws.amazon.com/blogs/developer/abortcontroller-in-modular-aws-sdk-for-javascript/
     if ((error as Error).name === 'AbortError') {
@@ -65,15 +66,11 @@ export const send = async (
       throw new RequestTimeoutError()
     }
 
-    handleError(error, statsContext)
     logger?.crit('Failed to send batch to Kinesis:', error)
-    throw error
+    handleError(error, statsContext)
   }
 
-  // Todo
-  // 1. Handle Errors and Partial Failures from Kinesis
-  // 2. Add logs and metrics
-  // 5. Multi status response
+  return Promise.resolve(new MultiStatusResponse()) // This line will never be reached but is needed to satisfy TypeScript
 }
 
 const handleError = (error: any, statsContext: StatsContext | undefined): void => {
@@ -82,7 +79,7 @@ const handleError = (error: any, statsContext: StatsContext | undefined): void =
     throw new IntegrationError(
       `Access denied. Please check that the provided IAM Role has the necessary permissions to access Kinesis.`,
       'ACCESS_DENIED',
-      400
+      403
     )
   }
 
@@ -108,6 +105,7 @@ const handleMultiStatusResponse = (
         sent: payloads[index] as unknown as JSONLikeObject
       })
     })
+    return multiStatusResponse
   }
 
   statsContext?.statsClient?.incr('actions_kinesis.failed_record_count', FailedRecordCount, statsContext?.tags)
@@ -119,6 +117,15 @@ const handleMultiStatusResponse = (
         errortype: record.ErrorCode,
         errormessage: record.ErrorMessage
       })
+      const errorCode = record.ErrorCode || 'UnknownError'
+      statsContext?.statsClient?.incr(`actions_kinesis.error.${errorCode}`, 1, statsContext?.tags)
+    } else {
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        body: record,
+        sent: payloads[index] as unknown as JSONLikeObject
+      })
+      statsContext?.statsClient?.incr('actions_kinesis.successful_record_count', 1, statsContext?.tags)
     }
   })
 
