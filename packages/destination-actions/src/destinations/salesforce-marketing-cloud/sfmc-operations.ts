@@ -798,11 +798,6 @@ const getCategoriesRequest = async (
                   <Properties>ID</Properties>
                   <Properties>Name</Properties>
                   <Properties>ContentType</Properties>
-                  <Filter xsi:type="SimpleFilterPart">
-                  <Property>ContentType</Property>
-                  <SimpleOperator>equals</SimpleOperator>
-                  <Value>dataextension</Value>
-                  </Filter>
                 </RetrieveRequest>
             </RetrieveRequestMsg>
           </SOAP-ENV:Body>
