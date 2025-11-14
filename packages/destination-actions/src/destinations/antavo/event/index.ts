@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { ANTAVO_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Loyalty events',
@@ -36,7 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
-    const url = `https://api.${data.settings.stack}.antavo.com/v1/webhook/segment`
+    const url = `https://api.${data.settings.stack}.antavo.com/${ANTAVO_API_VERSION}/webhook/segment`
     const payload = {
       ...data.payload,
       api_key: data.settings.api_key

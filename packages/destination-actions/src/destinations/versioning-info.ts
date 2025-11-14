@@ -263,3 +263,28 @@ export const CANVAS_API_VERSION = 'v1'
  * Pipedrive API Version
  */
 export const PIPEDRIVE_API_VERSION = 'v1'
+
+/**
+ * Antavo API Version
+ */
+export const ANTAVO_API_VERSION = 'v1'
+
+/**
+ * ABsmartly API Version (used in collector endpoint)
+ */
+export const ABSMARTLY_API_VERSION = 'v1'
+
+/**
+ * Adobe Target API Version
+ */
+export const ADOBE_TARGET_API_VERSION = 'v1'
+
+/**
+ * Attio API Version
+ */
+export const ATTIO_API_VERSION = 'v1'
+
+/**
+ * 1plusX API Version
+ */
+export const ONEPLUSX_API_VERSION = 'v2'

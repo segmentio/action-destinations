@@ -60,7 +60,7 @@ export default class AdobeTarget {
   ): Promise<IntegrationError | undefined> => {
     try {
       await this.request(
-        `https://${clientCode}.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${userId}?client=${clientCode}`,
+        `https://${clientCode}.tt.omtrdc.net/rest/${ADOBE_TARGET_API_VERSION}/profiles/thirdPartyId/${userId}?client=${clientCode}`,
         { method: 'get', skipResponseCloning: true }
       )
     } catch (error) {
