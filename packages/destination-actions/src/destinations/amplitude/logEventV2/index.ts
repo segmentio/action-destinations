@@ -91,7 +91,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ...autocaptureFields,
     setOnce: {
       label: 'Set Once',
-      description: 'The following fields will only be set as user properties if they do not already have a value.',
+      description: "The following fields will only be set as user properties if they do not already have a value. If 'Autocapture Attribution' is enabled, UTM and attribution values in this field will be ignored.",
       type: 'object',
       additionalProperties: true,
       properties: {
@@ -132,7 +132,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     setAlways: {
       label: 'Set Always',
-      description: 'The following fields will be set as user properties for every event.',
+      description: "The following fields will be set as user properties for every event. If 'Autocapture Attribution' is enabled, UTM and attribution values in this field will be ignored.",
       type: 'object',
       additionalProperties: true,
       properties: {
