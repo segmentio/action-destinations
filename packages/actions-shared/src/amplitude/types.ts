@@ -1,4 +1,4 @@
-import { AMPLITUDE_ATTRIBUTION_KEYS } from '../amplitude/constants'
+import { AMPLITUDE_ATTRIBUTION_KEYS } from './constants'
 
 export type AmplitudeAttributionKey = typeof AMPLITUDE_ATTRIBUTION_KEYS[number]
 

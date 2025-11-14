@@ -1,6 +1,5 @@
 import { ActionDefinition, omit, removeUndefined } from '@segment/actions-core'
 import dayjs from 'dayjs'
-
 import { eventSchema } from '../event-schema'
 import type { Settings } from '../generated-types'
 import { getEndpointByRegion } from '../regional-endpoints'
@@ -8,8 +7,8 @@ import { parseUserAgentProperties } from '../user-agent'
 import type { Payload } from './generated-types'
 import { formatSessionId } from '../convert-timestamp'
 import { userAgentData } from '../properties'
-import { autocaptureFields } from '../autocapture-fields'
-import { getUserProperties } from '../autocapture-attribution'
+import { autocaptureFields } from './autocapture-fields'
+import { getUserProperties } from './autocapture-attribution'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'time' | 'session_id'> {
   library?: string

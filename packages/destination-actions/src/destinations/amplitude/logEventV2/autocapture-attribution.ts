@@ -1,5 +1,5 @@
-import { Payload } from './logEventV2/generated-types'
 import { AMPLITUDE_ATTRIBUTION_KEYS } from '@segment/actions-shared'
+import { Payload } from './generated-types'
 
 export const DESTINATION_INTEGRATION_NAME = 'Actions Amplitude'
 
