@@ -164,3 +164,34 @@ export const SALESFORCE_MARKETING_CLOUD_API_VERSIONS = {
  * TikTok Base URL
  */
 export const TIKTOK_BASE_URL = 'https://business-api.tiktok.com/open_api/'
+
+/**
+ * Attentive API Version
+ */
+export const ATTENTIVE_API_VERSION = 'v1'
+
+/**
+ * LinkedIn Conversions API Version
+ */
+export const LINKEDIN_CONVERSIONS_API_VERSION = '202505'
+
+/**
+ * Microsoft Bing Ads Audiences API Version
+ */
+export const MS_BING_ADS_AUDIENCES_API_VERSION = 'v13'
+
+/**
+ * First Party DV360 API Version
+ */
+export const FIRST_PARTY_DV360_API_VERSION = 'v4'
+export const FIRST_PARTY_DV360_CANARY_API_VERSION = 'v4'
+
+/**
+ * Google Enhanced Conversions API Version
+ */
+export const GOOGLE_ENHANCED_CONVERSIONS_API_VERSION = 'v19'
+
+/**
+ * Google Sheets API Version
+ */
+export const GOOGLE_SHEETS_API_VERSION = 'v4'
