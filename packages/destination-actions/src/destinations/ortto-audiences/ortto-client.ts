@@ -9,8 +9,9 @@ import { Settings } from './generated-types'
 import { Payload } from './syncAudience/generated-types'
 import { cleanObject } from './utils'
 import { Audience, BatchResponse, SyncAudienceRequest } from './types'
+import { ORTTO_AUDIENCES_API_VERSION } from '../versioning-info'
 
-export const API_VERSION = 'v1'
+export const API_VERSION = ORTTO_AUDIENCES_API_VERSION
 export const Success = {
   status: 200,
   body: 'Processed successfully'

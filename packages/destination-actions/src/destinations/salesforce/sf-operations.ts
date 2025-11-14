@@ -11,8 +11,10 @@ import { buildCSVData, validateInstanceURL } from './sf-utils'
 import { DynamicFieldResponse, createRequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Logger } from '@segment/actions-core/destination-kit'
+import { SALESFORCE_API_VERSION as API_VERSION } from '../versioning-info'
 
-export const API_VERSION = 'v53.0'
+// Re-export for backward compatibility with tests and other imports
+export { API_VERSION }
 
 /**
  * This error is triggered if the bulkHandler is ever triggered when the enable_batching setting is false.

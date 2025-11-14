@@ -1,8 +1,9 @@
 import { RequestClient } from '@segment/actions-core'
 import type { Payload as ProspectsPayload } from './prospects/generated-types'
 import { ProspectsType } from './pa-type'
+import { ACTIONS_PARDOT_API_VERSION } from '../versioning-info'
 
-export const PARDOT_API_VERSION = 'v5'
+export const PARDOT_API_VERSION = ACTIONS_PARDOT_API_VERSION
 
 interface ProspectUpsertResponseData {
   id: string

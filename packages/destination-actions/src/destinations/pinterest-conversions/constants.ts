@@ -1,4 +1,6 @@
-export const API_VERSION = 'v5'
+import { PINTEREST_CONVERSIONS_API_VERSION } from '../versioning-info'
+
+export const API_VERSION = PINTEREST_CONVERSIONS_API_VERSION
 export const EVENT_NAME = {
   ADD_TO_CART: 'add_to_cart',
   CHECKOUT: 'checkout',

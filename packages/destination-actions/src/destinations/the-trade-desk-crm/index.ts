@@ -2,9 +2,10 @@ import type { AudienceDestinationDefinition, ModifiedResponse } from '@segment/a
 import type { Settings, AudienceSettings } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { getAllDataSegments } from './functions'
+import { THE_TRADE_DESK_CRM_API_VERSION } from '../versioning-info'
 
 import syncAudience from './syncAudience'
-export const API_VERSION = 'v3'
+export const API_VERSION = THE_TRADE_DESK_CRM_API_VERSION
 export const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
 export const SEGMENT_TYPE = 'targeting'
 const DATA_PROVIDER_ID = 'twilio'
