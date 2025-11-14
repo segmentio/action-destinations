@@ -26,10 +26,10 @@ const action: ActionDefinition<Settings, Payload> = {
         phone: { '@path': '$.traits.phone' }
       }
     },
-    traitGroups: {
-      label: 'Trait Groups',
+    otherTraits: {
+      label: 'Other Traits',
       description:
-        'Additional trait groups to merge into the Memora profile. Keys should match trait group names and values should be objects of traits for that group.',
+        'Additional traits to include in the Memora profile, organized by trait group. Keys should match trait group names and values should be objects of traits for that group.',
       type: 'object',
       required: false,
       dynamic: true,
@@ -43,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
         return fetchTraitFields(request, settings, 'Contact')
       }
     },
-    traitGroups: {
+    otherTraits: {
       __keys__: async (request, { settings }) => {
         return fetchTraitGroups(request, settings)
       },
@@ -162,8 +162,8 @@ const action: ActionDefinition<Settings, Payload> = {
 function buildTraitGroups(payload: Payload) {
   const traitGroups: Record<string, Record<string, unknown>> = {}
 
-  if (payload.traitGroups && typeof payload.traitGroups === 'object' && !Array.isArray(payload.traitGroups)) {
-    for (const [groupName, groupValue] of Object.entries(payload.traitGroups)) {
+  if (payload.otherTraits && typeof payload.otherTraits === 'object' && !Array.isArray(payload.otherTraits)) {
+    for (const [groupName, groupValue] of Object.entries(payload.otherTraits)) {
       if (!groupValue || typeof groupValue !== 'object' || Array.isArray(groupValue)) {
         continue
       }
@@ -178,6 +178,7 @@ function buildTraitGroups(payload: Payload) {
   if (payload.contact && typeof payload.contact === 'object') {
     const contact = cleanObject(payload.contact)
     if (Object.keys(contact).length > 0) {
+      // Merge contact into Contact trait group, with contact fields taking precedence
       traitGroups.Contact = {
         ...(traitGroups.Contact ?? {}),
         ...contact
