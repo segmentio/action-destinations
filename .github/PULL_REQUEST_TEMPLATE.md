@@ -1,6 +1,6 @@
 <!-- Hello and thank you for contributing to Segment action-destinations! -->
 
-<!-- Before opening your pull request, make sure you have added and ran unit
+<!-- Before opening your pull request, make sure you have added and run unit
      tests and tested your change locally. Refer to our testing
      documentation for more information: https://github.com/segmentio/action-destinations/blob/main/docs/testing.md -->
 
@@ -18,5 +18,5 @@ any of the tasks you completed below during your testing._
 - [ ] Added [unit tests](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing) for new functionality
 - [ ] Tested end-to-end using the [local server](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing)
 - [ ] [If destination is already live] Tested for backward compatibility of destination. **Note:** New required fields are a breaking change.
-- [ ] [Segmenters] Tested in the staging environment
-- [ ] [Segmenters] [If applicable for this change] Tested for regression with Hadron. 
+- [ ] [Segmenters] Tested in the staging environment. Please make a copy and fill out [this test template](https://docs.google.com/document/d/1NqMYW9qZYMT7OrRYF1Gm0HcTXTJkdW07BBxNsr8HVW4/edit?usp=sharing) and include a link in your PR description.
+- [ ] [Segmenters] [If applicable for this change] Tested for regression with Hadron.
