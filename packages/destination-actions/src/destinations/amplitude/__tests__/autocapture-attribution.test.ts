@@ -70,17 +70,18 @@ describe('Amplitude', () => {
             first_name: "Billybob" // should get sent as normal setOnce
           }
         },
-        context: {
-          integrations: {
-            'Actions Amplitude': {
-              autocapture_attribution: {
-                enabled: true,
-                set_once,
-                set,
-                unset
-              }
+        integrations: {
+          'Actions Amplitude': {
+            autocapture_attribution: {
+              enabled: true,
+              set_once,
+              set,
+              unset
             }
-          },
+          }
+        },
+        context: {
+          
           page: {
             referrer: 'referrer-from-page-context' // should get dropped
           },
@@ -206,17 +207,17 @@ describe('Amplitude', () => {
             first_name: "Billybob" // should get sent as normal setOnce
           }
         },
-        context: {
-          integrations: {
-            'Actions Amplitude': {
-              autocapture_attribution: {
-                enabled: true,
-                set_once: {}, // no attribution values provided - should still block mapped values
-                set: {},
-                unset: []
-              }
+        integrations: {
+          'Actions Amplitude': {
+            autocapture_attribution: {
+              enabled: true,
+              set_once: {}, // no attribution values provided - should still block mapped values
+              set: {},
+              unset: []
             }
-          },
+          }
+        },
+        context: {
           page: {
             referrer: 'referrer-from-page-context' // should get ignored
           },
@@ -302,17 +303,17 @@ describe('Amplitude', () => {
             first_name: "Billybob" // should get sent as normal setOnce
           }
         },
-        context: {
-          integrations: {
-            'Actions Amplitude': {
-              autocapture_attribution: {
-                // enabled: true, // Disabled autocapture attribution
-                set_once: {}, 
-                set: {},
-                unset: []
-              }
+        integrations: {
+          'Actions Amplitude': {
+            autocapture_attribution: {
+              // enabled: true, // Disabled autocapture attribution
+              set_once: {}, 
+              set: {},
+              unset: []
             }
-          },
+          }
+        },
+        context: {
           page: {
             referrer: 'referrer-from-page-context' // should get handled normally
           },
