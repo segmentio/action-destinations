@@ -131,7 +131,7 @@ module.exports = async ({ github, context, core }) => {
 
         // Filter out the PR author and excluded members
         const prAuthor = context.payload.pull_request.user.login
-        const excludedMembers = ['sandeeptwilio']
+        const excludedMembers = ['sandeeptwilio','joe-ayoub-segment']
         const eligibleMembers = team.data.filter(member =>
             member.login !== prAuthor && !excludedMembers.includes(member.login)
         )

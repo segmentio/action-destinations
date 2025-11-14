@@ -4,11 +4,11 @@ export interface Payload {
   /**
    * The user's id
    */
-  userId?: string
+  user_id?: string
   /**
    * An anonymous id
    */
-  anonymousId?: string
+  anonymous_id?: string
   /**
    * The Segment traits to be forwarded to Survicate
    */

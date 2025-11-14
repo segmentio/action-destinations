@@ -1,0 +1,67 @@
+import type { Settings } from './generated-types'
+import type { Payload } from './send/generated-types'
+import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
+import { KinesisClient, PutRecordsCommand, PutRecordsRequestEntry } from '@aws-sdk/client-kinesis'
+import { assumeRole } from '../../lib/AWS/sts'
+import { APP_AWS_REGION } from '../../lib/AWS/utils'
+import { RequestTimeoutError } from '@segment/actions-core'
+
+export const validateIamRoleArnFormat = (arn: string): boolean => {
+  const iamRoleArnRegex = /^arn:aws:iam::\d{12}:role\/[A-Za-z0-9+=,.@_\-/]+$/
+  return iamRoleArnRegex.test(arn)
+}
+
+const transformPayloads = (payloads: Payload[]): PutRecordsRequestEntry[] => {
+  return payloads.map((record) => ({
+    Data: Buffer.from(JSON.stringify(record)),
+    PartitionKey: record.partitionKey
+  }))
+}
+
+const createKinesisClient = async (
+  iamRoleArn: string,
+  iamExternalId: string,
+  awsRegion: string
+): Promise<KinesisClient> => {
+  const credentials = await assumeRole(iamRoleArn, iamExternalId, APP_AWS_REGION)
+  return new KinesisClient({
+    region: awsRegion,
+    credentials: credentials
+  })
+}
+
+export const send = async (
+  settings: Settings,
+  payloads: Payload[],
+  _statsContext: StatsContext | undefined,
+  logger: Logger | undefined,
+  signal?: AbortSignal
+): Promise<void> => {
+  const { iamRoleArn, iamExternalId } = settings
+  const { streamName, awsRegion } = payloads[0]
+  const entries = transformPayloads(payloads)
+
+  try {
+    const client = await createKinesisClient(iamRoleArn, iamExternalId, awsRegion)
+    const command = new PutRecordsCommand({
+      StreamName: streamName,
+      Records: entries
+    })
+
+    await client.send(command, { abortSignal: signal })
+  } catch (error) {
+    // Handle abort signal error: https://aws.amazon.com/blogs/developer/abortcontroller-in-modular-aws-sdk-for-javascript/
+    if ((error as Error).name === 'AbortError') {
+      // Handle abort error
+      throw new RequestTimeoutError()
+    }
+
+    logger?.crit('Failed to send batch to Kinesis:', error)
+    throw error
+  }
+
+  // Todo
+  // 1. Handle Errors and Partial Failures from Kinesis
+  // 2. Add logs and metrics
+  // 5. Multi status response
+}

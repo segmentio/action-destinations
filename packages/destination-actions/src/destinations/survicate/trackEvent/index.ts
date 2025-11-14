@@ -8,7 +8,7 @@ const action: ActionDefinition<Settings, Payload> = {
   platform: 'cloud',
   defaultSubscription: 'type = "track"',
   fields: {
-    userId: {
+    user_id: {
       type: 'string',
       required: false,
       description: "The user's id",
@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-    anonymousId: {
+    anonymous_id: {
       type: 'string',
       required: false,
       description: 'An anonymous user id',
@@ -56,9 +56,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    const { userId, anonymousId, name, properties, timestamp } = payload
+    const { user_id, anonymous_id, name, properties, timestamp } = payload
 
-    if (!userId && !anonymousId) {
+    if (!user_id && !anonymous_id) {
       throw new PayloadValidationError("'User ID' or 'Anonymous ID' is required")
     }
 
@@ -66,8 +66,8 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: {
         name,
-        ...(userId ? { userId } : {}),
-        ...(anonymousId ? { anonymousId } : {}),
+        ...(user_id ? { user_id } : {}),
+        ...(anonymous_id ? { anonymous_id } : {}),
         ...(properties ? { properties } : {}),
         timestamp
       }

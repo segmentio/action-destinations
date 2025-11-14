@@ -25,4 +25,8 @@ export interface Settings {
    * SSH Key for establishing an SFTP connection
    */
   sftp_ssh_key?: string
+  /**
+   * Select the upload strategy to use when uploading files to the SFTP server.
+   */
+  uploadStrategy?: string
 }
