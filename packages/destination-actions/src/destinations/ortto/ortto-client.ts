@@ -11,8 +11,9 @@ import { Payload as UpsertContactPayload } from './upsertContactProfile/generate
 import { Payload as EventPayload } from './trackActivity/generated-types'
 import { cleanObject } from './utils'
 import { Audience, BatchResponse } from './types'
+import { ORTTO_API_VERSION } from '../versioning-info'
 
-export const API_VERSION = 'v1'
+export const API_VERSION = ORTTO_API_VERSION
 export const Success = {
   status: 200,
   body: 'Processed successfully'

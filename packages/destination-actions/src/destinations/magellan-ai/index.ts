@@ -38,7 +38,7 @@ const destination: DestinationDefinition<Settings> = {
   onDelete: async (request: RequestClient, { payload, settings }) => {
     if (!settings.apiToken) return
 
-    return request('https://api.magellan.ai/v2/gdpr/delete', {
+    return request(`${MAGELLAN_AI_BASE_URL}/gdpr/delete`, {
       method: 'post',
       headers: { Authorization: `Bearer ${settings.apiToken}` },
       json: { ...payload, pixelToken: settings.pixelToken }

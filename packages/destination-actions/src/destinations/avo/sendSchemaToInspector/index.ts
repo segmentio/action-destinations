@@ -7,7 +7,7 @@ import { extractSchemaFromEvent } from './avo'
 const processEvents = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   const events = payload.map((value) => extractSchemaFromEvent(value, settings.appVersionPropertyName))
 
-  const endpoint = 'https://api.avo.app/inspector/segment/v1/track'
+  const endpoint = AVO_INSPECTOR_ENDPOINT
 
   return request(endpoint, {
     method: 'post',

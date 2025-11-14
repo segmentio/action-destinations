@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import { DynamicFieldItem, DynamicFieldResponse } from '@segment/actions-core'
 import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import { HTTPError } from '@segment/actions-core'
+import { SURVEYSPARROW_BASE_URL } from '../constants'
 
 export async function getSurveys(request: RequestClient): Promise<DynamicFieldResponse> {
   const choices: DynamicFieldItem[] = []
@@ -11,7 +12,7 @@ export async function getSurveys(request: RequestClient): Promise<DynamicFieldRe
     let has_next_page = false
     let page = 1
     do {
-      const response = await request(`https://api.surveysparrow.com/v3/surveys?page=${page}`, {
+      const response = await request(`${SURVEYSPARROW_BASE_URL}/surveys?page=${page}`, {
         method: 'get'
       })
       const data = JSON.parse(response.content)
@@ -159,7 +160,7 @@ const action: ActionDefinition<Settings, Payload> = {
       variables: data.payload.variables
     }
 
-    return request(`https://api.surveysparrow.com/v3/channels/${data.payload.id}`, {
+    return request(`${SURVEYSPARROW_BASE_URL}/channels/${data.payload.id}`, {
       method: 'put',
       json: payload
     })

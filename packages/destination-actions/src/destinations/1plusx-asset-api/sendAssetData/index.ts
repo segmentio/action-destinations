@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { ONEPLUSX_API_VERSION } from '../../versioning-info'
 import mapValues from 'lodash/mapValues'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -60,7 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
     })
     // Encoding asset_uri
     const encoded_asset_uri = encodeURIComponent(payload.asset_uri)
-    const endpoint = `https://${settings.client_id}.assets.tagger.opecloud.com/v2/native/asset/${encoded_asset_uri}`
+    const endpoint = `https://${settings.client_id}.assets.tagger.opecloud.com/${ONEPLUSX_API_VERSION}/native/asset/${encoded_asset_uri}`
     return request(endpoint, {
       method: 'put',
       json: {

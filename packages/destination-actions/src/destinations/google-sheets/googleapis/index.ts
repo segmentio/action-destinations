@@ -1,7 +1,8 @@
 import { ModifiedResponse, RequestClient } from '@segment/actions-core'
 import type { MappingSettings } from '../postSheet/operations'
+import { GOOGLE_SHEETS_API_VERSION } from '../versioning-info'
 
-const API_VERSION = 'v4'
+const API_VERSION = GOOGLE_SHEETS_API_VERSION
 
 export type GetResponse = {
   range: string

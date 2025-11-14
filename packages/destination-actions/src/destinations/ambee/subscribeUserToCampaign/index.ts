@@ -1,6 +1,9 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { AMBEE_API_VERSION } from '../../versioning-info'
+
+const AMBEE_BASE_URL = `https://segment-api.ambeedata.com/${AMBEE_API_VERSION}`
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Subscribe to Campaign',
@@ -87,7 +90,7 @@ const action: ActionDefinition<Settings, Payload> = {
       )
 
     if (payload.segmentLibrary)
-      return request('https://segment-api.ambeedata.com/v1/campaign-info', {
+      return request(`${AMBEE_BASE_URL}/campaign-info`, {
         method: 'post',
         json: {
           ...payload,

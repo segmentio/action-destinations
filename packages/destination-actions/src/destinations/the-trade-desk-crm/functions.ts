@@ -4,8 +4,12 @@ import { Payload } from './syncAudience/generated-types'
 // eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
 import { IntegrationError } from '@segment/actions-core'
+import { THE_TRADE_DESK_CRM_API_VERSION } from '../versioning-info'
 
 import { sendEventToAWS } from './awsClient'
+
+const API_VERSION = THE_TRADE_DESK_CRM_API_VERSION
+const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
 
 export interface DROP_ENDPOINT_API_RESPONSE {
   ReferenceId: string

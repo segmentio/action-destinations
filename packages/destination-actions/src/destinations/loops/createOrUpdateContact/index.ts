@@ -1,6 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { LOOPS_API_VERSION } from '../../versioning-info'
+
+const LOOPS_BASE_URL = `https://app.loops.so/api/${LOOPS_API_VERSION}`
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or update a contact',
@@ -117,7 +120,7 @@ const action: ActionDefinition<Settings, Payload> = {
       delete customAttributes.mailingLists
     }
 
-    return request('https://app.loops.so/api/v1/contacts/update', {
+    return request(`${LOOPS_BASE_URL}/contacts/update`, {
       method: 'put',
       json: {
         ...(typeof customAttributes === 'object' && customAttributes),

@@ -1,6 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { HILO_API_VERSION } from '../../versioning-info'
+
+const HILO_BASE_URL = `https://api.hilohq.com/${HILO_API_VERSION}`
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group',
@@ -43,7 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    return request('https://api.hilohq.com/v1/events/group', {
+    return request(`${HILO_BASE_URL}/events/group`, {
       method: 'post',
       json: {
         event: {

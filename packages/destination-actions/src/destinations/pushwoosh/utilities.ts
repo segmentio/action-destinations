@@ -1,6 +1,7 @@
 import { removeUndefined, RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
+import { PUSHWOOSH_API_VERSION } from '../versioning-info'
 
 export function removeEmpty(obj: unknown) {
   if (!obj) {
@@ -21,7 +22,7 @@ export function getEndpoint(url: string) {
 }
 
 export function sendPostEvent(request: RequestClient, settings: Settings, payload: TrackEventPayload) {
-  const endpoint = getEndpoint('/integration-segment/v1/post-events')
+  const endpoint = getEndpoint(`/integration-segment/${PUSHWOOSH_API_VERSION}/post-events`)
   return request(endpoint, {
     method: 'post',
     json: {
@@ -53,7 +54,7 @@ export function sendBatchedPostEvent(request: RequestClient, settings: Settings,
     }
   })
 
-  const endpoint = getEndpoint('/integration-segment/v1/post-events')
+  const endpoint = getEndpoint(`/integration-segment/${PUSHWOOSH_API_VERSION}/post-events`)
   return request(endpoint, {
     method: 'post',
     json: {

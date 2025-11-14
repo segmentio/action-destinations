@@ -33,7 +33,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (request, { settings }) => {
       // Verify that the merchantId is valid.
-      return request(`${defaultMapiBaseUrl}/v1/authorization`, {
+      return request(`${defaultMapiBaseUrl}/${FRIENDBUY_MAPI_VERSION}/authorization`, {
         method: 'POST',
         json: { key: settings.authKey, secret: settings.authSecret }
       })
@@ -46,7 +46,7 @@ const destination: DestinationDefinition<Settings> = {
     // implement this function and should remove it completely.
     return !payload.userId
       ? true
-      : request(`${defaultMapiBaseUrl}/v1/user-data`, {
+      : request(`${defaultMapiBaseUrl}/${FRIENDBUY_MAPI_VERSION}/user-data`, {
           method: 'DELETE',
           searchParams: {
             customerId: payload.userId

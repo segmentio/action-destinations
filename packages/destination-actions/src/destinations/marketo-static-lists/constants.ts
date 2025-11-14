@@ -1,4 +1,6 @@
-const API_VERSION = 'v1'
+import { MARKETO_STATIC_LISTS_API_VERSION } from '../versioning-info'
+
+const API_VERSION = MARKETO_STATIC_LISTS_API_VERSION
 export const OAUTH_ENDPOINT = 'identity/oauth/token'
 export const GET_FOLDER_ENDPOINT = `/rest/asset/${API_VERSION}/folder/byName.json?name=folderName`
 export const CREATE_LIST_ENDPOINT = `/rest/asset/${API_VERSION}/staticLists.json?folder=folderId&name=listName`

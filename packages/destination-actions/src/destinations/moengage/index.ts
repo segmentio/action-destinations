@@ -3,6 +3,7 @@ import type { Settings } from './generated-types'
 import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
 import { getEndpointByRegion } from './regional-endpoints'
+import { MOENGAGE_API_VERSION } from '../versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Moengage (Actions)',
@@ -57,7 +58,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (request, { settings }) => {
       const endpoint = getEndpointByRegion(settings.region)
-      return request(`${endpoint}/v1/integrations/segment/auth?appId=${settings.api_id}`, {
+      return request(`${endpoint}/${MOENGAGE_API_VERSION}/integrations/segment/auth?appId=${settings.api_id}`, {
         method: 'get',
         headers: {
           authorization: `Basic ${Buffer.from(`${settings.api_id}:${settings.api_key}`).toString('base64')}`

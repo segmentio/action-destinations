@@ -13,7 +13,7 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth-managed',
     fields: {},
-    testAuthentication: (request) => request('https://api.attio.com/v1/token')
+    testAuthentication: (request) => request(`${ATTIO_BASE_URL}/token`)
   },
 
   extendRequest({ auth }) {

@@ -96,7 +96,7 @@ const action: ActionDefinition<Settings, Payload> = {
         job_title: payload.job_title,
         ...payload.custom_fields
       }
-      return request('https://api.surveysparrow.com/v3/contacts', {
+      return request(`${SURVEYSPARROW_BASE_URL}/contacts`, {
         method: 'post',
         json: transformedPayload
       })

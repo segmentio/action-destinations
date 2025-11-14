@@ -2,7 +2,7 @@ import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 import { CreateAudienceReq, RefreshTokenResponse, SnapAudienceResponse } from './types'
-import { ACCESS_TOKEN_URL, DEFAULT_RETENTION_DAYS } from './constants'
+import { ACCESS_TOKEN_URL, DEFAULT_RETENTION_DAYS, SNAP_AUDIENCES_BASE_URL } from './constants'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Snap Audiences (Actions)',
@@ -140,7 +140,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         ]
       }
 
-      const response = await request<SnapAudienceResponse>(`https://adsapi.snapchat.com/v1/adaccounts/${ad_account_id}/segments`, {
+      const response = await request<SnapAudienceResponse>(`${SNAP_AUDIENCES_BASE_URL}/adaccounts/${ad_account_id}/segments`, {
         method: 'POST',
         json
       })
@@ -149,7 +149,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
 
     getAudience: async (request, { externalId }) => {
-      const response = await request<SnapAudienceResponse>(`https://adsapi.snapchat.com/v1/segments/${externalId}`, {
+      const response = await request<SnapAudienceResponse>(`${SNAP_AUDIENCES_BASE_URL}/segments/${externalId}`, {
         method: 'GET'
       })
 

@@ -57,7 +57,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request('https://api.usermotion.com/v1/verify', { method: 'POST' })
+      return request(`${USERMOTION_BASE_URL}/verify`, { method: 'POST' })
     }
   },
   presets,

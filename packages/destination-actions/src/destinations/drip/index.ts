@@ -25,7 +25,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request(`https://api.getdrip.com/v2/user`, {
+      return request(`https://api.getdrip.com/${DRIP_API_VERSION}/user`, {
         method: 'get'
       })
     }

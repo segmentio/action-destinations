@@ -2,6 +2,7 @@ import { defaultValues, AudienceDestinationDefinition } from '@segment/actions-c
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 import { CreateAudienceReq, CreateAudienceResp } from './types'
+import { REDDIT_AUTH_BASE_URL, REDDIT_ADS_BASE_URL } from './constants'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Reddit Audiences',
@@ -20,7 +21,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     refreshAccessToken: async (request, { auth }) => {
       const authToken = Buffer.from(`${auth.clientId}:${auth.clientSecret}`).toString('base64')
 
-      const res = await request('https://www.reddit.com/api/v1/access_token', {
+      const res = await request(`${REDDIT_AUTH_BASE_URL}/access_token`, {
         method: 'POST',
         headers: {
           Authorization: `Basic ${authToken}`,
@@ -59,7 +60,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const response = await request<CreateAudienceResp>(
-        `https://ads-api.reddit.com/api/v3/ad_accounts/${createAudienceInput.settings.ad_account_id}/custom_audiences`,
+        `${REDDIT_ADS_BASE_URL}/ad_accounts/${createAudienceInput.settings.ad_account_id}/custom_audiences`,
         {
           method: 'POST',
           headers: {

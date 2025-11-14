@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { AnalyticsPayload, ConvertFun, EventMap } from '@segment/actions-shared'
+import { FRIENDBUY_MAPI_VERSION } from '../../versioning-info'
 
 import { createMapiRequest } from '../cloudUtil'
 import { contextFields } from '@segment/actions-shared'
@@ -48,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { settings, payload }) => {
     const friendbuyPayload = mapEvent(trackCustomerMapi, payload as unknown as AnalyticsPayload)
-    const [requestUrl, requestParams] = await createMapiRequest('v1/customer', request, settings, friendbuyPayload)
+    const [requestUrl, requestParams] = await createMapiRequest(`${FRIENDBUY_MAPI_VERSION}/customer`, request, settings, friendbuyPayload)
     return request(requestUrl, requestParams)
   }
 }

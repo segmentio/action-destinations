@@ -1,4 +1,6 @@
-export const BaseApiUrl = 'https://api.voyagetext.com/api/v1'
+import { VOYAGE_API_VERSION } from '../versioning-info'
+
+export const BaseApiUrl = `https://api.voyagetext.com/api/${VOYAGE_API_VERSION}`
 
 export const EventApiUri = '/customEvent'
 

@@ -50,7 +50,13 @@ export const US_STATE_CODES = new Map<string, string>([
   ['wisconsin', 'wi'],
   ['wyoming', 'wy']
 ])
-export const API_VERSION = 'v21.0'
-export const CANARY_API_VERSION = 'v21.0'
+
+import { 
+  FACEBOOK_CUSTOM_AUDIENCES_API_VERSION, 
+  FACEBOOK_CUSTOM_AUDIENCES_CANARY_API_VERSION 
+} from '../versioning-info'
+
+export const API_VERSION = FACEBOOK_CUSTOM_AUDIENCES_API_VERSION
+export const CANARY_API_VERSION = FACEBOOK_CUSTOM_AUDIENCES_CANARY_API_VERSION
 export const BASE_URL = 'https://graph.facebook.com'
 export const FACEBOOK_CUSTOM_AUDIENCE_FLAGON = 'facebook-custom-audience-actions-canary-version'
