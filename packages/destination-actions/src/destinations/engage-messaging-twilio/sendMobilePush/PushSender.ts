@@ -85,7 +85,7 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
     this.statsSet('message_body_size', body?.toString().length)
     body.sort()
 
-    const res = await this.request(`https://${this.twilioHostname}/v1/Services/${this.payload.from}/Notifications`, {
+    const res = await this.request(`https://${this.twilioHostname}/${ENGAGE_MESSAGING_TWILIO_API_VERSION}/Services/${this.payload.from}/Notifications`, {
       method: 'POST',
       headers: {
         authorization: `Basic ${this.twilioToken}`

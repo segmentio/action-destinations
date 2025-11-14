@@ -288,3 +288,33 @@ export const ATTIO_API_VERSION = 'v1'
  * 1plusX API Version
  */
 export const ONEPLUSX_API_VERSION = 'v2'
+
+/**
+ * Close API Version
+ */
+export const CLOSE_API_VERSION = 'v1'
+
+/**
+ * Dawn API Version
+ */
+export const DAWN_API_VERSION = 'v1'
+
+/**
+ * Dotdigital API Version
+ */
+export const DOTDIGITAL_API_VERSION = 'v2'
+
+/**
+ * Drip API Version
+ */
+export const DRIP_API_VERSION = 'v2'
+
+/**
+ * Engage Messaging SendGrid API Version
+ */
+export const ENGAGE_MESSAGING_SENDGRID_API_VERSION = 'v3'
+
+/**
+ * Engage Messaging Twilio API Version
+ */
+export const ENGAGE_MESSAGING_TWILIO_API_VERSION = 'v1'
