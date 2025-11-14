@@ -318,3 +318,28 @@ export const ENGAGE_MESSAGING_SENDGRID_API_VERSION = 'v3'
  * Engage Messaging Twilio API Version
  */
 export const ENGAGE_MESSAGING_TWILIO_API_VERSION = 'v1'
+
+/**
+ * Avo Inspector API Version
+ */
+export const AVO_INSPECTOR_API_VERSION = 'v1'
+
+/**
+ * Gainsight PX Cloud Action API Version
+ */
+export const GAINSIGHT_PX_API_VERSION = 'v1'
+
+/**
+ * Google Campaign Manager 360 API Version
+ */
+export const GOOGLE_CAMPAIGN_MANAGER_360_API_VERSION = 'v4'
+
+/**
+ * Hilo API Version
+ */
+export const HILO_API_VERSION = 'v1'
+
+/**
+ * HubSpot CRM API Version
+ */
+export const HUBSPOT_API_VERSION = 'v3'
