@@ -231,7 +231,7 @@ describe('ajs-integration', () => {
     )
 
     /* 
-     *  Finally we test with a completely new attribution parameter
+     *  Next we test with a completely new attribution parameter
      */
     Object.defineProperty(window, 'location', {
       value: {
@@ -289,6 +289,78 @@ describe('ajs-integration', () => {
             "li_fat_id",
             "msclkid",
             "rtd_cid",
+            "twclid"
+          ]
+        }
+      }
+    )
+
+    /* 
+     *  Next we test with a completely some attributes we've never seen before, referrer and referring_domain
+     */
+    Object.defineProperty(window, 'location', {
+      value: {
+        href: 'https://blah.com/path/page/hello/',
+        search: '',
+        protocol: 'https:'
+      },
+      writable: true
+    })
+
+    Object.defineProperty(document, 'referrer', {
+      writable: true,
+      value: 'https://blah.com/path/page/hello/',
+    })
+
+    const updatedCtx6 = await autocaptureAttributionPlugin.track?.(ctx)
+    const ampIntegrationsObj6 = updatedCtx6?.event?.integrations[DESTINATION_INTEGRATION_NAME]
+
+    expect(ampIntegrationsObj6).toEqual(
+      {
+         autocapture_attribution: {
+          enabled: true,
+          set: {
+            referrer: "https://blah.com/path/page/hello/",
+            referring_domain: "blah.com"
+          },
+          set_once: {
+            initial_dclid: "",
+            initial_fbclid: "",
+            initial_gbraid: "",
+            initial_gclid: "",
+            initial_ko_clickid: "",
+            initial_li_fat_id: "",
+            initial_msclkid: "",
+            initial_referrer: "https://blah.com/path/page/hello/",
+            initial_referring_domain: "blah.com",
+            initial_rtd_cid: "",
+            initial_ttclid: "",
+            initial_twclid: "",
+            initial_utm_campaign: "",
+            initial_utm_content: "",
+            initial_utm_id: "",
+            initial_utm_medium: "",
+            initial_utm_source: "",
+            initial_utm_term: "",
+            initial_wbraid: ""
+          },
+          unset: [
+            "utm_source",
+            "utm_medium",
+            "utm_campaign",
+            "utm_term",
+            "utm_content",
+            "utm_id",
+            "dclid",
+            "fbclid",
+            "gbraid",
+            "wbraid",
+            "gclid",
+            "ko_clickid",
+            "li_fat_id",
+            "msclkid",
+            "rtd_cid",
+            "ttclid",
             "twclid"
           ]
         }
