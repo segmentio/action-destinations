@@ -10,9 +10,9 @@ import isEqual from 'lodash/isEqual'
 
 const action: BrowserActionDefinition<Settings, {}, Payload> = {
   title: 'Autocapture Attribution Plugin',
-  description: 'Captures attribution details from the URL and attaches them to every Amplitude browser based event.',
+  description: 'Captures attribution details from the URL and attaches them to every Amplitude browser based event. Use with the Log Event V2 action to automate the collection of attribution data.',
   platform: 'web',
-  defaultSubscription: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+  defaultSubscription: 'type = "track"',
   fields: {
     excludeReferrers: {
       label: 'Exclude Referrers',
