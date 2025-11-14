@@ -438,3 +438,23 @@ export const ROKT_API_VERSION = 'v3'
  * Insider Unification API version
  */
 export const INSIDER_UNIFICATION_API_VERSION = 'v1'
+
+/**
+ * Amazon AMC/DSP API Version (for profiles endpoint)
+ */
+export const AMAZON_AMC_API_VERSION = 'v2'
+
+/**
+ * Nextdoor Conversions API Version
+ */
+export const NEXTDOOR_CAPI_API_VERSION = 'v2'
+
+/**
+ * Pushwoosh Integration Segment API Version
+ */
+export const PUSHWOOSH_API_VERSION = 'v1'
+
+/**
+ * Yahoo Audiences OAuth Version
+ */
+export const YAHOO_AUDIENCES_OAUTH_VERSION = '1.0'

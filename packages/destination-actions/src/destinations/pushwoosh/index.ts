@@ -6,6 +6,7 @@ import { defaultValues } from '@segment/actions-core'
 
 import trackEvent from './trackEvent'
 import { getEndpoint } from './utilities'
+import { PUSHWOOSH_API_VERSION } from '../versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Pushwoosh',
@@ -32,7 +33,7 @@ const destination: DestinationDefinition<Settings> = {
     },
 
     testAuthentication: (request) => {
-      const endpoint = getEndpoint('/integration-segment/v1/ping')
+      const endpoint = getEndpoint(`/integration-segment/${PUSHWOOSH_API_VERSION}/ping`)
       return request(endpoint, {
         method: 'post',
         json: {
@@ -62,7 +63,7 @@ const destination: DestinationDefinition<Settings> = {
   ],
 
   onDelete: async (request, { payload }) => {
-    const endpoint = getEndpoint('/integration-segment/v1/delete-user')
+    const endpoint = getEndpoint(`/integration-segment/${PUSHWOOSH_API_VERSION}/delete-user`)
     return request(endpoint, {
       method: 'post',
       json: {

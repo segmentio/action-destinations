@@ -14,6 +14,7 @@ import {
   REGEX_AUDIENCEID,
   TTL_MAX_VALUE
 } from './utils'
+import { AMAZON_AMC_API_VERSION } from '../versioning-info'
 
 import syncAudiencesToDSP from './syncAudiencesToDSP'
 
@@ -44,7 +45,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       try {
-        await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
+        await request<RefreshTokenResponse>(`${settings.region}/${AMAZON_AMC_API_VERSION}/profiles`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
