@@ -89,6 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     },
+    ...autocaptureFields,
     setOnce: {
       label: 'Set Once',
       description: 'The following fields will only be set as user properties if they do not already have a value.',
@@ -170,7 +171,14 @@ const action: ActionDefinition<Settings, Payload> = {
         utm_content: { '@path': '$.context.campaign.content' }
       }
     },
-    ...autocaptureFields,
+    add: {
+      label: 'Add',
+      description:
+        "Increment a user property by a number with add. If the user property doesn't have a value set yet, it's initialized to 0.",
+      type: 'object',
+      additionalProperties: true,
+      defaultObjectUI: 'keyvalue'
+    },
     use_batch_endpoint: {
       label: 'Use Batch Endpoint',
       description:

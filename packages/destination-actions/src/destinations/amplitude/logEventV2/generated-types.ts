@@ -178,6 +178,26 @@ export interface Payload {
     [k: string]: unknown
   }[]
   /**
+   * Utility field used to detect if Autocapture Attribution Plugin is enabled.
+   */
+  autocaptureAttributionEnabled?: boolean
+  /**
+   * Utility field used to detect if any attribution values need to be set.
+   */
+  autocaptureAttributionSet?: {
+    [k: string]: unknown
+  }
+  /**
+   * Utility field used to detect if any attribution values need to be set_once.
+   */
+  autocaptureAttributionSetOnce?: {
+    [k: string]: unknown
+  }
+  /**
+   * Utility field used to detect if any attribution values need to be unset.
+   */
+  autocaptureAttributionUnset?: string[]
+  /**
    * The following fields will only be set as user properties if they do not already have a value.
    */
   setOnce?: {
@@ -210,26 +230,6 @@ export interface Payload {
   add?: {
     [k: string]: unknown
   }
-  /**
-   * Utility field used to detect if Autocapture Attribution Plugin is enabled.
-   */
-  autocaptureAttributionEnabled?: boolean
-  /**
-   * Utility field used to detect if any attribution values need to be set.
-   */
-  autocaptureAttributionSet?: {
-    [k: string]: unknown
-  }
-  /**
-   * Utility field used to detect if any attribution values need to be set_once.
-   */
-  autocaptureAttributionSetOnce?: {
-    [k: string]: unknown
-  }
-  /**
-   * Utility field used to detect if any attribution values need to be unset.
-   */
-  autocaptureAttributionUnset?: string[]
   /**
    * If true, events are sent to Amplitude's `batch` endpoint rather than their `httpapi` events endpoint. Enabling this setting may help reduce 429s – or throttling errors – from Amplitude. More information about Amplitude's throttling is available in [their docs](https://developers.amplitude.com/docs/batch-event-upload-api#429s-in-depth).
    */

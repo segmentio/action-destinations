@@ -2,14 +2,6 @@ import type { InputField } from '@segment/actions-core'
 import { DESTINATION_INTEGRATION_NAME } from './autocapture-attribution'
 
 export const autocaptureFields: Record<string, InputField> = {
-    add: {
-      label: 'Add',
-      description:
-        "Increment a user property by a number with add. If the user property doesn't have a value set yet, it's initialized to 0.",
-      type: 'object',
-      additionalProperties: true,
-      defaultObjectUI: 'keyvalue'
-    },
     autocaptureAttributionEnabled: {
       label: 'Autocapture Attribution Enabled',
       description: 'Utility field used to detect if Autocapture Attribution Plugin is enabled.',
