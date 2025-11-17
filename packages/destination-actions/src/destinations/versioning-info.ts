@@ -568,3 +568,15 @@ export const MANTLE_API_VERSION = 'v1'
  * TikTok App Events API Version
  */
 export const TIKTOK_APP_EVENTS_API_VERSION = 'v1.3'
+
+/**
+ * Airship API Version
+ * Used in the Accept header for Urban Airship API requests
+ */
+export const AIRSHIP_API_VERSION = '3'
+
+/**
+ * TikTok Offline Conversions API Version
+ * Used for offline event tracking endpoints
+ */
+export const TIKTOK_OFFLINE_CONVERSIONS_API_VERSION = 'v1.3'
