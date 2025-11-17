@@ -79,6 +79,21 @@ describe('Amazon-Ads (actions)', () => {
         'Missing advertiserId Value'
       )
     })
+    it('should fail if advertiserId  and amcInstanceId && amcAccountId && amcAccountMarketplaceId are missing in audienceSettings', async () => {
+      const createAudienceInput = {
+        ...createAudienceInputTemp,
+        audienceSettings: {
+          ...audienceSettings,
+          advertiserId: '',
+          amcInstanceId: '',
+          amcAccountId: '',
+          amcAccountMarketplaceId: ''
+        }
+      }
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
+        'Missing advertiserId, amcInstanceId , amcAccountId , amcAccountMarketplaceId Value'
+      )
+    })
     it('should fail if externalAudienceId is missing in audienceSettings', async () => {
       const createAudienceInput = {
         ...createAudienceInputTemp,
