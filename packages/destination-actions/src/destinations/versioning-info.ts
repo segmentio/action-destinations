@@ -518,3 +518,53 @@ export const EMARSYS_API_VERSION = 'v2'
  * Encharge Ingest API Version
  */
 export const ENCHARGE_INGEST_API_VERSION = 'v1'
+
+/**
+ * Klaviyo API Revision Date
+ */
+export const KLAVIYO_REVISION_DATE = '2025-01-15'
+
+/**
+ * Sprig API Version
+ */
+export const SPRIG_API_VERSION = 'v2'
+
+/**
+ * Usermaven API Version
+ */
+export const USERMAVEN_API_VERSION = 'v1'
+
+/**
+ * TikTok Sandbox Conversions API Version (Web Events)
+ */
+export const TIKTOK_CONVERSIONS_SANDBOX_API_VERSION = 'v1.3'
+
+/**
+ * TikTok Sandbox Offline Conversions API Version
+ */
+export const TIKTOK_OFFLINE_CONVERSIONS_SANDBOX_API_VERSION = 'v1.3'
+
+/**
+ * Postscript API Version
+ */
+export const POSTSCRIPT_API_VERSION = 'v2'
+
+/**
+ * Spiffy API Version
+ */
+export const SPIFFY_API_VERSION = 'v1'
+
+/**
+ * Actable Predictive API Version
+ */
+export const ACTABLE_PREDICTIVE_API_VERSION = 'v1'
+
+/**
+ * Mantle API Version
+ */
+export const MANTLE_API_VERSION = 'v1'
+
+/**
+ * TikTok App Events API Version
+ */
+export const TIKTOK_APP_EVENTS_API_VERSION = 'v1.3'

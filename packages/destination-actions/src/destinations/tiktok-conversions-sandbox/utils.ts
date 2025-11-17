@@ -2,6 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload } from './reportWebEvent/generated-types'
 import { formatEmails, formatPhones, formatUserIds } from './formatter'
+import { TIKTOK_CONVERSIONS_SANDBOX_API_VERSION } from '../versioning-info'
 
 export function performWebEvent(request: RequestClient, settings: Settings, payload: Payload) {
   const phone_numbers = formatPhones(payload.phone_number)
@@ -19,7 +20,7 @@ export function performWebEvent(request: RequestClient, settings: Settings, payl
 
   if (payloadUrl) urlTtclid = payloadUrl.searchParams.get('ttclid')
 
-  return request('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
+  return request(`https://business-api.tiktok.com/open_api/${TIKTOK_CONVERSIONS_SANDBOX_API_VERSION}/event/track/`, {
     method: 'post',
     json: {
       event_source: 'web',

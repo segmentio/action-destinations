@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { payloadTransform } from './utils'
+import { SPRIG_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -27,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
-    return request('https://api.sprig.com/v2/users', {
+    return request(`https://api.sprig.com/${SPRIG_API_VERSION}/users`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${data.settings.apiKey}`
