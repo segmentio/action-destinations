@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { PRODEOLOGY_BASE_URL } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify',
@@ -43,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    return request('https://api-dev.prodeology.com/api/v1/event-collection/identify', {
+    return request(`${PRODEOLOGY_BASE_URL}/event-collection/identify`, {
       method: 'post',
       json: {
         anonymousId: payload.anonymousId,

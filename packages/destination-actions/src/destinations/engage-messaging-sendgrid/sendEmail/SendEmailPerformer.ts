@@ -13,6 +13,7 @@ import { insertEmailPreviewText } from './insertEmailPreviewText'
 import cheerio from 'cheerio'
 import { isRestrictedDomain } from './isRestrictedDomain'
 import { UnlayerResponse } from './UnlayerResponse'
+import { ENGAGE_MESSAGING_SENDGRID_API_VERSION } from '../../versioning-info'
 
 export const EXTERNAL_ID_KEY = 'email'
 

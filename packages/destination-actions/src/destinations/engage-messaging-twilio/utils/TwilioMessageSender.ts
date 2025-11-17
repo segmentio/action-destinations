@@ -5,6 +5,7 @@ import type { Settings } from '../generated-types'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile } from './types'
 import { track, MessageSendPerformer, MessagePayloadBase } from '@segment/actions-shared'
+import { ENGAGE_MESSAGING_TWILIO_API_VERSION } from '../../versioning-info'
 
 const Liquid = new LiquidJs()
 

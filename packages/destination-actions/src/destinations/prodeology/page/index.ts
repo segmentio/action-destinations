@@ -1,6 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { PRODEOLOGY_BASE_URL } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page Event',
@@ -57,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    return request('https://api-dev.prodeology.com/api/v1/event-collection/page', {
+    return request(`${PRODEOLOGY_BASE_URL}/event-collection/page`, {
       method: 'POST',
       json: {
         anonymousId: payload.anonymousId,

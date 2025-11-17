@@ -18,6 +18,7 @@ import {
   SuccessMaybeErrorResponse
 } from './types'
 import { processHashing } from '../../lib/hashing-utils'
+import { GOOGLE_CAMPAIGN_MANAGER_360_API_VERSION } from '../versioning-info'
 
 export async function send(
   request: RequestClient,
