@@ -1,10 +1,15 @@
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
-import { KinesisClient, PutRecordsCommand, PutRecordsRequestEntry } from '@aws-sdk/client-kinesis'
+import {
+  KinesisClient,
+  PutRecordsCommand,
+  PutRecordsRequestEntry,
+  PutRecordsCommandOutput
+} from '@aws-sdk/client-kinesis'
 import { assumeRole } from '../../lib/AWS/sts'
 import { APP_AWS_REGION } from '../../lib/AWS/utils'
-import { RequestTimeoutError } from '@segment/actions-core'
+import { RequestTimeoutError, MultiStatusResponse, IntegrationError, JSONLikeObject } from '@segment/actions-core'
 
 export const validateIamRoleArnFormat = (arn: string): boolean => {
   const iamRoleArnRegex = /^arn:aws:iam::\d{12}:role\/[A-Za-z0-9+=,.@_\-/]+$/
@@ -33,13 +38,16 @@ const createKinesisClient = async (
 export const send = async (
   settings: Settings,
   payloads: Payload[],
-  _statsContext: StatsContext | undefined,
+  statsContext: StatsContext | undefined,
   logger: Logger | undefined,
   signal?: AbortSignal
-): Promise<void> => {
+): Promise<MultiStatusResponse> => {
   const { iamRoleArn, iamExternalId } = settings
   const { streamName, awsRegion } = payloads[0]
   const entries = transformPayloads(payloads)
+
+  statsContext?.statsClient?.histogram('actions_kinesis.batch_size', entries?.length, statsContext?.tags)
+  statsContext?.statsClient?.incr('actions_kinesis.request_hit', 1, statsContext?.tags)
 
   try {
     const client = await createKinesisClient(iamRoleArn, iamExternalId, awsRegion)
@@ -48,7 +56,9 @@ export const send = async (
       Records: entries
     })
 
-    await client.send(command, { abortSignal: signal })
+    const response = await client.send(command, { abortSignal: signal })
+    const multiResp = handleMultiStatusResponse(response, statsContext, payloads)
+    return multiResp
   } catch (error) {
     // Handle abort signal error: https://aws.amazon.com/blogs/developer/abortcontroller-in-modular-aws-sdk-for-javascript/
     if ((error as Error).name === 'AbortError') {
@@ -57,11 +67,67 @@ export const send = async (
     }
 
     logger?.crit('Failed to send batch to Kinesis:', error)
-    throw error
+    handleError(error, statsContext)
   }
 
-  // Todo
-  // 1. Handle Errors and Partial Failures from Kinesis
-  // 2. Add logs and metrics
-  // 5. Multi status response
+  return Promise.resolve(new MultiStatusResponse()) // This line will never be reached but is needed to satisfy TypeScript
+}
+
+const handleError = (error: any, statsContext: StatsContext | undefined): void => {
+  if (error?.name === 'AccessDeniedException') {
+    statsContext?.statsClient?.incr('actions_kinesis.access_denied_exception', 1, statsContext?.tags)
+    throw new IntegrationError(
+      `Access denied. Please check that the provided IAM Role has the necessary permissions to access Kinesis.`,
+      'ACCESS_DENIED',
+      403
+    )
+  }
+
+  statsContext?.statsClient?.incr('actions_kinesis.error', 1, statsContext?.tags)
+  throw new IntegrationError(`Failed to send batch to Kinesis: ${error?.message}`, 'DEPENDENCY_ERROR', 500)
+}
+
+const handleMultiStatusResponse = (
+  response: PutRecordsCommandOutput,
+  statsContext: StatsContext | undefined,
+  payloads: Payload[]
+): MultiStatusResponse => {
+  const multiStatusResponse: MultiStatusResponse = new MultiStatusResponse()
+  const { FailedRecordCount, Records } = response
+
+  if (!FailedRecordCount || FailedRecordCount == 0) {
+    statsContext?.statsClient?.incr('actions_kinesis.successful_record_count', Records?.length || 0, statsContext?.tags)
+    // All records succeeded
+    Records?.forEach((record: any, index: number) => {
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        body: record,
+        sent: payloads[index] as unknown as JSONLikeObject
+      })
+    })
+    return multiStatusResponse
+  }
+
+  statsContext?.statsClient?.incr('actions_kinesis.failed_record_count', FailedRecordCount, statsContext?.tags)
+  // Add metrics for each error type
+  Records?.forEach((record: any, index: number) => {
+    if (record.ErrorCode) {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: record.ErrorCode,
+        errormessage: record.ErrorMessage
+      })
+      const errorCode = record.ErrorCode || 'UnknownError'
+      statsContext?.statsClient?.incr(`actions_kinesis.error.${errorCode}`, 1, statsContext?.tags)
+    } else {
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        body: record,
+        sent: payloads[index] as unknown as JSONLikeObject
+      })
+      statsContext?.statsClient?.incr('actions_kinesis.successful_record_count', 1, statsContext?.tags)
+    }
+  })
+
+  return multiStatusResponse
 }
