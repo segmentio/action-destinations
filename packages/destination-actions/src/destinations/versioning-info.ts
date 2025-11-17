@@ -122,16 +122,6 @@ export const GAMEBALL_CONFIG = {
 export const RESPONSYS_API_VERSION = 'v1.3'
 
 /**
- * Qualtrics API Version
- */
-export const QUALTRICS_API_VERSION = 'v3'
-
-/**
- * Nextdoor CAPI API Version
- */
-export const NEXTDOOR_CAPI_API_VERSION = 'v2'
-
-/**
  * Ambee API Version
  */
 export const AMBEE_API_VERSION = 'v1'
@@ -270,11 +260,6 @@ export const PIPEDRIVE_API_VERSION = 'v1'
 export const ANTAVO_API_VERSION = 'v1'
 
 /**
- * ABsmartly API Version (used in collector endpoint)
- */
-export const ABSMARTLY_API_VERSION = 'v1'
-
-/**
  * Adobe Target API Version
  */
 export const ADOBE_TARGET_API_VERSION = 'v1'
@@ -298,11 +283,6 @@ export const CLOSE_API_VERSION = 'v1'
  * Dawn API Version
  */
 export const DAWN_API_VERSION = 'v1'
-
-/**
- * Dotdigital API Version
- */
-export const DOTDIGITAL_API_VERSION = 'v2'
 
 /**
  * Drip API Version
@@ -373,11 +353,6 @@ export const LOOPS_API_VERSION = 'v1'
  * Magellan AI API Version
  */
 export const MAGELLAN_AI_API_VERSION = 'v2'
-
-/**
- * ABsmartly API version
- */
-export const ABSMARTLY_API_VERSION = 'v1'
 
 /**
  * MoEngage API version for Segment integration
@@ -470,7 +445,7 @@ export const AMAZON_CONVERSIONS_API_PROFILES_VERSION = 'v2'
 export const AMAZON_CONVERSIONS_API_EVENTS_VERSION = 'v1'
 
 /**
- * Dotdigital API Version
+ * Dotdigital API Version (for Campaign API endpoints)
  */
 export const DOTDIGITAL_API_VERSION = 'v2'
 
@@ -480,7 +455,7 @@ export const DOTDIGITAL_API_VERSION = 'v2'
 export const POSTHOG_API_VERSION = 'v0'
 
 /**
- * Qualtrics API Version
+ * Qualtrics API Version (for all API endpoints)
  */
 export const QUALTRICS_API_VERSION = 'v3'
 
