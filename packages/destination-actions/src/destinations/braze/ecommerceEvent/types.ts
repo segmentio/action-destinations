@@ -1,13 +1,8 @@
 export type SinglePropertyEventName = 'ecommerce.product_viewed' 
-
 export type CheckoutStartedEventName = 'ecommerce.checkout_started'
-
 export type CartUpdatedEventName = 'ecommerce.cart_updated' 
-
 export type OrderPlacedEventName = 'ecommerce.order_placed' 
-
 export type OrderCancelledEventName = 'ecommerce.order_cancelled'
-
 export type OrderRefundedEventName = 'ecommerce.order_refunded'
 
 export type MultiPropertyEventName = 
