@@ -99,27 +99,9 @@ export const USERMOTION_BASE_URL = 'https://api.usermotion.com/v1'
 export const PRODEOLOGY_BASE_URL = 'https://api-dev.prodeology.com/api/v1'
 
 /**
- * Gameball API Configuration
+ * Responsys Async API version
  */
-export const GAMEBALL_CONFIG = {
-  baseApiUrl: 'https://api.gameball.co',
-  baseAuthUrl: 'https://auth.gameball.co',
-  apiVersions: {
-    testAuthentication: 'v1.0',
-    integrations: 'v3.0'
-  },
-  endpoints: {
-    testAuthentication: '/api/v1.0/protected/TestAuthentication',
-    trackEvent: '/api/v3.0/integrations/event',
-    trackOrder: '/api/v3.0/integrations/order',
-    identifyPlayer: '/api/v3.0/integrations/player'
-  }
-} as const
-
-/**
- * Responsys API Version
- */
-export const RESPONSYS_API_VERSION = 'v1.3'
+export const RESPONSYS_ASYNC_API_VERSION = 'v1.3'
 
 /**
  * Ambee API Version
@@ -131,24 +113,7 @@ export const AMBEE_API_VERSION = 'v1'
  */
 export const SURVEYSPARROW_API_VERSION = 'v3'
 
-/**
- * Optimizely Feature Experimentation API Versions
- */
-export const OPTIMIZELY_FEATURE_EXPERIMENTATION_API_VERSIONS = {
-  subjectAccessRequests: 'v2',
-  logEvents: 'v1'
-} as const
 
-/**
- * Salesforce Marketing Cloud API Versions
- */
-export const SALESFORCE_MARKETING_CLOUD_API_VERSIONS = {
-  auth: 'v2',
-  interaction: 'v1',
-  contacts: 'v1',
-  hub: 'v1',
-  data: 'v1'
-} as const
 
 /**
  * TikTok Base URL
@@ -245,16 +210,6 @@ export const TWILIO_CONTENT_API_VERSION = 'v1'
 export const AGGREGATIONS_IO_API_VERSION = 'v1'
 
 /**
- * Canvas API Version
- */
-export const CANVAS_API_VERSION = 'v1'
-
-/**
- * Pipedrive API Version
- */
-export const PIPEDRIVE_API_VERSION = 'v1'
-
-/**
  * Antavo API Version
  */
 export const ANTAVO_API_VERSION = 'v1'
@@ -265,19 +220,9 @@ export const ANTAVO_API_VERSION = 'v1'
 export const ADOBE_TARGET_API_VERSION = 'v1'
 
 /**
- * Attio API Version
- */
-export const ATTIO_API_VERSION = 'v1'
-
-/**
  * 1plusX API Version
  */
 export const ONEPLUSX_API_VERSION = 'v2'
-
-/**
- * Close API Version
- */
-export const CLOSE_API_VERSION = 'v1'
 
 /**
  * Dawn API Version
@@ -300,11 +245,6 @@ export const ENGAGE_MESSAGING_SENDGRID_API_VERSION = 'v3'
 export const ENGAGE_MESSAGING_TWILIO_API_VERSION = 'v1'
 
 /**
- * Avo Inspector API Version
- */
-export const AVO_INSPECTOR_API_VERSION = 'v1'
-
-/**
  * Gainsight PX Cloud Action API Version
  */
 export const GAINSIGHT_PX_API_VERSION = 'v1'
@@ -318,16 +258,6 @@ export const GOOGLE_CAMPAIGN_MANAGER_360_API_VERSION = 'v4'
  * Hilo API Version
  */
 export const HILO_API_VERSION = 'v1'
-
-/**
- * HubSpot CRM API Version
- */
-export const HUBSPOT_API_VERSION = 'v3'
-
-/**
- * ABsmartly API Version
- */
-export const ABSMARTLY_API_VERSION = 'v1'
 
 /**
  * HyperEngage API Version
@@ -348,11 +278,6 @@ export const LISTRAK_API_VERSION = 'v1'
  * Loops API Version
  */
 export const LOOPS_API_VERSION = 'v1'
-
-/**
- * Magellan AI API Version
- */
-export const MAGELLAN_AI_API_VERSION = 'v2'
 
 /**
  * MoEngage API version for Segment integration
@@ -398,11 +323,6 @@ export const SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION = 'v2'
  * Salesforce Marketing Cloud Data API version
  */
 export const SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION = 'v1'
-
-/**
- * Responsys Async API version
- */
-export const RESPONSYS_ASYNC_API_VERSION = 'v1.3'
 
 /**
  * Rokt Data API version
@@ -518,31 +438,6 @@ export const TIKTOK_CONVERSIONS_SANDBOX_API_VERSION = 'v1.3'
  * TikTok Sandbox Offline Conversions API Version
  */
 export const TIKTOK_OFFLINE_CONVERSIONS_SANDBOX_API_VERSION = 'v1.3'
-
-/**
- * Postscript API Version
- */
-export const POSTSCRIPT_API_VERSION = 'v2'
-
-/**
- * Spiffy API Version
- */
-export const SPIFFY_API_VERSION = 'v1'
-
-/**
- * Actable Predictive API Version
- */
-export const ACTABLE_PREDICTIVE_API_VERSION = 'v1'
-
-/**
- * Mantle API Version
- */
-export const MANTLE_API_VERSION = 'v1'
-
-/**
- * TikTok App Events API Version
- */
-export const TIKTOK_APP_EVENTS_API_VERSION = 'v1.3'
 
 /**
  * Airship API Version
