@@ -5,8 +5,7 @@ Object {
   "impressions": Array [
     Object {
       "additionalAttribution": Object {
-        "id": "13(ufD",
-        "type": "13(ufD",
+        "testType": "13(ufD",
       },
       "channel": "13(ufD",
       "entity": Object {

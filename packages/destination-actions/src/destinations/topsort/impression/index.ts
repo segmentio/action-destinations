@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { TopsortAPIClient } from '../client'
-import { NormalizeDeviceType } from '../index'
+import { NormalizeDeviceType } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Impression',
@@ -53,20 +53,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Additional attribution information.',
       type: 'object',
       required: false,
-      properties: {
-        id: {
-          label: 'Entity ID',
-          description: "The marketplace's ID of the entity associated with the interaction.",
-          type: 'string',
-          required: true
-        },
-        type: {
-          label: 'Entity Type',
-          description: 'The type of entity associated with the interaction.',
-          type: 'string',
-          required: true
-        }
-      },
       default: {
         '@path': '$.properties.additionalAttribution'
       }
@@ -230,19 +216,22 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Object Type',
           description: 'The type of object that is being reported on the interaction.',
           type: 'string',
-          required: true
+          required: true,
+          defaultObjectUI: 'keyvalue'
         },
         assetId: {
           label: 'Asset ID',
           description: 'When type is banner, signals the ID of the asset of the banner.',
           type: 'string',
-          required: false
+          required: false,
+          defaultObjectUI: 'keyvalue'
         },
         clickType: {
           label: 'Click Type',
           description: 'When type is listing, signals the specific interaction flavor with the listing.',
           type: 'string',
-          required: false
+          required: false,
+          defaultObjectUI: 'keyvalue'
         }
       },
       default: {

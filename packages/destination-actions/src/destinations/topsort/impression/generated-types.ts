@@ -21,14 +21,7 @@ export interface Payload {
    * Additional attribution information.
    */
   additionalAttribution?: {
-    /**
-     * The marketplace's ID of the entity associated with the interaction.
-     */
-    id: string
-    /**
-     * The type of entity associated with the interaction.
-     */
-    type: string
+    [k: string]: unknown
   }
   /**
    * Marketplace provided ID for a vendor.
