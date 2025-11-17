@@ -458,3 +458,48 @@ export const PUSHWOOSH_API_VERSION = 'v1'
  * Yahoo Audiences OAuth Version
  */
 export const YAHOO_AUDIENCES_OAUTH_VERSION = '1.0'
+
+/**
+ * Amazon Conversions API Version (for profiles endpoint)
+ */
+export const AMAZON_CONVERSIONS_API_PROFILES_VERSION = 'v2'
+
+/**
+ * Amazon Conversions API Version (for events endpoint)
+ */
+export const AMAZON_CONVERSIONS_API_EVENTS_VERSION = 'v1'
+
+/**
+ * Dotdigital API Version
+ */
+export const DOTDIGITAL_API_VERSION = 'v2'
+
+/**
+ * PostHog API Version
+ */
+export const POSTHOG_API_VERSION = 'v0'
+
+/**
+ * Qualtrics API Version
+ */
+export const QUALTRICS_API_VERSION = 'v3'
+
+/**
+ * Reddit Conversions API Version
+ */
+export const REDDIT_CONVERSIONS_API_VERSION = 'v2.0'
+
+/**
+ * Snap Conversions API Version (CAPI v3)
+ */
+export const SNAP_CONVERSIONS_API_VERSION = 'v3'
+
+/**
+ * Userpilot API Version
+ */
+export const USERPILOT_API_VERSION = 'v1'
+
+/**
+ * SendGrid API Version
+ */
+export const SENDGRID_API_VERSION = 'v3'

@@ -14,6 +14,7 @@ import {
   smartHash
 } from './utils'
 import { processHashing } from '../../../lib/hashing-utils'
+import { SNAP_CONVERSIONS_API_VERSION } from '../../versioning-info'
 
 const CURRENCY_ISO_4217_CODES = new Set([
   'USD',
@@ -687,7 +688,7 @@ const buildRequestURL = (settings: Settings, action_source: string | undefined, 
     })()
   )
 
-  return `https://tr.snapchat.com/v3/${appOrPixelID}/events?access_token=${authToken}`
+  return `https://tr.snapchat.com/${SNAP_CONVERSIONS_API_VERSION}/${appOrPixelID}/events?access_token=${authToken}`
 }
 
 const validatePayload = (payload: ReturnType<typeof buildPayloadData>) => {

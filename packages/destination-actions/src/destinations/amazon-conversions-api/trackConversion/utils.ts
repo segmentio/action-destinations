@@ -22,6 +22,7 @@ import type {
 } from '../types'
 import { MatchKeyTypeV1, Region, ConversionTypeV2 } from '../types'
 import type { Payload } from './generated-types'
+import { AMAZON_CONVERSIONS_API_EVENTS_VERSION } from '../../versioning-info'
 
 /**
  * Helper function to validate if a string value exists and is not empty
@@ -142,7 +143,7 @@ export async function sendEventsRequest<ImportConversionEventsResponse>(
   // Ensure eventData is always an array
   const events = Array.isArray(eventData) ? eventData : [eventData]
 
-  return await request<ImportConversionEventsResponse>(`${settings.region}/events/v1`, {
+  return await request<ImportConversionEventsResponse>(`${settings.region}/events/${AMAZON_CONVERSIONS_API_EVENTS_VERSION}`, {
     method: 'POST',
     json: {
       eventData: events,

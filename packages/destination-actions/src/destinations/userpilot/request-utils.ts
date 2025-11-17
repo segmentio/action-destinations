@@ -4,6 +4,7 @@ import type { Payload as TrackPayload } from './trackEvent/generated-types'
 import type { Payload as GroupPayload } from './identifyCompany/generated-types'
 
 import { RequestOptions } from '@segment/actions-core'
+import { USERPILOT_API_VERSION } from '../versioning-info'
 
 const baseURL = 'https://analytex.userpilot.io/'
 
@@ -14,7 +15,7 @@ interface RequestParams {
 
 export const getDeleteRequestParams = (settings: Settings, userId: string): RequestParams => {
   return {
-    url: `${validateEndpoint(settings.endpoint)}v1/users`,
+    url: `${validateEndpoint(settings.endpoint)}${USERPILOT_API_VERSION}/users`,
     options: {
       method: 'DELETE',
       json: { users: [userId] }
@@ -24,7 +25,7 @@ export const getDeleteRequestParams = (settings: Settings, userId: string): Requ
 
 export const getValidationParams = (settings: Settings): RequestParams => {
   return {
-    url: `${validateEndpoint(settings.endpoint)}v1/validate`,
+    url: `${validateEndpoint(settings.endpoint)}${USERPILOT_API_VERSION}/validate`,
     options: {
       method: 'GET'
     }
@@ -35,7 +36,7 @@ export const getIdentifyRequestParams = (settings: Settings, payload: IdentifyPa
   const { traits, userId } = payload
 
   return {
-    url: `${validateEndpoint(settings.endpoint)}v1/identify`,
+    url: `${validateEndpoint(settings.endpoint)}${USERPILOT_API_VERSION}/identify`,
     options: {
       method: 'POST',
       json: {
@@ -50,7 +51,7 @@ export const getCompanyIdentifyRequestParams = (settings: Settings, payload: Gro
   const { traits, groupId } = payload
 
   return {
-    url: `${validateEndpoint(settings.endpoint)}v1/companies/identify`,
+    url: `${validateEndpoint(settings.endpoint)}${USERPILOT_API_VERSION}/companies/identify`,
     options: {
       method: 'POST',
       json: {
@@ -64,7 +65,7 @@ export const getCompanyIdentifyRequestParams = (settings: Settings, payload: Gro
 export const getTrackEventParams = (settings: Settings, payload: TrackPayload): RequestParams => {
   const { userId, name, properties } = payload
   return {
-    url: `${validateEndpoint(settings.endpoint)}v1/track`,
+    url: `${validateEndpoint(settings.endpoint)}${USERPILOT_API_VERSION}/track`,
     options: {
       method: 'POST',
       json: {
