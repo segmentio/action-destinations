@@ -123,7 +123,7 @@ describe('Topsort.click', () => {
         channel: 'onsite'
       },
       userId: 'test-user-9c8y3pgoj3',
-      event: 'Product Viewed',
+      event: 'Product Clicked',
       anonymousId: 'au9awm036xq',
       context: {
         active: true,
@@ -276,7 +276,7 @@ function createClickEvent(event = {}): SegmentEvent {
       userAgent:
         'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
     },
-    event: 'Product Viewed',
+    event: 'Product Clicked',
     properties: {},
     receivedAt: new Date().toISOString(),
     sentAt: new Date().toISOString(),
