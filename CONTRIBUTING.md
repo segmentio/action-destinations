@@ -119,12 +119,6 @@ Please find the below info for _Name of integration_ Catalog entry.
 
 ## Release to Public in the Segment catalog
 
-Before releasing your destination to General Availability (GA), complete this security review checklist:
-
-### Security Review Checklist for GA Release
-
-- [ ] **Secret Field Review**: Verify all sensitive fields (API keys, tokens, passwords, client secrets) are properly marked with `type: 'password'`
-
 ### Release Process
 
 1. Once at least 1 customer successfully uses the integration, let us know. We'll make your destination Public. Any Segment customer can find it in the catalog, and it will be featured on the New & Noteworthy page.

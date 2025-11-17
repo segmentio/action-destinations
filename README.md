@@ -366,10 +366,8 @@ In addition to default values for input fields, you can also specify the default
 
 When working with sensitive data such as API keys, tokens, passwords, or other credentials, it's critical to properly mark these fields with `type: 'password'`. This ensures proper security handling across Segment's infrastructure, including:
 
-- **UI Security**: Fields are automatically obfuscated in the Segment App interface
+- **UI Security**: Fields are automatically obfuscated in the Segment App interface, as well as through the public API for security purposes.
 - **Git Sync Integration**: Properly marked password fields are excluded from git sync operations to prevent secrets from being committed to version control
-- **Audit and Compliance**: Enables proper tracking and management of sensitive configuration data
-- **Infrastructure Security**: Ensures secrets are handled securely throughout Segment's data pipeline
 
 ### Identifying Fields That Should Use type: 'password'
 
@@ -418,20 +416,6 @@ const destination = {
   }
 }
 ```
-
-### Integration with Segment Services
-
-Proper use of `type: 'password'` is essential for:
-
-1. **Git Sync**: When customers use Segment's git sync feature, password fields are automatically excluded from configuration files that get committed to repositories, preventing accidental exposure of secrets in version control.
-
-2. **Configuration Management**: Password fields receive special handling in Segment's configuration APIs and admin interfaces.
-
-3. **Security Auditing**: Enables Segment to provide proper audit trails and compliance reporting for sensitive configuration changes.
-
-4. **Data Protection**: Ensures sensitive data is encrypted and handled according to security best practices throughout its lifecycle.
-
-**Important**: Always err on the side of caution. If there's any doubt whether a field contains sensitive information, mark it as `type: 'password'`. It's better to be overly protective than to accidentally expose sensitive data.
 
 ## Required Fields
 
