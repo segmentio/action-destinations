@@ -503,3 +503,18 @@ export const USERPILOT_API_VERSION = 'v1'
  * SendGrid API Version
  */
 export const SENDGRID_API_VERSION = 'v3'
+
+/**
+ * RoadwayAI API Version
+ */
+export const ROADWAYAI_API_VERSION = 'v1'
+
+/**
+ * Emarsys API Version
+ */
+export const EMARSYS_API_VERSION = 'v2'
+
+/**
+ * Encharge Ingest API Version
+ */
+export const ENCHARGE_INGEST_API_VERSION = 'v1'

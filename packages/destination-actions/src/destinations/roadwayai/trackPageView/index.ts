@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import { getTrackPageViewFields } from '../unified-fields'
 import { flattenPayload, flattenPayloadBatch } from '../payload-transformer'
 import { TrackPageViewRequest } from '../request-types'
+import { ROADWAYAI_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Page View',
@@ -12,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: getTrackPageViewFields(),
   perform: async (request, { settings, payload }) => {
     const flattenedPayload = flattenPayload<TrackPageViewRequest>(payload)
-    return request(`https://production.api.roadwayai.com/api/v1/segment/events/page`, {
+    return request(`https://production.api.roadwayai.com/api/${ROADWAYAI_API_VERSION}/segment/events/page`, {
       method: 'POST',
       headers: {
         'x-api-key': settings.apiKey
@@ -24,7 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { settings, payload }) => {
     const transformedPayloads = flattenPayloadBatch<TrackPageViewRequest[]>(payload)
 
-    return request(`https://production.api.roadwayai.com/api/v1/segment/events/page`, {
+    return request(`https://production.api.roadwayai.com/api/${ROADWAYAI_API_VERSION}/segment/events/page`, {
       method: 'POST',
       headers: {
         'x-api-key': settings.apiKey

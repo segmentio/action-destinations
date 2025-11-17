@@ -1,6 +1,7 @@
 import { DestinationDefinition } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
 import { Settings } from './generated-types'
+import { ROADWAYAI_API_VERSION } from '../versioning-info'
 
 import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
@@ -55,7 +56,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(`https://production.api.roadwayai.com/api/v1/segment/validate-credentials`, {
+      return request(`https://production.api.roadwayai.com/api/${ROADWAYAI_API_VERSION}/segment/validate-credentials`, {
         method: 'POST',
         body: JSON.stringify({
           api_key: settings.apiKey
