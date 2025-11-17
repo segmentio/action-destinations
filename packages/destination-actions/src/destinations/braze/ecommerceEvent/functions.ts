@@ -76,7 +76,7 @@ function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msRe
 
     const time = dayjs(payloadTime).toISOString()
 
-    const event: BaseEvent = {
+    const baseEvent: BaseEvent = {
       ...(external_id? { external_id } : {} ),
       ...(braze_id? { braze_id } : {} ),
       ...(email? { email } : {} ),
@@ -98,13 +98,15 @@ function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msRe
           type
         } = payload
 
-        const properties: ProductViewedEvent['properties'] = {
-          ...event.properties,
-          ...product,
-          type
+        const event: ProductViewedEvent = {
+          ...baseEvent,
+          name: EVENT_NAMES.PRODUCT_VIEWED,
+          properties: {
+            ...baseEvent.properties,
+            ...product,
+            type
+          }
         }
-
-        event.properties = properties
         return event
       } 
       case EVENT_NAMES.CART_UPDATED:
@@ -117,25 +119,29 @@ function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msRe
           total_value
         } = payload
 
-        const properties: MultiProductBaseEvent['properties'] = {
-          ...event.properties,
-          products,
-          total_value: total_value as number
+        const multiProductEvent: MultiProductBaseEvent = {
+          ...baseEvent,
+          name: name as MultiPropertyEventName,
+          properties: {
+            ...baseEvent.properties,
+             products,
+            total_value: total_value as number
+          }
         }
-
-        event.properties = properties
 
         switch(name) {
           case EVENT_NAMES.CART_UPDATED: {
             const { cart_id } = payload
 
-            const properties: CartUpdatedEvent['properties'] = {
-              ...event.properties as MultiProductBaseEvent['properties'],
-              cart_id: cart_id as string
+            const event: CartUpdatedEvent = {
+              ...multiProductEvent,
+              name: EVENT_NAMES.CART_UPDATED,
+              properties: {
+                ...multiProductEvent.properties,
+                cart_id: cart_id as string
+              }
             }
-
-            event.properties = properties
-            break
+            return event
           }
 
           case EVENT_NAMES.CHECKOUT_STARTED: {
@@ -145,15 +151,17 @@ function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msRe
               metadata 
             } = payload
             
-            const properties: CheckoutStartedEvent['properties'] = {
-              ...event.properties as MultiProductBaseEvent['properties'],
-              checkout_id: checkout_id as string,
-              ...(cart_id ? { cart_id } : {}),
-              ...(metadata ? { metadata } : {})
+            const event: CheckoutStartedEvent = {
+              ...multiProductEvent,
+              name: EVENT_NAMES.CHECKOUT_STARTED,
+              properties: {
+                ...multiProductEvent.properties,
+                checkout_id: checkout_id as string,
+                ...(cart_id ? { cart_id } : {}),
+                ...(metadata ? { metadata } : {})
+              }
             }
-
-            event.properties = properties
-            break
+            return event
           }
 
           case EVENT_NAMES.ORDER_PLACED: {
@@ -165,17 +173,19 @@ function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msRe
               metadata
             } = payload
             
-            const properties: OrderPlacedEvent['properties'] = {
-              ...event.properties as MultiProductBaseEvent['properties'],
-              order_id: order_id as string,
-              ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
-              ...(discounts ? { discounts } : {}),
-              ...(cart_id ? { cart_id } : {}),
-              ...(metadata ? { metadata } : {})
+            const event: OrderPlacedEvent = {
+              ...multiProductEvent,
+              name: EVENT_NAMES.ORDER_PLACED,
+              properties: {
+                ...multiProductEvent.properties,
+                order_id: order_id as string,
+                ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
+                ...(discounts ? { discounts } : {}),
+                ...(cart_id ? { cart_id } : {}),
+                ...(metadata ? { metadata } : {})
+              }
             }
-
-            event.properties = properties
-            break
+            return event
           }
 
           case EVENT_NAMES.ORDER_REFUNDED: {
@@ -186,16 +196,18 @@ function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msRe
               metadata
             } = payload
             
-            const properties: OrderRefundedEvent['properties'] = {
-              ...event.properties as MultiProductBaseEvent['properties'],
-              order_id: order_id as string,
-              ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
-              ...(discounts ? { discounts } : {}),
-              ...(metadata ? { metadata } : {})
+            const event: OrderRefundedEvent = {
+              ...multiProductEvent,
+              name: EVENT_NAMES.ORDER_REFUNDED,
+              properties: {
+                ...multiProductEvent.properties,
+                order_id: order_id as string,
+                ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
+                ...(discounts ? { discounts } : {}),
+                ...(metadata ? { metadata } : {})
+              }
             }
-
-            event.properties = properties
-            break
+            return event
           }
 
           case EVENT_NAMES.ORDER_CANCELLED: {
@@ -207,24 +219,25 @@ function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msRe
               metadata
             } = payload
             
-            const properties: OrderCancelledEvent['properties'] = {
-              ...event.properties as MultiProductBaseEvent['properties'],
-              order_id: order_id as string,
-              cancel_reason: cancel_reason as string,
-              ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
-              ...(discounts ? { discounts } : {}),
-              ...(metadata ? { metadata } : {})
+            const event: OrderCancelledEvent = {
+              ...multiProductEvent,
+              name: EVENT_NAMES.ORDER_CANCELLED,
+              properties: {
+                ...multiProductEvent.properties,
+                order_id: order_id as string,
+                cancel_reason: cancel_reason as string,
+                ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
+                ...(discounts ? { discounts } : {}),
+                ...(metadata ? { metadata } : {})
+              }
             }
-
-            event.properties = properties
-            break
+            return event
           }
 
           default: {
             throw new PayloadValidationError(`Unsupported event name: ${name}`)
           }
         }
-        return event
       }
       default: {
         throw new PayloadValidationError(`Unsupported event name: ${name}`)
