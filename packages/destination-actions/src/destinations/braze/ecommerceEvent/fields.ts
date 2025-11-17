@@ -1,5 +1,6 @@
 import { InputField } from '@segment/actions-core'
 import { currencies } from './functions'
+import { EVENT_NAMES } from './constants'
 
 export const name: InputField = {
     label: 'Ecommerce Event Name',
@@ -7,12 +8,12 @@ export const name: InputField = {
     type: 'string',
     required: true,
     choices: [
-        { label: 'Product Viewed', value: 'ecommerce.product_viewed' },
-        { label: 'Cart Updated', value: 'ecommerce.cart_updated' },
-        { label: 'Checkout Started', value: 'ecommerce.checkout_started' },
-        { label: 'Order Placed', value: 'ecommerce.order_placed' },
-        { label: 'Order Cancelled', value: 'ecommerce.order_cancelled' },
-        { label: 'Order Refunded', value: 'ecommerce.order_refunded' }
+        { label: 'Product Viewed', value: EVENT_NAMES.PRODUCT_VIEWED },
+        { label: 'Cart Updated', value: EVENT_NAMES.CART_UPDATED },
+        { label: 'Checkout Started', value: EVENT_NAMES.CHECKOUT_STARTED },
+        { label: 'Order Placed', value: EVENT_NAMES.ORDER_PLACED },
+        { label: 'Order Cancelled', value: EVENT_NAMES.ORDER_CANCELLED },
+        { label: 'Order Refunded', value: EVENT_NAMES.ORDER_REFUNDED }
     ]
 }
 
@@ -32,11 +33,13 @@ export const user_alias: InputField = {
     properties: {
         alias_name: {
             label: 'Alias Name',
-            type: 'string'
+            type: 'string',
+            required: true
         },
         alias_label: {
             label: 'Alias Label',
-            type: 'string'
+            type: 'string',
+            required: true
         }
     }
 }
@@ -93,7 +96,27 @@ export const cancel_reason: InputField = {
     label: 'Cancel Reason',
     description: 'Reason why the order was cancelled.',
     type: 'string',
-    default: {'@path': '$.properties.reason'}
+    default: {'@path': '$.properties.reason'},
+    required: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_CANCELLED
+            }
+        ]
+    },
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_CANCELLED
+            }
+        ]
+    }
 }
 
 export const time: InputField = {
@@ -109,35 +132,135 @@ export const checkout_id: InputField = {
     label: 'Checkout ID',
     description: 'Unique identifier for the checkout.',
     type: 'string',
-    default: {'@path': '$.properties.checkout_id'}
+    default: {'@path': '$.properties.checkout_id'},
+    required: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CHECKOUT_STARTED
+            }
+        ]
+    },
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CHECKOUT_STARTED
+            }
+        ]
+    }
 }
 
 export const order_id: InputField = {
     label: 'Order ID',
     description: 'Unique identifier for the order placed.',
     type: 'string',
-    default: {'@path': '$.properties.order_id'}
+    default: {'@path': '$.properties.order_id'},
+    required: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: [EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
+            }
+        ]
+    },
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: [EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
+            }
+        ]
+    }
 }
 
 export const cart_id: InputField = {
     label: 'Cart ID',
     description: 'Unique identifier for the cart. If no value is passed, Braze will determine a default value (shared across cart, checkout, and order events) for the user cart mapping.',
     type: 'string',
-    default: {'@path': '$.properties.cart_id'}
+    default: {'@path': '$.properties.cart_id'},
+    required: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: [EVENT_NAMES.CART_UPDATED]
+            }
+        ]
+    },
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: [EVENT_NAMES.CART_UPDATED, EVENT_NAMES.CHECKOUT_STARTED, EVENT_NAMES.ORDER_PLACED]
+            }
+        ]
+    }
 }
 
 export const total_value: InputField = {
     label: 'Total Value',
     description: 'Total monetary value of the cart.',
     type: 'number',
-    default: { '@path': '$.properties.total'}
+    default: { '@path': '$.properties.total'},
+    required: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: [EVENT_NAMES.CHECKOUT_STARTED, EVENT_NAMES.CART_UPDATED, EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
+            }
+        ]
+    },
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: [EVENT_NAMES.CHECKOUT_STARTED, EVENT_NAMES.CART_UPDATED, EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
+            }
+        ]
+    }
 }
 
 export const total_discounts: InputField = {
     label: 'Total Discounts',
     description: 'Total amount of discounts applied to the order.',
     type: 'number',
-    default: { '@path': '$.properties.discount'}
+    default: { '@path': '$.properties.discount'},
+    required: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: [EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
+            }
+        ]
+    },
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: [EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
+            }
+        ]
+    }
 }
 
 export const discounts: InputField = {
@@ -167,6 +290,26 @@ export const discounts: InputField = {
                 amount: {'@path': '$.amount'}
             }
         ]
+    },
+    required: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: [EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
+            }
+        ]
+    },
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: [EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
+            }
+        ]
     }
 }
 
@@ -174,6 +317,7 @@ export const currency: InputField = {
     label: 'Currency',
     description: 'Currency code for the transaction. Defaults to USD if no value passed.',
     type: 'string',
+    required: true,
     default: {'@path': '$.properties.currency'},
     choices: currencies()
 }
@@ -182,14 +326,8 @@ export const source: InputField = {
     label: 'Source',
     description: 'Source the event is derived from.',
     type: 'string',
+    required: true,
     default: { '@path': '$.properties.source' }
-}
-
-export const checkout_url: InputField = {
-    label: 'Checkout URL',
-    description: 'The URL of the checkout page.',
-    type: 'string',
-    default: { '@path': '$.properties.checkout_url'}
 }
 
 export const products: InputField = {
@@ -197,7 +335,6 @@ export const products: InputField = {
     description: 'List of products associated with the ecommerce event.',
     type: 'object',
     multiple: true,
-    required: true,
     additionalProperties: true,
     properties: {
     product_id: {
@@ -221,12 +358,14 @@ export const products: InputField = {
     image_url: {
         label: 'Image URL',
         description: 'The URL of the product image.',
-        type: 'string'
+        type: 'string',
+        format: 'uri'
     },
     product_url: {
         label: 'Product URL',
         description: 'URL to the product page for more details.',
-        type: 'string'
+        type: 'string',
+        format: 'uri'
     },
     quantity: {
         label: 'Quantity',
@@ -254,6 +393,99 @@ export const products: InputField = {
                 price: {'@path': '$.price'}
             }
         ]
+    },
+    required: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is_not',
+                value: EVENT_NAMES.CART_UPDATED
+            }
+        ]
+    },
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is_not',
+                value: EVENT_NAMES.CART_UPDATED
+            }
+        ]
+    }
+}
+
+export const product: InputField = {
+    label: 'Product',
+    description: 'Product associated with the ecommerce event.',
+    type: 'object',
+    additionalProperties: true,
+    properties: {
+        product_id: {
+            label: 'Product ID',
+            description: 'A unique identifier for the product that was viewed. This value be can be the product ID or SKU',
+            type: 'string',
+            required: true
+        },
+        product_name: {
+            label: 'Product Name',
+            description: 'The name of the product that was viewed.',
+            type: 'string',
+            required: true
+        },
+        variant_id: {
+            label: 'Variant ID',
+            description: 'A unique identifier for the product variant. An example is shirt_medium_blue',
+            type: 'string',
+            required: true
+        },
+        image_url: {
+            label: 'Image URL',
+            description: 'The URL of the product image.',
+            type: 'string',
+            format: 'uri'
+        },
+        product_url: {
+            label: 'Product URL',
+            description: 'URL to the product page for more details.',
+            type: 'string',
+            format: 'uri'
+        },
+        price: {
+            label: 'Price',
+            description: 'The variant unit price of the product at the time of viewing.',
+            type: 'number',
+            required: true
+        }
+    },
+    default: { 
+        product_id: { '@path': '$.properties.product_id' },
+        product_name: { '@path': '$.properties.name' },
+        variant_id: { '@path': '$.properties.variant'},
+        image_url: {'@path': '$.properties.image_url'},
+        product_url: {'@path': '$.properties.url'},
+        price: {'@path': '$.properties.price'}
+    },
+    required: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CART_UPDATED
+            }
+        ]
+    },
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CART_UPDATED
+            }
+        ]
     }
 }
 
@@ -277,22 +509,39 @@ export const metadata: InputField = {
     }
 }
 
+export const type: InputField = {
+    label: 'Product Type',
+    description: 'TODO: description in docs ambiguous.',
+    type: 'string',
+    multiple: true,
+    default: { '@path': '$.properties.type' },
+    required: false,
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CART_UPDATED
+            }
+        ]
+    }
+}
+
 export const enable_batching: InputField = {
     type: 'boolean',
     label: 'Batch Data to Braze',
-    description: 'If true, Segment will batch events before sending to Braze’s user track endpoint. Braze accepts batches of up to 75 events.',
+    description: 'If true, Segment will batch events before sending to Braze’s user track endpoint.',
     required: true,
-    default: false,
-    unsafe_hidden: true
+    default: true
 }
 
 export const batch_size: InputField ={
-    label: 'Batch Size',
+    label: 'Maximum Batch Size',
     description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
     type: 'number',
     required: true,
-    default: 75,
+    default: 1000,
     minimum: 1,
-    maximum: 75,
-    unsafe_hidden: true
+    maximum: 1000
 }

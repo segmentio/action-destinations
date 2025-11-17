@@ -1,9 +1,11 @@
-export type SinglePropertyEventName = 'ecommerce.product_viewed' 
-export type CheckoutStartedEventName = 'ecommerce.checkout_started'
-export type CartUpdatedEventName = 'ecommerce.cart_updated' 
-export type OrderPlacedEventName = 'ecommerce.order_placed' 
-export type OrderCancelledEventName = 'ecommerce.order_cancelled'
-export type OrderRefundedEventName = 'ecommerce.order_refunded'
+import { EVENT_NAMES } from './constants'
+
+export type ProductViewedEventName = typeof EVENT_NAMES.PRODUCT_VIEWED
+export type CheckoutStartedEventName = typeof EVENT_NAMES.CHECKOUT_STARTED
+export type CartUpdatedEventName = typeof EVENT_NAMES.CART_UPDATED 
+export type OrderPlacedEventName = typeof EVENT_NAMES.ORDER_PLACED 
+export type OrderCancelledEventName = typeof EVENT_NAMES.ORDER_CANCELLED
+export type OrderRefundedEventName = typeof EVENT_NAMES.ORDER_REFUNDED
 
 export type MultiPropertyEventName = 
    CheckoutStartedEventName |
@@ -12,16 +14,18 @@ export type MultiPropertyEventName =
    OrderCancelledEventName | 
    OrderRefundedEventName
 
-export interface EcommerceEvent {
-    events: Array<
-        SingleProductEvent | 
-        CartUpdatedEvent | 
-        CheckoutStartedEvent | 
-        OrderPlacedEvent | 
-        OrderRefundedEvent |
-        OrderCancelledEvent  
-    >
+export interface EcommerceEvents {
+    events: Array<EcommerceEvent>
 } 
+
+export type EcommerceEvent =
+    | ProductViewedEvent
+    | CartUpdatedEvent
+    | CheckoutStartedEvent
+    | OrderPlacedEvent
+    | OrderRefundedEvent
+    | OrderCancelledEvent
+
 export interface BaseEvent {
     external_id?: string
     braze_id?: string
@@ -31,8 +35,8 @@ export interface BaseEvent {
         alias_name: string
         alias_label: string
     },
-    app_id: string
-    name: SinglePropertyEventName | MultiPropertyEventName
+    app_id?: string
+    name: ProductViewedEventName | MultiPropertyEventName
     time: string
     properties: {
         currency: string
@@ -43,8 +47,8 @@ export interface BaseEvent {
     }
 }
 
-export interface SingleProductEvent extends BaseEvent {
-    name: SinglePropertyEventName
+export interface ProductViewedEvent extends BaseEvent {
+    name: ProductViewedEventName
     properties: BaseEvent['properties'] & {
         product_id: string
         product_name: string
@@ -87,7 +91,7 @@ export interface CheckoutStartedEvent extends MultiProductBaseEvent {
     properties: MultiProductBaseEvent['properties'] & {
          checkout_id: string
          cart_id?: string
-         metadata: BaseEvent['properties']['metadata'] & {
+         metadata?: BaseEvent['properties']['metadata'] & {
             checkout_url?: string
          }
     }
@@ -98,12 +102,12 @@ export interface OrderPlacedEvent extends MultiProductBaseEvent {
     properties: MultiProductBaseEvent['properties'] & {
         order_id: string
         cart_id?: string
-        total_discount?: number
+        total_discounts?: number
         discounts?: Array<{
             code: string
             amount: number
         }>
-        metadata: BaseEvent['properties']['metadata'] & {
+        metadata?: BaseEvent['properties']['metadata'] & {
             order_status_url?: string
         }
     }
@@ -113,12 +117,12 @@ export interface OrderRefundedEvent extends MultiProductBaseEvent {
     name: OrderRefundedEventName
     properties: MultiProductBaseEvent['properties'] & {
         order_id: string
-        total_discount?: number
+        total_discounts?: number
         discounts?: Array<{
             code: string
             amount: number
         }>
-        metadata: BaseEvent['properties']['metadata'] & {
+        metadata?: BaseEvent['properties']['metadata'] & {
             order_status_url?: string
         }
     }
@@ -129,23 +133,13 @@ export interface OrderCancelledEvent extends MultiProductBaseEvent {
     properties: MultiProductBaseEvent['properties'] & {
         order_id: string
         cancel_reason: string
-        total_discount?: number
+        total_discounts?: number
         discounts?: Array<{
             code: string
             amount: number
         }>
-        metadata: BaseEvent['properties']['metadata'] & {
+        metadata?: BaseEvent['properties']['metadata'] & {
             order_status_url?: string
         }
     }
 }
-
-
-
-
-
-
-
-       
-                    
-       

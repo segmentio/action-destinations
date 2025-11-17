@@ -19,12 +19,14 @@ import {
   discounts,
   currency,
   source,
-  checkout_url,
+  product,
   products,
   metadata,
+  type,
   enable_batching,
   batch_size
 } from './fields'
+import { send } from './functions'
 
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -48,14 +50,18 @@ const action: ActionDefinition<Settings, Payload> = {
     discounts,
     currency,
     source,
-    checkout_url,
+    product,
     products,
     metadata,
+    type,
     enable_batching,
     batch_size
   },
-  perform: (request, data) => {
-    
+  perform: async (request, {payload, settings}) => {
+    return await send(request, [payload], settings, false)
+  },
+  performBatch: async (request, {payload, settings}) => {
+    return await send(request, payload, settings, true)
   }
 }
 

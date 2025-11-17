@@ -13,8 +13,8 @@ export interface Payload {
    * A user alias object. See [the docs](https://www.braze.com/docs/api/objects_filters/user_alias_object/).
    */
   user_alias?: {
-    alias_name?: string
-    alias_label?: string
+    alias_name: string
+    alias_label: string
   }
   /**
    * Setting this flag to true will put the API in "Update Only" mode. When using a "user_alias", "Update Only" mode is always true.
@@ -70,15 +70,41 @@ export interface Payload {
   /**
    * Currency code for the transaction. Defaults to USD if no value passed.
    */
-  currency?: string
+  currency: string
   /**
    * Source the event is derived from.
    */
-  source?: string
+  source: string
   /**
-   * The URL of the checkout page.
+   * Product associated with the ecommerce event.
    */
-  checkout_url?: string
+  product: {
+    /**
+     * A unique identifier for the product that was viewed. This value be can be the product ID or SKU
+     */
+    product_id: string
+    /**
+     * The name of the product that was viewed.
+     */
+    product_name: string
+    /**
+     * A unique identifier for the product variant. An example is shirt_medium_blue
+     */
+    variant_id: string
+    /**
+     * The URL of the product image.
+     */
+    image_url?: string
+    /**
+     * URL to the product page for more details.
+     */
+    product_url?: string
+    /**
+     * The variant unit price of the product at the time of viewing.
+     */
+    price: number
+    [k: string]: unknown
+  }
   /**
    * List of products associated with the ecommerce event.
    */
@@ -128,7 +154,11 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * If true, Segment will batch events before sending to Braze’s user track endpoint. Braze accepts batches of up to 75 events.
+   * TODO: description in docs ambiguous.
+   */
+  type?: string[]
+  /**
+   * If true, Segment will batch events before sending to Braze’s user track endpoint.
    */
   enable_batching: boolean
   /**
