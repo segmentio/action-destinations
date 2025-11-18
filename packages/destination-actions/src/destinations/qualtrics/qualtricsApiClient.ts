@@ -1,4 +1,5 @@
 import { RequestClient } from '@segment/actions-core'
+import { QUALTRICS_API_VERSION } from '../versioning-info'
 
 export type SupportedMethods = 'get' | 'post'
 
@@ -131,12 +132,12 @@ export default class QualtricsApiClient {
   }
 
   public async whoaAmI(): Promise<WhoAmiResponse> {
-    const endpoint = `/API/v3/whoami`
+    const endpoint = `/API/${QUALTRICS_API_VERSION}/whoami`
     return (await this.makeRequest(endpoint, 'get')).result as WhoAmiResponse
   }
 
   public async listDirectories(): Promise<ListDirectoriesResponse> {
-    const endpoint = `/API/v3/directories/`
+    const endpoint = `/API/${QUALTRICS_API_VERSION}/directories/`
     return (await this.makeRequest(endpoint, 'get')).result as ListDirectoriesResponse
   }
 
@@ -144,7 +145,7 @@ export default class QualtricsApiClient {
     directoryId: string,
     body: CreateDirectoryContactRequest
   ): Promise<CreateDirectoryContactResponse> {
-    const endpoint = `/API/v3/directories/${directoryId}/contacts`
+    const endpoint = `/API/${QUALTRICS_API_VERSION}/directories/${directoryId}/contacts`
     return (await this.makeRequest(endpoint, 'post', body)).result as CreateDirectoryContactResponse
   }
 
@@ -152,7 +153,7 @@ export default class QualtricsApiClient {
     directoryId: string,
     body: CreateContactTransactionRequest
   ): Promise<CreateContactTransactionResponse> {
-    const endpoint = `/API/v3/directories/${directoryId}/transactions`
+    const endpoint = `/API/${QUALTRICS_API_VERSION}/directories/${directoryId}/transactions`
     return (await this.makeRequest(endpoint, 'post', body)).result as CreateContactTransactionResponse
   }
 
@@ -160,7 +161,7 @@ export default class QualtricsApiClient {
     directoryId: string,
     body: SearchDirectoryForContactRequest
   ): Promise<SearchDirectoryContactResponse[]> {
-    const endpoint = `/API/v3/directories/${directoryId}/contacts/search`
+    const endpoint = `/API/${QUALTRICS_API_VERSION}/directories/${directoryId}/contacts/search`
     const filterBody = this.createFilterBody(body)
     if (!filterBody) {
       return []

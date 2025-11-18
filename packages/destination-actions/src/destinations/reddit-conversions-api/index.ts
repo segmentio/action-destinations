@@ -3,6 +3,7 @@ import type { Settings } from './generated-types'
 import type { RedditConversionsTestAuthenticationError } from './types'
 import standardEvent from './standardEvent'
 import customEvent from './customEvent'
+import { REDDIT_CONVERSIONS_API_VERSION } from '../versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Reddit Conversions API',
@@ -35,7 +36,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: async (request, { settings }) => {
       try {
-        return await request(`https://ads-api.reddit.com/api/v2.0/conversions/events/${settings.ad_account_id}`, {
+        return await request(`https://ads-api.reddit.com/api/v${REDDIT_CONVERSIONS_API_VERSION}/conversions/events/${settings.ad_account_id}`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${settings.conversion_token}`

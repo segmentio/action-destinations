@@ -1,4 +1,6 @@
-export const API_URL = `https://capi.uet.microsoft.com/v1/`
+import { MS_BING_CAPI_API_VERSION } from '../../versioning-info'
+
+export const API_URL = `https://capi.uet.microsoft.com/${MS_BING_CAPI_API_VERSION}/`
 
 export const CURRENCY_ISO_CODES = new Set([
   'AED',

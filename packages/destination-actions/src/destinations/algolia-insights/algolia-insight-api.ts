@@ -1,8 +1,10 @@
 import type { Settings } from './generated-types'
+import { ALGOLIA_INSIGHTS_API_VERSION } from '../versioning-info'
+
 export const BaseAlgoliaInsightsURL = 'https://insights.algolia.io'
-export const AlgoliaBehaviourURL = BaseAlgoliaInsightsURL + '/1/events'
+export const AlgoliaBehaviourURL = BaseAlgoliaInsightsURL + `/${ALGOLIA_INSIGHTS_API_VERSION}/events`
 export const algoliaApiPermissionsUrl = (settings: Settings) =>
-  `https://${settings.appId}.algolia.net/1/keys/${settings.apiKey}`
+  `https://${settings.appId}.algolia.net/${ALGOLIA_INSIGHTS_API_VERSION}/keys/${settings.apiKey}`
 
 export type AlgoliaEventType = 'view' | 'click' | 'conversion'
 

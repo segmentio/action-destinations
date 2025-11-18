@@ -1,6 +1,7 @@
 import { InputField, RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload } from './updateUserProfile/generated-types'
 import { Settings } from './generated-types'
+import { SENDGRID_API_VERSION } from '../versioning-info'
 
 export const customFields: InputField = {
   label: 'Other Fields',
@@ -37,7 +38,7 @@ export function getRegionalEndpoint(settings: Settings) {
 // https://docs.sendgrid.com/api-reference/custom-fields/get-all-field-definitions
 export const fetchAccountCustomFields = async (request: RequestClient, settings: Settings): Promise<CustomField[]> => {
   const regionalEndpoint = getRegionalEndpoint(settings)
-  const response = await request(`${regionalEndpoint}/v3/marketing/field_definitions`)
+  const response = await request(`${regionalEndpoint}/${SENDGRID_API_VERSION}/marketing/field_definitions`)
   const data: APIData = response.data as APIData
   const customFields: CustomField[] = data.custom_fields as CustomField[]
 

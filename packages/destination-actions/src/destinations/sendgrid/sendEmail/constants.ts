@@ -1,5 +1,6 @@
 import { Settings } from '../generated-types'
 import { getRegionalEndpoint } from '../sendgrid-properties'
+import { SENDGRID_API_VERSION } from '../../versioning-info'
 
 export const RESERVED_HEADERS = [
   'x-sg-id',
@@ -24,31 +25,31 @@ export const MAX_IP_POOL_NAME_LENGTH = 64
 
 export const sendEmailURL = (settings: Settings) => {
   const regionalEndpoint = getRegionalEndpoint(settings)
-  return `${regionalEndpoint}/v3/mail/send`
+  return `${regionalEndpoint}/${SENDGRID_API_VERSION}/mail/send`
 }
 
 export const getTemplatesURL = (settings: Settings) => {
   const regionalEndpoint = getRegionalEndpoint(settings)
-  return `${regionalEndpoint}/v3/templates?generations=dynamic&page_size=200`
+  return `${regionalEndpoint}/${SENDGRID_API_VERSION}/templates?generations=dynamic&page_size=200`
 }
 
 export const TRUNCATE_CHAR_LENGTH = 25
 
 export const getIPPoolsURL = (settings: Settings) => {
   const regionalEndpoint = getRegionalEndpoint(settings)
-  return `${regionalEndpoint}/v3/ips/pools`
+  return `${regionalEndpoint}/${SENDGRID_API_VERSION}/ips/pools`
 }
 
 export const getValidDomainsURL = (settings: Settings) => {
   const regionalEndpoint = getRegionalEndpoint(settings)
-  return `${regionalEndpoint}/v3/whitelabel/domains?limit=200`
+  return `${regionalEndpoint}/${SENDGRID_API_VERSION}/whitelabel/domains?limit=200`
 }
 
 export const getGroupIDsURL = (settings: Settings) => {
   const regionalEndpoint = getRegionalEndpoint(settings)
-  return `${regionalEndpoint}/v3/asm/groups`
+  return `${regionalEndpoint}/${SENDGRID_API_VERSION}/asm/groups`
 }
 export const getTemplateContentURL = (settings: Settings, templateId: string) => {
   const regionalEndpoint = getRegionalEndpoint(settings)
-  return `${regionalEndpoint}/v3/templates/${templateId}`
+  return `${regionalEndpoint}/${SENDGRID_API_VERSION}/templates/${templateId}`
 }

@@ -2,6 +2,7 @@ import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import sendEvent from './sendEvent'
+import { METRONOME_API_VERSION } from '../versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Metronome (Actions)',
@@ -19,7 +20,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request) => {
-      const response = await request('https://api.metronome.com/v1/ingest', {
+      const response = await request(`https://api.metronome.com/${METRONOME_API_VERSION}/ingest`, {
         method: 'post',
         json: [],
         throwHttpErrors: false

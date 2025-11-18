@@ -1,6 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { HYPERENGAGE_API_VERSION } from '../../versioning-info'
+
+const HYPERENGAGE_BASE_URL = `https://events.hyperengage.io/api/${HYPERENGAGE_API_VERSION}`
 import { validateInput } from '../validateInput'
 import { commonFields } from '../commonFields'
 
@@ -92,7 +95,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ...commonFields
   },
   perform: (request, data) => {
-    return request(`https://events.hyperengage.io/api/v1/s2s/event?token=${data.settings.apiKey}`, {
+    return request(`${HYPERENGAGE_BASE_URL}/s2s/event?token=${data.settings.apiKey}`, {
       method: 'post',
       json: validateInput(data.settings, data.payload, 'account_identify')
     })

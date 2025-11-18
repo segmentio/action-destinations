@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
+import { METRONOME_API_VERSION } from '../../versioning-info'
 
 function serializeEvent(event: Payload) {
   return {
@@ -73,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload }) => {
     // Auth is injected by extendRequest in the destination root
-    return request('https://api.metronome.com/v1/ingest', {
+    return request(`https://api.metronome.com/${METRONOME_API_VERSION}/ingest`, {
       method: 'post',
       json: [serializeEvent(payload)]
     })

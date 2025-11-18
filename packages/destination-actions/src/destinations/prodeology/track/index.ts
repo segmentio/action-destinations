@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { PRODEOLOGY_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -59,7 +60,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    return request('https://api-dev.prodeology.com/api/v1/event-collection/track', {
+    return request(`https://api-dev.prodeology.com/api/${PRODEOLOGY_API_VERSION}/event-collection/track`, {
       method: 'POST',
       json: {
         event: payload.event,

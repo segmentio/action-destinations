@@ -1,6 +1,7 @@
 import { Settings } from './generated-types'
 import { RequestOptions } from '@segment/actions-core'
 import { generateId } from './vars'
+import { USERMAVEN_API_VERSION } from '../versioning-info'
 
 const apiBaseUrl = 'https://events.usermaven.com'
 
@@ -41,7 +42,7 @@ export const eventRequestParams = (
   payload?: Record<string, unknown>,
   eventType?: string
 ): RequestParams => {
-  const defaultRequest = defaultRequestParams(settings, 'api/v1/s2s/event')
+  const defaultRequest = defaultRequestParams(settings, `api/${USERMAVEN_API_VERSION}/s2s/event`)
 
   return {
     ...defaultRequest,

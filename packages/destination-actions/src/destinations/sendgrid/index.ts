@@ -1,6 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { GLOBAL_ENDPOINT, EU_ENDPOINT } from './sendgrid-properties'
+import { SENDGRID_API_VERSION } from '../versioning-info'
 
 import updateUserProfile from './updateUserProfile'
 
@@ -37,7 +38,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (request, { settings }) => {
       const endpoint = settings?.endpoint || GLOBAL_ENDPOINT
-      return request(`${endpoint}/v3/user/account`)
+      return request(`${endpoint}/${SENDGRID_API_VERSION}/user/account`)
     }
   },
 

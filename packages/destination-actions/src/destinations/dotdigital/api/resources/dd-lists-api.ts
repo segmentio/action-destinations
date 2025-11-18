@@ -2,6 +2,7 @@ import { ModifiedResponse, RequestClient, DynamicFieldResponse } from '@segment/
 import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
 import { List } from '../types'
+import { DOTDIGITAL_API_VERSION } from '../../../versioning-info'
 
 class DDListsApi extends DDApi {
   constructor(settings: Settings, request: RequestClient) {
@@ -15,7 +16,7 @@ class DDListsApi extends DDApi {
    * @returns {Promise<object>} A promise that resolves to the response of the update operation.
    */
   async getListsPaging(select = 1000, skip = 0): Promise<ModifiedResponse<List[]>> {
-    return await this.get<List[]>('/v2/address-books', { select, skip })
+    return await this.get<List[]>(`/${DOTDIGITAL_API_VERSION}/address-books`, { select, skip })
   }
 
   /**
@@ -57,7 +58,7 @@ class DDListsApi extends DDApi {
    * @returns A promise that resolves when the contact is deleted.
    */
   async deleteContactFromList(listId: number, contactId: number) {
-    await this.delete(`/v2/address-books/${listId}/contacts/${contactId}`)
+    await this.delete(`/${DOTDIGITAL_API_VERSION}/address-books/${listId}/contacts/${contactId}`)
   }
 }
 

@@ -2,6 +2,7 @@ import { ModifiedResponse, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
 import { checkAndCleanMobileNumber } from '../../helpers/functions'
+import { DOTDIGITAL_API_VERSION } from '../../../versioning-info'
 
 /**
  * Class representing the Dotdigital Sms API.
@@ -20,9 +21,12 @@ class DDSmsApi extends DDApi {
    */
   public async sendSms(mobileNumber: string, message: string) {
     const formattedNumber = checkAndCleanMobileNumber(mobileNumber)
-    const response: ModifiedResponse = await this.post(`/v2/sms-messages/send-to/${formattedNumber}`, {
-      message: message
-    })
+    const response: ModifiedResponse = await this.post(
+      `/${DOTDIGITAL_API_VERSION}/sms-messages/send-to/${formattedNumber}`,
+      {
+        message: message
+      }
+    )
     return response
   }
 }

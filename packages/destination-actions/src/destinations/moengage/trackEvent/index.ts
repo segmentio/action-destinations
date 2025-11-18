@@ -2,6 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getEndpointByRegion } from '../regional-endpoints'
+import { MOENGAGE_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -82,14 +83,15 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
-    },    
+    },
     update_existing_only: {
       label: 'Update Existing Users Only',
       type: 'boolean',
-      description: 'If set to true, events from the Segment will only trigger updates for users who already exist in Moengage.',
+      description:
+        'If set to true, events from the Segment will only trigger updates for users who already exist in Moengage.',
       required: false,
       default: false
-    },
+    }
   },
   perform: async (request, { payload, settings }) => {
     if (!settings.api_id || !settings.api_key) {
@@ -109,12 +111,11 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: payload.properties,
       timestamp: payload.timestamp,
       update_existing_only: payload.update_existing_only || false
-
     }
 
     const endpoint = getEndpointByRegion(settings.region)
 
-    return request(`${endpoint}/v1/integrations/segment?appId=${settings.api_id}`, {
+    return request(`${endpoint}/${MOENGAGE_API_VERSION}/integrations/segment?appId=${settings.api_id}`, {
       method: 'post',
       json: event,
       headers: {

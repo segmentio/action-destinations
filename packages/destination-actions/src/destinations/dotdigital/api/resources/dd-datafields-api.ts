@@ -4,6 +4,7 @@ import DDApi from '../dd-api'
 import { DataField } from '../types'
 import type { Payload } from '../../addContactToList/generated-types'
 import type { FieldTypeName } from '@segment/actions-core/destination-kittypes'
+import { DOTDIGITAL_API_VERSION } from '../../../versioning-info'
 
 class DDDataFieldsApi extends DDApi {
   constructor(settings: Settings, client: RequestClient) {
@@ -17,7 +18,9 @@ class DDDataFieldsApi extends DDApi {
    */
   async getDataFields(): Promise<DynamicFieldResponse> {
     const choices = []
-    const response: ModifiedResponse<DataField[]> = await this.get<DataField[]>('/v2/data-fields/')
+    const response: ModifiedResponse<DataField[]> = await this.get<DataField[]>(
+      `/${DOTDIGITAL_API_VERSION}/data-fields/`
+    )
     const dataFields = response.data
 
     choices.push(
@@ -56,7 +59,9 @@ class DDDataFieldsApi extends DDApi {
       return
     }
 
-    const response: ModifiedResponse<DataField[]> = await this.get<DataField[]>('/v2/data-fields/')
+    const response: ModifiedResponse<DataField[]> = await this.get<DataField[]>(
+      `/${DOTDIGITAL_API_VERSION}/data-fields/`
+    )
     const ddDataFields = response.data
 
     for (const [key, value] of Object.entries(payload.dataFields)) {

@@ -1,10 +1,15 @@
 import { PredefinedContentTypes } from './types'
+import {
+  TWILIO_MESSAGING_API_VERSION,
+  TWILIO_MESSAGING_SERVICES_API_VERSION,
+  TWILIO_CONTENT_API_VERSION
+} from '../../versioning-info'
 
 export const CONTENT_SID_TOKEN = '{accountSid}'
 
 export const ACCOUNT_SID_TOKEN = '{accountSid}'
 
-export const SEND_SMS_URL = `https://api.twilio.com/2010-04-01/Accounts/${ACCOUNT_SID_TOKEN}/Messages.json`
+export const SEND_SMS_URL = `https://api.twilio.com/${TWILIO_MESSAGING_API_VERSION}/Accounts/${ACCOUNT_SID_TOKEN}/Messages.json`
 
 export const FIELD_REGEX = /\[(.*?)\]/
 
@@ -18,17 +23,17 @@ export const MESSAGING_SERVICE_SID_REGEX = /^MG[0-9a-fA-F]{32}$/
 
 export const CONTENT_SID_REGEX = /^HX[0-9a-fA-F]{32}$/
 
-export const GET_INCOMING_PHONE_NUMBERS_URL = `https://api.twilio.com/2010-04-01/Accounts/${ACCOUNT_SID_TOKEN}/IncomingPhoneNumbers.json?PageSize=1000`
+export const GET_INCOMING_PHONE_NUMBERS_URL = `https://api.twilio.com/${TWILIO_MESSAGING_API_VERSION}/Accounts/${ACCOUNT_SID_TOKEN}/IncomingPhoneNumbers.json?PageSize=1000`
 
-export const GET_INCOMING_SHORT_CODES_URL = `https://api.twilio.com/2010-04-01/Accounts/${ACCOUNT_SID_TOKEN}/SMS/ShortCodes.json?PageSize=1000`
+export const GET_INCOMING_SHORT_CODES_URL = `https://api.twilio.com/${TWILIO_MESSAGING_API_VERSION}/Accounts/${ACCOUNT_SID_TOKEN}/SMS/ShortCodes.json?PageSize=1000`
 
-export const GET_MESSAGING_SERVICE_SIDS_URL = 'https://messaging.twilio.com/v1/Services?PageSize=1000'
+export const GET_MESSAGING_SERVICE_SIDS_URL = `https://messaging.twilio.com/${TWILIO_MESSAGING_SERVICES_API_VERSION}/Services?PageSize=1000`
 
-export const GET_ALL_CONTENTS_URL = 'https://content.twilio.com/v1/Content?PageSize=1000'
+export const GET_ALL_CONTENTS_URL = `https://content.twilio.com/${TWILIO_CONTENT_API_VERSION}/Content?PageSize=1000`
 
-export const GET_CONTENT_URL = `https://content.twilio.com/v1/Content/${CONTENT_SID_TOKEN}`
+export const GET_CONTENT_URL = `https://content.twilio.com/${TWILIO_CONTENT_API_VERSION}/Content/${CONTENT_SID_TOKEN}`
 
-export const GET_CONTENT_VARIABLES_URL = `https://content.twilio.com/v1/Content/${CONTENT_SID_TOKEN}`
+export const GET_CONTENT_VARIABLES_URL = `https://content.twilio.com/${TWILIO_CONTENT_API_VERSION}/Content/${CONTENT_SID_TOKEN}`
 
 export const CHANNELS = {
   SMS: 'SMS',

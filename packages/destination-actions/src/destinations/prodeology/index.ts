@@ -5,6 +5,7 @@ import track from './track'
 import page from './page'
 import identify from './identify'
 import group from './group'
+import { PRODEOLOGY_API_VERSION } from '../versioning-info'
 
 const presets: DestinationDefinition['presets'] = [
   {
@@ -59,7 +60,9 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request('https://api-dev.prodeology.com/api/v1/event-collection/validate-api-key', { method: 'GET' })
+      return request(`https://api-dev.prodeology.com/api/${PRODEOLOGY_API_VERSION}/event-collection/validate-api-key`, {
+        method: 'GET'
+      })
     }
   },
   presets,

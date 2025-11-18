@@ -2,6 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import createUpdateContactAndLead from './createUpdateContactAndLead'
+import { CLOSE_API_VERSION } from '../versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Close',
@@ -49,7 +50,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request(`https://api.close.com/api/v1/me/?_fields=id`)
+      return request(`https://api.close.com/api/${CLOSE_API_VERSION}/me/?_fields=id`)
     }
   },
 

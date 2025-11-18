@@ -1,8 +1,11 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { TIKTOK_OFFLINE_CONVERSIONS_API_VERSION } from '../versioning-info'
 import trackPaymentOfflineConversion from './trackPaymentOfflineConversion'
 import trackNonPaymentOfflineConversion from './trackNonPaymentOfflineConversion'
 import reportOfflineEvent from './reportOfflineEvent'
+
+export { TIKTOK_OFFLINE_CONVERSIONS_API_VERSION as API_VERSION }
 
 const productProperties = {
   price: {
@@ -73,7 +76,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request('https://business-api.tiktok.com/open_api/v1.3/offline/track/', {
+      return request(`https://business-api.tiktok.com/open_api/${TIKTOK_OFFLINE_CONVERSIONS_API_VERSION}/offline/track/`, {
         method: 'post',
         json: {
           event_set_id: settings.eventSetID,

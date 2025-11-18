@@ -2,6 +2,7 @@ import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import trackEvent from './trackEvent'
 import identify from './identify'
+import { DRIP_API_VERSION } from '../versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Drip (Actions)',
@@ -25,7 +26,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request(`https://api.getdrip.com/v2/user`, {
+      return request(`https://api.getdrip.com/${DRIP_API_VERSION}/user`, {
         method: 'get'
       })
     }

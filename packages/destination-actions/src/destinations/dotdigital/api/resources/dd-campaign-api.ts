@@ -2,6 +2,7 @@ import { DynamicFieldResponse, ModifiedResponse, RequestClient } from '@segment/
 import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
 import { Campaign, sendCampaignPayload } from '../types'
+import { DOTDIGITAL_API_VERSION } from '../../../versioning-info'
 
 /**
  * Class representing the Dotdigital Campaign API.
@@ -19,7 +20,7 @@ class DDCampaignApi extends DDApi {
    * @returns {Promise<object>} A promise that resolves to the response of the update operation.
    */
   async getCampaignsPaging(select = 1000, skip = 0) {
-    return await this.get('/v2/campaigns', { select, skip })
+    return await this.get(`/${DOTDIGITAL_API_VERSION}/campaigns`, { select, skip })
   }
 
   /**
@@ -71,10 +72,10 @@ class DDCampaignApi extends DDApi {
       contactIDs: [contactId],
       sendDate: sendDate
     }
-    let endpoint = `/v2/campaigns/send`
+    let endpoint = `/${DOTDIGITAL_API_VERSION}/campaigns/send`
 
     if (sendTimeOptimised) {
-      endpoint = `/v2/campaigns/send-time-optimised`
+      endpoint = `/${DOTDIGITAL_API_VERSION}/campaigns/send-time-optimised`
       delete sendCampaignPayload.sendDate
     }
 

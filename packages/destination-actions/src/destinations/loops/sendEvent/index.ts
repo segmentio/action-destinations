@@ -1,6 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { LOOPS_API_VERSION } from '../../versioning-info'
+
+const LOOPS_BASE_URL = `https://app.loops.so/api/${LOOPS_API_VERSION}`
 
 type SendEventPayload = {
   email?: string
@@ -61,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    return request('https://app.loops.so/api/v1/events/send', {
+    return request(`${LOOPS_BASE_URL}/events/send`, {
       method: 'post',
       json: {
         email: payload.email,

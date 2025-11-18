@@ -1,12 +1,7 @@
 import { RequestClient } from '@segment/actions-core'
 import { Settings } from '../generated-types'
-import {
-  OptEventProperties,
-  EventItem,
-  EventItemWithProps,
-  CreateEventJSON,
-  SendEventJSON,
-} from './types'
+import { OptEventProperties, EventItem, EventItemWithProps, CreateEventJSON, SendEventJSON } from './types'
+import { OPTIMIZELY_WEB_CUSTOM_EVENTS_API_VERSION, OPTIMIZELY_WEB_EVENTS_API_VERSION } from '../../versioning-info'
 
 export class OptimizelyWebClient {
   request: RequestClient
@@ -17,8 +12,8 @@ export class OptimizelyWebClient {
   }
 
   async getCustomEvents() {
-    const url = `https://api.optimizely.com/v2/events?per_page=100&include_classic=false&project_id=${this.settings.projectID}`
-        
+    const url = `https://api.optimizely.com/${OPTIMIZELY_WEB_CUSTOM_EVENTS_API_VERSION}/events?per_page=100&include_classic=false&project_id=${this.settings.projectID}`
+
     return await this.request<EventItem[]>(url, {
       method: 'GET',
       headers: {
@@ -30,7 +25,7 @@ export class OptimizelyWebClient {
   }
 
   async getCustomEvent(event_id: string) {
-    const url = `https://api.optimizely.com/v2/events/${event_id}?include_classic=false`
+    const url = `https://api.optimizely.com/${OPTIMIZELY_WEB_CUSTOM_EVENTS_API_VERSION}/events/${event_id}?include_classic=false`
 
     return await this.request<EventItemWithProps>(url, {
       method: 'GET',
@@ -42,11 +37,8 @@ export class OptimizelyWebClient {
     })
   }
 
-  async createCustomEvent(
-    key: string,
-    optEventProperties: OptEventProperties
-  ) {
-    const url = `https://api.optimizely.com/v2/projects/${this.settings.projectID}/custom_events`
+  async createCustomEvent(key: string, optEventProperties: OptEventProperties) {
+    const url = `https://api.optimizely.com/${OPTIMIZELY_WEB_CUSTOM_EVENTS_API_VERSION}/projects/${this.settings.projectID}/custom_events`
 
     const json = {
       category: 'other',
@@ -73,7 +65,7 @@ export class OptimizelyWebClient {
   }
 
   async sendEvent(body: SendEventJSON) {
-    return this.request('https://logx.optimizely.com/v1/events', {
+    return this.request(`https://logx.optimizely.com/${OPTIMIZELY_WEB_EVENTS_API_VERSION}/events`, {
       method: 'POST',
       json: body,
       headers: {

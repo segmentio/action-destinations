@@ -1,13 +1,15 @@
+import { GAINSIGHT_PX_API_VERSION } from '../versioning-info'
+
 export const endpoints = {
   track: {
-    north_america: 'https://segment-esp.aptrinsic.com/rte/segmentio/v1/push',
-    europe: 'https://segment-esp-eu.aptrinsic.com/rte/segmentio/v1/push',
-    us2: 'https://segment-esp-us2.aptrinsic.com/rte/segmentio/v1/push'
+    north_america: `https://segment-esp.aptrinsic.com/rte/segmentio/${GAINSIGHT_PX_API_VERSION}/push`,
+    europe: `https://segment-esp-eu.aptrinsic.com/rte/segmentio/${GAINSIGHT_PX_API_VERSION}/push`,
+    us2: `https://segment-esp-us2.aptrinsic.com/rte/segmentio/${GAINSIGHT_PX_API_VERSION}/push`
   },
   batch: {
-    north_america: 'https://segment-esp.aptrinsic.com/rte/segmentio/v1/batch',
-    europe: 'https://segment-esp-eu.aptrinsic.com/rte/segmentio/v1/batch',
-    us2: 'https://segment-esp-us2.aptrinsic.com/rte/segmentio/v1/batch'
+    north_america: `https://segment-esp.aptrinsic.com/rte/segmentio/${GAINSIGHT_PX_API_VERSION}/batch`,
+    europe: `https://segment-esp-eu.aptrinsic.com/rte/segmentio/${GAINSIGHT_PX_API_VERSION}/batch`,
+    us2: `https://segment-esp-us2.aptrinsic.com/rte/segmentio/${GAINSIGHT_PX_API_VERSION}/batch`
   }
 }
 

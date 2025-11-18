@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { DRIP_API_VERSION } from '../../versioning-info'
 
 const person = (payload: Payload) => {
   return {
@@ -113,7 +114,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    return request(`https://api.getdrip.com/v2/${settings.accountId}/subscribers`, {
+    return request(`https://api.getdrip.com/${DRIP_API_VERSION}/${settings.accountId}/subscribers`, {
       method: 'POST',
       json: { subscribers: [person(payload)] }
     })
@@ -121,7 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: (request, { settings, payload }) => {
     const subscribers = payload.map(person)
 
-    return request(`https://api.getdrip.com/v2/${settings.accountId}/subscribers/batches`, {
+    return request(`https://api.getdrip.com/${DRIP_API_VERSION}/${settings.accountId}/subscribers/batches`, {
       method: 'POST',
       json: { batches: [{ subscribers }] }
     })

@@ -3,9 +3,10 @@ import type { RequestClient } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
 // eslint-disable-next-line no-restricted-syntax
 import { randomBytes, createHash } from 'crypto'
+import { EMARSYS_API_VERSION } from '../versioning-info'
 
 export const API_HOST = 'https://api.emarsys.net'
-export const API_PATH = '/api/v2/'
+export const API_PATH = `/api/${EMARSYS_API_VERSION}/`
 export const API_BASE = `${API_HOST}${API_PATH}`
 
 /**

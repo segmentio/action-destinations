@@ -3,10 +3,11 @@ import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { ExecJSONRequest, ExecJSONResponse, FlatArgsTuple, FlattenedArgs } from '../types'
 import btoa from 'btoa-lite'
+import { SINGLESTORE_API_VERSION } from '../../versioning-info'
 
 export async function send(request: RequestClient, payloads: Payload[], settings: Settings): Promise<ExecJSONResponse> {
   const { host, port, username, password, dbName, tableName } = settings
-  const url = `https://${host}:${port}/api/v2/exec`
+  const url = `https://${host}:${port}/api/${SINGLESTORE_API_VERSION}/exec`
   const encodedCredentials = btoa(`${username}:${password}`)
 
   const columns = [

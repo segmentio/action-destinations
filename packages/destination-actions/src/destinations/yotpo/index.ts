@@ -1,5 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { YOTPO_API_VERSION } from '../versioning-info'
 
 import sendData from './sendData'
 
@@ -25,12 +26,12 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, data) => {
-      return request(`https://developers.yotpo.com/v2/${data.settings.store_id}/info`, {
+      return request(`https://developers.yotpo.com/${YOTPO_API_VERSION}/${data.settings.store_id}/info`, {
         method: 'get'
       })
     },
     refreshAccessToken: async (request, data) => {
-      const promise = await request<AccessTokenResponse>(`https://developers.yotpo.com/v2/oauth/token`, {
+      const promise = await request<AccessTokenResponse>(`https://developers.yotpo.com/${YOTPO_API_VERSION}/oauth/token`, {
         method: 'post',
         json: {
           client_id: data.auth.clientId,

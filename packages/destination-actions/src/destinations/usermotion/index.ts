@@ -7,6 +7,7 @@ import identify from './identify'
 import group from './group'
 
 import track from './track'
+import { USERMOTION_API_VERSION } from '../versioning-info'
 
 const presets: DestinationDefinition['presets'] = [
   {
@@ -57,7 +58,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request('https://api.usermotion.com/v1/verify', { method: 'POST' })
+      return request(`https://api.usermotion.com/${USERMOTION_API_VERSION}/verify`, { method: 'POST' })
     }
   },
   presets,

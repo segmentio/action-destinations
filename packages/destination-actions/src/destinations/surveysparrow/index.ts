@@ -4,6 +4,7 @@ import type { Settings } from './generated-types'
 import createContact from './createContact'
 
 import triggerSurvey from './triggerSurvey'
+import { SURVEYSPARROW_API_VERSION } from '../versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Surveysparrow',
@@ -23,7 +24,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request(`https://api.surveysparrow.com/v3/users`, {
+      return request(`https://api.surveysparrow.com/${SURVEYSPARROW_API_VERSION}/users`, {
         method: 'get'
       })
     }

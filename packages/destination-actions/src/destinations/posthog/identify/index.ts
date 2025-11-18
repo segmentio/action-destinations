@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { IdentifyEvent } from '../types'
+import { POSTHOG_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify',
@@ -37,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, {payload, settings}) => {
-    const url = `${settings.endpoint}/i/v0/e/`
+    const url = `${settings.endpoint}/i/${POSTHOG_API_VERSION}/e/`
     const headers = {
       'Content-Type': 'application/json'
     }

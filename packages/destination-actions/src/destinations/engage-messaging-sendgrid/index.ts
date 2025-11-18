@@ -2,6 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { actionDefinition as sendEmail } from './sendEmail'
 import { actionDefinition as previewApiLookup } from './previewApiLookup'
+import { ENGAGE_MESSAGING_SENDGRID_API_VERSION } from '../versioning-info'
 
 export const destinationDefinition: DestinationDefinition<Settings> = {
   name: 'Engage Messaging SendGrid',
@@ -59,7 +60,7 @@ export const destinationDefinition: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request('https://api.sendgrid.com/v3/mail_settings')
+      return request(`https://api.sendgrid.com/${ENGAGE_MESSAGING_SENDGRID_API_VERSION}/mail_settings`)
     }
   },
   actions: {

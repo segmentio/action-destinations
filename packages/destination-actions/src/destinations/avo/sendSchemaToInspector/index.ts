@@ -3,11 +3,12 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { extractSchemaFromEvent } from './avo'
+import { AVO_API_VERSION } from '../../versioning-info'
 
 const processEvents = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   const events = payload.map((value) => extractSchemaFromEvent(value, settings.appVersionPropertyName))
 
-  const endpoint = 'https://api.avo.app/inspector/segment/v1/track'
+  const endpoint = `https://api.avo.app/inspector/segment/${AVO_API_VERSION}/track`
 
   return request(endpoint, {
     method: 'post',

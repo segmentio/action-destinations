@@ -6,6 +6,7 @@ import { createHash } from 'crypto'
 import { IntegrationError } from '@segment/actions-core'
 
 import { sendEventToAWS } from './awsClient'
+import { THE_TRADE_DESK_CRM_API_VERSION } from '../versioning-info'
 
 export interface DROP_ENDPOINT_API_RESPONSE {
   ReferenceId: string
@@ -43,8 +44,7 @@ interface ProcessPayloadInput {
 }
 
 // Define constants
-const API_VERSION = 'v3'
-const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
+const BASE_URL = `https://api.thetradedesk.com/${THE_TRADE_DESK_CRM_API_VERSION}`
 const TTD_MIN_RECORD_COUNT = 1500
 
 export const TTD_LEGACY_FLOW_FLAG_NAME = 'actions-the-trade-desk-crm-legacy-flow'

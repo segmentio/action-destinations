@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { DRIP_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -38,7 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { settings, payload }) => {
-    return request(`https://api.getdrip.com/v2/${settings.accountId}/events`, {
+    return request(`https://api.getdrip.com/${DRIP_API_VERSION}/${settings.accountId}/events`, {
       method: 'POST',
       json: {
         events: [

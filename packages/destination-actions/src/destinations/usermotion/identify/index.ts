@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { USERMOTION_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify',
@@ -42,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    return request('https://api.usermotion.com/v1/identify', {
+    return request(`https://api.usermotion.com/${USERMOTION_API_VERSION}/identify`, {
       method: 'post',
       json: {
         id: payload.userId,

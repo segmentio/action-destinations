@@ -5,6 +5,7 @@ import type { Settings } from '../generated-types'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { ContentTemplateResponse, ContentTemplateTypes, Profile } from './types'
 import { track, MessageSendPerformer, MessagePayloadBase } from '@segment/actions-shared'
+import { ENGAGE_MESSAGING_TWILIO_API_VERSION } from '../../versioning-info'
 
 const Liquid = new LiquidJs()
 
@@ -72,7 +73,7 @@ export abstract class TwilioMessageSender<TPayload extends TwilioPayloadBase> ex
     const twilioToken = Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString(
       'base64'
     )
-    const response = await this.request(`https://content.twilio.com/v1/Content/${this.payload.contentSid}`, {
+    const response = await this.request(`https://content.twilio.com/${ENGAGE_MESSAGING_TWILIO_API_VERSION}/Content/${this.payload.contentSid}`, {
       method: 'GET',
       headers: {
         authorization: `Basic ${twilioToken}`

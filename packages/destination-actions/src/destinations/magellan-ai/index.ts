@@ -11,6 +11,7 @@ import code from './code'
 import purchase from './purchase'
 import install from './install'
 import thirdPartyEvent from './thirdPartyEvent'
+import { MAGELLAN_AI_DELETE_API_VERSION } from '../versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Magellan AI (Actions)',
@@ -38,7 +39,7 @@ const destination: DestinationDefinition<Settings> = {
   onDelete: async (request: RequestClient, { payload, settings }) => {
     if (!settings.apiToken) return
 
-    return request('https://api.magellan.ai/v2/gdpr/delete', {
+    return request(`https://api.magellan.ai/${MAGELLAN_AI_DELETE_API_VERSION}/gdpr/delete`, {
       method: 'post',
       headers: { Authorization: `Bearer ${settings.apiToken}` },
       json: { ...payload, pixelToken: settings.pixelToken }

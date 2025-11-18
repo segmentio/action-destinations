@@ -4,6 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { AUDIENCE_PROPERTY, PS_BASE_URL } from '../const'
 import { SubscriberResp } from '../types'
+import { POSTSCRIPT_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audiences',
@@ -99,7 +100,7 @@ const action: ActionDefinition<Settings, Payload> = {
     let subscriber
 
     if (phone) {
-      const response = await request<SubscriberResp>(PS_BASE_URL + '/api/v2/subscribers', {
+      const response = await request<SubscriberResp>(PS_BASE_URL + `/api/${POSTSCRIPT_API_VERSION}/subscribers`, {
         method: 'get',
         searchParams: {
           phone_number__eq: phone
@@ -112,7 +113,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (!subscriber && email) {
-      const response = await request<SubscriberResp>(PS_BASE_URL + '/api/v2/subscribers', {
+      const response = await request<SubscriberResp>(PS_BASE_URL + `/api/${POSTSCRIPT_API_VERSION}/subscribers`, {
         method: 'get',
         searchParams: {
           email__eq: email
@@ -142,7 +143,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (makeUpdate) {
-        await request(`${PS_BASE_URL}/api/v2/subscribers/${subscriber.id}`, {
+        await request(`${PS_BASE_URL}/api/${POSTSCRIPT_API_VERSION}/subscribers/${subscriber.id}`, {
           method: 'patch',
           json: {
             properties: {
@@ -153,7 +154,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       // Send event to Postscript for Segment Audience Entered/Exited
-      await request(`${PS_BASE_URL}/api/v2/events`, {
+      await request(`${PS_BASE_URL}/api/${POSTSCRIPT_API_VERSION}/events`, {
         method: 'post',
         json: {
           type: audienceAction ? 'Segment_Audience_Entered' : 'Segment_Audience_Exited',

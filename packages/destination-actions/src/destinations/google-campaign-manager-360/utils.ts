@@ -18,6 +18,7 @@ import {
   SuccessMaybeErrorResponse
 } from './types'
 import { processHashing } from '../../lib/hashing-utils'
+import { GOOGLE_CAMPAIGN_MANAGER_360_API_VERSION } from '../versioning-info'
 
 export async function send(
   request: RequestClient,
@@ -33,7 +34,7 @@ export async function send(
   }
 
   const response = await request<SuccessMaybeErrorResponse>(
-    `https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${settings.profileId}/conversions/batch` +
+    `https://dfareporting.googleapis.com/dfareporting/${GOOGLE_CAMPAIGN_MANAGER_360_API_VERSION}/userprofiles/${settings.profileId}/conversions/batch` +
       (isAdjustment ? 'update' : 'insert'),
     {
       method: 'POST',

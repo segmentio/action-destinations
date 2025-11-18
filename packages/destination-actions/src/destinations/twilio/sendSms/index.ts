@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { TWILIO_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send SMS',
@@ -27,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
-    return request(`https://api.twilio.com/2010-04-01/Accounts/${data.settings.accountId}/Messages.json`, {
+    return request(`https://api.twilio.com/${TWILIO_API_VERSION}/Accounts/${data.settings.accountId}/Messages.json`, {
       method: 'post',
       // Fetch will automatically set the content-type for this `body`
       // to application/x-www-form-urlencoded;charset=UTF-8

@@ -8,6 +8,7 @@ import createUpdateActivity from './createUpdateActivity'
 import createUpdateDeal from './createUpdateDeal'
 
 import createUpdateLead from './createUpdateLead'
+import { PIPEDRIVE_API_VERSION } from '../versioning-info'
 
 import createUpdateNote from './createUpdateNote'
 
@@ -59,7 +60,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(`https://${settings.domain}.pipedrive.com/api/v1/users/me`)
+      return request(`https://${settings.domain}.pipedrive.com/api/${PIPEDRIVE_API_VERSION}/users/me`)
     }
   },
 

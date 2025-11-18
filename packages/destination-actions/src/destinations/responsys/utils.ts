@@ -19,6 +19,7 @@ import {
   ModifiedResponse,
   createRequestClient
 } from '@segment/actions-core'
+import { RESPONSYS_ASYNC_API_VERSION } from '../versioning-info'
 import type { Settings } from './generated-types'
 
 // Rate limits per endpoint.
@@ -94,7 +95,7 @@ export const getUserDataFieldNames = (data: Data): string[] => {
 export const stringifyObject = (obj: Record<string, unknown>): Record<string, string> => {
   const stringifiedObj: Record<string, string> = {}
   for (const key in obj) {
-    stringifiedObj[key] = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : (obj[key] as string)
+    stringifiedObj[key] = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : obj[key]
   }
   return stringifiedObj
 }
@@ -148,7 +149,7 @@ export const sendCustomTraits = async (
     matchColumnName1: settings.matchColumnName1,
     matchColumnName2: settings.matchColumnName2 || ''
   }
-  const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/listExtensions/${settings.profileExtensionTable}/members`
+  const path = `/rest/asyncApi/${RESPONSYS_ASYNC_API_VERSION}/lists/${settings.profileListName}/listExtensions/${settings.profileExtensionTable}/members`
 
   const endpoint = new URL(path, settings.baseUrl)
 
@@ -232,7 +233,9 @@ export const upsertListMembers = async (
         mergeRule
       }
 
-      const path = `/rest/${usingAsyncApi ? 'asyncApi' : 'api'}/v1.3/lists/${settings.profileListName}/members`
+      const path = `/rest/${usingAsyncApi ? 'asyncApi' : 'api'}/${RESPONSYS_ASYNC_API_VERSION}/lists/${
+        settings.profileListName
+      }/members`
       const endpoint = new URL(path, settings.baseUrl)
 
       const headers = {
@@ -321,7 +324,10 @@ export const getAsyncResponse = async (
     }
   }
 
-  const operationResponseEndpoint = new URL(`/rest/asyncApi/v1.3/requests/${requestId}`, settings.baseUrl)
+  const operationResponseEndpoint = new URL(
+    `/rest/asyncApi/${RESPONSYS_ASYNC_API_VERSION}/requests/${requestId}`,
+    settings.baseUrl
+  )
   const request = createRequestClient(headers)
   // Take a break.
   await new Promise((resolve) => setTimeout(resolve, getAsyncResponseWaitInterval))

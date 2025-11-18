@@ -1,4 +1,5 @@
 import { JSONObject, RequestClient, RequestOptions } from '@segment/actions-core'
+import { FRIENDBUY_MAPI_VERSION } from '../versioning-info'
 
 import { Settings } from './generated-types'
 
@@ -49,7 +50,7 @@ let friendbuyAuth: FriendbuyAuth
 export async function getAuthToken(request: RequestClient, mapiBaseUrl: string, authKey: string, authSecret: string) {
   // Refresh the token if necessary.
   if (!friendbuyAuth || Date.now() >= friendbuyAuth.expiresEpoch) {
-    const r = await request(`${mapiBaseUrl}/v1/authorization`, {
+    const r = await request(`${mapiBaseUrl}/${FRIENDBUY_MAPI_VERSION}/authorization`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -1,5 +1,6 @@
 import { ModifiedResponse } from '@segment/actions-core'
 import type { RequestClient } from '@segment/actions-core'
+import { PIPEDRIVE_API_VERSION } from '../../versioning-info'
 
 export interface Organization {
   name?: string
@@ -21,7 +22,7 @@ export async function createOrUpdateOrganizationById(
     })
   } else {
     // Create an organization
-    return request(`https://${domain}.pipedrive.com/api/v1/organizations`, {
+    return request(`https://${domain}.pipedrive.com/api/${PIPEDRIVE_API_VERSION}/organizations`, {
       method: 'post',
       json: organization
     })

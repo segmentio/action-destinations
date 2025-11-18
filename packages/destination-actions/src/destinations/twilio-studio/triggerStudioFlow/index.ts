@@ -8,6 +8,7 @@ import {
   DEFAULT_COOLING_OFF_PERIOD,
   TwilioError
 } from '../utils'
+import { TWILIO_STUDIO_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Studio Flow',
@@ -98,7 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
         400
       )
     }
-    const url = `${STUDIO_BASE_URL}/v2/Flows/${payload.flowSid}/Executions`
+    const url = `${STUDIO_BASE_URL}/${TWILIO_STUDIO_API_VERSION}/Flows/${payload.flowSid}/Executions`
     const parametersMap = JSON.stringify({ source: 'studio_segment_destination' })
     try {
       await request(url, {

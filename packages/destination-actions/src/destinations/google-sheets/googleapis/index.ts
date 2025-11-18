@@ -1,7 +1,6 @@
 import { ModifiedResponse, RequestClient } from '@segment/actions-core'
 import type { MappingSettings } from '../postSheet/operations'
-
-const API_VERSION = 'v4'
+import { GOOGLE_SHEETS_API_VERSION } from '../../versioning-info'
 
 export type GetResponse = {
   range: string
@@ -17,7 +16,7 @@ export class GoogleSheets {
 
   get = async (mappingSettings: MappingSettings, range: string): Promise<ModifiedResponse<GetResponse>> => {
     return this.request(
-      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}`,
+      `https://sheets.googleapis.com/${GOOGLE_SHEETS_API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}`,
       {
         method: 'get',
         skipResponseCloning: true
@@ -27,7 +26,7 @@ export class GoogleSheets {
 
   batchUpdate = async (mappingSettings: MappingSettings, batchPayload: { range: string; values: string[][] }[]) => {
     return this.request(
-      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values:batchUpdate`,
+      `https://sheets.googleapis.com/${GOOGLE_SHEETS_API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values:batchUpdate`,
       {
         method: 'post',
         skipResponseCloning: true,
@@ -54,7 +53,7 @@ export class GoogleSheets {
 
   append = async (mappingSettings: MappingSettings, range: string, values: string[][]) => {
     return this.request(
-      `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}:append?valueInputOption=${mappingSettings.dataFormat}&insertDataOption=INSERT_ROWS`,
+      `https://sheets.googleapis.com/${GOOGLE_SHEETS_API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}:append?valueInputOption=${mappingSettings.dataFormat}&insertDataOption=INSERT_ROWS`,
       {
         method: 'post',
         skipResponseCloning: true,

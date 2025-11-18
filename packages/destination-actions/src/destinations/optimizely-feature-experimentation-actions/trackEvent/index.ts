@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import { ProjectConfig } from '../types'
 import { buildVisitorAttributes, getEventId, getEventKeys, isValidJson } from './functions'
 import dayjs from '../../../lib/dayjs'
+import { OPTIMIZELY_FEATURE_EXPERIMENTATION_TRACK_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -155,7 +156,7 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    return await request('https://logx.optimizely.com/v1/events', {
+    return await request(`https://logx.optimizely.com/${OPTIMIZELY_FEATURE_EXPERIMENTATION_TRACK_API_VERSION}/events`, {
       method: 'POST',
       json: {
         account_id: dataFile.accountId,

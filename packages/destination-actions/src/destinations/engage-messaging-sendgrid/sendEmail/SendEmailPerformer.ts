@@ -13,6 +13,7 @@ import { insertEmailPreviewText } from './insertEmailPreviewText'
 import cheerio from 'cheerio'
 import { isRestrictedDomain } from './isRestrictedDomain'
 import { UnlayerResponse } from './UnlayerResponse'
+import { ENGAGE_MESSAGING_SENDGRID_API_VERSION } from '../../versioning-info'
 
 export const EXTERNAL_ID_KEY = 'email'
 
@@ -260,7 +261,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       json: mailContent
     }
     //this.statsClient?.set('message_body_size', JSON.stringify(req).length) // Commented due to performance issues
-    const response = await this.request('https://api.sendgrid.com/v3/mail/send', req)
+    const response = await this.request(`https://api.sendgrid.com/${ENGAGE_MESSAGING_SENDGRID_API_VERSION}/mail/send`, req)
     if (this.payload?.eventOccurredTS != undefined) {
       this.statsClient?.histogram(
         'eventDeliveryTS',

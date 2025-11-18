@@ -1,15 +1,17 @@
+import { AMPLITUDE_API_VERSION } from '../versioning-info'
+
 export const endpoints = {
   batch: {
     north_america: 'https://api2.amplitude.com/batch',
     europe: 'https://api.eu.amplitude.com/batch'
   },
   deletions: {
-    north_america: 'https://amplitude.com/api/2/deletions/users',
-    europe: 'https://analytics.eu.amplitude.com/api/2/deletions/users'
+    north_america: `https://amplitude.com/api/${AMPLITUDE_API_VERSION}/deletions/users`,
+    europe: `https://analytics.eu.amplitude.com/api/${AMPLITUDE_API_VERSION}/deletions/users`
   },
   httpapi: {
-    north_america: 'https://api2.amplitude.com/2/httpapi',
-    europe: 'https://api.eu.amplitude.com/2/httpapi'
+    north_america: `https://api2.amplitude.com/${AMPLITUDE_API_VERSION}/httpapi`,
+    europe: `https://api.eu.amplitude.com/${AMPLITUDE_API_VERSION}/httpapi`
   },
   identify: {
     north_america: 'https://api2.amplitude.com/identify',
@@ -24,8 +26,8 @@ export const endpoints = {
     europe: 'https://api.eu.amplitude.com/usermap'
   },
   usersearch: {
-    north_america: 'https://amplitude.com/api/2/usersearch',
-    europe: 'https://analytics.eu.amplitude.com/api/2/usersearch'
+    north_america: `https://amplitude.com/api/${AMPLITUDE_API_VERSION}/usersearch`,
+    europe: `https://analytics.eu.amplitude.com/api/${AMPLITUDE_API_VERSION}/usersearch`
   }
 }
 

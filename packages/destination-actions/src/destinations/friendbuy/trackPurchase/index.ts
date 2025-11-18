@@ -8,6 +8,7 @@ import { contextFields } from '@segment/actions-shared'
 import { COPY, DROP, mapEvent } from '@segment/actions-shared'
 import { trackPurchaseFields } from '@segment/actions-shared'
 import { enjoinInteger, enjoinNumber, enjoinString } from '@segment/actions-shared'
+import { FRIENDBUY_MAPI_VERSION } from '../../versioning-info'
 
 const cloudTrackPurchaseFields = { ...trackPurchaseFields({}), ...contextFields }
 
@@ -65,7 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     const friendbuyPayload = mapEvent(trackPurchaseMapi, payload as unknown as AnalyticsPayload)
     const [requestUrl, requestParams] = await createMapiRequest(
-      'v1/event/purchase',
+      `${FRIENDBUY_MAPI_VERSION}/event/purchase`,
       request,
       settings,
       friendbuyPayload

@@ -3,6 +3,7 @@ import { processHashing } from '../../../lib/hashing-utils'
 import { RequestClient, MultiStatusResponse } from '@segment/actions-core'
 import { PayloadWithIndex, AddRemoveUsersJSON, SchemaType, OperationType } from './types'
 import { SCHEMA_TYPES } from './constants'
+import { SNAP_AUDIENCES_BASE_URL } from '../constants'
 
 export async function send(request: RequestClient, payload: Payload[]) {
   const payloads: PayloadWithIndex[] = payload.map((p, index) => ({ ...p, index }))
@@ -44,7 +45,7 @@ export async function send(request: RequestClient, payload: Payload[]) {
     }
   )
 
-  const url = `https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`
+  const url = `${SNAP_AUDIENCES_BASE_URL}/segments/${external_audience_id}/users`
   await Promise.all(Object.entries(batches)
     .filter(([, batch]) => batch.opPayloads.length > 0)
     .map(async ([, batch]) => {

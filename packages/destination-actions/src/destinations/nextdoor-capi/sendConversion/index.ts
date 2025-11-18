@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import { hashAndEncode } from './utils'
 import { omit } from '@segment/actions-core'
 import type { Custom, NDPayload, App } from './types'
+import { NEXTDOOR_CAPI_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Conversion',
@@ -446,7 +447,7 @@ const action: ActionDefinition<Settings, Payload> = {
       partner_id: payload.partner_id
     }
 
-    return request('https://ads.nextdoor.com/v2/api/conversions/track', {
+    return request(`https://ads.nextdoor.com/${NEXTDOOR_CAPI_API_VERSION}/api/conversions/track`, {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',

@@ -1,14 +1,15 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { SPIFFY_API_VERSION } from '../../versioning-info'
 
 // @ts-ignore - typescript doesnt like we are operating on an any request object
 async function sendData(request, settings: Settings, payloads: Payload[]) {
   const environment = settings.environment
   const url =
     environment == 'prod'
-      ? 'https://segment-intake.spiffy.ai/v1/intake'
-      : 'https://segment-intake.dev.spiffy.ai/v1/intake'
+      ? `https://segment-intake.spiffy.ai/${SPIFFY_API_VERSION}/intake`
+      : `https://segment-intake.dev.spiffy.ai/${SPIFFY_API_VERSION}/intake`
   return request(url, {
     method: 'put',
     json: {

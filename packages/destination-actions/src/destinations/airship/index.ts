@@ -1,5 +1,6 @@
 import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { AIRSHIP_API_VERSION } from '../versioning-info'
 
 import customEvents from './customEvents'
 
@@ -91,7 +92,7 @@ const destination: DestinationDefinition<Settings> = {
       headers: {
         Authorization: `Bearer ${settings.access_token}`,
         'X-UA-Appkey': `${settings.app_key}`,
-        Accept: 'application/vnd.urbanairship+json; version=3',
+        Accept: `application/vnd.urbanairship+json; version=${AIRSHIP_API_VERSION}`,
         'Content-Type': 'application/json'
       }
     }
