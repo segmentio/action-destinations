@@ -1,5 +1,6 @@
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
+import { BrazeTrackUserAPIResponse } from '../utils'
 import { 
   JSONLikeObject,
   RequestClient, 
@@ -23,20 +24,18 @@ import type {
 import { EVENT_NAMES } from './constants'
 import dayjs from 'dayjs'
 
+
 export async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean) {
   const msResponse = new MultiStatusResponse()
   const { endpoint } = settings
   const json = getJSON(payloads, settings, isBatch, msResponse)
 
-  const url = isBatch ? `${endpoint}/users/track/batch` : `${endpoint}/users/track`
+  const url = `${endpoint}/users/track`
 
-  const response = await request(url, {
+  const response = await request<BrazeTrackUserAPIResponse>(url, {
     method: 'POST',
-    json,
-    headers: {
-     'Content-Type': 'application/json'
-    },
-    timeout: 15000
+     ...(isBatch ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
+    json
   })
 
   return isBatch ? msResponse : response 
@@ -60,6 +59,7 @@ function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msRe
           sent: payload as object as JSONLikeObject
         }
       )
+      return null as unknown as EcommerceEvent
     }
 
     const { 
@@ -243,7 +243,7 @@ function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msRe
         throw new PayloadValidationError(`Unsupported event name: ${name}`)
       }
     }
-  })
+  }).filter(event => event !== null)
 
   return { events }
 }
