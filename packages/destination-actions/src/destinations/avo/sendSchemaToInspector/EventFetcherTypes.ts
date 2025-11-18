@@ -1,4 +1,10 @@
 /**
+ * This file is generated. Internal development changes should be made in the generator
+ * and the file should be re-generated. External contributions are welcome to submit
+ * changes directly to this file, and we'll apply them to the generator internally.
+ */
+
+/**
  * Represents the specification for a single property in an event.
  * Supports recursive nesting for object types.
  */

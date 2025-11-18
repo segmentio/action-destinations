@@ -44,7 +44,7 @@ export class EventSpecFetcher {
     const url: string = this.buildUrl(params)
     if (this.shouldLog) {
       console.log(`[EventSpecFetcher] Fetching event spec for: ${params.eventName}`)
-      console.log(`[EventSpecFetcher] URL: ${url}`)
+      console.log(`[EventSpecFetcher] Using base URL: ${this.baseUrl}`)
     }
     try {
       const response: any = await this.makeRequest(url)
@@ -76,15 +76,11 @@ export class EventSpecFetcher {
   /** Builds the complete URL with query parameters. */
   private buildUrl(params: FetchEventSpecParams): string {
     const queryParams: URLSearchParams = new URLSearchParams({
-      // apiKey: params.apiKey,
-      // streamId: params.streamId,
-      eventName: params.eventName,
-      sourceId: 'WUFObVFR4PVbZGtT1hQ5WUFObVFR4PVbZGtT1hQ5',
-      schemaId: 'fwtXqAc0fCLy7b7oGW40',
-      branchId: 'master'
+      apiKey: params.apiKey,
+      streamId: params.streamId,
+      eventName: params.eventName
     })
-    //return `${this.baseUrl}/getEventSpec?${queryParams.toString()}`
-    return `${this.baseUrl}/?${queryParams.toString()}`
+    return `${this.baseUrl}/getEventSpec?${queryParams.toString()}`
   }
 
   /**
@@ -102,10 +98,6 @@ export class EventSpecFetcher {
         try {
           // RequestClient automatically parses JSON responses, so response.data should be the parsed object
           // But we check if it's a string just in case
-          // Handle undefined/null response.data gracefully
-          if (response.data === undefined || response.data === null) {
-            return null
-          }
           const data: any = typeof response.data === 'string' ? JSON.parse(response.data) : response.data
           return data
         } catch (error) {
