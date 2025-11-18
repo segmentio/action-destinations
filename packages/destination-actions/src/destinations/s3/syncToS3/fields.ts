@@ -196,7 +196,8 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     description:
       'Name of the S3 Subfolder where the files will be uploaded to. e.g. segmentdata/ or segmentdata/audiences/',
     type: 'string',
-    required: false
+    required: false,
+    disabledInputMethods: []
   },
   filename_prefix: {
     label: 'Filename prefix',
