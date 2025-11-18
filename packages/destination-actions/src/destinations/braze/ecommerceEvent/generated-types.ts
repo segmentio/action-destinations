@@ -78,7 +78,7 @@ export interface Payload {
   /**
    * Product associated with the ecommerce event.
    */
-  product: {
+  product?: {
     /**
      * A unique identifier for the product that was viewed. This value be can be the product ID or SKU
      */
@@ -108,7 +108,7 @@ export interface Payload {
   /**
    * List of products associated with the ecommerce event.
    */
-  products: {
+  products?: {
     /**
      * A unique identifier for the product that was viewed. This value be can be the product ID or SKU
      */

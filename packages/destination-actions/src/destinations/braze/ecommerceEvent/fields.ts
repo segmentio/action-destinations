@@ -337,48 +337,48 @@ export const products: InputField = {
     multiple: true,
     additionalProperties: true,
     properties: {
-    product_id: {
-        label: 'Product ID',
-        description: 'A unique identifier for the product that was viewed. This value be can be the product ID or SKU',
-        type: 'string',
-        required: true
-    },
-    product_name: {
-        label: 'Product Name',
-        description: 'The name of the product that was viewed.',
-        type: 'string',
-        required: true
-    },
-    variant_id: {
-        label: 'Variant ID',
-        description: 'A unique identifier for the product variant. An example is shirt_medium_blue',
-        type: 'string',
-        required: true
-    },
-    image_url: {
-        label: 'Image URL',
-        description: 'The URL of the product image.',
-        type: 'string',
-        format: 'uri'
-    },
-    product_url: {
-        label: 'Product URL',
-        description: 'URL to the product page for more details.',
-        type: 'string',
-        format: 'uri'
-    },
-    quantity: {
-        label: 'Quantity',
-        description: 'Number of units of the product in the cart.',
-        type: 'number',
-        required: true
-    },
-    price: {
-        label: 'Price',
-        description: 'The variant unit price of the product at the time of viewing.',
-        type: 'number',
-        required: true
-    }
+        product_id: {
+            label: 'Product ID',
+            description: 'A unique identifier for the product that was viewed. This value be can be the product ID or SKU',
+            type: 'string',
+            required: true
+        },
+        product_name: {
+            label: 'Product Name',
+            description: 'The name of the product that was viewed.',
+            type: 'string',
+            required: true
+        },
+        variant_id: {
+            label: 'Variant ID',
+            description: 'A unique identifier for the product variant. An example is shirt_medium_blue',
+            type: 'string',
+            required: true
+        },
+        image_url: {
+            label: 'Image URL',
+            description: 'The URL of the product image.',
+            type: 'string',
+            format: 'uri'
+        },
+        product_url: {
+            label: 'Product URL',
+            description: 'URL to the product page for more details.',
+            type: 'string',
+            format: 'uri'
+        },
+        quantity: {
+            label: 'Quantity',
+            description: 'Number of units of the product in the cart.',
+            type: 'number',
+            required: true
+        },
+        price: {
+            label: 'Price',
+            description: 'The variant unit price of the product at the time of viewing.',
+            type: 'number',
+            required: true
+        }
     },
     default: {
         '@arrayPath': [
@@ -468,7 +468,7 @@ export const product: InputField = {
         price: {'@path': '$.properties.price'}
     },
     required: {
-        match: 'any',
+        match: 'all',
         conditions: [
             {
                 fieldKey: 'name',
@@ -478,7 +478,7 @@ export const product: InputField = {
         ]
     },
     depends_on: {
-        match: 'any',
+        match: 'all',
         conditions: [
             {
                 fieldKey: 'name',

@@ -37,6 +37,9 @@ export async function send(request: RequestClient, payloads: Payload[], settings
      ...(isBatch ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
     json
   })
+  console.log(json)
+  console.log(url)
+  console.log('Braze Response:', response.data)
 
   const errors = Array.isArray(response.data.errors) ? response.data.errors : []
   payloadsWithIndexes.forEach((payload) => {
@@ -65,10 +68,9 @@ export async function send(request: RequestClient, payloads: Payload[], settings
 }
 
 
-function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msResponse: MultiStatusResponse): { json: EcommerceEvents, payloadsWithIndexes: PayloadWithIndex[] } {
-  const payloadsWithIndexes: PayloadWithIndex[] = { ...payloads }
+function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msResponse: MultiStatusResponse): { json: EcommerceEvents, payloadsWithIndexes: PayloadWithIndex[] } {  
+  const payloadsWithIndexes: PayloadWithIndex[] = [ ...payloads ]
   const events: EcommerceEvent[] = []
-  
   payloadsWithIndexes.forEach((payload, index) => {
     const message = validate(payload, isBatch)  
     if(message){
@@ -280,6 +282,12 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
 
 function validate(payload: Payload, isBatch: boolean): string | void {
   const { braze_id, user_alias, external_id, email, phone } = payload
+  console.log('Validating payload:', payload)
+  console.log('braze_id:', braze_id)
+  console.log('user_alias:', user_alias)
+  console.log('external_id:', external_id)
+  console.log('email:', email)
+  console.log('phone:', phone)
   if (!braze_id && !user_alias && !external_id && !email && !phone) {
     const message = 'One of "external_id" or "user_alias" or "braze_id" or "email" or "phone" is required.'
     if(!isBatch) {
