@@ -2,6 +2,7 @@ import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import trackEvent from './trackEvent'
 import identify from './identify'
+import { DRIP_API_VERSION } from '../versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Drip (Actions)',

@@ -3,6 +3,7 @@ import type { Settings } from './generated-types'
 import identifyUser from './identifyUser'
 import groupWorkspace from './groupWorkspace'
 import assertRecord from './assertRecord'
+import { ATTIO_AUTH_API_VERSION } from '../versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Attio (Actions)',
@@ -13,7 +14,7 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'oauth-managed',
     fields: {},
-    testAuthentication: (request) => request(`${ATTIO_BASE_URL}/token`)
+    testAuthentication: (request) => request(`https://api.attio.com/${ATTIO_AUTH_API_VERSION}/token`)
   },
 
   extendRequest({ auth }) {

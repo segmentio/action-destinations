@@ -3,6 +3,7 @@ import type { Settings } from './generated-types'
 
 import createOrUpdateContact from './createOrUpdateContact'
 import sendEvent from './sendEvent'
+import { LOOPS_API_VERSION } from '../versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Loops (Actions)',
@@ -26,7 +27,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request(`${LOOPS_BASE_URL}/api-key`, { method: 'GET' })
+      return request(`https://app.loops.so/api/${LOOPS_API_VERSION}/api-key`, { method: 'GET' })
     }
   },
 
@@ -35,7 +36,7 @@ const destination: DestinationDefinition<Settings> = {
     sendEvent
   },
   onDelete: async (request, { payload }) => {
-    return request(`${LOOPS_BASE_URL}/contacts/delete`, {
+    return request(`https://app.loops.so/api/${LOOPS_API_VERSION}/contacts/delete`, {
       method: 'POST',
       json: {
         userId: [payload.userId]
