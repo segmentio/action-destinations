@@ -137,7 +137,7 @@ const action: ActionDefinition<Settings, Payload> = {
           '@path': '$.context.page.url'
         },
         session_start_time_usec: {
-          '@path': '$.timestamp'
+          '@path': '$.properties.session_start_time_usec'
         },
         landing_page_referrer: {
           '@path': '$.context.page.referrer'

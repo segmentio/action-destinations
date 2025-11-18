@@ -47,7 +47,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -92,7 +92,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -137,7 +137,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -197,7 +197,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(2)
@@ -282,7 +282,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -328,7 +328,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -416,7 +416,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -462,7 +462,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"1dba01a96da19f6df771cff07e0a8d822126709b82ae7adc6a3839b3aaa68a16\\"}],\\"consent\\":{\\"adPersonalization\\":\\"GRANTED\\"}}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"1dba01a96da19f6df771cff07e0a8d822126709b82ae7adc6a3839b3aaa68a16\\"}],\\"consent\\":{\\"adPersonalization\\":\\"GRANTED\\"}}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -551,7 +551,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}],\\"consent\\":{\\"adUserData\\":\\"DENIED\\",\\"adPersonalization\\":\\"DENIED\\"}}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}],\\"consent\\":{\\"adUserData\\":\\"DENIED\\",\\"adPersonalization\\":\\"DENIED\\"}}],\\"partialFailure\\":true}"`
       )
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
@@ -653,6 +653,7 @@ describe('GoogleEnhancedConversions', () => {
           currency: 'USD',
           gad_source: 'Google',
           gad_campaignid: '2142354',
+          session_start_time_usec: timestamp,
           products: [
             {
               product_id: '1234',
@@ -683,7 +684,7 @@ describe('GoogleEnhancedConversions', () => {
               '@path': '$.context.page.url'
             },
             session_start_time_usec: {
-              '@path': '$.timestamp'
+              '@path': '$.properties.session_start_time_usec'
             },
             landing_page_referrer: {
               '@path': '$.context.page.referrer'
@@ -700,38 +701,36 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      expect(responses[0].options.json).toMatchObject(
-        {
-          conversions: [
-            {
-              conversionAction: "customers/1234/conversionActions/12345",
-              conversionDateTime: "2021-06-10 18:08:04+00:00",
-              userIpAddress: "8.8.8.8",
-              sessionAttributesKeyValuePairs: {
-                keyValuePairs: [
-                  { sessionAttributeKey: "gad_source", sessionAttributeValue: "Google" },
-                  { sessionAttributeKey: "gad_campaignid", sessionAttributeValue: "2142354" },
-                  { sessionAttributeKey: "landing_page_url", sessionAttributeValue: "https://segment.com/academy/" },
-                  { sessionAttributeKey: "session_start_time_usec", sessionAttributeValue: "1623348484000000" },
-                  { sessionAttributeKey: "landing_page_user_agent", sessionAttributeValue: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1" }
-                ]
-              },
-              orderId: "1234",
-              conversionValue: 200,
-              currencyCode: "USD",
-              cartData: {
-                items: [
-                  { productId: "1234", quantity: 3, unitPrice: 10.99 }
-                ]
-              },
-              userIdentifiers: [
-                { hashedEmail: "87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674" }
+      expect(responses[0].options.json).toMatchObject({
+        conversions: [
+          {
+            conversionAction: 'customers/1234/conversionActions/12345',
+            conversionDateTime: '2021-06-10 18:08:04+00:00',
+            userIpAddress: '8.8.8.8',
+            sessionAttributesKeyValuePairs: {
+              keyValuePairs: [
+                { sessionAttributeKey: 'gad_source', sessionAttributeValue: 'Google' },
+                { sessionAttributeKey: 'gad_campaignid', sessionAttributeValue: '2142354' },
+                { sessionAttributeKey: 'landing_page_url', sessionAttributeValue: 'https://segment.com/academy/' },
+                { sessionAttributeKey: 'session_start_time_usec', sessionAttributeValue: '1623348484000000' },
+                {
+                  sessionAttributeKey: 'landing_page_user_agent',
+                  sessionAttributeValue:
+                    'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+                }
               ]
-            }
-          ],
-          partialFailure: true
-        }
-      )
+            },
+            orderId: '1234',
+            conversionValue: 200,
+            currencyCode: 'USD',
+            cartData: {
+              items: [{ productId: '1234', quantity: 3, unitPrice: 10.99 }]
+            },
+            userIdentifiers: [{ hashedEmail: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674' }]
+          }
+        ],
+        partialFailure: true
+      })
       expect(responses[0].status).toBe(201)
     })
   })
@@ -794,7 +793,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -860,7 +859,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -927,7 +926,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"},{\\"hashedPhoneNumber\\":\\"22563905dd330440cb95d11761541dd3bd7f9b704b132392c717a3633582884c\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"},{\\"hashedPhoneNumber\\":\\"22563905dd330440cb95d11761541dd3bd7f9b704b132392c717a3633582884c\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -1006,7 +1005,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(2)
@@ -1131,7 +1130,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -1198,7 +1197,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"},{\\"hashedPhoneNumber\\":\\"22563905dd330440cb95d11761541dd3bd7f9b704b132392c717a3633582884c\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"},{\\"hashedPhoneNumber\\":\\"22563905dd330440cb95d11761541dd3bd7f9b704b132392c717a3633582884c\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -1326,7 +1325,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -1393,7 +1392,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"},{\\"hashedPhoneNumber\\":\\"64eab4e4d9e8e4f801e34d4f9043494ac3ccf778fb428dcbb555e632bb29d84b\\"}],\\"consent\\":{\\"adPersonalization\\":\\"GRANTED\\"}},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"},{\\"hashedPhoneNumber\\":\\"1dba01a96da19f6df771cff07e0a8d822126709b82ae7adc6a3839b3aaa68a16\\"}],\\"consent\\":{\\"adPersonalization\\":\\"GRANTED\\"}}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"},{\\"hashedPhoneNumber\\":\\"64eab4e4d9e8e4f801e34d4f9043494ac3ccf778fb428dcbb555e632bb29d84b\\"}],\\"consent\\":{\\"adPersonalization\\":\\"GRANTED\\"}},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"},{\\"hashedPhoneNumber\\":\\"1dba01a96da19f6df771cff07e0a8d822126709b82ae7adc6a3839b3aaa68a16\\"}],\\"consent\\":{\\"adPersonalization\\":\\"GRANTED\\"}}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -1522,7 +1521,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}],\\"consent\\":{\\"adUserData\\":\\"DENIED\\",\\"adPersonalization\\":\\"DENIED\\"}},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"session_start_time_usec\\",\\"sessionAttributeValue\\":\\"1623348484000000\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}],\\"consent\\":{\\"adUserData\\":\\"DENIED\\",\\"adPersonalization\\":\\"DENIED\\"}}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}],\\"consent\\":{\\"adUserData\\":\\"DENIED\\",\\"adPersonalization\\":\\"DENIED\\"}},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"userIpAddress\\":\\"8.8.8.8\\",\\"sessionAttributesKeyValuePairs\\":{\\"keyValuePairs\\":[{\\"sessionAttributeKey\\":\\"landing_page_url\\",\\"sessionAttributeValue\\":\\"https://segment.com/academy/\\"},{\\"sessionAttributeKey\\":\\"landing_page_user_agent\\",\\"sessionAttributeValue\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}]},\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}],\\"consent\\":{\\"adUserData\\":\\"DENIED\\",\\"adPersonalization\\":\\"DENIED\\"}}],\\"partialFailure\\":true}"`
       )
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
@@ -1666,6 +1665,7 @@ describe('GoogleEnhancedConversions', () => {
             currency: 'USD',
             gad_source: 'Google',
             gad_campaignid: '2142354',
+            session_start_time_usec: timestamp,
             products: [
               {
                 product_id: '1234',
@@ -1686,6 +1686,7 @@ describe('GoogleEnhancedConversions', () => {
             currency: 'USD',
             gad_source: 'Giggle',
             gad_campaignid: '9998776',
+            session_start_time_usec: timestamp,
             products: [
               {
                 product_id: '1234',
@@ -1717,7 +1718,7 @@ describe('GoogleEnhancedConversions', () => {
               '@path': '$.context.page.url'
             },
             session_start_time_usec: {
-              '@path': '$.timestamp'
+              '@path': '$.properties.session_start_time_usec'
             },
             landing_page_referrer: {
               '@path': '$.context.page.referrer'
@@ -1734,63 +1735,61 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      expect(responses[0].options.json).toMatchObject(
-        {
-          conversions: [
-            {
-              conversionAction: "customers/1234/conversionActions/12345",
-              conversionDateTime: "2021-06-10 18:08:04+00:00",
-              userIpAddress: "8.8.8.8",
-              sessionAttributesKeyValuePairs: {
-                keyValuePairs: [
-                  { sessionAttributeKey: "gad_source", sessionAttributeValue: "Google" },
-                  { sessionAttributeKey: "gad_campaignid", sessionAttributeValue: "2142354" },
-                  { sessionAttributeKey: "landing_page_url", sessionAttributeValue: "https://segment.com/academy/" },
-                  { sessionAttributeKey: "session_start_time_usec", sessionAttributeValue: "1623348484000000" },
-                  { sessionAttributeKey: "landing_page_user_agent", sessionAttributeValue: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1" }
-                ]
-              },
-              orderId: "1234",
-              conversionValue: 200,
-              currencyCode: "USD",
-              cartData: {
-                items: [
-                  { productId: "1234", quantity: 3, unitPrice: 10.99 }
-                ]
-              },
-              userIdentifiers: [
-                { hashedEmail: "a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9" }
+      expect(responses[0].options.json).toMatchObject({
+        conversions: [
+          {
+            conversionAction: 'customers/1234/conversionActions/12345',
+            conversionDateTime: '2021-06-10 18:08:04+00:00',
+            userIpAddress: '8.8.8.8',
+            sessionAttributesKeyValuePairs: {
+              keyValuePairs: [
+                { sessionAttributeKey: 'gad_source', sessionAttributeValue: 'Google' },
+                { sessionAttributeKey: 'gad_campaignid', sessionAttributeValue: '2142354' },
+                { sessionAttributeKey: 'landing_page_url', sessionAttributeValue: 'https://segment.com/academy/' },
+                { sessionAttributeKey: 'session_start_time_usec', sessionAttributeValue: '1623348484000000' },
+                {
+                  sessionAttributeKey: 'landing_page_user_agent',
+                  sessionAttributeValue:
+                    'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+                }
               ]
             },
-            {
-              conversionAction: "customers/1234/conversionActions/12345",
-              conversionDateTime: "2021-06-10 18:08:04+00:00",
-              userIpAddress: "8.8.8.8",
-              sessionAttributesKeyValuePairs: {
-                keyValuePairs: [
-                  { sessionAttributeKey: "gad_source", sessionAttributeValue: "Giggle" },
-                  { sessionAttributeKey: "gad_campaignid", sessionAttributeValue: "9998776" },
-                  { sessionAttributeKey: "landing_page_url", sessionAttributeValue: "https://segment.com/academy/" },
-                  { sessionAttributeKey: "session_start_time_usec", sessionAttributeValue: "1623348484000000" },
-                  { sessionAttributeKey: "landing_page_user_agent", sessionAttributeValue: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1" }
-                ]
-              },
-              orderId: "1234",
-              conversionValue: 200,
-              currencyCode: "USD",
-              cartData: {
-                items: [
-                  { productId: "1234", quantity: 3, unitPrice: 10.99 }
-                ]
-              },
-              userIdentifiers: [
-                { hashedEmail: "cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47" }
+            orderId: '1234',
+            conversionValue: 200,
+            currencyCode: 'USD',
+            cartData: {
+              items: [{ productId: '1234', quantity: 3, unitPrice: 10.99 }]
+            },
+            userIdentifiers: [{ hashedEmail: 'a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9' }]
+          },
+          {
+            conversionAction: 'customers/1234/conversionActions/12345',
+            conversionDateTime: '2021-06-10 18:08:04+00:00',
+            userIpAddress: '8.8.8.8',
+            sessionAttributesKeyValuePairs: {
+              keyValuePairs: [
+                { sessionAttributeKey: 'gad_source', sessionAttributeValue: 'Giggle' },
+                { sessionAttributeKey: 'gad_campaignid', sessionAttributeValue: '9998776' },
+                { sessionAttributeKey: 'landing_page_url', sessionAttributeValue: 'https://segment.com/academy/' },
+                { sessionAttributeKey: 'session_start_time_usec', sessionAttributeValue: '1623348484000000' },
+                {
+                  sessionAttributeKey: 'landing_page_user_agent',
+                  sessionAttributeValue:
+                    'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+                }
               ]
-            }
-          ],
-          partialFailure: true
-        }
-      )
+            },
+            orderId: '1234',
+            conversionValue: 200,
+            currencyCode: 'USD',
+            cartData: {
+              items: [{ productId: '1234', quantity: 3, unitPrice: 10.99 }]
+            },
+            userIdentifiers: [{ hashedEmail: 'cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47' }]
+          }
+        ],
+        partialFailure: true
+      })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
