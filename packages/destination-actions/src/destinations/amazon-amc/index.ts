@@ -72,7 +72,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'Amazon-Advertising-API-ClientID': 'amzn1.application-oa2-client.bb7f37ff2fbb4cb99552d29e3677a88c'
+        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_AMC_CLIENT_ID || ''
       }
     }
   },
