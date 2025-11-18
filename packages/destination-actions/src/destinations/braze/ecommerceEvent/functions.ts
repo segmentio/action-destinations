@@ -19,7 +19,8 @@ import type {
   CheckoutStartedEvent,
   OrderPlacedEvent,
   OrderRefundedEvent,
-  OrderCancelledEvent
+  OrderCancelledEvent,
+  PayloadWithIndex
 } from './types'
 import { EVENT_NAMES } from './constants'
 import dayjs from 'dayjs'
@@ -28,8 +29,7 @@ import dayjs from 'dayjs'
 export async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean) {
   const msResponse = new MultiStatusResponse()
   const { endpoint } = settings
-  const json = getJSON(payloads, settings, isBatch, msResponse)
-
+  const { json, payloadsWithIndexes } = getJSON(payloads, settings, isBatch, msResponse)
   const url = `${endpoint}/users/track`
 
   const response = await request<BrazeTrackUserAPIResponse>(url, {
@@ -38,18 +38,39 @@ export async function send(request: RequestClient, payloads: Payload[], settings
     json
   })
 
+  const errors = Array.isArray(response.data.errors) ? response.data.errors : []
+  payloadsWithIndexes.forEach((payload) => {
+    const index = payload.index
+    if(typeof index === 'number') {
+      const error = errors?.find((error) => error.index === index)
+      if(error){
+        msResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errortype: 'BAD_REQUEST',
+          errormessage: error.type,
+          sent: payload as object as JSONLikeObject,
+          body: JSON.stringify(json.events[index])
+        })
+      } else {
+        msResponse.setSuccessResponseAtIndex(index, {
+          status: 200,
+          sent: payload as object as JSONLikeObject,
+          body: JSON.stringify(json.events[index])
+        })
+      }
+    } 
+  })
+
   return isBatch ? msResponse : response 
 }
 
 
-function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msResponse: MultiStatusResponse): EcommerceEvents {
+function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msResponse: MultiStatusResponse): { json: EcommerceEvents, payloadsWithIndexes: PayloadWithIndex[] } {
+  const payloadsWithIndexes: PayloadWithIndex[] = { ...payloads }
+  const events: EcommerceEvent[] = []
   
-  const { app_id } = settings
-
-  const events: EcommerceEvent[] = payloads.map((payload, index) => {
-    
-    const message = validate(payload, isBatch)
-    
+  payloadsWithIndexes.forEach((payload, index) => {
+    const message = validate(payload, isBatch)  
     if(message){
       msResponse.setErrorResponseAtIndex(
         index, 
@@ -59,193 +80,202 @@ function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msRe
           sent: payload as object as JSONLikeObject
         }
       )
-      return null as unknown as EcommerceEvent
+    } 
+    else {  
+      const event = getJSONItem(payload, settings)
+      payload.index = events.length
+      events.push(event)
     }
+  })
 
-    const { 
-      external_id,
-      braze_id,
-      email,
-      phone,
-      user_alias,
-      name,
-      time: payloadTime,
+  return { json: { events }, payloadsWithIndexes }
+}
+
+function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
+    
+  const { app_id } = settings
+
+  const { 
+    external_id,
+    braze_id,
+    email,
+    phone,
+    user_alias,
+    name,
+    time: payloadTime,
+    currency,
+    source
+  } = payload
+
+  const time = dayjs(payloadTime).toISOString()
+
+  const baseEvent: BaseEvent = {
+    ...(external_id? { external_id } : {} ),
+    ...(braze_id? { braze_id } : {} ),
+    ...(email? { email } : {} ),
+    ...(phone? { phone } : {} ),
+    ...(user_alias? { user_alias } : {} ),
+    ...(app_id ? { app_id } : {} ),
+    name: name as ProductViewedEventName | MultiPropertyEventName,
+    time,
+    properties: {
       currency,
       source
-    } = payload
-
-    const time = dayjs(payloadTime).toISOString()
-
-    const baseEvent: BaseEvent = {
-      ...(external_id? { external_id } : {} ),
-      ...(braze_id? { braze_id } : {} ),
-      ...(email? { email } : {} ),
-      ...(phone? { phone } : {} ),
-      ...(user_alias? { user_alias } : {} ),
-      ...(app_id ? { app_id } : {} ),
-      name: name as ProductViewedEventName | MultiPropertyEventName,
-      time,
-      properties: {
-        currency,
-        source
-      }
     }
+  }
 
-    switch(name) {
-      case EVENT_NAMES.PRODUCT_VIEWED: {
-        const {
-          product,
+  switch(name) {
+    case EVENT_NAMES.PRODUCT_VIEWED: {
+      const {
+        product,
+        type
+      } = payload
+
+      const event: ProductViewedEvent = {
+        ...baseEvent,
+        name: EVENT_NAMES.PRODUCT_VIEWED,
+        properties: {
+          ...baseEvent.properties,
+          ...product,
           type
-        } = payload
-
-        const event: ProductViewedEvent = {
-          ...baseEvent,
-          name: EVENT_NAMES.PRODUCT_VIEWED,
-          properties: {
-            ...baseEvent.properties,
-            ...product,
-            type
-          }
-        }
-        return event
-      } 
-      case EVENT_NAMES.CART_UPDATED:
-      case EVENT_NAMES.CHECKOUT_STARTED:
-      case EVENT_NAMES.ORDER_PLACED:
-      case EVENT_NAMES.ORDER_CANCELLED:
-      case EVENT_NAMES.ORDER_REFUNDED: {
-        const {
-          products,
-          total_value
-        } = payload
-
-        const multiProductEvent: MultiProductBaseEvent = {
-          ...baseEvent,
-          name: name as MultiPropertyEventName,
-          properties: {
-            ...baseEvent.properties,
-             products,
-            total_value: total_value as number
-          }
-        }
-
-        switch(name) {
-          case EVENT_NAMES.CART_UPDATED: {
-            const { cart_id } = payload
-
-            const event: CartUpdatedEvent = {
-              ...multiProductEvent,
-              name: EVENT_NAMES.CART_UPDATED,
-              properties: {
-                ...multiProductEvent.properties,
-                cart_id: cart_id as string
-              }
-            }
-            return event
-          }
-
-          case EVENT_NAMES.CHECKOUT_STARTED: {
-            const { 
-              checkout_id, 
-              cart_id, 
-              metadata 
-            } = payload
-            
-            const event: CheckoutStartedEvent = {
-              ...multiProductEvent,
-              name: EVENT_NAMES.CHECKOUT_STARTED,
-              properties: {
-                ...multiProductEvent.properties,
-                checkout_id: checkout_id as string,
-                ...(cart_id ? { cart_id } : {}),
-                ...(metadata ? { metadata } : {})
-              }
-            }
-            return event
-          }
-
-          case EVENT_NAMES.ORDER_PLACED: {
-            const { 
-              order_id,
-              cart_id, 
-              total_discounts, 
-              discounts,
-              metadata
-            } = payload
-            
-            const event: OrderPlacedEvent = {
-              ...multiProductEvent,
-              name: EVENT_NAMES.ORDER_PLACED,
-              properties: {
-                ...multiProductEvent.properties,
-                order_id: order_id as string,
-                ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
-                ...(discounts ? { discounts } : {}),
-                ...(cart_id ? { cart_id } : {}),
-                ...(metadata ? { metadata } : {})
-              }
-            }
-            return event
-          }
-
-          case EVENT_NAMES.ORDER_REFUNDED: {
-            const { 
-              order_id,
-              total_discounts, 
-              discounts,
-              metadata
-            } = payload
-            
-            const event: OrderRefundedEvent = {
-              ...multiProductEvent,
-              name: EVENT_NAMES.ORDER_REFUNDED,
-              properties: {
-                ...multiProductEvent.properties,
-                order_id: order_id as string,
-                ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
-                ...(discounts ? { discounts } : {}),
-                ...(metadata ? { metadata } : {})
-              }
-            }
-            return event
-          }
-
-          case EVENT_NAMES.ORDER_CANCELLED: {
-            const { 
-              order_id,
-              cancel_reason,
-              total_discounts, 
-              discounts,
-              metadata
-            } = payload
-            
-            const event: OrderCancelledEvent = {
-              ...multiProductEvent,
-              name: EVENT_NAMES.ORDER_CANCELLED,
-              properties: {
-                ...multiProductEvent.properties,
-                order_id: order_id as string,
-                cancel_reason: cancel_reason as string,
-                ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
-                ...(discounts ? { discounts } : {}),
-                ...(metadata ? { metadata } : {})
-              }
-            }
-            return event
-          }
-
-          default: {
-            throw new PayloadValidationError(`Unsupported event name: ${name}`)
-          }
         }
       }
-      default: {
-        throw new PayloadValidationError(`Unsupported event name: ${name}`)
+      return event
+    } 
+    case EVENT_NAMES.CART_UPDATED:
+    case EVENT_NAMES.CHECKOUT_STARTED:
+    case EVENT_NAMES.ORDER_PLACED:
+    case EVENT_NAMES.ORDER_CANCELLED:
+    case EVENT_NAMES.ORDER_REFUNDED: {
+      const {
+        products,
+        total_value
+      } = payload
+
+      const multiProductEvent: MultiProductBaseEvent = {
+        ...baseEvent,
+        name: name as MultiPropertyEventName,
+        properties: {
+          ...baseEvent.properties,
+            products,
+          total_value: total_value as number
+        }
+      }
+
+      switch(name) {
+        case EVENT_NAMES.CART_UPDATED: {
+          const { cart_id } = payload
+
+          const event: CartUpdatedEvent = {
+            ...multiProductEvent,
+            name: EVENT_NAMES.CART_UPDATED,
+            properties: {
+              ...multiProductEvent.properties,
+              cart_id: cart_id as string
+            }
+          }
+          return event
+        }
+
+        case EVENT_NAMES.CHECKOUT_STARTED: {
+          const { 
+            checkout_id, 
+            cart_id, 
+            metadata 
+          } = payload
+          
+          const event: CheckoutStartedEvent = {
+            ...multiProductEvent,
+            name: EVENT_NAMES.CHECKOUT_STARTED,
+            properties: {
+              ...multiProductEvent.properties,
+              checkout_id: checkout_id as string,
+              ...(cart_id ? { cart_id } : {}),
+              ...(metadata ? { metadata } : {})
+            }
+          }
+          return event
+        }
+
+        case EVENT_NAMES.ORDER_PLACED: {
+          const { 
+            order_id,
+            cart_id, 
+            total_discounts, 
+            discounts,
+            metadata
+          } = payload
+          
+          const event: OrderPlacedEvent = {
+            ...multiProductEvent,
+            name: EVENT_NAMES.ORDER_PLACED,
+            properties: {
+              ...multiProductEvent.properties,
+              order_id: order_id as string,
+              ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
+              ...(discounts ? { discounts } : {}),
+              ...(cart_id ? { cart_id } : {}),
+              ...(metadata ? { metadata } : {})
+            }
+          }
+          return event
+        }
+
+        case EVENT_NAMES.ORDER_REFUNDED: {
+          const { 
+            order_id,
+            total_discounts, 
+            discounts,
+            metadata
+          } = payload
+          
+          const event: OrderRefundedEvent = {
+            ...multiProductEvent,
+            name: EVENT_NAMES.ORDER_REFUNDED,
+            properties: {
+              ...multiProductEvent.properties,
+              order_id: order_id as string,
+              ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
+              ...(discounts ? { discounts } : {}),
+              ...(metadata ? { metadata } : {})
+            }
+          }
+          return event
+        }
+
+        case EVENT_NAMES.ORDER_CANCELLED: {
+          const { 
+            order_id,
+            cancel_reason,
+            total_discounts, 
+            discounts,
+            metadata
+          } = payload
+          
+          const event: OrderCancelledEvent = {
+            ...multiProductEvent,
+            name: EVENT_NAMES.ORDER_CANCELLED,
+            properties: {
+              ...multiProductEvent.properties,
+              order_id: order_id as string,
+              cancel_reason: cancel_reason as string,
+              ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
+              ...(discounts ? { discounts } : {}),
+              ...(metadata ? { metadata } : {})
+            }
+          }
+          return event
+        }
+
+        default: {
+          throw new PayloadValidationError(`Unsupported event name: ${name}`)
+        }
       }
     }
-  }).filter(event => event !== null)
-
-  return { events }
+    default: {
+      throw new PayloadValidationError(`Unsupported event name: ${name}`)
+    }
+  }
 }
 
 function validate(payload: Payload, isBatch: boolean): string | void {

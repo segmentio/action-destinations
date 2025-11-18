@@ -1,4 +1,9 @@
 import { EVENT_NAMES } from './constants'
+import { Payload } from './generated-types'
+
+export interface PayloadWithIndex extends Payload {
+    index?: number
+}
 
 export type ProductViewedEventName = typeof EVENT_NAMES.PRODUCT_VIEWED
 export type CheckoutStartedEventName = typeof EVENT_NAMES.CHECKOUT_STARTED
