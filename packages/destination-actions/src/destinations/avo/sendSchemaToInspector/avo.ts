@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { RequestClient } from '@segment/actions-core'
 import { BaseBody, EventSchemaBody } from './avo-types'
 
 import { AvoSchemaParser } from './AvoSchemaParser'
+import { EventSpecFetcher } from './EventFetcher'
+import type { EventSpec } from './EventFetcherTypes'
 
 import { Payload } from './generated-types'
 
@@ -46,10 +49,68 @@ function handleEvent(baseBody: BaseBody, event: Payload): EventSchemaBody {
   return eventBody
 }
 
-export function extractSchemaFromEvent(event: Payload, appVersionPropertyName: string | undefined) {
+/**
+ * Fetches the event spec if spec fetching is enabled (schemaId/sourceId provided).
+ * Returns a Promise that resolves to an object with the event spec (or null) and debug info.
+ *
+ * Note: Spec fetching happens regardless of encryption key presence.
+ * The encryption key only controls whether property values are sent (Phase 2).
+ * If spec fetch fails (invalid status code), validation is skipped for that event.
+ */
+async function fetchEventSpec(
+  eventName: string,
+  apiKey: string,
+  streamId: string | undefined,
+  request: RequestClient
+): Promise<EventSpec | null> {
+  if (!apiKey) {
+    console.warn(`[Avo Inspector] apiKey is missing, cannot fetch event spec`)
+    return null
+  }
+
+  if (!streamId) {
+    console.warn(`[Avo Inspector] streamId is missing, cannot fetch event spec`)
+    return null
+  }
+
+  try {
+    const fetchParams = {
+      apiKey: apiKey,
+      streamId: streamId,
+      eventName: eventName
+    }
+
+    // fetch from API (async)
+    const result = await new EventSpecFetcher(request, true).fetch(fetchParams).catch((error: any) => {
+      console.error(`[Avo Inspector] Failed to fetch event spec for ${eventName}:`, error)
+      return null
+    })
+
+    return result
+  } catch (error) {
+    // Graceful degradation - log but don't fail
+    console.error(`[Avo Inspector] Error in fetchEventSpecIfNeeded for ${eventName}:`, error)
+
+    return null
+  }
+}
+
+export async function extractSchemaFromEvent(
+  event: Payload,
+  appVersionPropertyName: string | undefined,
+  apiKey: string,
+  request: RequestClient
+) {
   const baseBody: BaseBody = generateBaseBody(event, appVersionPropertyName)
 
-  const eventBody: EventSchemaBody = handleEvent(baseBody, event)
+  const eventSpec = await fetchEventSpec(event.event, apiKey, event.anonymousId, request)
+
+  const eventSpecString = eventSpec ? JSON.stringify(eventSpec) : null
+  console.log(`[Avo Inspector] Final eventSpec:`, eventSpecString ? `set (${eventSpecString.length} chars)` : `null`)
+
+  const eventBody: EventSchemaBody = {
+    ...handleEvent(baseBody, event)
+  }
 
   return eventBody
 }

@@ -71,3 +71,16 @@ Array [
   },
 ]
 `;
+
+exports[`Testing snapshot for Avo's sendSchemaToInspector destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;

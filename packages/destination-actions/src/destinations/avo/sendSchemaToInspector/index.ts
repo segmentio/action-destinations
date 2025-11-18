@@ -5,7 +5,20 @@ import type { Payload } from './generated-types'
 import { extractSchemaFromEvent } from './avo'
 
 const processEvents = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
-  const events = payload.map((value) => extractSchemaFromEvent(value, settings.appVersionPropertyName))
+  const events = await Promise.all(
+    payload.map(async (value) => {
+      try {
+        return await extractSchemaFromEvent(value, settings.appVersionPropertyName, settings.apiKey, request)
+      } catch (error) {
+        console.error('[Avo Inspector] Error extracting schema from event:', error)
+        throw error
+      }
+    })
+  )
+
+  if (!events || events.length === 0) {
+    console.error('[Avo Inspector] No events generated from payload')
+  }
 
   const endpoint = 'https://api.avo.app/inspector/segment/v1/track'
 
@@ -15,7 +28,8 @@ const processEvents = async (request: RequestClient, settings: Settings, payload
       accept: 'application/json',
       'content-type': 'application/json',
       'api-key': settings.apiKey,
-      env: settings.env
+      env: settings.env,
+      streamId: payload[0].anonymousId ?? ''
     },
     body: JSON.stringify(events)
   })
@@ -88,6 +102,15 @@ const sendSchemaAction: ActionDefinition<Settings, Payload> = {
       required: false,
       default: {
         '@path': '$.context.page.url'
+      }
+    },
+    anonymousId: {
+      label: 'Anonymous ID',
+      type: 'string',
+      description: 'Anonymous ID of the user that sent the event',
+      required: false,
+      default: {
+        '@path': '$.anonymousId'
       }
     }
   },
