@@ -2,6 +2,7 @@ import { RequestClient, RequestOptions } from '@segment/actions-core'
 import { ModifiedResponse } from '@segment/actions-core'
 import get from 'lodash/get'
 import sortBy from 'lodash/sortBy'
+import { ATTIO_API_VERSION } from '../../versioning-info'
 
 export type SimpleValue = string | number | boolean
 
@@ -61,7 +62,7 @@ export class AttioClient {
     requestOptions?: Partial<RequestOptions>
   }): Promise<ModifiedResponse<AssertResponse>> {
     return await this.request(
-      `${this.api_url}/v2/objects/${object}/records/simple?matching_attribute=${matching_attribute}&append_to_existing_values=true`,
+      `${this.api_url}/${ATTIO_API_VERSION}/objects/${object}/records/simple?matching_attribute=${matching_attribute}&append_to_existing_values=true`,
       {
         method: 'put',
         json: { data: { values } },
@@ -83,7 +84,7 @@ export class AttioClient {
     assertions: Array<BatchAssertion>
     requestOptions?: Partial<RequestOptions>
   }): Promise<ModifiedResponse<AssertResponse>> {
-    return await this.request(`${this.api_url}/v2/batch/records`, {
+    return await this.request(`${this.api_url}/${ATTIO_API_VERSION}/batch/records`, {
       method: 'put',
       json: { assertions },
       ...requestOptions
@@ -94,7 +95,7 @@ export class AttioClient {
    * List all of the available Objects in the Attio workspace.
    */
   async listObjects(): Promise<Array<ObjectResponse>> {
-    const response = await this.request(`${this.api_url}/v2/objects`)
+    const response = await this.request(`${this.api_url}/${ATTIO_API_VERSION}/objects`)
     const objects: Array<ObjectResponse> = get(response, 'data.data', [])
 
     return sortBy(objects, 'singular_noun')

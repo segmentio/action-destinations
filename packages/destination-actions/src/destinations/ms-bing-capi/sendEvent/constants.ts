@@ -1,4 +1,4 @@
-import { MS_BING_CAPI_API_VERSION } from '../versioning-info'
+import { MS_BING_CAPI_API_VERSION } from '../../versioning-info'
 
 export const API_URL = `https://capi.uet.microsoft.com/${MS_BING_CAPI_API_VERSION}/`
 

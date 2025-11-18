@@ -6,6 +6,7 @@ import trackPurchase from './trackPurchase'
 import trackSignUp from './trackSignUp'
 import trackCustomEvent from './trackCustomEvent'
 import { defaultMapiBaseUrl } from './cloudUtil'
+import { FRIENDBUY_MAPI_VERSION } from '../versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Friendbuy (Cloud Destination)',

@@ -4,6 +4,7 @@ import type { ModifiedResponse } from '@segment/actions-core'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { AudienceSettings, Settings } from '../generated-types'
+import { TABOOLA_API_VERSION } from '../../versioning-info'
 
 interface ClusterItem {
   user_id: string
@@ -89,7 +90,7 @@ export class TaboolaClient {
         if (identities.length > 0) {
           taboolaRequests.push(
             this.request(
-              `https://backstage.taboola.com/backstage/api/1.0/${
+              `https://backstage.taboola.com/backstage/api/${TABOOLA_API_VERSION}/${
                 this.audienceSettings?.account_id as string
               }/audience_onboarding`,
               {

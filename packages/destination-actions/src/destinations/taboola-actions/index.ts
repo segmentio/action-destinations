@@ -4,6 +4,7 @@ import { defaultValues, IntegrationError } from '@segment/actions-core'
 import { TaboolaClient } from './syncAudience/client'
 
 import syncAudience from './syncAudience'
+import { TABOOLA_API_VERSION } from '../versioning-info'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Taboola (Actions)',
@@ -97,7 +98,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const accessToken = (await TaboolaClient.refreshAccessToken(request, createAudienceInput.settings)).accessToken
 
         const response = await request(
-          `https://backstage.taboola.com/backstage/api/1.0/${accountId}/audience_onboarding/create`,
+          `https://backstage.taboola.com/backstage/api/${TABOOLA_API_VERSION}/${accountId}/audience_onboarding/create`,
           {
             method: 'post',
             json: {

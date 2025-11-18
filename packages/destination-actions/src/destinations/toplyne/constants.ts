@@ -1,3 +1,3 @@
-import { TOPLYNE_BASE_URL } from '../versioning-info'
+import { TOPLYNE_API_VERSION } from '../versioning-info'
 
-export const baseUrl = TOPLYNE_BASE_URL
+export const baseUrl = `https://api.toplyne.io/${TOPLYNE_API_VERSION}`

@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import mapValues from 'lodash/mapValues'
+import { ONEPLUSX_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event',
@@ -117,8 +118,8 @@ const action: ActionDefinition<Settings, Payload> = {
     })
 
     const endpoint = settings.use_test_endpoint
-      ? `https://tagger-test.opecloud.com/${settings.client_id}/v2/native/event`
-      : `https://${settings.client_id}.tagger.opecloud.com/${settings.client_id}/v2/native/event`
+      ? `https://tagger-test.opecloud.com/${settings.client_id}/${ONEPLUSX_API_VERSION}/native/event`
+      : `https://${settings.client_id}.tagger.opecloud.com/${settings.client_id}/${ONEPLUSX_API_VERSION}/native/event`
 
     return request(endpoint, {
       method: 'post',

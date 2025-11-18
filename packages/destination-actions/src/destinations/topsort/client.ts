@@ -1,5 +1,6 @@
 import { RequestClient, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { TOPSORT_API_VERSION } from '../versioning-info'
 
 export class TopsortAPIClient {
   url: string
@@ -15,7 +16,7 @@ export class TopsortAPIClient {
   }
 
   private getEndpoint() {
-    return `https://api.topsort.com/v2/events`
+    return `https://api.topsort.com/${TOPSORT_API_VERSION}/events`
   }
 
   async sendEvent(body: Record<string, unknown>): Promise<ModifiedResponse> {

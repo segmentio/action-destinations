@@ -1,6 +1,7 @@
 import { PayloadValidationError, ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { SURVEYSPARROW_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Contact in SurveySparrow',
@@ -96,7 +97,7 @@ const action: ActionDefinition<Settings, Payload> = {
         job_title: payload.job_title,
         ...payload.custom_fields
       }
-      return request(`${SURVEYSPARROW_BASE_URL}/contacts`, {
+      return request(`https://api.surveysparrow.com/${SURVEYSPARROW_API_VERSION}/contacts`, {
         method: 'post',
         json: transformedPayload
       })

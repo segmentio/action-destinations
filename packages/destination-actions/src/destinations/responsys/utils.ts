@@ -20,7 +20,6 @@ import {
   createRequestClient
 } from '@segment/actions-core'
 import { RESPONSYS_ASYNC_API_VERSION } from '../versioning-info'
-} from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 // Rate limits per endpoint.
@@ -96,7 +95,7 @@ export const getUserDataFieldNames = (data: Data): string[] => {
 export const stringifyObject = (obj: Record<string, unknown>): Record<string, string> => {
   const stringifiedObj: Record<string, string> = {}
   for (const key in obj) {
-    stringifiedObj[key] = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : (obj[key] as string)
+    stringifiedObj[key] = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : obj[key]
   }
   return stringifiedObj
 }
@@ -234,7 +233,9 @@ export const upsertListMembers = async (
         mergeRule
       }
 
-      const path = `/rest/${usingAsyncApi ? 'asyncApi' : 'api'}/${RESPONSYS_ASYNC_API_VERSION}/lists/${settings.profileListName}/members`
+      const path = `/rest/${usingAsyncApi ? 'asyncApi' : 'api'}/${RESPONSYS_ASYNC_API_VERSION}/lists/${
+        settings.profileListName
+      }/members`
       const endpoint = new URL(path, settings.baseUrl)
 
       const headers = {
@@ -323,7 +324,10 @@ export const getAsyncResponse = async (
     }
   }
 
-  const operationResponseEndpoint = new URL(`/rest/asyncApi/${RESPONSYS_ASYNC_API_VERSION}/requests/${requestId}`, settings.baseUrl)
+  const operationResponseEndpoint = new URL(
+    `/rest/asyncApi/${RESPONSYS_ASYNC_API_VERSION}/requests/${requestId}`,
+    settings.baseUrl
+  )
   const request = createRequestClient(headers)
   // Take a break.
   await new Promise((resolve) => setTimeout(resolve, getAsyncResponseWaitInterval))

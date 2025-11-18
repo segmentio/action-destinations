@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { YOTPO_API_VERSION } from '../../versioning-info'
 
 // TODO: this is a test action, update it once we have better understanding of what it needs to do
 const action: ActionDefinition<Settings, Payload> = {
@@ -14,9 +15,9 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  defaultSubscription: 'type = "track"', 
+  defaultSubscription: 'type = "track"',
   perform: (request, data) => {
-    return request(`https://developers.yotpo.com/v2/${data.settings.store_id}/info`, {
+    return request(`https://developers.yotpo.com/${YOTPO_API_VERSION}/${data.settings.store_id}/info`, {
       method: 'get'
     })
   }

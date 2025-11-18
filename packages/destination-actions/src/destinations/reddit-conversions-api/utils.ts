@@ -22,11 +22,14 @@ type ScreenDimensionsType = StandardEvent['screen_dimensions'] | CustomEvent['sc
 
 export async function send(request: RequestClient, settings: Settings, payload: StandardEvent[] | CustomEvent[]) {
   const data = createRedditPayload(payload, settings)
-  return request(`https://ads-api.reddit.com/api/v${REDDIT_CONVERSIONS_API_VERSION}/conversions/events/${settings.ad_account_id}`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${settings.conversion_token}` },
-    json: JSON.parse(JSON.stringify(data))
-  })
+  return request(
+    `https://ads-api.reddit.com/api/${REDDIT_CONVERSIONS_API_VERSION}/conversions/events/${settings.ad_account_id}`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${settings.conversion_token}` },
+      json: JSON.parse(JSON.stringify(data))
+    }
+  )
 }
 
 function createRedditPayload(payloads: StandardEvent[] | CustomEvent[], settings: Settings): StandardEventPayload {
@@ -171,7 +174,7 @@ const smartHash = (value: string | undefined, cleaningFunction?: (value: string)
 }
 
 function cleanPhoneNumber(phoneNumber: string): string {
-  if (!phoneNumber) return ""
+  if (!phoneNumber) return ''
   phoneNumber = phoneNumber.trim()
   const prefix = '+'
   if (phoneNumber.startsWith('+')) {

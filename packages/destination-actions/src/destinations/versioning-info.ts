@@ -1,13 +1,13 @@
 /**
  * Central API Versioning Information
- * 
+ *
  * This file contains API version constants for all destination integrations.
  * Having API versions in a central location makes it easier to:
  * - Track which API versions are being used across destinations
  * - Update API versions when destinations need to be upgraded
  * - Maintain consistency across related destinations
  * - Quickly identify destinations that may need updates
- * 
+ *
  * @module versioning-info
  */
 
@@ -24,7 +24,7 @@ export const BATCH_API_VERSION = 2.6
 /**
  * Display & Video 360 (DV360) Google API Version
  */
-export const DISPLAY_VIDEO_360_API_VERSION = 'v2'
+export const DISPLAY_VIDEO_360_AUDIENCE_PARTNER_API_VERSION = 'v2'
 
 /**
  * Facebook Conversions API Version
@@ -74,9 +74,9 @@ export const SALESFORCE_API_VERSION = 'v53.0'
 export const THE_TRADE_DESK_CRM_API_VERSION = 'v3'
 
 /**
- * TikTok API Version (used across multiple TikTok destinations)
+ * TikTok Audiences API Version
  */
-export const TIKTOK_API_VERSION = 'v1.3'
+export const TIKTOK_AUDIENCES_API_VERSION = 'v1.3'
 
 /**
  * Vibe Audience API Version
@@ -84,19 +84,14 @@ export const TIKTOK_API_VERSION = 'v1.3'
 export const VIBE_AUDIENCE_API_VERSION = 'v1'
 
 /**
- * Toplyne Base URL (includes version)
+ * Toplyne API version
  */
-export const TOPLYNE_BASE_URL = 'https://api.toplyne.io/v1'
+export const TOPLYNE_API_VERSION = 'v1'
 
 /**
- * UserMotion Base URL (includes version)
+ * Prodeology API version
  */
-export const USERMOTION_BASE_URL = 'https://api.usermotion.com/v1'
-
-/**
- * Prodeology Base URL (includes version)
- */
-export const PRODEOLOGY_BASE_URL = 'https://api-dev.prodeology.com/api/v1'
+export const PRODEOLOGY_API_VERSION = 'v1'
 
 /**
  * Responsys Async API version
@@ -112,13 +107,6 @@ export const AMBEE_API_VERSION = 'v1'
  * SurveySparrow API Version
  */
 export const SURVEYSPARROW_API_VERSION = 'v3'
-
-
-
-/**
- * TikTok Base URL
- */
-export const TIKTOK_BASE_URL = 'https://business-api.tiktok.com/open_api/'
 
 /**
  * Attentive API Version
@@ -145,6 +133,7 @@ export const FIRST_PARTY_DV360_CANARY_API_VERSION = 'v4'
  * Google Enhanced Conversions API Version
  */
 export const GOOGLE_ENHANCED_CONVERSIONS_API_VERSION = 'v19'
+export const GOOGLE_ENHANCED_CONVERSIONS_EVENTS_API_VERSION = 'v1'
 
 /**
  * Google Sheets API Version
@@ -292,7 +281,8 @@ export const FRIENDBUY_MAPI_VERSION = 'v1'
 /**
  * Optimizely Feature Experimentation API version for GDPR requests
  */
-export const OPTIMIZELY_FEATURE_EXPERIMENTATION_API_VERSION = 'v2'
+export const OPTIMIZELY_FEATURE_EXPERIMENTATION_DELETE_API_VERSION = 'v2'
+export const OPTIMIZELY_FEATURE_EXPERIMENTATION_TRACK_API_VERSION = 'v1'
 
 /**
  * Outfunnel API version
@@ -365,9 +355,14 @@ export const AMAZON_CONVERSIONS_API_PROFILES_VERSION = 'v2'
 export const AMAZON_CONVERSIONS_API_EVENTS_VERSION = 'v1'
 
 /**
- * Dotdigital API Version (for Campaign API endpoints)
+ * Dotdigital API Version (for most v2 REST endpoints: programs, data-fields, lists, email, sms, campaigns)
  */
 export const DOTDIGITAL_API_VERSION = 'v2'
+
+/**
+ * Dotdigital Contacts API Version (used for /contacts endpoints)
+ */
+export const DOTDIGITAL_CONTACTS_API_VERSION = 'v3'
 
 /**
  * PostHog API Version
@@ -450,3 +445,170 @@ export const AIRSHIP_API_VERSION = '3'
  * Used for offline event tracking endpoints
  */
 export const TIKTOK_OFFLINE_CONVERSIONS_API_VERSION = 'v1.3'
+
+/**
+ * Algolia Insights API Version
+ */
+export const ALGOLIA_INSIGHTS_API_VERSION = '1'
+
+/**
+ * Amplitude HTTP API Version
+ */
+export const AMPLITUDE_API_VERSION = '2'
+
+/**
+ * Angler AI API Version
+ */
+export const ANGLER_AI_API_VERSION = 'v1'
+
+/**
+ * Segment Profiles API Version
+ */
+export const SEGMENT_PROFILES_API_VERSION = 'v1'
+
+/**
+ * Revend API Version
+ */
+export const REVEND_API_VERSION = 'v2'
+
+/**
+ * Mantle API Version
+ */
+export const MANTLE_API_VERSION = 'v1'
+
+/**
+ * Yahoo Audiences Taxonomy API Version
+ */
+export const YAHOO_AUDIENCES_TAXONOMY_API_VERSION = 'v1'
+
+/**
+ * HubSpot CRM API Version (v3)
+ */
+export const HUBSPOT_CRM_API_VERSION = 'v3'
+
+/**
+ * HubSpot CRM API Version (v4 - for associations)
+ */
+export const HUBSPOT_CRM_ASSOCIATIONS_API_VERSION = 'v4'
+
+/**
+ * HubSpot OAuth API Version
+ */
+export const HUBSPOT_OAUTH_API_VERSION = 'v1'
+
+/**
+ * Topsort Events API Version
+ */
+export const TOPSORT_API_VERSION = 'v2'
+
+/**
+ * Canvas Events API Version
+ */
+export const CANVAS_API_VERSION = 'v1'
+
+/**
+ * Pipedrive API Version
+ */
+export const PIPEDRIVE_API_VERSION = 'v1'
+
+/**
+ * Close CRM API Version
+ */
+export const CLOSE_API_VERSION = 'v1'
+
+/**
+ * Attio API Version
+ */
+export const ATTIO_API_VERSION = 'v2'
+
+/**
+ * Customer.io Track API Version (v1 - for customers endpoint)
+ */
+export const CUSTOMERIO_CUSTOMERS_API_VERSION = 'v1'
+
+/**
+ * SingleStore Data API Version
+ */
+export const SINGLESTORE_API_VERSION = 'v2'
+
+/**
+ * MS Bing Ads Audiences OAuth API Version
+ */
+export const MS_BING_ADS_AUDIENCES_OAUTH_API_VERSION = 'v2.0'
+
+/**
+ * Avo API Version
+ */
+export const AVO_API_VERSION = 'v1'
+
+/**
+ * Blackbaud Raiser's Edge NXT API Version
+ */
+export const BLACKBAUD_API_VERSION = 'v1'
+
+/**
+ * CleverTap API Version
+ */
+export const CLEVERTAP_API_VERSION = '1'
+
+/**
+ * Criteo Audiences API Version
+ */
+export const CRITEO_AUDIENCES_API_VERSION = '2023-10'
+
+/**
+ * FullStory API Version
+ */
+export const FULLSTORY_API_VERSION = 'v1'
+
+/**
+ * Gameball API Version
+ */
+export const GAMEBALL_API_VERSION = 'v3.0'
+export const GAMEBALL_AUTH_API_VERSION = 'v1.0'
+
+/**
+ * Optimizely Web
+ */
+export const OPTIMIZELY_WEB_EVENTS_API_VERSION = 'v1'
+export const OPTIMIZELY_WEB_CUSTOM_EVENTS_API_VERSION = 'v2'
+
+/**
+ * Postscript API Version
+ */
+export const POSTSCRIPT_API_VERSION = 'v2'
+
+/**
+ * Spiffy API Version
+ */
+export const SPIFFY_API_VERSION = 'v1'
+
+/**
+ * Taboola API Version
+ */
+export const TABOOLA_API_VERSION = '1.0'
+
+/**
+ * TikTok App Events API Version
+ */
+export const TIKTOK_APP_EVENTS_API_VERSION = 'v1.3'
+
+/**
+ * TikTok Conversions API Version
+ */
+export const TIKTOK_CONVERSIONS_API_VERSION = 'v1.3'
+
+/**
+ * Twilio API Version
+ */
+export const TWILIO_API_VERSION = '2010-04-01'
+
+/**
+ * Twilio Studio API Version
+ */
+export const TWILIO_STUDIO_API_VERSION = 'v2'
+
+/**
+ * Usermotion API Version
+ */
+export const USERMOTION_API_VERSION = 'v1'

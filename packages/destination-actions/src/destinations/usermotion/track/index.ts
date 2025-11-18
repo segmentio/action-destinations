@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { USERMOTION_BASE_URL } from '../../versioning-info'
+import { USERMOTION_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Analytics Event',
@@ -51,7 +51,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    return request(`${USERMOTION_BASE_URL}/track`, {
+    return request(`https://api.usermotion.com/${USERMOTION_API_VERSION}/track`, {
       method: 'post',
       json: {
         event: payload.eventName,

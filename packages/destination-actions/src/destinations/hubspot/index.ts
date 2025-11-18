@@ -8,6 +8,7 @@ import upsertCustomObjectRecord from './upsertCustomObjectRecord'
 import upsertObject from './upsertObject'
 import customEvent from './customEvent'
 import { HUBSPOT_BASE_URL } from './properties'
+import { HUBSPOT_CRM_API_VERSION, HUBSPOT_OAUTH_API_VERSION } from '../versioning-info'
 interface RefreshTokenResponse {
   access_token: string
 }
@@ -28,11 +29,11 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (request) => {
       // HubSpot doesn't have a test authentication endpoint, so we using a lightweight CRM API to validate access token
-      return request(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts?limit=1`)
+      return request(`${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/objects/contacts?limit=1`)
     },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
-      const res = await request<RefreshTokenResponse>(`${HUBSPOT_BASE_URL}/oauth/v1/token`, {
+      const res = await request<RefreshTokenResponse>(`${HUBSPOT_BASE_URL}/oauth/${HUBSPOT_OAUTH_API_VERSION}/token`, {
         method: 'POST',
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,

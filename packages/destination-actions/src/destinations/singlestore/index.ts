@@ -3,6 +3,7 @@ import { Settings } from './generated-types'
 import { ExecJSONRequest, ExecJSONResponse } from './types'
 import send from './send'
 import btoa from 'btoa-lite'
+import { SINGLESTORE_API_VERSION } from '../versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'SingleStore',
@@ -53,7 +54,7 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: async (request, { settings }) => {
       const { host, port, username, password, dbName, tableName } = settings
 
-      const url = `https://${host}:${port}/api/v2/exec`
+      const url = `https://${host}:${port}/api/${SINGLESTORE_API_VERSION}/exec`
 
       const encodedCredentials = btoa(`${username}:${password}`)
 

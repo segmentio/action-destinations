@@ -4,12 +4,13 @@ import { Settings } from '../generated-types'
 import { getAsyncResponse, sendDebugMessageToSegmentSource, stringifyObject, upsertListMembers } from '../utils'
 import { ResponsysCustomTraitsRequestBody, ResponsysRecordData, ResponsysAsyncResponse } from '../types'
 import { Payload } from './generated-types'
+import { RESPONSYS_ASYNC_API_VERSION } from '../../versioning-info'
 
 export const getAllPets = async (
   request: RequestClient,
   settings: Settings
 ): Promise<{ objectName: string; folderName: string }[]> => {
-  const path = `/rest/api/v1.3/lists/${settings.profileListName}/listExtensions`
+  const path = `/rest/api/${RESPONSYS_ASYNC_API_VERSION}/lists/${settings.profileListName}/listExtensions`
   const endpoint = new URL(path, settings.baseUrl)
 
   const response = await request(endpoint.href, {
@@ -43,7 +44,7 @@ export const createPet = async (
     fields: petFields
   }
 
-  const path = `/rest/api/v1.3/lists/${settings.profileListName}/listExtensions`
+  const path = `/rest/api/${RESPONSYS_ASYNC_API_VERSION}/lists/${settings.profileListName}/listExtensions`
   const endpoint = new URL(path, settings.baseUrl)
 
   await request(endpoint.href, {
@@ -159,7 +160,7 @@ export const sendToPet = async (
           matchColumnName2: settings.matchColumnName2 || ''
         }
 
-        const path = `/rest/${usingAsyncApi ? 'asyncApi' : 'api'}/v1.3/lists/${
+        const path = `/rest/${usingAsyncApi ? 'asyncApi' : 'api'}/${RESPONSYS_ASYNC_API_VERSION}/lists/${
           settings.profileListName
         }/listExtensions/${petName}/members`
         const endpoint = new URL(path, settings.baseUrl)

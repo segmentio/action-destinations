@@ -3,6 +3,7 @@ import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
 import { Contact, ChannelIdentifier, Identifiers, ChannelProperties, UpsertContactJSON, DataFields } from '../types'
 import type { Payload } from '../../addContactToList/generated-types'
+import { DOTDIGITAL_CONTACTS_API_VERSION } from '../../../versioning-info'
 
 class DDContactApi extends DDApi {
   constructor(settings: Settings, client: RequestClient) {
@@ -18,7 +19,9 @@ class DDContactApi extends DDApi {
    * @returns A promise that resolves to a ContactResponse.
    */
   async getContact(idType: string, idValue: string | undefined): Promise<Contact> {
-    const response: ModifiedResponse<Contact> = await this.get<Contact>(`/contacts/v3/${idType}/${idValue}`)
+    const response: ModifiedResponse<Contact> = await this.get<Contact>(
+      `/contacts/${DOTDIGITAL_CONTACTS_API_VERSION}/${idType}/${idValue}`
+    )
     return response.data
   }
 
@@ -32,7 +35,10 @@ class DDContactApi extends DDApi {
    */
   async fetchOrCreateContact<T>(channelIdentifier: ChannelIdentifier, data: T): Promise<Contact> {
     const [[idType, idValue]] = Object.entries(channelIdentifier)
-    const response: ModifiedResponse<Contact> = await this.patch<Contact, T>(`/contacts/v3/${idType}/${idValue}`, data)
+    const response: ModifiedResponse<Contact> = await this.patch<Contact, T>(
+      `/contacts/${DOTDIGITAL_CONTACTS_API_VERSION}/${idType}/${idValue}`,
+      data
+    )
     return response.data
   }
 
@@ -72,7 +78,7 @@ class DDContactApi extends DDApi {
     }
 
     const response: ModifiedResponse<Contact> = await this.patch<Contact, UpsertContactJSON>(
-      `/contacts/v3/${channelIdentifier}/${idValue}?merge-option=overwrite`,
+      `/contacts/${DOTDIGITAL_CONTACTS_API_VERSION}/${channelIdentifier}/${idValue}?merge-option=overwrite`,
       data
     )
 

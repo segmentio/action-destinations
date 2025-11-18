@@ -1,10 +1,11 @@
-import type {ActionDefinition} from '@segment/actions-core'
-import type {Settings} from '../generated-types'
-import type {Payload} from './generated-types'
-import type {ClevertapEvent} from "./types";
+import type { ActionDefinition } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import type { ClevertapEvent } from './types'
+import { CLEVERTAP_API_VERSION } from '../../versioning-info'
 
-const type = 'profile';
-const source = 'Segment';
+const type = 'profile'
+const source = 'Segment'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'User Upload',
   description: 'The User Upload Action enables you to create or update user profiles in CleverTap.',
@@ -13,25 +14,25 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Created At',
       type: 'string',
       description: 'A timestamp when the person was created',
-      default: {'@path': '$.timestamp'}
+      default: { '@path': '$.timestamp' }
     },
     profileData: {
       label: 'Person Attributes',
       type: 'object',
-      description: 'Optional attributes for the person. When updating a person attributes added or updated, not removed',
-      default: {'@path': '$.properties'}
+      description:
+        'Optional attributes for the person. When updating a person attributes added or updated, not removed',
+      default: { '@path': '$.properties' }
     },
     identity: {
       label: 'Identity',
       type: 'string',
       description: 'The Id used to uniquely identify a person in CleverTap',
-      default: {'@path': '$.userId'},
+      default: { '@path': '$.userId' },
       required: true
-    },
+    }
   },
 
-
-  perform: (request, {settings, payload}) => {
+  perform: (request, { settings, payload }) => {
     const event: ClevertapEvent = {
       type: type,
       source: source,
@@ -40,14 +41,14 @@ const action: ActionDefinition<Settings, Payload> = {
       ts: payload.ts
     }
 
-    return request(`${settings.clevertapEndpoint}/1/upload`, {
+    return request(`${settings.clevertapEndpoint}/${CLEVERTAP_API_VERSION}/upload`, {
       method: 'post',
       json: {
-        "d": [event]
+        d: [event]
       },
       headers: {
-        "X-CleverTap-Account-Id": `${settings.clevertapAccountId}`,
-        "X-CleverTap-Passcode": `${settings.clevertapPasscode}`
+        'X-CleverTap-Account-Id': `${settings.clevertapAccountId}`,
+        'X-CleverTap-Passcode': `${settings.clevertapPasscode}`
       }
     })
   }

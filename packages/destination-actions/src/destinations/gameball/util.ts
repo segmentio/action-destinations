@@ -2,14 +2,15 @@ import { RequestClient } from '@segment/actions-core/create-request-client'
 import { InputField } from '@segment/actions-core/index'
 import { RequestOptions } from '@segment/actions-core/request-client'
 import type { Settings } from './generated-types'
+import { GAMEBALL_API_VERSION, GAMEBALL_AUTH_API_VERSION } from '../versioning-info'
 
 export const endpoints = {
   baseApiUrl: 'https://api.gameball.co',
   baseAuthUrl: 'https://auth.gameball.co',
-  testAuthentication: '/api/v1.0/protected/TestAuthentication',
-  trackEvent: '/api/v3.0/integrations/event',
-  trackOrder: '/api/v3.0/integrations/order',
-  identifyPlayer: '/api/v3.0/integrations/player'
+  testAuthentication: `/api/${GAMEBALL_AUTH_API_VERSION}/protected/TestAuthentication`,
+  trackEvent: `/api/${GAMEBALL_API_VERSION}/integrations/event`,
+  trackOrder: `/api/${GAMEBALL_API_VERSION}/integrations/order`,
+  identifyPlayer: `/api/${GAMEBALL_API_VERSION}/integrations/player`
 }
 
 export const playerProperties: Record<string, InputField> = {

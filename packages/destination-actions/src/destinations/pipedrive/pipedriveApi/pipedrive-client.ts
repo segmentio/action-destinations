@@ -3,6 +3,7 @@ import type { ExecuteInput, ModifiedResponse, RequestClient } from '@segment/act
 import get from 'lodash/get'
 import { ActivityTypes, PipedriveFields } from './domain'
 import { DynamicFieldResponse } from '@segment/actions-core'
+import { PIPEDRIVE_API_VERSION } from '../../versioning-info'
 
 interface SearchFieldTypes {
   deal: 'dealField'
@@ -149,7 +150,7 @@ class PipedriveClient {
 
   async reqWithPayload(path: string, payload: Record<string, unknown>, method: 'post' | 'put' | 'patch') {
     PipedriveClient.filterPayload(payload)
-    const urlBase = `https://${this.settings.domain}.pipedrive.com/api/v1`
+    const urlBase = `https://${this.settings.domain}.pipedrive.com/api/${PIPEDRIVE_API_VERSION}`
     return this._request(`${urlBase}/${path}`, {
       method: method,
       json: payload

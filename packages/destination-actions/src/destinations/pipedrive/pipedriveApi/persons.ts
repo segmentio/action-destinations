@@ -1,5 +1,6 @@
 import { ModifiedResponse } from '@segment/actions-core'
 import type { RequestClient } from '@segment/actions-core'
+import { PIPEDRIVE_API_VERSION } from '../../versioning-info'
 
 export interface Person {
   name?: string
@@ -23,7 +24,7 @@ export async function createOrUpdatePersonById(
     })
   } else {
     // Create a person
-    return request(`https://${domain}.pipedrive.com/api/v1/persons`, {
+    return request(`https://${domain}.pipedrive.com/api/${PIPEDRIVE_API_VERSION}/persons`, {
       method: 'post',
       json: person
     })

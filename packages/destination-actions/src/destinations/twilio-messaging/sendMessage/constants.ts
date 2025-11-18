@@ -1,9 +1,9 @@
 import { PredefinedContentTypes } from './types'
-import { 
-  TWILIO_MESSAGING_API_VERSION, 
-  TWILIO_MESSAGING_SERVICES_API_VERSION, 
-  TWILIO_CONTENT_API_VERSION 
-} from '../versioning-info'
+import {
+  TWILIO_MESSAGING_API_VERSION,
+  TWILIO_MESSAGING_SERVICES_API_VERSION,
+  TWILIO_CONTENT_API_VERSION
+} from '../../versioning-info'
 
 export const CONTENT_SID_TOKEN = '{accountSid}'
 

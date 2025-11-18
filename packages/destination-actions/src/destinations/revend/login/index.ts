@@ -11,6 +11,7 @@ import {
   engagement_time_msec,
   timestamp_micros
 } from '../ga4-properties'
+import { REVEND_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Login',
@@ -51,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
       timestamp_micros: convertTimestamp(payload.timestamp_micros)
     }
 
-    return request('https://gtmadapter-node-cbjg5cz5hq-ew.a.run.app/v2/consolidated-data', {
+    return request(`https://gtmadapter-node-cbjg5cz5hq-ew.a.run.app/${REVEND_API_VERSION}/consolidated-data`, {
       method: 'POST',
       json: request_object
     })

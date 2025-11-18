@@ -1,5 +1,6 @@
 import type { RequestOptions } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { FULLSTORY_API_VERSION } from '../versioning-info'
 
 /**
  * Parameters intended to be passed into a RequestClient.
@@ -60,7 +61,7 @@ export const customEventRequestParams = (
   const { userId, eventName, eventData, timestamp, useRecentSession, sessionUrl } = requestValues
   const defaultParams = defaultRequestParams(
     settings,
-    `users/v1/individual/${encodeURIComponent(userId)}/customevent?${integrationSourceQueryParam}`
+    `users/${FULLSTORY_API_VERSION}/individual/${encodeURIComponent(userId)}/customevent?${integrationSourceQueryParam}`
   )
 
   const requestBody: Record<string, any> = {
@@ -109,7 +110,7 @@ export const setUserPropertiesRequestParams = (
 ): RequestParams => {
   const defaultParams = defaultRequestParams(
     settings,
-    `users/v1/individual/${encodeURIComponent(userId)}/customvars?${integrationSourceQueryParam}`
+    `users/${FULLSTORY_API_VERSION}/individual/${encodeURIComponent(userId)}/customvars?${integrationSourceQueryParam}`
   )
 
   return {

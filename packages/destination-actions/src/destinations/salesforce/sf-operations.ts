@@ -11,10 +11,7 @@ import { buildCSVData, validateInstanceURL } from './sf-utils'
 import { DynamicFieldResponse, createRequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Logger } from '@segment/actions-core/destination-kit'
-import { SALESFORCE_API_VERSION as API_VERSION } from '../versioning-info'
-
-// Re-export for backward compatibility with tests and other imports
-export { API_VERSION }
+import { SALESFORCE_API_VERSION } from '../versioning-info'
 
 /**
  * This error is triggered if the bulkHandler is ever triggered when the enable_batching setting is false.
@@ -166,7 +163,7 @@ export default class Salesforce {
   createRecord = async (payload: GenericPayload, sobject: string) => {
     const json = this.buildJSONData(payload, sobject)
 
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}`, {
+    return this.request(`${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects/${sobject}`, {
       method: 'post',
       json: json
     })
@@ -289,7 +286,7 @@ export default class Salesforce {
   customObjectName = async (): Promise<DynamicFieldResponse> => {
     try {
       const result = await this.request<SObjectsResponseData>(
-        `${this.instanceUrl}services/data/${API_VERSION}/sobjects`,
+        `${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`,
         {
           method: 'get',
           skipResponseCloning: true
@@ -450,7 +447,7 @@ export default class Salesforce {
     }
 
     const res = await this.request<CreateJobResponseData>(
-      `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest`,
+      `${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest`,
       {
         method: 'post',
         json: jsonData
@@ -488,7 +485,7 @@ export default class Salesforce {
       statsClient?.incr('bulkJob.uploadCSV', 1, tags)
     }
 
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}/batches`, {
+    return this.request(`${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/${jobId}/batches`, {
       method: 'put',
       headers: {
         'Content-Type': 'text/csv',
@@ -511,7 +508,7 @@ export default class Salesforce {
       statsClient?.incr('bulkJob.closeBulkJob', 1, tags)
     }
 
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`, {
+    return this.request(`${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/${jobId}`, {
       method: 'PATCH',
       json: {
         state: 'UploadComplete'
@@ -522,14 +519,14 @@ export default class Salesforce {
   private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {
     const json = this.buildJSONData(payload, sobject)
 
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
+    return this.request(`${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects/${sobject}/${recordId}`, {
       method: 'patch',
       json: json
     })
   }
 
   private baseDelete = async (recordId: string, sobject: string) => {
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
+    return this.request(`${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects/${sobject}/${recordId}`, {
       method: 'delete'
     })
   }
@@ -600,7 +597,7 @@ export default class Salesforce {
     const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject, soqlOperator))
 
     const res = await this.request<LookupResponseData>(
-      `${this.instanceUrl}services/data/${API_VERSION}/query/?q=${SOQLQuery}`,
+      `${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query/?q=${SOQLQuery}`,
       { method: 'GET' }
     )
 

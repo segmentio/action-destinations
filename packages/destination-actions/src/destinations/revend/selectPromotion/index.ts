@@ -18,6 +18,7 @@ import {
 import { PromotionProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { REVEND_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Select Promotion',
@@ -104,7 +105,7 @@ const action: ActionDefinition<Settings, Payload> = {
       timestamp_micros: convertTimestamp(payload.timestamp_micros)
     }
 
-    return request('https://gtmadapter-node-cbjg5cz5hq-ew.a.run.app/v2/consolidated-data', {
+    return request(`https://gtmadapter-node-cbjg5cz5hq-ew.a.run.app/${REVEND_API_VERSION}/consolidated-data`, {
       method: 'POST',
       json: request_object
     })

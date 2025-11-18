@@ -1,6 +1,7 @@
 import btoa from 'btoa-lite'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { DOTDIGITAL_API_VERSION } from '../versioning-info'
 
 import removeContactFromList from './removeContactFromList'
 import enrolContact from './enrolContact'
@@ -29,7 +30,7 @@ const destination: DestinationDefinition<Settings> = {
         ],
         default: 'https://r1-api.dotdigital.com',
         required: true
-      },    
+      },
       username: {
         label: 'Username',
         description: 'Your Dotdigital username',
@@ -44,13 +45,16 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      return await request(`${settings.api_host}/v2/data-fields/`)
+      return await request(`${settings.api_host}/${DOTDIGITAL_API_VERSION}/data-fields/`)
     }
   },
 
   extendRequest({ settings }) {
     return {
-      headers: { Authorization: `Basic ${btoa(settings.username + ':' + settings.password)}`, 'x-ddg-integration-token': '7d1e8cff-4856-4f45-93d3-dac7377a53c2'},
+      headers: {
+        Authorization: `Basic ${btoa(settings.username + ':' + settings.password)}`,
+        'x-ddg-integration-token': '7d1e8cff-4856-4f45-93d3-dac7377a53c2'
+      },
       responseType: 'json'
     }
   },

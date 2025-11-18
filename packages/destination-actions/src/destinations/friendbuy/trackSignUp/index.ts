@@ -8,6 +8,7 @@ import { contextFields } from '@segment/actions-shared'
 import { COPY, DROP, mapEvent } from '@segment/actions-shared'
 import { trackSignUpFields } from '@segment/actions-shared'
 import { enjoinInteger, enjoinString, parseDate } from '@segment/actions-shared'
+import { FRIENDBUY_MAPI_VERSION } from '../../versioning-info'
 
 const cloudTrackSignUpFields = {
   ...trackSignUpFields({ requireCustomerId: true, requireEmail: true }),
@@ -49,7 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     const friendbuyPayload = mapEvent(trackSignUpMapi, payload as unknown as AnalyticsPayload)
     const [requestUrl, requestParams] = await createMapiRequest(
-      'v1/event/account-sign-up',
+      `${FRIENDBUY_MAPI_VERSION}/event/account-sign-up`,
       request,
       settings,
       friendbuyPayload

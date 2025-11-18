@@ -9,6 +9,7 @@ import {
   getRegionalEndpoint
 } from '../sendgrid-properties'
 import { IntegrationError } from '@segment/actions-core'
+import { SENDGRID_API_VERSION } from '../../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
@@ -252,7 +253,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const regionalEndpoint = getRegionalEndpoint(data.settings)
     // Making contacts upsert call here
     // Reference: https://docs.sendgrid.com/api-reference/contacts/add-or-update-a-contact
-    return request(`${regionalEndpoint}/v3/marketing/contacts`, {
+    return request(`${regionalEndpoint}/${SENDGRID_API_VERSION}/marketing/contacts`, {
       method: 'put',
       json: formattedData
     })
@@ -269,7 +270,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const formattedData = { contacts: data.payload.map((p) => convertPayload(p, accountCustomFields)) }
     const regionalEndpoint = getRegionalEndpoint(data.settings)
 
-    return request(`${regionalEndpoint}/v3/marketing/contacts`, {
+    return request(`${regionalEndpoint}/${SENDGRID_API_VERSION}/marketing/contacts`, {
       method: 'put',
       json: formattedData
     })

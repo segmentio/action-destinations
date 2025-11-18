@@ -1,7 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { BASE_URL, TIKTOK_API_VERSION } from '../../constants'
+import { BASE_URL } from '../../constants'
+import { TIKTOK_AUDIENCES_API_VERSION } from '../../../versioning-info'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -28,7 +29,7 @@ const createAudienceRequestBody = {
 
 describe('TiktokAudiences.createAudience', () => {
   it('should successfully create a new audience', async () => {
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/audience/`)
+    nock(`${BASE_URL}${TIKTOK_AUDIENCES_API_VERSION}/segment/audience/`)
       .post(/.*/, createAudienceRequestBody)
       .reply(200, { data: { audience_id: '1234345' } })
 

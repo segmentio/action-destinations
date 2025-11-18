@@ -4,6 +4,7 @@ import { UpdateAudienceReq, Columns } from '../types'
 import { EMAIL_SCHEMA_NAME, MAID_SCHEMA_NAME } from '../const'
 // eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
+import { REDDIT_ADS_BASE_URL } from '../constants'
 
 export async function send(request: RequestClient, payloads: Payload[]) {
   const audienceId = payloads[0].external_audience_id

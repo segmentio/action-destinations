@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import { InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { OPTIMIZELY_FEATURE_EXPERIMENTATION_API_VERSION } from '../versioning-info'
+import { OPTIMIZELY_FEATURE_EXPERIMENTATION_DELETE_API_VERSION } from '../versioning-info'
 
 import trackEvent from './trackEvent'
 
@@ -48,16 +48,19 @@ const destination: DestinationDefinition<Settings> = {
       throw new InvalidAuthenticationError('Access Token is required for user deletion.')
     }
 
-    return request(`https://api.optimizely.com/${OPTIMIZELY_FEATURE_EXPERIMENTATION_API_VERSION}/subject-access-requests`, {
-      method: 'post',
-      headers: { Authorization: `Bearer ${settings?.accessToken}` },
-      json: {
-        data_type: 'visitor',
-        identifier: settings.accountId,
-        identifier_type: 'dcp_id',
-        request_type: 'delete'
+    return request(
+      `https://api.optimizely.com/${OPTIMIZELY_FEATURE_EXPERIMENTATION_DELETE_API_VERSION}/subject-access-requests`,
+      {
+        method: 'post',
+        headers: { Authorization: `Bearer ${settings?.accessToken}` },
+        json: {
+          data_type: 'visitor',
+          identifier: settings.accountId,
+          identifier_type: 'dcp_id',
+          request_type: 'delete'
+        }
       }
-    })
+    )
   },
 
   actions: {

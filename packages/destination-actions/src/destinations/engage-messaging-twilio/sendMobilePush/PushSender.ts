@@ -5,6 +5,7 @@ import { ExtId, track } from '@segment/actions-shared'
 import type { Payload as PushPayload } from './generated-types'
 import { ContentTemplateTypes } from '../utils/types'
 import { PayloadValidationError } from '@segment/actions-core'
+import { ENGAGE_MESSAGING_TWILIO_API_VERSION } from '../../versioning-info'
 
 interface BodyCustomDataBundle {
   requestBody: URLSearchParams
@@ -85,13 +86,16 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
     this.statsSet('message_body_size', body?.toString().length)
     body.sort()
 
-    const res = await this.request(`https://${this.twilioHostname}/${ENGAGE_MESSAGING_TWILIO_API_VERSION}/Services/${this.payload.from}/Notifications`, {
-      method: 'POST',
-      headers: {
-        authorization: `Basic ${this.twilioToken}`
-      },
-      body
-    })
+    const res = await this.request(
+      `https://${this.twilioHostname}/${ENGAGE_MESSAGING_TWILIO_API_VERSION}/Services/${this.payload.from}/Notifications`,
+      {
+        method: 'POST',
+        headers: {
+          authorization: `Basic ${this.twilioToken}`
+        },
+        body
+      }
+    )
     return res
   }
 

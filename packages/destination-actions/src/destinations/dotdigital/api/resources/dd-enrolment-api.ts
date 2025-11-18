@@ -2,6 +2,7 @@ import { ModifiedResponse, RequestClient, DynamicFieldResponse } from '@segment/
 import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
 import { Contact, Program, ProgramStatus, ProgramEnrolment, ProgramEnrolementJSON } from '../types'
+import { DOTDIGITAL_API_VERSION } from '../../../versioning-info'
 
 /**
  * Class representing the Dotdigital Enrolment API.
@@ -17,7 +18,7 @@ class DDEnrolmentApi extends DDApi {
    * @returns {Promise<DynamicFieldResponse>} A promise resolving to the list of active programs.
    */
   public async getPrograms(): Promise<DynamicFieldResponse> {
-    const response: ModifiedResponse<Program[]> = await this.get<Program[]>('/v2/programs')
+    const response: ModifiedResponse<Program[]> = await this.get<Program[]>(`/${DOTDIGITAL_API_VERSION}/programs`)
     const programs = response.data
     const choices = programs
       .filter((program: Program) => program.status === ProgramStatus.Active)
@@ -40,7 +41,7 @@ class DDEnrolmentApi extends DDApi {
       programId
     }
     const response: ModifiedResponse<ProgramEnrolment> = await this.post<ProgramEnrolment, ProgramEnrolementJSON>(
-      '/v2/programs/enrolments',
+      `/${DOTDIGITAL_API_VERSION}/programs/enrolments`,
       json
     )
     return response.data

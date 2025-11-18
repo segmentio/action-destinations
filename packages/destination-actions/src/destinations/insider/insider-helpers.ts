@@ -10,9 +10,10 @@ import { Payload as ProductListViewedEventPayload } from './productListViewedEve
 import { Payload as productRemovedEventPayload } from './productRemovedEvent/generated-types'
 import { Payload as productViewedEventPayload } from './productViewedEvent/generated-types'
 import { Payload as userRegisteredEventPayload } from './userRegisteredEvent/generated-types'
+import { INSIDER_UNIFICATION_API_VERSION } from '../versioning-info'
 
 export const API_BASE = 'https://unification.useinsider.com/api/'
-export const UPSERT_ENDPOINT = 'user/v1/upsert'
+export const UPSERT_ENDPOINT = `user/${INSIDER_UNIFICATION_API_VERSION}/upsert`
 
 export interface insiderEvent {
   event_name: string

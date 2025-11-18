@@ -3,6 +3,7 @@ import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
 import { checkAndCleanEmail, cleanEmails } from '../../helpers/functions'
 import type { Payload } from '../../sendTransactionalEmail/generated-types'
+import { DOTDIGITAL_API_VERSION } from '../../../versioning-info'
 
 /**
  * Class representing the Dotdigital Email API.
@@ -23,7 +24,7 @@ class DDEmailApi extends DDApi {
     const ccAddresses = cleanEmails(payload.ccAddresses)
     const bccAddresses = cleanEmails(payload.bccAddresses)
     const fromAddress = checkAndCleanEmail(payload.fromAddress)
-    return await this.post('/v2/email', {
+    return await this.post(`/${DOTDIGITAL_API_VERSION}/email`, {
       ToAddresses: toAddresses,
       CCAddresses: ccAddresses,
       BCCAddresses: bccAddresses,

@@ -12,6 +12,7 @@ import {
 } from '../types'
 import { getAsyncResponse, sendDebugMessageToSegmentSource } from '../utils'
 import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
+import { RESPONSYS_ASYNC_API_VERSION } from '../../versioning-info'
 
 // Rate limits per endpoint.
 // Can be obtained through `/rest/api/ratelimit`, but at the point
@@ -32,7 +33,7 @@ const sendToPetWaitInterval = 150
 const getAsyncResponseWaitInterval = 60
 
 export const petExists = async (request: RequestClient, settings: Settings, computationKey: string) => {
-  const path = `/rest/api/v1.3/lists/${settings.profileListName}/listExtensions`
+  const path = `/rest/api/${RESPONSYS_ASYNC_API_VERSION}/lists/${settings.profileListName}/listExtensions`
   const endpoint = new URL(path, settings.baseUrl)
 
   const response = await request(endpoint.href, {
@@ -59,7 +60,7 @@ export const createPet = async (request: RequestClient, settings: Settings, payl
     ]
   }
 
-  const path = `/rest/api/v1.3/lists/${settings.profileListName}/listExtensions`
+  const path = `/rest/api/${RESPONSYS_ASYNC_API_VERSION}/lists/${settings.profileListName}/listExtensions`
   const endpoint = new URL(path, settings.baseUrl)
 
   const response = await request(endpoint.href, {
@@ -240,7 +241,7 @@ const updateProfileListMembers = async (
       mergeRule
     }
 
-    const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/members`
+    const path = `/rest/asyncApi/${RESPONSYS_ASYNC_API_VERSION}/lists/${settings.profileListName}/members`
 
     const endpoint = new URL(path, settings.baseUrl)
 
@@ -263,7 +264,7 @@ const sendPetUpdate = async (
   computationKey: string,
   requestBodies: ResponsysAudiencePetUpdateRequestBody[]
 ): Promise<ModifiedResponse<unknown>[]> => {
-  const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/listExtensions/${computationKey}/members`
+  const path = `/rest/asyncApi/${RESPONSYS_ASYNC_API_VERSION}/lists/${settings.profileListName}/listExtensions/${computationKey}/members`
   const endpoint = new URL(path, settings.baseUrl)
 
   const responses = []
