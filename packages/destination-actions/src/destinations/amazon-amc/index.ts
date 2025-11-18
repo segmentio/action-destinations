@@ -71,7 +71,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_AMC_CLIENT_ID || ''
+        //'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_AMC_CLIENT_ID || ''
+        'Amazon-Advertising-API-ClientID': 'amzn1.application-oa2-client.bb7f37ff2fbb4cb99552d29e3677a88c'
       }
     }
   },
@@ -131,9 +132,27 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     //As per the discussion, for now taking `advertiserId` in `audienceFields` as user can create multiple audiences within a single instance of destination.
     advertiserId: {
       label: 'Advertiser ID',
-      description: 'Advertiser Id',
+      description: 'Use for Amazon Ads DSP integration',
       type: 'string',
-      required: true
+      required: false
+    },
+    amcInstanceId: {
+      label: 'AMC Instance ID',
+      description: 'Use for  Amazon Marketing Cloud (AMC) integration',
+      type: 'string',
+      required: false
+    },
+    amcAccountId: {
+      label: 'AMC Account ID',
+      description: 'Use for  Amazon Marketing Cloud (AMC) integration',
+      type: 'string',
+      required: false
+    },
+    amcAccountMarketplaceId: {
+      label: 'AMC Account Marketplace ID',
+      description: 'Use for  Amazon Marketing Cloud (AMC) integration',
+      type: 'string',
+      required: false
     }
   },
 
@@ -152,9 +171,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const ttl = audienceSettings?.ttl
       const currency = audienceSettings?.currency
       const cpm_cents = audienceSettings?.cpmCents
+      const amcInstanceId = audienceSettings?.amcInstanceId
+      const amcAccountId = audienceSettings?.amcAccountId
+      const amcAccountMarketplaceId = audienceSettings?.amcAccountMarketplaceId
 
-      if (!advertiser_id) {
-        throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
+      if (!advertiser_id && !(amcInstanceId && amcAccountId && amcAccountMarketplaceId)) {
+        throw new IntegrationError(
+          'One of Advertiser ID or a combination of AMC Instance ID, AMC Account ID, and AMC Account Marketplace ID must be provided',
+          'MISSING_REQUIRED_FIELD',
+          400
+        )
       }
 
       if (!description) {
@@ -178,13 +204,42 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const payload: AudiencePayload = {
         name: audienceName,
         description: description,
-        targetResource: {
-          advertiserId: advertiser_id
-        },
+        targetResource: {},
         metadata: {
           externalAudienceId: external_audience_id
         },
         countryCode: country_code
+      }
+
+      let connectionId = ''
+      const sendToAmc = amcInstanceId && amcAccountId && amcAccountMarketplaceId
+
+      // Prioritize connectionId over advertiserId if both are present
+      if (sendToAmc) {
+        payload.targetResource.amcInstanceId = amcInstanceId
+        payload.targetResource.amcAccountId = amcAccountId
+        payload.targetResource.amcAccountMarketplaceId = amcAccountMarketplaceId
+
+        const payloadStringConnsAPI = JSON.stringify({
+          amcInstanceId: amcInstanceId,
+          amcAccountId: amcAccountId,
+          amcAccountMarketplaceId: amcAccountMarketplaceId
+        })
+
+        //create connection id
+        const responseFromConnectionsAPI = await request(`${endpoint}/amc/audiences/connections`, {
+          method: 'POST',
+          body: payloadStringConnsAPI,
+          headers: {
+            'Content-Type': 'application/vnd.amcaudiencesconnections.v1+json'
+          }
+        })
+
+        const respObj = JSON.parse(await responseFromConnectionsAPI.text())
+        payload.targetResource.connectionId = respObj.connectionId
+        connectionId = respObj.connectionId
+      } else if (advertiser_id) {
+        payload.targetResource.advertiserId = advertiser_id
       }
 
       if (ttl) {
@@ -202,7 +257,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       let payloadString = JSON.stringify(payload)
       // Regular expression to find a advertiserId numeric string and replace the quoted advertiserId string with an unquoted number
       // AdvertiserId is very big number string and can not be assigned or converted to number directly as it changes the value due to integer overflow.
-      payloadString = payloadString.replace(REGEX_ADVERTISERID, '"advertiserId":$1')
+      if (advertiser_id) {
+        payloadString = payloadString.replace(REGEX_ADVERTISERID, '"advertiserId":$1')
+      }
 
       const response = await request(`${endpoint}/amc/audiences/metadata`, {
         method: 'POST',
@@ -217,7 +274,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       // Regular expression to find a audienceId number and replace the audienceId with quoted string
       const resp = extractNumberAndSubstituteWithStringValue(res, REGEX_AUDIENCEID, '"audienceId":"$1"')
       return {
-        externalId: resp.audienceId
+        //send connection id along with audience id if sent to amc
+        externalId: sendToAmc ? resp.audienceId + ':' + connectionId : resp.audienceId
       }
     },
 

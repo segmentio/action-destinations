@@ -47,7 +47,20 @@ export async function processPayload(
  */
 export function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: AudienceSettings) {
   const records: AudienceRecord[] = []
-  const { audienceId } = payloads[0]
+  const originalAudienceId = payloads[0].audienceId
+  let audienceId = originalAudienceId
+  let targetResources: { connectionId?: string } = {}
+  const syncAudienceToAMC = originalAudienceId.includes(':')
+
+  // Check if audienceId contains a ':'
+  if (syncAudienceToAMC) {
+    const [extractedAudienceId, extractedConnectionId] = originalAudienceId.split(':')
+    audienceId = extractedAudienceId
+    targetResources = {
+      connectionId: extractedConnectionId
+    }
+  }
+
   payloads.forEach((payload: Payload) => {
     // Check if the externalUserId matches the pattern
     if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
@@ -69,10 +82,24 @@ export function createPayloadToUploadRecords(payloads: Payload[], audienceSettin
     )
   }
 
-  return {
+  let payloadRecord: {
+    records: AudienceRecord[]
+    audienceId: string
+    targetResource?: { connectionId?: string }
+  } = {
     records: records,
     audienceId: audienceId
   }
+
+  //only add targetResource if syncing to AMC
+  if (syncAudienceToAMC) {
+    payloadRecord = {
+      ...payloadRecord,
+      targetResource: targetResources
+    }
+  }
+
+  return payloadRecord
 }
 
 function validateAndPreparePayload(
@@ -137,10 +164,24 @@ export async function processBatchPayload(
     return multiStatusResponse
   }
 
-  const payloadString = JSON.stringify({ audienceId: payloads[0].audienceId, records: filteredPayloads }).replace(
-    /"audienceId":"(\d+)"/,
-    '"audienceId":$1'
-  )
+  const originalAudienceId = payloads[0].audienceId
+  let audienceId = originalAudienceId
+  let targetResources: { connectionId?: string } = {}
+
+  // Check if audienceId contains a ':'
+  if (originalAudienceId.includes(':')) {
+    const [extractedAudienceId, extractedConnectionId] = originalAudienceId.split(':')
+    audienceId = extractedAudienceId
+    targetResources = {
+      connectionId: extractedConnectionId
+    }
+  }
+
+  const payloadString = JSON.stringify({
+    audienceId: audienceId,
+    records: filteredPayloads,
+    targetResource: targetResources
+  }).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
 
   const response = await request<RecordsResponseType>(`${settings.region}/amc/audiences/records`, {
     method: 'POST',

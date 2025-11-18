@@ -34,7 +34,19 @@ export interface AudienceSettings {
    */
   ttl?: number
   /**
-   * Advertiser Id
+   * Use for Amazon Ads DSP integration
    */
-  advertiserId: string
+  advertiserId?: string
+  /**
+   * Use for  Amazon Marketing Cloud (AMC) integration
+   */
+  amcInstanceId?: string
+  /**
+   * Use for  Amazon Marketing Cloud (AMC) integration
+   */
+  amcAccountId?: string
+  /**
+   * Use for  Amazon Marketing Cloud (AMC) integration
+   */
+  amcAccountMarketplaceId?: string
 }
