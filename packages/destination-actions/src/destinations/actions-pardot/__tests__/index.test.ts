@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration, createTestEvent, RetryableError, APIError } from '@segment/actions-core'
 import Definition from '../index'
-import { PARDOT_API_VERSION } from '../pa-operations'
+import { ACTIONS_PARDOT_API_VERSION } from '../../versioning-info'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -29,7 +29,9 @@ const sandboxUrl = 'https://pi.demo.pardot.com'
 describe('Pardot', () => {
   describe('Prospects', () => {
     it('should create prospects record', async () => {
-      nock(`${sandboxUrl}/api/${PARDOT_API_VERSION}/objects/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
+      nock(`${sandboxUrl}/api/${ACTIONS_PARDOT_API_VERSION}/objects/prospects/do`)
+        .post('/upsertLatestByEmail')
+        .reply(201, {})
 
       const event = createTestEvent({
         type: 'identify',
@@ -86,7 +88,9 @@ describe('Pardot', () => {
     })
 
     it('should create prospects record with default mappings', async () => {
-      nock(`${baseUrl}/api/${PARDOT_API_VERSION}/objects/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
+      nock(`${baseUrl}/api/${ACTIONS_PARDOT_API_VERSION}/objects/prospects/do`)
+        .post('/upsertLatestByEmail')
+        .reply(201, {})
 
       const event = createTestEvent({
         type: 'identify',
@@ -148,7 +152,9 @@ describe('Pardot', () => {
     })
 
     it('should create prospects record with custom fields', async () => {
-      nock(`${baseUrl}/api/${PARDOT_API_VERSION}/objects/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
+      nock(`${baseUrl}/api/${ACTIONS_PARDOT_API_VERSION}/objects/prospects/do`)
+        .post('/upsertLatestByEmail')
+        .reply(201, {})
 
       const event = createTestEvent({
         type: 'identify',
@@ -215,7 +221,9 @@ describe('Pardot', () => {
     })
 
     it('[duplicate field] should prioritize with custom fields', async () => {
-      nock(`${baseUrl}/api/${PARDOT_API_VERSION}/objects/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
+      nock(`${baseUrl}/api/${ACTIONS_PARDOT_API_VERSION}/objects/prospects/do`)
+        .post('/upsertLatestByEmail')
+        .reply(201, {})
 
       const event = createTestEvent({
         type: 'identify',
@@ -279,7 +287,9 @@ describe('Pardot', () => {
       )
     })
     it('should throw an error for missing required field: email', async () => {
-      nock(`${baseUrl}/api/${PARDOT_API_VERSION}/objects/prospects/do`).post('/upsertLatestByEmail').reply(201, {})
+      nock(`${baseUrl}/api/${ACTIONS_PARDOT_API_VERSION}/objects/prospects/do`)
+        .post('/upsertLatestByEmail')
+        .reply(201, {})
 
       const event = createTestEvent({
         type: 'identify',

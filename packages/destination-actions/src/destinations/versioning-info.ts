@@ -52,7 +52,8 @@ export const ALGOLIA_INSIGHTS_API_VERSION = '1'
  * Used by: amazon-amc
  * Endpoint: /amc/v2/*
  */
-export const AMAZON_AMC_API_VERSION = 'v2'
+export const AMAZON_AMC_API_VERSION = 'v1'
+export const AMAZON_AMC_AUTH_API_VERSION = 'v2'
 
 /** AMAZON_CONVERSIONS_API_PROFILES_VERSION
  * Used by: amazon-conversions-api (profiles)
