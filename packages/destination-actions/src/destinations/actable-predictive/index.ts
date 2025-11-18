@@ -44,7 +44,6 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   extendRequest({ settings }) {
-    console.log('Extending request with settings:', settings)
     return {
       headers: { Authorization: Buffer.from(settings.client_id + ':' + settings.client_secret).toString('base64') }
     }
