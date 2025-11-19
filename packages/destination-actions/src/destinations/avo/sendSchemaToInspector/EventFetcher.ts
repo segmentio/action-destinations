@@ -20,8 +20,8 @@ export class EventSpecFetcher {
   constructor(
     request: RequestClient,
     shouldLog: boolean = false,
-    baseUrl: string = 'https://us-central1-avo-web-app.cloudfunctions.net',
-    env: string = 'prod'
+    env: string,
+    baseUrl: string = 'https://us-central1-avo-web-app.cloudfunctions.net'
   ) {
     this.baseUrl = baseUrl
     this.request = request
@@ -50,7 +50,7 @@ export class EventSpecFetcher {
   /** Internal fetch implementation. */
   private async fetchInternal(params: FetchEventSpecParams): Promise<EventSpec | null> {
     if (!(this.env === 'dev' || this.env === 'staging') || true) {
-      return Promise.resolve(null)
+      return null
     }
     const url: string = this.buildUrl(params)
     if (this.shouldLog) {

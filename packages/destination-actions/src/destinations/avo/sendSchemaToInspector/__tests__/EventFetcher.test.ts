@@ -73,7 +73,7 @@ describe('EventSpecFetcher', () => {
         })
         .reply(200, validEventSpec)
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       // Guard prevents endpoint from being called, so result is always null
@@ -91,7 +91,7 @@ describe('EventSpecFetcher', () => {
         })
         .reply(200, validEventSpecWithVariants)
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       // Guard prevents endpoint from being called, so result is always null
@@ -102,7 +102,7 @@ describe('EventSpecFetcher', () => {
     it('should return null when request fails with network error', async () => {
       nock(BASE_URL).get('/getEventSpec').query(true).replyWithError('Network error')
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       expect(result).toBeNull()
@@ -111,7 +111,7 @@ describe('EventSpecFetcher', () => {
     it('should return null when request returns non-200 status', async () => {
       nock(BASE_URL).get('/getEventSpec').query(true).reply(404, { error: 'Not found' })
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       expect(result).toBeNull()
@@ -120,7 +120,7 @@ describe('EventSpecFetcher', () => {
     it('should return null when request returns 500 status', async () => {
       nock(BASE_URL).get('/getEventSpec').query(true).reply(500, { error: 'Internal server error' })
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       expect(result).toBeNull()
@@ -129,7 +129,7 @@ describe('EventSpecFetcher', () => {
     it('should return null when response is invalid JSON', async () => {
       nock(BASE_URL).get('/getEventSpec').query(true).reply(200, 'invalid json')
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       expect(result).toBeNull()
@@ -138,7 +138,7 @@ describe('EventSpecFetcher', () => {
     it('should return null when response is missing baseEvent', async () => {
       nock(BASE_URL).get('/getEventSpec').query(true).reply(200, { variants: [] })
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       expect(result).toBeNull()
@@ -155,7 +155,7 @@ describe('EventSpecFetcher', () => {
           }
         })
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       expect(result).toBeNull()
@@ -173,7 +173,7 @@ describe('EventSpecFetcher', () => {
           }
         })
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       expect(result).toBeNull()
@@ -192,7 +192,7 @@ describe('EventSpecFetcher', () => {
           variants: 'not-an-array'
         })
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       expect(result).toBeNull()
@@ -216,7 +216,7 @@ describe('EventSpecFetcher', () => {
           ]
         })
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       expect(result).toBeNull()
@@ -242,7 +242,7 @@ describe('EventSpecFetcher', () => {
           ]
         })
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       expect(result).toBeNull()
@@ -253,7 +253,7 @@ describe('EventSpecFetcher', () => {
         'Content-Type': 'application/json'
       })
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       // Guard prevents endpoint from being called, so result is always null
@@ -264,7 +264,7 @@ describe('EventSpecFetcher', () => {
     it('should return null when response is null', async () => {
       nock(BASE_URL).get('/getEventSpec').query(true).reply(200, undefined)
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       expect(result).toBeNull()
@@ -273,7 +273,7 @@ describe('EventSpecFetcher', () => {
     it('should return null when response is not an object', async () => {
       nock(BASE_URL).get('/getEventSpec').query(true).reply(200, 'string response')
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       expect(result).toBeNull()
@@ -300,7 +300,7 @@ describe('EventSpecFetcher', () => {
     it('should log when shouldLog is true and fetch succeeds', async () => {
       nock(BASE_URL).get('/getEventSpec').query(true).reply(200, validEventSpec)
 
-      const fetcher = new EventSpecFetcher(requestClient, true)
+      const fetcher = new EventSpecFetcher(requestClient, true, 'dev')
       await fetcher.fetch(mockParams)
 
       // Guard prevents endpoint from being called, so no logs are generated
@@ -317,7 +317,7 @@ describe('EventSpecFetcher', () => {
     it('should log warnings when shouldLog is true and fetch fails', async () => {
       nock(BASE_URL).get('/getEventSpec').query(true).reply(404, { error: 'Not found' })
 
-      const fetcher = new EventSpecFetcher(requestClient, true)
+      const fetcher = new EventSpecFetcher(requestClient, true, 'dev')
       await fetcher.fetch(mockParams)
 
       // Guard prevents endpoint from being called, so no logs are generated
@@ -333,7 +333,7 @@ describe('EventSpecFetcher', () => {
     it('should log errors when shouldLog is true and network error occurs', async () => {
       nock(BASE_URL).get('/getEventSpec').query(true).replyWithError('Network error')
 
-      const fetcher = new EventSpecFetcher(requestClient, true)
+      const fetcher = new EventSpecFetcher(requestClient, true, 'dev')
       await fetcher.fetch(mockParams)
 
       // Guard prevents endpoint from being called, so no logs are generated
@@ -349,7 +349,7 @@ describe('EventSpecFetcher', () => {
     it('should not log when shouldLog is false', async () => {
       nock(BASE_URL).get('/getEventSpec').query(true).reply(200, validEventSpec)
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       await fetcher.fetch(mockParams)
 
       expect(consoleLogSpy).not.toHaveBeenCalled()
@@ -369,7 +369,7 @@ describe('EventSpecFetcher', () => {
         })
         .reply(200, validEventSpec)
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       await fetcher.fetch(mockParams)
 
       // Guard prevents endpoint from being called, so no network request is made
@@ -381,7 +381,7 @@ describe('EventSpecFetcher', () => {
       const customBaseUrl = 'https://custom-api.example.com/v1'
       const scope = nock(customBaseUrl).get('/getEventSpec').query(true).reply(200, validEventSpec)
 
-      const fetcher = new EventSpecFetcher(requestClient, false, customBaseUrl)
+      const fetcher = new EventSpecFetcher(requestClient, false, customBaseUrl, 'dev')
       await fetcher.fetch(mockParams)
 
       // Guard prevents endpoint from being called, so no network request is made
@@ -398,7 +398,7 @@ describe('EventSpecFetcher', () => {
 
       const scope = nock(BASE_URL).get('/getEventSpec').query(true).reply(200, validEventSpec)
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       await fetcher.fetch(paramsWithSpecialChars)
 
       // Guard prevents endpoint from being called, so no network request is made
@@ -419,7 +419,7 @@ describe('EventSpecFetcher', () => {
 
       nock(BASE_URL).get('/getEventSpec').query(true).reply(200, eventSpecWithEmptyProps)
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       // Guard prevents endpoint from being called, so result is always null
@@ -439,7 +439,7 @@ describe('EventSpecFetcher', () => {
 
       nock(BASE_URL).get('/getEventSpec').query(true).reply(200, eventSpecWithEmptyVariants)
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       // Guard prevents endpoint from being called, so result is always null
@@ -472,7 +472,7 @@ describe('EventSpecFetcher', () => {
 
       nock(BASE_URL).get('/getEventSpec').query(true).reply(200, eventSpecWithMultipleVariants)
 
-      const fetcher = new EventSpecFetcher(requestClient, false)
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)
 
       // Guard prevents endpoint from being called, so result is always null

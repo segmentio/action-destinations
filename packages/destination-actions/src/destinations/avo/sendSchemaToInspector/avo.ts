@@ -82,10 +82,12 @@ async function fetchEventSpec(
     }
 
     // fetch from API (async)
-    const result = await new EventSpecFetcher(request, true, env).fetch(fetchParams).catch((error: any) => {
-      console.error(`[Avo Inspector] Failed to fetch event spec for ${eventName}:`, error)
-      return null
-    })
+    const result = await new EventSpecFetcher(request, true, 'https://us-central1-avo-web-app.cloudfunctions.net', env)
+      .fetch(fetchParams)
+      .catch((error: any) => {
+        console.error(`[Avo Inspector] Failed to fetch event spec for ${eventName}:`, error)
+        return null
+      })
 
     return result
   } catch (error) {
