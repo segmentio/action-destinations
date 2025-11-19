@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { ANTAVO_API_VERSION } from '../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Profile updates',
@@ -33,44 +34,44 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         first_name: {
           label: 'First name',
-          description: 'Customer\'s first name',
+          description: "Customer's first name",
           type: 'string'
         },
         last_name: {
           label: 'Last name',
-          description: 'Customer\'s last name',
+          description: "Customer's last name",
           type: 'string'
         },
         email: {
           label: 'Email',
-          description: 'Customer\'s email address',
+          description: "Customer's email address",
           type: 'string'
         },
         birth_date: {
           label: 'Birthdate',
-          description: 'Customer\'s birth date',
+          description: "Customer's birth date",
           type: 'string'
         },
         gender: {
           label: 'Gender',
-          description: 'Customer\'s gender',
+          description: "Customer's gender",
           type: 'string'
         },
         language: {
           label: 'Language',
-          description: 'Customer\'s language',
+          description: "Customer's language",
           type: 'string'
         },
         phone: {
           label: 'Phone',
-          description: 'Customer\'s phone number',
+          description: "Customer's phone number",
           type: 'string'
         },
         mobile_phone: {
           label: 'Mobile phone',
-          description: 'Customer\'s mobile phone number',
+          description: "Customer's mobile phone number",
           type: 'string'
-        },
+        }
       },
       default: {
         first_name: {
@@ -98,10 +99,10 @@ const action: ActionDefinition<Settings, Payload> = {
           '@path': '$.traits.mobile_phone'
         }
       }
-    },
+    }
   },
   perform: (request, data) => {
-    const url = `https://api.${data.settings.stack}.antavo.com/v1/webhook/segment`
+    const url = `https://api.${data.settings.stack}.antavo.com/${ANTAVO_API_VERSION}/webhook/segment`
     const payload = {
       ...data.payload,
       action: 'profile',

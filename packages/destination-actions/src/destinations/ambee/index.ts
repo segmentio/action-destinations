@@ -1,5 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { AMBEE_API_VERSION } from './versioning-info'
 
 import subscribeUserToCampaign from './subscribeUserToCampaign'
 
@@ -51,7 +52,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request('https://segment-api.ambeedata.com/v1/company-info', {
+      return request(`https://segment-api.ambeedata.com/${AMBEE_API_VERSION}/company-info`, {
         method: 'post',
         json: settings
       })
