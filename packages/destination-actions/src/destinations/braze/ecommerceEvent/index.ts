@@ -59,7 +59,6 @@ const action: ActionDefinition<Settings, Payload> = {
     batch_size
   },
   perform: async (request, {payload, settings}) => {
-    console.log("Performing Braze Ecommerce Event Action with payload")
     return await send(request, [payload], settings, false)
   },
   performBatch: async (request, {payload, settings}) => {

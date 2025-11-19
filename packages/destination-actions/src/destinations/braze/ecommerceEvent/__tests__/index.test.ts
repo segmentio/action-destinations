@@ -142,7 +142,7 @@ describe('Braze.ecommerceEvent', () => {
     const event = createTestEvent(payload)
 
     const e = { ...event }
-    delete e.userId
+    e.userId = undefined
     delete e.properties?.email
     delete e.properties?.phone
     delete e.properties?.braze_id
