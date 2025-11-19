@@ -5,7 +5,7 @@ import type { EventSpec, FetchEventSpecParams } from './EventFetcherTypes'
  * EventSpecFetcher handles fetching event specifications from the Avo API.
  *
  * Endpoint: GET /getEventSpec
- * Base URL: https://api.avo.app/inspector/v1
+ * Base URL: https://us-central1-avo-web-app.cloudfunctions.net
  */
 export class EventSpecFetcher {
   /** Base URL for the event spec API */
@@ -15,7 +15,11 @@ export class EventSpecFetcher {
   /** Whether to log debug information */
   private readonly shouldLog: boolean
 
-  constructor(request: RequestClient, shouldLog = false, baseUrl = 'https://api.avo.app/inspector/v1') {
+  constructor(
+    request: RequestClient,
+    shouldLog = false,
+    baseUrl = 'https://us-central1-avo-web-app.cloudfunctions.net'
+  ) {
     this.baseUrl = baseUrl
     this.request = request
     this.shouldLog = shouldLog
@@ -91,7 +95,7 @@ export class EventSpecFetcher {
     try {
       const response: any = await this.request(url, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'User-Agent': 'Segment (Actions)' },
         throwHttpErrors: false
       })
       if (response.status === 200) {
