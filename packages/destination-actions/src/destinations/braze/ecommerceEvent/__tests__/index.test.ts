@@ -5,6 +5,7 @@ import { Settings } from '../../generated-types'
 import { EVENT_NAMES } from '../constants'
 
 let testDestination = createTestIntegration(Definition)
+
 const settings: Settings = {
   api_key: 'test_api_key',
   app_id: 'test_app_id',
@@ -157,5 +158,83 @@ describe('Braze.ecommerceEvent', () => {
         mapping
       })
     ).rejects.toThrowError(new Error('One of "external_id" or "user_alias" or "braze_id" or "email" or "phone" is required.'))
+  })
+
+  it('should send Order Completed event correctly', async () => {
+
+    const e = createTestEvent(payload)
+
+    const json = {
+      events: [
+        {
+          external_id: "userId1",
+          braze_id: "braze_id_1",
+          email: "email@email.com",
+          phone: "+14155551234",
+          user_alias: {
+            alias_name: "alias_name_1",
+            alias_label: "alias_label_1"
+          },
+          app_id: "test_app_id",
+          name: "ecommerce.order_placed",
+          time: "2024-06-10T12:00:00.000Z",
+          properties: {
+            currency: "USD",
+            source: "test_source",
+            products: [
+              {
+                product_id: "prod_1",
+                product_name: "Product 1",
+                variant_id: "Size M",
+                image_url: "https://example.com/prod1.jpg",
+                quantity: 2,
+                price: 25
+              },
+              {
+                product_id: "prod_2",
+                product_name: "Product 2",
+                variant_id: "Size L",
+                image_url: "https://example.com/prod2.jpg",
+                quantity: 1,
+                price: 50
+              }
+            ],
+            total_value: 100,
+            order_id: "order_id_1",
+            total_discounts: 10,
+            discounts: [
+              { code: "SUMMER21", amount: 5 },
+              { code: "VIPCUSTOMER", amount: 5 }
+            ],
+            cart_id: "cart_id_1",
+            metadata: {
+              custom_field_1: "custom_value_1",
+              custom_field_2: 100,
+              custom_field_3: true,
+              custom_field_4: ["a", "b", "c"],
+              custom_field_5: {
+                nested_key: "nested_value"
+              },
+              checkout_url: "https://example.com/checkout",
+              order_status_url: "https://example.com/order/status"
+            }
+          },
+          _update_existing_only: true
+        }
+      ]
+    }
+
+    nock(settings.endpoint)
+      .post('/users/track', json)
+      .reply(200)
+
+    const response = await testDestination.testAction('ecommerceEvent', {
+      event: e,
+      settings,
+      useDefaultMappings: true,
+      mapping
+    })
+  
+    expect(response.length).toBe(1)
   })
 })

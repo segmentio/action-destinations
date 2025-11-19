@@ -24,6 +24,7 @@ import type {
 } from './types'
 import { EVENT_NAMES } from './constants'
 import dayjs from 'dayjs'
+import { user } from 'src/destinations/reddit-conversions-api/fields'
 
 
 export async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean) {
@@ -109,6 +110,16 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
 
   const time = dayjs(payloadTime).toISOString()
 
+  const updateExistingOnly = (() => {
+    if ( user_alias?.alias_label && user_alias?.alias_name ) { 
+      return true 
+    }
+    if ( typeof _update_existing_only === 'boolean' ) { 
+      return _update_existing_only 
+    }
+    return undefined
+  })()
+
   const baseEvent: BaseEvent = {
     ...(external_id? { external_id } : {} ),
     ...(braze_id? { braze_id } : {} ),
@@ -122,7 +133,7 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
       currency,
       source
     },
-    ...(typeof _update_existing_only === 'boolean' ? { _update_existing_only } : {} )
+    ...(typeof updateExistingOnly === 'boolean' ? { _update_existing_only: updateExistingOnly } : {} )
   }
 
   switch(name) {
