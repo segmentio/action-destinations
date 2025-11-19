@@ -17,7 +17,7 @@ export interface Payload {
     alias_label: string
   }
   /**
-   * Setting this flag to true will put the API in "Update Only" mode. When using a "user_alias", "Update Only" mode is always true.
+   * When this flag is set to true, Braze will only update existing profiles and will not create any new ones.
    */
   _update_existing_only?: boolean
   /**
