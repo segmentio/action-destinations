@@ -24,7 +24,6 @@ import type {
 } from './types'
 import { EVENT_NAMES } from './constants'
 import dayjs from 'dayjs'
-import { user } from 'src/destinations/reddit-conversions-api/fields'
 
 
 export async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean) {
