@@ -5,9 +5,9 @@ import { TopsortAPIClient } from '../client'
 import { NormalizeDeviceType } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'ImpressionsList',
-  defaultSubscription: 'type = "track" and event = "Product List Viewed"',
-  description: 'Send impression events to Topsort when a consumer has viewed a list of promotables.',
+  title: 'Page Views',
+  description: 'Send page view and screen view events to Topsort',
+  defaultSubscription: 'type = "page" or type = "screen"',
   fields: {
     id: {
       label: 'Event ID',
@@ -38,35 +38,41 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.anonymousId'
       }
     },
-    products: {
-      label: 'Products',
-      description: 'The list of products viewed. Each product is a promotable entity.',
+    page: {
+      label: 'Page',
+      description: 'Page information for the impression.',
       type: 'object',
-      multiple: true,
       required: true,
       properties: {
-        resolvedBidId: {
-          label: 'Resolved Bid ID',
-          description:
-            'Identifier of an instance of a resolved auction for a determined product. The length should not exceed 128 characters.',
+        type: {
+          label: 'Page Type',
+          description: 'Type of page.',
           type: 'string',
           required: true
         },
-        additionalAttribution: {
-          label: 'Additional Attribution',
-          description: 'Additional attribution information.',
-          type: 'object',
+        pageId: {
+          label: 'Page ID',
+          description: 'Identifies the page.',
+          type: 'string',
+          required: true
+        },
+        value: {
+          label: 'Page Value',
+          description: 'Detail of the page, depending on the type.',
+          type: 'string',
           required: false
         }
       },
       default: {
-        '@arrayPath': [
-          '$.properties.products',
-          {
-            resolvedBidId: { '@path': 'resolvedBidId' },
-            additionalAttribution: { '@path': 'additionalAttribution' }
-          }
-        ]
+        '@merge': {
+          objects: [
+            {
+              value: { '@path': '$.context.page.title' }
+            },
+            { '@path': '$.properties.page' }
+          ],
+          direction: 'right'
+        }
       }
     },
     deviceType: {
@@ -90,22 +96,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     const client = new TopsortAPIClient(request, settings)
+
     payload.deviceType = NormalizeDeviceType(payload.deviceType)
-
-    const impressions = payload.products?.map((impression) => ({
-      id: payload.id,
-      occurredAt: payload.occurredAt,
-      opaqueUserId: payload.opaqueUserId,
-      resolvedBidId: impression.resolvedBidId,
-      deviceType: payload.deviceType,
-      channel: payload.channel,
-      ...(impression.additionalAttribution && {
-        additionalAttribution: impression.additionalAttribution
-      })
-    }))
-
     return client.sendEvent({
-      impressions
+      pageviews: [payload]
     })
   }
 }
