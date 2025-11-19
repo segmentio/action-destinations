@@ -9,7 +9,6 @@ describe('Topsort.pageview', () => {
   it('should be successful with default mappings and optional fields', async () => {
     nock(/.*/).persist().post(/.*/).reply(200)
 
-    // Add device type and channel
     const event = createTestEvent({
       context: {
         device: {
