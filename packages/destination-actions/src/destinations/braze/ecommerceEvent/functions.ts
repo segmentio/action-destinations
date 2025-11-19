@@ -103,7 +103,8 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
     name,
     time: payloadTime,
     currency,
-    source
+    source,
+    _update_existing_only
   } = payload
 
   const time = dayjs(payloadTime).toISOString()
@@ -120,7 +121,8 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
     properties: {
       currency,
       source
-    }
+    },
+    ...(typeof _update_existing_only === 'boolean' ? { _update_existing_only } : {} )
   }
 
   switch(name) {

@@ -46,7 +46,7 @@ export const user_alias: InputField = {
 
 export const _update_existing_only: InputField = {
     label: 'Update Existing Only',
-    description: 'Setting this flag to true will put the API in "Update Only" mode. When using a "user_alias", "Update Only" mode is always true.',
+    description: 'When this flag is set to true, Braze will only update existing profiles and will not create any new ones.',
     type: 'boolean',
     default: false
 }

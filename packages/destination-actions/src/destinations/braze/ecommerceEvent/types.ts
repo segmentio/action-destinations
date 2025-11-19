@@ -49,7 +49,8 @@ export interface BaseEvent {
         metadata?: {
             [key: string]: unknown
         }
-    }
+    },
+    _update_existing_only?: boolean
 }
 
 export interface ProductViewedEvent extends BaseEvent {
