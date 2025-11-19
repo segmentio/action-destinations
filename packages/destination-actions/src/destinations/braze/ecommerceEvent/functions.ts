@@ -147,7 +147,7 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
         name: EVENT_NAMES.PRODUCT_VIEWED,
         properties: {
           ...baseEvent.properties,
-          ...product,
+          ...(product as NonNullable<typeof product>),
           type
         }
       }
@@ -168,7 +168,7 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
         name: name as MultiPropertyEventName,
         properties: {
           ...baseEvent.properties,
-            products,
+          products: products || [],
           total_value: total_value as number
         }
       }
