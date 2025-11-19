@@ -51,7 +51,7 @@ describe('extractSchemaFromEvent', () => {
       })
       .reply(200, validEventSpec)
 
-    const result = await extractSchemaFromEvent(mockEvent, undefined, 'test-api-key', requestClient)
+    const result = await extractSchemaFromEvent(mockEvent, undefined, 'test-api-key', 'dev', requestClient)
 
     expect(result).toBeDefined()
     expect(result.eventName).toBe('TestEvent')
@@ -62,7 +62,7 @@ describe('extractSchemaFromEvent', () => {
   it('should handle missing apiKey gracefully', async () => {
     const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation()
 
-    const result = await extractSchemaFromEvent(mockEvent, undefined, '', requestClient)
+    const result = await extractSchemaFromEvent(mockEvent, undefined, '', 'dev', requestClient)
 
     expect(result).toBeDefined()
     expect(result.eventName).toBe('TestEvent')
@@ -79,7 +79,7 @@ describe('extractSchemaFromEvent', () => {
       anonymousId: undefined
     }
 
-    const result = await extractSchemaFromEvent(eventWithoutStreamId, undefined, 'test-api-key', requestClient)
+    const result = await extractSchemaFromEvent(eventWithoutStreamId, undefined, 'test-api-key', 'dev', requestClient)
 
     expect(result).toBeDefined()
     expect(result.eventName).toBe('TestEvent')
@@ -93,7 +93,7 @@ describe('extractSchemaFromEvent', () => {
 
     nock(BASE_URL).get('/getEventSpec').query(true).reply(500, { error: 'Internal server error' })
 
-    const result = await extractSchemaFromEvent(mockEvent, undefined, 'test-api-key', requestClient)
+    const result = await extractSchemaFromEvent(mockEvent, undefined, 'test-api-key', 'dev', requestClient)
 
     expect(result).toBeDefined()
     expect(result.eventName).toBe('TestEvent')
@@ -108,7 +108,7 @@ describe('extractSchemaFromEvent', () => {
 
     nock(BASE_URL).get('/getEventSpec').query(true).replyWithError('Network error')
 
-    const result = await extractSchemaFromEvent(mockEvent, undefined, 'test-api-key', requestClient)
+    const result = await extractSchemaFromEvent(mockEvent, undefined, 'test-api-key', 'dev', requestClient)
 
     expect(result).toBeDefined()
     expect(result.eventName).toBe('TestEvent')
@@ -122,7 +122,7 @@ describe('extractSchemaFromEvent', () => {
 
     nock(BASE_URL).get('/getEventSpec').query(true).reply(200, { invalid: 'response' })
 
-    const result = await extractSchemaFromEvent(mockEvent, undefined, 'test-api-key', requestClient)
+    const result = await extractSchemaFromEvent(mockEvent, undefined, 'test-api-key', 'dev', requestClient)
 
     expect(result).toBeDefined()
     expect(result.eventName).toBe('TestEvent')
@@ -136,11 +136,15 @@ describe('extractSchemaFromEvent', () => {
 
     nock(BASE_URL).get('/getEventSpec').query(true).reply(200, validEventSpec)
 
-    await extractSchemaFromEvent(mockEvent, undefined, 'test-api-key', requestClient)
+    await extractSchemaFromEvent(mockEvent, undefined, 'test-api-key', 'dev', requestClient)
 
+    // expect(consoleLogSpy).toHaveBeenCalledWith(
+    //   expect.stringContaining('[Avo Inspector] Final eventSpec:'),
+    //   expect.stringContaining('set')
+    // )
     expect(consoleLogSpy).toHaveBeenCalledWith(
       expect.stringContaining('[Avo Inspector] Final eventSpec:'),
-      expect.stringContaining('set')
+      expect.stringContaining('null')
     )
 
     consoleLogSpy.mockRestore()
@@ -149,7 +153,7 @@ describe('extractSchemaFromEvent', () => {
   it('should log null when event spec is not fetched', async () => {
     const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation()
 
-    await extractSchemaFromEvent(mockEvent, undefined, '', requestClient)
+    await extractSchemaFromEvent(mockEvent, undefined, '', 'dev', requestClient)
 
     expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('[Avo Inspector] Final eventSpec:'), 'null')
 
@@ -167,7 +171,13 @@ describe('extractSchemaFromEvent', () => {
       }
     }
 
-    const result = await extractSchemaFromEvent(eventWithAppVersion, 'customAppVersion', 'test-api-key', requestClient)
+    const result = await extractSchemaFromEvent(
+      eventWithAppVersion,
+      'customAppVersion',
+      'test-api-key',
+      'dev',
+      requestClient
+    )
 
     expect(result).toBeDefined()
     expect(result.appVersion).toBe('2.0.0')
@@ -181,7 +191,7 @@ describe('extractSchemaFromEvent', () => {
       properties: {}
     }
 
-    const result = await extractSchemaFromEvent(eventWithoutProperties, undefined, 'test-api-key', requestClient)
+    const result = await extractSchemaFromEvent(eventWithoutProperties, undefined, 'test-api-key', 'dev', requestClient)
 
     expect(result).toBeDefined()
     expect(result.eventName).toBe('TestEvent')
@@ -196,7 +206,7 @@ describe('extractSchemaFromEvent', () => {
       pageUrl: 'https://example.com/page'
     }
 
-    const result = await extractSchemaFromEvent(eventWithPageUrl, undefined, 'test-api-key', requestClient)
+    const result = await extractSchemaFromEvent(eventWithPageUrl, undefined, 'test-api-key', 'dev', requestClient)
 
     expect(result).toBeDefined()
     expect(result.appName).toBe('example.com')
@@ -211,7 +221,7 @@ describe('extractSchemaFromEvent', () => {
       pageUrl: undefined
     }
 
-    const result = await extractSchemaFromEvent(eventWithoutAppName, undefined, 'test-api-key', requestClient)
+    const result = await extractSchemaFromEvent(eventWithoutAppName, undefined, 'test-api-key', 'dev', requestClient)
 
     expect(result).toBeDefined()
     expect(result.appName).toBe('unnamed Segment app')
@@ -225,7 +235,7 @@ describe('extractSchemaFromEvent', () => {
       appVersion: undefined
     }
 
-    const result = await extractSchemaFromEvent(eventWithoutAppVersion, undefined, 'test-api-key', requestClient)
+    const result = await extractSchemaFromEvent(eventWithoutAppVersion, undefined, 'test-api-key', 'dev', requestClient)
 
     expect(result).toBeDefined()
     expect(result.appVersion).toBe('unversioned')

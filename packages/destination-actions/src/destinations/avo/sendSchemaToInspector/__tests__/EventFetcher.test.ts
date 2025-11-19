@@ -76,7 +76,9 @@ describe('EventSpecFetcher', () => {
       const fetcher = new EventSpecFetcher(requestClient, false)
       const result = await fetcher.fetch(mockParams)
 
-      expect(result).toEqual(validEventSpec)
+      // Guard prevents endpoint from being called, so result is always null
+      // expect(result).toEqual(validEventSpec)
+      expect(result).toBeNull()
     })
 
     it('should successfully fetch an event spec with variants', async () => {
@@ -92,7 +94,9 @@ describe('EventSpecFetcher', () => {
       const fetcher = new EventSpecFetcher(requestClient, false)
       const result = await fetcher.fetch(mockParams)
 
-      expect(result).toEqual(validEventSpecWithVariants)
+      // Guard prevents endpoint from being called, so result is always null
+      // expect(result).toEqual(validEventSpecWithVariants)
+      expect(result).toBeNull()
     })
 
     it('should return null when request fails with network error', async () => {
@@ -252,11 +256,13 @@ describe('EventSpecFetcher', () => {
       const fetcher = new EventSpecFetcher(requestClient, false)
       const result = await fetcher.fetch(mockParams)
 
-      expect(result).toEqual(validEventSpec)
+      // Guard prevents endpoint from being called, so result is always null
+      // expect(result).toEqual(validEventSpec)
+      expect(result).toBeNull()
     })
 
     it('should return null when response is null', async () => {
-      nock(BASE_URL).get('/getEventSpec').query(true).reply(200, null)
+      nock(BASE_URL).get('/getEventSpec').query(true).reply(200, undefined)
 
       const fetcher = new EventSpecFetcher(requestClient, false)
       const result = await fetcher.fetch(mockParams)
@@ -297,11 +303,15 @@ describe('EventSpecFetcher', () => {
       const fetcher = new EventSpecFetcher(requestClient, true)
       await fetcher.fetch(mockParams)
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(`[EventSpecFetcher] Fetching event spec for: ${mockParams.eventName}`)
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('[EventSpecFetcher] URL:'))
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        `[EventSpecFetcher] Successfully fetched event spec for: ${mockParams.eventName}`
-      )
+      // Guard prevents endpoint from being called, so no logs are generated
+      // expect(consoleLogSpy).toHaveBeenCalledWith(`[EventSpecFetcher] Fetching event spec for: ${mockParams.eventName}`)
+      // expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('[EventSpecFetcher] URL:'))
+      // expect(consoleLogSpy).toHaveBeenCalledWith(
+      //   `[EventSpecFetcher] Successfully fetched event spec for: ${mockParams.eventName}`
+      // )
+      expect(consoleLogSpy).not.toHaveBeenCalled()
+      expect(consoleWarnSpy).not.toHaveBeenCalled()
+      expect(consoleErrorSpy).not.toHaveBeenCalled()
     })
 
     it('should log warnings when shouldLog is true and fetch fails', async () => {
@@ -310,10 +320,14 @@ describe('EventSpecFetcher', () => {
       const fetcher = new EventSpecFetcher(requestClient, true)
       await fetcher.fetch(mockParams)
 
-      expect(consoleLogSpy).toHaveBeenCalled()
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[EventSpecFetcher] Request failed with status: 404')
-      )
+      // Guard prevents endpoint from being called, so no logs are generated
+      // expect(consoleLogSpy).toHaveBeenCalled()
+      // expect(consoleWarnSpy).toHaveBeenCalledWith(
+      //   expect.stringContaining('[EventSpecFetcher] Request failed with status: 404')
+      // )
+      expect(consoleLogSpy).not.toHaveBeenCalled()
+      expect(consoleWarnSpy).not.toHaveBeenCalled()
+      expect(consoleErrorSpy).not.toHaveBeenCalled()
     })
 
     it('should log errors when shouldLog is true and network error occurs', async () => {
@@ -322,10 +336,14 @@ describe('EventSpecFetcher', () => {
       const fetcher = new EventSpecFetcher(requestClient, true)
       await fetcher.fetch(mockParams)
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[EventSpecFetcher] Network error occurred:'),
-        expect.anything()
-      )
+      // Guard prevents endpoint from being called, so no logs are generated
+      // expect(consoleErrorSpy).toHaveBeenCalledWith(
+      //   expect.stringContaining('[EventSpecFetcher] Network error occurred:'),
+      //   expect.anything()
+      // )
+      expect(consoleLogSpy).not.toHaveBeenCalled()
+      expect(consoleWarnSpy).not.toHaveBeenCalled()
+      expect(consoleErrorSpy).not.toHaveBeenCalled()
     })
 
     it('should not log when shouldLog is false', async () => {
@@ -354,7 +372,9 @@ describe('EventSpecFetcher', () => {
       const fetcher = new EventSpecFetcher(requestClient, false)
       await fetcher.fetch(mockParams)
 
-      expect(scope.isDone()).toBe(true)
+      // Guard prevents endpoint from being called, so no network request is made
+      // expect(scope.isDone()).toBe(true)
+      expect(scope.isDone()).toBe(false)
     })
 
     it('should use custom baseUrl when provided', async () => {
@@ -364,7 +384,9 @@ describe('EventSpecFetcher', () => {
       const fetcher = new EventSpecFetcher(requestClient, false, customBaseUrl)
       await fetcher.fetch(mockParams)
 
-      expect(scope.isDone()).toBe(true)
+      // Guard prevents endpoint from being called, so no network request is made
+      // expect(scope.isDone()).toBe(true)
+      expect(scope.isDone()).toBe(false)
     })
 
     it('should handle special characters in query parameters', async () => {
@@ -379,7 +401,9 @@ describe('EventSpecFetcher', () => {
       const fetcher = new EventSpecFetcher(requestClient, false)
       await fetcher.fetch(paramsWithSpecialChars)
 
-      expect(scope.isDone()).toBe(true)
+      // Guard prevents endpoint from being called, so no network request is made
+      // expect(scope.isDone()).toBe(true)
+      expect(scope.isDone()).toBe(false)
     })
   })
 
@@ -398,7 +422,9 @@ describe('EventSpecFetcher', () => {
       const fetcher = new EventSpecFetcher(requestClient, false)
       const result = await fetcher.fetch(mockParams)
 
-      expect(result).toEqual(eventSpecWithEmptyProps)
+      // Guard prevents endpoint from being called, so result is always null
+      // expect(result).toEqual(eventSpecWithEmptyProps)
+      expect(result).toBeNull()
     })
 
     it('should handle empty variants array', async () => {
@@ -416,7 +442,9 @@ describe('EventSpecFetcher', () => {
       const fetcher = new EventSpecFetcher(requestClient, false)
       const result = await fetcher.fetch(mockParams)
 
-      expect(result).toEqual(eventSpecWithEmptyVariants)
+      // Guard prevents endpoint from being called, so result is always null
+      // expect(result).toEqual(eventSpecWithEmptyVariants)
+      expect(result).toBeNull()
     })
 
     it('should handle multiple variants', async () => {
@@ -447,7 +475,9 @@ describe('EventSpecFetcher', () => {
       const fetcher = new EventSpecFetcher(requestClient, false)
       const result = await fetcher.fetch(mockParams)
 
-      expect(result).toEqual(eventSpecWithMultipleVariants)
+      // Guard prevents endpoint from being called, so result is always null
+      // expect(result).toEqual(eventSpecWithMultipleVariants)
+      expect(result).toBeNull()
     })
   })
 })

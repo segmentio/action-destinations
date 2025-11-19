@@ -8,7 +8,13 @@ const processEvents = async (request: RequestClient, settings: Settings, payload
   const events = await Promise.all(
     payload.map(async (value) => {
       try {
-        return await extractSchemaFromEvent(value, settings.appVersionPropertyName, settings.apiKey, request)
+        return await extractSchemaFromEvent(
+          value,
+          settings.appVersionPropertyName,
+          settings.apiKey,
+          settings.env,
+          request
+        )
       } catch (error) {
         console.error('[Avo Inspector] Error extracting schema from event:', error)
         throw error

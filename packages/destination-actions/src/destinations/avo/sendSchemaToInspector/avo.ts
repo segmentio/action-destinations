@@ -61,6 +61,7 @@ async function fetchEventSpec(
   eventName: string,
   apiKey: string,
   streamId: string | undefined,
+  env: string,
   request: RequestClient
 ): Promise<EventSpec | null> {
   if (!apiKey) {
@@ -81,7 +82,7 @@ async function fetchEventSpec(
     }
 
     // fetch from API (async)
-    const result = await new EventSpecFetcher(request, true).fetch(fetchParams).catch((error: any) => {
+    const result = await new EventSpecFetcher(request, true, env).fetch(fetchParams).catch((error: any) => {
       console.error(`[Avo Inspector] Failed to fetch event spec for ${eventName}:`, error)
       return null
     })
@@ -99,11 +100,12 @@ export async function extractSchemaFromEvent(
   event: Payload,
   appVersionPropertyName: string | undefined,
   apiKey: string,
+  env: string,
   request: RequestClient
 ) {
   const baseBody: BaseBody = generateBaseBody(event, appVersionPropertyName)
 
-  const eventSpec = await fetchEventSpec(event.event, apiKey, event.anonymousId, request)
+  const eventSpec = await fetchEventSpec(event.event, apiKey, event.anonymousId, env, request)
 
   const eventSpecString = eventSpec ? JSON.stringify(eventSpec) : null
   console.log(`[Avo Inspector] Final eventSpec:`, eventSpecString ? `set (${eventSpecString.length} chars)` : `null`)

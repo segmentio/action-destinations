@@ -14,15 +14,19 @@ export class EventSpecFetcher {
   private readonly request: RequestClient
   /** Whether to log debug information */
   private readonly shouldLog: boolean
+  /** Environment name */
+  private readonly env: string
 
   constructor(
     request: RequestClient,
-    shouldLog = false,
-    baseUrl = 'https://us-central1-avo-web-app.cloudfunctions.net'
+    shouldLog: boolean = false,
+    baseUrl: string = 'https://us-central1-avo-web-app.cloudfunctions.net',
+    env: string = 'prod'
   ) {
     this.baseUrl = baseUrl
     this.request = request
     this.shouldLog = shouldLog
+    this.env = env
   }
 
   /**
@@ -45,6 +49,9 @@ export class EventSpecFetcher {
 
   /** Internal fetch implementation. */
   private async fetchInternal(params: FetchEventSpecParams): Promise<EventSpec | null> {
+    if (!(this.env === 'dev' || this.env === 'staging') || true) {
+      return Promise.resolve(null)
+    }
     const url: string = this.buildUrl(params)
     if (this.shouldLog) {
       console.log(`[EventSpecFetcher] Fetching event spec for: ${params.eventName}`)
