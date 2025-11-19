@@ -39,7 +39,7 @@ const destination: DestinationDefinition<Settings> = {
       secret_key: {
         label: 'Secret Key',
         description: 'Your Clay secret key',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

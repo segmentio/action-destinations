@@ -29,7 +29,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'CleverTap Account Passcode',
         description:
           'CleverTap Passcode. This can be found under [Settings Page](https://developer.clevertap.com/docs/authentication#getting-your-account-credentials).',
-        type: 'string',
+        type: 'password',
         required: true
       },
       clevertapEndpoint: {

@@ -43,7 +43,7 @@ export const destination: BrowserDestinationDefinition<Settings, Iterate> = {
     apiKey: {
       label: 'Embed API Key',
       description: 'The Embed API Key for your account. You can find this on your settings pages.',
-      type: 'string',
+      type: 'password',
       required: true
     }
   },

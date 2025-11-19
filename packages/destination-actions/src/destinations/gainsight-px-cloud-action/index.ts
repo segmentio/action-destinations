@@ -19,7 +19,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Gainsight PX API key. You can find this key in the "Administration/Products" screen.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       dataCenter: {

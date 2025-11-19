@@ -22,7 +22,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Your Cordial API Key',
-        type: 'string',
+        type: 'password',
         required: true
       },
       endpoint: {
@@ -48,7 +48,7 @@ const destination: DestinationDefinition<Settings> = {
 
   extendRequest({ settings }) {
     return {
-      headers: { 'x-api-key': `${settings.apiKey}`, 'Accept': 'application/json'}
+      headers: { 'x-api-key': `${settings.apiKey}`, Accept: 'application/json' }
     }
   },
 

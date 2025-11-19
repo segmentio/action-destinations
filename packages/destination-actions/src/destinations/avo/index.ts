@@ -16,7 +16,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'Avo Inspector API Key',
         description: 'Avo Inspector API Key can be found in the Inspector setup page on your source in Avo.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       env: {

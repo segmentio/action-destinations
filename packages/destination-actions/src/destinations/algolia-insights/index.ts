@@ -32,7 +32,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'apiKey',
         description: 'An API key which has write permissions to the Algolia Insights API',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

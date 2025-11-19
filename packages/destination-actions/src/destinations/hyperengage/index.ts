@@ -38,7 +38,7 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       apiKey: {
-        type: 'string',
+        type: 'password',
         label: 'API Key',
         description: 'Your Hyperengage API key located in the Integration Settings page.',
         required: true

@@ -16,7 +16,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'You can find your API Key in the Segment Integration page in your admin settings.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

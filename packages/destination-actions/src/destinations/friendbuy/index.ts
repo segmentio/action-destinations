@@ -18,7 +18,7 @@ const destination: DestinationDefinition<Settings> = {
       authKey: {
         label: 'Friendbuy MAPI Key',
         description: 'Contact your Friendbuy account manager to generate your Friendbuy MAPI key and secret.',
-        type: 'string',
+        type: 'password',
         format: 'uuid',
         required: true
       },

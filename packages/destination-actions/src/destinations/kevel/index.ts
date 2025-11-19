@@ -24,7 +24,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'Kevel API Key',
         description: 'Your Kevel API Key',
-        type: 'string',
+        type: 'password',
         required: true
       }
     }

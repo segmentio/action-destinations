@@ -27,7 +27,7 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'Encharge.io API Key. This can be found on your [Account page](https://app.encharge.io/settings/api-keys).',
         label: 'API Key',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },
