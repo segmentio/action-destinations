@@ -39,27 +39,22 @@ export async function send(request: RequestClient, payloads: Payload[], settings
   })
 
   const errors = Array.isArray(response.data.errors) ? response.data.errors : []
-  payloadsWithIndexes.forEach((payload) => {
-    const index = payload.index
-    if(typeof index === 'number') {
-      const error = errors?.find((error) => error.index === index)
-      if(error){
-        msResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: 'BAD_REQUEST',
-          errormessage: error.type,
-          sent: payload as object as JSONLikeObject,
-          body: JSON.stringify(json.events[index])
-        })
-      } else {
-        msResponse.setSuccessResponseAtIndex(index, {
-          status: 200,
-          sent: payload as object as JSONLikeObject,
-          body: JSON.stringify(json.events[index])
-        })
-      }
-    } 
+
+  payloadsWithIndexes.forEach((payload, index) => {
+    
+    const error = errors.find(e => e.index === index)
+
+    if(error){
+      msResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'BAD_REQUEST',
+        errormessage: error.type,
+        sent: payload as object as JSONLikeObject,
+        body: JSON.stringify(json.events[index])
+      })
+    }
   })
+  
 
   return isBatch ? msResponse : response 
 }
@@ -70,7 +65,8 @@ function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msRe
   const events: EcommerceEvent[] = []
   payloadsWithIndexes.forEach((payload, index) => {
     const message = validate(payload, isBatch)  
-    if(message){
+    if(message) {
+      payload.index = undefined
       msResponse.setErrorResponseAtIndex(
         index, 
         { 
@@ -81,9 +77,15 @@ function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msRe
       )
     } 
     else {  
+      // assume valid payload - we'll overwrite later if Braze responds with an error for this index
       const event = getJSONItem(payload, settings)
       payload.index = events.length
       events.push(event)
+      msResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        sent: payload as object as JSONLikeObject,
+        body: JSON.stringify(event)
+      })
     }
   })
 
