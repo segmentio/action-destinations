@@ -9,27 +9,21 @@ const presets: DestinationDefinition['presets'] = [
     name: 'Track Events',
     subscribe: 'type = "track"',
     partnerAction: 'trackEvent',
-    mapping: {
-      ...defaultValues(trackEvent.fields)
-    },
+    mapping: { ...defaultValues(trackEvent.fields) },
     type: 'automatic'
   },
   {
     name: 'Identify Calls',
     subscribe: 'type = "identify"',
     partnerAction: 'identifyUser',
-    mapping: {
-      ...defaultValues(identifyUser.fields)
-    },
+    mapping: { ...defaultValues(identifyUser.fields) },
     type: 'automatic'
   },
   {
     name: 'Group Calls',
     subscribe: 'type = "group"',
     partnerAction: 'identifyGroup',
-    mapping: {
-      ...defaultValues(identifyGroup.fields)
-    },
+    mapping: { ...defaultValues(identifyGroup.fields) },
     type: 'automatic'
   }
 ]
