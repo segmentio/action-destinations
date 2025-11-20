@@ -23,7 +23,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: { ...event.properties, batch_size: 4 },
       settings: settingsData,
       auth: undefined
     })
@@ -56,7 +56,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: { ...event.properties, batch_size: 4 },
       settings: settingsData,
       auth: undefined
     })
