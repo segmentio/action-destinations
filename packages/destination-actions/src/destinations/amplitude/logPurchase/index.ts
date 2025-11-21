@@ -242,7 +242,7 @@ const action: ActionDefinition<Settings, Payload> = {
     let options
 
     if(platform2?.behavior !== 'use_mapping') {
-      // legacy behavior
+      // auto behavior
       if (properties.platform) {
         properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
       }

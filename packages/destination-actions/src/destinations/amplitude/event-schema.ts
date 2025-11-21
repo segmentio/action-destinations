@@ -100,7 +100,7 @@ export const eventSchema: Record<string, InputField> = {
   platform2: {
     label: 'Platform Settings',
     type: 'object',
-    description: 'Specifies the "platform" value to send to Amplitude. Select "Use Mapping" to set the value from the "Platform Mapping" field. "Legacy Behaviour" sets to "iOS", "Android" or "Web" based on values in the Segment event payload.',
+    description: 'Specifies the "platform" value to send to Amplitude. Select "Use Mapping" to set the value using the "Platform Mapping" field. "Legacy Behaviour" sets the value to "iOS", "Android" or "Web" based on values in the Segment event payload.',
     defaultObjectUI: 'keyvalue',
     properties: {
       behavior: {
@@ -108,7 +108,7 @@ export const eventSchema: Record<string, InputField> = {
         description: 'Configure how to set the platform value.',
         type: 'string',
         choices: [
-          { label: 'Legacy Behaviour', value: 'legacy' },
+          { label: 'Auto', value: 'auto' },
           { label: 'Use Mapping', value: 'use_mapping' }
         ]
       },
@@ -119,7 +119,7 @@ export const eventSchema: Record<string, InputField> = {
       }
     }, 
     default: {
-      behavior: 'legacy',
+      behavior: 'auto',
       mapping: { '@path': '$.context.device.type' }
     }
   },
@@ -346,7 +346,7 @@ export const eventSchema: Record<string, InputField> = {
         description: 'Configure how to set the library value.',
         type: 'string',
         choices: [
-          { label: 'Legacy Behaviour', value: 'legacy' },
+          { label: 'Auto', value: 'auto' },
           { label: 'Use Mapping', value: 'use_mapping' }
         ],
       },
