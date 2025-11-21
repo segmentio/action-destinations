@@ -18,7 +18,7 @@ export const validateIamRoleArnFormat = (arn: string): boolean => {
 
 const transformPayloads = (payloads: Payload[]): PutRecordsRequestEntry[] => {
   return payloads.map((record) => ({
-    Data: Buffer.from(JSON.stringify(record)),
+    Data: Buffer.from(JSON.stringify(record.payload)),
     PartitionKey: record.partitionKey
   }))
 }
