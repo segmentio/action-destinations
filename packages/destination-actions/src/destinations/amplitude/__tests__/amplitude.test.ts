@@ -13,7 +13,14 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
+      }
+
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
@@ -173,7 +180,13 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
+      }
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toMatchObject({
@@ -367,7 +380,11 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
@@ -414,7 +431,13 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
+      }
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -468,7 +491,13 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
+      }
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -583,9 +612,15 @@ describe('Amplitude', () => {
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
         }
       })
+      
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
       }
+
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
@@ -633,7 +668,11 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        trackRevenuePerProduct: true
+        trackRevenuePerProduct: true,
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
       }
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
@@ -690,7 +729,11 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        trackRevenuePerProduct: true
+        trackRevenuePerProduct: true,
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
       }
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
@@ -744,7 +787,11 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        trackRevenuePerProduct: true
+        trackRevenuePerProduct: true,
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
       }
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
@@ -929,8 +976,14 @@ describe('Amplitude', () => {
       })
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
-
-      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+      
+      const mapping = {
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
+      }
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toMatchObject({
@@ -961,6 +1014,10 @@ describe('Amplitude', () => {
       const mapping = {
         revenue: {
           '@path': '$.properties.bitcoin_rev'
+        },
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
         }
       }
 
@@ -1074,7 +1131,11 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
@@ -1120,8 +1181,13 @@ describe('Amplitude', () => {
       })
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
-
-      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
+      }
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -1175,7 +1241,14 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
+      }
+
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -1291,7 +1364,11 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
@@ -1434,7 +1511,14 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
+      }
+
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toMatchObject({
@@ -1465,6 +1549,10 @@ describe('Amplitude', () => {
       const mapping = {
         revenue: {
           '@path': '$.properties.bitcoin_rev'
+        },
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
         }
       }
 
@@ -1578,7 +1666,11 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
@@ -1625,8 +1717,14 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
+      }
 
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
@@ -1679,7 +1777,13 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
+      }
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -1892,7 +1996,11 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {    
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name' }
+        }
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
@@ -1938,7 +2046,11 @@ describe('Amplitude', () => {
       }
     })
     const mapping = {
-      userAgentParsing: false
+      userAgentParsing: false,
+      library2: {    
+        behavior: 'legacy',
+        mapping: { '@path': '$.context.library.name' }
+      }
     }
     nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
     const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
@@ -2062,7 +2174,11 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name'}
+        }
       }
 
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
@@ -2203,7 +2319,11 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {
+          behavior: 'legacy',
+          mapping: { '@path': '$.context.library.name' }
+        }
       }
 
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})

@@ -223,20 +223,28 @@ const action: ActionDefinition<Settings, Payload> = {
       userAgentData,
       min_id_length,
       library,
+      library2,
       setOnce,
       setAlways,
       add,
+      platform2,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
     let options
 
-    if (properties.platform) {
-      properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
-    }
+    if(platform2?.behavior !== 'use_mapping') {
+      // legacy behavior
+      if (properties.platform) {
+        properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
+      }
 
-    if (library === 'analytics.js' && !properties.platform) {
-      properties.platform = 'Web'
+      if (library === 'analytics.js' && !properties.platform) {
+        properties.platform = 'Web'
+      }
+    } 
+    else {
+      properties.platform = platform2?.mapping
     }
 
     if (time && dayjs.utc(time).isValid()) {
@@ -271,7 +279,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ...(includeRawUserAgent && { user_agent: userAgent }),
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
-        library: 'segment'
+        library: library2?.behavior === 'use_mapping' ? library2.mapping : 'segment'
       }
     ]
 

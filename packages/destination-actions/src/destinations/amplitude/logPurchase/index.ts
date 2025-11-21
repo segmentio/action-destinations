@@ -234,17 +234,25 @@ const action: ActionDefinition<Settings, Payload> = {
       referrer,
       min_id_length,
       library,
+      library2,
+      platform2,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
     let options
 
-    if (properties.platform) {
-      properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
-    }
+    if(platform2?.behavior !== 'use_mapping') {
+      // legacy behavior
+      if (properties.platform) {
+        properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
+      }
 
-    if (library === 'analytics.js' && !properties.platform) {
-      properties.platform = 'Web'
+      if (library === 'analytics.js' && !properties.platform) {
+        properties.platform = 'Web'
+      }
+    } 
+    else {
+      properties.platform = platform2?.mapping
     }
 
     if (time && dayjs.utc(time).isValid()) {
@@ -276,7 +284,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ...removeUndefined(properties),
         // Conditionally track revenue with main event
         ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
-        library: 'segment'
+         library: library2?.behavior === 'use_mapping' ? library2.mapping : 'segment'
       }
     ]
 
@@ -288,7 +296,7 @@ const action: ActionDefinition<Settings, Payload> = {
         event_properties: product,
         event_type: 'Product Purchased',
         insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined,
-        library: 'segment'
+        library: library2?.behavior === 'use_mapping' ? library2.mapping : 'segment'
       })
     }
 
