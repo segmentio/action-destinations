@@ -48,9 +48,22 @@ export interface Payload {
    */
   app_version?: string
   /**
-   * Platform of the device. If using analytics.js to send events from a Browser and no if no Platform value is provided, the value "Web" will be sent.
+   * Hidden: Platform of the device. If using analytics.js to send events from a Browser and no if no Platform value is provided, the value "Web" will be sent.
    */
   platform?: string
+  /**
+   * Specifies the "platform" value to send to Amplitude. Select "Use Mapping" to set the value from the "Platform Mapping" field. "Legacy Behaviour" sets to "iOS", "Android" or "Web" based on values in the Segment event payload.
+   */
+  platform2?: {
+    /**
+     * Configure how to set the platform value.
+     */
+    behavior?: string
+    /**
+     * The platform value to send to Amplitude. Only used when the "Behavior" field is set to "Use Mapping".
+     */
+    mapping?: string
+  }
   /**
    * The name of the mobile operating system or browser that the user is using.
    */
@@ -152,9 +165,22 @@ export interface Payload {
    */
   insert_id?: string
   /**
-   * The name of the library that generated the event.
+   * HIDDEN: The name of the library that generated the event.
    */
   library?: string
+  /**
+   * Specifies the "library" value to send to Amplitude. Select "Use Mapping" to set the value from the "Library Mapping" field. "Legacy Behaviour" sets the value to "segment".
+   */
+  library2?: {
+    /**
+     * Configure how to set the library value.
+     */
+    behavior?: string
+    /**
+     * The library value to send to Amplitude. Only used when the "Behavior" field is set to "Use Mapping".
+     */
+    mapping?: string
+  }
   /**
    * The list of products purchased.
    */

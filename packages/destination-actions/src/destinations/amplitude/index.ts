@@ -76,14 +76,14 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Amplitude project API key. You can find this key in the "General" tab of your Amplitude project.',
-        type: 'password',
+        type: 'string',
         required: true
       },
       secretKey: {
         label: 'Secret Key',
         description:
           'Amplitude project secret key. You can find this key in the "General" tab of your Amplitude project.',
-        type: 'password',
+        type: 'string',
         required: true
       },
       endpoint: {
