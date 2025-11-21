@@ -4,6 +4,7 @@ exports[`Testing snapshot for Topsort's purchase destination action: all fields 
 Object {
   "purchases": Array [
     Object {
+      "channel": "4mevd8V",
       "id": "4mevd8V",
       "items": Array [
         Object {

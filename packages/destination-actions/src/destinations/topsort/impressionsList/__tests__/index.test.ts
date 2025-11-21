@@ -80,6 +80,50 @@ describe('Topsort.impressionsList', () => {
     })
   })
 
+  it('should be successful with optional fields', async () => {
+    nock(/.*/).persist().post(/.*/).reply(200)
+
+    const event = createTestEvent({
+      context: {
+        device: {
+          type: 'ios'
+        }
+      },
+      properties: {
+        channel: 'onsite',
+        products: [
+          {
+            id: 'thisisaproductid',
+            resolvedBidId: 'thisisaresolvedbidid',
+            additionalAttribution: { id: '123', type: 'user' }
+          }
+        ]
+      }
+    })
+
+    const responses = await testDestination.testAction('impressionsList', {
+      event,
+      settings: {
+        api_key: 'bar'
+      },
+      useDefaultMappings: true
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.headers).toMatchSnapshot()
+    expect(responses[0].options.json).toMatchObject({
+      impressions: expect.arrayContaining([
+        expect.objectContaining({
+          resolvedBidId: 'thisisaresolvedbidid',
+          additionalAttribution: { id: '123', type: 'user' },
+          deviceType: 'mobile',
+          channel: 'onsite'
+        })
+      ])
+    })
+  })
+
   it('should fail because it misses a required field (resolvedBidId)', async () => {
     nock(/.*/).persist().post(/.*/).reply(200)
 

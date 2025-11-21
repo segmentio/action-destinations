@@ -31,3 +31,19 @@ Headers {
   },
 }
 `;
+
+exports[`Topsort.impressionsList should be successful with optional fields 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer bar",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;

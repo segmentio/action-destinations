@@ -34,4 +34,12 @@ export interface Payload {
      */
     vendorId?: string
   }[]
+  /**
+   * The device the user is on.
+   */
+  deviceType?: string
+  /**
+   * The channel where the event occurred.
+   */
+  channel?: string
 }
