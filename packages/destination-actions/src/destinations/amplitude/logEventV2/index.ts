@@ -1,6 +1,5 @@
 import { ActionDefinition, omit, removeUndefined } from '@segment/actions-core'
 import dayjs from 'dayjs'
-import compact from '../compact'
 import { eventSchema } from '../event-schema'
 import type { Settings } from '../generated-types'
 import { getEndpointByRegion } from '../regional-endpoints'
@@ -8,6 +7,8 @@ import { parseUserAgentProperties } from '../user-agent'
 import type { Payload } from './generated-types'
 import { formatSessionId } from '../convert-timestamp'
 import { userAgentData } from '../properties'
+import { autocaptureFields } from './autocapture-fields'
+import { getUserProperties } from './autocapture-attribution'
 
 export interface AmplitudeEvent extends Omit<Payload, 'products' | 'time' | 'session_id'> {
   library?: string
@@ -19,7 +20,8 @@ export interface AmplitudeEvent extends Omit<Payload, 'products' | 'time' | 'ses
 }
 
 const revenueKeys = ['revenue', 'price', 'productId', 'quantity', 'revenueType']
-
+const userPropertyKeys = ['setOnce', 'setAlways','add','autocaptureAttributionEnabled','autocaptureAttributionSet','autocaptureAttributionSetOnce','autocaptureAttributionUnset']
+const keysToOmit = [...revenueKeys, ...userPropertyKeys]
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Log Event V2',
   description: 'Send an event to Amplitude',
@@ -86,9 +88,10 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     },
+    ...autocaptureFields,
     setOnce: {
       label: 'Set Once',
-      description: 'The following fields will only be set as user properties if they do not already have a value.',
+      description: "The following fields will only be set as user properties if they do not already have a value. If 'Autocapture Attribution' is enabled, UTM and attribution values in this field will be ignored.",
       type: 'object',
       additionalProperties: true,
       properties: {
@@ -129,7 +132,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     setAlways: {
       label: 'Set Always',
-      description: 'The following fields will be set as user properties for every event.',
+      description: "The following fields will be set as user properties for every event. If 'Autocapture Attribution' is enabled, UTM and attribution values in this field will be ignored.",
       type: 'object',
       additionalProperties: true,
       properties: {
@@ -223,11 +226,8 @@ const action: ActionDefinition<Settings, Payload> = {
       userAgentData,
       min_id_length,
       library,
-      setOnce,
-      setAlways,
-      add,
       ...rest
-    } = omit(payload, revenueKeys)
+    } = omit(payload, keysToOmit)
     const properties = rest as AmplitudeEvent
     let options
 
@@ -251,18 +251,7 @@ const action: ActionDefinition<Settings, Payload> = {
       options = { min_id_length }
     }
 
-    const setUserProperties = (
-      name: '$setOnce' | '$set' | '$add',
-      obj: Payload['setOnce'] | Payload['setAlways'] | Payload['add']
-    ) => {
-      if (compact(obj)) {
-        properties.user_properties = { ...properties.user_properties, [name]: obj }
-      }
-    }
-
-    setUserProperties('$setOnce', setOnce)
-    setUserProperties('$set', setAlways)
-    setUserProperties('$add', add)
+    properties.user_properties = getUserProperties(payload)
 
     const events: AmplitudeEvent[] = [
       {
