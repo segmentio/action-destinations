@@ -16,6 +16,8 @@ import triggerCanvas from './triggerCanvas'
 
 import upsertCatalogItem from './upsertCatalogItem'
 
+import ecommerceEvent from './ecommerceEvent'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Braze Cloud Mode (Actions)',
   slug: 'actions-braze-cloud',
@@ -91,7 +93,8 @@ const destination: DestinationDefinition<Settings> = {
     createAlias2,
     upsertCatalogItem,
     triggerCampaign,
-    triggerCanvas
+    triggerCanvas,
+    ecommerceEvent
   },
   presets: [
     {
