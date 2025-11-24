@@ -382,7 +382,7 @@ export const products: InputField = {
     },
     default: {
         '@arrayPath': [
-            '$.properties,products',
+            '$.properties.products',
             {
                 product_id: { '@path': '$.product_id' },
                 product_name: { '@path': '$.name' },
@@ -400,7 +400,7 @@ export const products: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is_not',
-                value: EVENT_NAMES.CART_UPDATED
+                value: EVENT_NAMES.PRODUCT_VIEWED
             }
         ]
     },
@@ -410,7 +410,7 @@ export const products: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is_not',
-                value: EVENT_NAMES.CART_UPDATED
+                value: EVENT_NAMES.PRODUCT_VIEWED
             }
         ]
     }
@@ -473,7 +473,7 @@ export const product: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is',
-                value: EVENT_NAMES.CART_UPDATED
+                value: EVENT_NAMES.PRODUCT_VIEWED
             }
         ]
     },
@@ -483,7 +483,7 @@ export const product: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is',
-                value: EVENT_NAMES.CART_UPDATED
+                value: EVENT_NAMES.PRODUCT_VIEWED
             }
         ]
     }
