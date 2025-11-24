@@ -152,7 +152,8 @@ describe('Braze.ecommerceEvent', () => {
     it('should send Order Completed event correctly', async () => {
       const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const e = createTestEvent(deepCopy)
-      
+      delete e.properties?.product
+
       const json = {
         events: [
           {
@@ -240,6 +241,7 @@ describe('Braze.ecommerceEvent', () => {
 
       const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const e = createTestEvent(deepCopy)
+      delete e.properties?.product
 
       const json = {
         events: [
@@ -321,6 +323,7 @@ describe('Braze.ecommerceEvent', () => {
 
       const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const e = createTestEvent(deepCopy)
+      delete e.properties?.product
 
       const json = {
         events: [
@@ -406,6 +409,7 @@ describe('Braze.ecommerceEvent', () => {
 
       const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const e = createTestEvent(deepCopy)
+      delete e.properties?.product
 
       const json = {
         events: [
@@ -492,6 +496,7 @@ describe('Braze.ecommerceEvent', () => {
 
       const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const e = createTestEvent(deepCopy)
+      delete e.properties?.product
 
       const json = {
         events: [
@@ -563,6 +568,7 @@ describe('Braze.ecommerceEvent', () => {
 
       const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const e = createTestEvent(deepCopy)
+      delete e.properties?.products 
 
       const json = {
         events: [

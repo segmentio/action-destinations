@@ -336,6 +336,7 @@ export const products: InputField = {
     type: 'object',
     multiple: true,
     additionalProperties: true,
+    defaultObjectUI: 'keyvalue',
     properties: {
         product_id: {
             label: 'Product ID',
@@ -394,16 +395,6 @@ export const products: InputField = {
             }
         ]
     },
-    required: {
-        match: 'any',
-        conditions: [
-            {
-                fieldKey: 'name',
-                operator: 'is_not',
-                value: EVENT_NAMES.PRODUCT_VIEWED
-            }
-        ]
-    },
     depends_on: {
         match: 'any',
         conditions: [
@@ -421,6 +412,7 @@ export const product: InputField = {
     description: 'Product associated with the ecommerce event.',
     type: 'object',
     additionalProperties: true,
+    defaultObjectUI: 'keyvalue',
     properties: {
         product_id: {
             label: 'Product ID',
@@ -466,16 +458,6 @@ export const product: InputField = {
         image_url: {'@path': '$.properties.image_url'},
         product_url: {'@path': '$.properties.url'},
         price: {'@path': '$.properties.price'}
-    },
-    required: {
-        match: 'all',
-        conditions: [
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.PRODUCT_VIEWED
-            }
-        ]
     },
     depends_on: {
         match: 'all',
