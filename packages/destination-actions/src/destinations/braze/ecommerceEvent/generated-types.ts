@@ -76,39 +76,9 @@ export interface Payload {
    */
   source: string
   /**
-   * Product associated with the ecommerce event.
-   */
-  product?: {
-    /**
-     * A unique identifier for the product that was viewed. This value be can be the product ID or SKU
-     */
-    product_id: string
-    /**
-     * The name of the product that was viewed.
-     */
-    product_name: string
-    /**
-     * A unique identifier for the product variant. An example is shirt_medium_blue
-     */
-    variant_id: string
-    /**
-     * The URL of the product image.
-     */
-    image_url?: string
-    /**
-     * URL to the product page for more details.
-     */
-    product_url?: string
-    /**
-     * The variant unit price of the product at the time of viewing.
-     */
-    price: number
-    [k: string]: unknown
-  }
-  /**
    * List of products associated with the ecommerce event.
    */
-  products?: {
+  products: {
     /**
      * A unique identifier for the product that was viewed. This value be can be the product ID or SKU
      */
@@ -132,7 +102,7 @@ export interface Payload {
     /**
      * Number of units of the product in the cart.
      */
-    quantity: number
+    quantity?: number
     /**
      * The variant unit price of the product at the time of viewing.
      */

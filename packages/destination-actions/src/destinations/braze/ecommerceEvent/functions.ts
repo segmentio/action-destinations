@@ -20,7 +20,9 @@ import type {
   OrderPlacedEvent,
   OrderRefundedEvent,
   OrderCancelledEvent,
-  PayloadWithIndex
+  PayloadWithIndex,
+  ProductWithQuantity,
+  Product
 } from './types'
 import { EVENT_NAMES } from './constants'
 import dayjs from 'dayjs'
@@ -140,16 +142,18 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
   switch(name) {
     case EVENT_NAMES.PRODUCT_VIEWED: {
       const {
-        product,
+        products,
         type
       } = payload
+
+      const product = products && products.length > 0 ? products[0] : null
 
       const event: ProductViewedEvent = {
         ...baseEvent,
         name: EVENT_NAMES.PRODUCT_VIEWED,
         properties: {
           ...baseEvent.properties,
-          ...(product as NonNullable<typeof product>),
+          ...(product as Product),
           type
         }
       }
@@ -170,7 +174,7 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
         name: name as MultiPropertyEventName,
         properties: {
           ...baseEvent.properties,
-          products: products || [],
+          products: products as ProductWithQuantity[] || [],
           total_value: total_value as number
         }
       }
@@ -300,6 +304,29 @@ function validate(payload: Payload, isBatch: boolean): string | void {
     } 
     else {
       return message
+    }
+  }
+
+  const { name, products } = payload
+
+  if ([
+    EVENT_NAMES.CART_UPDATED,
+    EVENT_NAMES.CHECKOUT_STARTED,
+    EVENT_NAMES.ORDER_PLACED,
+    EVENT_NAMES.ORDER_REFUNDED,
+    EVENT_NAMES.ORDER_CANCELLED
+  ].includes(name as MultiPropertyEventName)) {
+    for (let index = 0; index < products.length; index++) {
+      const product = products[index]
+      if (typeof product.quantity !== 'number' || product.quantity <= 0) {
+        const message = `products[${index}]: "quantity" is required for event with name ${name}.`
+        if(!isBatch) {
+          throw new PayloadValidationError(message)
+        }
+        else {
+          return message
+        }
+      }
     }
   }
 }

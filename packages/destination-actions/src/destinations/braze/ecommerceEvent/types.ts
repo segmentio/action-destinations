@@ -55,13 +55,7 @@ export interface BaseEvent {
 
 export interface ProductViewedEvent extends BaseEvent {
     name: ProductViewedEventName
-    properties: BaseEvent['properties'] & {
-        product_id: string
-        product_name: string
-        variant_id: string
-        price: number
-        image_url?: string
-        product_url?: string
+    properties: BaseEvent['properties'] & Product & {
         type?: Array<string>
     }
 }
@@ -70,18 +64,24 @@ export interface MultiProductBaseEvent extends BaseEvent {
     name: MultiPropertyEventName
     properties: BaseEvent['properties'] & {
         total_value: number
-        products: Array<{
-            product_id: string
-            product_name: string
-            variant_id: string
-            quantity: number
-            price: number
-            image_url?: string
-            product_url?: string
-            metadata?: {
-                [key: string]: unknown
-            }
-        }>
+        products: Array<ProductWithQuantity>
+    }
+}
+
+export interface ProductWithQuantity extends Product {
+    quantity: number
+}
+
+export interface Product {
+    product_id: string
+    product_name: string
+    variant_id: string
+    quantity?: number
+    price: number
+    image_url?: string
+    product_url?: string
+    metadata?: {
+        [key: string]: unknown
     }
 }
 
