@@ -48,19 +48,6 @@ export interface Payload {
    */
   platform?: string
   /**
-   * Specifies the "platform" value to send to Amplitude. Select "Use Mapping" to set the value using the "Platform Mapping" field. "Legacy Behaviour" sets the value to "iOS", "Android" or "Web" based on values in the Segment event payload.
-   */
-  platform2?: {
-    /**
-     * Configure how to set the platform value.
-     */
-    behavior?: string
-    /**
-     * The platform value to send to Amplitude. Only used when the "Behavior" field is set to "Use Mapping".
-     */
-    mapping?: string
-  }
-  /**
    * The name of the mobile operating system or browser that the user is using.
    */
   os_name?: string

@@ -88,39 +88,12 @@ export const eventSchema: Record<string, InputField> = {
     }
   },
   platform: {
-    label: 'HIDDEN: Platform',
+    label: 'Platform',
     type: 'string',
-    unsafe_hidden: true,
     description:
-      'Hidden: Platform of the device. If using analytics.js to send events from a Browser and no if no Platform value is provided, the value "Web" will be sent.',
+      'Platform of the device. If using analytics.js to send events from a Browser and no if no Platform value is provided, the value "Web" will be sent.',
     default: {
       '@path': '$.context.device.type'
-    }
-  },
-  platform2: {
-    label: 'Platform Settings',
-    type: 'object',
-    description: 'Specifies the "platform" value to send to Amplitude. Select "Use Mapping" to set the value using the "Platform Mapping" field. "Legacy Behaviour" sets the value to "iOS", "Android" or "Web" based on values in the Segment event payload.',
-    defaultObjectUI: 'keyvalue',
-    properties: {
-      behavior: {
-        label: 'Behavior',
-        description: 'Configure how to set the platform value.',
-        type: 'string',
-        choices: [
-          { label: 'Auto', value: 'auto' },
-          { label: 'Use Mapping', value: 'use_mapping' }
-        ]
-      },
-      mapping: {
-        label: 'Platform Mapping',
-        description: 'The platform value to send to Amplitude. Only used when the "Behavior" field is set to "Use Mapping".',
-        type: 'string'
-      }
-    }, 
-    default: {
-      behavior: 'auto',
-      mapping: { '@path': '$.context.device.type' }
     }
   },
   os_name: {

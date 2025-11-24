@@ -47,10 +47,6 @@ describe('Amplitude', () => {
         library2: {
           behavior: 'use_mapping',
           mapping: { '@path': '$.context.library.name' }
-        }, 
-        platform2: {
-          behavior: 'use_mapping',
-          mapping: { '@path': '$.context.device.type' }
         }
       }
 
@@ -98,11 +94,7 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const mapping = {
-        platform2: {}
-      }
-
-      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
+      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
@@ -979,10 +971,6 @@ describe('Amplitude', () => {
         library2: {
           behavior: 'use_mapping',
           mapping: { '@path': '$.context.library.name' }
-        }, 
-        platform2: {
-          behavior: 'use_mapping',
-          mapping: { '@path': '$.context.device.type' }
         }
       }
 
@@ -1030,11 +1018,7 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const mapping = {
-        platform2: {}
-      }
-
-      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
+      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
@@ -1598,10 +1582,6 @@ describe('Amplitude', () => {
         library2: {
           behavior: 'use_mapping',
           mapping: { '@path': '$.context.library.name' }
-        }, 
-        platform2: {
-          behavior: 'use_mapping',
-          mapping: { '@path': '$.context.device.type' }
         }
       }
 
@@ -1649,11 +1629,7 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const mapping = {
-        platform2: {}
-      }
-
-      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})

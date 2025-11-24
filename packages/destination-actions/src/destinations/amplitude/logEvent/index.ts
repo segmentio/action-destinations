@@ -183,26 +183,19 @@ const action: ActionDefinition<Settings, Payload> = {
       min_id_length,
       library,
       library2,
-      platform2,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
     let options
 
-    if(platform2?.behavior !== 'use_mapping') {
-      // auto behavior
-      if (properties.platform) {
-        properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
-      }
-
-      if (library === 'analytics.js' && !properties.platform) {
-        properties.platform = 'Web'
-      }
-    } 
-    else {
-      properties.platform = platform2?.mapping
+    if (properties.platform) {
+      properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
     }
 
+    if (library === 'analytics.js' && !properties.platform) {
+      properties.platform = 'Web'
+    }
+   
     if (time && dayjs.utc(time).isValid()) {
       properties.time = dayjs.utc(time).valueOf()
     }
