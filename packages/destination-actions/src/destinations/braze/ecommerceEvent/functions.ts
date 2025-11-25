@@ -108,7 +108,8 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
     time: payloadTime,
     currency,
     source,
-    _update_existing_only
+    _update_existing_only,
+    metadata
   } = payload
 
   const time = dayjs(payloadTime).toISOString()
@@ -134,7 +135,8 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
     time,
     properties: {
       currency,
-      source
+      source,
+        ...(metadata ? { metadata } : {})
     },
     ...(typeof updateExistingOnly === 'boolean' ? { _update_existing_only: updateExistingOnly } : {} )
   }
@@ -169,12 +171,36 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
         total_value
       } = payload
 
+      const normalisedProducts: ProductWithQuantity[] = (products || []).map(product => {
+        const {
+          product_id,
+          product_name,
+          variant_id,
+          quantity,
+          price,
+          image_url,
+          product_url,
+          ...rest
+        } = product
+
+        return {
+          product_id,
+          product_name,
+          variant_id,
+          quantity,
+          price,
+          image_url,
+          product_url,
+          ...(metadata ? { metadata: { ...rest } } : {})
+        } as ProductWithQuantity
+      })
+
       const multiProductEvent: MultiProductBaseEvent = {
         ...baseEvent,
         name: name as MultiPropertyEventName,
         properties: {
           ...baseEvent.properties,
-          products: products as ProductWithQuantity[] || [],
+          products: normalisedProducts,
           total_value: total_value as number
         }
       }
