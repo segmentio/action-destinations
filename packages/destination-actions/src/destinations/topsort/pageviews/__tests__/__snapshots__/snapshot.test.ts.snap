@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Topsort's impression destination action: all fields 1`] = `
+Object {
+  "impressions": Array [
+    Object {
+      "additionalAttribution": Object {
+        "testType": "13(ufD",
+      },
+      "channel": "13(ufD",
+      "entity": Object {
+        "id": "13(ufD",
+        "type": "13(ufD",
+      },
+      "externalCampaignId": "13(ufD",
+      "externalVendorId": "13(ufD",
+      "id": "13(ufD",
+      "object": Object {
+        "assetId": "13(ufD",
+        "clickType": "13(ufD",
+        "type": "13(ufD",
+      },
+      "occurredAt": "2021-02-01T00:00:00.000Z",
+      "opaqueUserId": "13(ufD",
+      "page": Object {
+        "pageId": "13(ufD",
+        "type": "13(ufD",
+        "value": "13(ufD",
+      },
+      "placement": Object {
+        "categoryIds": Array [
+          "13(ufD",
+        ],
+        "page": -7215431639105536,
+        "pageSize": -7215431639105536,
+        "path": "13(ufD",
+        "position": -7215431639105536,
+        "productId": "13(ufD",
+        "searchQuery": "13(ufD",
+      },
+      "resolvedBidId": "13(ufD",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Topsort's impression destination action: required fields 1`] = `
+Object {
+  "impressions": Array [
+    Object {
+      "id": "13(ufD",
+      "occurredAt": "2021-02-01T00:00:00.000Z",
+      "opaqueUserId": "13(ufD",
+      "resolvedBidId": "13(ufD",
+    },
+  ],
+}
+`;
