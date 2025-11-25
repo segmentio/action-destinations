@@ -336,6 +336,8 @@ export const products: InputField = {
     type: 'object',
     multiple: true,
     additionalProperties: true,
+    required: true,
+    defaultObjectUI: 'keyvalue',
     properties: {
         product_id: {
             label: 'Product ID',
@@ -371,7 +373,7 @@ export const products: InputField = {
             label: 'Quantity',
             description: 'Number of units of the product in the cart.',
             type: 'number',
-            required: true
+            required: false // true for single product events only
         },
         price: {
             label: 'Price',
@@ -382,7 +384,7 @@ export const products: InputField = {
     },
     default: {
         '@arrayPath': [
-            '$.properties,products',
+            '$.properties.products',
             {
                 product_id: { '@path': '$.product_id' },
                 product_name: { '@path': '$.name' },
@@ -394,96 +396,13 @@ export const products: InputField = {
             }
         ]
     },
-    required: {
-        match: 'any',
-        conditions: [
-            {
-                fieldKey: 'name',
-                operator: 'is_not',
-                value: EVENT_NAMES.CART_UPDATED
-            }
-        ]
-    },
     depends_on: {
         match: 'any',
         conditions: [
             {
                 fieldKey: 'name',
                 operator: 'is_not',
-                value: EVENT_NAMES.CART_UPDATED
-            }
-        ]
-    }
-}
-
-export const product: InputField = {
-    label: 'Product',
-    description: 'Product associated with the ecommerce event.',
-    type: 'object',
-    additionalProperties: true,
-    properties: {
-        product_id: {
-            label: 'Product ID',
-            description: 'A unique identifier for the product that was viewed. This value be can be the product ID or SKU',
-            type: 'string',
-            required: true
-        },
-        product_name: {
-            label: 'Product Name',
-            description: 'The name of the product that was viewed.',
-            type: 'string',
-            required: true
-        },
-        variant_id: {
-            label: 'Variant ID',
-            description: 'A unique identifier for the product variant. An example is shirt_medium_blue',
-            type: 'string',
-            required: true
-        },
-        image_url: {
-            label: 'Image URL',
-            description: 'The URL of the product image.',
-            type: 'string',
-            format: 'uri'
-        },
-        product_url: {
-            label: 'Product URL',
-            description: 'URL to the product page for more details.',
-            type: 'string',
-            format: 'uri'
-        },
-        price: {
-            label: 'Price',
-            description: 'The variant unit price of the product at the time of viewing.',
-            type: 'number',
-            required: true
-        }
-    },
-    default: { 
-        product_id: { '@path': '$.properties.product_id' },
-        product_name: { '@path': '$.properties.name' },
-        variant_id: { '@path': '$.properties.variant'},
-        image_url: {'@path': '$.properties.image_url'},
-        product_url: {'@path': '$.properties.url'},
-        price: {'@path': '$.properties.price'}
-    },
-    required: {
-        match: 'all',
-        conditions: [
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.CART_UPDATED
-            }
-        ]
-    },
-    depends_on: {
-        match: 'all',
-        conditions: [
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.CART_UPDATED
+                value: EVENT_NAMES.PRODUCT_VIEWED
             }
         ]
     }
