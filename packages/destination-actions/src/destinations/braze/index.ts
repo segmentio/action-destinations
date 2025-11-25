@@ -13,6 +13,7 @@ import trackPurchase2 from './trackPurchase2'
 import updateUserProfile2 from './updateUserProfile2'
 import triggerCampaign from './triggerCampaign'
 import triggerCanvas from './triggerCanvas'
+import { EVENT_NAMES } from './ecommerceEvent/constants'
 
 import upsertCatalogItem from './upsertCatalogItem'
 
@@ -99,16 +100,72 @@ const destination: DestinationDefinition<Settings> = {
   presets: [
     {
       name: 'Track Calls',
-      subscribe: 'type = "track" and event != "Order Completed"',
+      subscribe: 'type = "track" and event != "Order Completed" and event != "Checkout Started" and event != "Order Refunded" and event != "Order Cancelled" and event != "Product Viewed"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields),
       type: 'automatic'
     },
     {
-      name: 'Order Completed Calls',
+      name: 'Order Placed',
       subscribe: 'event = "Order Completed"',
-      partnerAction: 'trackPurchase',
-      mapping: defaultValues(trackPurchase.fields),
+      partnerAction: 'ecommerceEvent',
+      mapping: { 
+        ...defaultValues(ecommerceEvent.fields),
+        name: EVENT_NAMES.ORDER_PLACED
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Checkout Started',
+      subscribe: 'event = "Checkout Started"',
+      partnerAction: 'ecommerceEvent',
+      mapping: { 
+        ...defaultValues(ecommerceEvent.fields),
+        name: EVENT_NAMES.CHECKOUT_STARTED
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Order Refunded',
+      subscribe: 'event = "Order Refunded"',
+      partnerAction: 'ecommerceEvent',
+      mapping: { 
+        ...defaultValues(ecommerceEvent.fields),
+        name: EVENT_NAMES.ORDER_REFUNDED
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Order Cancelled',
+      subscribe: 'event = "Order Cancelled"',
+      partnerAction: 'ecommerceEvent',
+      mapping: { 
+        ...defaultValues(ecommerceEvent.fields),
+        name: EVENT_NAMES.ORDER_CANCELLED
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Product Viewed',
+      subscribe: 'event = "Product Viewed"',
+      partnerAction: 'ecommerceEvent',
+      mapping: { 
+        ...defaultValues(ecommerceEvent.fields),
+        name: EVENT_NAMES.PRODUCT_VIEWED, 
+        products: {
+          '@arrayPath': [
+            '$.properties',
+            {
+                product_id: { '@path': '$.product_id' },
+                product_name: { '@path': '$.name' },
+                variant_id: { '@path': '$.variant'},
+                image_url: {'@path': '$.image_url'},
+                product_url: {'@path': '$.url'},
+                price: {'@path': '$.price'}
+            }
+          ]
+        }
+      },
       type: 'automatic'
     },
     {
