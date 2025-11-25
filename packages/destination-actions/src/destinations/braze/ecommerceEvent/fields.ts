@@ -395,16 +395,6 @@ export const products: InputField = {
                 price: {'@path': '$.price'}
             }
         ]
-    },
-    depends_on: {
-        match: 'any',
-        conditions: [
-            {
-                fieldKey: 'name',
-                operator: 'is_not',
-                value: EVENT_NAMES.PRODUCT_VIEWED
-            }
-        ]
     }
 }
 
