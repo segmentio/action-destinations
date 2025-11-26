@@ -17,7 +17,6 @@ import triggerCampaign from './triggerCampaign'
 import triggerCanvas from './triggerCanvas'
 import { EVENT_NAMES } from './ecommerce/constants'
 import upsertCatalogItem from './upsertCatalogItem'
-import { metadata } from '../aampe/fields'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Braze Cloud Mode (Actions)',
