@@ -163,13 +163,14 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     // AWS FLOW
     // -----------
     const shouldEnableGzipCompression = input.features && input.features[LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME] === true
-    return sendEventToAWS(input.request, {
+    return sendEventToAWS({
       audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
       uploadType: 's3',
       filename: filename,
       destinationInstanceID: subscriptionMetadata?.destinationConfigId,
       subscriptionId: subscriptionMetadata?.actionConfigId,
       fileContents,
+      rowCount: input.payloads.length,
       gzipCompressFile: shouldEnableGzipCompression,
       s3Info: {
         s3BucketName: input.payloads[0].s3_aws_bucket_name,
