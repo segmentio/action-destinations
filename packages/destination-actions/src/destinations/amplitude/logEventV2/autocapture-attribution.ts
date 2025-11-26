@@ -40,9 +40,7 @@ export function getUserProperties(payload: Payload): { [k: string]: unknown } {
         ? { $set: autocaptureAttributionEnabled ? { ...setAlways, ...autocaptureAttributionSet } : setAlways }
         : {}),
       ...(compact(add) ? { $add: add } : {}),
-      ...(autocaptureAttributionUnset && autocaptureAttributionUnset.length > 0
-        ? { $unset: autocaptureAttributionUnset }
-        : {})
+      ...(compact(autocaptureAttributionUnset) ? { $unset: autocaptureAttributionUnset } : {}),
     }
 
     return userProperties

@@ -4,7 +4,7 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getAttributionsFromURL, getAttributionsFromStorage, setAttributionsInStorage } from './functions'
-import { AmplitudeAttributionValues, AMPLITUDE_ATTRIBUTION_KEYS, AmplitudeAttributionKey, AmplitudeSetOnceAttributionValues } from '@segment/actions-shared'
+import { AmplitudeAttributionValues, AMPLITUDE_ATTRIBUTION_KEYS, AmplitudeSetOnceAttributionValues, AmplitudeAttributionUnsetValues } from '@segment/actions-shared'
 import { DESTINATION_INTEGRATION_NAME } from '../constants'
 import isEqual from 'lodash/isEqual'
 
@@ -32,17 +32,17 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     const previous = getAttributionsFromStorage(analytics.storage as UniversalStorage<Record<string, Partial<AmplitudeAttributionValues>>>)
     const setOnce: Partial<AmplitudeSetOnceAttributionValues> = {} 
     const set: Partial<AmplitudeAttributionValues> = {}
-    const unset: AmplitudeAttributionKey[] = []
+    const unset: Partial<AmplitudeAttributionUnsetValues> = {}
     const currentPageHasAttribution = current && Object.values(current).some(v => typeof v === 'string' && v.length > 0)
 
     if (currentPageHasAttribution && !isEqual(current, previous)){   
       AMPLITUDE_ATTRIBUTION_KEYS.forEach(key => {
-        setOnce[`initial_${key}`] = current[key] ?? ""
+        setOnce[`initial_${key}`] = current[key]?.trim() || "EMPTY"
         if(current[key]){
           set[key] = current[key]
         } 
         else{
-          unset.push(key)
+          unset[key] = '-'
         }
       })
       if(Object.entries(current).length >0) {

@@ -6,4 +6,6 @@ export type AmplitudeSetOnceAttributionKey = `initial_${AmplitudeAttributionKey}
 
 export type AmplitudeAttributionValues = Record<AmplitudeAttributionKey, string | null>
 
-export type AmplitudeSetOnceAttributionValues = Record<AmplitudeSetOnceAttributionKey, string | null>
+export type AmplitudeAttributionUnsetValues = Record<AmplitudeAttributionKey, '-'>
+
+export type AmplitudeSetOnceAttributionValues = Record<AmplitudeSetOnceAttributionKey, string | 'EMPTY'>

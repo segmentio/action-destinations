@@ -196,7 +196,9 @@ export interface Payload {
   /**
    * Utility field used to detect if any attribution values need to be unset.
    */
-  autocaptureAttributionUnset?: string[]
+  autocaptureAttributionUnset?: {
+    [k: string]: unknown
+  }
   /**
    * The following fields will only be set as user properties if they do not already have a value. If 'Autocapture Attribution' is enabled, UTM and attribution values in this field will be ignored.
    */

@@ -26,8 +26,7 @@ export const autocaptureFields: Record<string, InputField> = {
     autocaptureAttributionUnset: {
       label: 'Autocapture Attribution Unset',
       description: 'Utility field used to detect if any attribution values need to be unset.',
-      type: 'string',
-      multiple: true,
+      type: 'object',
       default: { '@path': `$.integrations.${DESTINATION_INTEGRATION_NAME}.autocapture_attribution.unset` },
       readOnly: true
     }

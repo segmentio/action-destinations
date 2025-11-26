@@ -4,7 +4,6 @@ import browserPluginsDestination from '../../'
 import { DESTINATION_INTEGRATION_NAME } from '../../constants'
 
 describe('ajs-integration', () => {
-
   describe('autocapture works as expected', () => {
     
     const example: Subscription[] = [
@@ -67,40 +66,40 @@ describe('ajs-integration', () => {
             utm_term: "running shoes",
           },
           set_once: {
-            initial_dclid: "",
-            initial_fbclid: "",
+            initial_dclid: "EMPTY",
+            initial_fbclid: "EMPTY",
             initial_gbraid: "gbraid5678",
             initial_gclid: "gclid1234",
-            initial_ko_clickid: "",
-            initial_li_fat_id: "",
-            initial_msclkid: "",
-            initial_referrer: "",
-            initial_referring_domain: "",
-            initial_rtd_cid: "",
-            initial_ttclid: "",
-            initial_twclid: "",
+            initial_ko_clickid: "EMPTY",
+            initial_li_fat_id: "EMPTY",
+            initial_msclkid: "EMPTY",
+            initial_referrer: "EMPTY",
+            initial_referring_domain: "EMPTY",
+            initial_rtd_cid: "EMPTY",
+            initial_ttclid: "EMPTY",
+            initial_twclid: "EMPTY",
             initial_utm_campaign: "spring_sale",
             initial_utm_content: "ad1",
-            initial_utm_id: "",
+            initial_utm_id: "EMPTY",
             initial_utm_medium: "cpc",
             initial_utm_source: "google",
             initial_utm_term: "running shoes",
-            initial_wbraid: ""
+            initial_wbraid: "EMPTY"
           },
-          unset: [
-            "referrer",
-            "referring_domain",
-            "utm_id",
-            "dclid",
-            "fbclid",
-            "wbraid",
-            "ko_clickid",
-            "li_fat_id",
-            "msclkid",
-            "rtd_cid",
-            "ttclid",
-            "twclid"
-          ]
+          unset: {
+            referrer: "-",
+            referring_domain: "-",
+            utm_id: "-",
+            dclid: "-",
+            fbclid: "-",
+            wbraid: "-",
+            ko_clickid: "-",
+            li_fat_id: "-",
+            msclkid: "-",
+            rtd_cid: "-",
+            ttclid: "-",
+            twclid: "-"
+          }
         }
       })
 
@@ -114,7 +113,7 @@ describe('ajs-integration', () => {
           enabled: true,
           set_once: {},
           set: {},
-          unset: []
+          unset: {}
         }
       })
 
@@ -140,46 +139,46 @@ describe('ajs-integration', () => {
               utm_source: "email",
             },
             set_once: {
-              initial_dclid: "",
-              initial_fbclid: "",
-              initial_gbraid: "",
-              initial_gclid: "",
-              initial_ko_clickid: "",
-              initial_li_fat_id: "",
-              initial_msclkid: "",
-              initial_referrer:"",
-              initial_referring_domain: "",
-              initial_rtd_cid: "",
-              initial_ttclid: "",
-              initial_twclid: "",
-              initial_utm_campaign: "",
-              initial_utm_content: "",
-              initial_utm_id: "",
-              initial_utm_medium: "",
+              initial_dclid: "EMPTY",
+              initial_fbclid: "EMPTY",
+              initial_gbraid: "EMPTY",
+              initial_gclid: "EMPTY",
+              initial_ko_clickid: "EMPTY",
+              initial_li_fat_id: "EMPTY",
+              initial_msclkid: "EMPTY",
+              initial_referrer:"EMPTY",
+              initial_referring_domain: "EMPTY",
+              initial_rtd_cid: "EMPTY",
+              initial_ttclid: "EMPTY",
+              initial_twclid: "EMPTY",
+              initial_utm_campaign: "EMPTY",
+              initial_utm_content: "EMPTY",
+              initial_utm_id: "EMPTY",
+              initial_utm_medium: "EMPTY",
               initial_utm_source: "email",
-              initial_utm_term: "",
-              initial_wbraid: ""
+              initial_utm_term: "EMPTY",
+              initial_wbraid: "EMPTY"
             },
-            unset: [
-              'referrer',
-              'referring_domain',
-              "utm_medium",
-              "utm_campaign",
-              "utm_term",
-              "utm_content",
-              "utm_id",
-              "dclid",
-              "fbclid",
-              "gbraid",
-              "wbraid",
-              "gclid",
-              "ko_clickid",
-              "li_fat_id",
-              "msclkid",
-              "rtd_cid",
-              "ttclid",
-              "twclid"
-            ]
+            unset: {
+              referrer: "-",
+              referring_domain: "-",
+              utm_medium: "-",
+              utm_campaign: "-",
+              utm_term: "-",
+              utm_content: "-",
+              utm_id: "-",
+              dclid: "-",
+              fbclid: "-",
+              gbraid: "-",
+              wbraid: "-",
+              gclid: "-",
+              ko_clickid: "-",
+              li_fat_id: "-",
+              msclkid: "-",
+              rtd_cid: "-",
+              ttclid: "-",
+              twclid: "-"
+            }
           }
         }
       )
@@ -203,7 +202,7 @@ describe('ajs-integration', () => {
             enabled: true,
             set: {},
             set_once: {},
-            unset: []
+            unset: {}
           }
         }
       )
@@ -228,7 +227,7 @@ describe('ajs-integration', () => {
             enabled: true,
             set: {},
             set_once: {},
-            unset: []
+            unset: {}
           }
         }
       )
@@ -254,46 +253,46 @@ describe('ajs-integration', () => {
               ttclid: "uyiuyiuy"
             },
             set_once: {
-              initial_dclid: "",
-              initial_fbclid: "",
-              initial_gbraid: "",
-              initial_gclid: "",
-              initial_ko_clickid: "",
-              initial_li_fat_id: "",
-              initial_msclkid: "",
-              initial_referrer: "",
-              initial_referring_domain: "",
-              initial_rtd_cid: "",
+              initial_dclid: "EMPTY",
+              initial_fbclid: "EMPTY",
+              initial_gbraid: "EMPTY",
+              initial_gclid: "EMPTY",
+              initial_ko_clickid: "EMPTY",
+              initial_li_fat_id: "EMPTY",
+              initial_msclkid: "EMPTY",
+              initial_referrer: "EMPTY",
+              initial_referring_domain: "EMPTY",
+              initial_rtd_cid: "EMPTY",
               initial_ttclid: "uyiuyiuy",
-              initial_twclid: "",
-              initial_utm_campaign: "",
-              initial_utm_content: "",
-              initial_utm_id: "",
-              initial_utm_medium: "",
-              initial_utm_source: "",
-              initial_utm_term: "",
-              initial_wbraid: ""
+              initial_twclid: "EMPTY",
+              initial_utm_campaign: "EMPTY",
+              initial_utm_content: "EMPTY",
+              initial_utm_id: "EMPTY",
+              initial_utm_medium: "EMPTY",
+              initial_utm_source: "EMPTY",
+              initial_utm_term: "EMPTY",
+              initial_wbraid: "EMPTY"
             },
-            unset: [
-              "referrer",
-              "referring_domain",
-              "utm_source",
-              "utm_medium",
-              "utm_campaign",
-              "utm_term",
-              "utm_content",
-              "utm_id",
-              "dclid",
-              "fbclid",
-              "gbraid",
-              "wbraid",
-              "gclid",
-              "ko_clickid",
-              "li_fat_id",
-              "msclkid",
-              "rtd_cid",
-              "twclid"
-            ]
+            unset: {
+              referrer: "-",
+              referring_domain: "-",
+              utm_source: "-",
+              utm_medium: "-",
+              utm_campaign: "-",
+              utm_term: "-",
+              utm_content: "-",
+              utm_id: "-",
+              dclid: "-",
+              fbclid: "-",
+              gbraid: "-",
+              wbraid: "-",
+              gclid: "-",
+              ko_clickid: "-",
+              li_fat_id: "-",
+              msclkid: "-",
+              rtd_cid: "-",
+              twclid: "-"
+            }
           }
         }
       )
@@ -327,51 +326,50 @@ describe('ajs-integration', () => {
               referring_domain: "blah.com"
             },
             set_once: {
-              initial_dclid: "",
-              initial_fbclid: "",
-              initial_gbraid: "",
-              initial_gclid: "",
-              initial_ko_clickid: "",
-              initial_li_fat_id: "",
-              initial_msclkid: "",
+              initial_dclid: "EMPTY",
+              initial_fbclid: "EMPTY",
+              initial_gbraid: "EMPTY",
+              initial_gclid: "EMPTY",
+              initial_ko_clickid: "EMPTY",
+              initial_li_fat_id: "EMPTY",
+              initial_msclkid: "EMPTY",
               initial_referrer: "https://blah.com/path/page/hello/",
               initial_referring_domain: "blah.com",
-              initial_rtd_cid: "",
-              initial_ttclid: "",
-              initial_twclid: "",
-              initial_utm_campaign: "",
-              initial_utm_content: "",
-              initial_utm_id: "",
-              initial_utm_medium: "",
-              initial_utm_source: "",
-              initial_utm_term: "",
-              initial_wbraid: ""
+              initial_rtd_cid: "EMPTY",
+              initial_ttclid: "EMPTY",
+              initial_twclid: "EMPTY",
+              initial_utm_campaign: "EMPTY",
+              initial_utm_content: "EMPTY",
+              initial_utm_id: "EMPTY",
+              initial_utm_medium: "EMPTY",
+              initial_utm_source: "EMPTY",
+              initial_utm_term: "EMPTY",
+              initial_wbraid: "EMPTY"
             },
-            unset: [
-              "utm_source",
-              "utm_medium",
-              "utm_campaign",
-              "utm_term",
-              "utm_content",
-              "utm_id",
-              "dclid",
-              "fbclid",
-              "gbraid",
-              "wbraid",
-              "gclid",
-              "ko_clickid",
-              "li_fat_id",
-              "msclkid",
-              "rtd_cid",
-              "ttclid",
-              "twclid"
-            ]
+            unset: {
+              utm_source: "-",
+              utm_medium: "-",
+              utm_campaign: "-",
+              utm_term: "-",
+              utm_content: "-",
+              utm_id: "-",
+              dclid: "-",
+              fbclid: "-",
+              gbraid: "-",
+              wbraid: "-",
+              gclid: "-",
+              ko_clickid: "-",
+              li_fat_id: "-",
+              msclkid: "-",
+              rtd_cid: "-",
+              ttclid: "-",
+              twclid: "-"
+            }
           }
         }
       )
     })
   })
-
   describe('autocapture can be blocked as expected', () => {
     
     const example: Subscription[] = [
@@ -433,7 +431,7 @@ describe('ajs-integration', () => {
           enabled: true,
           set: {},
           set_once: {},
-          unset: []
+          unset: {}
         }
       })
 
@@ -461,12 +459,11 @@ describe('ajs-integration', () => {
           enabled: true,
           set: {},
           set_once: {},
-          unset: []
+          unset: {}
         }
       })
 
     })
   })
-
 })
 
