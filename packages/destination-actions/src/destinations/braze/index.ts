@@ -17,6 +17,7 @@ import triggerCampaign from './triggerCampaign'
 import triggerCanvas from './triggerCanvas'
 import { EVENT_NAMES } from './ecommerce/constants'
 import upsertCatalogItem from './upsertCatalogItem'
+import { metadata } from '../aampe/fields'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Braze Cloud Mode (Actions)',
@@ -111,7 +112,10 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'ecommerce',
       mapping: { 
         ...defaultValues(ecommerce.fields),
-        name: EVENT_NAMES.ORDER_PLACED
+        name: EVENT_NAMES.ORDER_PLACED, 
+        metadata: {
+          order_status_url: { '@path': '$.properties.order_status_url' }
+        }
       },
       type: 'automatic'
     },
@@ -121,7 +125,10 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'ecommerce',
       mapping: { 
         ...defaultValues(ecommerce.fields),
-        name: EVENT_NAMES.CHECKOUT_STARTED
+        name: EVENT_NAMES.CHECKOUT_STARTED, 
+        metadata: {
+          checkout_url: { '@path': '$.properties.checkout_url' }
+        }
       },
       type: 'automatic'
     },
@@ -131,7 +138,10 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'ecommerce',
       mapping: { 
         ...defaultValues(ecommerce.fields),
-        name: EVENT_NAMES.ORDER_REFUNDED
+        name: EVENT_NAMES.ORDER_REFUNDED, 
+        metadata: {
+          order_status_url: { '@path': '$.properties.order_status_url' }
+        }
       },
       type: 'automatic'
     },
@@ -141,7 +151,10 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'ecommerce',
       mapping: { 
         ...defaultValues(ecommerce.fields),
-        name: EVENT_NAMES.ORDER_CANCELLED
+        name: EVENT_NAMES.ORDER_CANCELLED, 
+        metadata: {
+          order_status_url: { '@path': '$.properties.order_status_url' }
+        }
       },
       type: 'automatic'
     },

@@ -458,19 +458,7 @@ const metadata: InputField = {
     description: 'Additional metadata for the ecommerce event.',
     type: 'object',
     additionalProperties: true,
-    defaultObjectUI: 'keyvalue',
-    properties: {
-        checkout_url: {
-            label: 'Checkout URL',
-            description: 'URL for the checkout page.',
-            type: 'string'  
-        },
-        order_status_url: {
-            label: 'Order Status URL',
-            description: 'URL to view the status of the order.',
-            type: 'string'
-        }
-    }
+    defaultObjectUI: 'keyvalue'
 }
 
 const type: InputField = {
