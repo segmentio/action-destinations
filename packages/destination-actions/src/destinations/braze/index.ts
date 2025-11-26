@@ -151,20 +151,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'ecommerceSingleProduct',
       mapping: { 
         ...defaultValues(ecommerceSingleProduct.fields),
-        name: EVENT_NAMES.PRODUCT_VIEWED, 
-        products: {
-          '@arrayPath': [
-            '$.properties',
-            {
-                product_id: { '@path': '$.product_id' },
-                product_name: { '@path': '$.name' },
-                variant_id: { '@path': '$.variant'},
-                image_url: {'@path': '$.image_url'},
-                product_url: {'@path': '$.url'},
-                price: {'@path': '$.price'}
-            }
-          ]
-        }
+        name: EVENT_NAMES.PRODUCT_VIEWED
       },
       type: 'automatic'
     },
