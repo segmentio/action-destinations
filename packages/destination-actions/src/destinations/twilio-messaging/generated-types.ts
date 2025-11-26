@@ -13,8 +13,4 @@ export interface Settings {
    * Twilio API Key Secret
    */
   apiKeySecret: string
-  /**
-   * The region where the message is originating from
-   */
-  region: string
 }
