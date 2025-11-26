@@ -60,10 +60,10 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     },
     enableAutocaptureAttribution: {
       label: 'Enable Autocapture Attribution',
+      description: 'If enabled, attribution details will be captured from the URL and attached to every Amplitude browser based event.',
       type: 'boolean',
       default: false,
-      required: false,
-      description: 'If enabled, attribution details will be captured from the URL and attached to every Amplitude browser based event.'
+      required: false
     },
     excludeReferrers: {
       label: 'Exclude Referrers',

@@ -482,7 +482,7 @@ describe('ajs-integration', () => {
     
     const example: Subscription[] = [
       {
-        partnerAction: 'autocaptureAttribution',
+        partnerAction: 'sessionId',
         name: 'Autocapture Attribution Plugin',
         enabled: true,
         subscribe: 'type = "track"',

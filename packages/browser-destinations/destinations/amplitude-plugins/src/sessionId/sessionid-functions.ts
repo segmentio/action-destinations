@@ -51,7 +51,6 @@ export function enrichWithSessionId(context: Context, payload: Payload, analytic
       context.updateEvent(`integrations.${DESTINATION_INTEGRATION_NAME}`, {})
       context.updateEvent(`integrations.${DESTINATION_INTEGRATION_NAME}.session_id`, id)
     }
-    console.log('isNewSession', isNewSession)
     return isNewSession
 }
 
