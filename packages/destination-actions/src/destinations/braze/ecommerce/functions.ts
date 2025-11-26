@@ -21,9 +21,7 @@ import type {
   OrderPlacedEvent,
   OrderRefundedEvent,
   OrderCancelledEvent,
-  PayloadWithIndex,
-  BaseProduct,
-  Product
+  PayloadWithIndex
 } from './types'
 import { EVENT_NAMES } from './constants'
 import dayjs from 'dayjs'
@@ -148,32 +146,12 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
         type
       } = payload as SingleProductPayload
 
-      const normalisedProduct: BaseProduct = (() => {
-        const {
-          product_id,
-          product_name,
-          variant_id,
-          price,
-          image_url,
-          product_url
-        } = product
-        
-        return {
-          product_id,
-          product_name,
-          variant_id,
-          price,
-          image_url,
-          product_url
-        }
-      })()
-
       const event: ProductViewedEvent = {
         ...baseEvent,
         name: EVENT_NAMES.PRODUCT_VIEWED,
         properties: {
           ...baseEvent.properties,
-          ...normalisedProduct,
+          ...product,
           type
         }
       }
@@ -189,36 +167,12 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
         total_value
       } = payload as Payload
 
-      const normalisedProducts: Product[] = (products || []).map(product => {
-        const {
-          product_id,
-          product_name,
-          variant_id,
-          quantity,
-          price,
-          image_url,
-          product_url,
-          ...rest
-        } = product
-
-        return {
-          product_id,
-          product_name,
-          variant_id,
-          quantity,
-          price,
-          image_url,
-          product_url,
-          ...(metadata ? { metadata: { ...rest } } : {})
-        }
-      })
-
       const multiProductEvent: MultiProductBaseEvent = {
         ...baseEvent,
         name: name as MultiPropertyEventName,
         properties: {
           ...baseEvent.properties,
-          products: normalisedProducts,
+          products,
           total_value: total_value as number
         }
       }

@@ -1,7 +1,8 @@
 import { EVENT_NAMES } from './constants'
 import { Payload } from './generated-types'
+import { Payload as SingleProductPayload } from '../ecommerceSingleProduct/generated-types'
 
-export interface PayloadWithIndex extends Payload {
+export type PayloadWithIndex = (Payload | SingleProductPayload) & {
     index?: number
 }
 
@@ -79,7 +80,6 @@ export interface BaseProduct {
     product_id: string
     product_name: string
     variant_id: string
-    quantity?: number
     price: number
     image_url?: string
     product_url?: string

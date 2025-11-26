@@ -3,7 +3,6 @@ import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/a
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 import { EVENT_NAMES } from '../constants'
-import { ProductWithQuantity } from '../types'
 
 let testDestination = createTestIntegration(Definition)
 
@@ -65,6 +64,14 @@ const payload = {
         price: 50.0
       }
     ],
+    product: {
+      product_id: 'prod_1',
+      name: 'Product 1',
+      variant: 'Size M',
+      image_url: 'https://example.com/prod1.jpg',
+      product_url: 'https://example.com/prod1',
+      price: 25.0,
+    },
     metadata: {
       custom_field_1: 'custom_value_1',
       custom_field_2: 100,
@@ -110,6 +117,14 @@ const mapping = {
           }
       ]
   },
+  product: {
+      product_id: { '@path': '$.properties.product.product_id' },
+      product_name: { '@path': '$.properties.product.name' },
+      variant_id: { '@path': '$.properties.product.variant'},
+      image_url: {'@path': '$.properties.product.image_url'},
+      product_url: {'@path': '$.properties.product.url'},
+      price: {'@path': '$.properties.product.price'}
+  },
   metadata: { '@path': '$.properties.metadata' },
   type: { '@path': '$.properties.type' },
   _update_existing_only: false,
@@ -128,7 +143,7 @@ afterEach(() => {
   nock.cleanAll()
 })
 
-describe('Braze.ecommerceEvent', () => {
+describe('Braze.ecommerce', () => {
 
   describe('single event', () => {
     it('should send Order Completed event correctly', async () => {
@@ -204,7 +219,7 @@ describe('Braze.ecommerceEvent', () => {
         .post('/users/track', json)
         .reply(200)
 
-      const response = await testDestination.testAction('ecommerceEvent', {
+      const response = await testDestination.testAction('ecommerce', {
         event: e,
         settings,
         useDefaultMappings: true,
@@ -286,7 +301,7 @@ describe('Braze.ecommerceEvent', () => {
         .post('/users/track', json)
         .reply(200)
 
-      const response = await testDestination.testAction('ecommerceEvent', {
+      const response = await testDestination.testAction('ecommerce', {
         event: e,
         settings,
         useDefaultMappings: true,
@@ -372,7 +387,7 @@ describe('Braze.ecommerceEvent', () => {
         .post('/users/track', json)
         .reply(200)
 
-      const response = await testDestination.testAction('ecommerceEvent', {
+      const response = await testDestination.testAction('ecommerce', {
         event: e,
         settings,
         useDefaultMappings: true,
@@ -459,7 +474,7 @@ describe('Braze.ecommerceEvent', () => {
         .post('/users/track', json)
         .reply(200)
 
-      const response = await testDestination.testAction('ecommerceEvent', {
+      const response = await testDestination.testAction('ecommerce', {
         event: e,
         settings,
         useDefaultMappings: true,
@@ -497,6 +512,15 @@ describe('Braze.ecommerceEvent', () => {
             properties: {
               currency: "USD",
               source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
               products: [
                 {
                   product_id: "prod_1",
@@ -531,7 +555,7 @@ describe('Braze.ecommerceEvent', () => {
         .post('/users/track', json)
         .reply(200)
 
-      const response = await testDestination.testAction('ecommerceEvent', {
+      const response = await testDestination.testAction('ecommerce', {
         event: e,
         settings,
         useDefaultMappings: true,
@@ -545,32 +569,11 @@ describe('Braze.ecommerceEvent', () => {
 
       const mapping2 = { 
         ...mapping, 
-        name: EVENT_NAMES.PRODUCT_VIEWED, 
-        products: {
-          '@arrayPath': [
-              '$.properties',
-              {
-                  product_id: { '@path': '$.product_id' },
-                  product_name: { '@path': '$.name' },
-                  variant_id: { '@path': '$.variant'},
-                  image_url: {'@path': '$.image_url'},
-                  product_url: {'@path': '$.url'},
-                  price: {'@path': '$.price'},
-                  metadata: { '@path': '$.metadata' }
-              }
-          ]
-      },
+        name: EVENT_NAMES.PRODUCT_VIEWED
       }
 
       const payload2 = JSON.parse(JSON.stringify(payload))
       payload2.properties.products = undefined 
-      payload2.properties.product_id = 'prod_1'
-      payload2.properties.name = 'Product 1'
-      payload2.properties.variant = 'Size M'
-      payload2.properties.image_url = 'https://example.com/prod1.jpg'
-      payload2.properties.product_url = 'https://example.com/prod1'
-      payload2.properties.price = 25.0
-      payload2.properties.metadata = { color: 'red', size: 'M' }
 
       const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload2))
       const e = createTestEvent(deepCopy)
@@ -582,37 +585,39 @@ describe('Braze.ecommerceEvent', () => {
             braze_id: "braze_id_1",
             email: "email@email.com",
             phone: "+14155551234",
-            user_alias: {
-              alias_name: "alias_name_1",
-              alias_label: "alias_label_1",
-            },
+            user_alias: { alias_name: "alias_name_1", alias_label: "alias_label_1" },
             app_id: "test_app_id",
             name: "ecommerce.product_viewed",
             time: "2024-06-10T12:00:00.000Z",
             properties: {
               currency: "USD",
               source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
               product_id: "prod_1",
               product_name: "Product 1",
               variant_id: "Size M",
               image_url: "https://example.com/prod1.jpg",
               price: 25,
-              metadata: {
-                color: "red",
-                size: "M",
-              },
-              type: ["testType"],
+              type: ["testType"]
             },
-            _update_existing_only: true,
-          },
-        ],
+            _update_existing_only: true
+          }
+        ]
       }
 
       nock(settings.endpoint)
         .post('/users/track', json)
         .reply(200)
 
-      const response = await testDestination.testAction('ecommerceEvent', {
+      const response = await testDestination.testAction('ecommerceSingleProduct', {
         event: e,
         settings,
         useDefaultMappings: true,
@@ -635,7 +640,7 @@ describe('Braze.ecommerceEvent', () => {
       delete e.properties?.user_alias
 
       await expect(
-        testDestination.testAction('ecommerceEvent', {
+        testDestination.testAction('ecommerce', {
           event: e,
           settings,
           useDefaultMappings: true,
@@ -643,49 +648,23 @@ describe('Braze.ecommerceEvent', () => {
         })
       ).rejects.toThrowError(new Error('One of "external_id" or "user_alias" or "braze_id" or "email" or "phone" is required.'))
     })
-  
-    it('should throw an error if quantity missing and event is not a product viewed event', async () => {
-
-      const deepCopy: SegmentEvent = JSON.parse(JSON.stringify(payload))
-
-      const e = createTestEvent(deepCopy)
-      // @ts-ignore
-      e.properties.products[0].quantity = undefined
-
-      delete e.properties?.email
-      delete e.properties?.phone
-      delete e.properties?.braze_id
-      delete e.anonymousId
-      delete e.properties?.user_alias
-
-      await expect(
-        testDestination.testAction('ecommerceEvent', {
-          event: e,
-          settings,
-          useDefaultMappings: true,
-          mapping
-        })
-      ).rejects.toThrowError(new Error("products[0]: \"quantity\" is required for event with name ecommerce.order_placed."))
-    })
   })
 
   describe('batch events', () => {
-    it('should send batched events correctly', async () => {
+    it('should send batched multi product ecommerce events correctly', async () => {
 
       const deepCopy1: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const deepCopy2: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const deepCopy3: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const deepCopy4: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const deepCopy5: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
-      const deepCopy6: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
 
       const e1 = createTestEvent({...deepCopy1, userId: 'userId1', event: 'ecommerce.order_placed' })
       const e2 = createTestEvent({...deepCopy2, userId: 'userId2', event: 'ecommerce.order_refunded' })
       const e3 = createTestEvent({...deepCopy3, userId: 'userId3', event: 'ecommerce.checkout_started' })
       const e4 = createTestEvent({...deepCopy4, userId: 'userId4', event: 'ecommerce.cart_updated' })
-      const e5 = createTestEvent({...deepCopy5, userId: 'userId4', event: 'ecommerce.product_viewed' })
-      const e6 = createTestEvent({...deepCopy6, userId: 'userId5', event: 'ecommerce.order_cancelled' })
-      const events = [e1, e2, e3, e4, e5, e6]
+      const e5 = createTestEvent({...deepCopy5, userId: 'userId5', event: 'ecommerce.order_cancelled' })
+      const events = [e1, e2, e3, e4, e5]
 
       const mapping2 = { 
         ...mapping, 
@@ -694,7 +673,7 @@ describe('Braze.ecommerceEvent', () => {
 
       const json = {
         events: [
-           {
+          {
             external_id: "userId1",
             braze_id: "braze_id_1",
             email: "email@email.com",
@@ -706,6 +685,15 @@ describe('Braze.ecommerceEvent', () => {
             properties: {
               currency: "USD",
               source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
               products: [
                 {
                   product_id: "prod_1",
@@ -732,16 +720,7 @@ describe('Braze.ecommerceEvent', () => {
                 { code: "SUMMER21", amount: 5 },
                 { code: "VIPCUSTOMER", amount: 5 }
               ],
-              cart_id: "cart_id_1",
-              metadata: {
-                custom_field_1: "custom_value_1",
-                custom_field_2: 100,
-                custom_field_3: true,
-                custom_field_4: ["a", "b", "c"],
-                custom_field_5: { nested_key: "nested_value" },
-                checkout_url: "https://example.com/checkout",
-                order_status_url: "https://example.com/order/status"
-              }
+              cart_id: "cart_id_1"
             },
             _update_existing_only: true
           },
@@ -757,6 +736,15 @@ describe('Braze.ecommerceEvent', () => {
             properties: {
               currency: "USD",
               source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
               products: [
                 {
                   product_id: "prod_1",
@@ -764,8 +752,8 @@ describe('Braze.ecommerceEvent', () => {
                   variant_id: "Size M",
                   image_url: "https://example.com/prod1.jpg",
                   quantity: 2,
-                  price: 25,
-                  metadata: { color: "red", size: "M" }
+                  metadata: { color: "red", size: "M" },
+                  price: 25
                 },
                 {
                   product_id: "prod_2",
@@ -782,16 +770,7 @@ describe('Braze.ecommerceEvent', () => {
               discounts: [
                 { code: "SUMMER21", amount: 5 },
                 { code: "VIPCUSTOMER", amount: 5 }
-              ],
-              metadata: {
-                custom_field_1: "custom_value_1",
-                custom_field_2: 100,
-                custom_field_3: true,
-                custom_field_4: ["a", "b", "c"],
-                custom_field_5: { nested_key: "nested_value" },
-                checkout_url: "https://example.com/checkout",
-                order_status_url: "https://example.com/order/status"
-              }
+              ]
             },
             _update_existing_only: true
           },
@@ -807,6 +786,15 @@ describe('Braze.ecommerceEvent', () => {
             properties: {
               currency: "USD",
               source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
               products: [
                 {
                   product_id: "prod_1",
@@ -828,16 +816,7 @@ describe('Braze.ecommerceEvent', () => {
               ],
               total_value: 100,
               checkout_id: "checkout_id_1",
-              cart_id: "cart_id_1",
-              metadata: {
-                custom_field_1: "custom_value_1",
-                custom_field_2: 100,
-                custom_field_3: true,
-                custom_field_4: ["a", "b", "c"],
-                custom_field_5: { nested_key: "nested_value" },
-                checkout_url: "https://example.com/checkout",
-                order_status_url: "https://example.com/order/status"
-              }
+              cart_id: "cart_id_1"
             },
             _update_existing_only: true
           },
@@ -853,6 +832,15 @@ describe('Braze.ecommerceEvent', () => {
             properties: {
               currency: "USD",
               source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
               products: [
                 {
                   product_id: "prod_1",
@@ -878,29 +866,6 @@ describe('Braze.ecommerceEvent', () => {
             _update_existing_only: true
           },
           {
-            external_id: "userId4",
-            braze_id: "braze_id_1",
-            email: "email@email.com",
-            phone: "+14155551234",
-            user_alias: { alias_name: "alias_name_1", alias_label: "alias_label_1" },
-            app_id: "test_app_id",
-            name: "ecommerce.product_viewed",
-            time: "2024-06-10T12:00:00.000Z",
-            properties: {
-              currency: "USD",
-              source: "test_source",
-              product_id: "prod_1",
-              product_name: "Product 1",
-              variant_id: "Size M",
-              image_url: "https://example.com/prod1.jpg",
-              quantity: 2,
-              price: 25,
-              metadata: { color: "red", size: "M" },
-              type: ["testType"]
-            },
-            _update_existing_only: true
-          },
-          {
             external_id: "userId5",
             braze_id: "braze_id_1",
             email: "email@email.com",
@@ -912,6 +877,15 @@ describe('Braze.ecommerceEvent', () => {
             properties: {
               currency: "USD",
               source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
               products: [
                 {
                   product_id: "prod_1",
@@ -938,20 +912,10 @@ describe('Braze.ecommerceEvent', () => {
               discounts: [
                 { code: "SUMMER21", amount: 5 },
                 { code: "VIPCUSTOMER", amount: 5 }
-              ],
-              metadata: {
-                custom_field_1: "custom_value_1",
-                custom_field_2: 100,
-                custom_field_3: true,
-                custom_field_4: ["a", "b", "c"],
-                custom_field_5: { nested_key: "nested_value" },
-                checkout_url: "https://example.com/checkout",
-                order_status_url: "https://example.com/order/status"
-              }
+              ]
             },
             _update_existing_only: true
           }
-
         ]
       }
 
@@ -960,7 +924,118 @@ describe('Braze.ecommerceEvent', () => {
         .matchHeader('X-Braze-Batch', 'true')
         .reply(200)
 
-      const response = await testDestination.testBatchAction('ecommerceEvent', {
+      const response = await testDestination.testBatchAction('ecommerce', {
+        events,
+        settings,
+        mapping: mapping2
+      })
+    
+      expect(response.length).toBe(1)
+
+    })
+
+    it('should send batched single product ecommerce events correctly', async () => {
+
+      const deepCopy1: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+      const deepCopy2: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+      const deepCopy3: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+
+      const e1 = createTestEvent({...deepCopy1, userId: 'userId1', event: 'ecommerce.product_viewed' })
+      const e2 = createTestEvent({...deepCopy2, userId: 'userId2', event: 'ecommerce.product_viewed' })
+      const e3 = createTestEvent({...deepCopy3, userId: 'userId3', event: 'ecommerce.product_viewed' })
+      const events = [e1, e2, e3]
+
+      const mapping2 = { 
+        ...mapping, 
+        name: { '@path': '$.event' },
+      }
+
+      const json = {
+        events: [
+          {
+            external_id: "userId1",
+            braze_id: "braze_id_1",
+            email: "email@email.com",
+            phone: "+14155551234",
+            user_alias: { alias_name: "alias_name_1", alias_label: "alias_label_1" },
+            app_id: "test_app_id",
+            name: "ecommerce.product_viewed",
+            time: "2024-06-10T12:00:00.000Z",
+            properties: {
+              currency: "USD",
+              source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
+              type: ["testType"]
+            },
+            _update_existing_only: true
+          },
+          {
+            external_id: "userId2",
+            braze_id: "braze_id_1",
+            email: "email@email.com",
+            phone: "+14155551234",
+            user_alias: { alias_name: "alias_name_1", alias_label: "alias_label_1" },
+            app_id: "test_app_id",
+            name: "ecommerce.product_viewed",
+            time: "2024-06-10T12:00:00.000Z",
+            properties: {
+              currency: "USD",
+              source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
+              type: ["testType"]
+            },
+            _update_existing_only: true
+          },
+          {
+            external_id: "userId3",
+            braze_id: "braze_id_1",
+            email: "email@email.com",
+            phone: "+14155551234",
+            user_alias: { alias_name: "alias_name_1", alias_label: "alias_label_1" },
+            app_id: "test_app_id",
+            name: "ecommerce.product_viewed",
+            time: "2024-06-10T12:00:00.000Z",
+            properties: {
+              currency: "USD",
+              source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
+              type: ["testType"]
+            },
+            _update_existing_only: true
+          }
+        ]
+      }
+
+      nock(settings.endpoint)
+        .post('/users/track', json)
+        .matchHeader('X-Braze-Batch', 'true')
+        .reply(200)
+
+      const response = await testDestination.testBatchAction('ecommerce', {
         events,
         settings,
         mapping: mapping2
@@ -977,9 +1052,6 @@ describe('Braze.ecommerceEvent', () => {
       const deepCopy3: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const deepCopy4: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const deepCopy5: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
-      const deepCopy6: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
-      const deepCopy7: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
-
 
       const e1 = createTestEvent({...deepCopy1, userId: 'userId1', event: 'ecommerce.order_refunded' })
 
@@ -994,13 +1066,9 @@ describe('Braze.ecommerceEvent', () => {
 
       const e3 = createTestEvent({...deepCopy3, userId: 'userId3', event: 'ecommerce.checkout_started' })
       const e4 = createTestEvent({...deepCopy4, userId: 'userId4', event: 'ecommerce.cart_updated' })
-      const e5 = createTestEvent({...deepCopy5, userId: 'userId5', event: 'ecommerce.product_viewed' })
-      const e6 = createTestEvent({...deepCopy6, userId: 'userId6', event: 'ecommerce.order_cancelled' })
-      const e7 = createTestEvent({...deepCopy7, userId: 'userId7', event: 'ecommerce.checkout_started' })
-      // @ts-ignore
-      e7.properties.products[0].quantity = undefined        
+      const e5 = createTestEvent({...deepCopy5, userId: 'userId5', event: 'ecommerce.order_cancelled' })   
 
-      const events = [e1, e2, e3, e4, e5, e6, e7]
+      const events = [e1, e2, e3, e4, e5]
       
       const json = {
         events: [
@@ -1009,16 +1077,22 @@ describe('Braze.ecommerceEvent', () => {
             braze_id: "braze_id_1",
             email: "email@email.com",
             phone: "+14155551234",
-            user_alias: {
-              alias_name: "alias_name_1",
-              alias_label: "alias_label_1"
-            },
+            user_alias: { alias_name: "alias_name_1", alias_label: "alias_label_1" },
             app_id: "test_app_id",
             name: "ecommerce.order_refunded",
             time: "2024-06-10T12:00:00.000Z",
             properties: {
               currency: "USD",
               source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
               products: [
                 {
                   product_id: "prod_1",
@@ -1044,16 +1118,7 @@ describe('Braze.ecommerceEvent', () => {
               discounts: [
                 { code: "SUMMER21", amount: 5 },
                 { code: "VIPCUSTOMER", amount: 5 }
-              ],
-              metadata: {
-                custom_field_1: "custom_value_1",
-                custom_field_2: 100,
-                custom_field_3: true,
-                custom_field_4: ["a", "b", "c"],
-                custom_field_5: { nested_key: "nested_value" },
-                checkout_url: "https://example.com/checkout",
-                order_status_url: "https://example.com/order/status"
-              }
+              ]
             },
             _update_existing_only: true
           },
@@ -1062,16 +1127,22 @@ describe('Braze.ecommerceEvent', () => {
             braze_id: "braze_id_1",
             email: "email@email.com",
             phone: "+14155551234",
-            user_alias: {
-              alias_name: "alias_name_1",
-              alias_label: "alias_label_1"
-            },
+            user_alias: { alias_name: "alias_name_1", alias_label: "alias_label_1" },
             app_id: "test_app_id",
             name: "ecommerce.checkout_started",
             time: "2024-06-10T12:00:00.000Z",
             properties: {
               currency: "USD",
               source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
               products: [
                 {
                   product_id: "prod_1",
@@ -1093,16 +1164,7 @@ describe('Braze.ecommerceEvent', () => {
               ],
               total_value: 100,
               checkout_id: "checkout_id_1",
-              cart_id: "cart_id_1",
-              metadata: {
-                custom_field_1: "custom_value_1",
-                custom_field_2: 100,
-                custom_field_3: true,
-                custom_field_4: ["a", "b", "c"],
-                custom_field_5: { nested_key: "nested_value" },
-                checkout_url: "https://example.com/checkout",
-                order_status_url: "https://example.com/order/status"
-              }
+              cart_id: "cart_id_1"
             },
             _update_existing_only: true
           },
@@ -1111,16 +1173,22 @@ describe('Braze.ecommerceEvent', () => {
             braze_id: "braze_id_1",
             email: "email@email.com",
             phone: "+14155551234",
-            user_alias: {
-              alias_name: "alias_name_1",
-              alias_label: "alias_label_1"
-            },
+            user_alias: { alias_name: "alias_name_1", alias_label: "alias_label_1" },
             app_id: "test_app_id",
             name: "ecommerce.cart_updated",
             time: "2024-06-10T12:00:00.000Z",
             properties: {
               currency: "USD",
               source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
               products: [
                 {
                   product_id: "prod_1",
@@ -1150,42 +1218,22 @@ describe('Braze.ecommerceEvent', () => {
             braze_id: "braze_id_1",
             email: "email@email.com",
             phone: "+14155551234",
-            user_alias: {
-              alias_name: "alias_name_1",
-              alias_label: "alias_label_1"
-            },
-            app_id: "test_app_id",
-            name: "ecommerce.product_viewed",
-            time: "2024-06-10T12:00:00.000Z",
-            properties: {
-              currency: "USD",
-              source: "test_source",
-              product_id: "prod_1",
-              product_name: "Product 1",
-              variant_id: "Size M",
-              image_url: "https://example.com/prod1.jpg",
-              quantity: 2,
-              price: 25,
-              metadata: { color: "red", size: "M" },
-              type: ["testType"]
-            },
-            _update_existing_only: true
-          },
-          {
-            external_id: "userId6",
-            braze_id: "braze_id_1",
-            email: "email@email.com",
-            phone: "+14155551234",
-            user_alias: {
-              alias_name: "alias_name_1",
-              alias_label: "alias_label_1"
-            },
+            user_alias: { alias_name: "alias_name_1", alias_label: "alias_label_1" },
             app_id: "test_app_id",
             name: "ecommerce.order_cancelled",
             time: "2024-06-10T12:00:00.000Z",
             properties: {
               currency: "USD",
               source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
               products: [
                 {
                   product_id: "prod_1",
@@ -1212,29 +1260,19 @@ describe('Braze.ecommerceEvent', () => {
               discounts: [
                 { code: "SUMMER21", amount: 5 },
                 { code: "VIPCUSTOMER", amount: 5 }
-              ],
-              metadata: {
-                custom_field_1: "custom_value_1",
-                custom_field_2: 100,
-                custom_field_3: true,
-                custom_field_4: ["a", "b", "c"],
-                custom_field_5: { nested_key: "nested_value" },
-                checkout_url: "https://example.com/checkout",
-                order_status_url: "https://example.com/order/status"
-              }
+              ]
             },
             _update_existing_only: true
           }
         ]
       }
 
-      
       const mapping2 = { 
         ...mapping, 
         name: { '@path': '$.event' },
       }
 
-      const responseJSON =  [
+      const responseJSON = [
         {
           "status": 200,
           "sent": {
@@ -1311,7 +1349,7 @@ describe('Braze.ecommerceEvent', () => {
             "batch_size": 75,
             "index": 0
           },
-          "body": "{\"external_id\":\"userId1\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.order_refunded\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"products\":[{\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"image_url\":\"https://example.com/prod1.jpg\",\"quantity\":2,\"price\":25,\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"image_url\":\"https://example.com/prod2.jpg\",\"quantity\":1,\"price\":50}],\"total_value\":100,\"order_id\":\"order_id_1\",\"total_discounts\":10,\"discounts\":[{\"code\":\"SUMMER21\",\"amount\":5},{\"code\":\"VIPCUSTOMER\",\"amount\":5}],\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"}},\"_update_existing_only\":true}"
+          "body": "{\"external_id\":\"userId1\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.order_refunded\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"},\"products\":[{\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"image_url\":\"https://example.com/prod1.jpg\",\"quantity\":2,\"price\":25,\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"image_url\":\"https://example.com/prod2.jpg\",\"quantity\":1,\"price\":50}],\"total_value\":100,\"order_id\":\"order_id_1\",\"total_discounts\":10,\"discounts\":[{\"code\":\"SUMMER21\",\"amount\":5},{\"code\":\"VIPCUSTOMER\",\"amount\":5}]},\"_update_existing_only\":true}"
         },
         {
           "status": 400,
@@ -1460,7 +1498,7 @@ describe('Braze.ecommerceEvent', () => {
             "batch_size": 75,
             "index": 1
           },
-          "body": "{\"external_id\":\"userId3\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.checkout_started\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"products\":[{\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"image_url\":\"https://example.com/prod1.jpg\",\"quantity\":2,\"price\":25,\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"image_url\":\"https://example.com/prod2.jpg\",\"quantity\":1,\"price\":50}],\"total_value\":100,\"checkout_id\":\"checkout_id_1\",\"cart_id\":\"cart_id_1\",\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"}},\"_update_existing_only\":true}"
+          "body": "{\"external_id\":\"userId3\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.checkout_started\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"},\"products\":[{\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"image_url\":\"https://example.com/prod1.jpg\",\"quantity\":2,\"price\":25,\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"image_url\":\"https://example.com/prod2.jpg\",\"quantity\":1,\"price\":50}],\"total_value\":100,\"checkout_id\":\"checkout_id_1\",\"cart_id\":\"cart_id_1\"},\"_update_existing_only\":true}"
         },
         {
           "status": 200,
@@ -1538,12 +1576,12 @@ describe('Braze.ecommerceEvent', () => {
             "batch_size": 75,
             "index": 2
           },
-          "body": "{\"external_id\":\"userId4\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.cart_updated\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"products\":[{\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"image_url\":\"https://example.com/prod1.jpg\",\"quantity\":2,\"price\":25,\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"image_url\":\"https://example.com/prod2.jpg\",\"quantity\":1,\"price\":50}],\"total_value\":100,\"cart_id\":\"cart_id_1\"},\"_update_existing_only\":true}"
+          "body": "{\"external_id\":\"userId4\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.cart_updated\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"},\"products\":[{\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"image_url\":\"https://example.com/prod1.jpg\",\"quantity\":2,\"price\":25,\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"image_url\":\"https://example.com/prod2.jpg\",\"quantity\":1,\"price\":50}],\"total_value\":100,\"cart_id\":\"cart_id_1\"},\"_update_existing_only\":true}"
         },
         {
           "status": 200,
           "sent": {
-            "name": "ecommerce.product_viewed",
+            "name": "ecommerce.order_cancelled",
             "external_id": "userId5",
             "user_alias": {
               "alias_name": "alias_name_1",
@@ -1616,171 +1654,15 @@ describe('Braze.ecommerceEvent', () => {
             "batch_size": 75,
             "index": 3
           },
-          "body": "{\"external_id\":\"userId5\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.product_viewed\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"image_url\":\"https://example.com/prod1.jpg\",\"quantity\":2,\"price\":25,\"metadata\":{\"color\":\"red\",\"size\":\"M\"},\"type\":[\"testType\"]},\"_update_existing_only\":true}"
-        },
-        {
-          "status": 200,
-          "sent": {
-            "name": "ecommerce.order_cancelled",
-            "external_id": "userId6",
-            "user_alias": {
-              "alias_name": "alias_name_1",
-              "alias_label": "alias_label_1"
-            },
-            "email": "email@email.com",
-            "phone": "+14155551234",
-            "braze_id": "braze_id_1",
-            "cancel_reason": "I didn't like it",
-            "time": "2024-06-10T12:00:00.000Z",
-            "checkout_id": "checkout_id_1",
-            "order_id": "order_id_1",
-            "cart_id": "cart_id_1",
-            "total_value": 100,
-            "total_discounts": 10,
-            "discounts": [
-              {
-                "code": "SUMMER21",
-                "amount": 5
-              },
-              {
-                "code": "VIPCUSTOMER",
-                "amount": 5
-              }
-            ],
-            "currency": "USD",
-            "source": "test_source",
-            "products": [
-              {
-                "product_id": "prod_1",
-                "product_name": "Product 1",
-                "variant_id": "Size M",
-                "image_url": "https://example.com/prod1.jpg",
-                "quantity": 2,
-                "price": 25,
-                "metadata": {
-                  "color": "red",
-                  "size": "M"
-                }
-              },
-              {
-                "product_id": "prod_2",
-                "product_name": "Product 2",
-                "variant_id": "Size L",
-                "image_url": "https://example.com/prod2.jpg",
-                "quantity": 1,
-                "price": 50
-              }
-            ],
-            "metadata": {
-              "custom_field_1": "custom_value_1",
-              "custom_field_2": 100,
-              "custom_field_3": true,
-              "custom_field_4": [
-                "a",
-                "b",
-                "c"
-              ],
-              "custom_field_5": {
-                "nested_key": "nested_value"
-              },
-              "checkout_url": "https://example.com/checkout",
-              "order_status_url": "https://example.com/order/status"
-            },
-            "type": [
-              "testType"
-            ],
-            "_update_existing_only": false,
-            "enable_batching": true,
-            "batch_size": 75,
-            "index": 4
-          },
-          "body": "{\"external_id\":\"userId6\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.order_cancelled\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"products\":[{\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"image_url\":\"https://example.com/prod1.jpg\",\"quantity\":2,\"price\":25,\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"image_url\":\"https://example.com/prod2.jpg\",\"quantity\":1,\"price\":50}],\"total_value\":100,\"order_id\":\"order_id_1\",\"cancel_reason\":\"I didn't like it\",\"total_discounts\":10,\"discounts\":[{\"code\":\"SUMMER21\",\"amount\":5},{\"code\":\"VIPCUSTOMER\",\"amount\":5}],\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"}},\"_update_existing_only\":true}"
-        },
-        {
-          "status": 400,
-          "errormessage": "products[0]: \"quantity\" is required for event with name ecommerce.checkout_started.",
-          "sent": {
-            "name": "ecommerce.checkout_started",
-            "external_id": "userId7",
-            "user_alias": {
-              "alias_name": "alias_name_1",
-              "alias_label": "alias_label_1"
-            },
-            "email": "email@email.com",
-            "phone": "+14155551234",
-            "braze_id": "braze_id_1",
-            "cancel_reason": "I didn't like it",
-            "time": "2024-06-10T12:00:00.000Z",
-            "checkout_id": "checkout_id_1",
-            "order_id": "order_id_1",
-            "cart_id": "cart_id_1",
-            "total_value": 100,
-            "total_discounts": 10,
-            "discounts": [
-              {
-                "code": "SUMMER21",
-                "amount": 5
-              },
-              {
-                "code": "VIPCUSTOMER",
-                "amount": 5
-              }
-            ],
-            "currency": "USD",
-            "source": "test_source",
-            "products": [
-              {
-                "product_id": "prod_1",
-                "product_name": "Product 1",
-                "variant_id": "Size M",
-                "image_url": "https://example.com/prod1.jpg",
-                "price": 25,
-                "metadata": {
-                  "color": "red",
-                  "size": "M"
-                }
-              },
-              {
-                "product_id": "prod_2",
-                "product_name": "Product 2",
-                "variant_id": "Size L",
-                "image_url": "https://example.com/prod2.jpg",
-                "quantity": 1,
-                "price": 50
-              }
-            ],
-            "metadata": {
-              "custom_field_1": "custom_value_1",
-              "custom_field_2": 100,
-              "custom_field_3": true,
-              "custom_field_4": [
-                "a",
-                "b",
-                "c"
-              ],
-              "custom_field_5": {
-                "nested_key": "nested_value"
-              },
-              "checkout_url": "https://example.com/checkout",
-              "order_status_url": "https://example.com/order/status"
-            },
-            "type": [
-              "testType"
-            ],
-            "_update_existing_only": false,
-            "enable_batching": true,
-            "batch_size": 75
-          },
-          "errortype": "BAD_REQUEST",
-          "errorreporter": "DESTINATION"
+          "body": "{\"external_id\":\"userId5\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.order_cancelled\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"},\"products\":[{\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"image_url\":\"https://example.com/prod1.jpg\",\"quantity\":2,\"price\":25,\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"image_url\":\"https://example.com/prod2.jpg\",\"quantity\":1,\"price\":50}],\"total_value\":100,\"order_id\":\"order_id_1\",\"cancel_reason\":\"I didn't like it\",\"total_discounts\":10,\"discounts\":[{\"code\":\"SUMMER21\",\"amount\":5},{\"code\":\"VIPCUSTOMER\",\"amount\":5}]},\"_update_existing_only\":true}"
         }
       ]
-
+      
       nock(settings.endpoint)
         .post('/users/track', json)
         .reply(200)
 
-      const response = await testDestination.executeBatch('ecommerceEvent', {
+      const response = await testDestination.executeBatch('ecommerce', {
         events,
         settings,
         mapping: mapping2
