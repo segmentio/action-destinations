@@ -1,8 +1,32 @@
-import { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import identifyUser from './identifyUser'
 import trackEvent from './trackEvent'
 import identifyGroup from './identifyGroup'
+
+const presets: DestinationDefinition['presets'] = [
+  {
+    name: 'Track Events',
+    subscribe: 'type = "track"',
+    partnerAction: 'trackEvent',
+    mapping: { ...defaultValues(trackEvent.fields) },
+    type: 'automatic'
+  },
+  {
+    name: 'Identify Calls',
+    subscribe: 'type = "identify"',
+    partnerAction: 'identifyUser',
+    mapping: { ...defaultValues(identifyUser.fields) },
+    type: 'automatic'
+  },
+  {
+    name: 'Group Calls',
+    subscribe: 'type = "group"',
+    partnerAction: 'identifyGroup',
+    mapping: { ...defaultValues(identifyGroup.fields) },
+    type: 'automatic'
+  }
+]
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Survicate Cloud Mode (Actions)',
@@ -13,8 +37,8 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       apiKey: {
-        label: 'API Key',
-        description: 'Your Survicate API key',
+        label: 'Destination Key',
+        description: 'Your Survicate Destination Key, which you can find in Survicate - Integrations - Segment (Cloud Mode, Actions) - Settings.',
         type: 'string',
         required: true
       }
@@ -38,6 +62,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
 
+  presets,
   actions: {
     trackEvent,
     identifyUser,

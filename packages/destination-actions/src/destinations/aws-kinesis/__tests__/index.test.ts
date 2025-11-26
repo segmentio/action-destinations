@@ -23,10 +23,6 @@ jest.mock('@segment/actions-core', () => ({
   }))
 }))
 
-jest.mock('../../../lib/AWS/utils', () => ({
-  APP_AWS_REGION: 'us-east-1'
-}))
-
 const testDestination = createTestIntegration(destination)
 
 describe('AWS Kinesis Destination - testAuthentication', () => {
