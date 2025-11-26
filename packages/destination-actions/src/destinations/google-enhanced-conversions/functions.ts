@@ -37,13 +37,11 @@ import type { Payload as ClickConversionPayload2 } from './uploadClickConversion
 import { RefreshTokenResponse } from '.'
 import { STATUS_CODE_MAPPING } from './constants'
 import { processHashing } from '../../lib/hashing-utils'
-export const API_VERSION = 'v19'
+export const API_VERSION = 'v21'
 export const CANARY_API_VERSION = 'v21'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-
-
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -226,7 +224,7 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
 }
 
 export function timestampToEpochMicroseconds(timestamp: string): string | undefined {
-  if(!timestamp){
+  if (!timestamp) {
     return undefined
   }
   const date = new Date(timestamp)
@@ -1119,9 +1117,8 @@ export function getSessionAttributesKeyValuePairs(payload: ClickConversionPayloa
     } = {}
   } = payload
 
-  const sessionStartTimeUsec = typeof session_start_time_usec === 'string'
-    ? timestampToEpochMicroseconds(session_start_time_usec)
-    : undefined
+  const sessionStartTimeUsec =
+    typeof session_start_time_usec === 'string' ? timestampToEpochMicroseconds(session_start_time_usec) : undefined
 
   const entries: [KeyValueItem['sessionAttributeKey'], string | undefined][] = [
     ['gad_source', gad_source],
@@ -1133,16 +1130,13 @@ export function getSessionAttributesKeyValuePairs(payload: ClickConversionPayloa
   ]
 
   const keyValuePairList: KeyValuePairList = entries
-    .filter(
-      ([_, value]) => value !== undefined && value !== null && value !== ''
-    )
+    .filter(([_, value]) => value !== undefined && value !== null && value !== '')
     .map(([key, value]) => ({
       sessionAttributeKey: key,
       sessionAttributeValue: value
     }))
 
-  return (!session_attributes_encoded && keyValuePairList.length > 0
+  return !session_attributes_encoded && keyValuePairList.length > 0
     ? { sessionAttributesKeyValuePairs: { keyValuePairs: keyValuePairList } }
     : {}
-  )
 }

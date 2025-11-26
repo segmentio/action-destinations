@@ -125,6 +125,16 @@ describe('Kinesis send', () => {
         abortSignal: undefined
       })
     )
+
+    expect(PutRecordsCommand).toHaveBeenCalledWith({
+      StreamName: mockPayloads[0].streamName,
+      Records: [
+        expect.objectContaining({
+          Data: Buffer.from(JSON.stringify(mockPayloads[0].payload)),
+          PartitionKey: mockPayloads[0].partitionKey
+        })
+      ]
+    })
   })
 
   it('should handle AccessDeniedException and throw IntegrationError', async () => {

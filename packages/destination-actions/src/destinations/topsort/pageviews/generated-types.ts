@@ -14,20 +14,22 @@ export interface Payload {
    */
   opaqueUserId: string
   /**
-   * The list of products viewed. Each product is a promotable entity.
+   * Page information for the impression.
    */
-  products: {
+  page: {
     /**
-     * Identifier of an instance of a resolved auction for a determined product. The length should not exceed 128 characters.
+     * Type of page.
      */
-    resolvedBidId: string
+    type: string
     /**
-     * Additional attribution information.
+     * Identifies the page.
      */
-    additionalAttribution?: {
-      [k: string]: unknown
-    }
-  }[]
+    pageId: string
+    /**
+     * Detail of the page, depending on the type.
+     */
+    value?: string
+  }
   /**
    * The device the user is on.
    */

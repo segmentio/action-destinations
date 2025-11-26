@@ -119,9 +119,11 @@ Please find the below info for _Name of integration_ Catalog entry.
 
 ## Release to Public in the Segment catalog
 
-1. Once at least 1 customer successfully uses the integration, let us know. We’ll make your destination Public. Any Segment customer can find it in the catalog, and it will be featured on the New & Noteworthy page..
+### Release Process
 
-2. Write a blog post for your company’s blog, write a [recipe](https://segment.com/recipes/) to help customers solve a specific problem using your Integration, and/or work with our Marketing team to be featured in the Segment blog.
+1. Once at least 1 customer successfully uses the integration, let us know. We'll make your destination Public. Any Segment customer can find it in the catalog, and it will be featured on the New & Noteworthy page.
+
+2. Write a blog post for your company's blog, write a [recipe](https://segment.com/recipes/) to help customers solve a specific problem using your Integration, and/or work with our Marketing team to be featured in the Segment blog.
 
 3. Maintain your integration. Fix bugs, update it if your APIs change, add functionality as requested by customers.
 
