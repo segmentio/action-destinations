@@ -81,14 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: false
         }
-      },
-      default: [
-        {
-          traitGroup: { '@path': '$.context.traits.traitGroup' },
-          traitName: { '@path': '$.context.traits.traitName' },
-          traitValue: { '@path': '$.context.traits.traitValue' }
-        }
-      ]
+      }
     }
   },
   dynamicFields: {
