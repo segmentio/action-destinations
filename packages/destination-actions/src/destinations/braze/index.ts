@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { DEFAULT_REQUEST_TIMEOUT, defaultValues } from '@segment/actions-core'
+import ecommerce from './ecommerce'
+import ecommerceSingleProduct from './ecommerceSingleProduct'
 import createAlias from './createAlias'
 import createAlias2 from './createAlias2'
 import identifyUser from './identifyUser'
@@ -13,11 +15,8 @@ import trackPurchase2 from './trackPurchase2'
 import updateUserProfile2 from './updateUserProfile2'
 import triggerCampaign from './triggerCampaign'
 import triggerCanvas from './triggerCanvas'
-import { EVENT_NAMES } from './ecommerceEvent/constants'
-
+import { EVENT_NAMES } from './ecommerce/constants'
 import upsertCatalogItem from './upsertCatalogItem'
-
-import ecommerceEvent from './ecommerceEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Braze Cloud Mode (Actions)',
@@ -95,7 +94,8 @@ const destination: DestinationDefinition<Settings> = {
     upsertCatalogItem,
     triggerCampaign,
     triggerCanvas,
-    ecommerceEvent
+    ecommerce,
+    ecommerceSingleProduct
   },
   presets: [
     {
@@ -108,9 +108,9 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Order Placed',
       subscribe: 'event = "Order Completed"',
-      partnerAction: 'ecommerceEvent',
+      partnerAction: 'ecommerce',
       mapping: { 
-        ...defaultValues(ecommerceEvent.fields),
+        ...defaultValues(ecommerce.fields),
         name: EVENT_NAMES.ORDER_PLACED
       },
       type: 'automatic'
@@ -118,9 +118,9 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Checkout Started',
       subscribe: 'event = "Checkout Started"',
-      partnerAction: 'ecommerceEvent',
+      partnerAction: 'ecommerce',
       mapping: { 
-        ...defaultValues(ecommerceEvent.fields),
+        ...defaultValues(ecommerce.fields),
         name: EVENT_NAMES.CHECKOUT_STARTED
       },
       type: 'automatic'
@@ -128,9 +128,9 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Order Refunded',
       subscribe: 'event = "Order Refunded"',
-      partnerAction: 'ecommerceEvent',
+      partnerAction: 'ecommerce',
       mapping: { 
-        ...defaultValues(ecommerceEvent.fields),
+        ...defaultValues(ecommerce.fields),
         name: EVENT_NAMES.ORDER_REFUNDED
       },
       type: 'automatic'
@@ -138,9 +138,9 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Order Cancelled',
       subscribe: 'event = "Order Cancelled"',
-      partnerAction: 'ecommerceEvent',
+      partnerAction: 'ecommerce',
       mapping: { 
-        ...defaultValues(ecommerceEvent.fields),
+        ...defaultValues(ecommerce.fields),
         name: EVENT_NAMES.ORDER_CANCELLED
       },
       type: 'automatic'
@@ -148,9 +148,9 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Product Viewed',
       subscribe: 'event = "Product Viewed"',
-      partnerAction: 'ecommerceEvent',
+      partnerAction: 'ecommerceSingleProduct',
       mapping: { 
-        ...defaultValues(ecommerceEvent.fields),
+        ...defaultValues(ecommerceSingleProduct.fields),
         name: EVENT_NAMES.PRODUCT_VIEWED, 
         products: {
           '@arrayPath': [
