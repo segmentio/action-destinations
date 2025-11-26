@@ -79,14 +79,6 @@ export interface Payload {
    * Additional metadata for the ecommerce event.
    */
   metadata?: {
-    /**
-     * URL for the checkout page.
-     */
-    checkout_url?: string
-    /**
-     * URL to view the status of the order.
-     */
-    order_status_url?: string
     [k: string]: unknown
   }
   /**

@@ -16,8 +16,7 @@ Object {
         "checkout_id": "tZlmdH(v3%S",
         "currency": "HTG",
         "metadata": Object {
-          "checkout_url": "tZlmdH(v3%S",
-          "order_status_url": "tZlmdH(v3%S",
+          "testType": "tZlmdH(v3%S",
         },
         "products": Array [
           Object {
