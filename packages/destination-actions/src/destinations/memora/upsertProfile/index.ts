@@ -11,48 +11,93 @@ const action: ActionDefinition<Settings, Payload> = {
     'Create or update Memora profiles using the bulk upsert API. If a profile already exists, its traits are merged (new keys added, existing keys overwritten). Supports batching up to 1000 profiles.',
   defaultSubscription: 'type = "identify"',
   fields: {
+    memora_store: {
+      label: 'Memory Store',
+      description:
+        'The Memory Store ID to use for this profile. This should be a valid Memory Store associated with your Twilio account.',
+      type: 'string',
+      required: false,
+      dynamic: true
+    },
     contact: {
       label: 'Contact Information',
       description:
         'Contact information object containing email, firstName, lastName, and phone fields that will be placed in the Contact trait group in the Memora API call.',
       type: 'object',
-      dynamic: true,
-      additionalProperties: true,
-      defaultObjectUI: 'keyvalue',
+      properties: {
+        email: {
+          label: 'Email',
+          description: 'User email address',
+          type: 'string',
+          format: 'email'
+        },
+        firstName: {
+          label: 'First Name',
+          description: 'User first name',
+          type: 'string'
+        },
+        lastName: {
+          label: 'Last Name',
+          description: 'User last name',
+          type: 'string'
+        },
+        phone: {
+          label: 'Phone',
+          description: 'User phone number',
+          type: 'string'
+        }
+      },
       default: {
         email: { '@path': '$.properties.email' },
         firstName: { '@path': '$.traits.first_name' },
         lastName: { '@path': '$.traits.last_name' },
-        phone: { '@path': '$.traits.phone' }
+        phone: {
+          '@path': '$.traits.phone'
+        }
       }
     },
     otherTraits: {
       label: 'Other Traits',
       description:
-        'Additional traits to include in the Memora profile, organized by trait group. Keys should match trait group names and values should be objects of traits for that group.',
+        'Additional traits to include in the Memora profile. Each trait should specify the trait group, trait name, and trait value.',
       type: 'object',
-      required: false,
-      dynamic: true,
-      additionalProperties: true,
-      defaultObjectUI: 'keyvalue'
+      multiple: true,
+      properties: {
+        traitGroup: {
+          label: 'Trait Group',
+          description: 'The name of the trait group (e.g., Demographics, Preferences, Custom)',
+          type: 'string',
+          required: true
+        },
+        traitName: {
+          label: 'Trait Name',
+          description: 'The name of the trait field',
+          type: 'string',
+          required: true
+        },
+        traitValue: {
+          label: 'Trait Value',
+          description: 'The value of the trait',
+          type: 'string',
+          required: false
+        }
+      },
+      default: [
+        {
+          traitGroup: { '@path': '$.context.traits.traitGroup' },
+          traitName: { '@path': '$.context.traits.traitName' },
+          traitValue: { '@path': '$.context.traits.traitValue' }
+        }
+      ]
     }
   },
   dynamicFields: {
+    memora_store: async (request, { settings }) => {
+      return fetchMemoryStores(request, settings)
+    },
     contact: {
       __keys__: async (request, { settings }) => {
         return fetchTraitFields(request, settings, 'Contact')
-      }
-    },
-    otherTraits: {
-      __keys__: async (request, { settings }) => {
-        return fetchTraitGroups(request, settings)
-      },
-      __values__: async (request, { settings, dynamicFieldContext }) => {
-        const traitGroup = dynamicFieldContext?.selectedKey
-        if (!traitGroup) {
-          return { choices: [] }
-        }
-        return fetchTraitFields(request, settings, traitGroup)
       }
     }
   },
@@ -162,23 +207,39 @@ const action: ActionDefinition<Settings, Payload> = {
 function buildTraitGroups(payload: Payload) {
   const traitGroups: Record<string, Record<string, unknown>> = {}
 
-  if (payload.otherTraits && typeof payload.otherTraits === 'object' && !Array.isArray(payload.otherTraits)) {
-    for (const [groupName, groupValue] of Object.entries(payload.otherTraits)) {
-      if (!groupValue || typeof groupValue !== 'object' || Array.isArray(groupValue)) {
-        continue
-      }
+  // Process otherTraits array
+  if (payload.otherTraits && Array.isArray(payload.otherTraits)) {
+    for (const trait of payload.otherTraits) {
+      if (trait && typeof trait === 'object') {
+        const { traitGroup, traitName, traitValue } = trait as {
+          traitGroup?: string
+          traitName?: string
+          traitValue?: unknown
+        }
 
-      const cleanedGroup = cleanObject(groupValue)
-      if (Object.keys(cleanedGroup).length > 0) {
-        traitGroups[groupName] = cleanedGroup
+        // Skip if essential fields are missing
+        if (!traitGroup || !traitName) {
+          continue
+        }
+
+        // Initialize trait group if it doesn't exist
+        if (!traitGroups[traitGroup]) {
+          traitGroups[traitGroup] = {}
+        }
+
+        // Only add trait if value is not null/undefined
+        if (traitValue !== null && traitValue !== undefined) {
+          traitGroups[traitGroup][traitName] = traitValue
+        }
       }
     }
   }
 
+  // Process contact field
   if (payload.contact && typeof payload.contact === 'object') {
     const contact = cleanObject(payload.contact)
     if (Object.keys(contact).length > 0) {
-      // Merge contact into Contact trait group, with contact fields taking precedence
+      // Merge contact into Contact trait group
       traitGroups.Contact = {
         ...(traitGroups.Contact ?? {}),
         ...contact
@@ -262,8 +323,53 @@ interface TraitField {
   key?: string
 }
 
-interface TraitGroup {
-  name?: string
+interface MemoryStoresResponse {
+  services?: string[]
+  meta?: {
+    pageSize?: number
+    nextToken?: string
+    previousToken?: string
+  }
+}
+
+// Fetch available memory stores from Control Plane
+async function fetchMemoryStores(
+  request: ReturnType<typeof import('@segment/actions-core').createRequestClient>,
+  settings: Settings
+) {
+  try {
+    const baseUrl = normalizeBaseUrl(settings.url)
+
+    // Call the Control Plane API to list memory stores
+    const response = await request<MemoryStoresResponse>(`${baseUrl}/ControlPlane/Services?pageSize=100&orderBy=ASC`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${settings.api_key}`,
+        ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
+      },
+      skipResponseCloning: true
+    })
+
+    const services = response?.data?.services || []
+    const choices = services.map((serviceId: string) => ({
+      label: serviceId,
+      value: serviceId
+    }))
+
+    return {
+      choices,
+      nextPage: response?.data?.meta?.nextToken
+    }
+  } catch (error) {
+    // Return empty choices if the API call fails
+    return {
+      choices: [],
+      error: {
+        message: 'Unable to fetch memory stores. You can still manually enter a memory store ID.',
+        code: 'FETCH_ERROR'
+      }
+    }
+  }
 }
 
 // Fetch available trait fields for a specific trait group
@@ -305,52 +411,6 @@ async function fetchTraitFields(
       choices: [],
       error: {
         message: 'Unable to fetch trait fields. You can still manually enter trait names.',
-        code: 'FETCH_ERROR'
-      }
-    }
-  }
-}
-
-// Fetch available trait groups
-async function fetchTraitGroups(
-  request: ReturnType<typeof import('@segment/actions-core').createRequestClient>,
-  settings: Settings
-) {
-  try {
-    const baseUrl = normalizeBaseUrl(settings.url)
-
-    // Fetch available trait groups from the service
-    const response = await request<{ traitGroups?: TraitGroup[]; meta?: { nextPageToken?: string } }>(
-      `${baseUrl}/${API_VERSION}/Services/${settings.serviceId}/trait-groups`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${settings.api_key}`,
-          ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
-        },
-        skipResponseCloning: true
-      }
-    )
-
-    const traitGroups = response?.data?.traitGroups || []
-    const choices = traitGroups.map((group: TraitGroup) => ({
-      label: group.name || '',
-      value: group.name || ''
-    }))
-
-    return {
-      choices,
-      nextPage: response?.data?.meta?.nextPageToken
-    }
-  } catch (error) {
-    // Return default trait groups if the API call fails
-    return {
-      choices: [
-        { label: 'Contact', value: 'Contact' },
-        { label: 'Custom', value: 'Custom' }
-      ],
-      error: {
-        message: 'Unable to fetch trait groups. Showing default options.',
         code: 'FETCH_ERROR'
       }
     }

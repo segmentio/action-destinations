@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * The Memory Store ID to use for this profile. This should be a valid Memory Store associated with your Twilio account.
+   */
+  memora_store?: string
+  /**
    * Contact information object containing email, firstName, lastName, and phone fields that will be placed in the Contact trait group in the Memora API call.
    */
   contact?: {
