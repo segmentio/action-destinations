@@ -1,7 +1,8 @@
 import { EVENT_NAMES } from './constants'
 import { Payload } from './generated-types'
+import { Payload as SingleProductPayload } from '../ecommerceSingleProduct/generated-types'
 
-export interface PayloadWithIndex extends Payload {
+export type PayloadWithIndex = (Payload | SingleProductPayload) & {
     index?: number
 }
 
@@ -55,7 +56,7 @@ export interface BaseEvent {
 
 export interface ProductViewedEvent extends BaseEvent {
     name: ProductViewedEventName
-    properties: BaseEvent['properties'] & Product & {
+    properties: BaseEvent['properties'] & BaseProduct & {
         type?: Array<string>
     }
 }
@@ -64,25 +65,24 @@ export interface MultiProductBaseEvent extends BaseEvent {
     name: MultiPropertyEventName
     properties: BaseEvent['properties'] & {
         total_value: number
-        products: Array<ProductWithQuantity>
+        products: Array<Product>
     }
 }
 
-export interface ProductWithQuantity extends Product {
+export interface Product extends BaseProduct {
     quantity: number
-}
-
-export interface Product {
-    product_id: string
-    product_name: string
-    variant_id: string
-    quantity?: number
-    price: number
-    image_url?: string
-    product_url?: string
     metadata?: {
         [key: string]: unknown
     }
+}
+
+export interface BaseProduct {
+    product_id: string
+    product_name: string
+    variant_id: string
+    price: number
+    image_url?: string
+    product_url?: string
 }
 
 export interface CartUpdatedEvent extends MultiProductBaseEvent {

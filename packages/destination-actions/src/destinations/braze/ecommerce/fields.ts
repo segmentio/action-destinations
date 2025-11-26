@@ -2,7 +2,7 @@ import { InputField } from '@segment/actions-core'
 import { currencies } from './functions'
 import { EVENT_NAMES } from './constants'
 
-export const name: InputField = {
+const name: InputField = {
     label: 'Ecommerce Event Name',
     description: 'The name of the Braze ecommerce recommended event',
     type: 'string',
@@ -17,14 +17,14 @@ export const name: InputField = {
     ]
 }
 
-export const external_id: InputField = {
+const external_id: InputField = {
     label: 'External User ID',
     description: 'The unique user identifier',
     type: 'string',
     default: { '@path': '$.userId' }
 }
 
-export const user_alias: InputField = { 
+const user_alias: InputField = { 
     label: 'User Alias Object',
     description: 'A user alias object. See [the docs](https://www.braze.com/docs/api/objects_filters/user_alias_object/).',
     type: 'object',
@@ -44,14 +44,14 @@ export const user_alias: InputField = {
     }
 }
 
-export const _update_existing_only: InputField = {
+const _update_existing_only: InputField = {
     label: 'Update Existing Only',
     description: 'When this flag is set to true, Braze will only update existing profiles and will not create any new ones.',
     type: 'boolean',
     default: false
 }
 
-export const email: InputField = {
+const email: InputField = {
     label: 'Email',
     description: 'The user email',
     type: 'string',
@@ -64,7 +64,7 @@ export const email: InputField = {
     }
 }
 
-export const phone: InputField = {
+const phone: InputField = {
     label: 'Phone Number',
     description: "The user's phone number",
     type: 'string',
@@ -78,7 +78,7 @@ export const phone: InputField = {
     }
 }
 
-export const braze_id: InputField ={
+const braze_id: InputField ={
     label: 'Braze User Identifier',
     description: 'The unique user identifier',
     type: 'string',
@@ -92,7 +92,7 @@ export const braze_id: InputField ={
     }
 }
 
-export const cancel_reason: InputField = {
+const cancel_reason: InputField = {
     label: 'Cancel Reason',
     description: 'Reason why the order was cancelled.',
     type: 'string',
@@ -119,7 +119,7 @@ export const cancel_reason: InputField = {
     }
 }
 
-export const time: InputField = {
+const time: InputField = {
     label: 'Time',
     description: 'Timestamp for when the event occurred.',
     type: 'string',
@@ -128,7 +128,7 @@ export const time: InputField = {
     default: {'@path': '$.timestamp'}
 }
 
-export const checkout_id: InputField = {
+const checkout_id: InputField = {
     label: 'Checkout ID',
     description: 'Unique identifier for the checkout.',
     type: 'string',
@@ -155,7 +155,7 @@ export const checkout_id: InputField = {
     }
 }
 
-export const order_id: InputField = {
+const order_id: InputField = {
     label: 'Order ID',
     description: 'Unique identifier for the order placed.',
     type: 'string',
@@ -182,7 +182,7 @@ export const order_id: InputField = {
     }
 }
 
-export const cart_id: InputField = {
+const cart_id: InputField = {
     label: 'Cart ID',
     description: 'Unique identifier for the cart. If no value is passed, Braze will determine a default value (shared across cart, checkout, and order events) for the user cart mapping.',
     type: 'string',
@@ -209,7 +209,7 @@ export const cart_id: InputField = {
     }
 }
 
-export const total_value: InputField = {
+const total_value: InputField = {
     label: 'Total Value',
     description: 'Total monetary value of the cart.',
     type: 'number',
@@ -236,7 +236,7 @@ export const total_value: InputField = {
     }
 }
 
-export const total_discounts: InputField = {
+const total_discounts: InputField = {
     label: 'Total Discounts',
     description: 'Total amount of discounts applied to the order.',
     type: 'number',
@@ -263,7 +263,7 @@ export const total_discounts: InputField = {
     }
 }
 
-export const discounts: InputField = {
+const discounts: InputField = {
     label: 'Discounts',
     description: 'Details of all discounts applied to the order.',
     type: 'object',
@@ -313,7 +313,7 @@ export const discounts: InputField = {
     }
 }
 
-export const currency: InputField = {
+const currency: InputField = {
     label: 'Currency',
     description: 'Currency code for the transaction. Defaults to USD if no value passed.',
     type: 'string',
@@ -322,7 +322,7 @@ export const currency: InputField = {
     choices: currencies()
 }
 
-export const source: InputField = {
+const source: InputField = {
     label: 'Source',
     description: 'Source the event is derived from.',
     type: 'string',
@@ -373,7 +373,7 @@ export const products: InputField = {
             label: 'Quantity',
             description: 'Number of units of the product in the cart.',
             type: 'number',
-            required: false // true for single product events only
+            required: true 
         },
         price: {
             label: 'Price',
@@ -398,7 +398,62 @@ export const products: InputField = {
     }
 }
 
-export const metadata: InputField = {
+export const product: InputField = {
+    label: 'Product',
+    description: 'Product details associated with the ecommerce event.',
+    type: 'object',
+    additionalProperties: false,
+    required: true,
+    defaultObjectUI: 'keyvalue',
+    properties: {
+        product_id: {
+            label: 'Product ID',
+            description: 'A unique identifier for the product that was viewed. This value be can be the product ID or SKU',
+            type: 'string',
+            required: true
+        },
+        product_name: {
+            label: 'Product Name',
+            description: 'The name of the product that was viewed.',
+            type: 'string',
+            required: true
+        },
+        variant_id: {
+            label: 'Variant ID',
+            description: 'A unique identifier for the product variant. An example is shirt_medium_blue',
+            type: 'string',
+            required: true
+        },
+        image_url: {
+            label: 'Image URL',
+            description: 'The URL of the product image.',
+            type: 'string',
+            format: 'uri'
+        },
+        product_url: {
+            label: 'Product URL',
+            description: 'URL to the product page for more details.',
+            type: 'string',
+            format: 'uri'
+        },
+        price: {
+            label: 'Price',
+            description: 'The variant unit price of the product at the time of viewing.',
+            type: 'number',
+            required: true
+        }
+    },
+    default: {
+        product_id: { '@path': '$.properties.product_id' },
+        product_name: { '@path': '$.properties.name' },
+        variant_id: { '@path': '$.properties.variant'},
+        image_url: {'@path': '$.properties.image_url'},
+        product_url: {'@path': '$.properties.url'},
+        price: {'@path': '$.properties.price'}
+    }
+}
+
+const metadata: InputField = {
     label: 'Metadata',
     description: 'Additional metadata for the ecommerce event.',
     type: 'object',
@@ -418,7 +473,7 @@ export const metadata: InputField = {
     }
 }
 
-export const type: InputField = {
+const type: InputField = {
     label: 'Product Type',
     description: 'TODO: description in docs ambiguous.',
     type: 'string',
@@ -437,7 +492,7 @@ export const type: InputField = {
     }
 }
 
-export const enable_batching: InputField = {
+const enable_batching: InputField = {
     type: 'boolean',
     label: 'Batch Data to Braze',
     description: 'If true, Segment will batch events before sending to Braze’s user track endpoint.',
@@ -445,7 +500,7 @@ export const enable_batching: InputField = {
     default: true
 }
 
-export const batch_size: InputField ={
+const batch_size: InputField ={
     label: 'Maximum Batch Size',
     description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
     type: 'number',
@@ -453,4 +508,28 @@ export const batch_size: InputField ={
     default: 75,
     minimum: 2,
     maximum: 75
+}
+
+export const commonFields = {
+    name,
+    external_id,
+    user_alias,
+    _update_existing_only,
+    email,
+    phone,
+    braze_id,
+    cancel_reason,
+    time,
+    checkout_id,
+    order_id,
+    cart_id,
+    total_value,
+    total_discounts,
+    discounts,
+    currency,
+    source,
+    metadata,
+    type,
+    enable_batching,
+    batch_size
 }

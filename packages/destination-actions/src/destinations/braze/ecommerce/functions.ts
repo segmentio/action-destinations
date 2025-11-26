@@ -1,4 +1,5 @@
 import { Payload } from './generated-types'
+import { Payload as SingleProductPayload } from '../ecommerceSingleProduct/generated-types'
 import { Settings } from '../generated-types'
 import { BrazeTrackUserAPIResponse } from '../utils'
 import { 
@@ -20,15 +21,13 @@ import type {
   OrderPlacedEvent,
   OrderRefundedEvent,
   OrderCancelledEvent,
-  PayloadWithIndex,
-  ProductWithQuantity,
-  Product
+  PayloadWithIndex
 } from './types'
 import { EVENT_NAMES } from './constants'
 import dayjs from 'dayjs'
 
 
-export async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean) {
+export async function send(request: RequestClient, payloads: (Payload | SingleProductPayload)[], settings: Settings, isBatch: boolean) {
   const msResponse = new MultiStatusResponse()
   const { endpoint } = settings
   const { json, payloadsWithIndexes } = getJSON(payloads, settings, isBatch, msResponse)
@@ -61,8 +60,7 @@ export async function send(request: RequestClient, payloads: Payload[], settings
   return isBatch ? msResponse : response 
 }
 
-
-function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msResponse: MultiStatusResponse): { json: EcommerceEvents, payloadsWithIndexes: PayloadWithIndex[] } {  
+function getJSON(payloads: (Payload | SingleProductPayload)[], settings: Settings, isBatch: boolean, msResponse: MultiStatusResponse): { json: EcommerceEvents, payloadsWithIndexes: PayloadWithIndex[] } {  
   const payloadsWithIndexes: PayloadWithIndex[] = [ ...payloads ]
   const events: EcommerceEvent[] = []
   payloadsWithIndexes.forEach((payload, index) => {
@@ -94,7 +92,7 @@ function getJSON(payloads: Payload[], settings: Settings, isBatch: boolean, msRe
   return { json: { events }, payloadsWithIndexes }
 }
 
-function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
+function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings): EcommerceEvent {
     
   const { app_id } = settings
 
@@ -108,7 +106,8 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
     time: payloadTime,
     currency,
     source,
-    _update_existing_only
+    _update_existing_only,
+    metadata
   } = payload
 
   const time = dayjs(payloadTime).toISOString()
@@ -134,7 +133,8 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
     time,
     properties: {
       currency,
-      source
+      source,
+        ...(metadata ? { metadata } : {})
     },
     ...(typeof updateExistingOnly === 'boolean' ? { _update_existing_only: updateExistingOnly } : {} )
   }
@@ -142,18 +142,16 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
   switch(name) {
     case EVENT_NAMES.PRODUCT_VIEWED: {
       const {
-        products,
+        product,
         type
-      } = payload
-
-      const product = products && products.length > 0 ? products[0] : null
+      } = payload as SingleProductPayload
 
       const event: ProductViewedEvent = {
         ...baseEvent,
         name: EVENT_NAMES.PRODUCT_VIEWED,
         properties: {
           ...baseEvent.properties,
-          ...(product as Product),
+          ...product,
           type
         }
       }
@@ -167,14 +165,14 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
       const {
         products,
         total_value
-      } = payload
+      } = payload as Payload
 
       const multiProductEvent: MultiProductBaseEvent = {
         ...baseEvent,
         name: name as MultiPropertyEventName,
         properties: {
           ...baseEvent.properties,
-          products: products as ProductWithQuantity[] || [],
+          products,
           total_value: total_value as number
         }
       }
@@ -295,7 +293,7 @@ function getJSONItem(payload: Payload, settings: Settings): EcommerceEvent {
   }
 }
 
-function validate(payload: Payload, isBatch: boolean): string | void {
+function validate(payload: Payload | SingleProductPayload, isBatch: boolean): string | void {
   const { braze_id, user_alias, external_id, email, phone } = payload
   if (!braze_id && !user_alias && !external_id && !email && !phone) {
     const message = 'One of "external_id" or "user_alias" or "braze_id" or "email" or "phone" is required.'
@@ -304,29 +302,6 @@ function validate(payload: Payload, isBatch: boolean): string | void {
     } 
     else {
       return message
-    }
-  }
-
-  const { name, products } = payload
-
-  if ([
-    EVENT_NAMES.CART_UPDATED,
-    EVENT_NAMES.CHECKOUT_STARTED,
-    EVENT_NAMES.ORDER_PLACED,
-    EVENT_NAMES.ORDER_REFUNDED,
-    EVENT_NAMES.ORDER_CANCELLED
-  ].includes(name as MultiPropertyEventName)) {
-    for (let index = 0; index < products.length; index++) {
-      const product = products[index]
-      if (typeof product.quantity !== 'number' || product.quantity <= 0) {
-        const message = `products[${index}]: "quantity" is required for event with name ${name}.`
-        if(!isBatch) {
-          throw new PayloadValidationError(message)
-        }
-        else {
-          return message
-        }
-      }
     }
   }
 }

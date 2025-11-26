@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'ecommerceEvent'
+const actionSlug = 'ecommerce'
 const destinationSlug = 'Braze'
 const seedName = `${destinationSlug}#${actionSlug}`
 
@@ -21,23 +21,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
-    const products = [
-      {
-        product_id: 'prod-123',
-        quantity: 1,
-        product_name: 'Test Product',
-        price: 9.99,
-        currency: 'USD',
-        category: 'Test Category',
-        url: 'https://example.com/prod-123',
-        image_url: 'https://example.com/prod-123.jpg',
-        variant_id: 'Red'
-      }
-    ]
-
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: { ...event.properties, batch_size: 4, products },
+      mapping: { ...event.properties, batch_size: 4 },
       settings: settingsData,
       auth: undefined
     })
