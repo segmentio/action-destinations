@@ -62,6 +62,9 @@ const action: ActionDefinition<Settings, Payload> = {
         'Additional traits to include in the Memora profile. Each trait should specify the trait group, trait name, and trait value.',
       type: 'object',
       multiple: true,
+      required: false,
+      additionalProperties: false,
+      defaultObjectUI: 'arrayeditor',
       properties: {
         traitGroup: {
           label: 'Trait Group',
@@ -81,6 +84,22 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: false
         }
+      },
+      default: {
+        '@arrayPath': [
+          '$.properties',
+          {
+            traitGroup: {
+              '@path': '$.traitGroup'
+            },
+            traitName: {
+              '@path': '$.traitName'
+            },
+            traitValue: {
+              '@path': '$.traitValue'
+            }
+          }
+        ]
       }
     }
   },
