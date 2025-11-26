@@ -102,7 +102,7 @@ const action: ActionDefinition<Settings, Payload> = {
         session_start_time_usec: {
           label: 'Session Start Time',
           description:
-            "The timestamp of when the user's session began on your website. This helps track the duration of user visits. The format should be a full ISO 8601 string. For example \"2025-11-18T08:52:17.023Z\".",
+            'The timestamp of when the user\'s session began on your website. This helps track the duration of user visits. The format should be a full ISO 8601 string. For example "2025-11-18T08:52:17.023Z".',
           type: 'string',
           format: 'date-time'
         },
@@ -317,7 +317,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Data to Google Enhanced Conversions',
       description:
         'If true, Segment will batch events before sending to Google’s APIs. Google accepts batches of up to 2000 events.',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       default: false
     },
     batch_size: {
