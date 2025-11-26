@@ -1,13 +1,12 @@
 import { AMPLITUDE_ATTRIBUTION_KEYS } from '@segment/actions-shared'
 import { Payload } from './generated-types'
-
-export const DESTINATION_INTEGRATION_NAME = 'Actions Amplitude'
+import { UserProperties } from './types'
 
 function compact(object: { [k: string]: unknown } | undefined): boolean {
   return Object.keys(Object.fromEntries(Object.entries(object ?? {}).filter(([_, v]) => v !== ''))).length > 0
 }
 
-export function getUserProperties(payload: Payload): { [k: string]: unknown } {
+export function getUserProperties(payload: Payload): UserProperties {
     const { 
         setOnce, 
         setAlways,
@@ -33,14 +32,14 @@ export function getUserProperties(payload: Payload): { [k: string]: unknown } {
 
     const userProperties = {
       ...user_properties,
-      ...(compact(autocaptureAttributionEnabled ? { ...setOnce, ...autocaptureAttributionSetOnce } : setOnce)
-        ? { $setOnce: autocaptureAttributionEnabled ? { ...setOnce, ...autocaptureAttributionSetOnce } : setOnce }
+      ...(compact(autocaptureAttributionEnabled ? { ...setOnce, ...autocaptureAttributionSetOnce } as { [k: string]: string } : setOnce as { [k: string]: string })
+        ? { $setOnce: autocaptureAttributionEnabled ? { ...setOnce, ...autocaptureAttributionSetOnce } as { [k: string]: string }: setOnce as { [k: string]: string }}
         : {}),
-      ...(compact(autocaptureAttributionEnabled ? { ...setAlways, ...autocaptureAttributionSet } : setAlways)
-        ? { $set: autocaptureAttributionEnabled ? { ...setAlways, ...autocaptureAttributionSet } : setAlways }
+      ...(compact(autocaptureAttributionEnabled ? { ...setAlways, ...autocaptureAttributionSet } as { [k: string]: string }: setAlways as { [k: string]: string }) 
+        ? { $set: autocaptureAttributionEnabled ? { ...setAlways, ...autocaptureAttributionSet } as { [k: string]: string }: setAlways as { [k: string]: string }}
         : {}),
-      ...(compact(add) ? { $add: add } : {}),
-      ...(compact(autocaptureAttributionUnset) ? { $unset: autocaptureAttributionUnset } : {}),
+      ...(compact(add) ? { $add: add as { [k: string]: string } } : {}),
+      ...(compact(autocaptureAttributionUnset) ? { $unset: autocaptureAttributionUnset as { [k: string]: string } } : {}),
     }
 
     return userProperties

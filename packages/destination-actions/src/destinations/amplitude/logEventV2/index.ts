@@ -9,19 +9,9 @@ import { formatSessionId } from '../convert-timestamp'
 import { userAgentData } from '../properties'
 import { autocaptureFields } from './autocapture-fields'
 import { getUserProperties } from './autocapture-attribution'
+import { AmplitudeEvent, JSON } from './types'
+import { KEYS_TO_OMIT } from './constants'
 
-export interface AmplitudeEvent extends Omit<Payload, 'products' | 'time' | 'session_id'> {
-  library?: string
-  time?: number
-  session_id?: number
-  options?: {
-    min_id_length: number
-  }
-}
-
-const revenueKeys = ['revenue', 'price', 'productId', 'quantity', 'revenueType']
-const userPropertyKeys = ['setOnce', 'setAlways','add','autocaptureAttributionEnabled','autocaptureAttributionSet','autocaptureAttributionSetOnce','autocaptureAttributionUnset']
-const keysToOmit = [...revenueKeys, ...userPropertyKeys]
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Log Event V2',
   description: 'Send an event to Amplitude',
@@ -224,55 +214,40 @@ const action: ActionDefinition<Settings, Payload> = {
       userAgentParsing,
       includeRawUserAgent,
       userAgentData,
-      min_id_length,
+      min_id_length,      
+      platform,
       library,
+      user_id,
       ...rest
-    } = omit(payload, keysToOmit)
-    const properties = rest as AmplitudeEvent
-    let options
+    } = omit(payload, KEYS_TO_OMIT)
 
-    if (properties.platform) {
-      properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
+    const user_properties = getUserProperties(payload)
+
+    const event: AmplitudeEvent = {
+      ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
+      ...(includeRawUserAgent && { user_agent: userAgent }),
+      ...rest,
+      ...{ user_id: user_id || null },
+      ...(platform ? { platform: platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android') } : {}),
+      ...(library === 'analytics.js' && !platform ? { platform: 'Web' } : {}),
+      ...(time && dayjs.utc(time).isValid() ? { time: dayjs.utc(time).valueOf() } : {}),
+      ...(session_id && dayjs.utc(session_id).isValid() ? { session_id: formatSessionId(session_id) } : {}),
+      ...(typeof min_id_length === 'number' && min_id_length > 0 ? { options: { min_id_length } } : {}),
+      ...(user_properties ? { user_properties } : {}),
+      library: 'segment'
     }
 
-    if (library === 'analytics.js' && !properties.platform) {
-      properties.platform = 'Web'
+    const json: JSON = {
+      api_key: settings.apiKey,
+      events: [removeUndefined(event)],
+      ...(typeof min_id_length === 'number' && min_id_length > 0 ? { options: { min_id_length } } : {})
     }
-
-    if (time && dayjs.utc(time).isValid()) {
-      properties.time = dayjs.utc(time).valueOf()
-    }
-
-    if (session_id && dayjs.utc(session_id).isValid()) {
-      properties.session_id = formatSessionId(session_id)
-    }
-
-    if (min_id_length && min_id_length > 0) {
-      options = { min_id_length }
-    }
-
-    properties.user_properties = getUserProperties(payload)
-
-    const events: AmplitudeEvent[] = [
-      {
-        // Conditionally parse user agent using amplitude's library
-        ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
-        ...(includeRawUserAgent && { user_agent: userAgent }),
-        // Make sure any top-level properties take precedence over user-agent properties
-        ...removeUndefined(properties),
-        library: 'segment'
-      }
-    ]
-
+    
     const endpoint = getEndpointByRegion(payload.use_batch_endpoint ? 'batch' : 'httpapi', settings.endpoint)
 
     return request(endpoint, {
       method: 'post',
-      json: {
-        api_key: settings.apiKey,
-        events,
-        options
-      }
+      json
     })
   }
 }

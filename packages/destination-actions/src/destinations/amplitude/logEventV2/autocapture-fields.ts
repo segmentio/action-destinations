@@ -1,5 +1,5 @@
 import type { InputField } from '@segment/actions-core'
-import { DESTINATION_INTEGRATION_NAME } from './autocapture-attribution'
+import { DESTINATION_INTEGRATION_NAME } from './constants'
 
 export const autocaptureFields: Record<string, InputField> = {
     autocaptureAttributionEnabled: {
