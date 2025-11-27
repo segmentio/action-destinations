@@ -38,6 +38,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Contact information object containing email, firstName, lastName, and phone fields that will be placed in the Contact trait group in the Memora API call.',
       type: 'object',
+      required: false,
+      additionalProperties: true,
       properties: {
         email: {
           label: 'Email',
@@ -96,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Trait Value',
           description: 'The value of the trait',
           type: 'string',
-          required: false
+          required: true
         }
       },
       default: {
