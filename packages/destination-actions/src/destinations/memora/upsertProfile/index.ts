@@ -26,9 +26,9 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true
     },
     memora_store: {
-      label: 'Memory Store',
+      label: 'Memora Store',
       description:
-        'The Memory Store ID to use for this profile. This should be a valid Memory Store associated with your Twilio account.',
+        'The Memora Store ID to use for this profile. This should be a valid Memora Store associated with your Twilio account.',
       type: 'string',
       required: false,
       dynamic: true
