@@ -26,9 +26,9 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true
     },
     memora_store: {
-      label: 'Memory Store',
+      label: 'Memora Store',
       description:
-        'The Memory Store ID to use for this profile. This should be a valid Memory Store associated with your Twilio account.',
+        'The Memora Store ID to use for this profile. This should be a valid Memora Store associated with your Twilio account.',
       type: 'string',
       required: false,
       dynamic: true
@@ -38,6 +38,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Contact information object containing email, firstName, lastName, and phone fields that will be placed in the Contact trait group in the Memora API call.',
       type: 'object',
+      required: false,
+      additionalProperties: true,
       properties: {
         email: {
           label: 'Email',
@@ -96,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Trait Value',
           description: 'The value of the trait',
           type: 'string',
-          required: false
+          required: true
         }
       },
       default: {
