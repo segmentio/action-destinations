@@ -11,6 +11,20 @@ const action: ActionDefinition<Settings, Payload> = {
     'Create or update Memora profiles using the bulk upsert API. If a profile already exists, its traits are merged (new keys added, existing keys overwritten). Supports batching up to 1000 profiles.',
   defaultSubscription: 'type = "identify"',
   fields: {
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'Enable batching of requests to Memora. Batches can contain up to 1000 profiles.',
+      type: 'boolean',
+      default: true,
+      unsafe_hidden: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of profiles to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      default: 1000,
+      unsafe_hidden: true
+    },
     memora_store: {
       label: 'Memory Store',
       description:
