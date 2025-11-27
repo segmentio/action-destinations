@@ -1,7 +1,7 @@
 import nock from 'nock'
 import createRequestClient from '../../../../../core/src/create-request-client'
 import Salesforce, { authenticateWithPassword } from '../sf-operations'
-import { API_VERSION } from '../sf-operations'
+import { SALESFORCE_API_VERSION } from '../versioning-info'
 import type { GenericPayload } from '../sf-types'
 import { Settings } from '../generated-types'
 
@@ -25,7 +25,7 @@ describe('Salesforce', () => {
     it('should lookup based on a single trait', async () => {
       const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'sponge@seamail.com'`)
 
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`)
         .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
@@ -33,7 +33,9 @@ describe('Salesforce', () => {
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`)
+        .patch('/Lead/123456')
+        .reply(201, {})
 
       await sf.updateRecord(
         {
@@ -48,7 +50,7 @@ describe('Salesforce', () => {
     it('should lookup based on a single trait of type number', async () => {
       const query = encodeURIComponent(`SELECT Id FROM Lead WHERE NumberOfEmployees = 2`)
 
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`)
         .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
@@ -56,7 +58,9 @@ describe('Salesforce', () => {
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`)
+        .patch('/Lead/123456')
+        .reply(201, {})
 
       await sf.updateRecord(
         {
@@ -72,7 +76,7 @@ describe('Salesforce', () => {
       const query = encodeURIComponent(
         `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`
       )
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`)
         .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
@@ -80,7 +84,9 @@ describe('Salesforce', () => {
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`)
+        .patch('/Lead/123456')
+        .reply(201, {})
 
       await sf.updateRecord(
         {
@@ -95,7 +101,7 @@ describe('Salesforce', () => {
 
     it('should lookup based on multiple traits of different datatypes', async () => {
       const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR isDeleted = false`)
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`)
         .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
@@ -103,7 +109,9 @@ describe('Salesforce', () => {
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`)
+        .patch('/Lead/123456')
+        .reply(201, {})
 
       await sf.updateRecord(
         {
@@ -120,7 +128,7 @@ describe('Salesforce', () => {
       const query = encodeURIComponent(
         `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR isDeleted = false OR NumberOfEmployees = 3`
       )
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`)
         .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
@@ -128,7 +136,9 @@ describe('Salesforce', () => {
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`)
+        .patch('/Lead/123456')
+        .reply(201, {})
 
       await sf.updateRecord(
         {
@@ -146,7 +156,7 @@ describe('Salesforce', () => {
       const query = encodeURIComponent(
         `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' AND isDeleted = false AND NumberOfEmployees = 3`
       )
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`)
         .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
@@ -154,7 +164,9 @@ describe('Salesforce', () => {
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`)
+        .patch('/Lead/123456')
+        .reply(201, {})
 
       await sf.updateRecord(
         {
@@ -200,7 +212,7 @@ describe('Salesforce', () => {
 
     it('should fail when a record is not found', async () => {
       const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'sponge@seamail.com'`)
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
         totalSize: 0
       })
 
@@ -218,7 +230,7 @@ describe('Salesforce', () => {
 
     it('should fail when multiple records are found', async () => {
       const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'sponge@seamail.com'`)
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
         totalSize: 15
       })
 
@@ -239,11 +251,11 @@ describe('Salesforce', () => {
         const query = encodeURIComponent(
           `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`
         )
-        nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+        nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
           totalSize: 0
         })
 
-        nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+        nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
         await sf.upsertRecord(
           {
@@ -262,7 +274,7 @@ describe('Salesforce', () => {
         const query = encodeURIComponent(
           `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`
         )
-        nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+        nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
           totalSize: 10
         })
 
@@ -285,7 +297,7 @@ describe('Salesforce', () => {
         const query = encodeURIComponent(
           `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty Krab'`
         )
-        nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`)
           .get(`/?q=${query}`)
           .reply(201, {
             Id: 'abc123',
@@ -293,7 +305,9 @@ describe('Salesforce', () => {
             records: [{ Id: '123456' }]
           })
 
-        nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+        nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`)
+          .patch('/Lead/123456')
+          .reply(201, {})
 
         await sf.upsertRecord(
           {
@@ -340,7 +354,7 @@ describe('Salesforce', () => {
         const query = encodeURIComponent(
           `SELECT Id FROM Lead WHERE email = 'sponge@seamail.com' OR company = 'Krusty\\'s Krab'`
         )
-        nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`)
           .get(`/?q=${query}`)
           .reply(201, {
             Id: 'abc123',
@@ -348,7 +362,9 @@ describe('Salesforce', () => {
             records: [{ Id: '123456' }]
           })
 
-        nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+        nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`)
+          .patch('/Lead/123456')
+          .reply(201, {})
 
         await sf.upsertRecord(
           {
@@ -367,7 +383,7 @@ describe('Salesforce', () => {
         const query = encodeURIComponent(
           `SELECT Id FROM Lead WHERE email__cs = 'sponge@seamail.com' OR company = 'Krusty\\'s Krab'`
         )
-        nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`)
           .get(`/?q=${query}`)
           .reply(201, {
             Id: 'abc123',
@@ -375,7 +391,9 @@ describe('Salesforce', () => {
             records: [{ Id: '123456' }]
           })
 
-        nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+        nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`)
+          .patch('/Lead/123456')
+          .reply(201, {})
 
         await sf.upsertRecord(
           {
@@ -393,7 +411,9 @@ describe('Salesforce', () => {
 
     describe('delete', () => {
       it('should delete a record given some ID', async () => {
-        nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).delete('/Lead/abc123').reply(201, {})
+        nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`)
+          .delete('/Lead/abc123')
+          .reply(201, {})
 
         await sf.deleteRecord(
           {
@@ -407,14 +427,16 @@ describe('Salesforce', () => {
 
       it('should lookup and delete a record given some traits', async () => {
         const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'bob@bobsburgers.net'`)
-        nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`)
           .get(`/?q=${query}`)
           .reply(201, {
             totalSize: 1,
             records: [{ Id: 'abc123' }]
           })
 
-        nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).delete('/Lead/abc123').reply(201, {})
+        nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`)
+          .delete('/Lead/abc123')
+          .reply(201, {})
 
         await sf.deleteRecord(
           {
@@ -429,7 +451,7 @@ describe('Salesforce', () => {
       it('should fail when multiple records are found on lookup', async () => {
         const query = encodeURIComponent(`SELECT Id FROM Lead WHERE email = 'bob@bobsburgers.net'`)
 
-        nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+        nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
           totalSize: 2
         })
 
@@ -552,7 +574,7 @@ describe('Salesforce', () => {
 
     it('should correctly insert a batch of records', async () => {
       //create bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest`)
         .post('', {
           object: 'Account',
           operation: 'insert',
@@ -565,7 +587,7 @@ describe('Salesforce', () => {
       const CSV = `Name,Phone,Description\n"SpongeBob Squarepants","1234567890","Krusty Krab"\n"Squidward Tentacles","1234567891","Krusty Krab"\n`
 
       //upload csv
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123/batches`, {
         reqheaders: {
           'Content-Type': 'text/csv',
           Accept: 'application/json'
@@ -575,7 +597,7 @@ describe('Salesforce', () => {
         .reply(201, {})
 
       //close bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123`)
         .patch('', {
           state: 'UploadComplete'
         })
@@ -586,7 +608,7 @@ describe('Salesforce', () => {
 
     it('should correctly upsert a batch of records', async () => {
       //create bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest`)
         .post('', {
           object: 'Account',
           externalIdFieldName: 'test__c',
@@ -600,7 +622,7 @@ describe('Salesforce', () => {
       const CSV = `Name,Phone,Description,test__c\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n`
 
       //upload csv
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123/batches`, {
         reqheaders: {
           'Content-Type': 'text/csv',
           Accept: 'application/json'
@@ -610,7 +632,7 @@ describe('Salesforce', () => {
         .reply(201, {})
 
       //close bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123`)
         .patch('', {
           state: 'UploadComplete'
         })
@@ -621,7 +643,7 @@ describe('Salesforce', () => {
 
     it('should correctly parse the customFields object', async () => {
       //create bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest`)
         .post('', {
           object: 'Account',
           externalIdFieldName: 'test__c',
@@ -635,7 +657,7 @@ describe('Salesforce', () => {
       const CSV = `Name,Phone,Description,TickerSymbol,test__c\n"SpongeBob Squarepants","1234567890","Krusty Krab","KRAB","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","KRAB","cd"\n`
 
       //upload csv
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/xyz987/batches`, {
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/xyz987/batches`, {
         reqheaders: {
           'Content-Type': 'text/csv',
           Accept: 'application/json'
@@ -645,7 +667,7 @@ describe('Salesforce', () => {
         .reply(201, {})
 
       //close bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/xyz987`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/xyz987`)
         .patch('', {
           state: 'UploadComplete'
         })
@@ -656,7 +678,7 @@ describe('Salesforce', () => {
 
     it('should correctly update a batch of records', async () => {
       //create bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest`)
         .post('', {
           object: 'Account',
           externalIdFieldName: 'Id',
@@ -670,7 +692,7 @@ describe('Salesforce', () => {
       const CSV = `Name,Phone,Description,Id\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n`
 
       //upload csv
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123/batches`, {
         reqheaders: {
           'Content-Type': 'text/csv',
           Accept: 'application/json'
@@ -680,7 +702,7 @@ describe('Salesforce', () => {
         .reply(201, {})
 
       //close bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123`)
         .patch('', {
           state: 'UploadComplete'
         })
@@ -700,7 +722,7 @@ describe('Salesforce', () => {
       }
 
       //create bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest`)
         .post('', {
           object: 'Account',
           externalIdFieldName: 'Id',
@@ -714,7 +736,7 @@ describe('Salesforce', () => {
       const CSV = `Name,Phone,Description,Id\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n"Plankton","123-evil","Proprietor of the 1 star restaurant, The Chum Bucket","#N/A"\n`
 
       //upload csv
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123/batches`, {
         reqheaders: {
           'Content-Type': 'text/csv',
           Accept: 'application/json'
@@ -724,7 +746,7 @@ describe('Salesforce', () => {
         .reply(201, {})
 
       //close bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123`)
         .patch('', {
           state: 'UploadComplete'
         })
@@ -870,7 +892,7 @@ describe('Salesforce', () => {
 
     it('should correctly insert a batch of records', async () => {
       //create bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest`)
         .post('', {
           object: 'Account',
           operation: 'insert', // I think it was a mistake because the operation is 'create' in the payload. Please advise @nick.
@@ -884,7 +906,7 @@ describe('Salesforce', () => {
       const CSV = `Name,Phone,Description\n"SpongeBob Squarepants","1234567890","Krusty Krab"\n"Squidward Tentacles","1234567891","Krusty Krab"\n`
 
       //upload csv
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123/batches`, {
         reqheaders: {
           'Content-Type': 'text/csv',
           Accept: 'application/json'
@@ -894,7 +916,7 @@ describe('Salesforce', () => {
         .reply(201, {})
 
       //close bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123`)
         .patch('', {
           state: 'UploadComplete'
         })
@@ -905,7 +927,7 @@ describe('Salesforce', () => {
 
     it('should correctly upsert a batch of records', async () => {
       //create bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest`)
         .post('', {
           object: 'Account',
           externalIdFieldName: 'test__c',
@@ -919,7 +941,7 @@ describe('Salesforce', () => {
       const CSV = `Name,Phone,Description,test__c\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n`
 
       //upload csv
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123/batches`, {
         reqheaders: {
           'Content-Type': 'text/csv',
           Accept: 'application/json'
@@ -929,7 +951,7 @@ describe('Salesforce', () => {
         .reply(201, {})
 
       //close bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123`)
         .patch('', {
           state: 'UploadComplete'
         })
@@ -940,7 +962,7 @@ describe('Salesforce', () => {
 
     it('should correctly parse the customFields object', async () => {
       //create bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest`)
         .post('', {
           object: 'Account',
           externalIdFieldName: 'test__c',
@@ -954,7 +976,7 @@ describe('Salesforce', () => {
       const CSV = `Name,Phone,Description,TickerSymbol,test__c\n"SpongeBob Squarepants","1234567890","Krusty Krab","KRAB","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","KRAB","cd"\n`
 
       //upload csv
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/xyz987/batches`, {
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/xyz987/batches`, {
         reqheaders: {
           'Content-Type': 'text/csv',
           Accept: 'application/json'
@@ -964,7 +986,7 @@ describe('Salesforce', () => {
         .reply(201, {})
 
       //close bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/xyz987`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/xyz987`)
         .patch('', {
           state: 'UploadComplete'
         })
@@ -975,7 +997,7 @@ describe('Salesforce', () => {
 
     it('should correctly update a batch of records', async () => {
       //create bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest`)
         .post('', {
           object: 'Account',
           externalIdFieldName: 'Id',
@@ -989,7 +1011,7 @@ describe('Salesforce', () => {
       const CSV = `Name,Phone,Description,Id\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n`
 
       //upload csv
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123/batches`, {
         reqheaders: {
           'Content-Type': 'text/csv',
           Accept: 'application/json'
@@ -999,7 +1021,7 @@ describe('Salesforce', () => {
         .reply(201, {})
 
       //close bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123`)
         .patch('', {
           state: 'UploadComplete'
         })
@@ -1019,7 +1041,7 @@ describe('Salesforce', () => {
       }
 
       //create bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest`)
         .post('', {
           object: 'Account',
           externalIdFieldName: 'Id',
@@ -1033,7 +1055,7 @@ describe('Salesforce', () => {
       const CSV = `Name,Phone,Description,Id\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n"Plankton","123-evil","Proprietor of the 1 star restaurant, The Chum Bucket","#N/A"\n`
 
       //upload csv
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123/batches`, {
         reqheaders: {
           'Content-Type': 'text/csv',
           Accept: 'application/json'
@@ -1043,7 +1065,7 @@ describe('Salesforce', () => {
         .reply(201, {})
 
       //close bulk job
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/abc123`)
         .patch('', {
           state: 'UploadComplete'
         })
