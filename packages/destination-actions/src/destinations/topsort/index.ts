@@ -10,6 +10,7 @@ import impressionsList from './impressionsList'
 import click from './click'
 
 import purchase from './purchase'
+import pageviews from './pageviews'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Topsort',
@@ -77,13 +78,21 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'click',
       mapping: defaultValues(click.fields),
       type: 'automatic'
+    },
+    {
+      name: 'Page Views',
+      subscribe: 'type = "page" or type = "screen"',
+      partnerAction: 'pageviews',
+      mapping: defaultValues(pageviews.fields),
+      type: 'automatic'
     }
   ],
   actions: {
     impression,
     impressionsList,
     click,
-    purchase
+    purchase,
+    pageviews
   }
 }
 

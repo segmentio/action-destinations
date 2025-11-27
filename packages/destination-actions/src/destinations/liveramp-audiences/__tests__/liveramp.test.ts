@@ -6,12 +6,6 @@ import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME } from
 
 const testDestination = createTestIntegration(Destination)
 
-const mockAwsCredentials = {
-  accessKeyId: 'accessKeyId',
-  secretAccessKey: 'secretAccessKey',
-  sessionToken: 'sessionToken'
-}
-
 const mockedEvents: SegmentEvent[] = Array.from({ length: 50 }, (_, i) => ({
   messageId: `segment-test-message-00000${i + 2}`,
   timestamp: '2023-07-26T15:23:39.803Z',
@@ -22,12 +16,29 @@ const mockedEvents: SegmentEvent[] = Array.from({ length: 50 }, (_, i) => ({
   event: 'Audience Entered'
 }))
 
+let s3MetadataPayload: unknown = null
+jest.mock('@aws-sdk/client-s3', () => ({
+  S3Client: jest.fn().mockImplementation(() => ({
+    send: jest.fn().mockImplementation((command) => {
+      if (command.input?.Key?.includes('meta.json')) {
+        s3MetadataPayload = JSON.parse(command.input.Body)
+      }
+      return Promise.resolve({
+        $metadata: { httpStatusCode: 200 }
+      })
+    })
+  })),
+  PutObjectCommand: jest.fn().mockImplementation((input) => ({
+    constructor: { name: 'PutObjectCommand' },
+    input
+  }))
+}))
+
 describe('Liveramp Audiences', () => {
-  let s3MetadataPayload: unknown = null
   beforeEach(() => {
     jest.clearAllMocks()
     jest.resetModules()
-
+    s3MetadataPayload = null
     jest.spyOn(fs, 'readFileSync').mockReturnValue('token')
 
     nock('https://kubernetes.default.svc')
@@ -39,42 +50,6 @@ describe('Liveramp Audiences', () => {
           }
         }
       })
-
-    nock('https://sts.us-west-2.amazonaws.com/')
-      .get(
-        `/?` +
-          `Action=AssumeRoleWithWebIdentity` +
-          `&DurationSeconds=3600` +
-          `&RoleSessionName=integrations-monoservice` +
-          `&RoleArn=arn:aws:iam::123456789012:role/role-name` +
-          `&WebIdentityToken=token` +
-          `&Version=2011-06-15`
-      )
-      .reply(200, {
-        AssumeRoleWithWebIdentityResponse: {
-          AssumeRoleWithWebIdentityResult: {
-            Credentials: {
-              accessKeyId: mockAwsCredentials.accessKeyId,
-              secretAccessKey: mockAwsCredentials.secretAccessKey,
-              sessionToken: mockAwsCredentials.sessionToken
-            }
-          }
-        }
-      })
-
-    // capture request body in
-    nock('https://integrations-outbound-event-store-test-us-west-2.s3.us-west-2.amazonaws.com')
-      .put(
-        /\/actions-liveramp-audiences\/destinationConfigId\/actionConfigId\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\.csv$/
-      )
-      .reply(200)
-
-    nock('https://integrations-outbound-event-store-test-us-west-2.s3.us-west-2.amazonaws.com')
-      .put('/actions-liveramp-audiences/destinationConfigId/actionConfigId/meta.json', (reqbody: any) => {
-        s3MetadataPayload = reqbody
-        return true
-      })
-      .reply(200)
   })
   describe('audienceEnteredS3', () => {
     it('should send events with valid payload size and events', async () => {
