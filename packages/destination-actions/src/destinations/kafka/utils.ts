@@ -161,23 +161,14 @@ export const getOrCreateProducer = async (
 
   const kafka = getKafka(settings)
   const producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner })
-  try {
-    await producer.connect()
-    statsContext?.statsClient?.incr('kafka_connection_opened', 1, statsContext?.tags)
-    producersByConfig[key] = {
-      producer,
-      isConnected: true,
-      lastUsed: now
-    }
-    return producer
-  } catch (error) {
-    try {
-      await producer.disconnect()
-    } catch {
-      // Ignore disconnect errors
-    }
-    throw error
+  await producer.connect()
+  statsContext?.statsClient?.incr('kafka_connection_opened', 1, statsContext?.tags)
+  producersByConfig[key] = {
+    producer,
+    isConnected: true,
+    lastUsed: now
   }
+  return producer
 }
 
 function getKafkaError(error: Error) {
@@ -237,10 +228,8 @@ export const sendData = async (
   }))
 
   let producer: Producer
-  const useConnectionPool = features && features[FLAGON_NAME]
-
   try {
-    if (useConnectionPool) {
+    if (features && features[FLAGON_NAME]) {
       producer = await getOrCreateProducer(settings, statsContext)
     } else {
       producer = getProducer(settings)
@@ -261,33 +250,25 @@ export const sendData = async (
     }
   }
 
-  try {
-    for (const data of topicMessages) {
+  for (const data of topicMessages) {
+    try {
       await producer.send(data as ProducerRecord)
-    }
-
-    if (useConnectionPool) {
-      const key = serializeKafkaConfig(settings)
-      if (producersByConfig[key]) {
-        producersByConfig[key].lastUsed = Date.now()
-      }
-    }
-  } catch (error) {
-    const kafkaError = getKafkaError(error as Error)
-    logger?.crit(`Kafka Send Error - ${kafkaError.name} | ${JSON.stringify(kafkaError)}`)
-
-    if (useConnectionPool) {
-      const key = serializeKafkaConfig(settings)
-      delete producersByConfig[key]
-    }
-
-    throw new IntegrationError(`Kafka Producer Error - ${kafkaError.name}: ${kafkaError.message}`, kafkaError.name, 500)
-  } finally {
-    if (!useConnectionPool) {
-      try {
+    } catch (error) {
+      const kafkaError = getKafkaError(error as Error)
+      logger?.crit(`Kafka Send Error - ${kafkaError.name} | ${JSON.stringify(kafkaError)}`)
+      throw new IntegrationError(
+        `Kafka Producer Error - ${kafkaError.name}: ${kafkaError.message}`,
+        kafkaError.name,
+        500
+      )
+    } finally {
+      if (features && features[FLAGON_NAME]) {
+        const key = serializeKafkaConfig(settings)
+        if (producersByConfig[key]) {
+          producersByConfig[key].lastUsed = Date.now()
+        }
+      } else {
         await producer?.disconnect()
-      } catch {
-        // Ignore disconnect errors
       }
     }
   }
