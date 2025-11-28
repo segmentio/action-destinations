@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { TALON_ONE_API_VERSION } from '../versioning-info'
 import { attribute, customerProfileId } from '../t1-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -40,7 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    let requestUrl = `https://integration.talon.one/segment/v2/events`
+    let requestUrl = `https://integration.talon.one/segment/${TALON_ONE_API_VERSION}/events`
     if (payload.skipNonExistingAttributes) {
       requestUrl += '?skipNonExistingAttributes=true'
     }
