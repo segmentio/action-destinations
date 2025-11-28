@@ -4,6 +4,7 @@ import type { ModifiedResponse } from '@segment/actions-core'
 import { CredsObj, YahooSubTaxonomy, TokenResponse } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { StatsClient } from '@segment/actions-core/destination-kit'
+import { YAHOO_AUDIENCES_TAXONOMY_API_VERSION } from './versioning-info'
 
 export function gen_customer_taxonomy_payload(settings: Settings) {
   const data = {
@@ -106,13 +107,14 @@ export async function update_taxonomy(
 ) {
   const tx_client_secret = tx_creds.tx_client_secret
   const tx_client_key = tx_creds.tx_client_key
-  const url = `https://datax.yahooapis.com/v1/taxonomy/append${engage_space_id.length > 0 ? '/' + engage_space_id : ''}`
+  const url = `https://datax.yahooapis.com/${YAHOO_AUDIENCES_TAXONOMY_API_VERSION}/taxonomy/append${
+    engage_space_id.length > 0 ? '/' + engage_space_id : ''
+  }`
 
   const prefixed_tx_client_key = `idb2b.dsp.datax.${tx_client_key}`
 
   // Get a short-lived Bearer token using the same JWT client-credentials flow as the Online API
   const access_token = await get_taxonomy_access_token(request, prefixed_tx_client_key, tx_client_secret)
-
   try {
     const add_segment_node = await request(url, {
       method: 'PUT',
