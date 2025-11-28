@@ -179,7 +179,7 @@ describe('Facebook Custom Audiences', () => {
       ]
 
       expect(() => generateData(payloads)).toThrowError(
-        'Invalid value for phone. After normalization, the value is empty. Provide either a valid value or an empty one.'
+        'Invalid value for phone. After normalization, the value is empty. Please provide a valid phone value, or omit this field entirely.'
       )
       expect(() => generateData(payloads)).toThrowError(PayloadValidationError)
     })
