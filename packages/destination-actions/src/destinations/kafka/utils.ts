@@ -83,7 +83,8 @@ const getKafka = (settings: Settings) => {
     })(),
     retry: {
       retries: 0
-    }
+    },
+    connectionTimeout: 1
   } as unknown as KafkaConfig
 
   try {
