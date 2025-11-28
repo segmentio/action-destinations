@@ -1,16 +1,10 @@
-import { ActionDefinition, omit, removeUndefined } from '@segment/actions-core'
-import dayjs from 'dayjs'
+import { ActionDefinition} from '@segment/actions-core'
 import { eventSchema } from '../event-schema'
 import type { Settings } from '../generated-types'
-import { getEndpointByRegion } from '../regional-endpoints'
-import { parseUserAgentProperties } from '../user-agent'
 import type { Payload } from './generated-types'
-import { formatSessionId } from '../convert-timestamp'
 import { userAgentData } from '../properties'
 import { autocaptureFields } from './autocapture-fields'
-import { getUserProperties } from './autocapture-attribution'
-import { AmplitudeEvent, JSON } from './types'
-import { KEYS_TO_OMIT } from './constants'
+import { send } from './autocapture-attribution'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Log Event V2',
@@ -207,48 +201,7 @@ const action: ActionDefinition<Settings, Payload> = {
     userAgentData
   },
   perform: (request, { payload, settings }) => {
-    const {
-      time,
-      session_id,
-      userAgent,
-      userAgentParsing,
-      includeRawUserAgent,
-      userAgentData,
-      min_id_length,      
-      platform,
-      library,
-      user_id,
-      ...rest
-    } = omit(payload, KEYS_TO_OMIT)
-
-    const user_properties = getUserProperties(payload)
-
-    const event: AmplitudeEvent = {
-      ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
-      ...(includeRawUserAgent && { user_agent: userAgent }),
-      ...rest,
-      ...{ user_id: user_id || null },
-      ...(platform ? { platform: platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android') } : {}),
-      ...(library === 'analytics.js' && !platform ? { platform: 'Web' } : {}),
-      ...(time && dayjs.utc(time).isValid() ? { time: dayjs.utc(time).valueOf() } : {}),
-      ...(session_id && dayjs.utc(session_id).isValid() ? { session_id: formatSessionId(session_id) } : {}),
-      ...(typeof min_id_length === 'number' && min_id_length > 0 ? { options: { min_id_length } } : {}),
-      ...(user_properties ? { user_properties } : {}),
-      library: 'segment'
-    }
-
-    const json: JSON = {
-      api_key: settings.apiKey,
-      events: [removeUndefined(event)],
-      ...(typeof min_id_length === 'number' && min_id_length > 0 ? { options: { min_id_length } } : {})
-    }
-    
-    const endpoint = getEndpointByRegion(payload.use_batch_endpoint ? 'batch' : 'httpapi', settings.endpoint)
-
-    return request(endpoint, {
-      method: 'post',
-      json
-    })
+    return send(request, payload, settings, false)
   }
 }
 

@@ -1,6 +1,6 @@
 import { ParsedUA } from '../user-agent'
 
-export interface AmplitudeEvent {
+export interface AmplitudeEvent extends EventRevenue {
   user_id?: string | null
   device_id?: string
   event_type: string
@@ -22,11 +22,6 @@ export interface AmplitudeEvent {
   city?: string
   dma?: string
   language?: string
-  price?: number
-  quantity?: number
-  revenue?: number
-  productId?: string
-  revenueType?: string
   location_lat?: number
   location_lng?: number
   ip?: string
@@ -46,11 +41,19 @@ export interface AmplitudeEvent {
   }
 }
 
+export interface EventRevenue {
+  revenue?: number
+  price?: number
+  productId?: string
+  quantity?: number
+  revenueType?: string
+}
+
 export interface UserProperties {
-  $set?: { [k: string]: string }
-  $setOnce?: { [k: string]: string }
-  $unset?: { [k: string]: string }
-  $add?: { [k: string]: string }
+  $set?: Record<string, string>
+  $setOnce?: Record<`initial_${string}`, string>
+  $unset?: Record<string, string>
+  $add?: Record<string, string>
   [k: string]: unknown
 }
 
