@@ -4,7 +4,7 @@ import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions
 import { EmptyValueError, processHashing } from '../../lib/hashing-utils'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { API_VERSION, BASE_URL, CANARY_API_VERSION, FACEBOOK_CUSTOM_AUDIENCE_FLAGON } from './constants'
-import { PayloadValidationError } from '@segment/actions-core/*'
+import { PayloadValidationError } from '@segment/actions-core'
 
 // exported for unit testing
 

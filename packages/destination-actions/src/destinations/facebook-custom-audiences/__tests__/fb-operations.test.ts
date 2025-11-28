@@ -4,7 +4,7 @@ import { Settings } from '../generated-types'
 import nock from 'nock'
 import { Payload } from '../sync/generated-types'
 import { normalizationFunctions } from '../fbca-properties'
-import { Features, PayloadValidationError } from '@segment/actions-core/*'
+import { Features, PayloadValidationError } from '@segment/actions-core'
 import { API_VERSION, BASE_URL, CANARY_API_VERSION } from '../constants'
 import { processHashing } from '../../../lib/hashing-utils'
 
