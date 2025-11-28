@@ -3,8 +3,8 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { userAgentData } from '../properties'
-import { autocaptureFields } from '../logEventV2/autocapture-fields'
-import { send } from '../logEventV2/autocapture-attribution'
+import { autocaptureFields } from '../autocapture-fields'
+import { send } from '../events-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Log Purchase',

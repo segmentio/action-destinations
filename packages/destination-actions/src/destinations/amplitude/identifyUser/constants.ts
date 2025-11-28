@@ -1,0 +1,1 @@
+export const KEYS_TO_OMIT = ['utm_properties', 'referrer','autocaptureAttributionEnabled','autocaptureAttributionSet','autocaptureAttributionSetOnce','autocaptureAttributionUnset']

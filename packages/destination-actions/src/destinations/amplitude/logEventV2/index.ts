@@ -3,8 +3,8 @@ import { eventSchema } from '../event-schema'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { userAgentData } from '../properties'
-import { autocaptureFields } from './autocapture-fields'
-import { send } from './autocapture-attribution'
+import { autocaptureFields } from '../autocapture-fields'
+import { send } from '../events-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Log Event V2',

@@ -1,5 +1,5 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { getEndpointByRegion } from '../regional-endpoints'
+import { getEndpointByRegion } from '../common-functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 

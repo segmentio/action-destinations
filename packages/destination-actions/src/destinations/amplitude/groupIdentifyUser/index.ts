@@ -2,7 +2,8 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
-import { getEndpointByRegion } from '../regional-endpoints'
+import { getEndpointByRegion } from '../common-functions'
+import { user_id, device_id, insert_id, time, min_id_length } from '../fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group Identify User',
@@ -11,43 +12,12 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "group"',
   fields: {
     user_id: {
-      label: 'User ID',
-      type: 'string',
-      allowNull: true,
-      description:
-        'A UUID (unique user ID) specified by you. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event. If either user ID or device ID is present, an associate user to group call will be made.',
-      default: {
-        '@path': '$.userId'
-      }
+      ...user_id,
+      description: 'A UUID (unique user ID) specified by you. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event. If either user ID or device ID is present, an associate user to group call will be made.'
     },
-    device_id: {
-      label: 'Device ID',
-      type: 'string',
-      description:
-        'A device specific identifier, such as the Identifier for Vendor (IDFV) on iOS. If either user ID or device ID is present, an associate user to group call will be made.',
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.device.id' },
-          then: { '@path': '$.context.device.id' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
-    },
-    insert_id: {
-      label: 'Insert ID',
-      type: 'string',
-      description:
-        'Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time.'
-    },
-    time: {
-      label: 'Timestamp',
-      type: 'string',
-      description:
-        'The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.',
-      default: {
-        '@path': '$.timestamp'
-      }
-    },
+    device_id,
+    insert_id,
+    time,
     group_properties: {
       label: 'Group Properties',
       type: 'object',
@@ -68,13 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The value of the group',
       required: true
     },
-    min_id_length: {
-      label: 'Minimum ID Length',
-      description:
-        'Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
-      allowNull: true,
-      type: 'integer'
-    }
+    min_id_length
   },
   perform: async (request, { payload, settings }) => {
     const groupAssociation = { [payload.group_type]: payload.group_value }

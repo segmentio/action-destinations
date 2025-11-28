@@ -2,6 +2,28 @@
 
 export interface Payload {
   /**
+   * Utility field used to detect if Autocapture Attribution Plugin is enabled.
+   */
+  autocaptureAttributionEnabled?: boolean
+  /**
+   * Utility field used to detect if any attribution values need to be set.
+   */
+  autocaptureAttributionSet?: {
+    [k: string]: unknown
+  }
+  /**
+   * Utility field used to detect if any attribution values need to be set_once.
+   */
+  autocaptureAttributionSetOnce?: {
+    [k: string]: unknown
+  }
+  /**
+   * Utility field used to detect if any attribution values need to be unset.
+   */
+  autocaptureAttributionUnset?: {
+    [k: string]: unknown
+  }
+  /**
    * A UUID (unique user ID) specified by you. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event. Required unless device ID is present.
    */
   user_id?: string | null

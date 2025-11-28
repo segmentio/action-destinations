@@ -6,7 +6,7 @@ import mapUser from './mapUser'
 import groupIdentifyUser from './groupIdentifyUser'
 import logPurchase from './logPurchase'
 import type { Settings } from './generated-types'
-import { getEndpointByRegion } from './regional-endpoints'
+import { getEndpointByRegion } from './common-functions'
 
 import logEventV2 from './logEventV2'
 

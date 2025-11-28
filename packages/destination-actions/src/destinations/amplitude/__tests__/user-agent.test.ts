@@ -1,4 +1,4 @@
-import { parseUserAgentProperties } from '../user-agent'
+import { parseUserAgentProperties } from '../common-functions'
 
 describe('amplitude - custom user agent parsing', () => {
   it('should parse custom user agent', () => {

@@ -1,6 +1,6 @@
-import { ParsedUA } from '../user-agent'
+export type Region = 'north_america' | 'europe'
 
-export interface AmplitudeEvent extends EventRevenue {
+export interface AmplitudeEventJSON extends EventRevenue {
   user_id?: string | null
   device_id?: string
   event_type: string
@@ -11,11 +11,7 @@ export interface AmplitudeEvent extends EventRevenue {
   groups?: Record<string, unknown>
   app_version?: string
   platform?: string
-  os_name?: string
-  os_version?: string
   device_brand?: string
-  device_manufacturer?: string
-  device_model?: string
   carrier?: string
   country?: string
   region?: string
@@ -34,11 +30,20 @@ export interface AmplitudeEvent extends EventRevenue {
   library?: string
   use_batch_endpoint?: boolean
   user_agent?: ParsedUA | string
-  includeRawUserAgent?: boolean
-  userAgentData?: {
-    model?: string
-    platformVersion?: string
-  }
+  userAgentData?: UserAgentData
+}
+
+export interface ParsedUA {
+  os_name?: string
+  os_version?: string
+  device_model?: string
+  device_type?: string
+  device_manufacturer?: string
+}
+
+export interface UserAgentData {
+  model?: string
+  platformVersion?: string
 }
 
 export interface EventRevenue {
@@ -57,9 +62,9 @@ export interface UserProperties {
   [k: string]: unknown
 }
 
-export interface JSON {
+export interface JSON_PAYLOAD {
   api_key: string
-  events: AmplitudeEvent[]
+  events: AmplitudeEventJSON[]
   options?: {
     min_id_length: number
   }
