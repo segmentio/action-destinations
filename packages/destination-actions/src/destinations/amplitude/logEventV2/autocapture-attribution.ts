@@ -1,4 +1,5 @@
 import { AMPLITUDE_ATTRIBUTION_KEYS } from '@segment/actions-shared'
+import { Payload as LogEventPayload} from '../logEvent/generated-types'
 import { Payload as LogEventV2Payload} from './generated-types'
 import { Payload as PurchasePayload } from '../logPurchase/generated-types'
 import { UserProperties, EventRevenue, AmplitudeEvent, JSON } from './types'
@@ -10,7 +11,7 @@ import { formatSessionId } from '../convert-timestamp'
 import { getEndpointByRegion } from '../regional-endpoints'
 import dayjs from '../../../lib/dayjs'
 
-export function send(request: RequestClient, payload: LogEventV2Payload | PurchasePayload, settings: Settings, isPurchaseEvent: boolean) {
+export function send(request: RequestClient, payload: LogEventPayload | LogEventV2Payload | PurchasePayload, settings: Settings, isPurchaseEvent: boolean) {
   const {
     time,
     session_id,
@@ -75,7 +76,7 @@ export function send(request: RequestClient, payload: LogEventV2Payload | Purcha
   })
 }
 
-function getUserProperties(payload: LogEventV2Payload | PurchasePayload): UserProperties {
+function getUserProperties(payload: LogEventPayload | LogEventV2Payload | PurchasePayload): UserProperties {
     const { 
         autocaptureAttributionEnabled,
         autocaptureAttributionSet,

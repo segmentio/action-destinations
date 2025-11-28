@@ -1079,9 +1079,7 @@ describe('Amplitude', () => {
           "events": Array [
             Object {
               "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
-              "device_manufacturer": undefined,
               "device_model": "Mac OS",
-              "device_type": undefined,
               "event_properties": Object {},
               "event_type": "Test Event",
               "library": "segment",
@@ -1093,7 +1091,6 @@ describe('Amplitude', () => {
               "user_properties": Object {},
             },
           ],
-          "options": undefined,
         }
       `)
     })
@@ -1147,7 +1144,6 @@ describe('Amplitude', () => {
               "user_properties": Object {},
             },
           ],
-          "options": undefined,
         }
       `)
     })
@@ -1201,7 +1197,6 @@ describe('Amplitude', () => {
               "user_properties": Object {},
             },
           ],
-          "options": undefined,
         }
       `)
     })
@@ -1296,9 +1291,7 @@ describe('Amplitude', () => {
           "events": Array [
             Object {
               "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
-              "device_manufacturer": undefined,
               "device_model": "Mac OS",
-              "device_type": undefined,
               "event_properties": Object {},
               "event_type": "Test Event",
               "library": "segment",
@@ -1310,7 +1303,6 @@ describe('Amplitude', () => {
               "user_properties": Object {},
             },
           ],
-          "options": undefined,
         }
       `)
     })
@@ -1930,24 +1922,23 @@ describe('Amplitude', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.json).toMatchInlineSnapshot(`
-        Object {
-          "api_key": undefined,
-          "events": Array [
-            Object {
-              "device_id": "foo",
-              "event_properties": Object {},
-              "event_type": "Test Event",
-              "idfv": "foo",
-              "library": "segment",
-              "time": 1618245157710,
-              "use_batch_endpoint": false,
-              "user_id": "user1234",
-              "user_properties": Object {},
-            },
-          ],
-          "options": undefined,
-        }
-      `)
+      Object {
+        "api_key": undefined,
+        "events": Array [
+          Object {
+            "device_id": "foo",
+            "event_properties": Object {},
+            "event_type": "Test Event",
+            "idfv": "foo",
+            "library": "segment",
+            "time": 1618245157710,
+            "use_batch_endpoint": false,
+            "user_id": "user1234",
+            "user_properties": Object {},
+          },
+        ],
+      }
+    `)
   })
 
   describe('identifyUser', () => {
