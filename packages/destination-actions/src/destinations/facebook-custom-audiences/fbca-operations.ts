@@ -82,7 +82,7 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
   } catch (error) {
     if (error instanceof EmptyValueError) {
       throw new PayloadValidationError(
-        `Invalid value for ${key}. After normalization, the value is empty. Provide either a valid value or an empty one.`
+        `Invalid value for ${key}. After normalization, the value is empty. Please provide a valid ${key} value, or omit this field entirely.`
       )
     } else {
       throw error
