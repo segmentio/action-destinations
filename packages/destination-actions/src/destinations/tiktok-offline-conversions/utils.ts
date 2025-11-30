@@ -1,5 +1,6 @@
 import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import { Settings } from './generated-types'
+import { TIKTOK_OFFLINE_CONVERSIONS_API_VERSION } from './versioning-info'
 import { Payload as ReportOfflineEventPayload } from './reportOfflineEvent/generated-types'
 import { Payload as TrackNonPaymentOfflineConversionPayload } from './trackNonPaymentOfflineConversion/generated-types'
 import { Payload as TrackPaymentOfflineConversionPayload } from './trackPaymentOfflineConversion/generated-types'
@@ -31,7 +32,7 @@ export function performOfflineEvent(request: RequestClient, settings: Settings, 
 
   if (payloadUrl) urlTtclid = payloadUrl.searchParams.get('ttclid')
 
-  return request('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
+  return request(`https://business-api.tiktok.com/open_api/${TIKTOK_OFFLINE_CONVERSIONS_API_VERSION}/event/track/`, {
     method: 'post',
     json: {
       event_source: 'offline',
