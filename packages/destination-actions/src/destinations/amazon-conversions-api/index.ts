@@ -6,6 +6,7 @@ import { Region } from './types'
 import { defaultValues, InvalidAuthenticationError } from '@segment/actions-core'
 import { getAuthToken } from './utils'
 import trackConversion from './trackConversion'
+import { AMAZON_CONVERSIONS_API_PROFILES_VERSION } from './versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Amazon Conversions Api',
@@ -30,15 +31,17 @@ const destination: DestinationDefinition<Settings> = {
       },
       advertiserId: {
         label: 'Amazon Advertiser ID',
-        description: 'Your Amazon Advertiser Account ID. This must be a numeric value. Use Amazon DSP CFID and not Entity ID.',
+        description:
+          'Your Amazon Advertiser Account ID. This must be a numeric value. Use Amazon DSP CFID and not Entity ID.',
         type: 'string',
         required: true
       },
       dataSetName: {
         label: 'Dataset Name',
-        description: 'Amazon Ads organizes uploaded data into datasets, which are logical groupings used to separate and categorize events from your sources. All events within a dataset will appear in Amazon Ads Data Manager under the name you provide here. New destination? We recommend providing a dataset name during initial setup. Existing destination? We strongly recommend reading the [FAQ](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-amazon-conversions-api#what-is-a-dataset-and-how-does-amazon-use-the-dataset-name) before updating your dataset name, as changes may impact your existing events.',
+        description:
+          'Amazon Ads organizes uploaded data into datasets, which are logical groupings used to separate and categorize events from your sources. All events within a dataset will appear in Amazon Ads Data Manager under the name you provide here. New destination? We recommend providing a dataset name during initial setup. Existing destination? We strongly recommend reading the [FAQ](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-amazon-conversions-api#what-is-a-dataset-and-how-does-amazon-use-the-dataset-name) before updating your dataset name, as changes may impact your existing events.',
         type: 'string',
-        required: false, 
+        required: false,
         placeholder: 'Default_Events'
       }
     },
@@ -48,23 +51,28 @@ const destination: DestinationDefinition<Settings> = {
       }
 
       const { dataSetName, advertiserId } = settings
-      
-      if(dataSetName && !/^[A-Za-z][A-Za-z0-9_-]{4,99}$/.test(dataSetName ?? '')){
-        throw new InvalidAuthenticationError('Dataset Name must start with a letter and can only contain letters, numbers, underscores, or hyphens. It must be between 5 and 100 characters long.')
+
+      if (dataSetName && !/^[A-Za-z][A-Za-z0-9_-]{4,99}$/.test(dataSetName ?? '')) {
+        throw new InvalidAuthenticationError(
+          'Dataset Name must start with a letter and can only contain letters, numbers, underscores, or hyphens. It must be between 5 and 100 characters long.'
+        )
       }
-    
-      if(!/^\d+$/.test(advertiserId)) {
+
+      if (!/^\d+$/.test(advertiserId)) {
         throw new InvalidAuthenticationError('Advertising ID must be numeric')
       }
 
-      return await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
-        },
-        timeout: 2500
-      })
+      return await request<RefreshTokenResponse>(
+        `${settings.region}/${AMAZON_CONVERSIONS_API_PROFILES_VERSION}/profiles`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
+          },
+          timeout: 2500
+        }
+      )
     },
     refreshAccessToken: async (request, { auth }) => {
       const authToken = await getAuthToken(request, auth)
@@ -198,7 +206,7 @@ const destination: DestinationDefinition<Settings> = {
         eventType: 'OTHER'
       },
       type: 'automatic'
-    },
+    }
   ],
   actions: {
     trackConversion
