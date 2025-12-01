@@ -46,6 +46,8 @@ export const send = async (
   const { streamName, awsRegion } = payloads[0]
   const entries = transformPayloads(payloads)
 
+  logger?.crit(`Sending kinesis events ${streamName} ${payloads.length}`, 'test')
+
   statsContext?.statsClient?.histogram('actions_kinesis.batch_size', entries?.length, statsContext?.tags)
   statsContext?.statsClient?.incr('actions_kinesis.request_hit', 1, statsContext?.tags)
 
@@ -57,7 +59,9 @@ export const send = async (
     })
 
     const response = await client.send(command, { abortSignal: signal })
+    logger?.crit(`response ${response}`, 'test')
     const multiResp = handleMultiStatusResponse(response, statsContext, payloads)
+    logger?.crit(`multiResp ${multiResp}`, 'test')
     return multiResp
   } catch (error) {
     // Handle abort signal error: https://aws.amazon.com/blogs/developer/abortcontroller-in-modular-aws-sdk-for-javascript/
