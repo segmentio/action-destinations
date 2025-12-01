@@ -1,6 +1,6 @@
 import { Payload } from './generated-types'
 import { TTBaseProps, TTTravelProps, TTAutoProps } from '../types'
-import { TRAVEL_FIELDS, VEHICLE_FIELDS } from './constants'
+import { TRAVEL_FIELDS, VEHICLE_FIELDS } from '../constants'
 
 export function getAllProperties(payload: Payload): TTBaseProps & TTAutoProps & TTTravelProps {
   const { event_spec_type } = payload

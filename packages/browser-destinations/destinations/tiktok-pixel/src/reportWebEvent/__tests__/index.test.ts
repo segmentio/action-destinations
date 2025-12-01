@@ -2,7 +2,7 @@ import { Analytics, Context } from '@segment/analytics-next'
 import { Subscription } from '@segment/browser-destination-runtime'
 import TikTokDestination, { destination } from '../../index'
 import { TikTokPixel } from '../../types'
-import { TRAVEL_FIELDS, VEHICLE_FIELDS } from '../constants'
+import { TRAVEL_FIELDS, VEHICLE_FIELDS } from '../../constants'
 
 describe('TikTokPixel.reportWebEvent', () => {
   const settings = {

@@ -1,8 +1,9 @@
-import { Payload } from './reportWebEvent/generated-types'
+import { Payload as IdentifyPayload } from './identify/generated-types'
+import { Payload as TrackPayload } from './reportWebEvent/generated-types'
 import { formatPhone, handleArrayInput, formatString, formatAddress } from './formatter'
 import { TTUser } from './types'
 
-export function getUser(payload: Payload): TTUser {
+export function getUser(payload: IdentifyPayload | TrackPayload): TTUser {
   return {
     email: handleArrayInput(payload.email),
     phone_number: formatPhone(handleArrayInput(payload.phone_number)),
