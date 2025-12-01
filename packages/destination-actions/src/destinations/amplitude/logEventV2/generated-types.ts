@@ -76,10 +76,6 @@ export interface Payload {
    */
   country?: string
   /**
-   * The current region of the user.
-   */
-  region?: string
-  /**
    * The current city of the user.
    */
   city?: string
@@ -120,7 +116,7 @@ export interface Payload {
    */
   location_lng?: number
   /**
-   * The IP address of the user. Use "$remote" to use the IP address on the upload request. Amplitude will use the IP address to reverse lookup a user's location (city, country, region, and DMA). Amplitude has the ability to drop the location and IP address from events once it reaches our servers. You can submit a request to Amplitude's platform specialist team here to configure this for you.
+   * The IP address of the user. Use "$remote" to use the IP address on the upload request. Amplitude will use the IP address to reverse lookup a user's location (city, country, region, and DMA). Amplitude has the ability to drop the location and IP address from events once it reaches our servers.
    */
   ip?: string
   /**
@@ -178,28 +174,6 @@ export interface Payload {
     [k: string]: unknown
   }[]
   /**
-   * Utility field used to detect if Autocapture Attribution Plugin is enabled.
-   */
-  autocaptureAttributionEnabled?: boolean
-  /**
-   * Utility field used to detect if any attribution values need to be set.
-   */
-  autocaptureAttributionSet?: {
-    [k: string]: unknown
-  }
-  /**
-   * Utility field used to detect if any attribution values need to be set_once.
-   */
-  autocaptureAttributionSetOnce?: {
-    [k: string]: unknown
-  }
-  /**
-   * Utility field used to detect if any attribution values need to be unset.
-   */
-  autocaptureAttributionUnset?: {
-    [k: string]: unknown
-  }
-  /**
    * The following fields will only be set as user properties if they do not already have a value. If 'Autocapture Attribution' is enabled, UTM and attribution values in this field will be ignored.
    */
   setOnce?: {
@@ -233,6 +207,28 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * Utility field used to detect if Autocapture Attribution Plugin is enabled.
+   */
+  autocaptureAttributionEnabled?: boolean
+  /**
+   * Utility field used to detect if any attribution values need to be set.
+   */
+  autocaptureAttributionSet?: {
+    [k: string]: unknown
+  }
+  /**
+   * Utility field used to detect if any attribution values need to be set_once.
+   */
+  autocaptureAttributionSetOnce?: {
+    [k: string]: unknown
+  }
+  /**
+   * Utility field used to detect if any attribution values need to be unset.
+   */
+  autocaptureAttributionUnset?: {
+    [k: string]: unknown
+  }
+  /**
    * If true, events are sent to Amplitude's `batch` endpoint rather than their `httpapi` events endpoint. Enabling this setting may help reduce 429s – or throttling errors – from Amplitude. More information about Amplitude's throttling is available in [their docs](https://developers.amplitude.com/docs/batch-event-upload-api#429s-in-depth).
    */
   use_batch_endpoint?: boolean
@@ -241,7 +237,7 @@ export interface Payload {
    */
   userAgent?: string
   /**
-   * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field.
+   * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field
    */
   userAgentParsing?: boolean
   /**

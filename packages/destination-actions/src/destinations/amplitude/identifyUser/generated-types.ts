@@ -44,55 +44,55 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Version of the app the user is on.
+   * The current version of your application.
    */
   app_version?: string
   /**
-   * The platform of the user's device.
+   * Platform of the device. If using analytics.js to send events from a Browser and no if no Platform value is provided, the value "Web" will be sent.
    */
   platform?: string
   /**
-   * The mobile operating system or browser of the user's device.
+   * The name of the mobile operating system or browser that the user is using.
    */
   os_name?: string
   /**
-   * The version of the mobile operating system or browser of the user's device.
+   * The version of the mobile operating system or browser the user is using.
    */
   os_version?: string
   /**
-   * The brand of user's the device.
+   * The device brand that the user is using.
    */
   device_brand?: string
   /**
-   * The manufacturer of the user's device.
+   * The device manufacturer that the user is using.
    */
   device_manufacturer?: string
   /**
-   * The model of the user's device.
+   * The device model that the user is using.
    */
   device_model?: string
   /**
-   * The user's mobile carrier.
+   * The carrier that the user is using.
    */
   carrier?: string
   /**
-   * The country in which the user is located.
+   * The current country of the user.
    */
   country?: string
   /**
-   * The geographical region in which the user is located.
+   * The current region of the user.
    */
   region?: string
   /**
-   * The city in which the user is located.
+   * The current city of the user.
    */
   city?: string
   /**
-   * The Designated Market Area in which the user is located.
+   * The current Designated Market Area of the user.
    */
   dma?: string
   /**
-   * Language the user has set on their device or browser.
+   * The language set by the user.
    */
   language?: string
   /**

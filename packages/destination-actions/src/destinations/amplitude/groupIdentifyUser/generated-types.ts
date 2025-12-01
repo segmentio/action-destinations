@@ -6,7 +6,7 @@ export interface Payload {
    */
   user_id?: string | null
   /**
-   * A device specific identifier, such as the Identifier for Vendor (IDFV) on iOS. If either user ID or device ID is present, an associate user to group call will be made.
+   * A device-specific identifier, such as the Identifier for Vendor on iOS. Required unless user ID is present. If a device ID is not sent with the event, it will be set to a hashed version of the user ID.
    */
   device_id?: string
   /**
@@ -16,7 +16,7 @@ export interface Payload {
   /**
    * The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.
    */
-  time?: string
+  time?: string | number
   /**
    * Additional data tied to the group in Amplitude.
    */
