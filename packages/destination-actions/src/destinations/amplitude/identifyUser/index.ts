@@ -2,11 +2,11 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { send } from './functions'
-import { autocapture_fields } from '../autocapture-fields'
-import { common_fields } from '../common-fields'
-import { common_track_identify_fields} from '../common-track-identify-fields'
+import { autocapture_fields } from '../fields/autocapture-fields'
+import { common_fields } from '../fields/common-fields'
+import { common_track_identify_fields} from '../fields/common-track-identify-fields'
 import { paying, start_version } from './fields'
-import { min_id_length } from '../misc-fields'
+import { min_id_length } from '../fields/misc-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',

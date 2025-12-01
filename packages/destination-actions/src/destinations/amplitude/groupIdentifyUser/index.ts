@@ -3,9 +3,9 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
 import { getEndpointByRegion } from '../common-functions'
-import { common_fields } from '../common-fields'
+import { common_fields } from '../fields/common-fields'
 import { group_properties, group_type, group_value } from './fields'
-import { time } from '../misc-fields'
+import { time } from '../fields/misc-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group Identify User',
