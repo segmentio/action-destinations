@@ -2,20 +2,17 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { getEndpointByRegion } from '../common-functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { 
+  user_id, 
+  min_id_length 
+} from '../fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Map User',
   description: 'Merge two users together that would otherwise have different User IDs tracked in Amplitude.',
   defaultSubscription: 'type = "alias"',
   fields: {
-    user_id: {
-      label: 'User ID',
-      type: 'string',
-      description: 'The User ID to be associated.',
-      default: {
-        '@path': '$.previousId'
-      }
-    },
+    user_id,
     global_user_id: {
       label: 'Global User ID',
       type: 'string',
@@ -24,13 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-    min_id_length: {
-      label: 'Minimum ID Length',
-      description:
-        'Amplitude has a default minimum id length (`min_id_length`) of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
-      allowNull: true,
-      type: 'integer'
-    }
+    min_id_length
   },
   perform: (request, { payload, settings }) => {
     const { min_id_length } = payload
