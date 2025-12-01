@@ -6,7 +6,7 @@ import { common_fields } from '../fields/common-fields'
 import { common_track_fields } from '../fields/common-track-fields'
 import { common_track_identify_fields } from '../fields/common-track-identify-fields'
 import { autocapture_fields } from '../fields/autocapture-fields'
-import { min_id_length } from '../fields/misc-fields'
+import { min_id_length, device_id, time, insert_id, utm_properties, referrer } from '../fields/misc-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Log Event',
@@ -17,7 +17,12 @@ const action: ActionDefinition<Settings, Payload> = {
     ...common_track_fields,
     ...common_track_identify_fields,
     ...autocapture_fields,
-    min_id_length
+    device_id, 
+    insert_id,
+    min_id_length, 
+    time,
+    utm_properties, 
+    referrer
   },
   perform: (request, { payload, settings }) => {
     return send(request, payload, settings, false)

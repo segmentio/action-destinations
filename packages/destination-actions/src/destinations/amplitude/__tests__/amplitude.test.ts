@@ -1959,7 +1959,7 @@ describe('Amplitude', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
-        `"api_key=undefined&identification=%7B%22os_name%22%3A%22iOS%22%2C%22os_version%22%3A%229%22%2C%22device_manufacturer%22%3A%22Apple%22%2C%22device_model%22%3A%22iPhone%22%2C%22device_type%22%3A%22mobile%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22country%22%3A%22United+States%22%2C%22city%22%3A%22San+Francisco%22%2C%22language%22%3A%22en-US%22%2C%22platform%22%3A%22Web%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+        `"api_key=undefined&identification=%7B%22os_name%22%3A%22iOS%22%2C%22os_version%22%3A%229%22%2C%22device_manufacturer%22%3A%22Apple%22%2C%22device_model%22%3A%22iPhone%22%2C%22device_type%22%3A%22mobile%22%2C%22city%22%3A%22San+Francisco%22%2C%22country%22%3A%22United+States%22%2C%22language%22%3A%22en-US%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_id%22%3A%22some-user-id%22%2C%22platform%22%3A%22Web%22%2C%22library%22%3A%22segment%22%7D"`
       )
     })
 
@@ -1992,7 +1992,7 @@ describe('Amplitude', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
-        `"api_key=undefined&identification=%7B%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%2C%22%24set%22%3A%7B%22utm_source%22%3A%22Newsletter%22%2C%22utm_medium%22%3A%22email%22%2C%22utm_campaign%22%3A%22TPS+Innovation+Newsletter%22%2C%22utm_term%22%3A%22tps+reports%22%2C%22utm_content%22%3A%22image+link%22%2C%22referrer%22%3A%22some-referrer%22%7D%2C%22%24setOnce%22%3A%7B%22initial_utm_source%22%3A%22Newsletter%22%2C%22initial_utm_medium%22%3A%22email%22%2C%22initial_utm_campaign%22%3A%22TPS+Innovation+Newsletter%22%2C%22initial_utm_term%22%3A%22tps+reports%22%2C%22initial_utm_content%22%3A%22image+link%22%2C%22initial_referrer%22%3A%22some-referrer%22%7D%7D%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+        `"api_key=undefined&identification=%7B%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%2C%22%24setOnce%22%3A%7B%22initial_referrer%22%3A%22some-referrer%22%2C%22initial_utm_source%22%3A%22Newsletter%22%2C%22initial_utm_medium%22%3A%22email%22%2C%22initial_utm_campaign%22%3A%22TPS+Innovation+Newsletter%22%2C%22initial_utm_term%22%3A%22tps+reports%22%2C%22initial_utm_content%22%3A%22image+link%22%7D%2C%22%24set%22%3A%7B%22referrer%22%3A%22some-referrer%22%2C%22utm_source%22%3A%22Newsletter%22%2C%22utm_medium%22%3A%22email%22%2C%22utm_campaign%22%3A%22TPS+Innovation+Newsletter%22%2C%22utm_term%22%3A%22tps+reports%22%2C%22utm_content%22%3A%22image+link%22%7D%7D%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_id%22%3A%22some-user-id%22%2C%22library%22%3A%22segment%22%7D"`
       )
     })
 
@@ -2013,7 +2013,7 @@ describe('Amplitude', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
-        `"api_key=undefined&identification=%7B%22os_name%22%3A%22iOS%22%2C%22os_version%22%3A%229%22%2C%22device_manufacturer%22%3A%22Apple%22%2C%22device_model%22%3A%22iPhone%22%2C%22device_type%22%3A%22mobile%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22country%22%3A%22United+States%22%2C%22city%22%3A%22San+Francisco%22%2C%22language%22%3A%22en-US%22%2C%22platform%22%3A%22Web%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+        `"api_key=undefined&identification=%7B%22os_name%22%3A%22iOS%22%2C%22os_version%22%3A%229%22%2C%22device_manufacturer%22%3A%22Apple%22%2C%22device_model%22%3A%22iPhone%22%2C%22device_type%22%3A%22mobile%22%2C%22city%22%3A%22San+Francisco%22%2C%22country%22%3A%22United+States%22%2C%22language%22%3A%22en-US%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_id%22%3A%22some-user-id%22%2C%22platform%22%3A%22Web%22%2C%22library%22%3A%22segment%22%7D"`
       )
     })
 
@@ -2046,7 +2046,7 @@ describe('Amplitude', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
-        `"api_key=undefined&identification=%7B%22os_name%22%3A%22Mac+OS%22%2C%22os_version%22%3A%2253%22%2C%22device_model%22%3A%22Mac+OS%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+        `"api_key=undefined&identification=%7B%22os_name%22%3A%22Mac+OS%22%2C%22os_version%22%3A%2253%22%2C%22device_model%22%3A%22Mac+OS%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22device_id%22%3A%22foo%22%2C%22user_id%22%3A%22some-user-id%22%2C%22library%22%3A%22segment%22%7D"`
       )
     })
 
@@ -2079,7 +2079,7 @@ describe('Amplitude', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
-        `"api_key=undefined&identification=%7B%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+        `"api_key=undefined&identification=%7B%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22device_id%22%3A%22foo%22%2C%22user_id%22%3A%22some-user-id%22%2C%22library%22%3A%22segment%22%7D"`
       )
     })
 
@@ -2100,7 +2100,7 @@ describe('Amplitude', () => {
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
       expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
-        `"api_key=undefined&identification=%7B%22user_id%22%3A%22user1234%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%7D%2C%22platform%22%3A%22Android%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+        `"api_key=undefined&identification=%7B%22user_properties%22%3A%7B%7D%2C%22device_id%22%3A%22foo%22%2C%22user_id%22%3A%22user1234%22%2C%22platform%22%3A%22Android%22%2C%22library%22%3A%22segment%22%7D"`
       )
     })
 
@@ -2121,7 +2121,7 @@ describe('Amplitude', () => {
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
       expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
-        `"api_key=undefined&identification=%7B%22user_id%22%3A%22user1234%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%7D%2C%22platform%22%3A%22iOS%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+        `"api_key=undefined&identification=%7B%22user_properties%22%3A%7B%7D%2C%22device_id%22%3A%22foo%22%2C%22user_id%22%3A%22user1234%22%2C%22platform%22%3A%22iOS%22%2C%22library%22%3A%22segment%22%7D"`
       )
     })
 
@@ -2150,7 +2150,7 @@ describe('Amplitude', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
-        `"api_key=&identification=%7B%22os_name%22%3A%22iOS%22%2C%22os_version%22%3A%229%22%2C%22device_manufacturer%22%3A%22Apple%22%2C%22device_model%22%3A%22iPhone%22%2C%22device_type%22%3A%22mobile%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22country%22%3A%22United+States%22%2C%22city%22%3A%22San+Francisco%22%2C%22language%22%3A%22en-US%22%2C%22platform%22%3A%22Web%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+        `"api_key=&identification=%7B%22os_name%22%3A%22iOS%22%2C%22os_version%22%3A%229%22%2C%22device_manufacturer%22%3A%22Apple%22%2C%22device_model%22%3A%22iPhone%22%2C%22device_type%22%3A%22mobile%22%2C%22city%22%3A%22San+Francisco%22%2C%22country%22%3A%22United+States%22%2C%22language%22%3A%22en-US%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_id%22%3A%22some-user-id%22%2C%22platform%22%3A%22Web%22%2C%22library%22%3A%22segment%22%7D"`
       )
     })
 
@@ -2187,7 +2187,7 @@ describe('Amplitude', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
-        `"api_key=undefined&identification=%7B%22os_name%22%3A%22iPhone+OS%22%2C%22os_version%22%3A%228.1.3%22%2C%22device_model%22%3A%22Mac+OS%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+        `"api_key=undefined&identification=%7B%22os_name%22%3A%22iPhone+OS%22%2C%22os_version%22%3A%228.1.3%22%2C%22device_model%22%3A%22Mac+OS%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22device_id%22%3A%22foo%22%2C%22user_id%22%3A%22some-user-id%22%2C%22library%22%3A%22segment%22%7D"`
       )
     })
   })

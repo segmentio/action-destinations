@@ -11,7 +11,12 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Merge two users together that would otherwise have different User IDs tracked in Amplitude.',
   defaultSubscription: 'type = "alias"',
   fields: {
-    user_id,
+    user_id: {
+      ...user_id,
+      default: {
+        '@path': '$.previousId'
+      }
+    },
     global_user_id,
     min_id_length
   },

@@ -5,7 +5,7 @@ import dayjs from '../../../lib/dayjs'
 import { getEndpointByRegion } from '../common-functions'
 import { common_fields } from '../fields/common-fields'
 import { group_properties, group_type, group_value } from './fields'
-import { time } from '../fields/misc-fields'
+import { device_id, time, insert_id } from '../fields/misc-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group Identify User',
@@ -19,6 +19,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'A UUID (unique user ID) specified by you. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event. If either user ID or device ID is present, an associate user to group call will be made.'
     },
     time,
+    insert_id,
+    device_id,
     group_properties,
     group_type,
     group_value
