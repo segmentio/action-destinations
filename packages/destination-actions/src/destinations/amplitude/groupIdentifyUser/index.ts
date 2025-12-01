@@ -5,7 +5,7 @@ import dayjs from '../../../lib/dayjs'
 import { getEndpointByRegion } from '../common-functions'
 import { common_fields } from '../fields/common-fields'
 import { group_properties, group_type, group_value } from './fields'
-import { device_id, time, insert_id } from '../fields/misc-fields'
+import { device_id, time, insert_id, min_id_length } from '../fields/misc-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group Identify User',
@@ -20,6 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     time,
     insert_id,
+    min_id_length,
     device_id,
     group_properties,
     group_type,

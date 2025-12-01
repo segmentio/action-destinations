@@ -230,4 +230,18 @@ export interface Payload {
    * Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
    */
   min_id_length?: number | null
+  /**
+   * UTM Tracking Properties
+   */
+  utm_properties?: {
+    utm_source?: string
+    utm_medium?: string
+    utm_campaign?: string
+    utm_term?: string
+    utm_content?: string
+  }
+  /**
+   * The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”
+   */
+  referrer?: string
 }

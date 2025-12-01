@@ -226,4 +226,18 @@ export interface Payload {
    * The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.
    */
   time?: string | number
+  /**
+   * UTM Tracking Properties
+   */
+  utm_properties?: {
+    utm_source?: string
+    utm_medium?: string
+    utm_campaign?: string
+    utm_term?: string
+    utm_content?: string
+  }
+  /**
+   * The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”
+   */
+  referrer?: string
 }

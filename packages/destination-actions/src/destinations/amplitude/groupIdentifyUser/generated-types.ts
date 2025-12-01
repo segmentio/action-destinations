@@ -14,6 +14,10 @@ export interface Payload {
    */
   insert_id?: string
   /**
+   * Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
+   */
+  min_id_length?: number | null
+  /**
    * A device-specific identifier, such as the Identifier for Vendor on iOS. Required unless user ID is present. If a device ID is not sent with the event, it will be set to a hashed version of the user ID.
    */
   device_id?: string
