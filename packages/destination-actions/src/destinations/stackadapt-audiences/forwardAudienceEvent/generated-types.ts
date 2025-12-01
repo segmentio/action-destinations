@@ -42,19 +42,7 @@ export interface Payload {
      */
     postal_code?: string
     /**
-     * The numeric birth day of the user. e.g 15 for the 15th of the month.
-     */
-    birth_day?: number
-    /**
-     * The numeric birth month of the user. e.g 6 for June.
-     */
-    birth_month?: number
-    /**
-     * The numeric birth year of the user. e.g 1990.
-     */
-    birth_year?: number
-    /**
-     * The birth date of the user in YYYY-MM-DD format. If set, overrides 'Birth Day', 'Birth Month' and 'Birth Year' fields.
+     * The birthday of the user in YYYY-MM-DD format.
      */
     birth_date?: string
   }
@@ -73,13 +61,13 @@ export interface Payload {
    */
   event_type: string
   /**
-   * When enabled, Segment will batch profiles together and send them to StackAdapt in a single request.
-   */
-  enable_batching: boolean
-  /**
    * In certain jurisdictions, explicit consent may be required to send email marketing communications to imported profiles. Consult independent counsel for further guidance.
    */
   marketing_status: string
+  /**
+   * When enabled, Segment will batch profiles together and send them to StackAdapt in a single request.
+   */
+  enable_batching: boolean
   /**
    * The properties of the user or event.
    */

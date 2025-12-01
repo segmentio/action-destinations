@@ -33,8 +33,8 @@ import type { Payload as UserListPayload } from './userList/generated-types'
 import { RefreshTokenResponse } from '.'
 import { STATUS_CODE_MAPPING } from './constants'
 import { processHashing } from '../../lib/hashing-utils'
-export const API_VERSION = 'v19'
-export const CANARY_API_VERSION = 'v19'
+export const API_VERSION = 'v21'
+export const CANARY_API_VERSION = 'v21'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
@@ -597,7 +597,7 @@ const handleGoogleAdsError = (error: any) => {
   const errors = (error as GoogleAdsError)?.response?.data?.error?.details ?? []
   for (const errorDetails of errors) {
     for (const errorItem of errorDetails.errors) {
-      // https://developers.google.com/google-ads/api/reference/rpc/v19/DatabaseErrorEnum.DatabaseError
+      // https://developers.google.com/google-ads/api/reference/rpc/v21/DatabaseErrorEnum.DatabaseError
       if (errorItem?.errorCode?.databaseError === 'CONCURRENT_MODIFICATION') {
         throw new RetryableError(
           errorItem?.message ??

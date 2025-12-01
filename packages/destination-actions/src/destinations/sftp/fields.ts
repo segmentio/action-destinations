@@ -245,6 +245,7 @@ const audienceFields: Record<string, InputField> = {
   traits_or_props,
   computation_key
 }
+
 export const baseFields: Record<string, InputField> = {
   columns: columnsNoDefaultMappings,
   filename_prefix,
