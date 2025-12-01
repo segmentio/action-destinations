@@ -1,6 +1,6 @@
 import type { InputField } from '@segment/actions-core'
 import { DESTINATION_INTEGRATION_NAME } from './events-constants'
-export const autocaptureFields: Record<string, InputField> = {
+export const autocapture_fields: Record<string, InputField> = {
     autocaptureAttributionEnabled: {
       label: 'Autocapture Attribution Enabled',
       description: 'Utility field used to detect if Autocapture Attribution Plugin is enabled.',

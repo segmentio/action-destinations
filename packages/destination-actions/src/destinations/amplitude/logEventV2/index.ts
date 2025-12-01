@@ -1,110 +1,28 @@
 import { ActionDefinition} from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { autocaptureFields } from '../autocapture-fields'
+import { autocapture_fields } from '../autocapture-fields'
 import { send } from '../events-functions'
-import { 
-  user_id, 
-  device_id, 
-  event_type, 
-  session_id, 
-  time, 
-  event_properties, 
-  user_properties,
-  groups,
-  app_version,
-  platform,
-  os_name, 
-  os_version,
-  device_brand,
-  device_manufacturer,
-  device_model,
-  carrier,
-  country,
-  city,
-  dma,
-  language,
-  price,
-  quantity,
-  revenue,
-  productId,
-  revenueType,
-  location_lat,
-  location_lng,
-  ip,
-  idfa,
-  idfv,
-  adid,
-  android_id,
-  event_id,
-  insert_id,
-  library,
-  products, 
-  use_batch_endpoint, 
-  userAgent, 
-  userAgentParsing, 
-  includeRawUserAgent, 
-  min_id_length, 
-  userAgentData 
-} from '../fields'
-import {
-  setOnce,
-  setAlways,
-  add,
-} from './fields'
-
+import { common_fields } from '../common-fields'
+import { common_track_fields } from '../common-track-fields'
+import { common_track_identify_fields } from '../common-track-identify-fields'
+import { trackRevenuePerProduct, setOnce, setAlways, add } from './fields'
+import { min_id_length } from '../misc-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Log Event V2',
   description: 'Send an event to Amplitude',
   defaultSubscription: 'type = "track"',
   fields: {
-    user_id, 
-    device_id, 
-    event_type, 
-    session_id, 
-    time, 
-    event_properties, 
-    user_properties,
-    groups,
-    app_version,
-    platform,
-    os_name, 
-    os_version,
-    device_brand,
-    device_manufacturer,
-    device_model,
-    carrier,
-    country,
-    city,
-    dma,
-    language,
-    price,
-    quantity,
-    revenue,
-    productId,
-    revenueType,
-    location_lat,
-    location_lng,
-    ip,
-    idfa,
-    idfv,
-    adid,
-    android_id,
-    event_id,
-    insert_id,
-    library,
-    products,
+    ...common_fields,
+    trackRevenuePerProduct,
     setOnce,
     setAlways,
     add,
-    ...autocaptureFields,
-    use_batch_endpoint,
-    userAgent,
-    userAgentParsing,
-    includeRawUserAgent,
-    min_id_length,
-    userAgentData
+    ...common_track_fields,
+    ...common_track_identify_fields,
+    ...autocapture_fields,
+    min_id_length
   },
   perform: (request, { payload, settings }) => {
     return send(request, payload, settings, false)

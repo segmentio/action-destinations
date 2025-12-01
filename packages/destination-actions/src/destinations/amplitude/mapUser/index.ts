@@ -2,13 +2,9 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { getEndpointByRegion } from '../common-functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { 
-  user_id, 
-  min_id_length 
-} from '../fields'
-import { 
-  global_user_id 
-} from './fields'
+import { user_id } from '../common-fields'
+import { global_user_id } from './fields'
+import { min_id_length } from '../misc-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Map User',

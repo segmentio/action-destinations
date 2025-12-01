@@ -3,18 +3,9 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
 import { getEndpointByRegion } from '../common-functions'
-import { 
-  user_id, 
-  device_id, 
-  insert_id, 
-  time, 
-  min_id_length 
-} from '../fields'
-import { 
-  group_properties, 
-  group_type, 
-  group_value 
-} from './fields'
+import { common_fields } from '../common-fields'
+import { group_properties, group_type, group_value } from './fields'
+import { time } from '../misc-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group Identify User',
@@ -22,17 +13,15 @@ const action: ActionDefinition<Settings, Payload> = {
     'Set or update properties of particular groups. Note that these updates will only affect events going forward.',
   defaultSubscription: 'type = "group"',
   fields: {
+    ...common_fields,
     user_id: {
-      ...user_id,
+      ...common_fields.user_id,
       description: 'A UUID (unique user ID) specified by you. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event. If either user ID or device ID is present, an associate user to group call will be made.'
     },
-    device_id,
-    insert_id,
     time,
     group_properties,
     group_type,
-    group_value,
-    min_id_length
+    group_value
   },
   perform: async (request, { payload, settings }) => {
     const groupAssociation = { [payload.group_type]: payload.group_value }
