@@ -6,6 +6,9 @@ import {
   user_id, 
   min_id_length 
 } from '../fields'
+import { 
+  global_user_id 
+} from './fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Map User',
@@ -13,14 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "alias"',
   fields: {
     user_id,
-    global_user_id: {
-      label: 'Global User ID',
-      type: 'string',
-      description: 'The Global User ID to associate with the User ID.',
-      default: {
-        '@path': '$.userId'
-      }
-    },
+    global_user_id,
     min_id_length
   },
   perform: (request, { payload, settings }) => {

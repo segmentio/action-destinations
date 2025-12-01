@@ -3,7 +3,18 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
 import { getEndpointByRegion } from '../common-functions'
-import { user_id, device_id, insert_id, time, min_id_length } from '../fields'
+import { 
+  user_id, 
+  device_id, 
+  insert_id, 
+  time, 
+  min_id_length 
+} from '../fields'
+import { 
+  group_properties, 
+  group_type, 
+  group_value 
+} from './fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Group Identify User',
@@ -18,26 +29,9 @@ const action: ActionDefinition<Settings, Payload> = {
     device_id,
     insert_id,
     time,
-    group_properties: {
-      label: 'Group Properties',
-      type: 'object',
-      description: 'Additional data tied to the group in Amplitude.',
-      default: {
-        '@path': '$.traits'
-      }
-    },
-    group_type: {
-      label: 'Group Type',
-      type: 'string',
-      description: 'The type of the group',
-      required: true
-    },
-    group_value: {
-      label: 'Group Value',
-      type: 'string',
-      description: 'The value of the group',
-      required: true
-    },
+    group_properties,
+    group_type,
+    group_value,
     min_id_length
   },
   perform: async (request, { payload, settings }) => {

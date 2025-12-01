@@ -31,6 +31,10 @@ import {
   library,
   userAgentData 
 } from '../fields'
+import { 
+  paying, 
+  start_version 
+} from './fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -68,16 +72,8 @@ const action: ActionDefinition<Settings, Payload> = {
     city,
     dma,
     language,
-    paying: {
-      label: 'Is Paying',
-      type: 'boolean',
-      description: 'Whether the user is paying or not.'
-    },
-    start_version: {
-      label: 'Initial Version',
-      type: 'string',
-      description: 'The version of the app the user was first on.'
-    },
+    paying,
+    start_version,
     insert_id,
     userAgent,
     userAgentParsing,
