@@ -12,6 +12,13 @@ export type DigestType = typeof DigestTypes[number]
 
 type CleaningFunction = (value: string) => string
 
+export class EmptyValueError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'EmptyValueError'
+  }
+}
+
 export const hashConfigs: {
   [key in EncryptionMethod]: { lengthHex: number; lengthBase64: number }
 } = {
@@ -57,7 +64,7 @@ class SmartHashing {
 
   hash(value: string): string {
     if (value.trim() === '') {
-      throw new Error('Cannot hash an empty string')
+      throw new EmptyValueError('Cannot hash an empty string')
     }
 
     if (this.preHashed) {
