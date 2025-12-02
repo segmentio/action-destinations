@@ -56,6 +56,7 @@ function wrapFn(fn: Function, type: string, region: AccountRegion) {
         'content-type': 'application/json'
       })
       expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.timeout).toEqual(30_000)
 
       if (type === EndpointType.BATCH) {
         return (responses[0].options.json as { batch: unknown[] }).batch[0]

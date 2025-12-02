@@ -1,4 +1,4 @@
-import { defaultValues } from '@segment/actions-core'
+import { DEFAULT_REQUEST_TIMEOUT, defaultValues } from '@segment/actions-core'
 import createUpdateDevice from './createUpdateDevice'
 import createUpdateObject from './createUpdateObject'
 import createUpdatePerson from './createUpdatePerson'
@@ -55,7 +55,8 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ settings }) {
     return {
       username: settings.siteId,
-      password: settings.apiKey
+      password: settings.apiKey,
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     }
   },
 
@@ -141,7 +142,7 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'event = "Report Content Event"',
       partnerAction: 'reportContentEvent',
       mapping: defaultValues(reportContentEvent.fields),
-      type: 'automatic',
+      type: 'automatic'
     },
     {
       name: 'Associated Entity Added',
