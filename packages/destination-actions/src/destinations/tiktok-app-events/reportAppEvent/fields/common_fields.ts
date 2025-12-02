@@ -171,7 +171,11 @@ export const common_fields: Record<string, InputField> = {
     type: 'string',
     required: true,
     description:
-      'Conversion event name. Please refer to the "App Standard Events" section on in TikTok’s [Supported events documentation](https://business-api.tiktok.com/portal/docs?id=1771101186666498) for accepted event names.'
+      'Conversion event name. Please refer to the "App Standard Events" section on in TikTok’s [Supported events documentation](https://business-api.tiktok.com/portal/docs?id=1771101186666498) for accepted event names.',
+    choices: STANDARD_EVENTS.map((event) => ({
+      label: event.ttEventName,
+      value: event.ttEventName
+    }))   
   },
   event_id: {
     label: 'Event ID',
