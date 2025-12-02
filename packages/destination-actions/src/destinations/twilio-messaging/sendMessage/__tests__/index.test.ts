@@ -10,8 +10,7 @@ const defaultSettings = {
   accountSID: 'AC1234567890abcdef1234567890abcdef',
   authToken: 'test_auth_token',
   apiKeySID: 'test_api_key_sid',
-  apiKeySecret: 'test_api_key_secret',
-  region: 'us1'
+  apiKeySecret: 'test_api_key_secret'
 }
 
 describe('TwilioMessaging.sendMessage', () => {
