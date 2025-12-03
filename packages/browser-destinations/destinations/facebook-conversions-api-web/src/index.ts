@@ -21,6 +21,8 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
     pixelId: {
       description: 'The Pixel ID associated with your Facebook Pixel.',
       label: 'Pixel ID',
+      minimum: 15,
+      maximum: 15,
       type: 'string',
       required: true  
     },

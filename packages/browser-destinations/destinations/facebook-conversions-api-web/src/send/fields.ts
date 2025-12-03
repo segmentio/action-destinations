@@ -268,7 +268,7 @@ export const custom_data: InputField = {
 
 export const eventID: InputField = {
     label: 'Event ID',
-    description: 'This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API.',
+    description: 'This ID can be any unique string. Event ID is used to deduplicate events sent both the server side Conversions API and the browser Pixel.',
     type: 'string',
     default: { '@path': '$.messageId' }
 }
@@ -315,7 +315,7 @@ export const userData: InputField = {
         },
         ph: {
             label: 'Phone Number',
-            description: 'Phone number of the user',
+            description: 'Phone number of the user. Make sure to include the country code. For example, "15551234567" for a US number.',
             type: 'string'
         },
         fn: {
@@ -354,7 +354,7 @@ export const userData: InputField = {
         },
         zp: {
             label: 'ZIP/Postal Code',
-            description: 'ZIP or postal code of the user. For example, "94025" for Menlo Park, CA, or "10001" for New York City.',
+            description: 'ZIP or postal code of the user. For example, U.S zip code: 94035, Australia zip code: 1987, France zip code: 75018, UK zip code: m11ae',
             type: 'string'
         },
         country: {
