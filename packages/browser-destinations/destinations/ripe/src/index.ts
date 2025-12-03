@@ -42,7 +42,7 @@ export const destination: BrowserDestinationDefinition<Settings, RipeSDK> = {
     apiKey: {
       description: 'The Ripe API key found in the Ripe App',
       label: 'API Key',
-      type: 'string',
+      type: 'password',
       required: true
     },
     endpoint: {
