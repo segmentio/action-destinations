@@ -9,6 +9,7 @@ const action: BrowserActionDefinition<Settings, FBClient, Payload> = {
   title: 'Send Event',
   description: 'Send a Standard or Custom Event to Facebook Conversions API.',
   platform: 'web',
+  defaultSubscription: 'type = "track"',
   fields: AllFields,
   perform: (client, { payload, settings }) => {
     send(client, payload, settings)

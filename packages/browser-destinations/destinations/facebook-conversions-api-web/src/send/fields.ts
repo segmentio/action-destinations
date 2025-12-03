@@ -244,7 +244,7 @@ export const value: InputField = {
     label: 'Value',
     description: 'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
     type: 'number',
-    default: { '@path': '$.properties.currency' },
+    default: { '@path': '$.properties.total' },
     depends_on: getDependenciesFor('value'),
     required: {
         match: 'all',
