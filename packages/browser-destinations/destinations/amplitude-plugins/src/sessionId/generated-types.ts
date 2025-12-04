@@ -17,4 +17,12 @@ export interface Payload {
    * The event name to use for the session end event.
    */
   sessionEndEvent?: string
+  /**
+   * If enabled, attribution details will be captured from the URL and attached to every Amplitude browser based event.
+   */
+  enableAutocaptureAttribution?: boolean
+  /**
+   * A list of hostnames to ignore when capturing attribution data. If the current page referrer matches any of these hostnames, no attribution data will be captured from the URL.
+   */
+  excludeReferrers?: string[]
 }

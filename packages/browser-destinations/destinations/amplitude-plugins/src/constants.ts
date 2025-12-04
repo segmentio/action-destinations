@@ -1,0 +1,1 @@
+export const DESTINATION_INTEGRATION_NAME = 'Actions Amplitude'

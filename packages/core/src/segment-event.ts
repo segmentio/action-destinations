@@ -1,4 +1,4 @@
-import { JSONValue } from './json-object'
+import { JSONObject, JSONValue } from './json-object'
 
 export type ID = string | null | undefined
 
@@ -14,7 +14,7 @@ interface CompactMetric {
 
 export type Integrations = {
   All?: boolean
-  [integration: string]: boolean | undefined
+  [integration: string]: boolean | undefined | JSONObject
 }
 
 export type Options = {

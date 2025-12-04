@@ -6,17 +6,21 @@ export interface Payload {
    */
   user_id?: string | null
   /**
-   * A device specific identifier, such as the Identifier for Vendor (IDFV) on iOS. If either user ID or device ID is present, an associate user to group call will be made.
+   * The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.
    */
-  device_id?: string
+  time?: string | number
   /**
    * Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time.
    */
   insert_id?: string
   /**
-   * The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.
+   * Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
    */
-  time?: string
+  min_id_length?: number | null
+  /**
+   * A device-specific identifier, such as the Identifier for Vendor on iOS. Required unless user ID is present. If a device ID is not sent with the event, it will be set to a hashed version of the user ID.
+   */
+  device_id?: string
   /**
    * Additional data tied to the group in Amplitude.
    */
@@ -31,8 +35,4 @@ export interface Payload {
    * The value of the group
    */
   group_value: string
-  /**
-   * Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
-   */
-  min_id_length?: number | null
 }

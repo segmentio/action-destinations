@@ -1,4 +1,4 @@
-import { formatSessionId } from '../convert-timestamp'
+import { formatSessionId } from '../events-functions'
 
 describe('Amplitude - Convert timestamp - format session_id', () => {
   it('should convert string to number', () => {
