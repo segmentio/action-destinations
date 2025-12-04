@@ -42,7 +42,7 @@ For more detailed instruction, see the following READMEs:
 
 This is a monorepo with multiple packages leveraging:
 
-- [`lerna`](https://github.com/lerna/lerna) for publishing
+- [`lerna`](https://github.com/lerna/lerna) for publishing.
 - [`nx`](https://nx.dev) for dependency-tree aware building, linting, testing, and caching (migration away from `lerna` in progress!).
 - [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces) for package symlinking and hoisting.
 
