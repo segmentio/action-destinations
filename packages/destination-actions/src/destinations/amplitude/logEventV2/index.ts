@@ -223,6 +223,7 @@ const action: ActionDefinition<Settings, Payload> = {
       userAgentData,
       min_id_length,
       library,
+      library2,
       setOnce,
       setAlways,
       add,
@@ -271,7 +272,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ...(includeRawUserAgent && { user_agent: userAgent }),
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
-        library: 'segment'
+        library: library2?.behavior === 'use_mapping' ? library2.mapping : 'segment'
       }
     ]
 
