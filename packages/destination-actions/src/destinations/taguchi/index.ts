@@ -14,7 +14,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Taguchi API Key used to authenticate requests to the Taguchi platform.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       integrationURL: {
@@ -53,7 +53,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   actions: {
     syncEvent,
-    syncUserProfile,
+    syncUserProfile
   }
 }
 

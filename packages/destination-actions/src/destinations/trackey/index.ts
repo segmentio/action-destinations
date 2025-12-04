@@ -15,7 +15,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Your Trackey API Key',
-        type: 'string',
+        type: 'password',
         required: true
       }
     }

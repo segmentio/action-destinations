@@ -19,7 +19,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Application ID',
         description:
           'Application ID can be found in [Voucherify dashboard](https://docs.voucherify.io/docs/authentication).',
-        type: 'string',
+        type: 'password',
         required: true
       },
       secretKey: {

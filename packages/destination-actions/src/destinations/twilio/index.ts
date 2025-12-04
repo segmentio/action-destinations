@@ -18,7 +18,7 @@ const destination: DestinationDefinition<Settings> = {
       token: {
         label: 'Token',
         description: 'Your Twilio Token.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       phoneNumber: {

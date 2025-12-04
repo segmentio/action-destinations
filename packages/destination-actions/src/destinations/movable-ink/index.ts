@@ -19,7 +19,7 @@ const destination: DestinationDefinition<Settings> = {
       password: {
         label: 'Access Secret',
         description: 'Your Movable Ink Access Secret.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       movable_ink_url: {

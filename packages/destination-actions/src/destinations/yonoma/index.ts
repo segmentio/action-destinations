@@ -15,7 +15,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Your Yonoma API key.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },
@@ -26,12 +26,12 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest: ({ settings }) => {
-    return { 
+    return {
       headers: {
-        "User-Agent": "Segment",
-        "Content-Type": "application/json",
-        'Authorization': `Bearer ${settings.apiKey}` 
-      } 
+        'User-Agent': 'Segment',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${settings.apiKey}`
+      }
     }
   },
   actions: {

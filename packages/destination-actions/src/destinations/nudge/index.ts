@@ -13,7 +13,7 @@ const destination: DestinationDefinition<Settings> = {
       apikey: {
         label: 'API Key',
         description: 'Private Backend API Key',
-        type: 'string',
+        type: 'password',
         required: true
       }
     }

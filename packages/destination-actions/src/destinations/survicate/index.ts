@@ -38,8 +38,9 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       apiKey: {
         label: 'Destination Key',
-        description: 'Your Survicate Destination Key, which you can find in Survicate - Integrations - Segment (Cloud Mode, Actions) - Settings.',
-        type: 'string',
+        description:
+          'Your Survicate Destination Key, which you can find in Survicate - Integrations - Segment (Cloud Mode, Actions) - Settings.',
+        type: 'password',
         required: true
       }
     },

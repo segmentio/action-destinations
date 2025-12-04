@@ -16,13 +16,13 @@ const destination: DestinationDefinition<Settings> = {
       api_key: {
         label: 'Api Key',
         description: 'Your Rehook API Key',
-        type: 'string',
+        type: 'password',
         required: true
       },
       api_secret: {
         label: 'Api Secret',
         description: 'Your Rehook API Secret',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

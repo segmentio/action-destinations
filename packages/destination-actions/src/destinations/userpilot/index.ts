@@ -46,7 +46,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Key',
         description:
           'Your Userpilot API key can be found in the [Userpilot environment](https://run.userpilot.io/environment) dashboard.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       endpoint: {

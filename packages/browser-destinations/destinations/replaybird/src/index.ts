@@ -37,7 +37,7 @@ export const destination: BrowserDestinationDefinition<Settings, ReplayBird> = {
     apiKey: {
       description: 'The api key for replaybird',
       label: 'API Key',
-      type: 'string',
+      type: 'password',
       required: true
     }
   },
