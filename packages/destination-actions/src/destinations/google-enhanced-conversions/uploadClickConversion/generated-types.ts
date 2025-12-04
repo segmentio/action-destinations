@@ -18,9 +18,42 @@ export interface Payload {
    */
   wbraid?: string
   /**
-   * A base64url-encoded JSON string containing session attributes collected from the user's browser. This provides additional attribution context if gclid, gbraid, or user identifiers are missing.
+   * The IP address of the user who initiated the conversion.
+   */
+  user_ip_address?: string
+  /**
+   * A base64url-encoded JSON string containing session attributes collected from the user's browser. Provides additional attribution context if gclid, gbraid, or user identifiers are missing.
    */
   session_attributes_encoded?: string
+  /**
+   * An alternative to the 'Session Attributes (Encoded)' field which can be used for Offline Conversions. If both 'Session Attributes (Encoded)' and 'Session Attributes (Key Value Pairs)' are provided, the encoded field takes precedence.
+   */
+  session_attributes_key_value_pairs?: {
+    /**
+     * An aggregate parameter served in the URL to identify the source of traffic originating from ads. See [Google's docs](https://support.google.com/google-ads/answer/16193746?sjid=2692215861659291994)
+     */
+    gad_source?: string
+    /**
+     * The ID of the specific ad campaign that drove the ad click. See [Google's docs](https://support.google.com/google-ads/answer/16193746?sjid=2692215861659291994)
+     */
+    gad_campaignid?: string
+    /**
+     * The full URL of the landing page on your website. This indicates the specific page the user first arrived on.
+     */
+    landing_page_url?: string
+    /**
+     * The timestamp of when the user's session began on your website. This helps track the duration of user visits. The format should be a full ISO 8601 string. For example "2025-11-18T08:52:17.023Z".
+     */
+    session_start_time_usec?: string
+    /**
+     * The URL of the webpage that linked the user to your website. This helps understand the traffic sources leading to your site. See [Google's docs](https://support.google.com/google-ads/answer/2382957?sjid=658827203196258052)
+     */
+    landing_page_referrer?: string
+    /**
+     * A string that identifies the user's browser and operating system. This information can be useful for understanding the technical environment of your users.
+     */
+    landing_page_user_agent?: string
+  }
   /**
    * The date time at which the conversion occurred. Must be after the click time. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00".
    */
