@@ -239,11 +239,26 @@ export const fields: Record<string, InputField> = {
   },
   sendAt: {
     label: 'Send At',
-    description: 'The time that Twilio will send the message. Must be in ISO 8601 format.',
+    description: 'The time that Twilio will send the message. Must be in ISO 8601 format. Messages can be scheduled up to 35 days in advance, and at least 15 minutes in advance.',
     type: 'string',
     format: 'date-time',
     required: false,
-    default: undefined
+    default: undefined,
+    depends_on: {
+      match: 'all',
+      conditions: [
+        {
+          fieldKey: 'senderType',
+          operator: 'is',
+          value: SENDER_TYPE.MESSAGING_SERVICE
+        },
+        {
+          fieldKey: 'messagingServiceSid',
+          operator: 'is_not',
+          value: ''
+        }
+      ]
+    }
   },
   tags: {
     label: 'Tags',
