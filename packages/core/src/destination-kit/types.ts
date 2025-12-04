@@ -398,6 +398,40 @@ export type ActionDestinationErrorResponseType = {
   body?: JSONLikeObject | string
 }
 
+export type AsyncActionResponseType = {
+  /** Indicates this is an async operation */
+  isAsync: true
+  /** Optional message about the async operation(s) */
+  message?: string
+  /** Initial status code */
+  status?: number
+}
+
+export type AsyncOperationResult = {
+  /** The current status of this operation */
+  status: 'pending' | 'completed' | 'failed'
+  /** Message about current state */
+  message?: string
+  /** Final result data when status is 'completed' */
+  result?: JSONLikeObject
+  /** Error information when status is 'failed' */
+  error?: {
+    code: string
+    message: string
+  }
+  /** Original context for this operation */
+  context?: JSONLikeObject
+}
+
+export type AsyncPollResponseType = {
+  /** Array of operation results - single element for individual operations, multiple for batch */
+  results: AsyncOperationResult[]
+  /** Overall status - completed when all operations are done */
+  overallStatus: 'pending' | 'completed' | 'failed' | 'partial'
+  /** Summary message */
+  message?: string
+}
+
 export type ResultMultiStatusNode =
   | ActionDestinationSuccessResponseType
   | (ActionDestinationErrorResponseType & {
