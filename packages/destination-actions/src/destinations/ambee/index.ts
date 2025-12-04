@@ -21,7 +21,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Key',
         description:
           'The API Key is available via Ambee’s API Dashboard: https://api-dashboard.getambee.com. Paste the API key generated on the homepage. For bulk use, subscribe to enterprise plan on the dashboard',
-        type: 'string',
+        type: 'password',
         required: true
       },
       email: {
