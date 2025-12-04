@@ -22,7 +22,11 @@ export interface AudiencePayload {
   description: string
   countryCode: string
   targetResource: {
-    advertiserId: string
+    advertiserId?: string
+    amcInstanceId?: String
+    amcAccountId?: string
+    amcAccountMarketplaceId?: string
+    connectionId?: string
   }
   metadata: {
     externalAudienceId: string
@@ -50,6 +54,7 @@ export const CURRENCY = ['USD', 'CAD', 'JPY', 'GBP', 'EUR', 'SAR', 'AUD', 'AED',
 
 export const REGEX_AUDIENCEID = /"audienceId":(\d+)/
 export const REGEX_ADVERTISERID = /"advertiserId":"(\d+)"/
+export const REGEX_CONNECTIONID = /"connectionId":"(\d+)"/
 type AmazonAMCCredentials = { refresh_token: string; access_token: string; client_id: string; client_secret: string }
 
 export function extractNumberAndSubstituteWithStringValue(responseString: string, regex: any, substituteWith: string) {

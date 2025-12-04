@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { processBatchPayload, processPayload } from '../function'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Sync Audiences to DSP',
+  title: 'Sync Audiences to DSP and AMC',
   description: 'Sync audiences from Segment to Amazon Ads Audience.',
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   fields: {
