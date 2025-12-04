@@ -226,9 +226,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const amcAccountMarketplaceId = audienceSettings?.amcAccountMarketplaceId
       const syncTo = audienceSettings?.sync_to || 'dsp'
 
-      if (!advertiser_id && !(amcInstanceId && amcAccountId && amcAccountMarketplaceId)) {
+      if (syncTo === 'dsp' && !advertiser_id) {
         throw new IntegrationError(
-          'One of Advertiser ID or a combination of AMC Instance ID, AMC Account ID, and AMC Account Marketplace ID must be provided',
+          'Missing advertiserId Value when syncing audience to DSP',
+          'MISSING_REQUIRED_FIELD',
+          400
+        )
+      }
+
+      if (syncTo === 'amc' && !amcInstanceId && !amcAccountId && !amcAccountMarketplaceId) {
+        throw new IntegrationError(
+          'Missing required fields amcInstanceId, amcAccountId, and amcAccountMarketplaceId Value when syncing audience to AMC',
           'MISSING_REQUIRED_FIELD',
           400
         )

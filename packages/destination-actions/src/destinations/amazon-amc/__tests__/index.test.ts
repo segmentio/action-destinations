@@ -67,33 +67,36 @@ describe('Amazon-Ads (actions)', () => {
       )
     })
 
-    it('should fail if advertiserId is missing in audienceSettings', async () => {
-      const createAudienceInput = {
-        ...createAudienceInputTemp,
-        audienceSettings: {
-          ...audienceSettings,
-          advertiserId: ''
-        }
-      }
-      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
-        'Missing advertiserId Value'
-      )
-    })
-    it('should fail if advertiserId  and amcInstanceId && amcAccountId && amcAccountMarketplaceId are missing in audienceSettings', async () => {
+    it("should fail if advertiserId is missing in audienceSettings and sync_to = 'DSP'", async () => {
       const createAudienceInput = {
         ...createAudienceInputTemp,
         audienceSettings: {
           ...audienceSettings,
           advertiserId: '',
-          amcInstanceId: '',
-          amcAccountId: '',
-          amcAccountMarketplaceId: ''
+          sync_to: 'dsp'
         }
       }
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
-        'Missing advertiserId, amcInstanceId , amcAccountId , amcAccountMarketplaceId Value'
+        'Missing advertiserId Value when syncing audience to DSP'
       )
     })
+
+    it("should fail if amcInstanceId && amcAccountId && amcAccountMarketplaceId are missing in audienceSettings and sync_to = 'AMC'", async () => {
+      const createAudienceInput = {
+        ...createAudienceInputTemp,
+        audienceSettings: {
+          ...audienceSettings,
+          amcInstanceId: '',
+          amcAccountId: '',
+          amcAccountMarketplaceId: '',
+          sync_to: 'amc'
+        }
+      }
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
+        'Missing required fields amcInstanceId, amcAccountId, and amcAccountMarketplaceId Value when syncing audience to AMC'
+      )
+    })
+
     it('should fail if externalAudienceId is missing in audienceSettings', async () => {
       const createAudienceInput = {
         ...createAudienceInputTemp,
