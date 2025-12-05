@@ -4,9 +4,8 @@ import send from './send'
 const destination: DestinationDefinition<Settings> = {
   name: 'Zapier',
   slug: 'actions-zapier',
-  description: 'Send your Segment data to Zapier',
+  description: 'Send Segment event data to Zapier',
   mode: 'cloud',
-
   authentication: {
     scheme: 'custom',
     fields: {}
