@@ -12,7 +12,7 @@ export interface AudienceSettings {
   /**
    * Chose whether to sync audience to DSP or AMC. Defaults to DSP.
    */
-  sync_to?: string
+  syncTo?: string
   /**
    * The audience description. Must be an alphanumeric, non-null string between 0 to 1000 characters in length.
    */
@@ -38,19 +38,19 @@ export interface AudienceSettings {
    */
   ttl?: number
   /**
-   * Use for Amazon Ads DSP integration
+   * Advertiser ID when when syncing an Audience to Amazon Ads DSP
    */
   advertiserId?: string
   /**
-   * Use for  Amazon Marketing Cloud (AMC) integration
+   * AMC Instance ID used when syncing an audience to Amazon Marketing Cloud (AMC)
    */
   amcInstanceId?: string
   /**
-   * Use for  Amazon Marketing Cloud (AMC) integration
+   * AMC Account ID used when syncing an audience to Amazon Marketing Cloud (AMC)
    */
   amcAccountId?: string
   /**
-   * Use for  Amazon Marketing Cloud (AMC) integration
+   * AMC Account Marketplace ID used when syncing an audience to Amazon Marketing Cloud (AMC)
    */
   amcAccountMarketplaceId?: string
 }

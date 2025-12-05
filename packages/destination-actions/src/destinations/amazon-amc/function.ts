@@ -1,10 +1,9 @@
-import { InvalidAuthenticationError } from '@segment/actions-core'
-import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
+import { InvalidAuthenticationError, JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
-import { AudienceRecord, HashedPIIObject } from './types'
-import { CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID } from './utils'
+import { AudienceRecord, HashedPIIObject, RecordsResponseType } from './types'
 import { processHashing } from '../../lib/hashing-utils'
+import { CONSTANTS, REGEX_EXTERNALUSERID, ALPHA_NUMERIC, EMAIL_ALLOWED, NON_DIGIT } from './constants'
 
 export async function processPayload(
   request: RequestClient,
@@ -47,19 +46,7 @@ export async function processPayload(
  */
 export function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: AudienceSettings) {
   const records: AudienceRecord[] = []
-  const originalAudienceId = payloads[0].audienceId
-  let audienceId = originalAudienceId
-  let targetResources: { connectionId?: string } = {}
-  const syncAudienceToAMC = originalAudienceId.includes(':')
-
-  // Check if audienceId contains a ':'
-  if (syncAudienceToAMC) {
-    const [extractedAudienceId, extractedConnectionId] = originalAudienceId.split(':')
-    audienceId = extractedAudienceId
-    targetResources = {
-      connectionId: extractedConnectionId
-    }
-  }
+  const [audienceId, connectionId = ''] = payloads[0].audienceId.split(':')
 
   payloads.forEach((payload: Payload) => {
     // Check if the externalUserId matches the pattern
@@ -82,24 +69,11 @@ export function createPayloadToUploadRecords(payloads: Payload[], audienceSettin
     )
   }
 
-  let payloadRecord: {
-    records: AudienceRecord[]
-    audienceId: string
-    targetResource?: { connectionId?: string }
-  } = {
-    records: records,
-    audienceId: audienceId
+  return {
+    records,
+    audienceId,
+    ...(connectionId ? { targetResource: { connectionId } } : {})
   }
-
-  //only add targetResource if syncing to AMC
-  if (syncAudienceToAMC) {
-    payloadRecord = {
-      ...payloadRecord,
-      targetResource: targetResources
-    }
-  }
-
-  return payloadRecord
 }
 
 function validateAndPreparePayload(
@@ -164,23 +138,12 @@ export async function processBatchPayload(
     return multiStatusResponse
   }
 
-  const originalAudienceId = payloads[0].audienceId
-  let audienceId = originalAudienceId
-  let targetResources: { connectionId?: string } = {}
-
-  // Check if audienceId contains a ':'
-  if (originalAudienceId.includes(':')) {
-    const [extractedAudienceId, extractedConnectionId] = originalAudienceId.split(':')
-    audienceId = extractedAudienceId
-    targetResources = {
-      connectionId: extractedConnectionId
-    }
-  }
+  const [audienceId, connectionId = ''] = payloads[0].audienceId.split(':')
 
   const payloadString = JSON.stringify({
     audienceId: audienceId,
     records: filteredPayloads,
-    targetResource: targetResources
+    ...(connectionId ? { targetResource: { connectionId } } : {})
   }).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
 
   const response = await request<RecordsResponseType>(`${settings.region}/amc/audiences/records`, {
@@ -241,22 +204,17 @@ function normalize(value: string, allowedChars: RegExp, trim = true): string {
   return normalized
 }
 
-// Define allowed character patterns
-const alphanumeric = /[^a-z0-9]/g
-const emailAllowed = /[^a-z0-9.@-]/g
-const nonDigits = /[^\d]/g
-
 // Combine city,state,firstName,lastName normalization
 function normalizeStandard(value: string): string {
-  return normalize(value, alphanumeric)
+  return normalize(value, ALPHA_NUMERIC)
 }
 
 function normalizePhone(phone: string): string {
-  return normalize(phone, nonDigits)
+  return normalize(phone, NON_DIGIT)
 }
 
 function normalizeEmail(email: string): string {
-  return normalize(email, emailAllowed)
+  return normalize(email, EMAIL_ALLOWED)
 }
 
 /**

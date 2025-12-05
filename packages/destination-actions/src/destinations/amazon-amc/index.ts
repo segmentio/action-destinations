@@ -1,20 +1,8 @@
-import {
-  AudienceDestinationDefinition,
-  InvalidAuthenticationError,
-  IntegrationError,
-  defaultValues
-} from '@segment/actions-core'
-import type { RefreshTokenResponse, AmazonTestAuthenticationError } from './types'
+import { AudienceDestinationDefinition, InvalidAuthenticationError, PayloadValidationError, defaultValues } from '@segment/actions-core'
+import { RefreshTokenResponse, AmazonTestAuthenticationError, AudiencePayload, DSPTargetResource, AMCTargetResource  } from './types'
 import type { Settings, AudienceSettings } from './generated-types'
-import {
-  AudiencePayload,
-  extractNumberAndSubstituteWithStringValue,
-  getAuthToken,
-  REGEX_ADVERTISERID,
-  REGEX_AUDIENCEID,
-  TTL_MAX_VALUE
-} from './utils'
-
+import { extractNumberAndSubstituteWithStringValue, getAuthToken } from './utils'
+import { SYNC_TO, REGEX_AUDIENCEID, REGEX_ADVERTISERID, TTL_MAX_VALUE} from './constants'
 import syncAudiencesToDSP from './syncAudiencesToDSP'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
@@ -77,16 +65,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
 
   audienceFields: {
-    sync_to: {
+    syncTo: {
       type: 'string',
       label: 'Sync To',
       required: false,
       description: 'Chose whether to sync audience to DSP or AMC. Defaults to DSP.',
       choices: [
-        { label: 'DSP', value: 'dsp' },
-        { label: 'AMC', value: 'amc' }
+        { label: 'DSP', value: SYNC_TO.DSP },
+        { label: 'AMC', value: SYNC_TO.AMC }
       ],
-      default: 'dsp'
+      default: SYNC_TO.DSP
     },
     description: {
       type: 'string',
@@ -142,64 +130,100 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     //As per the discussion, for now taking `advertiserId` in `audienceFields` as user can create multiple audiences within a single instance of destination.
     advertiserId: {
       label: 'Advertiser ID',
-      description: 'Use for Amazon Ads DSP integration',
+      description: 'Advertiser ID when when syncing an Audience to Amazon Ads DSP',
       type: 'string',
-      required: false,
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'sync_to',
+            operator: 'is_not',
+            value: SYNC_TO.AMC
+          }
+        ]
+      },
       depends_on: {
         match: 'all',
         conditions: [
           {
             fieldKey: 'sync_to',
             operator: 'is_not',
-            value: 'dsp'
+            value: SYNC_TO.AMC
           }
         ]
       }
     },
     amcInstanceId: {
       label: 'AMC Instance ID',
-      description: 'Use for  Amazon Marketing Cloud (AMC) integration',
+      description: 'AMC Instance ID used when syncing an audience to Amazon Marketing Cloud (AMC)',
       type: 'string',
-      required: false,
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'sync_to',
+            operator: 'is',
+            value: SYNC_TO.AMC
+          }
+        ]
+      },
       depends_on: {
         match: 'all',
         conditions: [
           {
             fieldKey: 'sync_to',
             operator: 'is',
-            value: 'amc'
+            value: SYNC_TO.AMC
           }
         ]
       }
     },
     amcAccountId: {
       label: 'AMC Account ID',
-      description: 'Use for  Amazon Marketing Cloud (AMC) integration',
+      description: 'AMC Account ID used when syncing an audience to Amazon Marketing Cloud (AMC)',
       type: 'string',
-      required: false,
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'sync_to',
+            operator: 'is',
+            value: SYNC_TO.AMC
+          }
+        ]
+      },
       depends_on: {
         match: 'all',
         conditions: [
           {
             fieldKey: 'sync_to',
             operator: 'is',
-            value: 'amc'
+            value: SYNC_TO.AMC
           }
         ]
       }
     },
     amcAccountMarketplaceId: {
       label: 'AMC Account Marketplace ID',
-      description: 'Use for  Amazon Marketing Cloud (AMC) integration',
+      description: 'AMC Account Marketplace ID used when syncing an audience to Amazon Marketing Cloud (AMC)',
       type: 'string',
-      required: false,
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'sync_to',
+            operator: 'is',
+            value: SYNC_TO.AMC
+          }
+        ]
+      },
       depends_on: {
         match: 'all',
         conditions: [
           {
             fieldKey: 'sync_to',
             operator: 'is',
-            value: 'amc'
+            value: SYNC_TO.AMC
           }
         ]
       }
@@ -214,81 +238,54 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async createAudience(request, createAudienceInput) {
       const { audienceName, audienceSettings, settings } = createAudienceInput
       const endpoint = settings.region
-      const description = audienceSettings?.description
-      const advertiser_id = audienceSettings?.advertiserId
-      const external_audience_id = audienceSettings?.externalAudienceId
-      const country_code = audienceSettings?.countryCode
-      const ttl = audienceSettings?.ttl
-      const currency = audienceSettings?.currency
-      const cpm_cents = audienceSettings?.cpmCents
-      const amcInstanceId = audienceSettings?.amcInstanceId
-      const amcAccountId = audienceSettings?.amcAccountId
-      const amcAccountMarketplaceId = audienceSettings?.amcAccountMarketplaceId
-      const syncTo = audienceSettings?.sync_to || 'dsp'
 
-      if (syncTo === 'dsp' && !advertiser_id) {
-        throw new IntegrationError(
-          'Missing advertiserId Value when syncing audience to DSP',
-          'MISSING_REQUIRED_FIELD',
-          400
-        )
+      const {
+        syncTo = SYNC_TO.DSP,
+        description,
+        advertiserId,
+        externalAudienceId,
+        countryCode,
+        ttl,
+        currency,
+        cpmCents,
+        amcInstanceId,
+        amcAccountId, 
+        amcAccountMarketplaceId
+      } = audienceSettings || {}
+
+
+      if (syncTo === SYNC_TO.DSP && !advertiserId) {
+        throw new PayloadValidationError('Advertiser Id value is required when syncing an audience to DSP')
       }
 
-      if (syncTo === 'amc' && !amcInstanceId && !amcAccountId && !amcAccountMarketplaceId) {
-        throw new IntegrationError(
-          'Missing required fields amcInstanceId, amcAccountId, and amcAccountMarketplaceId Value when syncing audience to AMC',
-          'MISSING_REQUIRED_FIELD',
-          400
-        )
+      if (syncTo === SYNC_TO.AMC && (!amcInstanceId || !amcAccountId || !amcAccountMarketplaceId)) {
+        throw new PayloadValidationError('AMC Instance Id, AMC Account Id and AMC Account Marketplace Id value are required when syncing audience to AMC')
       }
 
       if (!description) {
-        throw new IntegrationError('Missing description Value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new PayloadValidationError('Missing description Value')
       }
 
-      if (!external_audience_id) {
-        throw new IntegrationError('Missing externalAudienceId Value', 'MISSING_REQUIRED_FIELD', 400)
+      if (!externalAudienceId) {
+        throw new PayloadValidationError('Missing externalAudienceId Value')
       }
 
       if (!audienceName) {
-        throw new IntegrationError('Missing audienceName Value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new PayloadValidationError('Missing audienceName Value')
       }
-      if (!country_code) {
-        throw new IntegrationError('Missing countryCode Value', 'MISSING_REQUIRED_FIELD', 400)
+
+      if (!countryCode) {
+        throw new PayloadValidationError('Missing countryCode Value')
       }
+
       if (ttl && ttl > TTL_MAX_VALUE) {
-        throw new IntegrationError(`TTL must have value less than or equal to ${TTL_MAX_VALUE}`, 'INVALID_INPUT', 400)
+        throw new PayloadValidationError(`TTL must have value less than or equal to ${TTL_MAX_VALUE}`)
       }
 
-      const payload: AudiencePayload = {
-        name: audienceName,
-        description: description,
-        targetResource: {},
-        metadata: {
-          externalAudienceId: external_audience_id
-        },
-        countryCode: country_code
-      }
-
-      let connectionId = ''
-      const sendToAmc = amcInstanceId && amcAccountId && amcAccountMarketplaceId
-
-      // Prioritize connectionId over advertiserId if both are present
-      if (syncTo !== 'amc') {
-        payload.targetResource.advertiserId = advertiser_id
-      } else {
-        payload.targetResource.amcInstanceId = amcInstanceId
-        payload.targetResource.amcAccountId = amcAccountId
-        payload.targetResource.amcAccountMarketplaceId = amcAccountMarketplaceId
-
-        const payloadStringConnsAPI = JSON.stringify({
-          amcInstanceId: amcInstanceId,
-          amcAccountId: amcAccountId,
-          amcAccountMarketplaceId: amcAccountMarketplaceId
-        })
-
-        //create connection id
-        const responseFromConnectionsAPI = await request(`${endpoint}/amc/audiences/connections`, {
+      let connectionId: string | undefined = undefined
+      if(syncTo === SYNC_TO.AMC) {
+        const payloadStringConnsAPI = JSON.stringify({amcInstanceId, amcAccountId, amcAccountMarketplaceId})
+        const response = await request(`${endpoint}/amc/audiences/connections`, {
           method: 'POST',
           body: payloadStringConnsAPI,
           headers: {
@@ -296,27 +293,55 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           }
         })
 
-        const respObj = JSON.parse(await responseFromConnectionsAPI.text())
-        payload.targetResource.connectionId = respObj.connectionId
-        connectionId = respObj.connectionId
+        connectionId = JSON.parse(await response.text())?.connectionId
+        if(!connectionId) {
+          throw new PayloadValidationError('Unable to fetch connectionId with given AMC amcInstanceId amcAccountId and amcAccountMarketplaceId details')
+        }
+      }
+
+      const payload: AudiencePayload = {
+        name: audienceName,
+        description,
+        targetResource: (() => {
+          if (syncTo === SYNC_TO.AMC) {
+            const targetResource: AMCTargetResource = {
+              amcInstanceId: amcInstanceId as string,
+              amcAccountId: amcAccountId as string,
+              amcAccountMarketplaceId: amcAccountMarketplaceId as string,
+              connectionId: connectionId as string
+            }
+            return targetResource
+          }
+          if(syncTo === SYNC_TO.DSP) {
+            const targetResource: DSPTargetResource = {
+              advertiserId: advertiserId as string
+            }
+            return targetResource
+          }
+          throw new PayloadValidationError('Invalid syncTo value')
+        })(),
+        metadata: {
+          externalAudienceId
+        },
+        countryCode
       }
 
       if (ttl) {
         payload.metadata.ttl = ttl
       }
 
-      if (cpm_cents && currency) {
+      if (cpmCents && currency) {
         payload.metadata.audienceFees = []
         payload.metadata?.audienceFees.push({
           currency,
-          cpmCents: cpm_cents
+          cpmCents
         })
       }
 
       let payloadString = JSON.stringify(payload)
       // Regular expression to find a advertiserId numeric string and replace the quoted advertiserId string with an unquoted number
       // AdvertiserId is very big number string and can not be assigned or converted to number directly as it changes the value due to integer overflow.
-      if (advertiser_id) {
+      if (syncTo === SYNC_TO.DSP) {
         payloadString = payloadString.replace(REGEX_ADVERTISERID, '"advertiserId":$1')
       }
 
@@ -333,18 +358,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       // Regular expression to find a audienceId number and replace the audienceId with quoted string
       const resp = extractNumberAndSubstituteWithStringValue(res, REGEX_AUDIENCEID, '"audienceId":"$1"')
       return {
-        //send connection id along with audience id if sent to amc
-        externalId: sendToAmc ? resp.audienceId + ':' + connectionId : resp.audienceId
+        externalId: syncTo === SYNC_TO.DSP ? resp.audienceId : resp.audienceId + ':' + connectionId
       }
     },
 
     async getAudience(request, getAudienceInput) {
       // getAudienceInput.externalId represents audience ID that was created in createAudience
-      const audience_id = getAudienceInput.externalId
+      const audience_id = getAudienceInput.externalId.split(':')[0]
       const { settings } = getAudienceInput
       const endpoint = settings.region
       if (!audience_id) {
-        throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new PayloadValidationError('Missing audienceId value')
       }
       const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
         method: 'GET',

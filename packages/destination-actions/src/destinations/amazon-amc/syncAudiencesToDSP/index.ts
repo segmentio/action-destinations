@@ -1,5 +1,5 @@
 import { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
+import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { processBatchPayload, processPayload } from '../function'
 
@@ -124,10 +124,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload, audienceSettings }) => {
-    return processPayload(request, settings, [payload], audienceSettings)
+    return processPayload(request, settings, [payload], audienceSettings as AudienceSettings)
   },
   performBatch: async (request, { settings, payload: payloads, audienceSettings }) => {
-    return await processBatchPayload(request, settings, payloads, audienceSettings)
+    return await processBatchPayload(request, settings, payloads, audienceSettings as AudienceSettings)
   }
 }
 
