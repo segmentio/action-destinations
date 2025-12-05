@@ -1,7 +1,6 @@
 import nock from 'nock'
-import { createTestIntegration } from '@segment/actions-core'
+import { HTTPError, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
-import { HTTPError } from '@segment/actions-core/*'
 import { AUTHORIZATION_URL, TTL_MAX_VALUE } from '../constants'
 
 const testDestination = createTestIntegration(Definition)
