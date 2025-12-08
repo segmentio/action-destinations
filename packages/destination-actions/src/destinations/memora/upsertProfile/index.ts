@@ -148,7 +148,6 @@ const action: ActionDefinition<Settings, Payload> = {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${settings.api_key}`,
           ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
         },
         json: {
@@ -209,7 +208,6 @@ const action: ActionDefinition<Settings, Payload> = {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${settings.api_key}`,
           ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
         },
         json: {
@@ -369,15 +367,16 @@ async function fetchMemoryStores(
     const baseUrl = normalizeBaseUrl(settings.url)
 
     // Call the Control Plane API to list memory stores
-    const response = await request<MemoryStoresResponse>(`${baseUrl}/ControlPlane/Services?pageSize=100&orderBy=ASC`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${settings.api_key}`,
-        ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
-      },
-      skipResponseCloning: true
-    })
-
+    const response = await request<MemoryStoresResponse>(
+      `${baseUrl}/${API_VERSION}/ControlPlane/Services?pageSize=100&orderBy=ASC`,
+      {
+        method: 'GET',
+        headers: {
+          ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
+        },
+        skipResponseCloning: true
+      }
+    )
     const services = response?.data?.services || []
     const choices = services.map((serviceId: string) => ({
       label: serviceId,
@@ -410,19 +409,18 @@ async function fetchTraitFields(
     const baseUrl = normalizeBaseUrl(settings.url)
 
     // Use a sample profile to fetch trait schema - in production, you might want to query
+    // Use a sample profile to fetch trait schema - in production, you might want to query
     // a specific profile or use a metadata endpoint if available
     const response = await request<{ traits?: TraitField[]; meta?: { nextPageToken?: string } }>(
       `${baseUrl}/${API_VERSION}/Services/${settings.serviceId}/Profiles/traits-schema?traitGroups=${traitGroup}`,
       {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${settings.api_key}`,
           ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
         },
         skipResponseCloning: true
       }
     )
-
     const traits = response?.data?.traits || []
     const choices = traits.map((trait: TraitField) => ({
       label: trait.name || trait.key || '',
