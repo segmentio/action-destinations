@@ -3,7 +3,7 @@ import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
 import { AudienceRecord, HashedPIIObject, RecordsResponseType } from './types'
 import { processHashing } from '../../lib/hashing-utils'
-import { CONSTANTS, REGEX_EXTERNALUSERID, ALPHA_NUMERIC, EMAIL_ALLOWED, NON_DIGIT } from './constants'
+import { CONSTANTS, REGEX_EXTERNALUSERID, ALPHA_NUMERIC, EMAIL_ALLOWED, NON_DIGIT, SYNC_TO } from './constants'
 
 export async function processPayload(
   request: RequestClient,
@@ -48,6 +48,16 @@ export function createPayloadToUploadRecords(payloads: Payload[], audienceSettin
   const records: AudienceRecord[] = []
   const [audienceId, connectionId = ''] = payloads[0].audienceId.split(':')
 
+  const { syncTo, advertiserId, amcInstanceId, amcAccountId, amcAccountMarketplaceId } = audienceSettings || {}
+
+  if ((!syncTo || syncTo === SYNC_TO.DSP) && !advertiserId) {
+    throw new PayloadValidationError('Advertiser Id value is required when syncing an audience to DSP')
+  }
+
+  if (syncTo === SYNC_TO.AMC && (!amcInstanceId || !amcAccountId || !amcAccountMarketplaceId)) {
+    throw new PayloadValidationError('AMC Instance Id, AMC Account Id and AMC Account Marketplace Id value are required when syncing audience to AMC')
+  }
+
   payloads.forEach((payload: Payload) => {
     // Check if the externalUserId matches the pattern
     if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
@@ -90,6 +100,26 @@ function validateAndPreparePayload(
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}'
+      })
+      return
+    }
+
+    const { syncTo, advertiserId, amcInstanceId, amcAccountId, amcAccountMarketplaceId } = audienceSettings || {}
+
+    if ((!syncTo || syncTo === SYNC_TO.DSP) && !advertiserId) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Advertiser Id value is required when syncing an audience to DSP'
+      })
+      return
+    }
+
+    if (syncTo === SYNC_TO.AMC && (!amcInstanceId || !amcAccountId || !amcAccountMarketplaceId)) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'AMC Instance Id, AMC Account Id and AMC Account Marketplace Id value are required when syncing audience to AMC'
       })
       return
     }

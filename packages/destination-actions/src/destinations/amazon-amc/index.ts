@@ -131,102 +131,22 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     advertiserId: {
       label: 'Advertiser ID',
       description: 'Advertiser ID when when syncing an Audience to Amazon Ads DSP',
-      type: 'string',
-      required: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is_not',
-            value: SYNC_TO.AMC
-          }
-        ]
-      },
-      depends_on: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is_not',
-            value: SYNC_TO.AMC
-          }
-        ]
-      }
+      type: 'string'
     },
     amcInstanceId: {
       label: 'AMC Instance ID',
       description: 'AMC Instance ID used when syncing an audience to Amazon Marketing Cloud (AMC)',
-      type: 'string',
-      required: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is',
-            value: SYNC_TO.AMC
-          }
-        ]
-      },
-      depends_on: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is',
-            value: SYNC_TO.AMC
-          }
-        ]
-      }
+      type: 'string'
     },
     amcAccountId: {
       label: 'AMC Account ID',
       description: 'AMC Account ID used when syncing an audience to Amazon Marketing Cloud (AMC)',
-      type: 'string',
-      required: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is',
-            value: SYNC_TO.AMC
-          }
-        ]
-      },
-      depends_on: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is',
-            value: SYNC_TO.AMC
-          }
-        ]
-      }
+      type: 'string'
     },
     amcAccountMarketplaceId: {
       label: 'AMC Account Marketplace ID',
       description: 'AMC Account Marketplace ID used when syncing an audience to Amazon Marketing Cloud (AMC)',
-      type: 'string',
-      required: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is',
-            value: SYNC_TO.AMC
-          }
-        ]
-      },
-      depends_on: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is',
-            value: SYNC_TO.AMC
-          }
-        ]
-      }
+      type: 'string'
     }
   },
 
@@ -253,8 +173,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         amcAccountMarketplaceId
       } = audienceSettings || {}
 
-
-      if (syncTo === SYNC_TO.DSP && !advertiserId) {
+      if ((syncTo === SYNC_TO.DSP) && !advertiserId) {
         throw new PayloadValidationError('Advertiser Id value is required when syncing an audience to DSP')
       }
 
