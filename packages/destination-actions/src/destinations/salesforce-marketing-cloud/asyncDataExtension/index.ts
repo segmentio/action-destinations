@@ -56,12 +56,14 @@ const action: ActionDefinition<Settings, Payload> = {
       ...dataExtensionHook
     }
   },
-  perform: async () => {
-    throw new IntegrationError(
-      'This action only supports batch operations. Use performBatch instead.',
-      'INVALID_REQUEST',
-      400
-    )
+  perform: async (request, { settings, payload, hookOutputs }) => {
+    const dataExtensionId: string =
+      hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id
+
+    if (!dataExtensionId) {
+      throw new IntegrationError('No Data Extension Connected', 'INVALID_CONFIGURATION', 400)
+    }
+    return asyncUpsertRowsV2(request, settings.subdomain, [payload], dataExtensionId)
   },
   performBatch: async (request, { settings, payload, hookOutputs }) => {
     const dataExtensionId: string =
