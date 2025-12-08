@@ -2,20 +2,19 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { keys, enable_batching, batch_size, values_dataExtensionFields, dataExtensionHook } from '../sfmc-properties'
-import {
-  executeAsyncInsertRowsWithMultiStatus,
-  getDataExtensionFields,
-  asyncInsertRowsV2,
-  getExternalKey
-} from '../sfmc-operations'
+import { getDataExtensionFields, asyncUpsertRowsV2 } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event asynchronously to Data Extension',
-  description: 'Insert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.',
+  description: 'Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.',
   fields: {
     keys: { ...keys, required: true, dynamic: true },
     values: { ...values_dataExtensionFields, dynamic: true },
-    enable_batching: enable_batching,
+    enable_batching: {
+      default: true,
+      unsafe_hidden: true,
+      ...enable_batching
+    },
     batch_bytes: {
       label: 'Batch Bytes',
       description: 'The maximum size of a batch in bytes.',
@@ -64,13 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!dataExtensionId) {
       throw new IntegrationError('No Data Extension Connected', 'INVALID_CONFIGURATION', 400)
     }
-
-    const externalKey = await getExternalKey(request, settings, dataExtensionId)
-    if (!externalKey) {
-      throw new IntegrationError('No External Key found for Data Extension', 'INVALID_CONFIGURATION', 400)
-    }
-
-    return asyncInsertRowsV2(request, settings.subdomain, [payload], externalKey)
+    return asyncUpsertRowsV2(request, settings.subdomain, [payload], dataExtensionId)
   },
   performBatch: async (request, { settings, payload, hookOutputs }) => {
     const dataExtensionId: string =
@@ -79,12 +72,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!dataExtensionId) {
       throw new IntegrationError('No Data Extension Connected', 'INVALID_CONFIGURATION', 400)
     }
-    const externalKey = await getExternalKey(request, settings, dataExtensionId)
-    if (!externalKey) {
-      throw new IntegrationError('No External Key found for Data Extension', 'INVALID_CONFIGURATION', 400)
-    }
-
-    return executeAsyncInsertRowsWithMultiStatus(request, settings.subdomain, payload, externalKey)
+    return asyncUpsertRowsV2(request, settings.subdomain, payload, dataExtensionId)
   }
 }
 
