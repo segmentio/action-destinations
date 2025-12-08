@@ -79,7 +79,7 @@ describe('Amazon-Ads (actions)', () => {
         audienceSettings: audienceSettings2
       }
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
-        "The root value is missing the required field 'advertiserId'. The root value must match \"then\" schema."
+        "Advertiser Id value is required when syncing an audience to DSP"
       )
     })
 
@@ -109,11 +109,11 @@ describe('Amazon-Ads (actions)', () => {
           amcInstanceId: undefined,
           amcAccountId: undefined,
           amcAccountMarketplaceId: undefined,
-          sync_to: 'amc'
+          syncTo: 'amc'
         }
       }
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
-        "The root value is missing the required field 'amcInstanceId'. The root value must match \"then\" schema. The root value is missing the required field 'amcAccountId'. The root value must match \"then\" schema. The root value is missing the required field 'amcAccountMarketplaceId'. The root value must match \"then\" schema."
+        "AMC Instance Id, AMC Account Id and AMC Account Marketplace Id value are required when syncing audience to AMC"
       )
     })
 
