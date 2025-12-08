@@ -11,6 +11,8 @@ export interface EventProperty {
   propertyType: string
   children?: any
   encryptedPropertyValue?: string
+  failedEventIds?: string[]
+  passedEventIds?: string[]
 }
 
 export interface BaseBody {
@@ -29,4 +31,5 @@ export interface EventSchemaBody extends BaseBody {
   eventProperties: Array<EventProperty>
   eventId: string | null
   eventHash: string | null
+  metadata?: Record<string, any>
 }

@@ -70,10 +70,38 @@ export interface FetchEventSpecParams {
 }
 
 // -----------------------------------------------------------------------------
+// WIRE TYPES (API Response Format)
+// -----------------------------------------------------------------------------
+
+export interface PropertyConstraintsWire {
+  t: string | Record<string, PropertyConstraintsWire> // type or nested schema
+  r: boolean // required
+  l?: boolean // is list
+  v?: string[] // allowed values
+  min?: number // min value
+  max?: number // max value
+  rx?: string // regex pattern
+}
+
+export interface EventSpecResponseWire {
+  branchId: string
+  baseEvent: {
+    id: string
+    name: string
+    props: Record<string, PropertyConstraintsWire>
+  }
+  variants: Array<{
+    eventId: string
+    props: Record<string, PropertyConstraintsWire>
+  }>
+}
+
+// -----------------------------------------------------------------------------
 // VALIDATOR TYPES (Derived/Simplified from legacy types)
 // -----------------------------------------------------------------------------
 
 export interface EventSpecEntry {
+  branchId?: string
   baseEventId: string
   variantIds: string[]
   props: Record<string, PropertyConstraints>
