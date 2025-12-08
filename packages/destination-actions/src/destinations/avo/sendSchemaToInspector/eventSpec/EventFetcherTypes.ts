@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * This file is generated. Internal development changes should be made in the generator
  * and the file should be re-generated. External contributions are welcome to submit
@@ -66,4 +67,40 @@ export interface FetchEventSpecParams {
   streamId: string
   /** The name of the event */
   eventName: string
+}
+
+// -----------------------------------------------------------------------------
+// VALIDATOR TYPES (Derived/Simplified from legacy types)
+// -----------------------------------------------------------------------------
+
+export interface EventSpecEntry {
+  baseEventId: string
+  variantIds: string[]
+  props: Record<string, PropertyConstraints>
+}
+
+export interface EventSpecResponse {
+  metadata: Record<string, any>
+  events: EventSpecEntry[]
+}
+
+export interface PropertyConstraints {
+  type: string
+  required: boolean
+  pinnedValues?: Record<string, string[]>
+  allowedValues?: Record<string, string[]>
+  regexPatterns?: Record<string, string[]>
+  minMaxRanges?: Record<string, string[]>
+  children?: Record<string, PropertyConstraints>
+}
+
+export interface PropertyValidationResult {
+  passedEventIds?: string[]
+  failedEventIds?: string[]
+  children?: Record<string, PropertyValidationResult>
+}
+
+export interface ValidationResult {
+  metadata: Record<string, any>
+  propertyResults: Record<string, PropertyValidationResult>
 }

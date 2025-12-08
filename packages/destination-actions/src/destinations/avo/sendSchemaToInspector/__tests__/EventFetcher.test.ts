@@ -1,6 +1,6 @@
 import nock from 'nock'
-import { EventSpecFetcher } from '../EventFetcher'
-import type { EventSpec, FetchEventSpecParams } from '../EventFetcherTypes'
+import { EventSpecFetcher } from '../eventSpec/EventFetcher'
+import type { EventSpec, FetchEventSpecParams } from '../eventSpec/EventFetcherTypes'
 import createRequestClient from '../../../../../../core/src/create-request-client'
 
 const BASE_URL = 'https://api.avo.app/inspector/v1'

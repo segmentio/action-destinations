@@ -3,22 +3,64 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { EventProperty } from './avo-types'
+import { encryptValue } from './eventSpec/AvoEncryption'
 
 const isArray = (obj: any): boolean => {
   return Object.prototype.toString.call(obj) === '[object Array]'
 }
 
 export class AvoSchemaParser {
-  static extractSchema(eventProperties: { [propName: string]: any }): Array<EventProperty> {
+  /**
+   * Returns true only if we have a valid encryption key and can send encrypted values.
+   * If no key is present, returns false and no property values will be sent.
+   */
+  private static canSendEncryptedValues(publicEncryptionKey: string | undefined, env: string | undefined): boolean {
+    const hasEncryptionKey = publicEncryptionKey != null && publicEncryptionKey !== ''
+    const isDevOrStaging = env === 'dev' || env === 'staging'
+    return hasEncryptionKey && isDevOrStaging
+  }
+
+  /**
+   * Returns the encrypted property value if encryption is enabled, otherwise undefined.
+   * Never returns unencrypted values - only encrypted or nothing.
+   */
+  private static getEncryptedPropertyValueIfEnabled(
+    propertyValue: any,
+    canEncrypt: boolean,
+    publicEncryptionKey: string | undefined
+  ): string | undefined {
+    if (!canEncrypt || !publicEncryptionKey) {
+      return undefined // No encryption key: do not send any property values
+    }
+    try {
+      return encryptValue(propertyValue, publicEncryptionKey) // Only send encrypted values
+    } catch (error) {
+      // If encryption fails, log the error but don't fail the entire schema extraction
+      console.error(
+        '[Avo Inspector] Failed to encrypt property value:',
+        error instanceof Error ? error.message : String(error)
+      )
+      return undefined
+    }
+  }
+
+  static extractSchema(
+    eventProperties: { [propName: string]: any },
+    publicEncryptionKey?: string,
+    env?: string
+  ): Array<EventProperty> {
     if (eventProperties === null || eventProperties === undefined) {
       return []
     }
 
-    const mapping = (object: any) => {
+    const canSendEncryptedValues = this.canSendEncryptedValues(publicEncryptionKey, env)
+
+    const mapping = (object: any): any => {
       if (isArray(object)) {
-        const list: [EventProperty] = object.map((x: any) => {
+        const list = object.map((x: any) => {
           return mapping(x)
         })
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return this.removeDuplicates(list)
       } else if (typeof object === 'object') {
         const mappedResult: Array<EventProperty> = []
@@ -32,48 +74,72 @@ export class AvoSchemaParser {
             }
 
             if (typeof val === 'object' && val != null) {
-              mappedEntry['children'] = mapping(val)
+              // Object/array properties: children are encrypted individually, no need to encrypt parent
+              mappedEntry.children = mapping(val)
+            } else if (val !== undefined) {
+              // Primitive properties: encrypt the value if encryption is enabled
+              // Skip undefined values - they can't be encrypted and shouldn't be sent
+              const encryptedValue = this.getEncryptedPropertyValueIfEnabled(
+                val,
+                canSendEncryptedValues,
+                publicEncryptionKey
+              )
+              if (encryptedValue !== undefined) {
+                mappedEntry.encryptedPropertyValue = encryptedValue
+              }
             }
 
             mappedResult.push(mappedEntry)
           }
         }
+
         return mappedResult
       } else {
-        return []
+        return this.getPropValueType(object)
       }
     }
 
-    const mappedEventProps = mapping(eventProperties)
+    // eventProperties is always an object (Record), so mapping returns EventProperty[]
+    const mappedEventProps = mapping(eventProperties) as EventProperty[]
 
     return mappedEventProps
   }
 
-  private static removeDuplicates(array: Array<EventProperty>): Array<EventProperty> {
-    // Use a single object to track all seen propertyType:propertyName combinations
-    const seen: Record<string, boolean> = {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static removeDuplicates(array: any[]): any[] {
+    const uniqueItems = new Set<string>()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: any[] = []
 
-    return array.filter((item: EventProperty) => {
-      // Create a unique key based on propertyName and propertyType
-      const key = `${item.propertyName}:${item.propertyType}`
-
-      if (!seen[key]) {
-        seen[key] = true // Mark this key as seen
-        return true // Include this item in the filtered result
+    for (const item of array) {
+      let stringRep: string
+      if (typeof item === 'object' && item !== null) {
+        // For objects, we use JSON stringification for deduplication
+        // This handles content-based deduplication (like Web SDK)
+        // We sort keys to ensure {a:1, b:2} == {b:2, a:1}
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        stringRep = JSON.stringify(item, Object.keys(item).sort())
+      } else {
+        // For primitives, we prefix with type to avoid "1" == 1 collisions
+        stringRep = typeof item + ':' + String(item)
       }
-      // If the key was already seen, filter this item out
-      return false
-    })
+
+      if (!uniqueItems.has(stringRep)) {
+        uniqueItems.add(stringRep)
+        result.push(item)
+      }
+    }
+    return result
   }
 
-  private static getBasicPropType(propValue: any): string {
+  private static getPropValueType(propValue: any): string {
     const propType = typeof propValue
     if (propValue == null) {
       return 'null'
     } else if (propType === 'string') {
       return 'string'
     } else if (propType === 'number' || propType === 'bigint') {
-      if ((propValue + '').indexOf('.') >= 0) {
+      if ((propValue + '').includes('.')) {
         return 'float'
       } else {
         return 'int'
@@ -81,25 +147,13 @@ export class AvoSchemaParser {
     } else if (propType === 'boolean') {
       return 'boolean'
     } else if (propType === 'object') {
-      return 'object'
-    } else {
-      return 'unknown'
-    }
-  }
-
-  private static getPropValueType(propValue: any): string {
-    if (isArray(propValue)) {
-      //we now know that propValue is an array. get first element in propValue array
-      const propElement = propValue[0]
-
-      if (propElement == null) {
-        return 'list' // Default to list if the list is empty.
+      if (isArray(propValue)) {
+        return 'list'
       } else {
-        const propElementType = this.getBasicPropType(propElement)
-        return `list(${propElementType})`
+        return 'object'
       }
     } else {
-      return this.getBasicPropType(propValue)
+      return 'unknown'
     }
   }
 }

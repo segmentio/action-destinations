@@ -10,6 +10,7 @@ export interface EventProperty {
   propertyName: string
   propertyType: string
   children?: any
+  encryptedPropertyValue?: string
 }
 
 export interface BaseBody {

@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { extractSchemaFromEvent } from '../avo'
 import type { Payload } from '../generated-types'
-import type { EventSpec } from '../EventFetcherTypes'
+import type { EventSpec } from '../eventSpec/EventFetcherTypes'
 import createRequestClient from '../../../../../../core/src/create-request-client'
 
 const requestClient = createRequestClient()

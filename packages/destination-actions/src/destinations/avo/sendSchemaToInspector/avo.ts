@@ -3,8 +3,8 @@ import type { RequestClient } from '@segment/actions-core'
 import { BaseBody, EventSchemaBody } from './avo-types'
 
 import { AvoSchemaParser } from './AvoSchemaParser'
-import { EventSpecFetcher } from './EventFetcher'
-import type { EventSpec } from './EventFetcherTypes'
+import { EventSpecFetcher } from './eventSpec/EventFetcher'
+import type { EventSpec } from './eventSpec/EventFetcherTypes'
 
 import { Payload } from './generated-types'
 
@@ -34,14 +34,19 @@ function generateBaseBody(event: Payload, appVersionPropertyName: string | undef
   }
 }
 
-function handleEvent(baseBody: BaseBody, event: Payload): EventSchemaBody {
+function handleEvent(
+  baseBody: BaseBody,
+  event: Payload,
+  inspectorEncryptionKey: string | undefined,
+  env: string
+): EventSchemaBody {
   // Initially declare eventBody with the type EventSchemaBody
   // and explicitly set all properties to satisfy the type requirements.
   const eventBody: EventSchemaBody = {
     ...baseBody, // Spread operator to copy properties from baseBody
     type: 'event', // Explicitly set type as 'event'
     eventName: event.event, // Set from the event parameter
-    eventProperties: AvoSchemaParser.extractSchema(event.properties),
+    eventProperties: AvoSchemaParser.extractSchema(event.properties, inspectorEncryptionKey, env),
     eventId: null, // Set default or actual value
     eventHash: null // Set default or actual value
   }
@@ -103,6 +108,7 @@ export async function extractSchemaFromEvent(
   appVersionPropertyName: string | undefined,
   apiKey: string,
   env: string,
+  inspectorEncryptionKey: string | undefined,
   request: RequestClient
 ) {
   const baseBody: BaseBody = generateBaseBody(event, appVersionPropertyName)
@@ -113,7 +119,7 @@ export async function extractSchemaFromEvent(
   console.log(`[Avo Inspector] Final eventSpec:`, eventSpecString ? `set (${eventSpecString.length} chars)` : `null`)
 
   const eventBody: EventSchemaBody = {
-    ...handleEvent(baseBody, event)
+    ...handleEvent(baseBody, event, inspectorEncryptionKey, env)
   }
 
   return eventBody

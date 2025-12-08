@@ -6,6 +6,10 @@ export interface Settings {
    */
   apiKey: string
   /**
+   * Avo Inspector Encryption Key
+   */
+  inspectorEncryptionKey?: string
+  /**
    * Avo Inspector Environment
    */
   env: string

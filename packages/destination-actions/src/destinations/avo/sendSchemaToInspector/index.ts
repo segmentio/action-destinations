@@ -13,6 +13,7 @@ const processEvents = async (request: RequestClient, settings: Settings, payload
           settings.appVersionPropertyName,
           settings.apiKey,
           settings.env,
+          settings.inspectorEncryptionKey,
           request
         )
       } catch (error) {

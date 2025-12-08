@@ -19,6 +19,12 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
+      inspectorEncryptionKey: {
+        label: 'Avo Inspector Encryption Key',
+        description: 'Avo Inspector Encryption Key',
+        type: 'string',
+        required: false
+      },
       env: {
         label: 'Environment',
         description: 'Avo Inspector Environment',

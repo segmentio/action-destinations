@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { RequestClient } from '@segment/actions-core'
 import type { EventSpec, FetchEventSpecParams } from './EventFetcherTypes'
 
@@ -19,9 +20,9 @@ export class EventSpecFetcher {
 
   constructor(
     request: RequestClient,
-    shouldLog: boolean = false,
+    shouldLog = false,
     env: string,
-    baseUrl: string = 'https://us-central1-avo-web-app.cloudfunctions.net'
+    baseUrl = 'https://us-central1-avo-web-app.cloudfunctions.net'
   ) {
     this.baseUrl = baseUrl
     this.request = request
@@ -49,7 +50,8 @@ export class EventSpecFetcher {
 
   /** Internal fetch implementation. */
   private async fetchInternal(params: FetchEventSpecParams): Promise<EventSpec | null> {
-    if (!(this.env === 'dev' || this.env === 'staging') || true) {
+    // eslint-disable-next-line no-constant-condition
+    if (!(this.env === 'dev' || this.env === 'staging')) {
       return null
     }
     const url: string = this.buildUrl(params)
@@ -109,7 +111,7 @@ export class EventSpecFetcher {
         try {
           // RequestClient automatically parses JSON responses, so response.data should be the parsed object
           // But we check if it's a string just in case
-          const data: any = typeof response.data === 'string' ? JSON.parse(response.data) : response.data
+          const data: any = typeof response.data === 'string' ? JSON.parse(response.data as string) : response.data
           return data
         } catch (error) {
           if (this.shouldLog) {
