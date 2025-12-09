@@ -193,13 +193,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
     userList
   },
   presets: [
-    {
-      name: 'Session Attributes Encoded Plugin',
-      subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
-      partnerAction: 'sessionAttributesEncoded',
-      mapping: {},
-      type: 'automatic'
-    },
+    // {
+    //   name: 'Session Attributes Encoded Plugin',
+    //   subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+    //   partnerAction: 'sessionAttributesEncoded',
+    //   mapping: {},
+    //   type: 'automatic'
+    // },
     {
       name: 'Entities Audience Membership Changed',
       partnerAction: 'userList',
