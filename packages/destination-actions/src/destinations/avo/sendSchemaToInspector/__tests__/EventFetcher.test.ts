@@ -137,6 +137,35 @@ describe('EventSpecFetcher', () => {
       // Nock should have been called only once
       expect(scope.isDone()).toBe(true)
     })
+
+    it('should NOT deduplicate in-flight requests with different API keys', async () => {
+      const scope = nock(BASE_URL)
+        .get('/trackingPlan/eventSpec')
+        .query((q) => q.apiKey === 'key1')
+        .delay(50)
+        .reply(200, validWireResponse)
+        .get('/trackingPlan/eventSpec')
+        .query((q) => q.apiKey === 'key2')
+        .delay(50)
+        .reply(200, validWireResponse)
+
+      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
+
+      const params1 = { ...mockParams, apiKey: 'key1' }
+      const params2 = { ...mockParams, apiKey: 'key2' }
+
+      const promise1 = fetcher.fetch(params1)
+      const promise2 = fetcher.fetch(params2)
+
+      const [result1, result2] = await Promise.all([promise1, promise2])
+
+      // Should be different object references (since they are different requests)
+      expect(result1).not.toBe(result2)
+      expect(result1).not.toBeNull()
+      expect(result2).not.toBeNull()
+      // Nock should have been called twice (once for each key)
+      expect(scope.isDone()).toBe(true)
+    })
   })
 
   describe('logging', () => {

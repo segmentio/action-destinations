@@ -4,7 +4,7 @@ import { createECDH, createCipheriv, createDecipheriv, createHash, randomBytes }
 
 /**
  * Generates a new ECC key pair for encryption/decryption.
- * Uses secp256k1 curve (P-256 family) which provides 128-bit security.
+ * Uses secp256k1 curve which provides approximately 128-bit security level.
  *
  * @returns An object containing the private and public keys as hex strings
  */
@@ -55,7 +55,7 @@ function deriveKey(sharedSecret: Buffer): Buffer {
 export function encryptValue(value: any, publicKey: string): string {
   try {
     // Convert the value to a JSON string to support all types
-    // Note: JSON.stringify(undefined) returns undefined (not a string), so handle it explicitly
+    // Note: JSON.stringify(undefined) returns undefined (not a string), so handle it explicitly, undefined is converted to null as it cannot be represented in JSON
     const stringValue = value === undefined ? 'null' : JSON.stringify(value)
 
     if (stringValue === undefined) {

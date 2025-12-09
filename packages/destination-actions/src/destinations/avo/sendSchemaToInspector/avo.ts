@@ -163,6 +163,7 @@ export async function extractSchemaFromEvent(
 ) {
   const baseBody: BaseBody = generateBaseBody(event, appVersionPropertyName)
 
+  // we use segment's anonymousId as the streamId for the event spec fetch
   const eventSpec = await fetchEventSpec(event.event, apiKey, event.anonymousId, env, request)
 
   // Extract schema from event properties
