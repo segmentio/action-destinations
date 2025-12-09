@@ -19,4 +19,20 @@ export interface Payload {
    * The AWS region where the Kinesis stream is located
    */
   awsRegion: string
+  /**
+   * The keys to use for batching the events.
+   */
+  batch_keys?: string[]
+  /**
+   * The maximum number of payloads to include in a batch.
+   */
+  max_batch_size: number
+  /**
+   * If true, Segment will batch events before sending to Kines.
+   */
+  enable_batching?: boolean
+  /**
+   * The number of bytes to write to the kinesis shard in a single batch. Limit is 1MB.
+   */
+  batch_bytes: number
 }

@@ -10,8 +10,8 @@ const settings: Settings = {
 
 const payload = {
   type: 'identify' as const,
-  userId: 'user123',
-  anonymousId: 'anon123',
+  user_id: 'user123',
+  anonymous_id: 'anon123',
   traits: {
     email: 'test@example.com',
     name: 'Test User',
@@ -21,8 +21,8 @@ const payload = {
 } as Partial<SegmentEvent>
 
 const mapping = {
-  userId: { '@path': '$.userId' },
-  anonymousId: { '@path': '$.anonymousId' },
+  user_id: { '@path': '$.user_id' },
+  anonymous_id: { '@path': '$.anonymous_id' },
   traits: { '@path': '$.traits' },
   timestamp: { '@path': '$.timestamp' }
 }
@@ -37,8 +37,8 @@ describe('Survicate Cloud Mode - identifyUser', () => {
     const event = createTestEvent(payload)
 
     const expectedJson = {
-      userId: 'user123',
-      anonymousId: 'anon123',
+      user_id: 'user123',
+      anonymous_id: 'anon123',
       timestamp: '2023-10-01T00:00:00Z',
       traits: {
         email: 'test@example.com',
@@ -59,14 +59,14 @@ describe('Survicate Cloud Mode - identifyUser', () => {
     expect(response.length).toBe(1)
   })
 
-  it('should work with only userId (no anonymousId)', async () => {
+  it('should work with only user_id (no anonymous_id)', async () => {
     const event = createTestEvent({
       ...payload,
-      anonymousId: undefined
+      anonymous_id: undefined
     })
 
     const expectedJson = {
-      userId: 'user123',
+      user_id: 'user123',
       timestamp: '2023-10-01T00:00:00Z',
       traits: {
         email: 'test@example.com',
@@ -87,14 +87,14 @@ describe('Survicate Cloud Mode - identifyUser', () => {
     expect(response.length).toBe(1)
   })
 
-  it('should work with only anonymousId (no userId)', async () => {
+  it('should work with only anonymous_id (no user_id)', async () => {
     const event = createTestEvent({
       ...payload,
-      userId: undefined
+      user_id: undefined
     })
 
     const expectedJson = {
-      anonymousId: 'anon123',
+      anonymous_id: 'anon123',
       timestamp: '2023-10-01T00:00:00Z',
       traits: {
         email: 'test@example.com',
@@ -115,11 +115,11 @@ describe('Survicate Cloud Mode - identifyUser', () => {
     expect(response.length).toBe(1)
   })
 
-  it('should throw error when neither userId nor anonymousId provided', async () => {
+  it('should throw error when neither user_id nor anonymous_id provided', async () => {
     const event = createTestEvent({
       ...payload,
-      userId: undefined,
-      anonymousId: undefined
+      user_id: undefined,
+      anonymous_id: undefined
     })
 
     await expect(

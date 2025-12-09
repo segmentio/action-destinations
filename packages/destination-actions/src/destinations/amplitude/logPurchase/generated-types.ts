@@ -152,9 +152,22 @@ export interface Payload {
    */
   insert_id?: string
   /**
-   * The name of the library that generated the event.
+   * HIDDEN: The name of the library that generated the event.
    */
   library?: string
+  /**
+   * Specifies the "library" value to send to Amplitude. Select "Use Mapping" to set the value from the "Library Mapping" field. "Legacy Behaviour" sets the value to "segment".
+   */
+  library2?: {
+    /**
+     * Configure how to set the library value.
+     */
+    behavior?: string
+    /**
+     * The library value to send to Amplitude. Only used when the "Behavior" field is set to "Use Mapping".
+     */
+    mapping?: string
+  }
   /**
    * The list of products purchased.
    */

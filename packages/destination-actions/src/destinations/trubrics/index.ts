@@ -15,7 +15,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'Project API Key',
         description: 'Your Trubrics Project API Key. This can be found in your project settings.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       url: {

@@ -77,3 +77,4 @@ register('68b82be249b48bae343517c7', '@segment/analytics-browser-actions-ms-bing
 register('68c14f4eefb643527597844c', '@segment/analytics-browser-actions-fullsession')
 register('68c9611ea98b898fa893cffc', '@segment/analytics-browser-actions-cj')
 register('60ae8b97dcb6cc52d5d0d5ab', '@segment/analytics-browser-actions-google-enhanced-conversions-plugins')
+register('6911ea13d72d3a16aa306482', '@segment/analytics-browser-mixpanel-web-actions')

@@ -80,6 +80,7 @@ export type {
   MinimalInputField,
   StateContext,
   StatsContext,
+  Logger,
   Preset,
   Result
 } from './destination-kit'
