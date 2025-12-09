@@ -1,4 +1,4 @@
-import { RequestClient, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
+import { RequestClient, ModifiedResponse, PayloadValidationError, MultiStatusResponse } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload } from './syncAudience/generated-types'
 // eslint-disable-next-line no-restricted-syntax
@@ -62,8 +62,18 @@ export async function processPayload(input: ProcessPayloadInput) {
     crmID = input.payloads[0].external_id
   }
 
+  const multiStatusResponse = new MultiStatusResponse()
+  // mark all payloads as successful and then filter out payloads with invalid emails
+  for (let i = 0; i < input.payloads.length; i++) {
+    const payload = input.payloads[i]
+    multiStatusResponse.setSuccessResponseAtIndex(i, {
+      sent: { ...payload },
+      status: 200,
+      body: 'Successfully uploaded to S3'
+    })
+  }
   // Get user emails from the payloads
-  const usersFormatted = extractUsers(input.payloads)
+  const [usersFormatted, rowCount] = extractUsers(input.payloads, multiStatusResponse)
 
   // Overwrite to Legacy Flow if feature flag is enabled
   if (input.features && input.features[TTD_LEGACY_FLOW_FLAG_NAME]) {
@@ -72,40 +82,90 @@ export async function processPayload(input: ProcessPayloadInput) {
     // -----------
 
     if (input.payloads.length < TTD_MIN_RECORD_COUNT) {
-      throw new PayloadValidationError(
-        `received payload count below The Trade Desk's ingestion minimum. Expected: >=${TTD_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
-      )
+      for (let i = 0; i < input.payloads.length; i++) {
+        multiStatusResponse.setErrorResponseAtIndex(i, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: `received payload count below The Trade Desk's ingestion minimum. Expected: >=${TTD_MIN_RECORD_COUNT} actual: ${input.payloads.length}`,
+          sent: { ...input.payloads[i] },
+          body: `received payload count below The Trade Desk's ingestion minimum. Expected: >=${TTD_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
+        })
+      }
+      return multiStatusResponse
     }
 
-    // Create a new TTD Drop Endpoint
-    const dropEndpoint = await getCRMDataDropEndpoint(input.request, input.settings, input.payloads[0], crmID)
+    try {
+      // Create a new TTD Drop Endpoint
+      const dropEndpoint = await getCRMDataDropEndpoint(input.request, input.settings, input.payloads[0], crmID)
 
-    // Upload CRM Data to Drop Endpoint
-    return uploadCRMDataToDropEndpoint(input.request, dropEndpoint, usersFormatted)
+      // Upload CRM Data to Drop Endpoint
+      await uploadCRMDataToDropEndpoint(input.request, dropEndpoint, usersFormatted)
+
+      return multiStatusResponse
+    } catch (error) {
+      for (let i = 0; i < input.payloads.length; i++) {
+        if (multiStatusResponse.isSuccessResponseAtIndex(i)) {
+          multiStatusResponse.setErrorResponseAtIndex(i, {
+            status: 500,
+            errortype: 'RETRYABLE_ERROR',
+            errormessage: `Failed to upload to The Trade Desk Drop Endpoint: ${(error as Error).message}`,
+            sent: { ...input.payloads[i] },
+            body: `The Trade Desk Drop Endpoint upload failed: ${(error as Error).message}`
+          })
+        }
+      }
+      return multiStatusResponse
+    }
   } else {
     //------------
     // AWS FLOW
     // -----------
 
-    // Send request to AWS to be processed
-    return sendEventToAWS(input.request, {
-      TDDAuthToken: input.settings.auth_token,
-      AdvertiserId: input.settings.advertiser_id,
-      CrmDataId: crmID,
-      UsersFormatted: usersFormatted,
-      DropOptions: {
-        PiiType: input.payloads[0].pii_type,
-        MergeMode: 'Replace',
-        RetentionEnabled: true
+    try {
+      // Send request to AWS to be processed
+      await sendEventToAWS({
+        TDDAuthToken: input.settings.auth_token,
+        AdvertiserId: input.settings.advertiser_id,
+        CrmDataId: crmID,
+        UsersFormatted: usersFormatted,
+        RowCount: rowCount,
+        DropOptions: {
+          PiiType: input.payloads[0].pii_type,
+          MergeMode: 'Replace',
+          RetentionEnabled: true
+        }
+      })
+    } catch (error) {
+      // Mark all remaining success payloads as failed if AWS upload fails
+      for (let i = 0; i < input.payloads.length; i++) {
+        if (multiStatusResponse.isSuccessResponseAtIndex(i)) {
+          multiStatusResponse.setErrorResponseAtIndex(i, {
+            status: 500,
+            errortype: 'RETRYABLE_ERROR',
+            errormessage: `Failed to upload to AWS: ${(error as Error).message}`,
+            sent: { ...input.payloads[i] },
+            body: `AWS upload failed: ${(error as Error).message}`
+          })
+        }
       }
-    })
+    }
+    return multiStatusResponse
   }
 }
 
-function extractUsers(payloads: Payload[]): string {
+function extractUsers(payloads: Payload[], multiStatusResponse: MultiStatusResponse): [string, number] {
   let users = ''
-  payloads.forEach((payload: Payload) => {
+  let rowCount = 0
+
+  payloads.forEach((payload: Payload, index: number) => {
     if (!payload.email || !validateEmail(payload.email, payload.pii_type)) {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: `Invalid email: ${payload.email}`,
+        sent: { ...payload },
+        body: `Invalid email: ${payload.email}`
+      })
       return
     }
 
@@ -117,8 +177,11 @@ function extractUsers(payloads: Payload[]): string {
       const hashedEmail = hash(payload.email)
       users += `${hashedEmail}\n`
     }
+
+    // In both mutually exclusive cases above, we increment the row count by 1
+    rowCount += 1
   })
-  return users
+  return [users, rowCount]
 }
 
 function validateEmail(email: string, pii_type: string): boolean {
@@ -190,7 +253,7 @@ async function getCRMDataDropEndpoint(request: RequestClient, settings: Settings
 
 // Uploads CRM Data to Drop Endpoint (Legacy Flow)
 async function uploadCRMDataToDropEndpoint(request: RequestClient, endpoint: string, users: string) {
-  return await request(endpoint, {
+  await request(endpoint, {
     method: 'PUT',
     headers: {
       'Content-Type': 'text/plain'

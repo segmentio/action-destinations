@@ -2,6 +2,16 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
 
+// Type for MultiStatus error response node
+interface MultiStatusErrorNode {
+  status: number
+  errortype: string
+  errormessage: string
+  sent: any
+  body: string
+  errorreporter: string
+}
+
 import { TTD_LEGACY_FLOW_FLAG_NAME } from '../../functions'
 
 import { getAWSCredentialsFromEKS, AWSCredentials } from '../../../../lib/AWS/sts'
@@ -103,24 +113,40 @@ describe('TheTradeDeskCrm.syncAudience', () => {
       .get(/.*/)
       .reply(200, { Segments: [], PagingToken: null })
 
-    await expect(
-      testDestination.testAction('syncAudience', {
-        event,
-        settings: {
-          advertiser_id: 'advertiser_id',
-          auth_token: 'test_token',
-          __segment_internal_engage_force_full_sync: true,
-          __segment_internal_engage_batch_sync: true
-        },
-        features: { 'actions-the-trade-desk-crm-legacy-flow': true },
-        useDefaultMappings: true,
-        mapping: {
-          name: 'test_audience',
-          region: 'US',
-          pii_type: 'Email'
-        }
-      })
-    ).rejects.toThrow(`received payload count below The Trade Desk's ingestion minimum. Expected: >=1500 actual: 1`)
+    const response = await testDestination.testBatchAction('syncAudience', {
+      events: [event],
+      settings: {
+        advertiser_id: 'advertiser_id',
+        auth_token: 'test_token',
+        __segment_internal_engage_force_full_sync: true,
+        __segment_internal_engage_batch_sync: true
+      },
+      features: {
+        [TTD_LEGACY_FLOW_FLAG_NAME]: true
+      },
+      useDefaultMappings: true,
+      mapping: {
+        name: 'test_audience',
+        region: 'US',
+        pii_type: 'Email'
+      }
+    })
+
+    const multiStatusResponse = testDestination.results?.[0]?.multistatus
+
+    expect(multiStatusResponse).toBeDefined()
+    if (multiStatusResponse) {
+      expect(multiStatusResponse.length).toBe(1)
+      expect(multiStatusResponse[0].status).toBe(400)
+
+      // Type-safe access to error properties
+      const errorResponse = multiStatusResponse[0] as MultiStatusErrorNode
+      expect(errorResponse.errortype).toBe('PAYLOAD_VALIDATION_FAILED')
+      expect(errorResponse.errormessage).toContain('received payload count below')
+    }
+
+    // No HTTP requests should be made when validation fails early
+    expect(response.length).toBe(0)
   })
 
   it('should execute legacy flow if flagon override is defined', async () => {
@@ -229,6 +255,94 @@ describe('TheTradeDeskCrm.syncAudience', () => {
         }
       })
     ).rejects.toThrow(`No external_id found in payload.`)
+  })
+
+  it('should mark the payload with invalid email as failed', async () => {
+    const dropReferenceId = 'aabbcc5b01-c9c7-4000-9191-000000000000'
+    const dropEndpoint = `https://thetradedesk-crm-data.s3.us-east-1.amazonaws.com/data/advertiser/advertiser-id/drop/${dropReferenceId}/pii?X-Amz-Security-Token=token&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=date&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=credentials&X-Amz-Signature=signature&`
+
+    nock(`https://api.thetradedesk.com/v3/crmdata/segment/advertiser_id/personas_test_audience`)
+      .post(/.*/, { PiiType: 'Email', MergeMode: 'Replace', RetentionEnabled: true })
+      .reply(200, { ReferenceId: dropReferenceId, Url: dropEndpoint })
+
+    nock(dropEndpoint).put(/.*/).reply(200)
+    const events: SegmentEvent[] = []
+    for (let index = 1; index <= 1500; index++) {
+      events.push(
+        createTestEvent({
+          event: 'Audience Entered',
+          type: 'track',
+          properties: {
+            audience_key: 'personas_test_audience'
+          },
+          context: {
+            device: {
+              advertisingId: '123'
+            },
+            traits: {
+              email: `testing${index}@testing.com`
+            },
+            personas: {
+              external_audience_id: 'external_audience_id'
+            }
+          }
+        })
+      )
+    }
+    events.push(
+      createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          audience_key: 'personas_test_audience'
+        },
+        context: {
+          device: {
+            advertisingId: '123'
+          },
+          traits: {
+            email: `invalid-email-address`
+          },
+          personas: {
+            external_audience_id: 'external_audience_id'
+          }
+        }
+      })
+    )
+
+    const responses = await testDestination.testBatchAction('syncAudience', {
+      events,
+      settings: {
+        advertiser_id: 'advertiser_id',
+        auth_token: 'test_token',
+        __segment_internal_engage_force_full_sync: true,
+        __segment_internal_engage_batch_sync: true
+      },
+      features: {
+        [TTD_LEGACY_FLOW_FLAG_NAME]: true
+      },
+      useDefaultMappings: true,
+      mapping: {
+        name: 'test_audience',
+        region: 'US',
+        pii_type: 'Email'
+      }
+    })
+
+    expect(responses.length).toBe(2)
+    const multiStatusResponse = testDestination.results?.[0]?.multistatus
+    expect(multiStatusResponse).toBeDefined()
+    if (multiStatusResponse) {
+      const length = multiStatusResponse.length
+      expect(length).toBe(1501)
+      const invalidEmailResponse = multiStatusResponse[length - 1]
+      expect(invalidEmailResponse.status).toBe(400)
+
+      // Type-safe access to error properties
+      const errorResponse = invalidEmailResponse as MultiStatusErrorNode
+      expect(errorResponse.errortype).toBe('PAYLOAD_VALIDATION_FAILED')
+      expect(errorResponse.errormessage).toContain('Invalid email: invalid-email-address')
+    }
   })
 
   it('should not double hash an email that is already base64 encoded', async () => {
