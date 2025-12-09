@@ -78,6 +78,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false,
       required: false
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'Enable batching for this request',
+      type: 'boolean',
+      default: true,
+      readOnly: true
     }
   },
   perform: async (request, { settings, payload }) => {

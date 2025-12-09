@@ -270,8 +270,14 @@ registerDirective('@json', (opts, payload) => {
     return JSON.stringify(value)
   } else if (opts.mode === 'decode') {
     if (typeof value === 'string') {
-      return JSON.parse(value)
+      //Placing this in a try-catch to safely handle any primitive values that are put in the JSON.parse
+      try {
+        return JSON.parse(value)
+      } catch (e) {
+        return value
+      }
     }
+
     return value
   }
 })

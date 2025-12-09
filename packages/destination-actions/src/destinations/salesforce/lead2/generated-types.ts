@@ -16,7 +16,7 @@ export interface Payload {
   /**
    * The fields used to find Salesforce records for updates. **This is required if the operation is Delete, Update or Upsert.**
    *
-   *   Any field can function as a matcher, including Record ID, External IDs, standard fields and custom fields. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.
+   *   Any field can function as a matcher, including Record ID, External IDs, standard fields and custom fields. On the left-hand side, map the Segment field that contains the value. On the right-hand side, input the Salesforce field API name.
    *
    *   If multiple records are found, no changes will be made. **Please use fields that result in unique records.**
    *
@@ -46,7 +46,7 @@ export interface Payload {
   bulkUpdateRecordId?: string
   /**
    *
-   *   Additional fields to send to Salesforce. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.
+   *   Additional fields to send to Salesforce. On the left-hand side, map the Segment field that contains the value. On the right-hand side, input the Salesforce field API name.
    *
    *   This can include standard or custom fields. Custom fields must be predefined in your Salesforce account and the API field name should have __c appended.
    *

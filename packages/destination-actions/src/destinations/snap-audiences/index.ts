@@ -1,27 +1,8 @@
 import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
-const ACCESS_TOKEN_URL = 'https://accounts.snapchat.com/login/oauth2/access_token'
-
-interface RefreshTokenResponse {
-  access_token: string
-}
-interface SnapAudienceResponse {
-  segments: {
-    segment: {
-      id: string
-    }
-  }[]
-}
-interface CreateAudienceReq {
-  segments: {
-    name: string
-    source_type: string
-    ad_account_id: string
-    description: string
-    retention_in_days: number
-  }[]
-}
+import { CreateAudienceReq, RefreshTokenResponse, SnapAudienceResponse } from './types'
+import { ACCESS_TOKEN_URL, DEFAULT_RETENTION_DAYS } from './constants'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Snap Audiences (Actions)',
@@ -72,6 +53,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       eventSlug: 'warehouse_audience_membership_changed_identify'
     },
     {
+      name: 'Associated Entity Added',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
       name: 'Journeys Step Entered',
       partnerAction: 'syncAudience',
       mapping: defaultValues(syncAudience.fields),
@@ -79,24 +74,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       eventSlug: 'journeys_step_entered_track'
     },
     {
-      name: 'Sync Audience with Email',
-      subscribe: 'type = "track" and context.traits.email exists',
+      name: 'Sync Engage Audience',
+      subscribe: 'type = "track" or type = "identify"',
       partnerAction: 'syncAudience',
-      mapping: { ...defaultValues(syncAudience.fields), schema_type: 'EMAIL_SHA256' },
-      type: 'automatic'
-    },
-    {
-      name: 'Sync Audience with Phone',
-      subscribe: 'type = "track" and properties.phone exists',
-      partnerAction: 'syncAudience',
-      mapping: { ...defaultValues(syncAudience.fields), schema_type: 'PHONE_SHA256' },
-      type: 'automatic'
-    },
-    {
-      name: 'Sync Audience with Mobile AD ID',
-      subscribe: 'type = "track" and context.device.advertisingId exists',
-      partnerAction: 'syncAudience',
-      mapping: { ...defaultValues(syncAudience.fields), schema_type: 'MOBILE_AD_ID_SHA256' },
+      mapping: { ...defaultValues(syncAudience.fields)},
       type: 'automatic'
     }
   ],
@@ -104,8 +85,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     customAudienceName: {
       type: 'string',
       label: 'Audience Name',
-      description:
-        'Name for the audience that will be created in Snap. Defaults to the snake_cased Segment audience name if left blank.',
+      description: 'Name for the audience that will be created in Snap. Defaults to the snake_cased Segment audience name if left blank.',
       default: '',
       required: false
     },
@@ -119,7 +99,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     retention_in_days: {
       type: 'number',
       label: 'Retention in days',
-      description: '# of days to retain audience members. (Default retention is lifetime represented as 9999)',
+      description: 'Number of days to retain audience members. (Default retention is lifetime represented as 9999)',
       default: 9999,
       required: false
     }
@@ -130,44 +110,50 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const audienceName = createAudienceInput.audienceName
-      const ad_account_id = createAudienceInput.settings.ad_account_id
-      const { customAudienceName, description, retention_in_days } = createAudienceInput.audienceSettings || {}
+      const {
+        audienceName,
+        settings: { ad_account_id } = {},
+        audienceSettings: {
+          customAudienceName,
+          description,
+          retention_in_days
+        } = {}
+      } = createAudienceInput
 
       if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const response = await request(`https://adsapi.snapchat.com/v1/adaccounts/${ad_account_id}/segments`, {
+      if(!ad_account_id){
+        throw new IntegrationError('Missing Ad Account ID. Please configure the Ad Account ID in the destination settings.', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      const json: CreateAudienceReq = {
+        segments: [
+          {
+            name: customAudienceName || audienceName,
+            source_type: 'FIRST_PARTY',
+            ad_account_id,
+            description: description || `Audience ${audienceName} created by Segment`,
+            retention_in_days: retention_in_days || DEFAULT_RETENTION_DAYS
+          }
+        ]
+      }
+
+      const response = await request<SnapAudienceResponse>(`https://adsapi.snapchat.com/v1/adaccounts/${ad_account_id}/segments`, {
         method: 'POST',
-        json: {
-          segments: [
-            {
-              name: customAudienceName !== '' ? customAudienceName : audienceName,
-              source_type: 'FIRST_PARTY',
-              ad_account_id,
-              description,
-              retention_in_days
-            }
-          ]
-        } as CreateAudienceReq
+        json
       })
 
-      const data: SnapAudienceResponse = await response.json()
-      const snapAudienceId = data.segments[0].segment.id
-
-      return { externalId: snapAudienceId }
+      return { externalId: response.data.segments[0].segment.id }
     },
 
     getAudience: async (request, { externalId }) => {
-      const response = await request(`https://adsapi.snapchat.com/v1/segments/${externalId}`, {
+      const response = await request<SnapAudienceResponse>(`https://adsapi.snapchat.com/v1/segments/${externalId}`, {
         method: 'GET'
       })
 
-      const data: SnapAudienceResponse = await response.json()
-      const snapAudienceId = data.segments[0].segment.id
-
-      return { externalId: snapAudienceId }
+      return { externalId: response.data.segments[0].segment.id }
     }
   }
 }

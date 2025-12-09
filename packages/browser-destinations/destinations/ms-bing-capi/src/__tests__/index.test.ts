@@ -54,7 +54,7 @@ describe('ajs-integration', () => {
 
     const updatedCtx = await msclkidPlugin.track?.(ctx)
 
-    const msBingCAPIIntegrationsObj = updatedCtx?.event?.integrations['Ms Bing Capi']
+    const msBingCAPIIntegrationsObj = updatedCtx?.event?.integrations['Microsoft Bing CAPI (Actions)']
 
     expect(msBingCAPIIntegrationsObj[clickIdIntegrationFieldName]).toEqual('dummyQuerystringValue')
   })

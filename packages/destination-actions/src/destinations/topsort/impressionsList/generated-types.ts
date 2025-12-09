@@ -28,4 +28,12 @@ export interface Payload {
       [k: string]: unknown
     }
   }[]
+  /**
+   * The device the user is on.
+   */
+  deviceType?: string
+  /**
+   * The channel where the event occurred.
+   */
+  channel?: string
 }

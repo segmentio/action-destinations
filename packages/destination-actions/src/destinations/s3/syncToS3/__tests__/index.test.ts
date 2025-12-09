@@ -1,7 +1,7 @@
-import { generateFile } from '../../functions' // Adjust the import path
+import { generateFile } from '../functions' // Adjust the import path
 import { Payload } from '../generated-types'
-import { clean, encodeString, getAudienceAction } from '../../functions'
-import { ColumnHeader } from '../../types'
+import { clean, encodeString, getAudienceAction } from '../functions'
+import { ColumnHeader } from '../types'
 
 describe('clean', () => {
   it('should remove delimiter from string', () => {

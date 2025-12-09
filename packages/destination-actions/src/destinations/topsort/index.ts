@@ -10,6 +10,7 @@ import impressionsList from './impressionsList'
 import click from './click'
 
 import purchase from './purchase'
+import pageviews from './pageviews'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Topsort',
@@ -24,6 +25,14 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Created under Settings > API Integration in the Topsort Manager Platform.',
         type: 'password',
         required: true
+      },
+      skipZeroPricePurchases: {
+        label: 'Skip Zero Price Purchases',
+        description:
+          'When enabled, purchase events with items that have zero or missing unit price will be filtered out.',
+        type: 'boolean',
+        required: false,
+        default: false
       }
     }
   },
@@ -69,13 +78,21 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'click',
       mapping: defaultValues(click.fields),
       type: 'automatic'
+    },
+    {
+      name: 'Page Views',
+      subscribe: 'type = "page" or type = "screen"',
+      partnerAction: 'pageviews',
+      mapping: defaultValues(pageviews.fields),
+      type: 'automatic'
     }
   ],
   actions: {
     impression,
     impressionsList,
     click,
-    purchase
+    purchase,
+    pageviews
   }
 }
 

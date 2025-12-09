@@ -13,14 +13,15 @@ const action: ActionDefinition<Settings, Payload> = {
     identifiers: {
       label: 'Identifiers',
       type: 'object',
-      description: 'Unique identifiers for the contact. At least one of userId or anonymousId is required.',
+      description: 'Unique identifiers for the contact. User ID and email are required. Anonymous ID is optional.',
       required: true,
       additionalProperties: false,
       properties: {
         userId: {
           label: 'User ID',
           type: 'string',
-          description: 'Unique user identifier from your app.'
+          description: 'Unique user identifier from your app.',
+          required: true
         },
         anonymousId: {
           label: 'Anonymous ID',
@@ -30,7 +31,8 @@ const action: ActionDefinition<Settings, Payload> = {
         email: {
           label: 'Email',
           type: 'string',
-          description: "Contact's email address. Required if userId is not provided."
+          description: "Contact's email address.",
+          required: true
         }
       },
       default: {
@@ -45,6 +47,137 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "The Yonoma list to add the contact to.",
       required: true,
       default: { '@path': '$.traits.list_id' }
+    },
+    status: {
+      label: 'Email subscription status',
+      type: 'boolean',
+      description: 'Indicates if the Contact is subscribed or unsubscribed from marketing emails. Set to true to subscribe, false to unsubscribe.',
+      required: true,
+      default: true
+    },
+    timestamp: {  
+      label: 'Timestamp',
+      type: 'string',
+      description: 'The timestamp of the event. Defaults to the current time if not provided.',
+      format: 'date-time',
+      default: { '@path': '$.timestamp' }
+    },
+    ip: {  
+      label: 'IP Address',
+      type: 'string',
+      description: 'The IP address of the user. Defaults to the current user IP if not provided.',
+      default: { '@path': '$.context.ip' }
+    },
+    userAgent: {
+      label: 'User Agent',
+      type: 'string',
+      description: 'The user agent of the user.',
+      default: { '@path': '$.context.userAgent' }
+    },
+    page: {
+      label: 'Page',
+      type: 'object',
+      description: 'The details of the page being viewed.',
+      properties: {
+        url: {
+          label: 'Page URL',
+          type: 'string',
+          description: 'Full URL of the page visited.'
+        },
+        title: {
+          label: 'Page Title',
+          type: 'string',
+          description: 'Title of the page.'
+        },
+        referrer: {
+          label: 'Referrer URL',
+          type: 'string',
+          description: 'URL of the referring page.'
+        },
+        path: {
+          label: 'Page Path',
+          type: 'string',
+          description: 'Path of the page being viewed.'
+        },
+        search: {
+          label: 'Search Query',
+          type: 'string',
+          description: 'Search query used to find the page.'
+        }
+      },
+      default: {
+        title: { '@path': '$.context.page.title' },
+        url: { '@path': '$.context.page.url' },
+        referrer: { '@path': '$.context.page.referrer' },
+        path: { '@path': '$.context.page.path' },
+        search: { '@path': '$.context.page.search' }
+      }
+    },
+    campaign: {
+      label: 'Campaign',
+      type: 'object',
+      description: 'The marketing campaign that referred the user to the site.',
+      properties: {
+        name: {
+          label: 'UTM Campaign Name',
+          type: 'string',
+          description: 'Name of the campaign.'
+        },
+        source: {
+          label: 'UTM Campaign Source',
+          type: 'string',
+          description: 'Source of the campaign UTM parameter.'
+        },
+        medium: {
+          label: 'UTM Campaign Medium',
+          type: 'string',
+          description: 'Medium of the campaign UTM parameter.'
+        },
+        term: {
+          label: 'UTM Campaign Term',
+          type: 'string',
+          description: 'Term or keyword of the campaign UTM parameter.'
+        },
+        content: {
+          label: 'UTM Campaign Content',
+          type: 'string',
+          description: 'Content of the campaign UTM parameter.'
+        }
+      },
+      default: {
+        name: { '@path': '$.context.campaign.name' },
+        source: { '@path': '$.context.campaign.source' },
+        medium: { '@path': '$.context.campaign.medium' },
+        term: { '@path': '$.context.campaign.term' },
+        content: { '@path': '$.context.campaign.content' }
+      }
+    },
+    location: {
+      label: 'Location',
+      type: 'object',
+      description: 'The geographic location of the user.',
+      properties: {
+        country: {
+          label: 'Country',
+          type: 'string',
+          description: 'Country of the user.'
+        },
+        region: {
+          label: 'Region/State',
+          type: 'string',
+          description: 'Region or state of the user.'
+        },
+        city: {
+          label: 'City',
+          type: 'string',
+          description: 'City of the user.'
+        }
+      },
+      default: {
+        country: { '@path': '$.context.location.country' },
+        region: { '@path': '$.context.location.region' },
+        city: { '@path': '$.context.location.city' }
+      }
     },
     properties: {
       label: 'Contact Properties',
@@ -112,13 +245,6 @@ const action: ActionDefinition<Settings, Payload> = {
         zipcode: { '@path': '$.traits.address.postal_code' }
       }
     },
-    status: {
-      label: 'Email subscription status',
-      type: 'boolean',
-      description: 'Indicates if the Contact is subscribed or unsubscribed from marketing emails. Set to true to subscribe, false to unsubscribe.',
-      required: true,
-      default: true
-    },
     tags_to_add: {
       label: 'Tags to Add',
       type: 'string',
@@ -138,7 +264,21 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, {payload}) => {
     const {
+      identifiers: {
+        userId,
+        email
+      },
+      identifiers: {
+        anonymousId
+      } = {},
       listId,
+      status,
+      ip,
+      timestamp,
+      userAgent,
+      page,
+      campaign,
+      location,
       properties: {
         firstName,
         lastName,
@@ -150,14 +290,8 @@ const action: ActionDefinition<Settings, Payload> = {
         country,
         zipcode
       } = {},
-      status,
       tags_to_add,
-      tags_to_remove,
-      identifiers: {
-        userId,
-        email,
-        anonymousId
-      } = {}
+      tags_to_remove
     } = payload
 
     if(!userId && !email && !anonymousId) {
@@ -165,11 +299,17 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const jsonUpsertContact: UpsertContactJSON = {
-      ...(userId ? { userId } : {}),
+      userId,
       ...(anonymousId ? { anonymousId } : {}),
-      ...(email ? { email } : {}),
+      email,
       listId,
-      ...(typeof status === 'boolean' ? { status } : {}),
+      status,
+      timestamp,
+      ip,
+      userAgent,
+      page,
+      campaign,
+      location,
       properties: { 
         ...(firstName ? { firstName } : {}),
         ...(lastName ? { lastName } : {}),
@@ -179,16 +319,14 @@ const action: ActionDefinition<Settings, Payload> = {
         ...(city ? { city } : {}),
         ...(state ? { state } : {}),
         ...(country ? { country } : {}),
-        ...(zipcode ? { zipcode } : {})
+        ...(zipcode ? { zipcode } : {}),
+        ...((typeof tags_to_add === 'string' || (Array.isArray(tags_to_add) && tags_to_add.length > 0))
+          ? { tags_to_add: Array.isArray(tags_to_add) ? tags_to_add : [tags_to_add] }
+          : {}),
+        ...((typeof tags_to_remove === 'string' || (Array.isArray(tags_to_remove) && tags_to_remove.length > 0))
+          ? { tags_to_remove: Array.isArray(tags_to_remove) ? tags_to_remove : [tags_to_remove] }
+          : {})
       }
-    }
-
-    if(typeof tags_to_add === 'string' || ( (Array.isArray(tags_to_add) && tags_to_add.length > 0))) {
-      jsonUpsertContact.properties.tags_to_add = Array.isArray(tags_to_add) ? tags_to_add : [tags_to_add]
-    }
-
-    if(typeof tags_to_remove === 'string' || ( (Array.isArray(tags_to_remove) && tags_to_remove.length > 0))) {
-      jsonUpsertContact.properties.tags_to_remove = Array.isArray(tags_to_remove) ? tags_to_remove : [tags_to_remove]
     }
 
     await request(UPSERT_CONTACT_URL, {

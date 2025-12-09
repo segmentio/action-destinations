@@ -1,26 +1,25 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, PayloadValidationError } from '@segment/actions-core'
+import { SegmentEvent, createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { processHashing } from '../../../../lib/hashing-utils'
-import { normalize, normalizePhone } from '../utils'
+import { normalize, normalizePhone } from '../functions'
 
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
   ad_account_id: 'abc1234'
 }
+
 const external_audience_id_value = '123456789'
-const audienceEventEntered = createTestEvent({
+
+const addPayload1: Partial<SegmentEvent> = {
   type: 'track',
   event: 'Audience Entered',
   properties: {
-    'ios.id': 'ios_device_id_1',
-    'android.id': 'android_device_id_1',
-    'android.idfa': 'android_adid_1',
-    'ios.idfa': 'ios_adid_1',
-    audience_key: 'snap_test_audience',
+    android_idfa: 'android_idfa_1111111111',
     snap_test_audience: true,
-    phone: '+1(706)-767-5127'
+    phone: '+1111111111',
+    email: 'test11111111@gmail.com'
   },
   context: {
     __segment_internal: {
@@ -31,103 +30,82 @@ const audienceEventEntered = createTestEvent({
       type: 'android'
     },
     personas: {
+      audience_settings: {
+          customAudienceName: "audience name 1",
+          description: "audience description blah",
+          retention_in_days: 90
+      },
       computation_class: 'audience',
       external_audience_id: external_audience_id_value,
       computation_id: 'aud_2m9wBh1vN9iiRRmaP2vifxuqGRo',
       computation_key: 'snap_test_audience',
       namespace: 'spa_fNXUFfyD86AhrDTtH2z2Vs',
       space_id: 'spa_fNXUFfyD86AhrDTtH2z2Vs'
-    },
-    traits: {
-      email: 'person@email.com'
     }
   }
-})
-const audienceEventExited = createTestEvent({
-  type: 'track',
+}
+
+const addPayload2 = {
+  ...addPayload1,
+  properties: {
+    snap_test_audience: true,
+    phone: '+2222222222',
+  },
+}
+
+const addPayload3 = {
+  ...addPayload1,
+  properties: {
+    android_idfa: 'android_idfa_3333333333',
+    snap_test_audience: true,
+    email: 'test33333333@gmail.com'
+  },
+}
+
+const removePayload1 = { 
+  ...addPayload1,
   event: 'Audience Exited',
   properties: {
-    'ios.id': 'ios_device_id_1',
-    'android.id': 'android_device_id_1',
-    'android.idfa': 'android_adid_1',
-    'ios.idfa': 'ios_adid_1',
-    audience_key: 'snap_test_audience',
     snap_test_audience: false,
-    phone: '+1(706)-767-5127'
-  },
-  context: {
-    __segment_internal: {
-      creator: 'sync-worker'
-    },
-    device: {
-      advertisingId: 'advertising_id_1',
-      type: 'android'
-    },
-    personas: {
-      computation_class: 'audience',
-      external_audience_id: external_audience_id_value,
-      computation_id: 'aud_2m9wBh1vN9iiRRmaP2vifxuqGRo',
-      computation_key: 'snap_test_audience',
-      namespace: 'spa_fNXUFfyD86AhrDTtH2z2Vs',
-      space_id: 'spa_fNXUFfyD86AhrDTtH2z2Vs'
-    },
-    traits: {
-      email: 'person@email.com'
-    }
+    phone: '+4444444444',
+    email: 'test44444444@gmail.com'
   }
-})
+}
+
+const removePayload2 = { 
+  ...addPayload1,
+  event: 'Audience Exited',
+  properties: {
+    android_idfa: 'android_idfa_5555555555',
+    snap_test_audience: false,
+    phone: '+5555555555',
+  }
+}
+
+const removePayload3 = { 
+  ...addPayload1,
+  event: 'Audience Exited',
+  properties: {
+    android_idfa: 'android_idfa_6666666666',
+    snap_test_audience: false,
+    email: 'test6666666666@gmail.com',
+    phone: '+5555555555' // Oh no a duplicate phone in the same batch!
+  }
+}
+
+const mapping = {
+    external_audience_id: { "@path": "$.context.personas.external_audience_id"},
+    audienceKey: { "@path": "$.context.personas.computation_key"},
+    props: {"@path": "$.properties"},
+    phone: {"@path": "$.properties.phone"},
+    email: {"@path": "$.properties.email"},
+    advertising_id: {"@path": "$.properties.android_idfa"},
+    enable_batching: true, 
+    max_batch_size: 1000,
+    batch_keys: ["external_audience_id"]
+}
 
 describe('Snapchat Audiences syncAudience', () => {
-  it('should throw error if no profile identifier is present', async () => {
-    const emailMapping = {
-      schema_type: 'EMAIL_SHA256',
-      external_audience_id: {
-        '@path': '$.context.personas.external_audience_id'
-      },
-      audienceKey: {
-        '@path': '$.context.personas.computation_key'
-      },
-      props: {
-        '@path': '$.properties'
-      },
-      enable_batching: false
-    }
-    const phoneMapping = {
-      schema_type: 'PHONE_SHA256',
-      external_audience_id: {
-        '@path': '$.context.personas.external_audience_id'
-      },
-      audienceKey: {
-        '@path': '$.context.personas.computation_key'
-      },
-      props: {
-        '@path': '$.properties'
-      },
-      enable_batching: false
-    }
-    const mobileMapping = {
-      schema_type: 'MOBILE_AD_ID_SHA256',
-      external_audience_id: {
-        '@path': '$.context.personas.external_audience_id'
-      },
-      audienceKey: {
-        '@path': '$.context.personas.computation_key'
-      },
-      props: {
-        '@path': '$.properties'
-      },
-      enable_batching: false
-    }
-    await expect(
-      testDestination.testAction('syncAudience', { event: audienceEventEntered, mapping: emailMapping, settings })
-    ).rejects.toThrowError(PayloadValidationError)
-    await expect(
-      testDestination.testAction('syncAudience', { event: audienceEventEntered, mapping: phoneMapping, settings })
-    ).rejects.toThrowError(PayloadValidationError)
-    await expect(
-      testDestination.testAction('syncAudience', { event: audienceEventEntered, mapping: mobileMapping, settings })
-    ).rejects.toThrowError(PayloadValidationError)
-  })
   it('should normalize and hash identifiers', async () => {
     const email1 = 'person@email.com'
     const email2 = 'Person@email.com'
@@ -165,435 +143,215 @@ describe('Snapchat Audiences syncAudience', () => {
     expect(mobileAdId2Res).toEqual(hashedMobileAdId)
     expect(alreadyHashedResMobileAdId).toEqual(hashedMobileAdId)
   })
-  it('should send profile with email', async () => {
-    const mapping = {
-      schema_type: 'EMAIL_SHA256',
-      email: 'person@email.com',
-      external_audience_id: {
-        '@path': '$.context.personas.external_audience_id'
-      },
-      audienceKey: {
-        '@path': '$.context.personas.computation_key'
-      },
-      props: {
-        '@path': '$.properties'
-      },
-      enable_batching: false
-    }
 
-    const emailRequestBody = {
+  it('should send batch with multiple emails, phone, MAIDs', async () => {
+    /* 
+      This test sends 6 events (3 add, 3 remove) with different identifiers (email, phone, MAID).
+      It verifies that 6 requests are sent to Snapchat (add email, add phone, remove email, remove phone)
+      and that identifiers are normalized and hashed correctly.
+      It also dedupes where there are duplicate identifiers in the same batch (e.g. email only and email + phone in same batch)
+    */
+    const events = [
+      createTestEvent(addPayload1), 
+      createTestEvent(addPayload2), 
+      createTestEvent(addPayload3), 
+      createTestEvent(removePayload1), 
+      createTestEvent(removePayload2), 
+      createTestEvent(removePayload3)
+    ]
+
+    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`, {
       users: [
         {
-          schema: ['EMAIL_SHA256'],
-          data: [['b375b7bbddb3de3298fbc7641063d9f03a38e118aa4480c8ab9f58740982e8bd']]
-        }
-      ]
-    }
-
-    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})
-    nock('https://adsapi.snapchat.com').delete(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})
-    // audience entered
-    const resEntered = await testDestination.testAction('syncAudience', {
-      event: audienceEventEntered,
-      mapping,
-      settings
-    })
-    const dataEntered = JSON.parse(resEntered[0].options.body as string)
-    const methodEntered = resEntered[0].options.method
-    expect(dataEntered).toEqual(emailRequestBody)
-    expect(methodEntered).toEqual('POST')
-
-    // audience exited
-    const resExited = await testDestination.testAction('syncAudience', {
-      event: audienceEventExited,
-      mapping,
-      settings
-    })
-    const dataExited = JSON.parse(resExited[0].options.body as string)
-    const methodExited = resExited[0].options.method
-    expect(dataExited).toEqual(emailRequestBody)
-    expect(methodExited).toEqual('DELETE')
-  })
-  it('should send profile with phone number', async () => {
-    const mapping = {
-      schema_type: 'PHONE_SHA256',
-      phone: '+1(706)-767-5127',
-      external_audience_id: {
-        '@path': '$.context.personas.external_audience_id'
-      },
-      audienceKey: {
-        '@path': '$.context.personas.computation_key'
-      },
-      props: {
-        '@path': '$.properties'
-      },
-      enable_batching: false
-    }
-
-    const phoneRequestBody = {
-      users: [
-        {
-          schema: ['PHONE_SHA256'],
-          // hash of 17067675127
-          data: [['2fd199db6d3fa9fe754886ff1822f2867fcb104a6639495eca25c2978efe4ed4']]
-        }
-      ]
-    }
-
-    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})
-    nock('https://adsapi.snapchat.com').delete(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})
-    // audience entered
-    const resEntered = await testDestination.testAction('syncAudience', {
-      event: audienceEventEntered,
-      mapping,
-      settings
-    })
-    const dataEntered = JSON.parse(resEntered[0].options.body as string)
-    const methodEntered = resEntered[0].options.method
-    expect(dataEntered).toEqual(phoneRequestBody)
-    expect(methodEntered).toEqual('POST')
-
-    // audience exited
-    const resExited = await testDestination.testAction('syncAudience', {
-      event: audienceEventExited,
-      mapping,
-      settings
-    })
-    const dataExited = JSON.parse(resExited[0].options.body as string)
-    const methodExited = resExited[0].options.method
-    expect(dataExited).toEqual(phoneRequestBody)
-    expect(methodExited).toEqual('DELETE')
-  })
-  it('should send profile with advertiserId', async () => {
-    const mapping = {
-      schema_type: 'MOBILE_AD_ID_SHA256',
-      advertising_id: '38400000-8cf0-11bd-b23e-10b96e40000d',
-      external_audience_id: {
-        '@path': '$.context.personas.external_audience_id'
-      },
-      audienceKey: {
-        '@path': '$.context.personas.computation_key'
-      },
-      props: {
-        '@path': '$.properties'
-      },
-      enable_batching: false
-    }
-
-    const mobileAdIdRequestBody = {
-      users: [
-        {
-          schema: ['MOBILE_AD_ID_SHA256'],
-          data: [['d4181bb455a74b3bc8b37c75ac9b2c702eb6b9930bd040b861403b31ca85634d']]
-        }
-      ]
-    }
-
-    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})
-    nock('https://adsapi.snapchat.com').delete(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})
-    // audience entered
-    const resEntered = await testDestination.testAction('syncAudience', {
-      event: audienceEventEntered,
-      mapping,
-      settings
-    })
-    const dataEntered = JSON.parse(resEntered[0].options.body as string)
-    const methodEntered = resEntered[0].options.method
-    expect(dataEntered).toEqual(mobileAdIdRequestBody)
-    expect(methodEntered).toEqual('POST')
-
-    // audience exited
-    const resExited = await testDestination.testAction('syncAudience', {
-      event: audienceEventExited,
-      mapping,
-      settings
-    })
-    const dataExited = JSON.parse(resExited[0].options.body as string)
-    const methodExited = resExited[0].options.method
-    expect(dataExited).toEqual(mobileAdIdRequestBody)
-    expect(methodExited).toEqual('DELETE')
-  })
-  it('should send batched requests', async () => {
-    const mapping = {
-      schema_type: 'EMAIL_SHA256',
-      email: {
-        '@path': '$.context.traits.email'
-      },
-      external_audience_id: { '@path': '$.context.personas.external_audience_id' },
-      audienceKey: {
-        '@path': '$.context.personas.computation_key'
-      },
-      props: {
-        '@path': '$.properties'
-      },
-      enable_batching: true
-    }
-
-    const audienceEvent1 = createTestEvent({
-      type: 'track',
-      event: 'Audience Entered',
-      properties: {
-        audience_key: 'snap_test_audience',
-        snap_test_audience: true
-      },
-      context: {
-        personas: {
-          external_audience_id: external_audience_id_value,
-          computation_key: 'snap_test_audience'
-        },
-        traits: {
-          email: 'person1@email.com'
-        }
-      }
-    })
-    const audienceEvent2 = createTestEvent({
-      type: 'track',
-      event: 'Audience Entered',
-      properties: {
-        audience_key: 'snap_test_audience',
-        snap_test_audience: true
-      },
-      context: {
-        personas: {
-          external_audience_id: external_audience_id_value,
-          computation_key: 'snap_test_audience'
-        },
-        traits: {
-          email: 'person2@email.com'
-        }
-      }
-    })
-    const audienceEvent3 = createTestEvent({
-      type: 'track',
-      event: 'Audience Entered',
-      properties: {
-        audience_key: 'snap_test_audience',
-        snap_test_audience: true
-      },
-      context: {
-        personas: {
-          external_audience_id: external_audience_id_value,
-          computation_key: 'snap_test_audience'
-        },
-        traits: {
-          email: 'person3@email.com'
-        }
-      }
-    })
-
-    const events = [audienceEvent1, audienceEvent2, audienceEvent3]
-
-    const batchRequestBody = {
-      users: [
-        {
-          schema: ['EMAIL_SHA256'],
+          schema: [
+            "EMAIL_SHA256"
+          ],
           data: [
-            ['0cd62bbd033e887666ab6ed1359253583b2c41e1c16b588e0fd58610233cf715'],
-            ['63b19a92fdc0a26b003f8adebbc85e04e4ed437fbb2d1ea02e543e3b40ec3153'],
-            ['be0cd3d2367d1e0e4d690fc2ecf4049b4693d840ebf5e0aeed216e43942dee0b']
+            [
+              "28a12fd153fd0b60d1d8d696d8ea07ea387988bf0c906d7aeefecf17add3af48"
+            ],
+            [
+              "4ea60569f5d7920a08c4568b03a70129c9cfab26a48f44978e4626545084c2ab"
+            ]
           ]
         }
       ]
-    }
+    }).reply(200, {})
 
-    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})
-    const res = await testDestination.testBatchAction('syncAudience', { events, mapping, settings })
-    const data = JSON.parse(res[0].options.body as string)
-    const method = res[0].options.method
-    expect(data).toEqual(batchRequestBody)
-    expect(method).toEqual('POST')
-  })
-  it('should send sorted (entered/exited) batched requests', async () => {
-    const mapping = {
-      schema_type: 'EMAIL_SHA256',
-      email: {
-        '@path': '$.context.traits.email'
-      },
-      external_audience_id: {
-        '@path': '$.context.personas.external_audience_id'
-      },
-      audienceKey: {
-        '@path': '$.context.personas.computation_key'
-      },
-      props: {
-        '@path': '$.properties'
-      },
-      enable_batching: true
-    }
-
-    const audienceEvent1 = createTestEvent({
-      type: 'track',
-      event: 'Audience Entered',
-      properties: {
-        audience_key: 'snap_test_audience',
-        snap_test_audience: true
-      },
-      context: {
-        personas: {
-          external_audience_id: external_audience_id_value,
-          computation_key: 'snap_test_audience'
-        },
-        traits: {
-          email: 'person1@email.com'
-        }
-      }
-    })
-    const audienceEvent2 = createTestEvent({
-      type: 'track',
-      event: 'Audience Entered',
-      properties: {
-        audience_key: 'snap_test_audience',
-        snap_test_audience: true
-      },
-      context: {
-        personas: {
-          external_audience_id: external_audience_id_value,
-          computation_key: 'snap_test_audience'
-        },
-        traits: {
-          email: 'person2@email.com'
-        }
-      }
-    })
-    const audienceEvent3 = createTestEvent({
-      type: 'track',
-      event: 'Audience Exited',
-      properties: {
-        audience_key: 'snap_test_audience',
-        snap_test_audience: false
-      },
-      context: {
-        personas: {
-          external_audience_id: external_audience_id_value,
-          computation_key: 'snap_test_audience'
-        },
-        traits: {
-          email: 'person3@email.com'
-        }
-      }
-    })
-    const audienceEvent4 = createTestEvent({
-      type: 'track',
-      event: 'Audience Exited',
-      properties: {
-        audience_key: 'snap_test_audience',
-        snap_test_audience: false
-      },
-      context: {
-        personas: {
-          external_audience_id: external_audience_id_value,
-          computation_key: 'snap_test_audience'
-        },
-        traits: {
-          email: 'person4@email.com'
-        }
-      }
-    })
-
-    const events = [audienceEvent1, audienceEvent2, audienceEvent3, audienceEvent4]
-
-    const batchEnteredRequestBody = {
+    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`, {
       users: [
         {
-          schema: ['EMAIL_SHA256'],
+          schema: [
+            "PHONE_SHA256"
+          ],
           data: [
-            ['0cd62bbd033e887666ab6ed1359253583b2c41e1c16b588e0fd58610233cf715'],
-            ['63b19a92fdc0a26b003f8adebbc85e04e4ed437fbb2d1ea02e543e3b40ec3153']
+            [
+              "d2d02ea74de2c9fab1d802db969c18d409a8663a9697977bb1c98ccdd9de4372"
+            ],
+            [
+              "965f69baefb60286c60262b40dcf40717a2227eef5db00c9b717d5de24453511"
+            ]
           ]
         }
       ]
-    }
+    }).reply(200, {})
 
-    const batchExitedRequestBody = {
+    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`, {
       users: [
         {
-          schema: ['EMAIL_SHA256'],
+          schema: [
+            "MOBILE_AD_ID_SHA256"
+          ],
           data: [
-            ['be0cd3d2367d1e0e4d690fc2ecf4049b4693d840ebf5e0aeed216e43942dee0b'],
-            ['297aad46b6b13a893b4d4e05486a1a825eeb3b03b6799d6072e7cfb5eef3adb6']
+            [
+              "13d1ebc093bac8f450b3ae0fba5684587b467f37a9fe17aa45640235e236bdbf"
+            ],
+            [
+              "ba27e74fa326339ee2d31b9c387d7242b0913f5f1a84bbfb9f2001443a97e250"
+            ]
           ]
         }
       ]
-    }
-    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})
-    nock('https://adsapi.snapchat.com').delete(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})
+    }).reply(200, {})
 
-    const res = await testDestination.testBatchAction('syncAudience', { events, mapping, settings })
-    const dataEntered = JSON.parse(res[0].options.body as string)
-    const dataExited = JSON.parse(res[1].options.body as string)
-    const methodEntered = res[0].options.method
-    const methodExited = res[1].options.method
+    nock('https://adsapi.snapchat.com').delete(`/v1/segments/${external_audience_id_value}/users`, {
+      users: [
+        {
+          schema: [
+            "EMAIL_SHA256"
+          ],
+          data: [
+            [
+              "7a9285ba929efbeba9c57ccf24f782a07c94648854b28b9b508b7eb332abea6f"
+            ],
+            [
+              "f3781dfc9dc62f55fa9c328b3ac5ff0818465be19a0914ba18144fc1a85ead56"
+            ]
+          ]
+        }
+      ]
+    }).reply(200, {})
 
-    expect(dataEntered).toEqual(batchEnteredRequestBody)
-    expect(methodEntered).toEqual('POST')
-    expect(dataExited).toEqual(batchExitedRequestBody)
-    expect(methodExited).toEqual('DELETE')
+    nock('https://adsapi.snapchat.com').delete(`/v1/segments/${external_audience_id_value}/users`, {
+      users: [
+        {
+          schema: [
+            "PHONE_SHA256"
+          ],
+          data: [
+            [
+              "f12a38838db97f7767c61d3922fa073656e407f00d8dc7337e5b5d0b009221da"
+            ],
+            [
+              "a5ad7e6d5225ad00c5f05ddb6bb3b1597a843cc92f6cf188490ffcb88a1ef4ef"
+            ]
+          ]
+        }
+      ]
+    }).reply(200, {})
+
+    nock('https://adsapi.snapchat.com').delete(`/v1/segments/${external_audience_id_value}/users`, {
+      users: [
+        {
+          schema: [
+            "MOBILE_AD_ID_SHA256"
+          ],
+          data: [
+            [
+              "ffb1512ae0d32e7bd9832ef56bd4350ca99222568b1ae92dcb4c26713b2e2440"
+            ],
+            [
+              "ca762f074b5d8053914f2b2dd1ccb2974cf7f65eede73508166c251d5057a782"
+            ]
+          ]
+        }
+      ]
+    }).reply(200, {})
+
+    const responses = await testDestination.testBatchAction('syncAudience', {
+      events,
+      mapping,
+      settings
+    })
+
+    expect(responses.length).toBe(6)
   })
-  it('should throw error if no profile identifiers are present', async () => {
-    const mapping = {
-      schema_type: 'EMAIL_SHA256',
-      email: {
-        '@path': '$.context.traits.email'
-      },
-      external_audience_id: {
-        '@path': '$.context.personas.external_audience_id'
-      },
-      audienceKey: {
-        '@path': '$.context.personas.computation_key'
-      },
-      props: {
-        '@path': '$.properties'
-      },
-      enable_batching: true
+
+  it('Multistatus response should include successes and failures', async () => {
+    
+    const noIdsPayload = {
+      ...addPayload1,
+      properties: {
+        snap_test_audience: true
+      }
     }
 
-    const audienceEvent1 = createTestEvent({
-      type: 'track',
-      event: 'Audience Entered',
-      properties: {
-        audience_key: 'snap_test_audience',
-        snap_test_audience: true
-      },
-      context: {
-        personas: {
-          external_audience_id: external_audience_id_value,
-          computation_key: 'snap_test_audience'
+    const events = [
+      createTestEvent(noIdsPayload),
+      createTestEvent(addPayload1)
+    ]
+
+    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`, {
+      users: [
+        {
+          schema: [
+            "EMAIL_SHA256"
+          ],
+          data: [
+            [
+              "28a12fd153fd0b60d1d8d696d8ea07ea387988bf0c906d7aeefecf17add3af48"
+            ]
+          ]
         }
-      }
-    })
-    const audienceEvent2 = createTestEvent({
-      type: 'track',
-      event: 'Audience Entered',
-      properties: {
-        audience_key: 'snap_test_audience',
-        snap_test_audience: true
-      },
-      context: {
-        personas: {
-          external_audience_id: external_audience_id_value,
-          computation_key: 'snap_test_audience'
+      ]
+    }).reply(200, {})
+
+    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`, {
+      users: [
+        {
+          schema: [
+            "MOBILE_AD_ID_SHA256"
+          ],
+          data: [
+            [
+              "13d1ebc093bac8f450b3ae0fba5684587b467f37a9fe17aa45640235e236bdbf"
+            ]
+          ]
         }
-      }
-    })
-    const audienceEvent3 = createTestEvent({
-      type: 'track',
-      event: 'Audience Entered',
-      properties: {
-        audience_key: 'snap_test_audience',
-        snap_test_audience: true
-      },
-      context: {
-        personas: {
-          external_audience_id: external_audience_id_value,
-          computation_key: 'snap_test_audience'
+      ]
+    }).reply(200, {})
+
+    nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`, {
+      users: [
+        {
+          schema: [
+            "PHONE_SHA256"
+          ],
+          data: [
+            [
+              "d2d02ea74de2c9fab1d802db969c18d409a8663a9697977bb1c98ccdd9de4372"
+            ]
+          ]
         }
-      }
+      ]
+    }).reply(200, {})
+
+    const response = await testDestination.executeBatch('syncAudience', {
+      events,
+      mapping,
+      settings
     })
 
-    const events = [audienceEvent1, audienceEvent2, audienceEvent3]
-
-    await expect(testDestination.testBatchAction('syncAudience', { events, mapping, settings })).rejects.toThrowError(
-      PayloadValidationError
-    )
+    expect(response).toMatchObject([
+      {
+        status: 400,
+        errortype: "PAYLOAD_VALIDATION_FAILED",
+        errormessage: 'One of "email" or "phone" or "Mobile Advertising ID" is required.'
+      },
+      {
+        status: 200,
+        body: "{\"external_audience_id\":\"123456789\",\"audienceKey\":\"snap_test_audience\",\"props\":{\"android_idfa\":\"android_idfa_1111111111\",\"snap_test_audience\":true,\"phone\":\"+1111111111\",\"email\":\"test11111111@gmail.com\"},\"phone\":\"+1111111111\",\"email\":\"test11111111@gmail.com\",\"advertising_id\":\"android_idfa_1111111111\",\"enable_batching\":true,\"max_batch_size\":1000,\"batch_keys\":[\"external_audience_id\"],\"index\":1}"
+      }
+    ])
   })
 })

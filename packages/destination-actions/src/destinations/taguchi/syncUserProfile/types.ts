@@ -19,6 +19,7 @@ export interface JSONItem {
     state?: string
     country?: string
     postcode?: string
+    phone?: string
     gender?: string
 
     // Custom traits. Including Computed Traits.

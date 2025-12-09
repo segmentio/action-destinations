@@ -102,7 +102,7 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
         '@arrayPath': [
           '$.properties.products',
           {
-            itemPrice: { '@path': '$.price' },
+            unitPrice: { '@path': '$.price' },
             itemId: { '@path': '$.id' },
             quantity: { '@path': '$.quantity' },
             discount: { '@path': '$.discount' }
