@@ -63,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number',
       label: 'Batch Bytes',
       description:
-        'The number of bytes to batch together. Default is 1MB. Maximum value varies by kafka cluster. The less you batch, the more requests will be sent to your Kafka cluster.',
+        'Specifies the maximum number of bytes to batch before sending. The default is 1 MB, though the maximum allowed depends on the Kafka cluster. Smaller batch sizes result in more frequent requests to the cluster.',
       default: 1000000, // 1MB,
       required: false,
       minimum: 1,
