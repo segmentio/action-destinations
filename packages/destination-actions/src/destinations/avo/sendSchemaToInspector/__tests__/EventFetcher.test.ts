@@ -14,35 +14,43 @@ describe('EventSpecFetcher', () => {
   }
 
   const validWireResponse: EventSpecResponseWire = {
-    branchId: 'main',
-    baseEvent: {
-      id: 'test-event-id',
-      name: 'TestEvent',
-      props: {
-        userId: { t: 'string', r: true },
-        amount: { t: 'number', r: false, min: 0 }
+    events: [
+      {
+        b: 'main',
+        id: 'test-event-id',
+        vids: [],
+        p: {
+          userId: { t: 'string', r: true },
+          amount: { t: 'number', r: false, min: 0 }
+        }
       }
-    },
-    variants: []
+    ],
+    metadata: {
+      schemaId: 'test-schema-id',
+      branchId: 'main',
+      latestActionId: 'test-action-id',
+      sourceId: 'test-source-id'
+    }
   }
 
   const validWireResponseWithVariants: EventSpecResponseWire = {
-    branchId: 'main',
-    baseEvent: {
-      id: 'test-event-id',
-      name: 'TestEvent',
-      props: {
-        userId: { t: 'string', r: true }
-      }
-    },
-    variants: [
+    events: [
       {
-        eventId: 'variant-event-id',
-        props: {
+        b: 'main',
+        id: 'test-event-id',
+        vids: ['variant-event-id'],
+        p: {
+          userId: { t: 'string', r: true },
           additionalProp: { t: 'string', r: false }
         }
       }
-    ]
+    ],
+    metadata: {
+      schemaId: 'test-schema-id',
+      branchId: 'main',
+      latestActionId: 'test-action-id',
+      sourceId: 'test-source-id'
+    }
   }
 
   afterEach(() => {
@@ -107,8 +115,8 @@ describe('EventSpecFetcher', () => {
       expect(result).toBeNull()
     })
 
-    it('should return null when response is missing baseEvent', async () => {
-      nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(200, { branchId: 'main', variants: [] })
+    it('should return null when response is missing events array', async () => {
+      nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(200, { metadata: {} })
 
       const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
       const result = await fetcher.fetch(mockParams)

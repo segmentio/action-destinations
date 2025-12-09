@@ -77,23 +77,25 @@ export interface PropertyConstraintsWire {
   t: string | Record<string, PropertyConstraintsWire> // type or nested schema
   r: boolean // required
   l?: boolean // is list
-  v?: string[] // allowed values
+  v?: string[] | Record<string, string[]> // allowed values
   min?: number // min value
   max?: number // max value
   rx?: string // regex pattern
 }
 
 export interface EventSpecResponseWire {
-  branchId: string
-  baseEvent: {
-    id: string
-    name: string
-    props: Record<string, PropertyConstraintsWire>
-  }
-  variants: Array<{
-    eventId: string
-    props: Record<string, PropertyConstraintsWire>
+  events: Array<{
+    b: string // branchId
+    id: string // baseEventId
+    vids: string[] // variantIds
+    p: Record<string, PropertyConstraintsWire> // props
   }>
+  metadata: {
+    schemaId: string
+    branchId: string
+    latestActionId: string
+    sourceId: string
+  }
 }
 
 // -----------------------------------------------------------------------------
