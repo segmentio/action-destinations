@@ -66,6 +66,18 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
       type: 'boolean',
       required: false,
       default: false
+    }, 
+    host: {
+      label: 'Host',
+      description: 'The recording server host domain. Can be set to direct recorded events to a proxy that you host. Defaults to `fullstory.com`.',
+      type: 'string',
+      required: false
+    }, 
+    appHost: {
+      label: 'App Host',
+      description: 'Use this to set the app host for displaying session urls. If using a version of [Fullstory Relay](https://help.fullstory.com/hc/en-us/articles/360046112593-How-to-send-captured-traffic-to-your-First-Party-Domain-using-Fullstory-Relay), you may need to set appHost "app.fullstory.com" or "app.eu1.fullstory.com" depending on your region.',
+      type: 'string',
+      required: false
     }
   },
   actions: {
@@ -77,7 +89,16 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
     viewedPageV2
   },
   initialize: async ({ settings }, dependencies) => {
-    initFullStory(settings)
+
+    const { host, appHost } = settings
+
+    const inputOptions = {
+      ...settings, 
+      ...(host ? { host: settings.host } : {}),
+      ...(appHost ? { appHost: settings.appHost } : {})
+    } 
+
+    initFullStory(inputOptions)
     await dependencies.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'FS'), 100)
     return window.FS
   }

@@ -45,7 +45,8 @@ const example: Subscription[] = [
 test('can load fullstory', async () => {
   const [event] = await fullstory({
     orgId: 'thefullstory.com',
-    subscriptions: example
+    subscriptions: example, 
+    host: 'customdomain.com'
   })
 
   jest.spyOn(destination.actions.trackEvent, 'perform')
