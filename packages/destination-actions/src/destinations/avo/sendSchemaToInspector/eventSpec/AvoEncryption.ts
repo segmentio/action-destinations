@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // eslint-disable-next-line no-restricted-syntax -- We use createHash for KDF (key derivation), not PII hashing
-import { createECDH, createCipheriv, createDecipheriv, createHash, randomBytes } from 'crypto'
+import { createECDH, createCipheriv, createHash, randomBytes } from 'crypto'
 
 /**
  * Generates a new ECC key pair for encryption/decryption.
- * Uses secp256k1 curve which provides approximately 128-bit security level.
+ * Uses prime256v1 (NIST P-256) curve which is standard for Web Crypto API.
  *
  * @returns An object containing the private and public keys as hex strings
  */
 export function generateKeyPair(): { privateKey: string; publicKey: string } {
   // Generate a new random private key (32 bytes) via ECDH
-  const ecdh = createECDH('secp256k1')
+  const ecdh = createECDH('prime256v1')
   ecdh.generateKeys()
 
   return {
@@ -20,15 +20,10 @@ export function generateKeyPair(): { privateKey: string; publicKey: string } {
 }
 
 function deriveKey(sharedSecret: Buffer): Buffer {
-  // To match standard eciesjs/eciespy behavior:
-  // - Use SHA-512 to hash the shared secret
-  // - Take the first 32 bytes as the encryption key
-  // Spec:
-  // - Algorithm: AES-256-GCM
-  // - KDF: HKDF or Hash(SharedSecret) -> encKey
-  // - Here: sha512(sharedSecret).slice(0, 32)
+  // Simple SHA-256 hash of the shared secret
+  // This is a standard way to derive a key from an ECDH shared secret
   // eslint-disable-next-line no-restricted-syntax
-  return createHash('sha512').update(sharedSecret).digest().subarray(0, 32)
+  return createHash('sha256').update(sharedSecret).digest()
 }
 
 /**
@@ -41,11 +36,12 @@ function deriveKey(sharedSecret: Buffer): Buffer {
  * - Fast encryption even for large values
  * - Strong authentication via GCM
  *
- * SPECIFICATION (Compatible with eciesjs/eciespy defaults):
- * 1. Curve: secp256k1
- * 2. Key Derivation (KDF): SHA-512(shared_secret).slice(0, 32)
+ * SPECIFICATION (Standard Web Crypto Profile):
+ * 1. Curve: prime256v1 (NIST P-256)
+ * 2. Key Derivation (KDF): SHA-256(SharedSecret)
  * 3. Cipher: AES-256-GCM
- * 4. Serialization: [EphemeralPubKey(33b|65b)] + [IV(16b)] + [AuthTag(16b)] + [Ciphertext]
+ * 4. Serialization: [Version(1b)] + [EphemeralPubKey(65b)] + [IV(16b)] + [AuthTag(16b)] + [Ciphertext]
+ *    Version 0x00 = Standard Web Profile
  *
  * @param value - The value to encrypt (any type - will be JSON stringified)
  * @param publicKey - The ECC public key in hex format provided by the client
@@ -69,11 +65,11 @@ export function encryptValue(value: any, publicKey: string): string {
     // Handle both compressed (33 bytes) and uncompressed (65 bytes) keys
     const recipientPublicKey = Buffer.from(publicKeyStr, 'hex')
 
-    // 2. Generate Ephemeral Key Pair on secp256k1
-    const ecdh = createECDH('secp256k1')
+    // 2. Generate Ephemeral Key Pair on prime256v1
+    const ecdh = createECDH('prime256v1')
     ecdh.generateKeys()
-    // Default to compressed format (33 bytes) for smaller payload
-    const ephemeralPublicKey = ecdh.getPublicKey(null, 'compressed')
+    // Default to uncompressed format (65 bytes) for maximum compatibility
+    const ephemeralPublicKey = ecdh.getPublicKey(null, 'uncompressed')
 
     // 3. Derive Shared Secret (ECDH)
     const sharedSecret = ecdh.computeSecret(recipientPublicKey)
@@ -90,69 +86,14 @@ export function encryptValue(value: any, publicKey: string): string {
     const authTag = cipher.getAuthTag() // GCM Auth Tag (16 bytes)
 
     // 6. Serialize Output
-    // Common Format: [Ephemeral Public Key] + [IV (16)] + [AuthTag (16)] + [Ciphertext]
-    // We need to match whatever the receiver expects.
-    // eciesjs default serialization is: EphemeralPubKey + IV + Tag + Ciphertext
-    const resultBuffer = Buffer.concat([ephemeralPublicKey, iv, authTag, encrypted])
+    // Format: [Version(1)] + [Ephemeral Public Key] + [IV (16)] + [AuthTag (16)] + [Ciphertext]
+    const version = Buffer.from([0x00]) // Version 1: Standard Web Profile
+    const resultBuffer = Buffer.concat([version, ephemeralPublicKey, iv, authTag, encrypted])
 
     return resultBuffer.toString('base64')
   } catch (error) {
     throw new Error(
       `Failed to encrypt value. Please check that the public key is valid. Error: ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    )
-  }
-}
-
-/**
- * Decrypts a value that was encrypted with encryptValue.
- *
- * @param encryptedValue - The base64-encoded encrypted string
- * @param privateKey - The ECC private key in hex format
- * @returns The original decrypted value (parsed from JSON)
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function decryptValue(encryptedValue: string, privateKey: string): any {
-  try {
-    const encryptedBuffer = Buffer.from(encryptedValue, 'base64')
-
-    // 1. Parse buffer components
-    // Determine public key size based on first byte
-    // 0x04 = Uncompressed (65 bytes), 0x02/0x03 = Compressed (33 bytes)
-    const firstByte = encryptedBuffer[0]
-    let pubKeySize = 65
-    if (firstByte === 0x02 || firstByte === 0x03) {
-      pubKeySize = 33
-    }
-
-    const ephemeralPublicKey = encryptedBuffer.slice(0, pubKeySize)
-    const iv = encryptedBuffer.slice(pubKeySize, pubKeySize + 16)
-    const authTag = encryptedBuffer.slice(pubKeySize + 16, pubKeySize + 32)
-    const ciphertext = encryptedBuffer.slice(pubKeySize + 32)
-
-    // 2. Prepare Private Key
-    const ecdh = createECDH('secp256k1')
-    ecdh.setPrivateKey(Buffer.from(privateKey, 'hex'))
-
-    // 3. Derive Shared Secret
-    const sharedSecret = ecdh.computeSecret(ephemeralPublicKey)
-
-    // 4. Key Derivation
-    const derivedKey = deriveKey(sharedSecret)
-
-    // 5. Decrypt
-    const decipher = createDecipheriv('aes-256-gcm', derivedKey, iv)
-    decipher.setAuthTag(authTag)
-
-    let decrypted = decipher.update(ciphertext)
-    decrypted = Buffer.concat([decrypted, decipher.final()])
-
-    const stringValue = decrypted.toString('utf8')
-    return JSON.parse(stringValue)
-  } catch (error) {
-    throw new Error(
-      `Failed to decrypt value. Please check that the private key is valid and matches the public key used for encryption. Error: ${
         error instanceof Error ? error.message : String(error)
       }`
     )
