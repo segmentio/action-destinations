@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { keys, enable_batching, batch_size, values_dataExtensionFields, dataExtensionHook } from '../sfmc-properties'
+import { keys, batch_size, values_dataExtensionFields, dataExtensionHook } from '../sfmc-properties'
 import { getDataExtensionFields, asyncUpsertRowsV2 } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -11,9 +11,11 @@ const action: ActionDefinition<Settings, Payload> = {
     keys: { ...keys, required: true, dynamic: true },
     values: { ...values_dataExtensionFields, dynamic: true },
     enable_batching: {
+      label: 'Batch data to SFMC',
+      description: 'If true, data is batched before sending to the SFMC Data Extension.',
+      type: 'boolean',
       default: true,
-      unsafe_hidden: true,
-      ...enable_batching
+      unsafe_hidden: true
     },
     batch_bytes: {
       label: 'Batch Bytes',
@@ -72,6 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!dataExtensionId) {
       throw new IntegrationError('No Data Extension Connected', 'INVALID_CONFIGURATION', 400)
     }
+    console.log('performBatch payload length:', payload.length)
     return asyncUpsertRowsV2(request, settings.subdomain, payload, dataExtensionId)
   }
 }
