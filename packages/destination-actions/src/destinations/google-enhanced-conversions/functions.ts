@@ -1108,7 +1108,6 @@ export const handleJobExecutionError = (
 
 export function getSessionAttributesKeyValuePairs(payload: ClickConversionPayload | ClickConversionPayload2) {
   const {
-    session_attributes_encoded,
     session_attributes_key_value_pairs: {
       gad_source,
       gad_campaignid,
@@ -1141,7 +1140,7 @@ export function getSessionAttributesKeyValuePairs(payload: ClickConversionPayloa
       sessionAttributeValue: value
     }))
 
-  return (!session_attributes_encoded && keyValuePairList.length > 0
+  return (keyValuePairList.length > 0
     ? { sessionAttributesKeyValuePairs: { keyValuePairs: keyValuePairList } }
     : {}
   )
