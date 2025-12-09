@@ -90,7 +90,8 @@ async function fetchEventSpec(
     }
 
     // fetch from API (async)
-    const result = await new EventSpecFetcher(request, true, env).fetch(fetchParams).catch((error: any) => {
+    const shouldLog = process.env.NODE_ENV !== 'test'
+    const result = await new EventSpecFetcher(request, shouldLog, env).fetch(fetchParams).catch((error: any) => {
       console.error(`[Avo Inspector] Failed to fetch event spec for ${eventName}:`, error)
       return null
     })
