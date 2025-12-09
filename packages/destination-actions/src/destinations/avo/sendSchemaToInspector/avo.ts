@@ -91,10 +91,7 @@ async function fetchEventSpec(
 
     // fetch from API (async)
     const shouldLog = process.env.NODE_ENV !== 'test'
-    const result = await new EventSpecFetcher(request, shouldLog, env).fetch(fetchParams).catch((error: any) => {
-      console.error(`[Avo Inspector] Failed to fetch event spec for ${eventName}:`, error)
-      return null
-    })
+    const result = await new EventSpecFetcher(request, shouldLog, env).fetch(fetchParams)
 
     return result
   } catch (error) {
@@ -160,7 +157,7 @@ export async function extractSchemaFromEvent(
   env: string,
   inspectorEncryptionKey: string | undefined,
   request: RequestClient
-) {
+): Promise<EventSchemaBody> {
   const baseBody: BaseBody = generateBaseBody(event, appVersionPropertyName)
 
   // we use segment's anonymousId as the streamId for the event spec fetch
