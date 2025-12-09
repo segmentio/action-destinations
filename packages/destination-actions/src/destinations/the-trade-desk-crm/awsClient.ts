@@ -43,13 +43,13 @@ export const sendEventToAWS = async (input: SendToAWSRequest) => {
   const metadataFilePath = `${ACTION_SLUG}/${input.AdvertiserId}/${input.CrmDataId}/meta.json`
 
   // Create Metadata
-  const metadata = JSON.stringify({
+  const metadata = {
     TDDAuthToken: input.TDDAuthToken,
     AdvertiserId: input.AdvertiserId,
     CrmDataId: input.CrmDataId,
     DropOptions: input.DropOptions,
     RequeueCount: 0
-  } as TTDEventPayload)
+  } as TTDEventPayload
 
   // Get S3 Client for Outbound Controller
   const s3Client = getS3Client('integrationsOutboundController')
