@@ -21,7 +21,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'The Ripe API key found in the Ripe App',
-        type: 'string',
+        type: 'password',
         required: true
       },
       endpoint: {

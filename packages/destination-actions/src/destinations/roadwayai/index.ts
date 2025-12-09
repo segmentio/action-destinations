@@ -50,7 +50,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Your RoadwayAI API key for authentication',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },
