@@ -1,4 +1,4 @@
-import { endpoints, getEndpointByRegion } from '../regional-endpoints'
+import { endpoints, getEndpointByRegion } from '../common-functions'
 
 describe('Amplitude - Regional endpoints', () => {
   it('should set region to north_america when no region is provided', () => {

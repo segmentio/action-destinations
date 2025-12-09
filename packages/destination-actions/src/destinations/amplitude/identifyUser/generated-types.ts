@@ -6,15 +6,41 @@ export interface Payload {
    */
   user_id?: string | null
   /**
-   * A device specific identifier, such as the Identifier for Vendor (IDFV) on iOS. Required unless user ID is present.
+   * The current version of your application.
    */
-  device_id?: string
+  app_version?: string
   /**
-   * Additional data tied to the user in Amplitude. Each distinct value will show up as a user segment on the Amplitude dashboard. Object depth may not exceed 40 layers. **Note:** You can store property values in an array and date values are transformed into string values.
+   * The carrier that the user is using.
    */
-  user_properties?: {
-    [k: string]: unknown
-  }
+  carrier?: string
+  /**
+   * The current city of the user.
+   */
+  city?: string
+  /**
+   * The current country of the user.
+   */
+  country?: string
+  /**
+   * The current region of the user.
+   */
+  region?: string
+  /**
+   * The device brand that the user is using.
+   */
+  device_brand?: string
+  /**
+   * The device manufacturer that the user is using.
+   */
+  device_manufacturer?: string
+  /**
+   * The device model that the user is using.
+   */
+  device_model?: string
+  /**
+   * The current Designated Market Area of the user.
+   */
+  dma?: string
   /**
    * Groups of users for Amplitude's account-level reporting feature. Note: You can only track up to 5 groups. Any groups past that threshold will not be tracked. **Note:** This feature is only available to Amplitude Enterprise customers who have purchased the Amplitude Accounts add-on.
    */
@@ -22,57 +48,84 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Version of the app the user is on.
+   * Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field
    */
-  app_version?: string
+  includeRawUserAgent?: boolean
   /**
-   * The platform of the user's device.
+   * The language set by the user.
    */
-  platform?: string
+  language?: string
   /**
-   * The mobile operating system or browser of the user's device.
+   * The name of the library that generated the event.
+   */
+  library?: string
+  /**
+   * The name of the mobile operating system or browser that the user is using.
    */
   os_name?: string
   /**
-   * The version of the mobile operating system or browser of the user's device.
+   * The version of the mobile operating system or browser the user is using.
    */
   os_version?: string
   /**
-   * The brand of user's the device.
+   * Platform of the device. If using analytics.js to send events from a Browser and no if no Platform value is provided, the value "Web" will be sent.
    */
-  device_brand?: string
+  platform?: string
   /**
-   * The manufacturer of the user's device.
+   * The user agent of the device sending the event.
    */
-  device_manufacturer?: string
+  userAgent?: string
   /**
-   * The model of the user's device.
+   * The user agent data of device sending the event
    */
-  device_model?: string
+  userAgentData?: {
+    model?: string
+    platformVersion?: string
+  }
   /**
-   * The user's mobile carrier.
+   * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field
    */
-  carrier?: string
+  userAgentParsing?: boolean
   /**
-   * The country in which the user is located.
+   * Additional data tied to the user in Amplitude. Each distinct value will show up as a user segment on the Amplitude dashboard. Object depth may not exceed 40 layers. **Note:** You can store property values in an array and date values are transformed into string values.
    */
-  country?: string
+  user_properties?: {
+    [k: string]: unknown
+  }
   /**
-   * The geographical region in which the user is located.
+   * Utility field used to detect if Autocapture Attribution Plugin is enabled.
    */
-  region?: string
+  autocaptureAttributionEnabled?: boolean
   /**
-   * The city in which the user is located.
+   * Utility field used to detect if any attribution values need to be set.
    */
-  city?: string
+  autocaptureAttributionSet?: {
+    [k: string]: unknown
+  }
   /**
-   * The Designated Market Area in which the user is located.
+   * Utility field used to detect if any attribution values need to be set_once.
    */
-  dma?: string
+  autocaptureAttributionSetOnce?: {
+    [k: string]: unknown
+  }
   /**
-   * Language the user has set on their device or browser.
+   * Utility field used to detect if any attribution values need to be unset.
    */
-  language?: string
+  autocaptureAttributionUnset?: {
+    [k: string]: unknown
+  }
+  /**
+   * A device specific identifier, such as the Identifier for Vendor (IDFV) on iOS. Required unless user ID is present.
+   */
+  device_id?: string
+  /**
+   * Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time.
+   */
+  insert_id?: string
+  /**
+   * Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
+   */
+  min_id_length?: number | null
   /**
    * Whether the user is paying or not.
    */
@@ -82,21 +135,9 @@ export interface Payload {
    */
   start_version?: string
   /**
-   * Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time.
+   * The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”
    */
-  insert_id?: string
-  /**
-   * The user agent of the device sending the event.
-   */
-  userAgent?: string
-  /**
-   * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field
-   */
-  userAgentParsing?: boolean
-  /**
-   * Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field
-   */
-  includeRawUserAgent?: boolean
+  referrer?: string
   /**
    * UTM Tracking Properties
    */
@@ -106,24 +147,5 @@ export interface Payload {
     utm_campaign?: string
     utm_term?: string
     utm_content?: string
-  }
-  /**
-   * The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”
-   */
-  referrer?: string
-  /**
-   * Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
-   */
-  min_id_length?: number | null
-  /**
-   * The name of the library that generated the event.
-   */
-  library?: string
-  /**
-   * The user agent data of device sending the event
-   */
-  userAgentData?: {
-    model?: string
-    platformVersion?: string
   }
 }
