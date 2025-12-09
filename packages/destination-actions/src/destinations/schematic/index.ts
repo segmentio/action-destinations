@@ -15,7 +15,7 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       apiKey: {
-        type: 'string',
+        type: 'password',
         label: 'API Key',
         description: 'Found on your settings page.',
         required: true

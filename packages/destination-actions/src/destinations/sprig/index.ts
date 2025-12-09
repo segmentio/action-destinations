@@ -16,12 +16,12 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Sprig API key.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     }
   },
-  presets:[
+  presets: [
     {
       name: 'Track Event',
       subscribe: 'type = "track"',

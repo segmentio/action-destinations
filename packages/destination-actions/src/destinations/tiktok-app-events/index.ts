@@ -127,6 +127,7 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'event = "Products Searched"',
       partnerAction: 'reportAppEvent',
       mapping: {
+         ...defaultValues(reportAppEvent.fields),
         event: 'Search'
       },
       type: 'automatic'
@@ -166,6 +167,7 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'event = "Application Installed"',
       partnerAction: 'reportAppEvent',
       mapping: {
+        ...defaultValues(reportAppEvent.fields),
         event: 'InstallApp'
       },
       type: 'automatic'
@@ -175,6 +177,7 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'event = "Application Opened"',
       partnerAction: 'reportAppEvent',
       mapping: {
+         ...defaultValues(reportAppEvent.fields),
         event: 'LaunchAPP'
       },
       type: 'automatic'
@@ -184,6 +187,7 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'event = "Signed In"',
       partnerAction: 'reportAppEvent',
       mapping: {
+         ...defaultValues(reportAppEvent.fields),
         event: 'Login'
       },
       type: 'automatic'
@@ -193,6 +197,7 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'event = "Signed Up"',
       partnerAction: 'reportAppEvent',
       mapping: {
+         ...defaultValues(reportAppEvent.fields),
         event: 'Registration'
       },
       type: 'automatic'

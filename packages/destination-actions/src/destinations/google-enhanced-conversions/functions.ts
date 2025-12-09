@@ -12,7 +12,9 @@ import {
   UserListResponse,
   UserList,
   OfflineUserJobPayload,
-  AddOperationPayload
+  AddOperationPayload,
+  KeyValuePairList,
+  KeyValueItem
 } from './types'
 import {
   ModifiedResponse,
@@ -30,6 +32,8 @@ import { StatsContext } from '@segment/actions-core/destination-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
 import { HTTPError } from '@segment/actions-core'
 import type { Payload as UserListPayload } from './userList/generated-types'
+import type { Payload as ClickConversionPayload } from './uploadClickConversion/generated-types'
+import type { Payload as ClickConversionPayload2 } from './uploadClickConversion2/generated-types'
 import { RefreshTokenResponse } from '.'
 import { STATUS_CODE_MAPPING } from './constants'
 import { processHashing } from '../../lib/hashing-utils'
@@ -38,6 +42,8 @@ export const CANARY_API_VERSION = 'v21'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+
+
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -217,6 +223,17 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
     return undefined
   }
   return timestamp.replace(/T/, ' ').replace(/(\.\d+)?Z/, '+00:00')
+}
+
+export function timestampToEpochMicroseconds(timestamp: string): string | undefined {
+  if(!timestamp){
+    return undefined
+  }
+  const date = new Date(timestamp)
+  if (!isNaN(date.getTime())) {
+    return (date.getTime() * 1000).toString()
+  }
+  return undefined
 }
 
 export function getApiVersion(features?: Features, statsContext?: StatsContext): string {
@@ -1087,4 +1104,44 @@ export const handleJobExecutionError = (
       })
     }
   })
+}
+
+export function getSessionAttributesKeyValuePairs(payload: ClickConversionPayload | ClickConversionPayload2) {
+  const {
+    session_attributes_key_value_pairs: {
+      gad_source,
+      gad_campaignid,
+      landing_page_url,
+      session_start_time_usec,
+      landing_page_referrer,
+      landing_page_user_agent
+    } = {}
+  } = payload
+
+  const sessionStartTimeUsec = typeof session_start_time_usec === 'string'
+    ? timestampToEpochMicroseconds(session_start_time_usec)
+    : undefined
+
+  const entries: [KeyValueItem['sessionAttributeKey'], string | undefined][] = [
+    ['gad_source', gad_source],
+    ['gad_campaignid', gad_campaignid],
+    ['landing_page_url', landing_page_url],
+    ['session_start_time_usec', sessionStartTimeUsec],
+    ['landing_page_referrer', landing_page_referrer],
+    ['landing_page_user_agent', landing_page_user_agent]
+  ]
+
+  const keyValuePairList: KeyValuePairList = entries
+    .filter(
+      ([_, value]) => value !== undefined && value !== null && value !== ''
+    )
+    .map(([key, value]) => ({
+      sessionAttributeKey: key,
+      sessionAttributeValue: value
+    }))
+
+  return (keyValuePairList.length > 0
+    ? { sessionAttributesKeyValuePairs: { keyValuePairs: keyValuePairList } }
+    : {}
+  )
 }
