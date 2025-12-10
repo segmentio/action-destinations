@@ -691,14 +691,20 @@ export const getCategories = async (request: RequestClient, settings: Settings):
 }
 
 /**
- * Interface for SFMC async operation status
+ * Interface for SFMC async operation status response from /status endpoint
  */
 interface SFMCAsyncStatus {
-  status?: string
-  operationId?: string
-  completedAt?: string
-  errorMessage?: string
-  results?: Record<string, unknown>
+  status: {
+    callDateTime: string
+    completionDateTime?: string
+    hasErrors: boolean
+    pickupDateTime?: string
+    requestStatus: string
+    resultStatus: string
+    requestId: string
+  }
+  requestId: string
+  resultMessages: string[]
 }
 
 /**
@@ -733,6 +739,7 @@ export async function insertRowsAsync(
   }
 
   try {
+    console.log(subdomain, dataExtensionId, requestBody)
     return await request(
       `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/dataextensions/${dataExtensionId}/rows`,
       {
@@ -772,8 +779,9 @@ export async function pollAsyncOperation(
   operationId: string
 ): Promise<PollResponse> {
   try {
+    console.log('subdomain', subdomain, 'operationId', operationId)
     const response = await request<SFMCAsyncStatus>(
-      `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/operations/${operationId}`,
+      `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/${operationId}/status`,
       {
         method: 'GET',
         headers: {
@@ -783,15 +791,16 @@ export async function pollAsyncOperation(
     )
 
     const data = response.data
+    console.log('poll data', data)
 
     return {
-      status: data.status || 'Unknown',
+      status: data.status.requestStatus,
       operationId: operationId,
-      completedAt: data.completedAt,
-      errorMessage: data.errorMessage,
-      results: data.results || {}
+      completedAt: data.status.completionDateTime,
+      errorMessage: data.status.hasErrors ? 'Operation completed with errors' : undefined
     }
   } catch (error) {
+    console.log('poll error', error)
     const err = error as ErrorResponse
 
     if (err?.response?.status === 401) {
