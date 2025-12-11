@@ -51,12 +51,8 @@ function deriveKey(sharedSecret: Buffer): Buffer {
 export function encryptValue(value: any, publicKey: string): string {
   try {
     // Convert the value to a JSON string to support all types
-    // Note: JSON.stringify(undefined) returns undefined (not a string), so handle it explicitly, undefined is converted to null as it cannot be represented in JSON
+    // Note: undefined is converted to null as it cannot be represented in JSON
     const stringValue = value === undefined ? 'null' : JSON.stringify(value)
-
-    if (stringValue === undefined) {
-      throw new Error('Cannot encrypt undefined value')
-    }
 
     // 1. Prepare Public Key
     // Ensure publicKey is a string
@@ -87,7 +83,7 @@ export function encryptValue(value: any, publicKey: string): string {
 
     // 6. Serialize Output
     // Format: [Version(1)] + [Ephemeral Public Key] + [IV (16)] + [AuthTag (16)] + [Ciphertext]
-    const version = Buffer.from([0x00]) // Version 1: Standard Web Profile
+    const version = Buffer.from([0x00]) // Version 0: Standard Web Profile
     const resultBuffer = Buffer.concat([version, ephemeralPublicKey, iv, authTag, encrypted])
 
     return resultBuffer.toString('base64')

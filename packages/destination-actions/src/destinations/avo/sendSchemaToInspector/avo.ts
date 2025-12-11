@@ -14,7 +14,11 @@ function getAppNameFromUrl(url: string) {
   return url.split('/')[2]
 }
 
-function generateBaseBody(event: Payload, appVersionPropertyName: string | undefined): BaseBody {
+function generateBaseBody(
+  event: Payload,
+  appVersionPropertyName: string | undefined,
+  publicEncryptionKey: string | undefined
+): BaseBody {
   const appName = event.appName ?? (event.pageUrl ? getAppNameFromUrl(event.pageUrl) : 'unnamed Segment app')
 
   let appVersion: string
@@ -25,7 +29,7 @@ function generateBaseBody(event: Payload, appVersionPropertyName: string | undef
     appVersion = event.appVersion ?? 'unversioned'
   }
 
-  return {
+  const baseBody: BaseBody = {
     appName: appName,
     appVersion: appVersion,
     libVersion: '1.0.0',
@@ -34,6 +38,12 @@ function generateBaseBody(event: Payload, appVersionPropertyName: string | undef
     createdAt: event.createdAt,
     sessionId: '_'
   }
+
+  if (publicEncryptionKey) {
+    baseBody.publicEncryptionKey = publicEncryptionKey
+  }
+
+  return baseBody
 }
 
 function handleEvent(
@@ -158,7 +168,7 @@ export async function extractSchemaFromEvent(
   inspectorEncryptionKey: string | undefined,
   request: RequestClient
 ): Promise<EventSchemaBody> {
-  const baseBody: BaseBody = generateBaseBody(event, appVersionPropertyName)
+  const baseBody: BaseBody = generateBaseBody(event, appVersionPropertyName, inspectorEncryptionKey)
 
   // we use segment's anonymousId as the streamId for the event spec fetch
   const eventSpec = await fetchEventSpec(event.event, apiKey, event.anonymousId, env, request)

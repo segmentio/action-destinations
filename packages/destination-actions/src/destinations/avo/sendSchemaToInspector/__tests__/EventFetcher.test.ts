@@ -21,7 +21,9 @@ describe('EventSpecFetcher', () => {
         vids: [],
         p: {
           userId: { t: 'string', r: true },
-          amount: { t: 'number', r: false, min: 0 }
+          amount: { t: 'number', r: false, min: 0 },
+          tags: { t: 'string', r: false, l: true, v: ['tag1', 'tag2'] },
+          score: { t: 'number', r: false, min: 0, max: 100 }
         }
       }
     ],
@@ -75,6 +77,22 @@ describe('EventSpecFetcher', () => {
       expect(result).not.toBeNull()
       expect(result?.events[0].baseEventId).toBe('test-event-id')
       expect(result?.events[0].props.userId.type).toBe('string')
+
+      // Verify min/max parsing
+      const amountConstraints = result?.events[0].props.amount
+      expect(amountConstraints?.minMaxRanges).toBeDefined()
+      expect(Object.keys(amountConstraints?.minMaxRanges || {})[0]).toBe('0,')
+
+      const scoreConstraints = result?.events[0].props.score
+      expect(scoreConstraints?.minMaxRanges).toBeDefined()
+      expect(Object.keys(scoreConstraints?.minMaxRanges || {})[0]).toBe('0,100')
+
+      // Verify list parsing
+      const tagsConstraints = result?.events[0].props.tags
+      expect(tagsConstraints?.isList).toBe(true)
+      expect(tagsConstraints?.allowedValues).toBeDefined()
+      // Key should be JSON stringified array
+      expect(Object.keys(tagsConstraints?.allowedValues || {})[0]).toBe('["tag1","tag2"]')
     })
 
     it('should successfully fetch an event spec with variants', async () => {

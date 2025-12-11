@@ -23,6 +23,7 @@ export interface BaseBody {
   messageId: string
   createdAt: string
   sessionId: string
+  publicEncryptionKey?: string
 }
 
 export interface EventSchemaBody extends BaseBody {

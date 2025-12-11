@@ -77,7 +77,7 @@ export interface PropertyConstraintsWire {
   t: string | Record<string, PropertyConstraintsWire> // type or nested schema
   r: boolean // required
   l?: boolean // is list
-  v?: string[] | Record<string, string[]> // allowed values
+  v?: string[] // allowed values
   min?: number // min value
   max?: number // max value
   rx?: string // regex pattern
@@ -117,6 +117,7 @@ export interface EventSpecResponse {
 export interface PropertyConstraints {
   type: string
   required: boolean
+  isList?: boolean
   pinnedValues?: Record<string, string[]>
   allowedValues?: Record<string, string[]>
   regexPatterns?: Record<string, string[]>

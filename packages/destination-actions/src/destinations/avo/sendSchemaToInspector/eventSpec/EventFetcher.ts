@@ -199,15 +199,17 @@ export class EventSpecFetcher {
     if (wire.events) {
       for (const evt of wire.events) {
         const baseEventId = evt.id
-        const variantIds = evt.vids
+        const variantIds = evt.vids || []
         const branchId = evt.b
+
+        // Collect all IDs that these constraints apply to
+        // For per-event entries, this includes the base event and any variants listed
+        const eventIds = [baseEventId, ...variantIds]
 
         const props: Record<string, PropertyConstraints> = {}
 
         for (const [propName, propWire] of Object.entries(evt.p)) {
-          // For new format, propWire already contains merged constraints map in 'v'
-          // We can convert it to PropertyConstraints
-          props[propName] = EventSpecFetcher.convertWirePropToConstraints(propWire)
+          props[propName] = EventSpecFetcher.convertWirePropToConstraints(propWire, eventIds)
         }
 
         events.push({
@@ -225,26 +227,37 @@ export class EventSpecFetcher {
     }
   }
 
-  private static convertWirePropToConstraints(wire: PropertyConstraintsWire): PropertyConstraints {
+  private static convertWirePropToConstraints(wire: PropertyConstraintsWire, eventIds: string[]): PropertyConstraints {
     const type = EventSpecFetcher.getTypeString(wire)
     const required = wire.r
     const isListType = wire.l === true
 
     const result: PropertyConstraints = {
       type: isListType ? 'list' : type,
-      required
+      required,
+      isList: isListType
     }
 
     // Allowed values (v)
-    if (wire.v) {
-      if (typeof wire.v === 'object' && !Array.isArray(wire.v)) {
-        // It's a map { stringifiedArray: [eventIds] }
-        // We need to cast it because TS thinks it might be string[] from legacy types
-        const vMap = wire.v
-        // In new format, the values are already in the format we want (map)
-        // We just need to ensure we copy it
-        result.allowedValues = { ...vMap }
-      }
+    if (wire.v && Array.isArray(wire.v)) {
+      // Key is the JSON stringified array of allowed values
+      const key = JSON.stringify(wire.v)
+      result.allowedValues = { [key]: [...eventIds] }
+    }
+
+    // Min/Max ranges
+    if (wire.min !== undefined || wire.max !== undefined) {
+      // Format: "min,max" where min/max can be empty string
+      // e.g. "0," means >= 0, ",100" means <= 100
+      const minStr = wire.min !== undefined ? wire.min.toString() : ''
+      const maxStr = wire.max !== undefined ? wire.max.toString() : ''
+      const key = `${minStr},${maxStr}`
+      result.minMaxRanges = { [key]: [...eventIds] }
+    }
+
+    // Regex patterns
+    if (wire.rx) {
+      result.regexPatterns = { [wire.rx]: [...eventIds] }
     }
 
     // Handle nested properties
@@ -252,7 +265,7 @@ export class EventSpecFetcher {
     if (nestedSchema) {
       result.children = {}
       for (const [childName, childWire] of Object.entries(nestedSchema)) {
-        result.children[childName] = EventSpecFetcher.convertWirePropToConstraints(childWire)
+        result.children[childName] = EventSpecFetcher.convertWirePropToConstraints(childWire, eventIds)
       }
     }
 
