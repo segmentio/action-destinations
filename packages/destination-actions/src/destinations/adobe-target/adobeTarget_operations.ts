@@ -1,4 +1,4 @@
-import { RequestClient, IntegrationError, APIError } from '@segment/actions-core'
+import { RequestClient, IntegrationError, ErrorCodes } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 
 function getNestedObjects(obj: { [x: string]: any }, objectPath = '', attributes: { [x: string]: string } = {}) {
@@ -76,7 +76,9 @@ export default class AdobeTarget {
           statsContext?.statsClient.incr('actions-adobe-target.profile-not-found', 1, statsContext.tags)
         }
 
-        throw new APIError(error.message, errorCode)
+        // TOO_EARLY error type indicates that this error is retryable error type but server is not ready yet to process the request.
+        // Centrifuge dosn't retry 425 so we keep the error code as 500.
+        throw new IntegrationError(error.message, ErrorCodes.DESTINATION_NOT_READY, errorCode)
       }
     }
 
