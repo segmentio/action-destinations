@@ -46,6 +46,7 @@ function deepCopyChildren(children: Record<string, PropertyConstraints>): Record
     result[propName] = {
       type: constraints.type,
       required: constraints.required,
+      isList: constraints.isList,
       pinnedValues: constraints.pinnedValues ? deepCopyConstraintMapping(constraints.pinnedValues) : undefined,
       allowedValues: constraints.allowedValues ? deepCopyConstraintMapping(constraints.allowedValues) : undefined,
       regexPatterns: constraints.regexPatterns ? deepCopyConstraintMapping(constraints.regexPatterns) : undefined,
@@ -67,6 +68,7 @@ function mergeChildren(target: Record<string, PropertyConstraints>, source: Reco
       target[propName] = {
         type: sourceConstraints.type,
         required: sourceConstraints.required,
+        isList: sourceConstraints.isList,
         pinnedValues: sourceConstraints.pinnedValues
           ? deepCopyConstraintMapping(sourceConstraints.pinnedValues)
           : undefined,
@@ -85,6 +87,10 @@ function mergeChildren(target: Record<string, PropertyConstraints>, source: Reco
       // Merge into existing child property
       const targetConstraints = target[propName]
       mergeConstraintMappings(targetConstraints, sourceConstraints)
+      // Preserve isList if source has it (should be consistent across events, but prefer source if merging)
+      if (sourceConstraints.isList !== undefined) {
+        targetConstraints.isList = sourceConstraints.isList
+      }
       // Recursively merge nested children
       if (sourceConstraints.children) {
         if (!targetConstraints.children) {
@@ -311,6 +317,7 @@ function collectConstraintsByPropertyName(events: EventSpecEntry[]): Record<stri
         result[propName] = {
           type: constraints.type,
           required: constraints.required,
+          isList: constraints.isList,
           pinnedValues: constraints.pinnedValues ? { ...constraints.pinnedValues } : undefined,
           allowedValues: constraints.allowedValues ? { ...constraints.allowedValues } : undefined,
           regexPatterns: constraints.regexPatterns ? { ...constraints.regexPatterns } : undefined,
@@ -321,6 +328,10 @@ function collectConstraintsByPropertyName(events: EventSpecEntry[]): Record<stri
         // Aggregate constraint mappings from additional events
         const existing = result[propName]
         mergeConstraintMappings(existing, constraints)
+        // Preserve isList if source has it (should be consistent across events, but prefer source if merging)
+        if (constraints.isList !== undefined) {
+          existing.isList = constraints.isList
+        }
         // Recursively merge nested children
         if (constraints.children) {
           if (!existing.children) {
@@ -468,6 +479,10 @@ function validateObjectProperty(
 
   if (constraints.children) {
     for (const [childName, childConstraints] of Object.entries(constraints.children)) {
+      // Skip validation for children that are not present on the runtime object
+      if (!Object.prototype.hasOwnProperty.call(valueObj, childName)) {
+        continue
+      }
       const childValue = valueObj[childName]
       const childResult = validatePropertyConstraints(childValue, childConstraints, allEventIds, depth + 1)
       // Only include non-empty results
