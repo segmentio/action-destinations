@@ -244,8 +244,6 @@ export function validateEvent(properties: RuntimeProperties, specResponse: Event
     const value = properties[propName]
     const constraints = constraintsByProperty[propName]
 
-    console.log(constraints, propName)
-
     if (!constraints) {
       // Property not in spec - no constraints to fail
       propertyResults[propName] = {}
