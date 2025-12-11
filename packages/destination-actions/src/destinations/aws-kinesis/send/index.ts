@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Max Batch Size',
       description: 'The maximum number of payloads to include in a batch.',
       type: 'number',
-      required: true,
+      required: false,
       minimum: 1,
       maximum: 500,
       default: 500,
