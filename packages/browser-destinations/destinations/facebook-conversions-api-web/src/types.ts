@@ -89,7 +89,7 @@ export type UserData = {
     ph?: string // Phone number (SHA-256)
     fn?: string // First name (SHA-256)
     ln?: string // Last name (SHA-256)
-    ge?: string // Gender (SHA-256)
+    ge?: 'f' | 'm' // Gender (SHA-256)
     db?: string // Date of birth (SHA-256) - format: YYYYMMDD
     ct?: string // City (SHA-256)
     st?: string // State (SHA-256)
