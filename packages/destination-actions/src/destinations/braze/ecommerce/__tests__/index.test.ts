@@ -52,7 +52,8 @@ const payload = {
         product_url: 'https://example.com/prod1',
         quantity: 2,
         price: 25.0,
-        metadata: { color: 'red', size: 'M' }
+        color: 'red', 
+        size: 'M'
       },
       {
         product_id: 'prod_2',
@@ -112,8 +113,9 @@ const mapping = {
               image_url: {'@path': '$.image_url'},
               product_url: {'@path': '$.url'},
               quantity: {'@path': '$.quantity'},
-              price: {'@path': '$.price'},
-              metadata: { '@path': '$.metadata' }
+              price: {'@path': '$.price'}, 
+              color: { '@path': '$.color' },
+              size: { '@path': '$.size' }
           }
       ]
   },
@@ -1312,10 +1314,8 @@ describe('Braze.ecommerce', () => {
                 "image_url": "https://example.com/prod1.jpg",
                 "quantity": 2,
                 "price": 25,
-                "metadata": {
-                  "color": "red",
-                  "size": "M"
-                }
+                "color": "red",
+                "size": "M"
               },
               {
                 "product_id": "prod_2",
@@ -1349,7 +1349,7 @@ describe('Braze.ecommerce', () => {
             "batch_size": 75,
             "index": 0
           },
-          "body": "{\"external_id\":\"userId1\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.order_refunded\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"},\"products\":[{\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"image_url\":\"https://example.com/prod1.jpg\",\"quantity\":2,\"price\":25,\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"image_url\":\"https://example.com/prod2.jpg\",\"quantity\":1,\"price\":50}],\"total_value\":100,\"order_id\":\"order_id_1\",\"total_discounts\":10,\"discounts\":[{\"code\":\"SUMMER21\",\"amount\":5},{\"code\":\"VIPCUSTOMER\",\"amount\":5}]},\"_update_existing_only\":true}"
+          "body": "{\"external_id\":\"userId1\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.order_refunded\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"},\"products\":[{\"quantity\":2,\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"price\":25,\"image_url\":\"https://example.com/prod1.jpg\",\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"quantity\":1,\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"price\":50,\"image_url\":\"https://example.com/prod2.jpg\"}],\"total_value\":100,\"order_id\":\"order_id_1\",\"total_discounts\":10,\"discounts\":[{\"code\":\"SUMMER21\",\"amount\":5},{\"code\":\"VIPCUSTOMER\",\"amount\":5}]},\"_update_existing_only\":true}"
         },
         {
           "status": 400,
@@ -1383,10 +1383,8 @@ describe('Braze.ecommerce', () => {
                 "image_url": "https://example.com/prod1.jpg",
                 "quantity": 2,
                 "price": 25,
-                "metadata": {
-                  "color": "red",
-                  "size": "M"
-                }
+                "color": "red",
+                "size": "M"
               },
               {
                 "product_id": "prod_2",
@@ -1461,10 +1459,8 @@ describe('Braze.ecommerce', () => {
                 "image_url": "https://example.com/prod1.jpg",
                 "quantity": 2,
                 "price": 25,
-                "metadata": {
-                  "color": "red",
-                  "size": "M"
-                }
+                "color": "red",
+                "size": "M"
               },
               {
                 "product_id": "prod_2",
@@ -1498,7 +1494,7 @@ describe('Braze.ecommerce', () => {
             "batch_size": 75,
             "index": 1
           },
-          "body": "{\"external_id\":\"userId3\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.checkout_started\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"},\"products\":[{\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"image_url\":\"https://example.com/prod1.jpg\",\"quantity\":2,\"price\":25,\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"image_url\":\"https://example.com/prod2.jpg\",\"quantity\":1,\"price\":50}],\"total_value\":100,\"checkout_id\":\"checkout_id_1\",\"cart_id\":\"cart_id_1\"},\"_update_existing_only\":true}"
+          "body": "{\"external_id\":\"userId3\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.checkout_started\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"},\"products\":[{\"quantity\":2,\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"price\":25,\"image_url\":\"https://example.com/prod1.jpg\",\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"quantity\":1,\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"price\":50,\"image_url\":\"https://example.com/prod2.jpg\"}],\"total_value\":100,\"checkout_id\":\"checkout_id_1\",\"cart_id\":\"cart_id_1\"},\"_update_existing_only\":true}"
         },
         {
           "status": 200,
@@ -1539,10 +1535,8 @@ describe('Braze.ecommerce', () => {
                 "image_url": "https://example.com/prod1.jpg",
                 "quantity": 2,
                 "price": 25,
-                "metadata": {
-                  "color": "red",
-                  "size": "M"
-                }
+                "color": "red",
+                "size": "M"
               },
               {
                 "product_id": "prod_2",
@@ -1576,7 +1570,7 @@ describe('Braze.ecommerce', () => {
             "batch_size": 75,
             "index": 2
           },
-          "body": "{\"external_id\":\"userId4\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.cart_updated\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"},\"products\":[{\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"image_url\":\"https://example.com/prod1.jpg\",\"quantity\":2,\"price\":25,\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"image_url\":\"https://example.com/prod2.jpg\",\"quantity\":1,\"price\":50}],\"total_value\":100,\"cart_id\":\"cart_id_1\"},\"_update_existing_only\":true}"
+          "body": "{\"external_id\":\"userId4\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.cart_updated\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"},\"products\":[{\"quantity\":2,\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"price\":25,\"image_url\":\"https://example.com/prod1.jpg\",\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"quantity\":1,\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"price\":50,\"image_url\":\"https://example.com/prod2.jpg\"}],\"total_value\":100,\"cart_id\":\"cart_id_1\"},\"_update_existing_only\":true}"
         },
         {
           "status": 200,
@@ -1617,10 +1611,8 @@ describe('Braze.ecommerce', () => {
                 "image_url": "https://example.com/prod1.jpg",
                 "quantity": 2,
                 "price": 25,
-                "metadata": {
-                  "color": "red",
-                  "size": "M"
-                }
+                "color": "red",
+                "size": "M"
               },
               {
                 "product_id": "prod_2",
@@ -1654,7 +1646,7 @@ describe('Braze.ecommerce', () => {
             "batch_size": 75,
             "index": 3
           },
-          "body": "{\"external_id\":\"userId5\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.order_cancelled\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"},\"products\":[{\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"image_url\":\"https://example.com/prod1.jpg\",\"quantity\":2,\"price\":25,\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"image_url\":\"https://example.com/prod2.jpg\",\"quantity\":1,\"price\":50}],\"total_value\":100,\"order_id\":\"order_id_1\",\"cancel_reason\":\"I didn't like it\",\"total_discounts\":10,\"discounts\":[{\"code\":\"SUMMER21\",\"amount\":5},{\"code\":\"VIPCUSTOMER\",\"amount\":5}]},\"_update_existing_only\":true}"
+          "body": "{\"external_id\":\"userId5\",\"braze_id\":\"braze_id_1\",\"email\":\"email@email.com\",\"phone\":\"+14155551234\",\"user_alias\":{\"alias_name\":\"alias_name_1\",\"alias_label\":\"alias_label_1\"},\"app_id\":\"test_app_id\",\"name\":\"ecommerce.order_cancelled\",\"time\":\"2024-06-10T12:00:00.000Z\",\"properties\":{\"currency\":\"USD\",\"source\":\"test_source\",\"metadata\":{\"custom_field_1\":\"custom_value_1\",\"custom_field_2\":100,\"custom_field_3\":true,\"custom_field_4\":[\"a\",\"b\",\"c\"],\"custom_field_5\":{\"nested_key\":\"nested_value\"},\"checkout_url\":\"https://example.com/checkout\",\"order_status_url\":\"https://example.com/order/status\"},\"products\":[{\"quantity\":2,\"product_id\":\"prod_1\",\"product_name\":\"Product 1\",\"variant_id\":\"Size M\",\"price\":25,\"image_url\":\"https://example.com/prod1.jpg\",\"metadata\":{\"color\":\"red\",\"size\":\"M\"}},{\"quantity\":1,\"product_id\":\"prod_2\",\"product_name\":\"Product 2\",\"variant_id\":\"Size L\",\"price\":50,\"image_url\":\"https://example.com/prod2.jpg\"}],\"total_value\":100,\"order_id\":\"order_id_1\",\"cancel_reason\":\"I didn't like it\",\"total_discounts\":10,\"discounts\":[{\"code\":\"SUMMER21\",\"amount\":5},{\"code\":\"VIPCUSTOMER\",\"amount\":5}]},\"_update_existing_only\":true}"
         }
       ]
       

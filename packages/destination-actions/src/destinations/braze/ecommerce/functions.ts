@@ -21,7 +21,8 @@ import type {
   OrderPlacedEvent,
   OrderRefundedEvent,
   OrderCancelledEvent,
-  PayloadWithIndex
+  PayloadWithIndex, 
+  Product
 } from './types'
 import { EVENT_NAMES } from './constants'
 import dayjs from 'dayjs'
@@ -163,7 +164,6 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
     case EVENT_NAMES.ORDER_CANCELLED:
     case EVENT_NAMES.ORDER_REFUNDED: {
       const {
-        products,
         total_value
       } = payload as Payload
 
@@ -172,7 +172,7 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
         name: name as MultiPropertyEventName,
         properties: {
           ...baseEvent.properties,
-          products,
+          products: getProductAndMetadataJSON( payload as Payload ),
           total_value: total_value as number
         }
       }
@@ -195,8 +195,7 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
         case EVENT_NAMES.CHECKOUT_STARTED: {
           const { 
             checkout_id, 
-            cart_id, 
-            metadata 
+            cart_id
           } = payload
           
           const event: CheckoutStartedEvent = {
@@ -205,8 +204,7 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
             properties: {
               ...multiProductEvent.properties,
               checkout_id: checkout_id as string,
-              ...(cart_id ? { cart_id } : {}),
-              ...(metadata ? { metadata } : {})
+              ...(cart_id ? { cart_id } : {})
             }
           }
           return event
@@ -217,8 +215,7 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
             order_id,
             cart_id, 
             total_discounts, 
-            discounts,
-            metadata
+            discounts
           } = payload
           
           const event: OrderPlacedEvent = {
@@ -229,8 +226,7 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
               order_id: order_id as string,
               ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
               ...(discounts ? { discounts } : {}),
-              ...(cart_id ? { cart_id } : {}),
-              ...(metadata ? { metadata } : {})
+              ...(cart_id ? { cart_id } : {})
             }
           }
           return event
@@ -240,8 +236,7 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
           const { 
             order_id,
             total_discounts, 
-            discounts,
-            metadata
+            discounts
           } = payload
           
           const event: OrderRefundedEvent = {
@@ -251,8 +246,7 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
               ...multiProductEvent.properties,
               order_id: order_id as string,
               ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
-              ...(discounts ? { discounts } : {}),
-              ...(metadata ? { metadata } : {})
+              ...(discounts ? { discounts } : {})
             }
           }
           return event
@@ -263,8 +257,7 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
             order_id,
             cancel_reason,
             total_discounts, 
-            discounts,
-            metadata
+            discounts
           } = payload
           
           const event: OrderCancelledEvent = {
@@ -275,8 +268,7 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
               order_id: order_id as string,
               cancel_reason: cancel_reason as string,
               ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
-              ...(discounts ? { discounts } : {}),
-              ...(metadata ? { metadata } : {})
+              ...(discounts ? { discounts } : {})
             }
           }
           return event
@@ -293,6 +285,32 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
   }
 }
 
+function getProductAndMetadataJSON(payload: Payload): Product[] {
+  return payload.products.map(product => {
+    const {
+      quantity,
+      product_id,  
+      product_name,
+      variant_id,
+      price,
+      image_url,
+      product_url,
+      ...metadata
+    } = product
+
+    return {
+      quantity,
+      product_id,  
+      product_name,
+      variant_id,
+      price,
+      image_url,
+      product_url,
+      ...(typeof metadata === 'object' && Object.entries(metadata).length > 0 ? { metadata } : {})
+    }
+  })
+}
+  
 function validate(payload: Payload | SingleProductPayload, isBatch: boolean): string | void {
   const { braze_id, user_alias, external_id, email, phone } = payload
   if (!braze_id && !user_alias && !external_id && !email && !phone) {
