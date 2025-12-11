@@ -332,7 +332,7 @@ const source: InputField = {
 
 export const products: InputField = {
     label: 'Products',
-    description: 'List of products associated with the ecommerce event.',
+    description: 'List of products associated with the ecommerce event. Standard product fields are mapped by default. Any additional fields added into a product item will be sent as product level metadata.',
     type: 'object',
     multiple: true,
     additionalProperties: true,

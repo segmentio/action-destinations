@@ -94,7 +94,7 @@ export interface Payload {
    */
   batch_size: number
   /**
-   * List of products associated with the ecommerce event.
+   * List of products associated with the ecommerce event. Standard product fields are mapped by default. Any additional fields added into a product item will be sent as product level metadata.
    */
   products: {
     /**
