@@ -20,6 +20,10 @@ export interface Payload {
    */
   awsRegion: string
   /**
+   * The maximum number of payloads to include in a batch.
+   */
+  batch_size?: number
+  /**
    * The keys to use for batching the events.
    */
   batch_keys?: string[]
@@ -28,7 +32,7 @@ export interface Payload {
    */
   max_batch_size: number
   /**
-   * If true, Segment will batch events before sending to Kines.
+   * If true, Segment will batch events before sending to Kinesis
    */
   enable_batching?: boolean
   /**
