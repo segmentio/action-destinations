@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import contact from './contact'
 import dataExtension from './dataExtension'
@@ -81,7 +81,16 @@ const destination: DestinationDefinition<Settings> = {
     dataExtensionV2,
     contactDataExtensionV2,
     asyncDataExtension
-  }
+  },
+  presets: [
+    {
+      name: 'Send Contacts to Data Extension asynchronously',
+      subscribe: 'type = "identify"',
+      partnerAction: 'asyncDataExtension',
+      mapping: defaultValues(contactDataExtensionV2.fields),
+      type: 'automatic'
+    }
+  ]
 }
 
 export default destination
