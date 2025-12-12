@@ -58,18 +58,23 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, payload, hookOutputs }) => {
     const dataExtensionId: string =
-      hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id
+      hookOutputs?.onMappingSave?.outputs?.id ||
+      hookOutputs?.retlOnMappingSave?.outputs?.id ||
+      '7a0270c1-25d0-f011-a5ad-d4f5ef42f423'
 
     if (!dataExtensionId) {
       throw new IntegrationError('No Data Extension Connected', 'INVALID_CONFIGURATION', 400)
     }
+    console.log('Async Data Extension - perform - dataExtensionId:', dataExtensionId)
     return asyncUpsertRowsV2(request, settings.subdomain, [payload], dataExtensionId)
   },
 
   performBatch: async (request, { settings, payload, hookOutputs }) => {
     const dataExtensionId: string =
-      hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id
-
+      hookOutputs?.onMappingSave?.outputs?.id ||
+      hookOutputs?.retlOnMappingSave?.outputs?.id ||
+      '7a0270c1-25d0-f011-a5ad-d4f5ef42f423'
+    console.log('Async Data Extension - performBatch - dataExtensionId:', dataExtensionId)
     if (!dataExtensionId) {
       throw new IntegrationError('No Data Extension Connected', 'INVALID_CONFIGURATION', 400)
     }
