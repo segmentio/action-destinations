@@ -23,10 +23,8 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
   slug: 'mixpanel-web-actions',
   mode: 'device',
   settings: settingFields,
-  initialize: async ({ settings }, deps) => {
+  initialize: async ({ settings }) => {
     await initScript()
-    await deps.resolveWhen(() => window?.mixpanel != null, 100)
-    const mixpanel = window.mixpanel
 
     const {
       projectToken,
@@ -64,28 +62,31 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       ...rest
     }
 
-    if (name) {
-      mixpanel.init(projectToken, config, name)
-    } else {
-      mixpanel.init(projectToken, config)
-    }
-    return mixpanel
+    return new Promise<Mixpanel>((resolve) => {
+      config.loaded = (mp) => resolve(mp)
+
+      if (name) {
+        window.mixpanel.init(projectToken, config, name)
+      } else {
+        window.mixpanel.init(projectToken, config)
+      }
+    })
   },
   presets: [
-      {
-          name: 'Track',
-          subscribe: 'type = "track"',
-          partnerAction: 'track',
-          mapping: defaultValues(track.fields),
-          type: 'automatic'
-      },
-      {
-          name: 'Identify',
-          subscribe: 'type = "identify"',
-          partnerAction: 'identify',
-          mapping: defaultValues(identify.fields),
-          type: 'automatic'
-      }
+    {
+      name: 'Track',
+      subscribe: 'type = "track"',
+      partnerAction: 'track',
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Identify',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identify',
+      mapping: defaultValues(identify.fields),
+      type: 'automatic'
+    }
   ],
   actions: {
     track,
