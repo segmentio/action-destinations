@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import contact from './contact'
 import dataExtension from './dataExtension'
@@ -8,6 +8,7 @@ import apiEvent from './apiEvent'
 // These actions include an actions hook which handles configuring the connected
 // data extension. They are independent from the original actions to support a slow rollout.
 import dataExtensionV2 from './dataExtensionV2'
+import asyncDataExtension from './asyncDataExtension'
 import contactDataExtensionV2 from './contactDataExtensionV2'
 
 interface RefreshTokenResponse {
@@ -78,8 +79,18 @@ const destination: DestinationDefinition<Settings> = {
     contactDataExtension,
     apiEvent,
     dataExtensionV2,
-    contactDataExtensionV2
-  }
+    contactDataExtensionV2,
+    asyncDataExtension
+  },
+  presets: [
+    {
+      name: 'Send Contacts to Data Extension asynchronously',
+      subscribe: 'type = "identify"',
+      partnerAction: 'asyncDataExtension',
+      mapping: defaultValues(contactDataExtensionV2.fields),
+      type: 'automatic'
+    }
+  ]
 }
 
 export default destination
