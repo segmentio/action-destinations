@@ -11,24 +11,16 @@ import {
   CONTENT_SID_REGEX,
   SENDER_TYPE,
   CHANNELS,
-  ALL_CONTENT_TYPES
+  ALL_CONTENT_TYPES,
+  MIN_SCHEDULE_TIME_MS,
+  MAX_SCHEDULE_TIME_MS
 } from './constants'
-import { TwilioPayload, Sender, Content } from './types'
+import { TwilioPayload, Sender, Content, Schedule } from './types'
 
 export async function send(request: RequestClient, payload: Payload, settings: Settings) {
-  let { toPhoneNumber, fromPhoneNumber, messagingServiceSid, contentSid, toMessengerUserId, fromFacebookPageId, } = payload
+  let { toPhoneNumber, contentSid, toMessengerUserId } = payload
 
-  const {
-    channel,
-    senderType,
-    contentVariables,
-    validityPeriod,
-    sendAt,
-    inlineMediaUrls,
-    inlineBody,
-    contentTemplateType,
-    tags
-  } = payload
+  const { channel, contentVariables, validityPeriod, inlineMediaUrls, inlineBody, contentTemplateType, tags } = payload
 
   const getTo = (): string => {
     switch (channel) {
@@ -60,45 +52,7 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     }
   }
 
-  const getSendAt = () => (sendAt ? { SendAt: sendAt } : {})
-
   const getValidityPeriod = () => (validityPeriod ? { ValidityPeriod: validityPeriod } : {})
-
-  const getSender = (): Sender => {
-    if (senderType === SENDER_TYPE.PHONE_NUMBER) {
-      fromPhoneNumber = fromPhoneNumber?.trim()
-      if (!fromPhoneNumber) {
-        throw new PayloadValidationError("'From Phone Number' field is required when sending from a phone number.")
-      }
-      if (!E164_REGEX.test(fromPhoneNumber)) {
-        // TODO - how to support short codes?
-        throw new PayloadValidationError("'From' field should be a valid phone number in E.164 format")
-      }
-      return channel === CHANNELS.WHATSAPP ? { From: `whatsapp:${fromPhoneNumber}` } : { From: fromPhoneNumber }
-    }
-    if (senderType === SENDER_TYPE.FACEBOOK_PAGE_ID) {
-      fromFacebookPageId = fromFacebookPageId?.trim()
-      if (!fromFacebookPageId) {
-        throw new PayloadValidationError("'From Facebook Page ID' field is required when sending from a Facebook Page.")
-      }
-      return { From: `messenger:${fromFacebookPageId}` }
-    }
-    if (senderType === SENDER_TYPE.MESSAGING_SERVICE) {
-      messagingServiceSid = parseFieldValue(messagingServiceSid)
-      if (!messagingServiceSid) {
-        throw new PayloadValidationError(
-          "'Messaging Service SID' field is required when 'Choose Sender' field = Messaging Service SID"
-        )
-      }
-      if (!MESSAGING_SERVICE_SID_REGEX.test(messagingServiceSid ?? '')) {
-        throw new PayloadValidationError(
-          "'Messaging Service SID' field value should start with 'MG' followed by 32 hexadecimal characters, totaling 34 characters."
-        )
-      }
-      return { MessagingServiceSid: messagingServiceSid }
-    }
-    throw new PayloadValidationError('Unsupported Sender Type')
-  }
 
   const getContent = (): Content => {
     if (contentTemplateType === ALL_CONTENT_TYPES.INLINE.friendly_name) {
@@ -212,9 +166,8 @@ export async function send(request: RequestClient, payload: Payload, settings: S
 
   const twilioPayload: TwilioPayload = (() => ({
     To: getTo(),
-    ...getSendAt(),
     ...getValidityPeriod(),
-    ...getSender(),
+    ...getSender(payload),
     ...getContent(),
     ...getInlineMediaUrls(),
     ...getTags()
@@ -254,4 +207,60 @@ function encode(twilioPayload: TwilioPayload): string {
 
 export function validateContentSid(contentSid: string) {
   return /^HX[0-9a-fA-F]{32}$/.test(contentSid)
+}
+
+export function getSender(payload: Payload): Sender {
+  const { sendAt, senderType, channel } = payload
+  let { fromPhoneNumber, messagingServiceSid, fromFacebookPageId } = payload
+
+  if (senderType === SENDER_TYPE.PHONE_NUMBER) {
+    fromPhoneNumber = fromPhoneNumber?.trim()
+    if (!fromPhoneNumber) {
+      throw new PayloadValidationError("'From Phone Number' field is required when sending from a phone number.")
+    }
+    if (!E164_REGEX.test(fromPhoneNumber)) {
+      // TODO - how to support short codes?
+      throw new PayloadValidationError("'From' field should be a valid phone number in E.164 format")
+    }
+    return channel === CHANNELS.WHATSAPP ? { From: `whatsapp:${fromPhoneNumber}` } : { From: fromPhoneNumber }
+  }
+  if (senderType === SENDER_TYPE.FACEBOOK_PAGE_ID) {
+    fromFacebookPageId = fromFacebookPageId?.trim()
+    if (!fromFacebookPageId) {
+      throw new PayloadValidationError("'From Facebook Page ID' field is required when sending from a Facebook Page.")
+    }
+    return { From: `messenger:${fromFacebookPageId}` }
+  }
+  if (senderType === SENDER_TYPE.MESSAGING_SERVICE) {
+    messagingServiceSid = parseFieldValue(messagingServiceSid)
+    if (!messagingServiceSid) {
+      throw new PayloadValidationError(
+        "'Messaging Service SID' field is required when 'Choose Sender' field = Messaging Service SID"
+      )
+    }
+    if (!MESSAGING_SERVICE_SID_REGEX.test(messagingServiceSid ?? '')) {
+      throw new PayloadValidationError(
+        "'Messaging Service SID' field value should start with 'MG' followed by 32 hexadecimal characters, totaling 34 characters."
+      )
+    }
+    return {
+      MessagingServiceSid: messagingServiceSid,
+      ...getSendAt(sendAt)
+    }
+  }
+  throw new PayloadValidationError('Unsupported Sender Type')
+}
+
+export function getSendAt(sendAt: string | undefined): Schedule | {} {
+  if (sendAt) {
+    const t = new Date(sendAt).getTime() - new Date().getTime()
+    if (t >= MIN_SCHEDULE_TIME_MS && t <= MAX_SCHEDULE_TIME_MS) {
+      return { SendAt: sendAt, ScheduleType: 'fixed' }
+    } else {
+      throw new PayloadValidationError(
+        `'Send At' time of ${sendAt} is invalid. It must be at least 15 minutes and at most 35 days in the future.`
+      )
+    }
+  }
+  return {}
 }

@@ -1,203 +1,149 @@
 import { InputField } from '@segment/actions-core'
 import { APP, APP_STATUS } from '../constants'
-import { StandardEventItem } from '../types' 
+import { StandardEventItem } from '../types'
 
 export const PRODUCT_MAPPING_TYPE = {
-    MULTIPLE: 'MULTIPLE',
-    SINGLE: 'SINGLE',
-    NONE: 'NONE'
+  MULTIPLE: 'MULTIPLE',
+  SINGLE: 'SINGLE',
+  NONE: 'NONE'
 } as const
 
 export const STANDARD_EVENTS: StandardEventItem[] = [
   {
     key: 'ACHIEVE_LEVEL',
     ttEventName: 'AchieveLevel',
-    description: 'Achieve a level',
-    segmentEventName: 'Level Achieved',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'ADD_PAYMENT_INFO',
     ttEventName: 'AddPaymentInfo',
-    description: 'Add payment information',
-    segmentEventName: 'Payment Info Entered',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'ADD_TO_CART',
     ttEventName: 'AddToCart',
-    description: 'Add to cart',
-    segmentEventName: 'Product Added',
-    productMappingType: PRODUCT_MAPPING_TYPE.SINGLE,
+    productMappingType: PRODUCT_MAPPING_TYPE.SINGLE
   },
   {
     key: 'ADD_TO_WISHLIST',
     ttEventName: 'AddToWishlist',
-    description: 'Add to wishlist',
-    segmentEventName: 'Product Added to Wishlist',
-    productMappingType: PRODUCT_MAPPING_TYPE.SINGLE,
+    productMappingType: PRODUCT_MAPPING_TYPE.SINGLE
   },
   {
     key: 'CHECKOUT',
     ttEventName: 'Checkout',
-    description: 'Place an order',
-    segmentEventName: 'Checkout Started',
-    productMappingType: PRODUCT_MAPPING_TYPE.MULTIPLE,
+    productMappingType: PRODUCT_MAPPING_TYPE.MULTIPLE
   },
   {
     key: 'COMPLETE_TUTORIAL',
     ttEventName: 'CompleteTutorial',
-    description: 'Complete the tutorial',
-    segmentEventName: 'Tutorial Completed',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'CREATE_GROUP',
     ttEventName: 'CreateGroup',
-    description: 'Create a group',
-    segmentEventName: 'Group Created',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'CREATE_ROLE',
     ttEventName: 'CreateRole',
-    description: 'Create a role',
-    segmentEventName: 'Role Created',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'GENERATE_LEAD',
     ttEventName: 'GenerateLead',
-    description: 'Generate a lead',
-    segmentEventName: 'Lead Generated',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'IN_APP_AD_CLICK',
     ttEventName: 'InAppADClick',
-    description: 'In-app ad click',
-    segmentEventName: 'Application Ad Clicked',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'IN_APP_AD_IMPR',
     ttEventName: 'InAppADImpr',
-    description: 'In-app ad impression',
-    segmentEventName: 'Application Ad Served',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'INSTALL_APP',
     ttEventName: 'InstallApp',
-    description: 'Install the app',
-    segmentEventName: 'Application Installed',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'JOIN_GROUP',
     ttEventName: 'JoinGroup',
-    description: 'Join a group',
-    segmentEventName: 'Group Joined',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'LAUNCH_APP',
     ttEventName: 'LaunchAPP',
-    description: 'Launch the app',
-    segmentEventName: 'Application Opened',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'LOAN_APPLICATION',
     ttEventName: 'LoanApplication',
-    description: 'Apply for a loan',
-    segmentEventName: 'Loan Application Submitted',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'LOAN_APPROVAL',
     ttEventName: 'LoanApproval',
-    description: 'Loan is approved',
-    segmentEventName: 'Loan Approved',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'LOAN_DISBURSAL',
     ttEventName: 'LoanDisbursal',
-    description: 'Loan is disbursed',
-    segmentEventName: 'Loan Disbursed',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'LOGIN',
     ttEventName: 'Login',
-    description: 'Log in successfully',
-    segmentEventName: 'Signed In',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'PURCHASE',
     ttEventName: 'Purchase',
-    description: 'Complete payment',
-    segmentEventName: 'Order Completed',
-    productMappingType: PRODUCT_MAPPING_TYPE.MULTIPLE,
+    productMappingType: PRODUCT_MAPPING_TYPE.MULTIPLE
   },
   {
     key: 'RATE',
     ttEventName: 'Rate',
-    description: 'Rate',
-    segmentEventName: 'Rating Completed',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'REGISTRATION',
     ttEventName: 'Registration',
-    description: 'Complete the registration',
-    segmentEventName: 'Signed Up',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'SEARCH',
     ttEventName: 'Search',
-    description: 'Search',
-    segmentEventName: 'Products Searched',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'SPEND_CREDITS',
     ttEventName: 'SpendCredits',
-    description: 'Spend credits',
-    segmentEventName: 'Credits Spent',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'START_TRIAL',
     ttEventName: 'StartTrial',
-    description: 'Start the trial',
-    segmentEventName: 'Trial Started',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'SUBSCRIBE',
     ttEventName: 'Subscribe',
-    description: 'Subscribe',
-    segmentEventName: 'User Subscribed',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'UNLOCK_ACHIEVEMENT',
     ttEventName: 'UnlockAchievement',
-    description: 'Unlock an achievement',
-    segmentEventName: 'Achievement Unlocked',
-    productMappingType: PRODUCT_MAPPING_TYPE.NONE,
+    productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'VIEW_CONTENT',
     ttEventName: 'ViewContent',
-    description: 'View details',
-    segmentEventName: 'Product Viewed',
-    productMappingType: PRODUCT_MAPPING_TYPE.SINGLE,
-  },
+    productMappingType: PRODUCT_MAPPING_TYPE.SINGLE
+  }
 ] as const
 
 export const APP_STANDARD_EVENT_NAMES = STANDARD_EVENTS.reduce((acc, item) => {
@@ -211,7 +157,7 @@ export const common_fields: Record<string, InputField> = {
     type: 'string',
     required: true,
     description:
-      "The type of events you are uploading through TikTok Events API. For non mobile related events use one of the following Integrations: [TikTok Conversions](https://segment.com/docs/connections/destinations/catalog/tiktok-conversions/), [TikTok Offline Conversions](https://segment.com/docs/connections/destinations/catalog/actions-tiktok-offline-conversions) or [TikTok Pixel](https://segment.com/docs/connections/destinations/catalog/actions-tiktok-pixel).",
+      'The type of events you are uploading through TikTok Events API. For non mobile related events use one of the following Integrations: [TikTok Conversions](https://segment.com/docs/connections/destinations/catalog/tiktok-conversions/), [TikTok Offline Conversions](https://segment.com/docs/connections/destinations/catalog/actions-tiktok-offline-conversions) or [TikTok Pixel](https://segment.com/docs/connections/destinations/catalog/actions-tiktok-pixel).',
     default: APP,
     choices: [
       {
@@ -225,7 +171,11 @@ export const common_fields: Record<string, InputField> = {
     type: 'string',
     required: true,
     description:
-      'Conversion event name. Please refer to the "App Standard Events" section on in TikTok’s [Supported events documentation](https://business-api.tiktok.com/portal/docs?id=1771101186666498) for accepted event names.'
+      'Conversion event name. Please refer to the "App Standard Events" section on in TikTok’s [Supported events documentation](https://business-api.tiktok.com/portal/docs?id=1771101186666498) for accepted event names.',
+    choices: STANDARD_EVENTS.map((event) => ({
+      label: event.ttEventName,
+      value: event.ttEventName
+    }))
   },
   event_id: {
     label: 'Event ID',
@@ -283,13 +233,15 @@ export const common_fields: Record<string, InputField> = {
   app: {
     label: 'App Information',
     type: 'object',
-    description: 'Information about the mobile app where the event took place. This field is an allowlist-only feature. If you would like to access it, please contact your TikTok representative.',
+    description:
+      'Information about the mobile app where the event took place. This field is an allowlist-only feature. If you would like to access it, please contact your TikTok representative.',
     defaultObjectUI: 'keyvalue',
     required: true,
     properties: {
       app_id: {
         label: 'Mobile App ID',
-        description: 'For iOS Apps use the app ID found in the App Store URL. For Android Apps in the Google Play store, use the app ID found in the Google Play store URL. For Android Apps not in the Google Play store, use the package name.',
+        description:
+          'For iOS Apps use the app ID found in the App Store URL. For Android Apps in the Google Play store, use the app ID found in the Google Play store URL. For Android Apps not in the Google Play store, use the package name.',
         type: 'string',
         required: true
       },
@@ -319,7 +271,8 @@ export const common_fields: Record<string, InputField> = {
   ad: {
     label: 'Ad Information',
     type: 'object',
-    description: 'Information about the ad that led to the app event. This field is an allowlist-only feature. If you would like to access it, please contact your TikTok representative.',
+    description:
+      'Information about the ad that led to the app event. This field is an allowlist-only feature. If you would like to access it, please contact your TikTok representative.',
     defaultObjectUI: 'keyvalue',
     properties: {
       callback: {
@@ -362,7 +315,7 @@ export const common_fields: Record<string, InputField> = {
         description: 'Attribution provider.',
         type: 'string'
       }
-    }, 
+    },
     default: {
       campaign_id: {
         '@path': '$.properties.campaign.name'
@@ -445,12 +398,13 @@ export const common_fields: Record<string, InputField> = {
   },
   att_status: {
     label: 'App Tracking Transparency Status',
-    description: "The App Tracking Transparency (ATT) status of the user on iOS devices. This field is required when sending events from iOS 14.5+ devices but should be set to 'Not Applicable' if the iOS version is below 14 or the device is running Android. Selecting AUTO will allow Segment to determine the value to send based on Mobile platform, version, and ad tracking settings.",
+    description:
+      "The App Tracking Transparency (ATT) status of the user on iOS devices. This field is required when sending events from iOS 14.5+ devices but should be set to 'Not Applicable' if the iOS version is below 14 or the device is running Android. Selecting AUTO will allow Segment to determine the value to send based on Mobile platform, version, and ad tracking settings.",
     type: 'string',
     required: true,
     choices: [
       { label: APP_STATUS.AUTHORIZED, value: APP_STATUS.AUTHORIZED },
-      { label: APP_STATUS.DENIED , value: APP_STATUS.DENIED },
+      { label: APP_STATUS.DENIED, value: APP_STATUS.DENIED },
       { label: APP_STATUS.NOT_DETERMINED, value: APP_STATUS.NOT_DETERMINED },
       { label: APP_STATUS.RESTRICTED, value: APP_STATUS.RESTRICTED },
       { label: APP_STATUS.NOT_APPLICABLE, value: APP_STATUS.NOT_APPLICABLE },
@@ -494,9 +448,9 @@ export const common_fields: Record<string, InputField> = {
           match: 'any',
           conditions: [
             {
-                fieldKey: 'event',
-                operator: 'is',
-                value: APP_STANDARD_EVENT_NAMES.PURCHASE
+              fieldKey: 'event',
+              operator: 'is',
+              value: APP_STANDARD_EVENT_NAMES.PURCHASE
             }
           ]
         }
@@ -526,29 +480,29 @@ export const common_fields: Record<string, InputField> = {
       match: 'any',
       conditions: [
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
         },
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
         },
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.CHECKOUT
-        },
-          {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.PURCHASE
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.CHECKOUT
         },
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.SUBSCRIBE
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.PURCHASE
+        },
+        {
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.SUBSCRIBE
         }
       ]
     }
@@ -585,29 +539,29 @@ export const common_fields: Record<string, InputField> = {
       match: 'any',
       conditions: [
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
         },
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
         },
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.CHECKOUT
-        },
-          {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.PURCHASE
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.CHECKOUT
         },
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.PURCHASE
+        },
+        {
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
         }
       ]
     }
@@ -623,29 +577,29 @@ export const common_fields: Record<string, InputField> = {
       match: 'any',
       conditions: [
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
         },
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
         },
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.CHECKOUT
-        },
-          {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.PURCHASE
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.CHECKOUT
         },
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.PURCHASE
+        },
+        {
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
         }
       ]
     }
@@ -665,29 +619,29 @@ export const common_fields: Record<string, InputField> = {
       match: 'any',
       conditions: [
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.ADD_TO_CART
         },
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.ADD_TO_WISHLIST
         },
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.CHECKOUT
-        },
-          {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.PURCHASE
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.CHECKOUT
         },
         {
-            fieldKey: 'event',
-            operator: 'is',
-            value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.PURCHASE
+        },
+        {
+          fieldKey: 'event',
+          operator: 'is',
+          value: APP_STANDARD_EVENT_NAMES.VIEW_CONTENT
         }
       ]
     }

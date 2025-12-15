@@ -22,7 +22,7 @@ export function getApiServerUrl(apiRegion: string | undefined) {
   if (apiRegion == ApiRegions.IN) {
     return 'https://api-in.mixpanel.com'
   }
-  return 'https://api.mixpanel.com' // Default US endpoint.
+  return 'https://api.mixpanel.com' // Default US endpoint
 }
 
 export function getBrowser(userAgent: string): string {

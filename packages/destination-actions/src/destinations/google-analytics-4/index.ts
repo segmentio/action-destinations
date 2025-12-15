@@ -46,7 +46,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Secret',
         description:
           'An API SECRET generated in the Google Analytics UI, navigate to: Admin > Data Streams > choose your stream > Measurement Protocol > Create',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

@@ -22,7 +22,7 @@ export const destination: BrowserDestinationDefinition<Settings, _1flow> = {
       description:
         'This is the unique app_id for your 1Flow application, serving as the identifier for data storage and retrieval. This field is mandatory.',
       label: 'Project API Key',
-      type: 'string',
+      type: 'password',
       required: true
     }
   },

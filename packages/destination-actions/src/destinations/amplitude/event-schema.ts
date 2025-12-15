@@ -299,11 +299,41 @@ export const eventSchema: Record<string, InputField> = {
       'Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time.'
   },
   library: {
-    label: 'Library',
+    // hiding this field as it was the value from the field was never used correctly and has created confusion with users.
+    label: 'HIDDEN: Library',
     type: 'string',
-    description: 'The name of the library that generated the event.',
+    description: 'HIDDEN: The name of the library that generated the event.',
+    unsafe_hidden: true,
     default: {
       '@path': '$.context.library.name'
+    }
+  },
+  library2: {
+    label: 'Library Settings',
+    type: 'object',
+    description:
+      'Specifies the "library" value to send to Amplitude. Select "Use Mapping" to set the value from the "Library Mapping" field. "Legacy Behaviour" sets the value to "segment".',
+    defaultObjectUI: 'keyvalue',
+    properties: {
+      behavior: {
+        label: 'Behavior',
+        description: 'Configure how to set the library value.',
+        type: 'string',
+        choices: [
+          { label: 'Auto', value: 'auto' },
+          { label: 'Use Mapping', value: 'use_mapping' }
+        ]
+      },
+      mapping: {
+        label: 'Library Mapping',
+        description:
+          'The library value to send to Amplitude. Only used when the "Behavior" field is set to "Use Mapping".',
+        type: 'string'
+      }
+    },
+    default: {
+      behavior: 'use_mapping',
+      mapping: { '@path': '$.context.library.name' }
     }
   }
 }

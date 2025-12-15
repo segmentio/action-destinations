@@ -14,15 +14,15 @@ const mockSettings = {
   accountSID: 'AC1234567890abcdef1234567890abcdef',
   authToken: 'test_auth_token',
   apiKeySID: 'test_api_key_sid',
-  apiKeySecret: 'test_api_key_secret',
-  region: 'us1'
+  apiKeySecret: 'test_api_key_secret'
 }
 
 describe('Dynamic Fields', () => {
-
   describe('dynamicChannel', () => {
     it('channel for Facebook Messenger channel option should show when flag enabled', async () => {
-      const result = await dynamicChannel({features: {"actions-twilio-messenger-facebook": true}} as any as Features)
+      const result = await dynamicChannel({
+        features: { 'actions-twilio-messenger-facebook': true }
+      } as any as Features)
 
       expect(result.choices).toHaveLength(5)
       expect(result.choices).toEqual([
@@ -46,7 +46,6 @@ describe('Dynamic Fields', () => {
       ])
     })
   })
-
 
   describe('dynamicSenderType', () => {
     it('should return phone number and messaging service for other channels', async () => {
