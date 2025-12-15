@@ -22,6 +22,7 @@ import type {
 } from '../types'
 import { MatchKeyTypeV1, Region, ConversionTypeV2 } from '../types'
 import type { Payload } from './generated-types'
+import { AMAZON_CONVERSIONS_API_EVENTS_VERSION } from '../versioning-info'
 
 /**
  * Helper function to validate if a string value exists and is not empty
@@ -131,7 +132,6 @@ export function smartHash(value: string, normalizeFunction?: (value: string) => 
  * @param request The request client
  * @param settings The API settings
  * @param eventData The event data to send (single event or array of events)
- * @param throwHttpErrors Whether to throw HTTP errors (defaults to false)
  * @returns The API response with ImportConversionEventsResponse data
  */
 export async function sendEventsRequest<ImportConversionEventsResponse>(
@@ -142,18 +142,21 @@ export async function sendEventsRequest<ImportConversionEventsResponse>(
   // Ensure eventData is always an array
   const events = Array.isArray(eventData) ? eventData : [eventData]
 
-  return await request<ImportConversionEventsResponse>(`${settings.region}/events/v1`, {
-    method: 'POST',
-    json: {
-      eventData: events,
-      ingestionMethod: 'SERVER_TO_SERVER'
-    },
-    headers: {
-      'Amazon-Ads-AccountId': settings.advertiserId
-    },
-    timeout: 25000,
-    throwHttpErrors: false
-  })
+  return await request<ImportConversionEventsResponse>(
+    `${settings.region}/events/${AMAZON_CONVERSIONS_API_EVENTS_VERSION}`,
+    {
+      method: 'POST',
+      json: {
+        eventData: events,
+        ingestionMethod: 'SERVER_TO_SERVER'
+      },
+      headers: {
+        'Amazon-Ads-AccountId': settings.advertiserId
+      },
+      timeout: 25000,
+      throwHttpErrors: false
+    }
+  )
 }
 
 /**
@@ -392,12 +395,14 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
 
   Object.assign(eventData, {
     ...(payload.value !== undefined && { value: payload.value }),
-    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.currencyCode && {
-      currencyCode: payload.currencyCode as CurrencyCodeV1
-    }),
-    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.unitsSold !== undefined && {
-      unitsSold: payload.unitsSold
-    }),
+    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES &&
+      payload.currencyCode && {
+        currencyCode: payload.currencyCode as CurrencyCodeV1
+      }),
+    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES &&
+      payload.unitsSold !== undefined && {
+        unitsSold: payload.unitsSold
+      }),
     ...(payload.clientDedupeId && { clientDedupeId: payload.clientDedupeId }),
     ...(payload.dataProcessingOptions && { dataProcessingOptions: payload.dataProcessingOptions }),
     ...(consent && { consent }),
