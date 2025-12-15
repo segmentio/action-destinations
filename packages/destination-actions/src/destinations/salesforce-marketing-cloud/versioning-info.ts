@@ -12,6 +12,6 @@ export const SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION = 'v1'
 
 /** SALESFORCE_MARKETING_CLOUD_HUB_API_VERSION
  * Salesforce Marketing Cloud hub API version.
- * API reference: https://developer.salesforce.com/docs/marketing/marketing-cloud/references/mc-custom_objects?meta=Summary
+ * API reference: https://developer.salesforce.com/docs/marketing/marketing-cloud/references/mc-data_extension_rows_sync?meta=Summary
  */
 export const SALESFORCE_MARKETING_CLOUD_HUB_API_VERSION = 'v1'
