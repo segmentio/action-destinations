@@ -37,7 +37,7 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: async (request, { settings }) => {
       try {
         return await request(
-          `https://ads-api.reddit.com/api/v${REDDIT_CONVERSIONS_API_VERSION}/conversions/events/${settings.ad_account_id}`,
+          `https://ads-api.reddit.com/api/${REDDIT_CONVERSIONS_API_VERSION}/conversions/events/${settings.ad_account_id}`,
           {
             method: 'POST',
             headers: {
