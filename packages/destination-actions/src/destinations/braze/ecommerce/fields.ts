@@ -166,7 +166,17 @@ const order_id: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is',
-                value: [EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
+                value: EVENT_NAMES.ORDER_PLACED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_CANCELLED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_REFUNDED
             }
         ]
     },
@@ -176,7 +186,17 @@ const order_id: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is',
-                value: [EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
+                value: EVENT_NAMES.ORDER_PLACED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_CANCELLED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_REFUNDED
             }
         ]
     }
@@ -203,7 +223,17 @@ const cart_id: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is',
-                value: [EVENT_NAMES.CART_UPDATED, EVENT_NAMES.CHECKOUT_STARTED, EVENT_NAMES.ORDER_PLACED]
+                value: EVENT_NAMES.CART_UPDATED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CHECKOUT_STARTED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_PLACED
             }
         ]
     }
@@ -220,7 +250,27 @@ const total_value: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is',
-                value: [EVENT_NAMES.CHECKOUT_STARTED, EVENT_NAMES.CART_UPDATED, EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
+                value: EVENT_NAMES.CHECKOUT_STARTED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CART_UPDATED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_PLACED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_CANCELLED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_REFUNDED
             }
         ]
     },
@@ -230,7 +280,27 @@ const total_value: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is',
-                value: [EVENT_NAMES.CHECKOUT_STARTED, EVENT_NAMES.CART_UPDATED, EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
+                value: EVENT_NAMES.CHECKOUT_STARTED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CART_UPDATED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_PLACED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_CANCELLED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_REFUNDED
             }
         ]
     }
@@ -247,7 +317,17 @@ const total_discounts: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is',
-                value: [EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
+                value: EVENT_NAMES.ORDER_PLACED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_CANCELLED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_REFUNDED
             }
         ]
     },
@@ -257,7 +337,17 @@ const total_discounts: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is',
-                value: [EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
+                value: EVENT_NAMES.ORDER_PLACED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_CANCELLED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_REFUNDED
             }
         ]
     }
@@ -297,8 +387,18 @@ const discounts: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is',
-                value: [EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
-            }
+                value: EVENT_NAMES.ORDER_PLACED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_CANCELLED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_REFUNDED
+            } 
         ]
     },
     depends_on: {
@@ -307,8 +407,18 @@ const discounts: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is',
-                value: [EVENT_NAMES.ORDER_PLACED, EVENT_NAMES.ORDER_CANCELLED, EVENT_NAMES.ORDER_REFUNDED]
-            }
+                value: EVENT_NAMES.ORDER_PLACED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_CANCELLED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_REFUNDED
+            } 
         ]
     }
 }
