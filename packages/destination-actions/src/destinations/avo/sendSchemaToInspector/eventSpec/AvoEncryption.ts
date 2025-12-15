@@ -2,23 +2,6 @@
 // eslint-disable-next-line no-restricted-syntax -- We use createHash for KDF (key derivation), not PII hashing
 import { createECDH, createCipheriv, createHash, randomBytes } from 'crypto'
 
-/**
- * Generates a new ECC key pair for encryption/decryption.
- * Uses prime256v1 (NIST P-256) curve which is standard for Web Crypto API.
- *
- * @returns An object containing the private and public keys as hex strings
- */
-export function generateKeyPair(): { privateKey: string; publicKey: string } {
-  // Generate a new random private key (32 bytes) via ECDH
-  const ecdh = createECDH('prime256v1')
-  ecdh.generateKeys()
-
-  return {
-    privateKey: ecdh.getPrivateKey('hex'),
-    publicKey: ecdh.getPublicKey('hex')
-  }
-}
-
 function deriveKey(sharedSecret: Buffer): Buffer {
   // Simple SHA-256 hash of the shared secret
   // This is a standard way to derive a key from an ECDH shared secret

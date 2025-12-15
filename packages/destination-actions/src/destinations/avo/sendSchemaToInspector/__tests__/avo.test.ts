@@ -20,16 +20,23 @@ describe('extractSchemaFromEvent', () => {
   }
 
   const validWireResponse: EventSpecResponseWire = {
-    branchId: 'main',
-    baseEvent: {
-      id: 'test-event-id',
-      name: 'TestEvent',
-      props: {
-        userId: { t: 'string', r: true },
-        amount: { t: 'number', r: false }
+    events: [
+      {
+        b: 'main',
+        id: 'test-event-id',
+        vids: [],
+        p: {
+          userId: { t: 'string', r: true },
+          amount: { t: 'number', r: false }
+        }
       }
-    },
-    variants: []
+    ],
+    metadata: {
+      schemaId: 'test-schema-id',
+      branchId: 'main',
+      latestActionId: 'test-action-id',
+      sourceId: 'test-source-id'
+    }
   }
 
   afterEach(() => {
