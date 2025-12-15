@@ -29,6 +29,18 @@ export interface PropertyConstraintsWire {
   rx?: string // regex pattern
 }
 
+/** Metadata returned with the event spec response. */
+export interface EventSpecMetadata {
+  /** Schema identifier */
+  schemaId: string
+  /** Branch identifier */
+  branchId: string
+  /** Latest action identifier */
+  latestActionId: string
+  /** Optional source identifier */
+  sourceId?: string
+}
+
 export interface EventSpecResponseWire {
   events: Array<{
     b: string // branchId
@@ -36,12 +48,7 @@ export interface EventSpecResponseWire {
     vids: string[] // variantIds
     p: Record<string, PropertyConstraintsWire> // props
   }>
-  metadata: {
-    schemaId: string
-    branchId: string
-    latestActionId: string
-    sourceId: string
-  }
+  metadata: EventSpecMetadata
 }
 
 // -----------------------------------------------------------------------------
@@ -56,7 +63,7 @@ export interface EventSpecEntry {
 }
 
 export interface EventSpecResponse {
-  metadata: Record<string, any>
+  metadata: EventSpecMetadata
   events: EventSpecEntry[]
 }
 
@@ -78,6 +85,6 @@ export interface PropertyValidationResult {
 }
 
 export interface ValidationResult {
-  metadata: Record<string, any>
+  metadata: EventSpecMetadata
   propertyResults: Record<string, PropertyValidationResult>
 }

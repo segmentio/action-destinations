@@ -1,14 +1,33 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { RequestClient } from '@segment/actions-core'
+import { LRUCache } from 'lru-cache'
 import { BaseBody, EventSchemaBody, EventProperty } from './avo-types'
 
 import { AvoSchemaParser } from './AvoSchemaParser'
 import { EventSpecFetcher } from './eventSpec/EventFetcher'
-import type { EventSpecResponse, ValidationResult, PropertyValidationResult } from './eventSpec/EventFetcherTypes'
+import type {
+  EventSpecResponse,
+  ValidationResult,
+  PropertyValidationResult,
+  EventSpecMetadata,
+  FetchEventSpecParams
+} from './eventSpec/EventFetcherTypes'
 import { validateEvent } from './eventSpec/EventValidator'
 import type { RuntimeProperties } from './eventSpec/EventValidator'
 
 import { Payload } from './generated-types'
+
+const cache = new LRUCache<string, EventSpecResponse>({
+  max: 50,
+  ttl: 1000 * 60 * 5 // 5 minutes
+})
+
+// Store the current branch ID to detect changes
+let currentBranchId: string | undefined
+
+function generateCacheKey(params: FetchEventSpecParams): string {
+  return `${params.apiKey}:${params.streamId}:${params.eventName}`
+}
 
 function getAppNameFromUrl(url: string) {
   return url.split('/')[2]
@@ -50,7 +69,7 @@ function handleEvent(
   baseBody: BaseBody,
   event: Payload,
   eventProperties: EventProperty[],
-  metadata?: Record<string, any>
+  metadata?: EventSpecMetadata
 ): EventSchemaBody {
   // Initially declare eventBody with the type EventSchemaBody
   // and explicitly set all properties to satisfy the type requirements.
@@ -92,16 +111,45 @@ async function fetchEventSpec(
     return null
   }
 
-  try {
-    const fetchParams = {
-      apiKey: apiKey,
-      streamId: streamId,
-      eventName: eventName
-    }
+  const fetchParams: FetchEventSpecParams = {
+    apiKey: apiKey,
+    streamId: streamId,
+    eventName: eventName
+  }
 
+  const cacheKey = generateCacheKey(fetchParams)
+  const shouldLog = process.env.NODE_ENV !== 'test'
+
+  // Check cache first
+  const cachedResponse = cache.get(cacheKey)
+  if (cachedResponse) {
+    if (shouldLog) {
+      console.log(`[Avo Inspector] Cache hit for: ${eventName}`)
+    }
+    return cachedResponse
+  }
+
+  try {
     // fetch from API (async)
-    const shouldLog = process.env.NODE_ENV !== 'test'
     const result = await new EventSpecFetcher(request, shouldLog, env).fetch(fetchParams)
+
+    if (result) {
+      const newBranchId = result.metadata.branchId
+
+      // If the branch ID has changed, flush the cache
+      if (currentBranchId && currentBranchId !== newBranchId) {
+        if (shouldLog) {
+          console.log(`[Avo Inspector] Branch changed from ${currentBranchId} to ${newBranchId}. Flushing cache.`)
+        }
+        cache.clear()
+      }
+
+      // Update current branch ID
+      currentBranchId = newBranchId
+
+      // Cache the result
+      cache.set(cacheKey, result)
+    }
 
     return result
   } catch (error) {
@@ -175,7 +223,7 @@ export async function extractSchemaFromEvent(
 
   // Extract schema from event properties
   const eventProperties = AvoSchemaParser.extractSchema(event.properties, inspectorEncryptionKey, env)
-  let validationMetadata: Record<string, any> | undefined
+  let validationMetadata: EventSpecMetadata | undefined
 
   // If event spec was successfully fetched, run validation
   if (eventSpec) {

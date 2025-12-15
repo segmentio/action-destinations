@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { EventSpecMetadata } from './eventSpec/EventFetcherTypes'
 
 export enum Environment {
   DEV = 'dev',
@@ -32,5 +33,5 @@ export interface EventSchemaBody extends BaseBody {
   eventProperties: Array<EventProperty>
   eventId: string | null
   eventHash: string | null
-  metadata?: Record<string, any>
+  metadata?: EventSpecMetadata
 }

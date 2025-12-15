@@ -20,8 +20,6 @@ export class EventSpecFetcher {
   private readonly baseUrl: string
   /** Network timeout in milliseconds */
   private readonly timeout: number
-  /** In-flight requests to prevent duplicate fetches */
-  private inFlightRequests: Map<string, Promise<EventSpecResponse | null>>
   /** RequestClient for making HTTP requests */
   private readonly request: RequestClient
   /** Whether to log debug information */
@@ -35,12 +33,6 @@ export class EventSpecFetcher {
     this.shouldLog = shouldLog
     this.env = env
     this.timeout = timeout
-    this.inFlightRequests = new Map()
-  }
-
-  /** Generates a unique key for tracking in-flight requests. */
-  private generateRequestKey(params: FetchEventSpecParams): string {
-    return `${params.apiKey}:${params.streamId}:${params.eventName}`
   }
 
   /**
@@ -56,27 +48,7 @@ export class EventSpecFetcher {
    * When null is returned, Phase 2 should skip validation for that event.
    */
   async fetch(params: FetchEventSpecParams): Promise<EventSpecResponse | null> {
-    const requestKey: string = this.generateRequestKey(params)
-    // Check if there's already an in-flight request for this spec
-    const existingRequest: Promise<EventSpecResponse | null> | undefined = this.inFlightRequests.get(requestKey)
-    if (existingRequest) {
-      if (this.shouldLog) {
-        console.log(
-          `[EventSpecFetcher] Returning existing in-flight request for streamId=${params.streamId}, eventName=${params.eventName}`
-        )
-      }
-      return existingRequest
-    }
-    // Create and track the new request
-    const requestPromise: Promise<EventSpecResponse | null> = this.fetchInternal(params)
-    this.inFlightRequests.set(requestKey, requestPromise)
-    try {
-      const result: EventSpecResponse | null = await requestPromise
-      return result
-    } finally {
-      // Clean up the in-flight request tracking
-      this.inFlightRequests.delete(requestKey)
-    }
+    return this.fetchInternal(params)
   }
 
   /** Internal fetch implementation. */
@@ -223,7 +195,7 @@ export class EventSpecFetcher {
 
     return {
       events,
-      metadata: wire.metadata || {}
+      metadata: wire.metadata
     }
   }
 
