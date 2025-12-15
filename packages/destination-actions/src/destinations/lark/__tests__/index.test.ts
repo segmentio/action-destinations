@@ -61,40 +61,5 @@ describe('Lark', () => {
       expect(requestBody.idempotency_key).toBe('msg-123')
       expect(requestBody.data.compute_hours).toBe(100.5)
     })
-
-    it('should use anonymousId when userId is not available', async () => {
-      nock('https://api.uselark.ai').post('/usage-events').reply(200, {})
-
-      const event = createTestEvent({
-        type: 'track',
-        event: 'API Call',
-        anonymousId: 'anon-456',
-        messageId: 'msg-456',
-        properties: {
-          endpoint: '/api/users'
-        }
-      })
-
-      const responses = await testDestination.testAction('createUsageEvent', {
-        event,
-        settings: { apiKey: 'test-api-key' },
-        mapping: {
-          event_name: { '@path': '$.event' },
-          subject_id: {
-            '@if': {
-              exists: { '@path': '$.userId' },
-              then: { '@path': '$.userId' },
-              else: { '@path': '$.anonymousId' }
-            }
-          },
-          idempotency_key: { '@path': '$.messageId' },
-          data: { '@path': '$.properties' }
-        }
-      })
-
-      expect(responses.length).toBe(1)
-      const requestBody = JSON.parse(responses[0].options.body as string)
-      expect(requestBody.subject_id).toBe('anon-456')
-    })
   })
 })

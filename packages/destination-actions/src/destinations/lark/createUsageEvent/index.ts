@@ -22,11 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
+        '@path': '$.userId'
       }
     },
     idempotency_key: {
