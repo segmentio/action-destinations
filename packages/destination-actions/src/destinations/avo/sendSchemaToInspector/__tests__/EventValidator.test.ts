@@ -148,4 +148,39 @@ describe('EventValidator', () => {
     expect(validateEvent({ maxOnly: -100 }, unboundedSpec).propertyResults.maxOnly).toEqual({})
     expect(validateEvent({ maxOnly: 21 }, unboundedSpec).propertyResults.maxOnly.failedEventIds).toEqual(['evt_1'])
   })
+
+  it('skips validation for optional properties with null/undefined values', () => {
+    const optionalSpec: EventSpecResponse = {
+      metadata: {},
+      events: [
+        {
+          baseEventId: 'evt_1',
+          variantIds: [],
+          props: {
+            optionalProp: {
+              type: 'string',
+              required: false,
+              allowedValues: { '["valid"]': ['evt_1'] }
+            }
+          }
+        }
+      ]
+    }
+
+    // Should pass validation when null
+    const resultNull = validateEvent({ optionalProp: null }, optionalSpec)
+    expect(resultNull.propertyResults.optionalProp).toEqual({})
+
+    // Should pass validation when undefined
+    const resultUndefined = validateEvent({ optionalProp: undefined }, optionalSpec)
+    expect(resultUndefined.propertyResults.optionalProp).toEqual({})
+
+    // Should pass validation when value is valid
+    const resultValid = validateEvent({ optionalProp: 'valid' }, optionalSpec)
+    expect(resultValid.propertyResults.optionalProp).toEqual({})
+
+    // Should fail validation when value is invalid (and not null/undefined)
+    const resultInvalid = validateEvent({ optionalProp: 'invalid' }, optionalSpec)
+    expect(resultInvalid.propertyResults.optionalProp.failedEventIds).toEqual(['evt_1'])
+  })
 })

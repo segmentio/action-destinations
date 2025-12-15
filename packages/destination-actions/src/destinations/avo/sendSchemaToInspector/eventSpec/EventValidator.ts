@@ -365,6 +365,10 @@ function validatePropertyConstraints(
 ): PropertyValidationResult {
   const result: PropertyValidationResult = {}
 
+  if (!constraints.required && (value === null || value === undefined)) {
+    return result
+  }
+
   // Guard against excessive nesting (potential malformed spec or DoS)
   if (depth >= MAX_CHILD_DEPTH) {
     return result
