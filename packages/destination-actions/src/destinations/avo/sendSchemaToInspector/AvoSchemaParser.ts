@@ -76,9 +76,9 @@ export class AvoSchemaParser {
             if (typeof val === 'object' && val != null) {
               // Object/array properties: children are encrypted individually, no need to encrypt parent
               mappedEntry.children = mapping(val)
-            } else if (val !== undefined) {
+            } else if (val !== undefined && val !== null) {
               // Primitive properties: encrypt the value if encryption is enabled
-              // Skip undefined values - they can't be encrypted and shouldn't be sent
+              // Skip undefined and null values - they can't be encrypted and shouldn't be sent (will default to null)
               const encryptedValue = this.getEncryptedPropertyValueIfEnabled(
                 val,
                 canSendEncryptedValues,
