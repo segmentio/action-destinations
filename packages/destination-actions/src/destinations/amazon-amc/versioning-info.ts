@@ -1,4 +1,4 @@
-/** AMAZON_AMC_API_VERSION & AMAZON_AMC_AUTH_API_VERSION
+/** AMAZON_AMC_API_VERSION
  * Audience media type: application/vnd.amcaudiences.v1+json
  * API reference: https://advertising.amazon.com/API/docs/en-us/amc-advertiser-audience#tag/Audience%20Records/operation/ManageAudienceV2
  */
