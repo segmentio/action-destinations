@@ -6,7 +6,7 @@ import { normalizationFunctions } from '../../fbca-properties'
 import { BASE_URL, CANARY_API_VERSION, API_VERSION } from '../../constants'
 import { processHashing } from '../../../../lib/hashing-utils'
 
-const testDestination = createTestIntegration(Destination)
+let testDestination = createTestIntegration(Destination)
 const auth = {
   accessToken: '123',
   refreshToken: '321'
@@ -14,6 +14,9 @@ const auth = {
 const EMPTY = ''
 
 describe('FacebookCustomAudiences.sync', () => {
+  beforeEach(() => {
+    testDestination = createTestIntegration(Destination)
+  })
   describe('RETL', () => {
     const retlSettings = {
       retlAdAccountId: '123'
