@@ -177,9 +177,69 @@ describe('Kinesis send', () => {
     const resp = await send(mockSettings, mockPayloads, undefined, mockLogger as Logger)
 
     expect(resp.getAllResponses()[0].value()).toMatchObject({
-      status: 400,
+      status: 429,
       errortype: 'ProvisionedThroughputExceededException',
       errormessage: 'Throttled'
+    })
+  })
+
+  it('should map error codes to the appropriate status codes', async () => {
+    const multiPayloads: Payload[] = [
+      {
+        streamName: 'test-stream',
+        awsRegion: 'us-east-1',
+        partitionKey: 'pk-1',
+        payload: { data: 'record-1' },
+        max_batch_size: 500,
+        batch_keys: ['awsRegion'],
+        batch_bytes: 100000
+      },
+      {
+        streamName: 'test-stream',
+        awsRegion: 'us-east-1',
+        partitionKey: 'pk-2',
+        payload: { data: 'record-2' },
+        max_batch_size: 500,
+        batch_keys: ['awsRegion'],
+        batch_bytes: 100000
+      },
+      {
+        streamName: 'test-stream',
+        awsRegion: 'us-east-1',
+        partitionKey: 'pk-3',
+        payload: { data: 'record-3' },
+        max_batch_size: 500,
+        batch_keys: ['awsRegion'],
+        batch_bytes: 100000
+      }
+    ]
+
+    mockSend.mockResolvedValueOnce({
+      FailedRecordCount: 3,
+      Records: [
+        { ErrorCode: 'AccessDeniedException', ErrorMessage: 'Denied' },
+        { ErrorCode: 'ResourceNotFoundException', ErrorMessage: 'Missing' },
+        { ErrorCode: 'SomeRandomError', ErrorMessage: 'Unknown' }
+      ]
+    })
+
+    const resp = await send(mockSettings, multiPayloads, undefined, mockLogger as Logger)
+    const responses = resp.getAllResponses()
+
+    expect(responses[0].value()).toMatchObject({
+      status: 502,
+      errortype: 'AccessDeniedException',
+      errormessage: 'Denied'
+    })
+    expect(responses[1].value()).toMatchObject({
+      status: 404,
+      errortype: 'ResourceNotFoundException',
+      errormessage: 'Missing'
+    })
+    expect(responses[2].value()).toMatchObject({
+      status: 500,
+      errortype: 'SomeRandomError',
+      errormessage: 'Unknown'
     })
   })
 

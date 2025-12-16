@@ -87,6 +87,67 @@ const handleError = (error: any, statsContext: StatsContext | undefined): void =
   throw new IntegrationError(`Failed to send batch to Kinesis: ${error?.message}`, 'DEPENDENCY_ERROR', 500)
 }
 
+const convertErrorCodeToStatus = (code?: string, isBatch = true): number => {
+  if (!code) {
+    return 500
+  }
+
+  const normalizedCode = code.trim()
+
+  switch (normalizedCode) {
+    // General errors
+    case 'ThrottlingException':
+      return 429
+    case 'AccessDeniedException':
+    case 'AccessDenied':
+      return isBatch ? 502 : 403
+    case 'request.ErrCodeRequestError':
+    case 'RequestError':
+    case 'request.ErrCodeRead':
+    case 'ReadError':
+      return 503
+    case 'request.CanceledErrorCode':
+    case 'RequestCanceled':
+    case 'request.ErrCodeResponseTimeout':
+    case 'ResponseTimeout':
+    case 'request.HandlerResponseTimeout':
+    case 'HandlerResponseTimeout':
+      return 504
+
+    // STS errors
+    case 'ExpiredTokenException':
+    case 'IDPRejectedClaimException':
+    case 'InvalidIdentityTokenException':
+      return 511
+    case 'IDPCommunicationErrorException':
+      return 503
+    case 'InvalidAuthorizationMessageException':
+    case 'MalformedPolicyDocumentException':
+    case 'PackedPolicyTooLargeException':
+      return 400
+    case 'RegionDisabledException':
+      return 403
+
+    // Kinesis errors
+    case 'ValidationException':
+      return 400
+    case 'LimitExceededException':
+    case 'ProvisionedThroughputExceededException':
+      return 429
+    case 'ResourceNotFoundException':
+      return 404
+    case 'InvalidArgumentException':
+    case 'InvalidParameter':
+      return 400
+    case 'InternalFailureException':
+      return 503
+    case 'ResourceInUseException':
+      return 409
+    default:
+      return 500
+  }
+}
+
 const handleMultiStatusResponse = (
   response: PutRecordsCommandOutput,
   statsContext: StatsContext | undefined,
@@ -112,8 +173,9 @@ const handleMultiStatusResponse = (
   // Add metrics for each error type
   Records?.forEach((record: any, index: number) => {
     if (record.ErrorCode) {
+      const statusCode = convertErrorCodeToStatus(record.ErrorCode, true)
       multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: 400,
+        status: statusCode,
         errortype: record.ErrorCode,
         errormessage: record.ErrorMessage
       })
