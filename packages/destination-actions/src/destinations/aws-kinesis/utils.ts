@@ -87,65 +87,42 @@ const handleError = (error: any, statsContext: StatsContext | undefined): void =
   throw new IntegrationError(`Failed to send batch to Kinesis: ${error?.message}`, 'DEPENDENCY_ERROR', 500)
 }
 
-const convertErrorCodeToStatus = (code?: string, isBatch = true): number => {
+// Error codes documented in https://docs.aws.amazon.com/kinesis/latest/APIReference/API_PutRecordsResultEntry.html
+const ERROR_CODE_STATUS_MAP: Record<string, number> = {
+  ThrottlingException: 429,
+  LimitExceededException: 429,
+  ProvisionedThroughputExceededException: 429,
+  KMSThrottlingException: 429,
+  AccessDeniedException: 502,
+  AccessDenied: 502,
+  KMSAccessDeniedException: 403,
+  KMSOptInRequired: 403,
+  ExpiredTokenException: 511,
+  IDPRejectedClaimException: 511,
+  InvalidIdentityTokenException: 511,
+  IDPCommunicationErrorException: 503,
+  InvalidAuthorizationMessageException: 400,
+  MalformedPolicyDocumentException: 400,
+  PackedPolicyTooLargeException: 400,
+  ValidationException: 400,
+  InvalidArgumentException: 400,
+  InvalidParameter: 400,
+  RegionDisabledException: 403,
+  ResourceNotFoundException: 404,
+  KMSNotFoundException: 404,
+  ResourceInUseException: 409,
+  KMSInvalidStateException: 409,
+  InternalFailureException: 503,
+  KMSDisabledException: 503
+}
+
+const convertErrorCodeToStatus = (code?: string): number => {
   if (!code) {
     return 500
   }
 
   const normalizedCode = code.trim()
-
-  switch (normalizedCode) {
-    // General errors
-    case 'ThrottlingException':
-      return 429
-    case 'AccessDeniedException':
-    case 'AccessDenied':
-      return isBatch ? 502 : 403
-    case 'request.ErrCodeRequestError':
-    case 'RequestError':
-    case 'request.ErrCodeRead':
-    case 'ReadError':
-      return 503
-    case 'request.CanceledErrorCode':
-    case 'RequestCanceled':
-    case 'request.ErrCodeResponseTimeout':
-    case 'ResponseTimeout':
-    case 'request.HandlerResponseTimeout':
-    case 'HandlerResponseTimeout':
-      return 504
-
-    // STS errors
-    case 'ExpiredTokenException':
-    case 'IDPRejectedClaimException':
-    case 'InvalidIdentityTokenException':
-      return 511
-    case 'IDPCommunicationErrorException':
-      return 503
-    case 'InvalidAuthorizationMessageException':
-    case 'MalformedPolicyDocumentException':
-    case 'PackedPolicyTooLargeException':
-      return 400
-    case 'RegionDisabledException':
-      return 403
-
-    // Kinesis errors
-    case 'ValidationException':
-      return 400
-    case 'LimitExceededException':
-    case 'ProvisionedThroughputExceededException':
-      return 429
-    case 'ResourceNotFoundException':
-      return 404
-    case 'InvalidArgumentException':
-    case 'InvalidParameter':
-      return 400
-    case 'InternalFailureException':
-      return 503
-    case 'ResourceInUseException':
-      return 409
-    default:
-      return 500
-  }
+  return ERROR_CODE_STATUS_MAP[normalizedCode] ?? 500
 }
 
 const handleMultiStatusResponse = (
@@ -173,7 +150,7 @@ const handleMultiStatusResponse = (
   // Add metrics for each error type
   Records?.forEach((record: any, index: number) => {
     if (record.ErrorCode) {
-      const statusCode = convertErrorCodeToStatus(record.ErrorCode, true)
+      const statusCode = convertErrorCodeToStatus(record.ErrorCode)
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: statusCode,
         errortype: record.ErrorCode,
