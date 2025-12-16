@@ -23,7 +23,7 @@ export interface PropertyConstraintsWire {
   t: string | Record<string, PropertyConstraintsWire> // type or nested schema
   r: boolean // required
   l?: boolean // is list
-  v?: string[] // allowed values
+  v?: string[] | Record<string, string[]> // allowed values: either array (legacy) or object mapping JSON-stringified arrays to event IDs
   min?: number // min value
   max?: number // max value
   rx?: string // regex pattern

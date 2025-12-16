@@ -211,10 +211,19 @@ export class EventSpecFetcher {
     }
 
     // Allowed values (v)
-    if (wire.v && Array.isArray(wire.v)) {
-      // Key is the JSON stringified array of allowed values
-      const key = JSON.stringify(wire.v)
-      result.allowedValues = { [key]: [...eventIds] }
+    if (wire.v) {
+      if (Array.isArray(wire.v)) {
+        // Legacy format: v is an array, convert to object format
+        const key = JSON.stringify(wire.v)
+        result.allowedValues = { [key]: [...eventIds] }
+      } else if (typeof wire.v === 'object') {
+        // New format: v is already an object mapping JSON-stringified arrays to event IDs
+        // Use the event IDs from wire.v directly (they specify which events this constraint applies to)
+        result.allowedValues = {}
+        for (const [allowedArrayJson, vEventIds] of Object.entries(wire.v)) {
+          result.allowedValues[allowedArrayJson] = [...vEventIds]
+        }
+      }
     }
 
     // Min/Max ranges

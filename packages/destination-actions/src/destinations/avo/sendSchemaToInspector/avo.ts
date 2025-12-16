@@ -19,7 +19,7 @@ import { Payload } from './generated-types'
 
 const cache = new LRUCache<string, EventSpecResponse>({
   max: 50,
-  ttl: 1000 * 60 * 5 // 5 minutes
+  ttl: 1000 * 60 // 1 minute
 })
 
 // Store the current branch ID to detect changes
