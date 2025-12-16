@@ -311,26 +311,7 @@ const total_discounts: InputField = {
     description: 'Total amount of discounts applied to the order.',
     type: 'number',
     default: { '@path': '$.properties.discount'},
-    required: {
-        match: 'any',
-        conditions: [
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.ORDER_PLACED
-            },
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.ORDER_CANCELLED
-            },
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.ORDER_REFUNDED
-            }
-        ]
-    },
+    required: false,
     depends_on: {
         match: 'any',
         conditions: [
@@ -381,26 +362,7 @@ const discounts: InputField = {
             }
         ]
     },
-    required: {
-        match: 'any',
-        conditions: [
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.ORDER_PLACED
-            },
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.ORDER_CANCELLED
-            },
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.ORDER_REFUNDED
-            } 
-        ]
-    },
+    required: false,
     depends_on: {
         match: 'any',
         conditions: [
@@ -571,25 +533,6 @@ const metadata: InputField = {
     defaultObjectUI: 'keyvalue'
 }
 
-const type: InputField = {
-    label: 'Product Type',
-    description: 'TODO: description in docs ambiguous.',
-    type: 'string',
-    multiple: true,
-    default: { '@path': '$.properties.type' },
-    required: false,
-    depends_on: {
-        match: 'any',
-        conditions: [
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.CART_UPDATED
-            }
-        ]
-    }
-}
-
 const enable_batching: InputField = {
     type: 'boolean',
     label: 'Batch Data to Braze',
@@ -627,7 +570,6 @@ export const commonFields = {
     currency,
     source,
     metadata,
-    type,
     enable_batching,
     batch_size
 }
