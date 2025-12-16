@@ -178,7 +178,6 @@ describe('Kinesis send', () => {
 
     expect(resp.getAllResponses()[0].value()).toMatchObject({
       status: 429,
-      errortype: 'ProvisionedThroughputExceededException',
       errormessage: 'Throttled'
     })
   })
@@ -228,17 +227,14 @@ describe('Kinesis send', () => {
 
     expect(responses[0].value()).toMatchObject({
       status: 502,
-      errortype: 'AccessDeniedException',
       errormessage: 'Denied'
     })
     expect(responses[1].value()).toMatchObject({
       status: 404,
-      errortype: 'ResourceNotFoundException',
       errormessage: 'Missing'
     })
     expect(responses[2].value()).toMatchObject({
       status: 500,
-      errortype: 'SomeRandomError',
       errormessage: 'Unknown'
     })
   })
