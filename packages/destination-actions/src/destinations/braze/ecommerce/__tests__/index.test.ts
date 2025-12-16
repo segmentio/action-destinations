@@ -81,8 +81,7 @@ const payload = {
       custom_field_5: { nested_key: 'nested_value' },
       checkout_url: 'https://example.com/checkout',
       order_status_url: 'https://example.com/order/status'
-    },
-    type: 'testType',
+    }
   }
 } as Partial<SegmentEvent>
 
@@ -607,8 +606,7 @@ describe('Braze.ecommerce', () => {
               product_name: "Product 1",
               variant_id: "Size M",
               image_url: "https://example.com/prod1.jpg",
-              price: 25,
-              type: ["testType"]
+              price: 25
             },
             _update_existing_only: true
           }
@@ -974,8 +972,7 @@ describe('Braze.ecommerce', () => {
                 custom_field_5: { nested_key: "nested_value" },
                 checkout_url: "https://example.com/checkout",
                 order_status_url: "https://example.com/order/status"
-              },
-              type: ["testType"]
+              }
             },
             _update_existing_only: true
           },
@@ -999,8 +996,7 @@ describe('Braze.ecommerce', () => {
                 custom_field_5: { nested_key: "nested_value" },
                 checkout_url: "https://example.com/checkout",
                 order_status_url: "https://example.com/order/status"
-              },
-              type: ["testType"]
+              }
             },
             _update_existing_only: true
           },
@@ -1024,8 +1020,7 @@ describe('Braze.ecommerce', () => {
                 custom_field_5: { nested_key: "nested_value" },
                 checkout_url: "https://example.com/checkout",
                 order_status_url: "https://example.com/order/status"
-              },
-              type: ["testType"]
+              }
             },
             _update_existing_only: true
           }
@@ -1341,9 +1336,6 @@ describe('Braze.ecommerce', () => {
               "checkout_url": "https://example.com/checkout",
               "order_status_url": "https://example.com/order/status"
             },
-            "type": [
-              "testType"
-            ],
             "_update_existing_only": false,
             "enable_batching": true,
             "batch_size": 75,
@@ -1410,9 +1402,6 @@ describe('Braze.ecommerce', () => {
               "checkout_url": "https://example.com/checkout",
               "order_status_url": "https://example.com/order/status"
             },
-            "type": [
-              "testType"
-            ],
             "_update_existing_only": false,
             "enable_batching": true,
             "batch_size": 75
@@ -1486,9 +1475,6 @@ describe('Braze.ecommerce', () => {
               "checkout_url": "https://example.com/checkout",
               "order_status_url": "https://example.com/order/status"
             },
-            "type": [
-              "testType"
-            ],
             "_update_existing_only": false,
             "enable_batching": true,
             "batch_size": 75,
@@ -1562,9 +1548,6 @@ describe('Braze.ecommerce', () => {
               "checkout_url": "https://example.com/checkout",
               "order_status_url": "https://example.com/order/status"
             },
-            "type": [
-              "testType"
-            ],
             "_update_existing_only": false,
             "enable_batching": true,
             "batch_size": 75,
@@ -1638,9 +1621,6 @@ describe('Braze.ecommerce', () => {
               "checkout_url": "https://example.com/checkout",
               "order_status_url": "https://example.com/order/status"
             },
-            "type": [
-              "testType"
-            ],
             "_update_existing_only": false,
             "enable_batching": true,
             "batch_size": 75,
