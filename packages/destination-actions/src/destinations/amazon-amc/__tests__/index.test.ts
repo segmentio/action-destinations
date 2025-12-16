@@ -1,8 +1,7 @@
 import nock from 'nock'
-import { createTestIntegration } from '@segment/actions-core'
+import { HTTPError, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
-import { HTTPError } from '@segment/actions-core/*'
-import { AUTHORIZATION_URL, TTL_MAX_VALUE } from '../utils'
+import { AUTHORIZATION_URL, TTL_MAX_VALUE } from '../constants'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -67,18 +66,57 @@ describe('Amazon-Ads (actions)', () => {
       )
     })
 
-    it('should fail if advertiserId is missing in audienceSettings', async () => {
+    it("should fail if advertiserId is missing in audienceSettings and sync_to = 'DSP'", async () => {
+      
+      const audienceSettings2 = {
+        ...audienceSettings,
+        advertiserId: undefined,
+        sync_to: 'dsp'
+      }
+      
+      const createAudienceInput = {
+        ...createAudienceInputTemp,
+        audienceSettings: audienceSettings2
+      }
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
+        "Advertiser Id value is required when syncing an audience to DSP"
+      )
+    })
+
+    it("should fail if advertiserId is missing in audienceSettings and sync_to = undefined or null", async () => {
+      
+      const audienceSettings2 = {
+        ...audienceSettings,
+        advertiserId: undefined,
+        sync_to: undefined
+      }
+      
+      const createAudienceInput = {
+        ...createAudienceInputTemp,
+        audienceSettings: audienceSettings2
+      }
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
+        "Advertiser Id value is required when syncing an audience to DSP"
+      )
+    })
+
+    it("should fail if any of amcInstanceId, amcAccountId or amcAccountMarketplaceId are missing in audienceSettings and sync_to = 'AMC'", async () => {
+      
       const createAudienceInput = {
         ...createAudienceInputTemp,
         audienceSettings: {
           ...audienceSettings,
-          advertiserId: ''
+          amcInstanceId: undefined,
+          amcAccountId: undefined,
+          amcAccountMarketplaceId: undefined,
+          syncTo: 'amc'
         }
       }
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
-        'Missing advertiserId Value'
+        "AMC Instance Id, AMC Account Id and AMC Account Marketplace Id value are required when syncing audience to AMC"
       )
     })
+
     it('should fail if externalAudienceId is missing in audienceSettings', async () => {
       const createAudienceInput = {
         ...createAudienceInputTemp,
