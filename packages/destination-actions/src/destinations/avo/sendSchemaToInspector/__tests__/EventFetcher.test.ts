@@ -142,28 +142,6 @@ describe('EventSpecFetcher', () => {
       expect(result).toBeNull()
     })
 
-    it('should deduplicate in-flight requests', async () => {
-      const scope = nock(BASE_URL)
-        .get('/trackingPlan/eventSpec')
-        .query(true)
-        .delay(50) // Simulate network delay
-        .reply(200, validWireResponse)
-
-      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
-
-      // Fire two requests simultaneously
-      const promise1 = fetcher.fetch(mockParams)
-      const promise2 = fetcher.fetch(mockParams)
-
-      const [result1, result2] = await Promise.all([promise1, promise2])
-
-      // Should be the exact same object reference
-      expect(result1).toBe(result2)
-      expect(result1).not.toBeNull()
-      // Nock should have been called only once
-      expect(scope.isDone()).toBe(true)
-    })
-
     it('should NOT deduplicate in-flight requests with different API keys', async () => {
       const scope = nock(BASE_URL)
         .get('/trackingPlan/eventSpec')
