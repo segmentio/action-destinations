@@ -157,7 +157,6 @@ const handleMultiStatusResponse = (
       const statusCode = convertErrorCodeToStatus(record.ErrorCode)
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: statusCode,
-        errortype: record.ErrorCode,
         errormessage: record.ErrorMessage
       })
       const errorCode = record.ErrorCode || 'UnknownError'
