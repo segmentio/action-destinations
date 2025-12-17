@@ -8,14 +8,14 @@ export type PayloadWithIndex = (Payload | SingleProductPayload) & {
 
 export type ProductViewedEventName = typeof EVENT_NAMES.PRODUCT_VIEWED
 export type CheckoutStartedEventName = typeof EVENT_NAMES.CHECKOUT_STARTED
-export type CartUpdatedEventName = typeof EVENT_NAMES.CART_UPDATED 
+//export type CartUpdatedEventName = typeof EVENT_NAMES.CART_UPDATED 
 export type OrderPlacedEventName = typeof EVENT_NAMES.ORDER_PLACED 
 export type OrderCancelledEventName = typeof EVENT_NAMES.ORDER_CANCELLED
 export type OrderRefundedEventName = typeof EVENT_NAMES.ORDER_REFUNDED
 
 export type MultiPropertyEventName = 
    CheckoutStartedEventName |
-   CartUpdatedEventName | 
+   //CartUpdatedEventName | 
    OrderPlacedEventName | 
    OrderCancelledEventName | 
    OrderRefundedEventName
@@ -83,12 +83,12 @@ export interface BaseProduct {
     product_url?: string
 }
 
-export interface CartUpdatedEvent extends MultiProductBaseEvent {
-    name: CartUpdatedEventName
-    properties: MultiProductBaseEvent['properties'] & {
-        cart_id: string
-    }
-}
+// export interface CartUpdatedEvent extends MultiProductBaseEvent {
+//     name: CartUpdatedEventName
+//     properties: MultiProductBaseEvent['properties'] & {
+//         cart_id: string
+//     }
+// }
 
 export interface CheckoutStartedEvent extends MultiProductBaseEvent {
     name: CheckoutStartedEventName

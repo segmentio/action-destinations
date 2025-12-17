@@ -16,7 +16,7 @@ import type {
   ProductViewedEventName, 
   ProductViewedEvent,
   MultiProductBaseEvent,
-  CartUpdatedEvent,
+  //CartUpdatedEvent,
   CheckoutStartedEvent,
   OrderPlacedEvent,
   OrderRefundedEvent,
@@ -156,7 +156,7 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
       }
       return event
     } 
-    case EVENT_NAMES.CART_UPDATED:
+    // case EVENT_NAMES.CART_UPDATED:
     case EVENT_NAMES.CHECKOUT_STARTED:
     case EVENT_NAMES.ORDER_PLACED:
     case EVENT_NAMES.ORDER_CANCELLED:
@@ -176,19 +176,19 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
       }
 
       switch(name) {
-        case EVENT_NAMES.CART_UPDATED: {
-          const { cart_id } = payload
+        // case EVENT_NAMES.CART_UPDATED: {
+        //   const { cart_id } = payload
 
-          const event: CartUpdatedEvent = {
-            ...multiProductEvent,
-            name: EVENT_NAMES.CART_UPDATED,
-            properties: {
-              ...multiProductEvent.properties,
-              cart_id: cart_id as string
-            }
-          }
-          return event
-        }
+        //   const event: CartUpdatedEvent = {
+        //     ...multiProductEvent,
+        //     name: EVENT_NAMES.CART_UPDATED,
+        //     properties: {
+        //       ...multiProductEvent.properties,
+        //       cart_id: cart_id as string
+        //     }
+        //   }
+        //   return event
+        // }
 
         case EVENT_NAMES.CHECKOUT_STARTED: {
           const { 

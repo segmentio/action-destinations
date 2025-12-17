@@ -9,7 +9,7 @@ const name: InputField = {
     required: true,
     choices: [
         { label: 'Product Viewed', value: EVENT_NAMES.PRODUCT_VIEWED },
-        { label: 'Cart Updated', value: EVENT_NAMES.CART_UPDATED },
+        //{ label: 'Cart Updated', value: EVENT_NAMES.CART_UPDATED },
         { label: 'Checkout Started', value: EVENT_NAMES.CHECKOUT_STARTED },
         { label: 'Order Placed', value: EVENT_NAMES.ORDER_PLACED },
         { label: 'Order Cancelled', value: EVENT_NAMES.ORDER_CANCELLED },
@@ -208,24 +208,24 @@ const cart_id: InputField = {
     description: 'Unique identifier for the cart. If no value is passed, Braze will determine a default value (shared across cart, checkout, and order events) for the user cart mapping.',
     type: 'string',
     default: {'@path': '$.properties.cart_id'},
-    required: {
-        match: 'any',
-        conditions: [
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: [EVENT_NAMES.CART_UPDATED]
-            }
-        ]
-    },
+    // required: {
+    //     match: 'any',
+    //     conditions: [
+    //         {
+    //             fieldKey: 'name',
+    //             operator: 'is',
+    //             value: [EVENT_NAMES.CART_UPDATED]
+    //         }
+    //     ]
+    // },
     depends_on: {
         match: 'any',
         conditions: [
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.CART_UPDATED
-            },
+            // {
+            //     fieldKey: 'name',
+            //     operator: 'is',
+            //     value: EVENT_NAMES.CART_UPDATED
+            // },
             {
                 fieldKey: 'name',
                 operator: 'is',
@@ -253,11 +253,11 @@ const total_value: InputField = {
                 operator: 'is',
                 value: EVENT_NAMES.CHECKOUT_STARTED
             },
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.CART_UPDATED
-            },
+            // {
+            //     fieldKey: 'name',
+            //     operator: 'is',
+            //     value: EVENT_NAMES.CART_UPDATED
+            // },
             {
                 fieldKey: 'name',
                 operator: 'is',
@@ -283,11 +283,11 @@ const total_value: InputField = {
                 operator: 'is',
                 value: EVENT_NAMES.CHECKOUT_STARTED
             },
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.CART_UPDATED
-            },
+            // {
+            //     fieldKey: 'name',
+            //     operator: 'is',
+            //     value: EVENT_NAMES.CART_UPDATED
+            // },
             {
                 fieldKey: 'name',
                 operator: 'is',
