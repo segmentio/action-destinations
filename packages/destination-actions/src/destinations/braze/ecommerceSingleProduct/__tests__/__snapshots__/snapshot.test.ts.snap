@@ -15,17 +15,13 @@ Object {
         "currency": "XAD",
         "image_url": "http://egu.ci/ritpaz",
         "metadata": Object {
-          "checkout_url": "Q#t9o",
-          "order_status_url": "Q#t9o",
+          "testType": "Q#t9o",
         },
         "price": -81870429660119.05,
         "product_id": "Q#t9o",
         "product_name": "Q#t9o",
         "product_url": "http://egu.ci/ritpaz",
         "source": "Q#t9o",
-        "type": Array [
-          "Q#t9o",
-        ],
         "variant_id": "Q#t9o",
       },
       "time": "2083-01-27T06:50:11.564Z",

@@ -40,7 +40,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Destination Key',
         description:
           'Your Survicate Destination Key, which you can find in Survicate - Integrations - Segment (Cloud Mode, Actions) - Settings.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

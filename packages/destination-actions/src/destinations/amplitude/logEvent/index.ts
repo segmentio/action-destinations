@@ -183,13 +183,12 @@ const action: ActionDefinition<Settings, Payload> = {
       min_id_length,
       library,
       library2,
-      platform2,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
     let options
 
-    if(platform2?.behavior !== 'use_mapping') {
+    if (platform2?.behavior !== 'use_mapping') {
       // auto behavior
       if (properties.platform) {
         properties.platform = properties.platform.replace(/ios/i, 'iOS').replace(/android/i, 'Android')
@@ -198,8 +197,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (library === 'analytics.js' && !properties.platform) {
         properties.platform = 'Web'
       }
-    } 
-    else {
+    } else {
       properties.platform = platform2?.mapping
     }
 

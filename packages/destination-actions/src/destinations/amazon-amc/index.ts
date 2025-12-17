@@ -1,8 +1,19 @@
-import { AudienceDestinationDefinition, InvalidAuthenticationError, PayloadValidationError, defaultValues } from '@segment/actions-core'
-import { RefreshTokenResponse, AmazonTestAuthenticationError, AudiencePayload, DSPTargetResource, AMCTargetResource  } from './types'
+import {
+  AudienceDestinationDefinition,
+  InvalidAuthenticationError,
+  PayloadValidationError,
+  defaultValues
+} from '@segment/actions-core'
+import {
+  RefreshTokenResponse,
+  AmazonTestAuthenticationError,
+  AudiencePayload,
+  DSPTargetResource,
+  AMCTargetResource
+} from './types'
 import type { Settings, AudienceSettings } from './generated-types'
 import { extractNumberAndSubstituteWithStringValue, getAuthToken } from './utils'
-import { SYNC_TO, REGEX_AUDIENCEID, REGEX_ADVERTISERID, TTL_MAX_VALUE} from './constants'
+import { SYNC_TO, REGEX_AUDIENCEID, REGEX_ADVERTISERID, TTL_MAX_VALUE } from './constants'
 import syncAudiencesToDSP from './syncAudiencesToDSP'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
@@ -131,102 +142,22 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     advertiserId: {
       label: 'Advertiser ID',
       description: 'Advertiser ID when when syncing an Audience to Amazon Ads DSP',
-      type: 'string',
-      required: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is_not',
-            value: SYNC_TO.AMC
-          }
-        ]
-      },
-      depends_on: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is_not',
-            value: SYNC_TO.AMC
-          }
-        ]
-      }
+      type: 'string'
     },
     amcInstanceId: {
       label: 'AMC Instance ID',
       description: 'AMC Instance ID used when syncing an audience to Amazon Marketing Cloud (AMC)',
-      type: 'string',
-      required: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is',
-            value: SYNC_TO.AMC
-          }
-        ]
-      },
-      depends_on: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is',
-            value: SYNC_TO.AMC
-          }
-        ]
-      }
+      type: 'string'
     },
     amcAccountId: {
       label: 'AMC Account ID',
       description: 'AMC Account ID used when syncing an audience to Amazon Marketing Cloud (AMC)',
-      type: 'string',
-      required: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is',
-            value: SYNC_TO.AMC
-          }
-        ]
-      },
-      depends_on: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is',
-            value: SYNC_TO.AMC
-          }
-        ]
-      }
+      type: 'string'
     },
     amcAccountMarketplaceId: {
       label: 'AMC Account Marketplace ID',
       description: 'AMC Account Marketplace ID used when syncing an audience to Amazon Marketing Cloud (AMC)',
-      type: 'string',
-      required: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is',
-            value: SYNC_TO.AMC
-          }
-        ]
-      },
-      depends_on: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'sync_to',
-            operator: 'is',
-            value: SYNC_TO.AMC
-          }
-        ]
-      }
+      type: 'string'
     }
   },
 
@@ -249,17 +180,18 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         currency,
         cpmCents,
         amcInstanceId,
-        amcAccountId, 
+        amcAccountId,
         amcAccountMarketplaceId
       } = audienceSettings || {}
-
 
       if (syncTo === SYNC_TO.DSP && !advertiserId) {
         throw new PayloadValidationError('Advertiser Id value is required when syncing an audience to DSP')
       }
 
       if (syncTo === SYNC_TO.AMC && (!amcInstanceId || !amcAccountId || !amcAccountMarketplaceId)) {
-        throw new PayloadValidationError('AMC Instance Id, AMC Account Id and AMC Account Marketplace Id value are required when syncing audience to AMC')
+        throw new PayloadValidationError(
+          'AMC Instance Id, AMC Account Id and AMC Account Marketplace Id value are required when syncing audience to AMC'
+        )
       }
 
       if (!description) {
@@ -283,8 +215,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       let connectionId: string | undefined = undefined
-      if(syncTo === SYNC_TO.AMC) {
-        const payloadStringConnsAPI = JSON.stringify({amcInstanceId, amcAccountId, amcAccountMarketplaceId})
+      if (syncTo === SYNC_TO.AMC) {
+        const payloadStringConnsAPI = JSON.stringify({ amcInstanceId, amcAccountId, amcAccountMarketplaceId })
         const response = await request(`${endpoint}/amc/audiences/connections`, {
           method: 'POST',
           body: payloadStringConnsAPI,
@@ -294,8 +226,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         })
 
         connectionId = JSON.parse(await response.text())?.connectionId
-        if(!connectionId) {
-          throw new PayloadValidationError('Unable to fetch connectionId with given AMC amcInstanceId amcAccountId and amcAccountMarketplaceId details')
+        if (!connectionId) {
+          throw new PayloadValidationError(
+            'Unable to fetch connectionId with given AMC amcInstanceId amcAccountId and amcAccountMarketplaceId details'
+          )
         }
       }
 
@@ -312,7 +246,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
             }
             return targetResource
           }
-          if(syncTo === SYNC_TO.DSP) {
+          if (syncTo === SYNC_TO.DSP) {
             const targetResource: DSPTargetResource = {
               advertiserId: advertiserId as string
             }

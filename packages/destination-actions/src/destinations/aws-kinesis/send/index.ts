@@ -38,12 +38,22 @@ const action: ActionDefinition<Settings, Payload> = {
       choices: AWS_REGIONS,
       disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
     },
+    batch_size: {
+      label: 'Max Batch Size',
+      description: 'The maximum number of payloads to include in a batch.',
+      type: 'number',
+      required: false,
+      minimum: 1,
+      maximum: 500,
+      default: 500,
+      disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+    },
     batch_keys: {
       label: 'Batch Keys',
       description: 'The keys to use for batching the events.',
       type: 'string',
       unsafe_hidden: true,
-      default: ['awsRegion', 'streamName', 'partitionKey'],
+      default: ['awsRegion', 'streamName'],
       multiple: true
     },
     max_batch_size: {
@@ -54,12 +64,13 @@ const action: ActionDefinition<Settings, Payload> = {
       minimum: 1,
       maximum: 500,
       default: 500,
+      unsafe_hidden: true,
       disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
     },
     enable_batching: {
       type: 'boolean',
       label: 'Batch Data to Kinesis?',
-      description: 'If true, Segment will batch events before sending to Kines.',
+      description: 'If true, Segment will batch events before sending to Kinesis',
       default: true,
       unsafe_hidden: true
     },

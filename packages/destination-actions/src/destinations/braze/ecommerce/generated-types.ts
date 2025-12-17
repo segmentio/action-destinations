@@ -79,20 +79,8 @@ export interface Payload {
    * Additional metadata for the ecommerce event.
    */
   metadata?: {
-    /**
-     * URL for the checkout page.
-     */
-    checkout_url?: string
-    /**
-     * URL to view the status of the order.
-     */
-    order_status_url?: string
     [k: string]: unknown
   }
-  /**
-   * TODO: description in docs ambiguous.
-   */
-  type?: string[]
   /**
    * If true, Segment will batch events before sending to Braze’s user track endpoint.
    */
@@ -102,7 +90,7 @@ export interface Payload {
    */
   batch_size: number
   /**
-   * List of products associated with the ecommerce event.
+   * List of products associated with the ecommerce event. Standard product fields are mapped by default. Any additional fields added into a product item will be sent as product level metadata.
    */
   products: {
     /**

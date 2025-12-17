@@ -1,8 +1,8 @@
 import { PredefinedContentTypes } from './types'
 
-export const MIN_SCHEDULE_TIME_MS = 15 * 60 * 1000  // 15 minutes
+export const MIN_SCHEDULE_TIME_MS = 15 * 60 * 1000 // 15 minutes
 
-export const MAX_SCHEDULE_TIME_MS = 35 * 24 * 60 * 60 * 1000  // 35 days
+export const MAX_SCHEDULE_TIME_MS = 35 * 24 * 60 * 60 * 1000 // 35 days
 
 export const CONTENT_SID_TOKEN = '{accountSid}'
 

@@ -41,4 +41,8 @@ export interface Payload {
    * The keys to use for batching the events.
    */
   batch_keys?: string[]
+  /**
+   * Specifies the maximum number of bytes to batch before sending. The default is 1 MB, though the maximum allowed depends on the Kafka cluster. Smaller batch sizes result in more frequent requests to the cluster.
+   */
+  batch_bytes?: number
 }

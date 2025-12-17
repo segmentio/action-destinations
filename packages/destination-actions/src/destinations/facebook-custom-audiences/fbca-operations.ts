@@ -4,7 +4,7 @@ import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions
 import { EmptyValueError, processHashing } from '../../lib/hashing-utils'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { API_VERSION, BASE_URL, CANARY_API_VERSION, FACEBOOK_CUSTOM_AUDIENCE_FLAGON } from './constants'
-import { PayloadValidationError } from '@segment/actions-core/*'
+import { PayloadValidationError } from '@segment/actions-core'
 
 // exported for unit testing
 
@@ -82,7 +82,7 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
   } catch (error) {
     if (error instanceof EmptyValueError) {
       throw new PayloadValidationError(
-        `Invalid value for ${key}. After normalization, the value is empty. Provide either a valid value or an empty one.`
+        `Invalid value for ${key}. After normalization, the value is empty. Please provide a valid ${key} value, or omit this field entirely.`
       )
     } else {
       throw error

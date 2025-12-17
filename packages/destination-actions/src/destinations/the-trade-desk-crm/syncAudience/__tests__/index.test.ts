@@ -257,7 +257,7 @@ describe('TheTradeDeskCrm.syncAudience', () => {
     ).rejects.toThrow(`No external_id found in payload.`)
   })
 
-  it('should mark the payload with invalid email as failed', async () => {
+  it('should mark the payload with invalid email as failed in multistatus response', async () => {
     const dropReferenceId = 'aabbcc5b01-c9c7-4000-9191-000000000000'
     const dropEndpoint = `https://thetradedesk-crm-data.s3.us-east-1.amazonaws.com/data/advertiser/advertiser-id/drop/${dropReferenceId}/pii?X-Amz-Security-Token=token&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=date&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=credentials&X-Amz-Signature=signature&`
 
