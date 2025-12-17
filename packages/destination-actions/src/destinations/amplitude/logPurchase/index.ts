@@ -235,6 +235,7 @@ const action: ActionDefinition<Settings, Payload> = {
       min_id_length,
       library,
       library2,
+      platform2,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
