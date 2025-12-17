@@ -6,10 +6,6 @@ export interface Settings {
    */
   url: string
   /**
-   * A unique Profile Service ID using Twilio Type ID (TTID) format (e.g., mem_service_00000000000000000000000000)
-   */
-  serviceId: string
-  /**
    * API Key for Basic Authentication
    */
   username: string
