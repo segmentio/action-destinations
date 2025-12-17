@@ -74,6 +74,7 @@ export async function asyncUpsertRowsV2(
       json: { items: rows }
     }
   )
+  console.log('Async Upsert Response:', response)
   return response
 }
 
