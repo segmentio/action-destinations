@@ -55,6 +55,7 @@ const email: InputField = {
     label: 'Email',
     description: 'The user email',
     type: 'string',
+    format: 'email',
     default: { 
         '@if': {
           exists: { '@path': '$.context.traits.email' },
