@@ -131,9 +131,9 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { payload, settings }) => {
     // Single profile sync using the bulk API with a single profile payload
-    const serviceId = settings.serviceId
+    const serviceId = payload.memora_store
     if (!serviceId) {
-      throw new IntegrationError('Service ID is required', 'MISSING_REQUIRED_FIELD', 400)
+      throw new IntegrationError('Memora Store is required', 'MISSING_REQUIRED_FIELD', 400)
     }
 
     const traitGroups = buildTraitGroups(payload)
@@ -175,9 +175,9 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, { payload: payloads, settings }) => {
-    const serviceId = settings.serviceId
+    const serviceId = payloads[0]?.memora_store
     if (!serviceId) {
-      throw new IntegrationError('Service ID is required', 'MISSING_REQUIRED_FIELD', 400)
+      throw new IntegrationError('Memora Store is required', 'MISSING_REQUIRED_FIELD', 400)
     }
 
     if (!payloads || payloads.length === 0) {
@@ -411,8 +411,10 @@ async function fetchTraitFields(
     // Use a sample profile to fetch trait schema - in production, you might want to query
     // Use a sample profile to fetch trait schema - in production, you might want to query
     // a specific profile or use a metadata endpoint if available
+    // Note: This dynamic field requires a serviceId but we don't have it at field definition time
+    // This function may not work properly without passing serviceId from payload context
     const response = await request<{ traits?: TraitField[]; meta?: { nextPageToken?: string } }>(
-      `${baseUrl}/${API_VERSION}/Services/${settings.serviceId}/Profiles/traits-schema?traitGroups=${traitGroup}`,
+      `${baseUrl}/${API_VERSION}/Services/PLACEHOLDER/Profiles/traits-schema?traitGroups=${traitGroup}`,
       {
         method: 'GET',
         headers: {
