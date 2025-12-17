@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -38,6 +38,14 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload }) => {
     const { zapSubscriptionUrl, data} = payload    
+    const hosts = ['zapier.com', 'zapier-staging.com']
+
+    // check that the hostname ends with one of the hosts values 
+    const url: URL = new URL(zapSubscriptionUrl)
+    if (!hosts.some((host) => url.hostname.endsWith(host))) {
+      throw new PayloadValidationError(`Invalid Zapier Webhook URL hostname: ${url.hostname}. Must end with one of: ${hosts.join(', ')}`)
+    }
+
     return request(zapSubscriptionUrl, {
       method: 'post',
       json: data
