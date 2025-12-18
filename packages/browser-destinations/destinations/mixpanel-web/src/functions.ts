@@ -3,6 +3,7 @@ import { Payload as TrackPayload } from './track/generated-types'
 import { Payload as IdentifyPayload } from './identify/generated-types'
 import { Payload as TrackPageViewPayload } from './trackPageView/generated-types'
 import type { Mixpanel } from './types'
+import { STANDARD_USER_PROFILE_PROPERTIES } from './constants'
 
 export function sendIdentify(mixpanel: Mixpanel, payload: IdentifyPayload | TrackPayload | TrackPageViewPayload) {
   const {
@@ -17,16 +18,27 @@ export function sendIdentify(mixpanel: Mixpanel, payload: IdentifyPayload | Trac
   }
 
   if (user_profile_properties_to_set && Object.keys(user_profile_properties_to_set).length > 0) {
-    mixpanel.people.set(user_profile_properties_to_set)
+    mixpanel.people.set(mapKeys(user_profile_properties_to_set, ensureDollarPrefix))
   }
 
   if (user_profile_properties_to_set_once && Object.keys(user_profile_properties_to_set_once).length > 0) {
-    mixpanel.people.set_once(user_profile_properties_to_set_once)
+    mixpanel.people.set_once(mapKeys(user_profile_properties_to_set_once, ensureDollarPrefix))
   }
 
   if (user_profile_properties_to_increment && Object.keys(user_profile_properties_to_increment).length > 0) {
     mixpanel.people.increment(user_profile_properties_to_increment)
   }
+}
+
+function ensureDollarPrefix(property: string): string {
+  if (STANDARD_USER_PROFILE_PROPERTIES.includes(property) && !property.startsWith('$')) {
+    return `$${property}`
+  }
+  return property
+}
+
+function mapKeys<T extends Record<string, unknown>>(obj: T, fn: (key: string) => string): Record<string, T[keyof T]> {
+  return Object.fromEntries(Object.entries(obj).map(([k, v]) => [fn(k), v])) as Record<string, T[keyof T]>
 }
 
 export function sendGroup(mixpanel: Mixpanel, payload: GroupPayload | TrackPayload | TrackPageViewPayload) {

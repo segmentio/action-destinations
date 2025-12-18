@@ -1,7 +1,13 @@
 import { createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
 import { Features } from '@segment/actions-core/mapping-kit'
 import nock from 'nock'
-import { CANARY_API_VERSION, formatToE164, commonEmailValidation, convertTimestamp, timestampToEpochMicroseconds } from '../functions'
+import {
+  CANARY_API_VERSION,
+  formatToE164,
+  commonEmailValidation,
+  convertTimestamp,
+  timestampToEpochMicroseconds
+} from '../functions'
 import destination from '../index'
 
 const testDestination = createTestIntegration(destination)
@@ -206,4 +212,3 @@ describe('timestampToEpochMicroseconds', () => {
     expect(result).toEqual(undefined)
   })
 })
-

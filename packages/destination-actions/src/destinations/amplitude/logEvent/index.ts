@@ -202,6 +202,10 @@ const action: ActionDefinition<Settings, Payload> = {
       properties.platform = platform2?.mapping
     }
 
+    if (library === 'analytics.js' && !properties.platform) {
+      properties.platform = 'Web'
+    }
+
     if (time && dayjs.utc(time).isValid()) {
       properties.time = dayjs.utc(time).valueOf()
     }

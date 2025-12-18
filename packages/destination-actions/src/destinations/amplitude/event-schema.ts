@@ -100,7 +100,8 @@ export const eventSchema: Record<string, InputField> = {
   platform2: {
     label: 'Platform Settings',
     type: 'object',
-    description: 'Specifies the "platform" value to send to Amplitude. Select "Use Mapping" to set the value using the "Platform Mapping" field. "Legacy Behaviour" sets the value to "iOS", "Android" or "Web" based on values in the Segment event payload.',
+    description:
+      'Specifies the "platform" value to send to Amplitude. Select "Use Mapping" to set the value using the "Platform Mapping" field. "Legacy Behaviour" sets the value to "iOS", "Android" or "Web" based on values in the Segment event payload.',
     defaultObjectUI: 'keyvalue',
     properties: {
       behavior: {
@@ -114,10 +115,11 @@ export const eventSchema: Record<string, InputField> = {
       },
       mapping: {
         label: 'Platform Mapping',
-        description: 'The platform value to send to Amplitude. Only used when the "Behavior" field is set to "Use Mapping".',
+        description:
+          'The platform value to send to Amplitude. Only used when the "Behavior" field is set to "Use Mapping".',
         type: 'string'
       }
-    }, 
+    },
     default: {
       behavior: 'auto',
       mapping: { '@path': '$.context.device.type' }
@@ -326,7 +328,7 @@ export const eventSchema: Record<string, InputField> = {
       'Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time.'
   },
   library: {
-    // hiding this field as it was the value from the field was never used correctly and has created confusion with users. 
+    // hiding this field as it was the value from the field was never used correctly and has created confusion with users.
     label: 'HIDDEN: Library',
     type: 'string',
     description: 'HIDDEN: The name of the library that generated the event.',
@@ -338,7 +340,8 @@ export const eventSchema: Record<string, InputField> = {
   library2: {
     label: 'Library Settings',
     type: 'object',
-    description: 'Specifies the "library" value to send to Amplitude. Select "Use Mapping" to set the value from the "Library Mapping" field. "Legacy Behaviour" sets the value to "segment".',
+    description:
+      'Specifies the "library" value to send to Amplitude. Select "Use Mapping" to set the value from the "Library Mapping" field. "Legacy Behaviour" sets the value to "segment".',
     defaultObjectUI: 'keyvalue',
     properties: {
       behavior: {
@@ -348,14 +351,15 @@ export const eventSchema: Record<string, InputField> = {
         choices: [
           { label: 'Auto', value: 'auto' },
           { label: 'Use Mapping', value: 'use_mapping' }
-        ],
+        ]
       },
       mapping: {
         label: 'Library Mapping',
-        description: 'The library value to send to Amplitude. Only used when the "Behavior" field is set to "Use Mapping".',
+        description:
+          'The library value to send to Amplitude. Only used when the "Behavior" field is set to "Use Mapping".',
         type: 'string'
       }
-    }, 
+    },
     default: {
       behavior: 'use_mapping',
       mapping: { '@path': '$.context.library.name' }

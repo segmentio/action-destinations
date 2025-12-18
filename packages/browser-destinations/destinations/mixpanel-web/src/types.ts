@@ -75,4 +75,5 @@ export interface Config {
   record_max_ms?: number
   record_min_ms?: number
   record_sessions_percent?: number
+  loaded?: (instance: Mixpanel) => void
 }

@@ -33,7 +33,7 @@ const destination: DestinationDefinition<Settings> = {
       connection_key: {
         label: 'Connection Key',
         description: 'Your Clay connection key',
-        type: 'string',
+        type: 'password',
         required: true
       },
       secret_key: {

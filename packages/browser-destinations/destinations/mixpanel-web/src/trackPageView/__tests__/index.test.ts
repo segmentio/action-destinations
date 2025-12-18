@@ -154,13 +154,13 @@ describe('Mixpanel.trackPageView', () => {
     // Identify related calls
     expect(mockMPP.identify).toHaveBeenCalledWith('userId1')
     expect(mockMPP.people.set).toHaveBeenCalledWith({
-      name: 'User Name',
-      last_name: 'Last',
-      first_name: 'First',
-      email: 'user@example.com',
-      phone: '123-456-7890',
-      avatar: 'https://example.com/avatar.jpg',
-      created: '2020-01-01T00:00:000Z'
+      $name: 'User Name',
+      $last_name: 'Last',
+      $first_name: 'First',
+      $email: 'user@example.com',
+      $phone: '123-456-7890',
+      $avatar: 'https://example.com/avatar.jpg',
+      $created: '2020-01-01T00:00:000Z'
     })
     expect(mockMPP.people.set_once).toHaveBeenCalledWith({
       set_once_trait: 'set_once_value_1'

@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-mixpanel-web-actions",
-  "version": "1.3.1-staging-e5586ad4f.0",
+  "version": "1.4.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",

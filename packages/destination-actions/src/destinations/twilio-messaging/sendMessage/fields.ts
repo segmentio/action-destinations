@@ -127,7 +127,7 @@ export const fields: Record<string, InputField> = {
     disabledInputMethods: [],
     required: {
       conditions: [
-        { 
+        {
           fieldKey: 'channel',
           operator: 'is',
           value: CHANNELS.RCS
@@ -239,7 +239,8 @@ export const fields: Record<string, InputField> = {
   },
   sendAt: {
     label: 'Send At',
-    description: 'The time that Twilio will send the message. Must be in ISO 8601 format. Messages can be scheduled up to 35 days in advance, and at least 15 minutes in advance.',
+    description:
+      'The time that Twilio will send the message. Must be in ISO 8601 format. Messages can be scheduled up to 35 days in advance, and at least 15 minutes in advance.',
     type: 'string',
     format: 'date-time',
     required: false,

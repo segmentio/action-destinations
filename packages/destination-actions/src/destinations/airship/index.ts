@@ -30,7 +30,7 @@ const destination: DestinationDefinition<Settings> = {
       app_key: {
         label: 'App Key',
         description: 'The App Key identifies the Airship Project to which API requests are made.',
-        type: 'string',
+        type: 'password',
         // default: process.env.DEFAULT_APP_KEY,
         required: true
       },

@@ -104,14 +104,14 @@ export interface ClickConversionRequestObjectInterface {
 export type KeyValuePairList = Array<KeyValueItem>
 
 export type KeyValueItem = {
-  sessionAttributeKey: 
-    'gad_source' 
-  | 'gad_campaignid' 
-  | 'landing_page_url' 
-  | 'session_start_time_usec' 
-  | 'landing_page_referrer' 
-  | 'landing_page_user_agent'
-  sessionAttributeValue?: string 
+  sessionAttributeKey:
+    | 'gad_source'
+    | 'gad_campaignid'
+    | 'landing_page_url'
+    | 'session_start_time_usec'
+    | 'landing_page_referrer'
+    | 'landing_page_user_agent'
+  sessionAttributeValue?: string
 }
 
 export interface ConversionActionId {

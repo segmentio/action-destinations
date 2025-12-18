@@ -1,4 +1,4 @@
-import { DEFAULT_REQUEST_TIMEOUT, defaultValues } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
 import createUpdateDevice from './createUpdateDevice'
 import createUpdateObject from './createUpdateObject'
 import createUpdatePerson from './createUpdatePerson'
@@ -55,8 +55,7 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ settings }) {
     return {
       username: settings.siteId,
-      password: settings.apiKey,
-      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
+      password: settings.apiKey
     }
   },
 
