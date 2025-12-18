@@ -1,0 +1,141 @@
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface Payload {
+  /**
+   * Details about the event to be sent to Rokt CAPI.
+   */
+  eventDetails?: {
+    /**
+     * Type of conversion, This should usually be mapped to the Segment track() event name. e.g., "Order Completed".
+     */
+    conversiontype?: string
+    /**
+     * Unique ID for the conversion, ideally an order ID.
+     */
+    confirmationref?: string
+    /**
+     * Monetary amount associated with the conversion.
+     */
+    amount?: number
+    /**
+     * 3-letter ISO currency code (e.g. USD, EUR).
+     */
+    currency?: string
+    /**
+     * Unique identifier for the source message.
+     */
+    source_message_id?: string
+    /**
+     * Event timestamp in Unix time milliseconds.
+     */
+    timestamp_unixtime_ms?: string
+  }
+  /**
+   * Additional custom attributes for the event.
+   */
+  eventProperties?: {
+    [k: string]: unknown
+  }
+  /**
+   * Specify if email and certain user attributes should be hashed before sending.
+   */
+  hashingConfiguration?: {
+    /**
+     * If enabled, Segment will ensure that the email address is hashed using SHA256 before sending.
+     */
+    hashEmail?: boolean
+    /**
+     * If enabled, Segment will ensure that the first name is hashed using SHA256 before sending.
+     */
+    hashFirstName?: boolean
+    /**
+     * If enabled, Segment will ensure that the last name is hashed using SHA256 before sending.
+     */
+    hashLastName?: boolean
+    /**
+     * If enabled, Segment will ensure that the mobile number is hashed using SHA256 before sending.
+     */
+    hashMobile?: boolean
+    /**
+     * If enabled, Segment will ensure that the billing zip code is hashed using SHA256 before sending.
+     */
+    hashBillingZipcode?: boolean
+  }
+  /**
+   * Information about the user device.
+   */
+  device_info?: {
+    /**
+     * Device user agent.
+     */
+    http_header_user_agent?: string
+    /**
+     * Advertising ID from mobile device.
+     */
+    advertisingId?: string
+    /**
+     * Type of device: ios or android. All other values will be ignored. Segment uses this value to determine whether to send the advertising ID as ios_advertising_id or android_advertising_id.
+     */
+    deviceType?: string
+  }
+  /**
+   * Unique user identifiers used to identify the user. At least one identifier is required, or the advertising ID in device info.
+   */
+  user_identities?: {
+    /**
+     * User email address. This can be in plain text or hashed using SHA256. If you send plain text and would like Segment to hash the email address for you, enable the "Hash Email" field.
+     */
+    email?: string
+    /**
+     * Unique customer identifier.
+     */
+    customerid?: string
+    /**
+     * ROKT Click ID.
+     */
+    other2?: string
+  }
+  /**
+   * Attributes related to the user.
+   */
+  user_attributes?: {
+    /**
+     * User first name.
+     */
+    firstname?: string
+    /**
+     * User last name.
+     */
+    lastname?: string
+    /**
+     * User mobile number.
+     */
+    mobile?: string
+    /**
+     * User billing zip code.
+     */
+    billingzipcode?: string
+    /**
+     * User date of birth in ISO8601 format (YYYY-MM-DD).
+     */
+    dateofbirth?: string
+    /**
+     * User gender
+     */
+    gender?: string
+    [k: string]: unknown
+  }
+
+  audiencename?: string 
+  audiencemembership?: string
+
+  engageFields?: {
+    traitsOrProps?: string, 
+    computationAction?: string 
+  }
+
+  /**
+   * IP address of the user.
+   */
+  ip?: string
+}
