@@ -1,5 +1,5 @@
 /**
- * Snapshot tests for trackEvent action
+ * Snapshot tests for identifyUser action
  */
 
 import nock from 'nock'
@@ -9,7 +9,7 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 const COLLAB_CRM_BASE_URL = 'https://wvjaseexkfrcahmzfxkl.supabase.co/functions/v1'
 
-const actionSlug = 'trackEvent'
+const actionSlug = 'identifyUser'
 const destinationSlug = 'Collab Travel CRM'
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
@@ -23,15 +23,17 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       .reply(200, { success: true })
 
     const event = createTestEvent({
-      type: 'track',
-      event: 'Test Event'
+      type: 'identify',
+      traits: {
+        email: 'test@example.com'
+      }
     })
 
     const responses = await testDestination.testAction(actionSlug, {
       event,
       settings: { apiKey: 'test-api-key' },
       mapping: {
-        eventName: 'Test Event'
+        email: 'test@example.com'
       },
       useDefaultMappings: false
     })
@@ -46,14 +48,14 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       .reply(200, { success: true })
 
     const event = createTestEvent({
-      type: 'track',
-      event: 'Trip Booked',
+      type: 'identify',
       userId: 'user-123',
-      anonymousId: 'anon-456',
-      timestamp: '2025-01-15T12:00:00.000Z',
-      properties: {
-        destination: 'Maldives',
-        value: 5000
+      traits: {
+        email: 'john@example.com',
+        firstName: 'John',
+        lastName: 'Doe',
+        phone: '+1-555-0100',
+        company: 'Acme Travel'
       }
     })
 
@@ -61,11 +63,12 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event,
       settings: { apiKey: 'test-api-key' },
       mapping: {
-        eventName: { '@path': '$.event' },
-        properties: { '@path': '$.properties' },
+        email: { '@path': '$.traits.email' },
+        firstName: { '@path': '$.traits.firstName' },
+        lastName: { '@path': '$.traits.lastName' },
+        phone: { '@path': '$.traits.phone' },
         userId: { '@path': '$.userId' },
-        anonymousId: { '@path': '$.anonymousId' },
-        timestamp: { '@path': '$.timestamp' }
+        traits: { '@path': '$.traits' }
       },
       useDefaultMappings: false
     })

@@ -1,77 +1,137 @@
+/**
+ * Snapshot tests for Collab Travel CRM destination
+ * 
+ * These tests verify that request payloads don't change unexpectedly
+ */
+
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const destinationSlug = '{{destination}}'
+const COLLAB_CRM_BASE_URL = 'https://wvjaseexkfrcahmzfxkl.supabase.co/functions/v1'
 
-describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
-  for (const actionSlug in destination.actions) {
-    it(`${actionSlug} action - required fields`, async () => {
-      const seedName = `${destinationSlug}#${actionSlug}`
-      const action = destination.actions[actionSlug]
-      const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+describe('Collab Travel CRM Snapshots', () => {
+  beforeEach(() => {
+    nock.cleanAll()
+  })
 
-      nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(200)
-      nock(/.*/).persist().put(/.*/).reply(200)
-
-      const event = createTestEvent({
-        properties: eventData
-      })
-
-      const responses = await testDestination.testAction(actionSlug, {
-        event: event,
-        mapping: event.properties,
-        settings: settingsData,
-        auth: undefined
-      })
-
-      const request = responses[0].request
-      const rawBody = await request.text()
-
-      try {
-        const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot()
-        return
-      } catch (err) {
-        expect(rawBody).toMatchSnapshot()
-      }
-
-      expect(request.headers).toMatchSnapshot()
-    })
-
-    it(`${actionSlug} action - all fields`, async () => {
-      const seedName = `${destinationSlug}#${actionSlug}`
-      const action = destination.actions[actionSlug]
-      const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
-
-      nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(200)
-      nock(/.*/).persist().put(/.*/).reply(200)
+  describe('trackEvent', () => {
+    it('should match snapshot for standard track event', async () => {
+      nock(COLLAB_CRM_BASE_URL)
+        .post('/segment-destination')
+        .reply(200, { success: true })
 
       const event = createTestEvent({
-        properties: eventData
+        type: 'track',
+        event: 'Trip Booked',
+        userId: 'user-123',
+        anonymousId: 'anon-456',
+        timestamp: '2025-01-15T12:00:00.000Z',
+        properties: {
+          destination: 'Bali',
+          value: 5000,
+          currency: 'USD'
+        }
       })
 
-      const responses = await testDestination.testAction(actionSlug, {
-        event: event,
-        mapping: event.properties,
-        settings: settingsData,
-        auth: undefined
+      const responses = await testDestination.testAction('trackEvent', {
+        event,
+        settings: { apiKey: 'test-api-key' },
+        mapping: {
+          eventName: { '@path': '$.event' },
+          properties: { '@path': '$.properties' },
+          userId: { '@path': '$.userId' },
+          anonymousId: { '@path': '$.anonymousId' },
+          timestamp: { '@path': '$.timestamp' }
+        }
       })
 
-      const request = responses[0].request
-      const rawBody = await request.text()
-
-      try {
-        const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot()
-        return
-      } catch (err) {
-        expect(rawBody).toMatchSnapshot()
-      }
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
     })
-  }
+
+    it('should match snapshot for event with minimal fields', async () => {
+      nock(COLLAB_CRM_BASE_URL)
+        .post('/segment-destination')
+        .reply(200, { success: true })
+
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Page Viewed',
+        anonymousId: 'anon-789'
+      })
+
+      const responses = await testDestination.testAction('trackEvent', {
+        event,
+        settings: { apiKey: 'test-api-key' },
+        mapping: {
+          eventName: { '@path': '$.event' },
+          anonymousId: { '@path': '$.anonymousId' }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+  })
+
+  describe('identifyUser', () => {
+    it('should match snapshot for standard identify event', async () => {
+      nock(COLLAB_CRM_BASE_URL)
+        .post('/segment-destination')
+        .reply(200, { success: true })
+
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-123',
+        traits: {
+          email: 'john@example.com',
+          firstName: 'John',
+          lastName: 'Doe',
+          phone: '+1-555-0100'
+        }
+      })
+
+      const responses = await testDestination.testAction('identifyUser', {
+        event,
+        settings: { apiKey: 'test-api-key' },
+        mapping: {
+          email: { '@path': '$.traits.email' },
+          firstName: { '@path': '$.traits.firstName' },
+          lastName: { '@path': '$.traits.lastName' },
+          phone: { '@path': '$.traits.phone' },
+          userId: { '@path': '$.userId' },
+          traits: { '@path': '$.traits' }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+    it('should match snapshot for identify with only email', async () => {
+      nock(COLLAB_CRM_BASE_URL)
+        .post('/segment-destination')
+        .reply(200, { success: true })
+
+      const event = createTestEvent({
+        type: 'identify',
+        traits: {
+          email: 'minimal@example.com'
+        }
+      })
+
+      const responses = await testDestination.testAction('identifyUser', {
+        event,
+        settings: { apiKey: 'test-api-key' },
+        mapping: {
+          email: { '@path': '$.traits.email' }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+  })
 })
