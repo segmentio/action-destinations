@@ -29,36 +29,38 @@ export interface Mixpanel {
 
   get_group(group_key: string, group_id: string): Group
 
-  set_group( group_key: string, group_ids: string): void
+  set_group(group_key: string, group_ids: string): void
 
   people: People
 }
 
 export interface People {
-  set(prop: {[k: string]: unknown}): void
-  set_once(prop: {[k: string]: unknown}): void
-  increment(prop: {[k: string]: unknown}): void
+  set(prop: { [k: string]: unknown }): void
+  set_once(prop: { [k: string]: unknown }): void
+  increment(prop: { [k: string]: unknown }): void
 }
 
 export interface Group {
-  set(prop: {[k: string]: unknown}): void
-  set_once(prop: {[k: string]: unknown}): void
+  set(prop: { [k: string]: unknown }): void
+  set_once(prop: { [k: string]: unknown }): void
   union(list_name: string, values: (string | number | boolean)[]): void
 }
 
 export interface Config {
-  autocapture?: {
-    pageview?: PageViewUrlConfigOption
-    click?: boolean
-    dead_click?: boolean
-    input?: boolean
-    rage_click?: boolean
-    scroll?: boolean
-    submit?: boolean
-    capture_text_content?: boolean
-  } | boolean,
+  autocapture?:
+    | {
+        pageview?: PageViewUrlConfigOption
+        click?: boolean
+        dead_click?: boolean
+        input?: boolean
+        rage_click?: boolean
+        scroll?: boolean
+        submit?: boolean
+        capture_text_content?: boolean
+      }
+    | boolean
   cross_subdomain_cookie?: boolean
-  persistence?: PersistenceOptions,
+  persistence?: PersistenceOptions
   track_marketing?: boolean
   cookie_expiration?: number
   disable_persistence?: boolean
@@ -73,5 +75,5 @@ export interface Config {
   record_max_ms?: number
   record_min_ms?: number
   record_sessions_percent?: number
+  loaded?: (instance: Mixpanel) => void
 }
-

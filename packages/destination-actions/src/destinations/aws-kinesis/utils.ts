@@ -87,6 +87,44 @@ const handleError = (error: any, statsContext: StatsContext | undefined): void =
   throw new IntegrationError(`Failed to send batch to Kinesis: ${error?.message}`, 'DEPENDENCY_ERROR', 500)
 }
 
+// Error codes documented in https://docs.aws.amazon.com/kinesis/latest/APIReference/API_PutRecordsResultEntry.html
+const ERROR_CODE_STATUS_MAP: Record<string, number> = {
+  ThrottlingException: 429,
+  LimitExceededException: 429,
+  ProvisionedThroughputExceededException: 429,
+  KMSThrottlingException: 429,
+  AccessDeniedException: 502,
+  AccessDenied: 502,
+  KMSAccessDeniedException: 403,
+  KMSOptInRequired: 403,
+  ExpiredTokenException: 511,
+  IDPRejectedClaimException: 511,
+  InvalidIdentityTokenException: 511,
+  IDPCommunicationErrorException: 503,
+  InvalidAuthorizationMessageException: 400,
+  MalformedPolicyDocumentException: 400,
+  PackedPolicyTooLargeException: 400,
+  ValidationException: 400,
+  InvalidArgumentException: 400,
+  InvalidParameter: 400,
+  RegionDisabledException: 403,
+  ResourceNotFoundException: 404,
+  KMSNotFoundException: 404,
+  ResourceInUseException: 409,
+  KMSInvalidStateException: 409,
+  InternalFailureException: 503,
+  KMSDisabledException: 503
+}
+
+const convertErrorCodeToStatus = (code?: string): number => {
+  if (!code) {
+    return 500
+  }
+
+  const normalizedCode = code.trim()
+  return ERROR_CODE_STATUS_MAP[normalizedCode] ?? 500
+}
+
 const handleMultiStatusResponse = (
   response: PutRecordsCommandOutput,
   statsContext: StatsContext | undefined,
@@ -112,9 +150,9 @@ const handleMultiStatusResponse = (
   // Add metrics for each error type
   Records?.forEach((record: any, index: number) => {
     if (record.ErrorCode) {
+      const statusCode = convertErrorCodeToStatus(record.ErrorCode)
       multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: 400,
-        errortype: record.ErrorCode,
+        status: statusCode,
         errormessage: record.ErrorMessage
       })
       const errorCode = record.ErrorCode || 'UnknownError'
