@@ -4,7 +4,7 @@ import { Settings } from '../generated-types'
 import nock from 'nock'
 import { Payload } from '../sync/generated-types'
 import { normalizationFunctions } from '../fbca-properties'
-import { Features } from '@segment/actions-core/mapping-kit'
+import { Features, PayloadValidationError } from '@segment/actions-core'
 import { API_VERSION, BASE_URL, CANARY_API_VERSION } from '../constants'
 import { processHashing } from '../../../lib/hashing-utils'
 
@@ -166,6 +166,22 @@ describe('Facebook Custom Audiences', () => {
           processHashing(payloads[1].country || '', 'sha256', 'hex', normalizationFunctions.get('country'))
         ]
       ])
+    })
+
+    it('should throw PayloadValidationError for empty values after normalization', async () => {
+      const payloads: Payload[] = [
+        {
+          externalId: '7',
+          phone: '000000', // This will normalize to an empty string
+          enable_batching: true,
+          batch_size: 10000
+        }
+      ]
+
+      expect(() => generateData(payloads)).toThrowError(
+        'Invalid value for phone. After normalization, the value is empty. Please provide a valid phone value, or omit this field entirely.'
+      )
+      expect(() => generateData(payloads)).toThrowError(PayloadValidationError)
     })
   })
 

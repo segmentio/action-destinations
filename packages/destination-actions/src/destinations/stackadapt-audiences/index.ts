@@ -16,7 +16,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'GraphQL Token',
         description: 'Your StackAdapt GQL API Token',
-        type: 'string',
+        type: 'password',
         required: true
       },
       advertiser_id: {

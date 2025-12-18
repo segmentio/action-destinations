@@ -12,190 +12,136 @@ export const STANDARD_EVENTS: StandardEventItem[] = [
   {
     key: 'ACHIEVE_LEVEL',
     ttEventName: 'AchieveLevel',
-    description: 'Achieve a level',
-    segmentEventName: 'Level Achieved',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'ADD_PAYMENT_INFO',
     ttEventName: 'AddPaymentInfo',
-    description: 'Add payment information',
-    segmentEventName: 'Payment Info Entered',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'ADD_TO_CART',
     ttEventName: 'AddToCart',
-    description: 'Add to cart',
-    segmentEventName: 'Product Added',
     productMappingType: PRODUCT_MAPPING_TYPE.SINGLE
   },
   {
     key: 'ADD_TO_WISHLIST',
     ttEventName: 'AddToWishlist',
-    description: 'Add to wishlist',
-    segmentEventName: 'Product Added to Wishlist',
     productMappingType: PRODUCT_MAPPING_TYPE.SINGLE
   },
   {
     key: 'CHECKOUT',
     ttEventName: 'Checkout',
-    description: 'Place an order',
-    segmentEventName: 'Checkout Started',
     productMappingType: PRODUCT_MAPPING_TYPE.MULTIPLE
   },
   {
     key: 'COMPLETE_TUTORIAL',
     ttEventName: 'CompleteTutorial',
-    description: 'Complete the tutorial',
-    segmentEventName: 'Tutorial Completed',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'CREATE_GROUP',
     ttEventName: 'CreateGroup',
-    description: 'Create a group',
-    segmentEventName: 'Group Created',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'CREATE_ROLE',
     ttEventName: 'CreateRole',
-    description: 'Create a role',
-    segmentEventName: 'Role Created',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'GENERATE_LEAD',
     ttEventName: 'GenerateLead',
-    description: 'Generate a lead',
-    segmentEventName: 'Lead Generated',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'IN_APP_AD_CLICK',
     ttEventName: 'InAppADClick',
-    description: 'In-app ad click',
-    segmentEventName: 'Application Ad Clicked',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'IN_APP_AD_IMPR',
     ttEventName: 'InAppADImpr',
-    description: 'In-app ad impression',
-    segmentEventName: 'Application Ad Served',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'INSTALL_APP',
     ttEventName: 'InstallApp',
-    description: 'Install the app',
-    segmentEventName: 'Application Installed',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'JOIN_GROUP',
     ttEventName: 'JoinGroup',
-    description: 'Join a group',
-    segmentEventName: 'Group Joined',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'LAUNCH_APP',
     ttEventName: 'LaunchAPP',
-    description: 'Launch the app',
-    segmentEventName: 'Application Opened',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'LOAN_APPLICATION',
     ttEventName: 'LoanApplication',
-    description: 'Apply for a loan',
-    segmentEventName: 'Loan Application Submitted',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'LOAN_APPROVAL',
     ttEventName: 'LoanApproval',
-    description: 'Loan is approved',
-    segmentEventName: 'Loan Approved',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'LOAN_DISBURSAL',
     ttEventName: 'LoanDisbursal',
-    description: 'Loan is disbursed',
-    segmentEventName: 'Loan Disbursed',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'LOGIN',
     ttEventName: 'Login',
-    description: 'Log in successfully',
-    segmentEventName: 'Signed In',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'PURCHASE',
     ttEventName: 'Purchase',
-    description: 'Complete payment',
-    segmentEventName: 'Order Completed',
     productMappingType: PRODUCT_MAPPING_TYPE.MULTIPLE
   },
   {
     key: 'RATE',
     ttEventName: 'Rate',
-    description: 'Rate',
-    segmentEventName: 'Rating Completed',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'REGISTRATION',
     ttEventName: 'Registration',
-    description: 'Complete the registration',
-    segmentEventName: 'Signed Up',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'SEARCH',
     ttEventName: 'Search',
-    description: 'Search',
-    segmentEventName: 'Products Searched',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'SPEND_CREDITS',
     ttEventName: 'SpendCredits',
-    description: 'Spend credits',
-    segmentEventName: 'Credits Spent',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'START_TRIAL',
     ttEventName: 'StartTrial',
-    description: 'Start the trial',
-    segmentEventName: 'Trial Started',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'SUBSCRIBE',
     ttEventName: 'Subscribe',
-    description: 'Subscribe',
-    segmentEventName: 'User Subscribed',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'UNLOCK_ACHIEVEMENT',
     ttEventName: 'UnlockAchievement',
-    description: 'Unlock an achievement',
-    segmentEventName: 'Achievement Unlocked',
     productMappingType: PRODUCT_MAPPING_TYPE.NONE
   },
   {
     key: 'VIEW_CONTENT',
     ttEventName: 'ViewContent',
-    description: 'View details',
-    segmentEventName: 'Product Viewed',
     productMappingType: PRODUCT_MAPPING_TYPE.SINGLE
   }
 ] as const
@@ -225,7 +171,11 @@ export const common_fields: Record<string, InputField> = {
     type: 'string',
     required: true,
     description:
-      'Conversion event name. Please refer to the "App Standard Events" section on in TikTok’s [Supported events documentation](https://business-api.tiktok.com/portal/docs?id=1771101186666498) for accepted event names.'
+      'Conversion event name. Please refer to the "App Standard Events" section on in TikTok’s [Supported events documentation](https://business-api.tiktok.com/portal/docs?id=1771101186666498) for accepted event names.',
+    choices: STANDARD_EVENTS.map((event) => ({
+      label: event.ttEventName,
+      value: event.ttEventName
+    }))
   },
   event_id: {
     label: 'Event ID',

@@ -15,7 +15,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Your Yonoma API key.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

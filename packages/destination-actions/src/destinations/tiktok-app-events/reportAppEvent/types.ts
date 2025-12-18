@@ -75,7 +75,5 @@ export type ProductMappingType = typeof PRODUCT_MAPPING_TYPE[keyof typeof PRODUC
 export interface StandardEventItem {
   key: string
   ttEventName: string
-  description: string
-  segmentEventName: string
   productMappingType: ProductMappingType
 }

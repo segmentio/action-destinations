@@ -1,7 +1,6 @@
 import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import reportAppEvent from './reportAppEvent'
-import { STANDARD_EVENTS, PRODUCT_MAPPING_TYPE } from './reportAppEvent/fields/common_fields'
 
 export const productProperties = {
   price: {
@@ -71,17 +70,17 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (_) => {
-      // // Return a request that tests/validates the user's credentials.
-      // // Send a blank event to events API.
-      // return request('https://business-api.tiktok.com/open_api/v1.3/pixel/track/', {
-      //   method: 'post',
-      //   json: {
-      //     event: 'Test Event',
-      //     timestamp: '',
-      //     context: {}
-      //   }
-      // })
+    testAuthentication: (request, { settings }) => {
+      // Return a request that tests/validates the user's credentials.
+      // Send a blank event to events API.
+      return request('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
+        method: 'post',
+        json: {
+          event_source: 'app',
+          event_source_id: settings.appID,
+          data: []
+        }
+      })
     }
   },
   extendRequest({ settings }) {
@@ -92,21 +91,118 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  presets: STANDARD_EVENTS.map(({ segmentEventName, productMappingType, ttEventName, description }) => ({
-    type: 'automatic',
-    partnerAction: 'reportAppEvent',
-    name: description,
-    subscribe: `event = "${segmentEventName}"`,
-    mapping: {
-      ...defaultValues(reportAppEvent.fields),
-      event: ttEventName,
-      ...(productMappingType === PRODUCT_MAPPING_TYPE.SINGLE
-        ? singleProductContents
-        : productMappingType === PRODUCT_MAPPING_TYPE.MULTIPLE
-        ? multiProductContents
-        : {})
+  presets: [
+    {
+      name: 'Complete payment',
+      subscribe: 'event = "Order Completed"',
+      partnerAction: 'reportAppEvent',
+      mapping: {
+        ...multiProductContents,
+        event: 'Purchase'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Add payment information',
+      subscribe: 'event = "Payment Info Entered"',
+      partnerAction: 'reportAppEvent',
+      mapping: {
+        ...multiProductContents,
+        event: 'AddPaymentInfo'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Place an order',
+      subscribe: 'event = "Checkout Started"',
+      partnerAction: 'reportAppEvent',
+      mapping: {
+        ...multiProductContents,
+        event: 'Checkout'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Search',
+      subscribe: 'event = "Products Searched"',
+      partnerAction: 'reportAppEvent',
+      mapping: {
+        ...defaultValues(reportAppEvent.fields),
+        event: 'Search'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'View details',
+      subscribe: 'event = "Product Viewed"',
+      partnerAction: 'reportAppEvent',
+      mapping: {
+        ...singleProductContents,
+        event: 'ViewContent'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Add to cart',
+      subscribe: 'event = "Product Added"',
+      partnerAction: 'reportAppEvent',
+      mapping: {
+        ...singleProductContents,
+        event: 'AddToCart'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Add to wishlist',
+      subscribe: 'event = "Product Added to Wishlist"',
+      partnerAction: 'reportAppEvent',
+      mapping: {
+        ...singleProductContents,
+        event: 'AddToWishlist'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Install the app',
+      subscribe: 'event = "Application Installed"',
+      partnerAction: 'reportAppEvent',
+      mapping: {
+        ...defaultValues(reportAppEvent.fields),
+        event: 'InstallApp'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Launch the app',
+      subscribe: 'event = "Application Opened"',
+      partnerAction: 'reportAppEvent',
+      mapping: {
+        ...defaultValues(reportAppEvent.fields),
+        event: 'LaunchAPP'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Log in successfully',
+      subscribe: 'event = "Signed In"',
+      partnerAction: 'reportAppEvent',
+      mapping: {
+        ...defaultValues(reportAppEvent.fields),
+        event: 'Login'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Complete the registration',
+      subscribe: 'event = "Signed Up"',
+      partnerAction: 'reportAppEvent',
+      mapping: {
+        ...defaultValues(reportAppEvent.fields),
+        event: 'Registration'
+      },
+      type: 'automatic'
     }
-  })),
+  ],
   actions: {
     reportAppEvent
   }
