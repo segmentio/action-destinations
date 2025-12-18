@@ -82,10 +82,6 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * TODO: description in docs ambiguous.
-   */
-  type?: string[]
-  /**
    * If true, Segment will batch events before sending to Braze’s user track endpoint.
    */
   enable_batching: boolean
