@@ -26,7 +26,7 @@ export interface EcommerceEvents {
 
 export type EcommerceEvent =
     | ProductViewedEvent
-    | CartUpdatedEvent
+    // | CartUpdatedEvent
     | CheckoutStartedEvent
     | OrderPlacedEvent
     | OrderRefundedEvent
