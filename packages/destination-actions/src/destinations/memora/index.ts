@@ -47,7 +47,7 @@ const destination: DestinationDefinition<Settings> = {
       try {
         const baseUrl = normalizeBaseUrl(settings.url)
         // Simple request to validate base URL is accessible
-        await request(`${baseUrl}/${API_VERSION}/ControlPlane/Services?pageSize=1`, {
+        await request(`${baseUrl}/${API_VERSION}/ControlPlane/Stores?pageSize=1`, {
           method: 'GET',
           headers: {
             ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
