@@ -6,6 +6,7 @@ import { Region } from './types'
 import { defaultValues, InvalidAuthenticationError } from '@segment/actions-core'
 import { getAuthToken } from './utils'
 import trackConversion from './trackConversion'
+import { AMAZON_CONVERSIONS_API_PROFILES_VERSION } from './versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Amazon Conversions Api',
@@ -40,13 +41,16 @@ const destination: DestinationDefinition<Settings> = {
         throw new InvalidAuthenticationError('Please authenticate via Oauth before enabling the destination.')
       }
 
-      return await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 2500
-      })
+      return await request<RefreshTokenResponse>(
+        `${settings.region}/${AMAZON_CONVERSIONS_API_PROFILES_VERSION}/profiles`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 2500
+        }
+      )
     },
     refreshAccessToken: async (request, { auth }) => {
       const authToken = await getAuthToken(request, auth)
@@ -181,7 +185,7 @@ const destination: DestinationDefinition<Settings> = {
         eventType: 'OTHER'
       },
       type: 'automatic'
-    },
+    }
   ],
   actions: {
     trackConversion
