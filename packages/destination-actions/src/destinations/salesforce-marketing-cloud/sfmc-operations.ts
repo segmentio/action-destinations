@@ -74,7 +74,9 @@ export async function asyncUpsertRowsV2(
       json: { items: rows }
     }
   )
-  console.log('Async Upsert Response:', response)
+  console.log('Async Upsert Response:', JSON.stringify(response.data, null, 2))
+  console.log('Batch Size:', rows.length)
+  console.log('Request ID:', response?.data?.requestId)
   return response
 }
 
