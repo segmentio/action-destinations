@@ -124,15 +124,15 @@ const action: ActionDefinition<Settings, Payload> = {
       return fetchMemoryStores(request, settings)
     },
     contact: {
-      __keys__: async (request, { settings }) => {
-        return fetchTraitFields(request, settings, 'Contact')
+      __keys__: async (request, { settings, payload }) => {
+        return fetchTraitFields(request, settings, payload, 'Contact')
       }
     }
   },
   perform: async (request, { payload, settings }) => {
     // Single profile sync using the bulk API with a single profile payload
-    const serviceId = payload.memora_store
-    if (!serviceId) {
+    const storeId = payload.memora_store
+    if (!storeId) {
       throw new IntegrationError('Memora Store is required', 'MISSING_REQUIRED_FIELD', 400)
     }
 
@@ -144,7 +144,7 @@ const action: ActionDefinition<Settings, Payload> = {
     try {
       const baseUrl = normalizeBaseUrl(settings.url)
 
-      const response = await request(`${baseUrl}/${API_VERSION}/Services/${serviceId}/Profiles/Bulk`, {
+      const response = await request(`${baseUrl}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -175,8 +175,8 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, { payload: payloads, settings }) => {
-    const serviceId = payloads[0]?.memora_store
-    if (!serviceId) {
+    const storeId = payloads[0]?.memora_store
+    if (!storeId) {
       throw new IntegrationError('Memora Store is required', 'MISSING_REQUIRED_FIELD', 400)
     }
 
@@ -204,7 +204,7 @@ const action: ActionDefinition<Settings, Payload> = {
     try {
       const baseUrl = normalizeBaseUrl(settings.url)
 
-      const response = await request(`${baseUrl}/${API_VERSION}/Services/${serviceId}/Profiles/Bulk`, {
+      const response = await request(`${baseUrl}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -344,11 +344,6 @@ function handleMemoraApiError(error: unknown): never {
   throw new RetryableError(httpError.message || 'Network error occurred')
 }
 
-interface TraitField {
-  name?: string
-  key?: string
-}
-
 interface MemoryStoresResponse {
   services?: string[]
   meta?: {
@@ -368,7 +363,7 @@ async function fetchMemoryStores(
 
     // Call the Control Plane API to list memory stores
     const response = await request<MemoryStoresResponse>(
-      `${baseUrl}/${API_VERSION}/ControlPlane/Services?pageSize=100&orderBy=ASC`,
+      `${baseUrl}/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`,
       {
         method: 'GET',
         headers: {
@@ -403,35 +398,56 @@ async function fetchMemoryStores(
 async function fetchTraitFields(
   request: ReturnType<typeof import('@segment/actions-core').createRequestClient>,
   settings: Settings,
+  payload: Payload,
   traitGroup: string
 ) {
   try {
     const baseUrl = normalizeBaseUrl(settings.url)
+    const storeId = payload.memora_store
 
-    // Use a sample profile to fetch trait schema - in production, you might want to query
-    // Use a sample profile to fetch trait schema - in production, you might want to query
-    // a specific profile or use a metadata endpoint if available
-    // Note: This dynamic field requires a serviceId but we don't have it at field definition time
-    // This function may not work properly without passing serviceId from payload context
-    const response = await request<{ traits?: TraitField[]; meta?: { nextPageToken?: string } }>(
-      `${baseUrl}/${API_VERSION}/Services/PLACEHOLDER/Profiles/traits-schema?traitGroups=${traitGroup}`,
-      {
-        method: 'GET',
-        headers: {
-          ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
-        },
-        skipResponseCloning: true
+    // If memora_store is not yet selected in the mapping, return helpful error
+    if (!storeId) {
+      return {
+        choices: [],
+        error: {
+          message: `Please select a Memora Store first to fetch available ${traitGroup} trait fields.`,
+          code: 'STORE_ID_REQUIRED'
+        }
       }
-    )
-    const traits = response?.data?.traits || []
-    const choices = traits.map((trait: TraitField) => ({
-      label: trait.name || trait.key || '',
-      value: trait.key || trait.name || ''
+    }
+
+    // API endpoint: GET /ControlPlane/Stores/{storeId}/TraitGroups/{traitGroupName}
+    const response = await request<{
+      traitGroup?: {
+        traits?: Array<{
+          name: string
+          key: string
+          dataType?: string
+        }>
+      }
+      meta?: { pageToken?: string }
+    }>(`${baseUrl}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/${traitGroup}`, {
+      method: 'GET',
+      headers: {
+        ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
+      },
+      searchParams: {
+        includeTraits: 'true',
+        pageSize: '100',
+        orderBy: 'ASC'
+      },
+      skipResponseCloning: true
+    })
+
+    const traits = response?.data?.traitGroup?.traits || []
+    const choices = traits.map((trait) => ({
+      label: trait.name || trait.key,
+      value: trait.key
     }))
 
     return {
       choices,
-      nextPage: response?.data?.meta?.nextPageToken
+      nextPage: response?.data?.meta?.pageToken
     }
   } catch (error) {
     // Return empty choices if the API call fails
