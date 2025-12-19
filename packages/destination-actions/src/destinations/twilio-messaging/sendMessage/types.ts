@@ -1,18 +1,23 @@
-import { PREDEFINED_CONTENT_TYPES, CHANNELS } from './constants'
+import { PREDEFINED_CONTENT_TYPES, CHANNELS, SENDER_TYPE } from './constants'
 
 export type TwilioPayload = {
   To: string
-  SendAt?: string
   ValidityPeriod?: number
   MediaUrl?: string[]
   Tags?: string
 } & Sender &
   Content
 
+export type Schedule = {
+  SendAt: string // iso8601 timestamp
+  ScheduleType: 'fixed'
+}
+
 export type Sender = FromPhone | FromMessagingService
 
 type FromMessagingService = {
   MessagingServiceSid: string
+  Schedule?: Schedule
 }
 
 type FromPhone = {
@@ -44,3 +49,5 @@ export type PredefinedContentTypeItem = {
 }
 
 export type ContentTypeName = typeof PREDEFINED_CONTENT_TYPES[keyof typeof PREDEFINED_CONTENT_TYPES]['name']
+
+export type SenderType = typeof SENDER_TYPE[keyof typeof SENDER_TYPE]

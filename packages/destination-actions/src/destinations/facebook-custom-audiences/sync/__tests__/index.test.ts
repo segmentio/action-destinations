@@ -6,7 +6,7 @@ import { normalizationFunctions } from '../../fbca-properties'
 import { BASE_URL, CANARY_API_VERSION, API_VERSION } from '../../constants'
 import { processHashing } from '../../../../lib/hashing-utils'
 
-const testDestination = createTestIntegration(Destination)
+let testDestination = createTestIntegration(Destination)
 const auth = {
   accessToken: '123',
   refreshToken: '321'
@@ -14,6 +14,9 @@ const auth = {
 const EMPTY = ''
 
 describe('FacebookCustomAudiences.sync', () => {
+  beforeEach(() => {
+    testDestination = createTestIntegration(Destination)
+  })
   describe('RETL', () => {
     const retlSettings = {
       retlAdAccountId: '123'
@@ -219,6 +222,48 @@ describe('FacebookCustomAudiences.sync', () => {
     })
 
     it.skip('should delete a single user', async () => {})
+
+    it('should handle Facebook API error for flagged audiences without throwing 500', async () => {
+      // https://developers.facebook.com/docs/marketing-api/reference/custom-audience/#flagged
+      const facebookError = {
+        error: {
+          message: 'Invalid parameter',
+          code: 100,
+          error_subcode: 1713231,
+          error_user_title: 'Update Restricted Fields and Rule',
+          error_user_msg:
+            'This custom audience has integrity restrictions. To continue, you must update the restricted fields and the rule in your current edit'
+        }
+      }
+
+      nock(`${BASE_URL}/${CANARY_API_VERSION}`).post(`/${hookOutputs.audienceId}/users`).reply(400, facebookError)
+
+      await expect(
+        testDestination.testAction('sync', {
+          event,
+          settings: retlSettings,
+          auth,
+          features: { 'facebook-custom-audience-actions-canary-version': true },
+          mapping: {
+            __segment_internal_sync_mode: 'upsert',
+            email: { '@path': '$.properties.email' },
+            phone: { '@path': '$.properties.phone' },
+            externalId: { '@path': '$.properties.id' },
+            retlOnMappingSave: {
+              inputs: {},
+              outputs: hookOutputs
+            },
+            enable_batching: true,
+            batch_size: 10000
+          }
+        })
+      ).rejects.toMatchObject({
+        response: {
+          status: 400,
+          data: facebookError
+        }
+      })
+    })
   })
 
   describe('Engage', () => {
@@ -345,6 +390,50 @@ describe('FacebookCustomAudiences.sync', () => {
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"payload\\":{\\"schema\\":[\\"EXTERN_ID\\",\\"EMAIL\\",\\"PHONE\\",\\"GEN\\",\\"DOBY\\",\\"DOBM\\",\\"DOBD\\",\\"LN\\",\\"FN\\",\\"FI\\",\\"CT\\",\\"ST\\",\\"ZIP\\",\\"MADID\\",\\"COUNTRY\\"],\\"data\\":[[\\"1234\\",\\"816341caf0c06dbc4c156d3465323f52b3cb62533241d5f9247c008f657e8343\\",\\"a5ad7e6d5225ad00c5f05ddb6bb3b1597a843cc92f6cf188490ffcb88a1ef4ef\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"1a6bd4d9d79dc0a79b53795c70d3349fa9e38968a3fbefbfe8783efb1d2b6aac\\",\\"6959097001d10501ac7d54c0bdb8db61420f658f2922cc26e46d536119a31126\\",\\"ad16c1a6866c5887c5b59c1803cb1fc09769f1b403b6f1d9d0f10ad6ab4d5d50\\",\\"2024\\",\\"79adb2a2fce5c6ba215fe5f27f532d4e7edbac4b6a5e09e1ef3a08084a904621\\"]],\\"app_ids\\":[\\"2024\\"]}}"`
       )
+    })
+
+    it('should handle Facebook API error for flagged audience without throwing 500', async () => {
+      // https://developers.facebook.com/docs/marketing-api/reference/custom-audience/#flagged
+      const facebookError = {
+        error: {
+          message: 'Invalid parameter',
+          code: 100,
+          error_subcode: 1713231,
+          error_user_title: 'Update Restricted Fields and Rule',
+          error_user_msg:
+            'This custom audience has integrity restrictions. To continue, you must update the restricted fields and the rule in your current edit'
+        }
+      }
+
+      nock(`${BASE_URL}/${API_VERSION}`)
+        .post(`/${event.context?.personas.external_audience_id}/users`)
+        .reply(400, facebookError)
+
+      await expect(
+        testDestination.testAction('sync', {
+          event,
+          settings: audienceSettings,
+          auth,
+          mapping: {
+            __segment_internal_sync_mode: 'upsert',
+            email: { '@path': '$.properties.email' },
+            phone: { '@path': '$.properties.phone' },
+            externalId: { '@path': '$.properties.id' },
+            external_audience_id: '1234',
+            retlOnMappingSave: {
+              inputs: {},
+              outputs: {}
+            },
+            enable_batching: true,
+            batch_size: 10000
+          }
+        })
+      ).rejects.toMatchObject({
+        response: {
+          status: 400,
+          data: facebookError
+        }
+      })
     })
   })
 })

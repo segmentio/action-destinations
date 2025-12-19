@@ -13,7 +13,11 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
@@ -26,6 +30,101 @@ describe('Amplitude', () => {
             country: 'United States'
           })
         ])
+      })
+    })
+
+    it('should work with library2.behavior and platform.behavior fields set to use_mapping', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      event.context = event.context || {}
+      event.context.library = { name: 'custom-library-name', version: '1.0.0'}
+      event.context.device = event.context.device || {}
+      event.context.device.type = 'custom-device-type'
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const mapping = {
+        library2: {
+          behavior: 'use_mapping',
+          mapping: { '@path': '$.context.library.name' }
+        }
+      }
+
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toEqual({
+        api_key: undefined,
+        events: [
+          {
+            city: "San Francisco",
+            country: "United States",
+            device_id: "anonId1234",
+            device_manufacturer: "Apple",
+            device_model: "iPhone",
+            device_type: "mobile",
+            event_properties: {},
+            event_type: "Test Event",
+            ip: "8.8.8.8",
+            language: "en-US",
+            library: "custom-library-name",
+            location_lat: 40.2964197,
+            location_lng: -76.9411617,
+            os_name: "iOS",
+            os_version: "9",
+            platform: "custom-device-type",
+            time: 1629213675449,
+            use_batch_endpoint: false,
+            user_id: "user1234",
+            user_properties: {}
+          }
+        ],
+        options: undefined
+      })
+    })
+
+    it('should work with platform.behavior field not set', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      event.context = event.context || {}
+      event.context.library = { name: 'custom-library-name', version: '1.0.0'}
+      event.context.device = event.context.device || {}
+      event.context.device.type = 'ios'
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toEqual({
+        api_key: undefined,
+        events: [
+          {
+            city: "San Francisco",
+            country: "United States",
+            device_id: "anonId1234",
+            device_manufacturer: "Apple",
+            device_model: "iPhone",
+            device_type: "mobile",
+            event_properties: {},
+            event_type: "Test Event",
+            ip: "8.8.8.8",
+            language: "en-US",
+            library: "custom-library-name",
+            location_lat: 40.2964197,
+            location_lng: -76.9411617,
+            os_name: "iOS",
+            os_version: "9",
+            platform: "iOS",
+            time: 1629213675449,
+            use_batch_endpoint: false,
+            user_id: "user1234",
+            user_properties: {}
+          }
+        ],
+        options: undefined
       })
     })
 
@@ -173,7 +272,10 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toMatchObject({
@@ -367,7 +469,8 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
@@ -414,7 +517,10 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -468,7 +574,10 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -583,9 +692,12 @@ describe('Amplitude', () => {
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
         }
       })
+      
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
+
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
@@ -633,7 +745,8 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        trackRevenuePerProduct: true
+        trackRevenuePerProduct: true,
+        library2: {}
       }
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
@@ -690,7 +803,8 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        trackRevenuePerProduct: true
+        trackRevenuePerProduct: true,
+        library2: {}
       }
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
@@ -744,7 +858,8 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        trackRevenuePerProduct: true
+        trackRevenuePerProduct: true,
+        library2: {}
       }
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
@@ -842,6 +957,101 @@ describe('Amplitude', () => {
       })
     })
 
+    it('should work with library2.behavior and platform.behavior fields set to use_mapping', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      event.context = event.context || {}
+      event.context.library = { name: 'custom-library-name', version: '1.0.0'}
+      event.context.device = event.context.device || {}
+      event.context.device.type = 'custom-device-type'
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const mapping = {
+        library2: {
+          behavior: 'use_mapping',
+          mapping: { '@path': '$.context.library.name' }
+        }
+      }
+
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toEqual({
+        api_key: undefined,
+        events: [
+          {
+            city: "San Francisco",
+            country: "United States",
+            device_id: "anonId1234",
+            device_manufacturer: "Apple",
+            device_model: "iPhone",
+            device_type: "mobile",
+            event_properties: {},
+            event_type: "Test Event",
+            ip: "8.8.8.8",
+            language: "en-US",
+            library: "custom-library-name",
+            location_lat: 40.2964197,
+            location_lng: -76.9411617,
+            os_name: "iOS",
+            os_version: "9",
+            platform: "custom-device-type",
+            time: 1629213675449,
+            use_batch_endpoint: false,
+            user_id: "user1234",
+            user_properties: {}
+          }
+        ],
+        options: undefined
+      })
+    })
+
+    it('should work with platform.behavior field not set', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      event.context = event.context || {}
+      event.context.library = { name: 'custom-library-name', version: '1.0.0'}
+      event.context.device = event.context.device || {}
+      event.context.device.type = 'ios'
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toEqual({
+        api_key: undefined,
+        events: [
+          {
+            city: "San Francisco",
+            country: "United States",
+            device_id: "anonId1234",
+            device_manufacturer: "Apple",
+            device_model: "iPhone",
+            device_type: "mobile",
+            event_properties: {},
+            event_type: "Test Event",
+            ip: "8.8.8.8",
+            language: "en-US",
+            library: "custom-library-name",
+            location_lat: 40.2964197,
+            location_lng: -76.9411617,
+            os_name: "iOS",
+            os_version: "9",
+            platform: "iOS",
+            time: 1629213675449,
+            use_batch_endpoint: false,
+            user_id: "user1234",
+            user_properties: {}
+          }
+        ],
+        options: undefined
+      })
+    })
+
     it('should change casing for device type when value is ios', async () => {
       const event = createTestEvent({
         event: 'Test Event',
@@ -929,8 +1139,11 @@ describe('Amplitude', () => {
       })
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
-
-      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+      
+      const mapping = {
+        library2: {}
+      }
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toMatchObject({
@@ -961,7 +1174,8 @@ describe('Amplitude', () => {
       const mapping = {
         revenue: {
           '@path': '$.properties.bitcoin_rev'
-        }
+        },
+        library2: {}
       }
 
       const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
@@ -1074,7 +1288,8 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
@@ -1120,8 +1335,10 @@ describe('Amplitude', () => {
       })
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
-
-      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -1175,7 +1392,11 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -1291,7 +1512,8 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
@@ -1343,6 +1565,101 @@ describe('Amplitude', () => {
             country: 'United States'
           })
         ])
+      })
+    })
+
+    it('should work with library2.behavior and platform.behavior fields set to use_mapping', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      event.context = event.context || {}
+      event.context.library = { name: 'custom-library-name', version: '1.0.0'}
+      event.context.device = event.context.device || {}
+      event.context.device.type = 'custom-device-type'
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const mapping = {
+        library2: {
+          behavior: 'use_mapping',
+          mapping: { '@path': '$.context.library.name' }
+        }
+      }
+
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toEqual({
+        api_key: undefined,
+        events: [
+          {
+            city: "San Francisco",
+            country: "United States",
+            device_id: "anonId1234",
+            device_manufacturer: "Apple",
+            device_model: "iPhone",
+            device_type: "mobile",
+            event_properties: {},
+            event_type: "Test Event",
+            ip: "8.8.8.8",
+            language: "en-US",
+            library: "custom-library-name",
+            location_lat: 40.2964197,
+            location_lng: -76.9411617,
+            os_name: "iOS",
+            os_version: "9",
+            platform: "custom-device-type",
+            time: 1629213675449,
+            use_batch_endpoint: false,
+            user_id: "user1234",
+            user_properties: {}
+          }
+        ],
+        options: undefined
+      })
+    })
+
+    it('should work with platform.behavior field not set', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      event.context = event.context || {}
+      event.context.library = { name: 'custom-library-name', version: '1.0.0'}
+      event.context.device = event.context.device || {}
+      event.context.device.type = 'ios'
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toEqual({
+        api_key: undefined,
+        events: [
+          {
+            city: "San Francisco",
+            country: "United States",
+            device_id: "anonId1234",
+            device_manufacturer: "Apple",
+            device_model: "iPhone",
+            device_type: "mobile",
+            event_properties: {},
+            event_type: "Test Event",
+            ip: "8.8.8.8",
+            language: "en-US",
+            library: "custom-library-name",
+            location_lat: 40.2964197,
+            location_lng: -76.9411617,
+            os_name: "iOS",
+            os_version: "9",
+            platform: "iOS",
+            time: 1629213675449,
+            use_batch_endpoint: false,
+            user_id: "user1234",
+            user_properties: {}
+          }
+        ],
+        options: undefined
       })
     })
 
@@ -1434,7 +1751,11 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toMatchObject({
@@ -1465,7 +1786,8 @@ describe('Amplitude', () => {
       const mapping = {
         revenue: {
           '@path': '$.properties.bitcoin_rev'
-        }
+        },
+        library2: {}
       }
 
       const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
@@ -1578,7 +1900,8 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
@@ -1625,8 +1948,11 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
 
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
@@ -1679,7 +2005,10 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -1892,7 +2221,8 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
@@ -1938,7 +2268,8 @@ describe('Amplitude', () => {
       }
     })
     const mapping = {
-      userAgentParsing: false
+      userAgentParsing: false,
+      library2: {}
     }
     nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
     const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
@@ -2062,7 +2393,8 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
 
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
@@ -2203,7 +2535,8 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
 
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})

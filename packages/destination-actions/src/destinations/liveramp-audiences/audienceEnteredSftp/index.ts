@@ -142,11 +142,12 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     // -----------
     const shouldEnableCompression = input.features && input.features[LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME] === true
 
-    return sendEventToAWS(input.request, {
+    return sendEventToAWS({
       audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
       uploadType: 'sftp',
       filename,
       fileContents,
+      rowCount: input.payloads.length,
       destinationInstanceID: subscriptionMetadata?.destinationConfigId,
       subscriptionId: subscriptionMetadata?.actionConfigId,
       gzipCompressFile: shouldEnableCompression,

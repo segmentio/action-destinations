@@ -21,7 +21,7 @@ const destination: DestinationDefinition<Settings> = {
       source_write_key: {
         label: 'Source Write Key',
         description: 'The **Write Key** of a Segment source.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

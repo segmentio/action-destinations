@@ -182,6 +182,7 @@ const action: ActionDefinition<Settings, Payload> = {
       referrer,
       min_id_length,
       library,
+      library2,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
@@ -194,7 +195,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (library === 'analytics.js' && !properties.platform) {
       properties.platform = 'Web'
     }
-
+   
     if (time && dayjs.utc(time).isValid()) {
       properties.time = dayjs.utc(time).valueOf()
     }
@@ -222,7 +223,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ...(includeRawUserAgent && { user_agent: userAgent }),
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
-        library: 'segment'
+        library: library2?.behavior === 'use_mapping' ? library2.mapping : 'segment'
       }
     ]
 
