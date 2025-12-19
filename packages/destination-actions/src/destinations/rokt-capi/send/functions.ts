@@ -3,6 +3,7 @@ import { Payload } from './generated-types'
 import { URL, BATCH_URL } from './constants'
 import { Primitive, JSON, AudienceJSON, EventJSON } from './types'
 import { isAlreadyHashed, processHashing } from '../../../lib/hashing-utils'
+import { PayloadValidationError } from '@segment/actions-core/*'
 
 export async function send(request: RequestClient, payload: Payload[], isBatch = false) {  
     const url = isBatch ? BATCH_URL : URL
@@ -12,6 +13,9 @@ export async function send(request: RequestClient, payload: Payload[], isBatch =
     const json: JSON[] = payload.reduce<JSON[]>((acc, p, index) => {
         const error = validate(p)
         if(error) {
+            if(!isBatch){
+                throw new PayloadValidationError(error)
+            }
             msResponse.setErrorResponseAtIndex(index, {
                 status: 400,
                 errortype: 'PAYLOAD_VALIDATION_FAILED',
