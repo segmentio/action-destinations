@@ -1,4 +1,4 @@
-import { RequestClient, MultiStatusResponse } from '@segment/actions-core'
+import { RequestClient, MultiStatusResponse, JSONLikeObject } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { URL, BATCH_URL } from './constants'
 import { Primitive, JSON, AudienceJSON, EventJSON } from './types'
@@ -7,12 +7,63 @@ import { isAlreadyHashed, processHashing } from '../../../lib/hashing-utils'
 export async function send(request: RequestClient, payload: Payload[], isBatch = false) {  
     const url = isBatch ? BATCH_URL : URL
     const msResponse = new MultiStatusResponse()
+    const indexToJsonItem: Record<number, JSON> = {}
+    
+    const json: JSON[] = payload.reduce<JSON[]>((acc, p, index) => {
+        const error = validate(p)
+        if(error) {
+            msResponse.setErrorResponseAtIndex(index, {
+                status: 400,
+                errortype: 'PAYLOAD_VALIDATION_FAILED',
+                errormessage: error,
+                sent: payload as unknown as JSONLikeObject
+            })
+        } 
+        else {
+            const jsonItem = buildJSONItem(p)
+            indexToJsonItem[index] = jsonItem
+            msResponse.setSuccessResponseAtIndex(index, {
+                status: 200,
+                sent: jsonItem as unknown as JSONLikeObject,
+                body: JSON.stringify(p)
+            })
+            acc.push(jsonItem)
+        }
+        return acc
+    }, [])
 
-    const json = buildJSON(payload, isBatch, msResponse)
-}
+    if(json.length > 0) {
+        try {
+            await request(url, {
+                method: 'POST',
+                json: isBatch ? json : json[0],
+                throwHttpErrors: false,
+                headers: {'Content-Type': 'application/json'}
+            })
+            if(isBatch) {
+                return msResponse
+            } 
+        } 
+        catch(error) {
+            if(!isBatch) {
+                throw error
+            }
+            payload.forEach((p, index) => {
+                if(msResponse.isErrorResponseAtIndex(index)) {
+                    msResponse.setErrorResponseAtIndex(index, {
+                        status: error.response.status,
+                        errormessage: error.message,
+                        sent: indexToJsonItem[index] as unknown as JSONLikeObject || {},
+                        body: JSON.stringify(p)
+                    })
+                }
+            })
+        }
+    }
 
-function buildJSON(payload: Payload[], isBatch: boolean, msResponse: MultiStatusResponse): JSON[] {
-    return payload.map(buildJSONItem)
+    if (isBatch) { 
+        return msResponse 
+    }
 }
 
 function validate(payload: Payload): string | undefined {
