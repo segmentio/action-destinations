@@ -36,9 +36,7 @@ export async function send(request: RequestClient, payload: Payload[], isBatch =
         try {
             await request(url, {
                 method: 'POST',
-                json: isBatch ? json : json[0],
-                throwHttpErrors: false,
-                headers: {'Content-Type': 'application/json'}
+                json: isBatch ? json : json[0]
             })
             if(isBatch) {
                 return msResponse
