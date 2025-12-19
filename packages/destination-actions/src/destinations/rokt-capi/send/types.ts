@@ -1,4 +1,4 @@
-
+export type Primitive = string | number | boolean
 export interface JSON {
     environment: 'production',
     device_info: {
@@ -30,38 +30,37 @@ export interface JSON {
             passbackconversiontrackingid: string // rcid - this is the Rokt Click ID from the browser
         }
     },
-    events: [ // can contain up to 100
-        {
-            // Send an item like this for an audience update
-            data: {
-                event_name: "audiencemembershipupdate", // for audience only
-                custom_event_type: "transaction", // always transaction 
-                source_message_id: string, // maps to Segment messageId
-                timestamp_unixtime_ms: number, // 13 char unix timestamp in milliseconds
-                custom_attributes: {
-                    audiencename: string, // name of the audience
-                    audiencemembership: boolean
-                }
-            }
-            event_type: "custom_event"
-        },
-        {
-            data: {
-                // Send an item like this for a regular conversion event
-                event_name: "conversion", // always the word conversion
-                custom_event_type: "transaction", // always transaction 
-                source_message_id: string, // maps to Segment messageId
-                timestamp_unixtime_ms: number, // 13 char unix timestamp in milliseconds
-                custom_attributes: {
-                    conversiontype: string, // Segment event name. e.g. "Order Completed"
-                    confirmationref: string, // Unique ID for the conversion. Ideally an order id.
-                    amount?: number,
-                    currency?: string // 3 letter ISO currency code
-                    [key: string]: unknown // simple types. No arrays. No objects 
-                }
-            },
-            event_type: "custom_event"
-        }
-    ],
+    events?: (AudienceJSON | EventJSON)[];
     ip?: string
+}
+
+interface BaseEvent {
+    event_type: "custom_event"
+    data: {
+        custom_event_type: "transaction";
+        source_message_id: string;
+        timestamp_unixtime_ms: number; // 13-digit Unix timestamp (ms)
+    }
+}
+
+export interface AudienceJSON extends BaseEvent {
+    data: BaseEvent["data"] & {
+        event_name: "audiencemembershipupdate";
+        custom_attributes: {
+            [audienceName: string]: boolean // audience name → membership flag
+        }
+    }
+}
+
+export interface EventJSON extends BaseEvent {
+    data: BaseEvent["data"] & {
+        event_name: "conversion"
+        custom_attributes: {
+            conversiontype: string     // e.g. "Order Completed"
+            confirmationref: string    // unique conversion ID (e.g. order ID)
+            amount?: number
+            currency?: string          // ISO 4217 (3-letter)
+            [key: string]: unknown     // simple scalar values only
+        };
+    };
 }

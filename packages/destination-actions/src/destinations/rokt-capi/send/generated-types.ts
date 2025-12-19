@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * Details about the event to be sent to Rokt CAPI.
    */
-  eventDetails?: {
+  eventDetails: {
     /**
      * Type of conversion, This should usually be mapped to the Segment track() event name. e.g., "Order Completed".
      */
@@ -24,11 +24,11 @@ export interface Payload {
     /**
      * Unique identifier for the source message.
      */
-    source_message_id?: string
+    source_message_id: string
     /**
      * Event timestamp in Unix time milliseconds.
      */
-    timestamp_unixtime_ms?: string
+    timestamp_unixtime_ms: string
   }
   /**
    * Additional custom attributes for the event.
@@ -125,11 +125,13 @@ export interface Payload {
     gender?: string
     [k: string]: unknown
   }
-
-  audiencename?: string 
-  audiencemembership?: string
+  audienceDetails?:{
+    customAudienceName: string 
+    customAudienceMembership: boolean
+  }
 
   engageFields?: {
+    engageAudienceName?: string,
     traitsOrProps?: string, 
     computationAction?: string 
   }

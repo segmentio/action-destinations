@@ -11,6 +11,9 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Details',
       description: 'Details about the event to be sent to Rokt CAPI.',
       type: 'object',
+      required: true,
+      additionalProperties: false,
+      defaultObjectUI: 'keyvalue:only',
       properties: {
         conversiontype: {
           label: 'Conversion Type',
@@ -35,12 +38,14 @@ const action: ActionDefinition<Settings, Payload> = {
         source_message_id: {
           label: 'Source Message ID',
           description: 'Unique identifier for the source message.',
-          type: 'string'
+          type: 'string',
+          required: true
         },
         timestamp_unixtime_ms: {
           label: 'Event Timestamp',
           description: 'Event timestamp in Unix time milliseconds.',
-          type: 'string'
+          type: 'string',
+          required: true
         }
       },
       default: {
@@ -271,24 +276,27 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     audienceDetails: {
       label: 'Audience Details',
-      description: 'Details of the audience to add the user to or remove the user from.',
+      description: 'Details of the audience to add the user to or remove the user from. If connecting to a Segment Engage Audience, leave this field empty.',
       type: 'object',
+      additionalProperties: false,
+      defaultObjectUI: 'keyvalue:only',
       properties: {
-        audiencename: {
+        customAudienceName: {
           label: 'Audience Name',
           description: 'Name of the audience for audience membership updates. If connecting to a Segment Engage Audience leave the field empty.',
           type: 'string',
-          
+          required: true
         },
-        audiencemembership: {
+        customAudienceMembership: {
           label: 'Audience Membership',
           description: 'Boolean indicating whether the user is a member of the audience. If connecting to a Segment Engage Audience leave this field empty.',
-          type: 'boolean'
+          type: 'boolean',
+          required: true
         }
       },
       default: {
-        audiencename: { '@path': '$.properties.audience_name' },
-        audiencemembership: { '@path': '$.properties.audience_membership'}
+        audienceName: { '@path': '$.properties.audience_name' },
+        audienceMembership: { '@path': '$.properties.audience_membership'}
       }
     },
     engageFields: {
@@ -297,7 +305,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       unsafe_hidden: true,
       properties: {
-        audiencename: {
+        engageAudienceName: {
           label: 'Audience Name',
           description: 'Name of the audience for audience membership updates. If connecting to a Segment Engage Audience, leave the detault mapping as is.',
           type: 'string'
