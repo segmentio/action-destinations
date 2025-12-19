@@ -2,6 +2,7 @@ import { RequestClient, MultiStatusResponse } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { URL, BATCH_URL } from './constants'
 import { Primitive, JSON, AudienceJSON, EventJSON } from './types'
+import { isAlreadyHashed, processHashing } from '../../../lib/hashing-utils'
 
 export async function send(request: RequestClient, payload: Payload[], isBatch = false) {  
     const url = isBatch ? BATCH_URL : URL
@@ -52,17 +53,17 @@ function buildJSONItem(payload: Payload): JSON {
     }
 
     const user_attributes: JSON['user_attributes'] = {
-        ...(firstname ? { maybeHash(firstname, hashFirstName, 'firstname', 'firstnamesha256') } : {}),
-        ...(lastname ? { maybeHash(lastname, hashLastName, 'lastname', 'lastnamesha256') } : {}),
-        ...(mobile ? { maybeHash(mobile, hashMobile, 'mobile', 'mobilesha256') } : {}),
-        ...(billingzipcode ? { maybeHash(billingzipcode, hashBillingZipcode, 'billingzipcode', 'billingzipsha256') } : {}),
-        ...(dateofbirth ? { dateofbirth } : {}),
-        ...(gender ? { gender } : {}),
-        ...(restUserAttributes && Object.keys(restUserAttributes).length > 0 ? sanitize(restUserAttributes, ['boolean', 'string', 'number', 'array']) : {})
+        ...(firstname ? maybeHash(firstname, hashFirstName, 'firstname', 'firstnamesha256') : {}),
+        ...(lastname ? maybeHash(lastname, hashLastName, 'lastname', 'lastnamesha256') : {}),
+        ...(mobile ? maybeHash(mobile, hashMobile, 'mobile', 'mobilesha256') : {}),
+        ...(billingzipcode ? maybeHash(billingzipcode, hashBillingZipcode, 'billingzipcode', 'billingzipsha256') : {}),
+        ...(dateofbirth ? { dateofbirth: new Date(dateofbirth).toISOString().slice(0, 10).replace(/-/g, '')} : {}),
+        ...(gender === 'm' || gender === 'f' ? { gender } : {}),
+        ...(restUserAttributes && Object.keys(restUserAttributes).length > 0 ? sanitize(restUserAttributes, ['boolean', 'string', 'number'], true) : {})
     }
 
     const user_identities: JSON['user_identities'] = {
-        ...(email ? { maybeHash(email, hashEmail, 'email', 'other') } : {}),
+        ...(email ? maybeHash(email, hashEmail, 'email', 'other') : {}),
         ...(customerid ? { customerid } : {}),
         ...(other2 ? { other2 } : {})
     }
@@ -183,4 +184,27 @@ function sanitize(obj: Record<string, unknown> | undefined, allowedTypes: ('stri
     })
 
     return result
+}
+
+function maybeHash(value: string | undefined, shouldHash: boolean | undefined, key: string, hashedKey: string, cleaningFunction?: (input: string) => string): Record<string, string> {
+  if (!value) {
+    return {}
+  } 
+
+  const isHashed = isAlreadyHashed(value, 'sha256', 'hex')
+  
+  if(isHashed) {
+    return { 
+        [hashedKey]: value 
+    }
+  } 
+  else if (typeof shouldHash === 'boolean' && shouldHash) {
+    const hashedValue = processHashing(value, 'sha256', 'hex', cleaningFunction)
+    return { 
+        [hashedKey]: hashedValue 
+    }
+  }
+  else {
+    return { [key]: cleaningFunction ? cleaningFunction(value) : value }
+  }
 }

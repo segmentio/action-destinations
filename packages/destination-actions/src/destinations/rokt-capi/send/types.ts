@@ -10,13 +10,13 @@ export interface JSON {
         firstname?: string,
         lastname?: string,
         mobile?: string,
-        billingzipcode: string,
+        billingzipcode?: string,
         firstnamesha256?: string,
         lastnamesha256?: string,
         mobilesha256?: string,
         billingzipsha256?: string
         dateofbirth?: string, // YYYYMMDD format
-        gender: 'm' | 'f'
+        gender?: 'm' | 'f'
         [key: string]: unknown // simple types and arrays only. No objects 
     },
     user_identities: { // at least one required, or android_advertising_id or ios_advertising_id in device_info
