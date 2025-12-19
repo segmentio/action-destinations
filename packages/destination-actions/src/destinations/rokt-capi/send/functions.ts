@@ -11,8 +11,27 @@ export async function send(request: RequestClient, payload: Payload[], isBatch =
     const json = buildJSON(payload, isBatch, msResponse)
 }
 
-function buildAllJSON(payload: Payload[], isBatch: boolean, msResponse: MultiStatusResponse): JSON[] {
+function buildJSON(payload: Payload[], isBatch: boolean, msResponse: MultiStatusResponse): JSON[] {
     return payload.map(buildJSONItem)
+}
+
+function validate(payload: Payload): string | undefined {
+    const {
+        device_info: {
+            advertisingId,
+            deviceId,
+            deviceType
+        } = {},
+        user_identities: {
+            email,
+            customerid,
+            other2
+        } = {}
+    } = payload
+
+    if(!(email || customerid || other2 || (advertisingId && deviceType) || (deviceId && deviceType))) {
+        return 'At least one of the following is required. Advertising ID, Device ID, Email, Customer ID, ROKT Click ID. If providing advertising ID or Device ID make sure to also include Mobile Device Type.'
+    }
 }
 
 function buildJSONItem(payload: Payload): JSON {
@@ -22,17 +41,18 @@ function buildJSONItem(payload: Payload): JSON {
             hashFirstName,
             hashLastName,
             hashMobile,
-            hashBillingZipcode,
+            hashBillingZipcode
         } = {},
         device_info: {
             http_header_user_agent,
             advertisingId,
-            deviceType,
+            deviceId,
+            deviceType
         } = {},
         user_identities: {
             email,
             customerid,
-            other2,
+            other2
         } = {},
         user_attributes: {
             firstname,
@@ -48,22 +68,24 @@ function buildJSONItem(payload: Payload): JSON {
 
     const device_info: JSON['device_info'] = {
         ...(http_header_user_agent ? { http_header_user_agent } : {}),
-        ...(advertisingId && deviceType === 'ios' ? { ios_advertising_id: advertisingId } : {}),
-        ...(advertisingId && deviceType === 'android' ? { android_advertising_id: advertisingId } : {})
+        ...(advertisingId && deviceType && deviceType.toLocaleLowerCase() === 'ios' ? { ios_advertising_id: advertisingId } : {}),
+        ...(advertisingId && deviceType && deviceType.toLocaleLowerCase() === 'android' ? { android_advertising_id: advertisingId } : {}),
+        ...(deviceId && deviceType && deviceType.toLocaleLowerCase() === 'ios' ? { ios_idfv: deviceId } : {}),
+        ...(deviceId && deviceType && deviceType.toLocaleLowerCase() === 'android' ? { android_uuid: deviceId } : {})
     }
 
     const user_attributes: JSON['user_attributes'] = {
-        ...(firstname ? maybeHash(firstname, hashFirstName, 'firstname', 'firstnamesha256') : {}),
-        ...(lastname ? maybeHash(lastname, hashLastName, 'lastname', 'lastnamesha256') : {}),
-        ...(mobile ? maybeHash(mobile, hashMobile, 'mobile', 'mobilesha256') : {}),
-        ...(billingzipcode ? maybeHash(billingzipcode, hashBillingZipcode, 'billingzipcode', 'billingzipsha256') : {}),
+        ...(firstname ? maybeHash(firstname, hashFirstName, 'firstname', 'firstnamesha256', (value) => value.trim()) : {}),
+        ...(lastname ? maybeHash(lastname, hashLastName, 'lastname', 'lastnamesha256', (value) => value.trim()) : {}),
+        ...(mobile ? maybeHash(mobile, hashMobile, 'mobile', 'mobilesha256', (value) => value.trim()) : {}),
+        ...(billingzipcode ? maybeHash(billingzipcode, hashBillingZipcode, 'billingzipcode', 'billingzipsha256', (value) => value.trim()) : {}),
         ...(dateofbirth ? { dateofbirth: new Date(dateofbirth).toISOString().slice(0, 10).replace(/-/g, '')} : {}),
         ...(gender === 'm' || gender === 'f' ? { gender } : {}),
         ...(restUserAttributes && Object.keys(restUserAttributes).length > 0 ? sanitize(restUserAttributes, ['boolean', 'string', 'number'], true) : {})
     }
 
     const user_identities: JSON['user_identities'] = {
-        ...(email ? maybeHash(email, hashEmail, 'email', 'other') : {}),
+        ...(email ? maybeHash(email, hashEmail, 'email', 'other', (value) => value.toLocaleLowerCase().trim()) : {}),
         ...(customerid ? { customerid } : {}),
         ...(other2 ? { other2 } : {})
     }
@@ -82,7 +104,7 @@ function buildJSONItem(payload: Payload): JSON {
         user_attributes, 
         user_identities, 
         ...(other2 ? { integration_attributes: { "1277": { passbackconversiontrackingid: other2 } } } : {}),
-        events,
+        ...(events && events.length > 0 ? { events } : {}),
         ...(ip ? {ip} : {})
     }
 

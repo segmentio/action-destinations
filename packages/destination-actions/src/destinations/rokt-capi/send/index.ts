@@ -111,27 +111,31 @@ const action: ActionDefinition<Settings, Payload> = {
         http_header_user_agent: {
           label: 'User Agent',
           description: 'Device user agent.',
-          type: 'string',
-          default: { '@path': '$.context.userAgent' }
+          type: 'string'
         }, 
         advertisingId: {
           label: 'Advertising ID',
           description: 'Advertising ID from mobile device.',
           type: 'string'
         }, 
+        deviceId: {
+          label: 'Device ID',
+          description: 'Device ID from mobile device.',
+          type: 'string'
+        }, 
         deviceType: {
           label: 'Mobile Device Type',
-          description: 'Type of device: ios or android. All other values will be ignored. Segment uses this value to determine whether to send the advertising ID as ios_advertising_id or android_advertising_id.',
-          type: 'string',
-          default: {
-            '@path': '$.context.device.type'
-          }
+          description: 'Type of device: ios or android. All other values will be ignored. Segment uses this value to determine whether to send the device ID as ios_idfv or android_uuid and whether to send the advertising ID as ios_advertising_id or android_advertising_id.',
+          type: 'string'
         }
       }, 
       default: {
         http_header_user_agent: { '@path': '$.context.userAgent' },
         advertisingId: {
           '@path': '$.context.device.advertisingId'
+        },
+        deviceId: {
+          '@path': '$.context.device.id'
         },
         deviceType: {
           '@path': '$.context.device.type'
