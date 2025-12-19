@@ -90,6 +90,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'User traits (for identify calls) or event properties (for track calls) to include with the audience sync.',
       type: 'object',
       required: false,
+      unsafe_hidden: true,
       default: {
         '@if': {
           exists: { '@path': '$.traits' },
