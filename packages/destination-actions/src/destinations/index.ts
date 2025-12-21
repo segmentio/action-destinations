@@ -219,7 +219,6 @@ register('690075c7aa0913d3cb27878c', './survicate')
 register('6909cac9d608c9ad592d7211', './aws-kinesis')
 register('690de842dc73c4bb198a38e6', './tiktok-app-events')
 register('6937efdfdf772b67ee7174c5', './zapier')
-register('64f703d1f6e9aa0a283ae3e4', './collab-travel-crm')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

@@ -1,16 +1,5 @@
-/**
- * Collab Travel CRM - Segment Destination
- * 
- * This is the "Driver" code to submit to segmentio/action-destinations repository.
- * It defines how Segment communicates with the Collab Travel CRM webhook.
- * 
- * Repository: https://github.com/segmentio/action-destinations
- * Path: packages/destination-actions/src/destinations/collab-travel-crm/
- */
-
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
 import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
 
@@ -34,7 +23,6 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      // Send a test request to verify the API key is valid
       const response = await request(`${COLLAB_CRM_BASE_URL}/segment-destination`, {
         method: 'POST',
         headers: {
@@ -52,7 +40,6 @@ const destination: DestinationDefinition<Settings> = {
       return response
     }
   },
-
   extendRequest({ settings }) {
     return {
       headers: {
@@ -61,38 +48,23 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
   actions: {
     trackEvent,
     identifyUser
   },
-
   presets: [
     {
       name: 'Track Events',
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
-      mapping: {
-        eventName: { '@path': '$.event' },
-        properties: { '@path': '$.properties' },
-        userId: { '@path': '$.userId' },
-        anonymousId: { '@path': '$.anonymousId' },
-        timestamp: { '@path': '$.timestamp' }
-      },
+      mapping: defaultValues(trackEvent.fields),
       type: 'automatic'
     },
     {
       name: 'Identify Users',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
-      mapping: {
-        email: { '@path': '$.traits.email' },
-        firstName: { '@path': '$.traits.firstName' },
-        lastName: { '@path': '$.traits.lastName' },
-        phone: { '@path': '$.traits.phone' },
-        userId: { '@path': '$.userId' },
-        traits: { '@path': '$.traits' }
-      },
+      mapping: defaultValues(identifyUser.fields),
       type: 'automatic'
     }
   ]

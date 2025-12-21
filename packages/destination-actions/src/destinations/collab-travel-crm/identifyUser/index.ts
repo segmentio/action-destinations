@@ -1,10 +1,4 @@
-/**
- * Identify User Action
- * 
- * Creates or updates contacts in Collab Travel CRM from Segment identify events
- */
-
-import type { ActionDefinition } from '@segment/actions-core'
+import { omit, type ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -31,7 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The first name of the contact.',
       type: 'string',
       default: {
-        '@path': '$.traits.firstName'
+        '@path': '$.traits.first_name'
       }
     },
     lastName: {
@@ -39,7 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The last name of the contact.',
       type: 'string',
       default: {
-        '@path': '$.traits.lastName'
+        '@path': '$.traits.last_name'
       }
     },
     phone: {
@@ -67,17 +61,18 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-
   perform: async (request, { payload }) => {
+    const {...otherTraits } = omit(payload.traits, ['email', 'firstName', 'lastName', 'phone'])  || {}
+    const { email, firstName, lastName, phone } = payload
     const body = {
       type: 'identify',
       userId: payload.userId,
       traits: {
-        email: payload.email,
-        firstName: payload.firstName,
-        lastName: payload.lastName,
-        phone: payload.phone,
-        ...payload.traits
+        email,
+        firstName,
+        lastName,
+        phone,
+        ...otherTraits
       }
     }
 

@@ -1,9 +1,3 @@
-/**
- * Track Event Action
- * 
- * Sends track events (Trip Booked, Lead Created, etc.) to Collab Travel CRM
- */
-
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
