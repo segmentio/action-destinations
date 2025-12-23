@@ -1,11 +1,6 @@
-import nock from 'nock'
 import { extractSchemaFromEvent } from '../avo'
 import type { Payload } from '../generated-types'
-import type { EventSpecResponseWire } from '../eventSpec/EventFetcherTypes'
-import createRequestClient from '../../../../../../core/src/create-request-client'
-
-const requestClient = createRequestClient()
-const BASE_URL = 'https://api.avo.app'
+import type { EventSpecResponse } from '../eventSpec/EventFetcherTypes'
 
 describe('extractSchemaFromEvent', () => {
   const mockEvent: Payload = {
@@ -19,15 +14,15 @@ describe('extractSchemaFromEvent', () => {
     anonymousId: 'test-stream-id'
   }
 
-  const validWireResponse: EventSpecResponseWire = {
+  const validEventSpec: EventSpecResponse = {
     events: [
       {
-        b: 'main',
-        id: 'test-event-id',
-        vids: [],
-        p: {
-          userId: { t: 'string', r: true },
-          amount: { t: 'number', r: false }
+        branchId: 'main',
+        baseEventId: 'test-event-id',
+        variantIds: [],
+        props: {
+          userId: { type: 'string', required: true, isList: false },
+          amount: { type: 'number', required: false, isList: false }
         }
       }
     ],
@@ -39,111 +34,29 @@ describe('extractSchemaFromEvent', () => {
     }
   }
 
-  afterEach(() => {
-    nock.cleanAll()
-    jest.clearAllMocks()
-  })
-
-  it('should fetch event spec and return event body', async () => {
-    nock(BASE_URL)
-      .get('/trackingPlan/eventSpec')
-      .query({
-        apiKey: 'test-api-key',
-        streamId: 'test-stream-id',
-        eventName: 'TestEvent'
-      })
-      .reply(200, validWireResponse)
-
-    const result = await extractSchemaFromEvent(mockEvent, undefined, 'test-api-key', 'dev', undefined, requestClient)
+  it('should return event body with validation when eventSpec is provided', () => {
+    const result = extractSchemaFromEvent(mockEvent, undefined, undefined, 'dev', validEventSpec)
 
     expect(result).toBeDefined()
     expect(result.eventName).toBe('TestEvent')
     expect(result.type).toBe('event')
     expect(result.messageId).toBe('test-message-id')
+    // Should include validation metadata when spec is provided
+    expect(result.metadata).toBeDefined()
   })
 
-  it('should handle missing apiKey gracefully', async () => {
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation()
-
-    const result = await extractSchemaFromEvent(mockEvent, undefined, '', 'dev', undefined, requestClient)
-
-    expect(result).toBeDefined()
-    expect(result.eventName).toBe('TestEvent')
-    expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('[Avo Inspector] apiKey is missing'))
-
-    consoleWarnSpy.mockRestore()
-  })
-
-  it('should handle missing streamId gracefully', async () => {
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation()
-
-    const eventWithoutStreamId: Payload = {
-      ...mockEvent,
-      anonymousId: undefined
-    }
-
-    const result = await extractSchemaFromEvent(
-      eventWithoutStreamId,
-      undefined,
-      'test-api-key',
-      'dev',
-      undefined,
-      requestClient
-    )
-
-    expect(result).toBeDefined()
-    expect(result.eventName).toBe('TestEvent')
-    expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('[Avo Inspector] streamId is missing'))
-
-    consoleWarnSpy.mockRestore()
-  })
-
-  it('should handle event spec fetch failure gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
-
-    nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(500, { error: 'Internal server error' })
-
-    const result = await extractSchemaFromEvent(mockEvent, undefined, 'test-api-key', 'dev', undefined, requestClient)
-
-    expect(result).toBeDefined()
-    expect(result.eventName).toBe('TestEvent')
-    // Should still return event body even if spec fetch fails
-    expect(result.type).toBe('event')
-
-    consoleErrorSpy.mockRestore()
-  })
-
-  it('should handle network error during event spec fetch', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
-
-    nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).replyWithError('Network error')
-
-    const result = await extractSchemaFromEvent(mockEvent, undefined, 'test-api-key', 'dev', undefined, requestClient)
+  it('should return event body without validation when eventSpec is null', () => {
+    const result = extractSchemaFromEvent(mockEvent, undefined, undefined, 'dev', null)
 
     expect(result).toBeDefined()
     expect(result.eventName).toBe('TestEvent')
     expect(result.type).toBe('event')
-
-    consoleErrorSpy.mockRestore()
+    expect(result.messageId).toBe('test-message-id')
+    // Should not include validation metadata when spec is null
+    expect(result.metadata).toBeUndefined()
   })
 
-  it('should handle invalid event spec response', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
-
-    nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(200, { invalid: 'response' })
-
-    const result = await extractSchemaFromEvent(mockEvent, undefined, 'test-api-key', 'dev', undefined, requestClient)
-
-    expect(result).toBeDefined()
-    expect(result.eventName).toBe('TestEvent')
-    expect(result.type).toBe('event')
-
-    consoleErrorSpy.mockRestore()
-  })
-
-  it('should work with appVersionPropertyName', async () => {
-    nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(200, validWireResponse)
-
+  it('should work with appVersionPropertyName', () => {
     const eventWithAppVersion: Payload = {
       ...mockEvent,
       properties: {
@@ -152,102 +65,117 @@ describe('extractSchemaFromEvent', () => {
       }
     }
 
-    const result = await extractSchemaFromEvent(
-      eventWithAppVersion,
-      'customAppVersion',
-      'test-api-key',
-      'dev',
-      undefined,
-      requestClient
-    )
+    const result = extractSchemaFromEvent(eventWithAppVersion, 'customAppVersion', undefined, 'dev', null)
 
     expect(result).toBeDefined()
     expect(result.appVersion).toBe('2.0.0')
   })
 
-  it('should handle events without properties', async () => {
-    nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(200, validWireResponse)
-
+  it('should handle events without properties', () => {
     const eventWithoutProperties: Payload = {
       ...mockEvent,
       properties: {}
     }
 
-    const result = await extractSchemaFromEvent(
-      eventWithoutProperties,
-      undefined,
-      'test-api-key',
-      'dev',
-      undefined,
-      requestClient
-    )
+    const result = extractSchemaFromEvent(eventWithoutProperties, undefined, undefined, 'dev', null)
 
     expect(result).toBeDefined()
     expect(result.eventName).toBe('TestEvent')
     expect(result.eventProperties).toEqual([])
   })
 
-  it('should handle events with pageUrl for appName extraction', async () => {
-    nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(200, validWireResponse)
-
+  it('should handle events with pageUrl for appName extraction', () => {
     const eventWithPageUrl: Payload = {
       ...mockEvent,
       pageUrl: 'https://example.com/page'
     }
 
-    const result = await extractSchemaFromEvent(
-      eventWithPageUrl,
-      undefined,
-      'test-api-key',
-      'dev',
-      undefined,
-      requestClient
-    )
+    const result = extractSchemaFromEvent(eventWithPageUrl, undefined, undefined, 'dev', null)
 
     expect(result).toBeDefined()
     expect(result.appName).toBe('example.com')
   })
 
-  it('should use default appName when not provided', async () => {
-    nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(200, validWireResponse)
-
+  it('should use default appName when not provided', () => {
     const eventWithoutAppName: Payload = {
       ...mockEvent,
       appName: undefined,
       pageUrl: undefined
     }
 
-    const result = await extractSchemaFromEvent(
-      eventWithoutAppName,
-      undefined,
-      'test-api-key',
-      'dev',
-      undefined,
-      requestClient
-    )
+    const result = extractSchemaFromEvent(eventWithoutAppName, undefined, undefined, 'dev', null)
 
     expect(result).toBeDefined()
     expect(result.appName).toBe('unnamed Segment app')
   })
 
-  it('should use default appVersion when not provided', async () => {
-    nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(200, validWireResponse)
-
+  it('should use default appVersion when not provided', () => {
     const eventWithoutAppVersion: Payload = {
       ...mockEvent,
       appVersion: undefined
     }
 
-    const result = await extractSchemaFromEvent(
-      eventWithoutAppVersion,
-      undefined,
-      'test-api-key',
-      'dev',
-      undefined,
-      requestClient
-    )
+    const result = extractSchemaFromEvent(eventWithoutAppVersion, undefined, undefined, 'dev', null)
 
     expect(result).toBeDefined()
     expect(result.appVersion).toBe('unversioned')
+  })
+
+  it('should use appName from payload when provided', () => {
+    const eventWithAppName: Payload = {
+      ...mockEvent,
+      appName: 'My App'
+    }
+
+    const result = extractSchemaFromEvent(eventWithAppName, undefined, undefined, 'dev', null)
+
+    expect(result).toBeDefined()
+    expect(result.appName).toBe('My App')
+  })
+
+  it('should use appVersion from payload when provided', () => {
+    const eventWithAppVersion: Payload = {
+      ...mockEvent,
+      appVersion: '1.0.0'
+    }
+
+    const result = extractSchemaFromEvent(eventWithAppVersion, undefined, undefined, 'dev', null)
+
+    expect(result).toBeDefined()
+    expect(result.appVersion).toBe('1.0.0')
+  })
+
+  it('should extract event properties from payload', () => {
+    const result = extractSchemaFromEvent(mockEvent, undefined, undefined, 'dev', null)
+
+    expect(result).toBeDefined()
+    expect(result.eventProperties).toHaveLength(2)
+
+    const userIdProp = result.eventProperties.find((p) => p.propertyName === 'userId')
+    expect(userIdProp).toBeDefined()
+    expect(userIdProp?.propertyType).toBe('string')
+
+    const amountProp = result.eventProperties.find((p) => p.propertyName === 'amount')
+    expect(amountProp).toBeDefined()
+    expect(amountProp?.propertyType).toBe('int')
+  })
+
+  it('should continue without validation if validation throws', () => {
+    // Create an event spec that might cause validation issues
+    const problematicEventSpec: EventSpecResponse = {
+      events: [],
+      metadata: {
+        schemaId: 'test-schema-id',
+        branchId: 'main',
+        latestActionId: 'test-action-id',
+        sourceId: 'test-source-id'
+      }
+    }
+
+    const result = extractSchemaFromEvent(mockEvent, undefined, undefined, 'dev', problematicEventSpec)
+
+    expect(result).toBeDefined()
+    expect(result.eventName).toBe('TestEvent')
+    expect(result.type).toBe('event')
   })
 })

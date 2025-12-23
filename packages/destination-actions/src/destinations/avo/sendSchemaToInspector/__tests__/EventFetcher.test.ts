@@ -1,12 +1,12 @@
 import nock from 'nock'
-import { EventSpecFetcher } from '../eventSpec/EventFetcher'
+import { fetchEventSpec } from '../eventSpec/EventFetcher'
 import type { EventSpecResponseWire, FetchEventSpecParams } from '../eventSpec/EventFetcherTypes'
 import createRequestClient from '../../../../../../core/src/create-request-client'
 
 const BASE_URL = 'https://api.avo.app'
 const requestClient = createRequestClient()
 
-describe('EventSpecFetcher', () => {
+describe('fetchEventSpec', () => {
   const mockParams: FetchEventSpecParams = {
     apiKey: 'test-api-key',
     streamId: 'test-stream-id',
@@ -71,8 +71,7 @@ describe('EventSpecFetcher', () => {
         })
         .reply(200, validWireResponse)
 
-      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
-      const result = await fetcher.fetch(mockParams)
+      const result = await fetchEventSpec(requestClient, 'dev', mockParams)
 
       expect(result).not.toBeNull()
       expect(result?.events[0].baseEventId).toBe('test-event-id')
@@ -98,8 +97,7 @@ describe('EventSpecFetcher', () => {
     it('should successfully fetch an event spec with variants', async () => {
       nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(200, validWireResponseWithVariants)
 
-      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
-      const result = await fetcher.fetch(mockParams)
+      const result = await fetchEventSpec(requestClient, 'dev', mockParams)
 
       expect(result).not.toBeNull()
       expect(result?.events[0].variantIds).toContain('variant-event-id')
@@ -109,8 +107,7 @@ describe('EventSpecFetcher', () => {
     it('should return null when request fails with network error', async () => {
       nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).replyWithError('Network error')
 
-      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
-      const result = await fetcher.fetch(mockParams)
+      const result = await fetchEventSpec(requestClient, 'dev', mockParams)
 
       expect(result).toBeNull()
     })
@@ -118,8 +115,7 @@ describe('EventSpecFetcher', () => {
     it('should return null when request returns non-200 status', async () => {
       nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(404, { error: 'Not found' })
 
-      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
-      const result = await fetcher.fetch(mockParams)
+      const result = await fetchEventSpec(requestClient, 'dev', mockParams)
 
       expect(result).toBeNull()
     })
@@ -127,8 +123,7 @@ describe('EventSpecFetcher', () => {
     it('should return null when response is invalid JSON', async () => {
       nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(200, 'invalid json')
 
-      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
-      const result = await fetcher.fetch(mockParams)
+      const result = await fetchEventSpec(requestClient, 'dev', mockParams)
 
       expect(result).toBeNull()
     })
@@ -136,13 +131,19 @@ describe('EventSpecFetcher', () => {
     it('should return null when response is missing events array', async () => {
       nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(200, { metadata: {} })
 
-      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
-      const result = await fetcher.fetch(mockParams)
+      const result = await fetchEventSpec(requestClient, 'dev', mockParams)
 
       expect(result).toBeNull()
     })
 
-    it('should NOT deduplicate in-flight requests with different API keys', async () => {
+    it('should return null when env is not dev or staging', async () => {
+      // No nock setup needed since it should return null before making a request
+      const result = await fetchEventSpec(requestClient, 'production', mockParams)
+
+      expect(result).toBeNull()
+    })
+
+    it('should NOT deduplicate requests with different API keys', async () => {
       const scope = nock(BASE_URL)
         .get('/trackingPlan/eventSpec')
         .query((q) => q.apiKey === 'key1')
@@ -153,13 +154,11 @@ describe('EventSpecFetcher', () => {
         .delay(50)
         .reply(200, validWireResponse)
 
-      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
-
       const params1 = { ...mockParams, apiKey: 'key1' }
       const params2 = { ...mockParams, apiKey: 'key2' }
 
-      const promise1 = fetcher.fetch(params1)
-      const promise2 = fetcher.fetch(params2)
+      const promise1 = fetchEventSpec(requestClient, 'dev', params1)
+      const promise2 = fetchEventSpec(requestClient, 'dev', params2)
 
       const [result1, result2] = await Promise.all([promise1, promise2])
 
@@ -169,42 +168,6 @@ describe('EventSpecFetcher', () => {
       expect(result2).not.toBeNull()
       // Nock should have been called twice (once for each key)
       expect(scope.isDone()).toBe(true)
-    })
-  })
-
-  describe('logging', () => {
-    let consoleLogSpy: jest.SpyInstance
-    let consoleWarnSpy: jest.SpyInstance
-    let consoleErrorSpy: jest.SpyInstance
-
-    beforeEach(() => {
-      consoleLogSpy = jest.spyOn(console, 'log').mockImplementation()
-      consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation()
-      consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation()
-    })
-
-    afterEach(() => {
-      consoleLogSpy.mockRestore()
-      consoleWarnSpy.mockRestore()
-      consoleErrorSpy.mockRestore()
-    })
-
-    it('should log when shouldLog is true and fetch succeeds', async () => {
-      nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(200, validWireResponse)
-
-      const fetcher = new EventSpecFetcher(requestClient, true, 'dev')
-      await fetcher.fetch(mockParams)
-
-      expect(consoleLogSpy).toHaveBeenCalledWith(`[EventSpecFetcher] Fetching event spec for: ${mockParams.eventName}`)
-    })
-
-    it('should not log when shouldLog is false', async () => {
-      nock(BASE_URL).get('/trackingPlan/eventSpec').query(true).reply(200, validWireResponse)
-
-      const fetcher = new EventSpecFetcher(requestClient, false, 'dev')
-      await fetcher.fetch(mockParams)
-
-      expect(consoleLogSpy).not.toHaveBeenCalled()
     })
   })
 })

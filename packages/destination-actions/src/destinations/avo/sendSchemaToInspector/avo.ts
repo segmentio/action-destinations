@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { RequestClient } from '@segment/actions-core'
-import { LRUCache } from 'lru-cache'
 import { BaseBody, EventSchemaBody, EventProperty } from './avo-types'
 
 import { AvoSchemaParser } from './AvoSchemaParser'
-import { EventSpecFetcher } from './eventSpec/EventFetcher'
+import { fetchEventSpec } from './eventSpec/EventFetcher'
 import type {
   EventSpecResponse,
   ValidationResult,
@@ -17,17 +15,9 @@ import type { RuntimeProperties } from './eventSpec/EventValidator'
 
 import { Payload } from './generated-types'
 
-const cache = new LRUCache<string, EventSpecResponse>({
-  max: 50,
-  ttl: 1000 * 60 // 1 minute
-})
-
-// Store the current branch ID to detect changes
-let currentBranchId: string | undefined
-
-function generateCacheKey(params: FetchEventSpecParams): string {
-  return `${params.apiKey}:${params.streamId}:${params.eventName}`
-}
+// Re-export fetchEventSpec for use at the batch level
+export { fetchEventSpec }
+export type { EventSpecResponse, FetchEventSpecParams }
 
 function getAppNameFromUrl(url: string) {
   return url.split('/')[2]
@@ -87,80 +77,6 @@ function handleEvent(
 }
 
 /**
- * Fetches the event spec if spec fetching is enabled (schemaId/sourceId provided).
- * Returns a Promise that resolves to an object with the event spec (or null) and debug info.
- *
- * Note: Spec fetching happens regardless of encryption key presence.
- * The encryption key only controls whether property values are sent (Phase 2).
- * If spec fetch fails (invalid status code), validation is skipped for that event.
- */
-async function fetchEventSpec(
-  eventName: string,
-  apiKey: string,
-  streamId: string | undefined,
-  env: string,
-  request: RequestClient
-): Promise<EventSpecResponse | null> {
-  if (!apiKey) {
-    console.warn(`[Avo Inspector] apiKey is missing, cannot fetch event spec`)
-    return null
-  }
-
-  if (!streamId) {
-    console.warn(`[Avo Inspector] streamId is missing, cannot fetch event spec`)
-    return null
-  }
-
-  const fetchParams: FetchEventSpecParams = {
-    apiKey: apiKey,
-    streamId: streamId,
-    eventName: eventName
-  }
-
-  const cacheKey = generateCacheKey(fetchParams)
-  const shouldLog = process.env.NODE_ENV !== 'test'
-
-  // Check cache first
-  const cachedResponse = cache.get(cacheKey)
-  if (cachedResponse) {
-    if (shouldLog) {
-      console.log(`[Avo Inspector] Cache hit for: ${eventName}`)
-    }
-    return cachedResponse
-  }
-
-  try {
-    // fetch from API (async)
-    const result = await new EventSpecFetcher(request, shouldLog, env).fetch(fetchParams)
-
-    if (result) {
-      const newBranchId = result.metadata.branchId
-
-      // If the branch ID has changed, flush the cache
-      if (currentBranchId && currentBranchId !== newBranchId) {
-        if (shouldLog) {
-          console.log(`[Avo Inspector] Branch changed from ${currentBranchId} to ${newBranchId}. Flushing cache.`)
-        }
-        cache.clear()
-      }
-
-      // Update current branch ID
-      currentBranchId = newBranchId
-
-      // Cache the result
-      cache.set(cacheKey, result)
-    }
-
-    return result
-  } catch (error) {
-    // Graceful degradation - log but don't fail
-    console.error(`[Avo Inspector] Error in fetchEventSpecIfNeeded for ${eventName}:`, error)
-
-    return null
-  }
-}
-
-/**
  * Merges validation results into the event schema properties.
  * Recursively walks the schema and attaches failedEventIds/passedEventIds to matching properties.
  */
@@ -208,24 +124,29 @@ function mergeValidationResults(
   }
 }
 
-export async function extractSchemaFromEvent(
+/**
+ * Extracts schema from an event and optionally validates it against a pre-fetched event spec.
+ *
+ * @param event - The event payload
+ * @param appVersionPropertyName - Optional property name to use for app version
+ * @param inspectorEncryptionKey - Optional encryption key for property values
+ * @param env - Environment (dev/staging/prod)
+ * @param eventSpec - Optional pre-fetched event spec for validation (fetched at batch level)
+ */
+export function extractSchemaFromEvent(
   event: Payload,
   appVersionPropertyName: string | undefined,
-  apiKey: string,
-  env: string,
   inspectorEncryptionKey: string | undefined,
-  request: RequestClient
-): Promise<EventSchemaBody> {
+  env: string,
+  eventSpec: EventSpecResponse | null
+): EventSchemaBody {
   const baseBody: BaseBody = generateBaseBody(event, appVersionPropertyName, inspectorEncryptionKey)
-
-  // we use segment's anonymousId as the streamId for the event spec fetch
-  const eventSpec = await fetchEventSpec(event.event, apiKey, event.anonymousId, env, request)
 
   // Extract schema from event properties
   const eventProperties = AvoSchemaParser.extractSchema(event.properties, inspectorEncryptionKey, env)
   let validationMetadata: EventSpecMetadata | undefined
 
-  // If event spec was successfully fetched, run validation
+  // If event spec was provided, run validation
   if (eventSpec) {
     try {
       const validationResult: ValidationResult = validateEvent(event.properties as RuntimeProperties, eventSpec)
@@ -233,8 +154,7 @@ export async function extractSchemaFromEvent(
       mergeValidationResults(eventProperties, validationResult.propertyResults)
       // Store metadata for inclusion in the final body
       validationMetadata = validationResult.metadata
-    } catch (error) {
-      console.error(`[Avo Inspector] Error validating event ${event.event}:`, error)
+    } catch {
       // Continue without validation results if validation fails
     }
   }
