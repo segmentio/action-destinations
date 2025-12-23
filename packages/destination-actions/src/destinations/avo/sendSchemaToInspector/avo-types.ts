@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { EventSpecMetadata } from './eventSpec/EventFetcherTypes'
 
 export enum Environment {
   DEV = 'dev',
@@ -10,6 +11,9 @@ export interface EventProperty {
   propertyName: string
   propertyType: string
   children?: any
+  encryptedPropertyValue?: string
+  failedEventIds?: string[]
+  passedEventIds?: string[]
 }
 
 export interface BaseBody {
@@ -20,6 +24,7 @@ export interface BaseBody {
   messageId: string
   createdAt: string
   sessionId: string
+  publicEncryptionKey?: string
 }
 
 export interface EventSchemaBody extends BaseBody {
@@ -28,4 +33,5 @@ export interface EventSchemaBody extends BaseBody {
   eventProperties: Array<EventProperty>
   eventId: string | null
   eventHash: string | null
+  metadata?: EventSpecMetadata
 }
