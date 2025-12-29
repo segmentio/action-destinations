@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-altertable destination: event action - all fields 1`] = `
+Object {
+  "distinct_id": "UM[e12E",
+  "environment": "UM[e12E",
+  "event": "UM[e12E",
+  "properties": Object {
+    "$lib": "altertable-segment",
+    "testType": "UM[e12E",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+}
+`;
+
+exports[`Testing snapshot for actions-altertable destination: event action - required fields 1`] = `
+Object {
+  "distinct_id": "UM[e12E",
+  "environment": "UM[e12E",
+  "event": "UM[e12E",
+  "properties": Object {
+    "testType": "UM[e12E",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+}
+`;
+
+exports[`Testing snapshot for actions-altertable destination: identify action - all fields 1`] = `
+Object {
+  "distinct_id": "&03lz0I0LT8Hl)",
+  "environment": "&03lz0I0LT8Hl)",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "traits": Object {
+    "$lib": "altertable-segment",
+    "testType": "&03lz0I0LT8Hl)",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-altertable destination: identify action - required fields 1`] = `
+Object {
+  "distinct_id": "&03lz0I0LT8Hl)",
+  "environment": "&03lz0I0LT8Hl)",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "traits": Object {
+    "testType": "&03lz0I0LT8Hl)",
+  },
+}
+`;
