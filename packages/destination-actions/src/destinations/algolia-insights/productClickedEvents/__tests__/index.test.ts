@@ -92,4 +92,19 @@ describe('AlgoliaInsights.productClickedEvents', () => {
     const algoliaEvent = await testAlgoliaDestination(event)
     expect(algoliaEvent.positions?.[0]).toBe(event.properties?.position)
   })
+
+  it('should pass position if 0', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Product Clicked',
+      properties: {
+        query_id: '1234',
+        search_index: 'fashion_1',
+        product_id: '9876',
+        position: 0
+      }
+    })
+    const algoliaEvent = await testAlgoliaDestination(event)
+    expect(algoliaEvent.positions?.[0]).toBe(event.properties?.position)
+  })
 })
