@@ -116,7 +116,7 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       objectIDs: [data.payload.objectID],
       userToken: data.payload.userToken,
       authenticatedUserToken: data.payload.authenticatedUserToken,
-      positions: data.payload.position ? [data.payload.position] : undefined,
+      positions: data.payload.position != null ? [data.payload.position] : undefined,
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
     const insightPayload = { events: [insightEvent] }
