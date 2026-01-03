@@ -3,6 +3,15 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getNestedValue, parseContext } from '../utils'
 
+type IdentifyRequestPayload = {
+  environment: string
+  traits: Record<string | `$${string}`, unknown>
+  timestamp: string | number
+  distinct_id: string | null | undefined
+  anonymous_id: string | null | undefined
+  device_id: string | null | undefined
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify',
   description: 'Identify a user in Altertable.',
@@ -57,7 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const distinctId = payload.userId || payload.anonymousId
     const anonymousId = payload.userId && payload.userId !== payload.anonymousId ? payload.anonymousId : undefined
 
-    const body = {
+    const body: IdentifyRequestPayload = {
       environment: settings.environment,
       traits: {
         ...parseContext(payload.context),

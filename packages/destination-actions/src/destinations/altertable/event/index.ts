@@ -3,6 +3,16 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getNestedValue, parseContext } from '../utils'
 
+type EventRequestPayload = {
+  environment: string
+  event: string
+  properties: Record<string | `$${string}`, unknown>
+  timestamp: string | number
+  distinct_id: string | null | undefined
+  anonymous_id: string | null | undefined
+  device_id: string | null | undefined
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Track a single event in Altertable.',
@@ -97,7 +107,7 @@ function send(request: RequestClient, settings: Settings, payload: Payload) {
     event = payload.event
   }
 
-  const body = {
+  const body: EventRequestPayload = {
     environment: settings.environment,
     event,
     properties: {
