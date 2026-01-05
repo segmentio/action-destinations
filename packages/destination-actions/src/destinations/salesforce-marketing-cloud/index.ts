@@ -9,6 +9,7 @@ import apiEvent from './apiEvent'
 // data extension. They are independent from the original actions to support a slow rollout.
 import dataExtensionV2 from './dataExtensionV2'
 import contactDataExtensionV2 from './contactDataExtensionV2'
+import contactDataExtensionV2Async from './contactDataExtensionV2Async'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -78,7 +79,8 @@ const destination: DestinationDefinition<Settings> = {
     contactDataExtension,
     apiEvent,
     dataExtensionV2,
-    contactDataExtensionV2
+    contactDataExtensionV2,
+    contactDataExtensionV2Async
   }
 }
 
