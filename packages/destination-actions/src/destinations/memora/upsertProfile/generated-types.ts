@@ -35,21 +35,4 @@ export interface Payload {
     phone?: string
     [k: string]: unknown
   }
-  /**
-   * Additional traits to include in the Memora profile. Each trait should specify the trait group, trait name, and trait value.
-   */
-  otherTraits?: {
-    /**
-     * The name of the trait group (e.g., Demographics, Preferences, Custom)
-     */
-    traitGroup: string
-    /**
-     * The name of the trait field
-     */
-    traitName: string
-    /**
-     * The value of the trait
-     */
-    traitValue: string
-  }[]
 }

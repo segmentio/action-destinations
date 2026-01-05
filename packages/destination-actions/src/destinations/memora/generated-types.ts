@@ -2,10 +2,6 @@
 
 export interface Settings {
   /**
-   * Base URL for the Memora API.
-   */
-  url: string
-  /**
    * API Key for Basic Authentication
    */
   username: string
