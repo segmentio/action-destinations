@@ -1,9 +1,15 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
-
 import type { Settings } from './generated-types'
-import type { Payload } from './updateAudience/generated-types'
-import { BASE_URL, LINKEDIN_SOURCE_PLATFORM } from './constants'
-import type { ProfileAPIResponse, AdAccountUserResponse, LinkedInAudiencePayload } from './types'
+import { BASE_URL, LINKEDIN_SOURCE_PLATFORM, SEGMENT_TYPES } from './constants'
+import type { 
+  ProfileAPIResponse, 
+  AdAccountUserResponse, 
+  AudienceJSON, 
+  LinkedInBatchUpdateResponse, 
+  CreateDMPSegmentResponse, 
+  GetDMPSegmentResponse, 
+  SegmentType 
+} from './types'
 
 export class LinkedInAudiences {
   request: RequestClient
@@ -27,27 +33,27 @@ export class LinkedInAudiences {
     )
   }
 
-  async getDmpSegment(settings: Settings, payload: Payload): Promise<ModifiedResponse> {
+  async getDmpSegment(settings: Settings, sourceSegmentId = ''): Promise<ModifiedResponse<GetDMPSegmentResponse>> {
     return this.request(`${BASE_URL}/dmpSegments`, {
       method: 'GET',
       searchParams: {
         q: 'account',
         account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
-        sourceSegmentId: payload.personas_audience_key || '',
+        sourceSegmentId,
         sourcePlatform: LINKEDIN_SOURCE_PLATFORM
       }
     })
   }
 
-  async createDmpSegment(settings: Settings, payload: Payload): Promise<ModifiedResponse> {
+  async createDmpSegment(settings: Settings, sourceSegmentId: string, segmentName: string, segmentType: SegmentType): Promise<ModifiedResponse<CreateDMPSegmentResponse>> {
     return this.request(`${BASE_URL}/dmpSegments`, {
       method: 'POST',
       json: {
-        name: payload.dmp_segment_name,
+        name: segmentName,
         sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
-        sourceSegmentId: payload.personas_audience_key,
+        sourceSegmentId,
         account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
-        type: 'USER',
+        type: segmentType,
         destinations: [
           {
             destination: 'LINKEDIN'
@@ -57,15 +63,14 @@ export class LinkedInAudiences {
     })
   }
 
-  async batchUpdate(dmpSegmentId: string, elements: LinkedInAudiencePayload[]): Promise<ModifiedResponse> {
-    return this.request(`${BASE_URL}/dmpSegments/${dmpSegmentId}/users`, {
+  async batchUpdate<E>(dmpSegmentId: string, json: AudienceJSON<E>, segmentType: SegmentType): Promise<ModifiedResponse<LinkedInBatchUpdateResponse>> {
+    const url = `${BASE_URL}/dmpSegments/${dmpSegmentId}/${segmentType === SEGMENT_TYPES.COMPANY ? 'companies' : 'users'}`
+    return this.request(url, {
       method: 'POST',
       headers: {
         'X-RestLi-Method': 'BATCH_CREATE'
       },
-      json: {
-        elements
-      },
+      json,
       throwHttpErrors: false
     })
   }

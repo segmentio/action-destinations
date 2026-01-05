@@ -5,35 +5,35 @@ import { getSegmentSourceIdAndName, buildJSON, validate } from './functions'
 import { send } from '../common-functions'
 import { fields } from './fields'
 import { SEGMENT_TYPES } from '../constants'
-import { LinkedInUserAudienceElement } from '../types'
+import { LinkedInCompanyAudienceElement } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Sync To LinkedIn DMP User Segment',
-  description: 'Syncs an Engage User based Audience to a LinkedIn DMP User Segment.',
-  defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
+  title: 'Sync To LinkedIn DMP Company Segment',
+  description: 'Syncs an Engage Account based Audience to a LinkedIn DMP Company Segment.',
+  defaultSubscription: 'type = "group"',
   fields,
   perform: async (request, { settings, payload, statsContext }) => {
-    return send<Payload, LinkedInUserAudienceElement>(
+    return send<Payload, LinkedInCompanyAudienceElement>(
       request, 
       getSegmentSourceIdAndName,
       buildJSON,
       validate,
       settings, 
-      [payload],  
-      SEGMENT_TYPES.USER, 
+      [payload], 
+      SEGMENT_TYPES.COMPANY, 
       false, 
       statsContext
     )
   },
   performBatch: async (request, { settings, payload, statsContext }) => {
-    return send<Payload, LinkedInUserAudienceElement>(
+    return send<Payload, LinkedInCompanyAudienceElement>(
       request, 
       getSegmentSourceIdAndName,
       buildJSON,
       validate,
       settings, 
       payload, 
-      SEGMENT_TYPES.USER, 
+      SEGMENT_TYPES.COMPANY, 
       true, 
       statsContext
     )
