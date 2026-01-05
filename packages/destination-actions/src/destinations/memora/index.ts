@@ -3,7 +3,8 @@ import type { Settings } from './generated-types'
 
 import upsertProfile from './upsertProfile'
 
-const API_VERSION = 'v1'
+export const API_VERSION = 'v1'
+export const BASE_URL = 'https://memory.dev.twilio.com'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Memora',
@@ -13,14 +14,6 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'basic',
     fields: {
-      url: {
-        label: 'Base URL ',
-        description: 'Base URL for the Memora API.',
-        type: 'string',
-        format: 'uri',
-        required: true,
-        default: 'https://api.memora.com'
-      },
       username: {
         label: 'API Key',
         description: 'API Key for Basic Authentication',
@@ -45,9 +38,8 @@ const destination: DestinationDefinition<Settings> = {
       // Note: We cannot fully test without a serviceId, which is now part of the mapping
       // This just validates the credentials format
       try {
-        const baseUrl = normalizeBaseUrl(settings.url)
         // Simple request to validate base URL is accessible
-        await request(`${baseUrl}/${API_VERSION}/ControlPlane/Stores?pageSize=1`, {
+        await request(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores?pageSize=1`, {
           method: 'GET',
           headers: {
             ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
@@ -86,7 +78,3 @@ const destination: DestinationDefinition<Settings> = {
 }
 
 export default destination
-
-function normalizeBaseUrl(url: string): string {
-  return url.replace(/\/+$/, '')
-}

@@ -2,8 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, RetryableError } from '@segment/actions-core'
-
-const API_VERSION = 'v1'
+import { API_VERSION, BASE_URL } from '../index'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -71,52 +70,6 @@ const action: ActionDefinition<Settings, Payload> = {
           '@path': '$.traits.phone'
         }
       }
-    },
-    otherTraits: {
-      label: 'Other Traits',
-      description:
-        'Additional traits to include in the Memora profile. Each trait should specify the trait group, trait name, and trait value.',
-      type: 'object',
-      multiple: true,
-      required: false,
-      additionalProperties: false,
-      defaultObjectUI: 'arrayeditor',
-      properties: {
-        traitGroup: {
-          label: 'Trait Group',
-          description: 'The name of the trait group (e.g., Demographics, Preferences, Custom)',
-          type: 'string',
-          required: true
-        },
-        traitName: {
-          label: 'Trait Name',
-          description: 'The name of the trait field',
-          type: 'string',
-          required: true
-        },
-        traitValue: {
-          label: 'Trait Value',
-          description: 'The value of the trait',
-          type: 'string',
-          required: true
-        }
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties',
-          {
-            traitGroup: {
-              '@path': '$.traitGroup'
-            },
-            traitName: {
-              '@path': '$.traitName'
-            },
-            traitValue: {
-              '@path': '$.traitValue'
-            }
-          }
-        ]
-      }
     }
   },
   dynamicFields: {
@@ -142,9 +95,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     try {
-      const baseUrl = normalizeBaseUrl(settings.url)
-
-      const response = await request(`${baseUrl}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
+      const response = await request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -202,9 +153,7 @@ const action: ActionDefinition<Settings, Payload> = {
     })
 
     try {
-      const baseUrl = normalizeBaseUrl(settings.url)
-
-      const response = await request(`${baseUrl}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
+      const response = await request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -232,34 +181,6 @@ const action: ActionDefinition<Settings, Payload> = {
 // Build trait groups payload for Memora API
 function buildTraitGroups(payload: Payload) {
   const traitGroups: Record<string, Record<string, unknown>> = {}
-
-  // Process otherTraits array
-  if (payload.otherTraits && Array.isArray(payload.otherTraits)) {
-    for (const trait of payload.otherTraits) {
-      if (trait && typeof trait === 'object') {
-        const { traitGroup, traitName, traitValue } = trait as {
-          traitGroup?: string
-          traitName?: string
-          traitValue?: unknown
-        }
-
-        // Skip if essential fields are missing
-        if (!traitGroup || !traitName) {
-          continue
-        }
-
-        // Initialize trait group if it doesn't exist
-        if (!traitGroups[traitGroup]) {
-          traitGroups[traitGroup] = {}
-        }
-
-        // Only add trait if value is not null/undefined
-        if (traitValue !== null && traitValue !== undefined) {
-          traitGroups[traitGroup][traitName] = traitValue
-        }
-      }
-    }
-  }
 
   // Process contact field
   if (payload.contact && typeof payload.contact === 'object') {
@@ -359,11 +280,9 @@ async function fetchMemoryStores(
   settings: Settings
 ) {
   try {
-    const baseUrl = normalizeBaseUrl(settings.url)
-
     // Call the Control Plane API to list memory stores
     const response = await request<MemoryStoresResponse>(
-      `${baseUrl}/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`,
+      `${BASE_URL}/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`,
       {
         method: 'GET',
         headers: {
@@ -402,7 +321,6 @@ async function fetchTraitFields(
   traitGroup: string
 ) {
   try {
-    const baseUrl = normalizeBaseUrl(settings.url)
     const storeId = payload.memora_store
 
     // If memora_store is not yet selected in the mapping, return helpful error
@@ -426,7 +344,7 @@ async function fetchTraitFields(
         }>
       }
       meta?: { pageToken?: string }
-    }>(`${baseUrl}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/${traitGroup}`, {
+    }>(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/${traitGroup}`, {
       method: 'GET',
       headers: {
         ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
@@ -462,7 +380,3 @@ async function fetchTraitFields(
 }
 
 export default action
-
-function normalizeBaseUrl(url: string): string {
-  return url.replace(/\/+$/, '')
-}
