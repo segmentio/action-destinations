@@ -1,0 +1,77 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-altertable destination: event action - all fields 1`] = `
+Object {
+  "device_id": "UM[e12E",
+  "distinct_id": "UM[e12E",
+  "environment": "UM[e12E",
+  "event": "UM[e12E",
+  "properties": Object {
+    "$ip": "UM[e12E",
+    "$lib": "UM[e12E",
+    "$lib_version": "UM[e12E",
+    "$os": "UM[e12E",
+    "$referer": "http://puc.pn/uzzucet",
+    "$url": "http://puc.pn/uzzucet",
+    "$user_agent": "UM[e12E",
+    "$utm_campaign": "UM[e12E",
+    "$utm_content": "UM[e12E",
+    "$utm_medium": "UM[e12E",
+    "$utm_source": "UM[e12E",
+    "$utm_term": "UM[e12E",
+    "$viewport": "-62074548073267.2x-62074548073267.2",
+    "testType": "UM[e12E",
+  },
+  "timestamp": "2024-06-01T12:00:00.000Z",
+}
+`;
+
+exports[`Testing snapshot for actions-altertable destination: event action - required fields 1`] = `
+Object {
+  "distinct_id": "UM[e12E",
+  "environment": "UM[e12E",
+  "event": "UM[e12E",
+  "properties": Object {
+    "$lib": "altertable-segment",
+    "testType": "UM[e12E",
+  },
+  "timestamp": "2024-06-01T12:00:00.000Z",
+}
+`;
+
+exports[`Testing snapshot for actions-altertable destination: identify action - all fields 1`] = `
+Object {
+  "device_id": "&03lz0I0LT8Hl)",
+  "distinct_id": "&03lz0I0LT8Hl)",
+  "environment": "&03lz0I0LT8Hl)",
+  "timestamp": "2024-06-01T12:00:00.000Z",
+  "traits": Object {
+    "$ip": "&03lz0I0LT8Hl)",
+    "$lib": "&03lz0I0LT8Hl)",
+    "$lib_version": "&03lz0I0LT8Hl)",
+    "$os": "&03lz0I0LT8Hl)",
+    "$referer": "http://wodwi.pg/alaken",
+    "$url": "http://wodwi.pg/alaken",
+    "$user_agent": "&03lz0I0LT8Hl)",
+    "$utm_campaign": "&03lz0I0LT8Hl)",
+    "$utm_content": "&03lz0I0LT8Hl)",
+    "$utm_medium": "&03lz0I0LT8Hl)",
+    "$utm_source": "&03lz0I0LT8Hl)",
+    "$utm_term": "&03lz0I0LT8Hl)",
+    "$viewport": "19449315013427.2x19449315013427.2",
+    "testType": "&03lz0I0LT8Hl)",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-altertable destination: identify action - required fields 1`] = `
+Object {
+  "distinct_id": "&03lz0I0LT8Hl)",
+  "environment": "&03lz0I0LT8Hl)",
+  "timestamp": "2024-06-01T12:00:00.000Z",
+  "traits": Object {
+    "$lib": "altertable-segment",
+    "testType": "&03lz0I0LT8Hl)",
+  },
+}
+`;
