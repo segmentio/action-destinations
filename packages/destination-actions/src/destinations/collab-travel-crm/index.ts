@@ -7,10 +7,11 @@ const COLLAB_CRM_BASE_URL = 'https://wvjaseexkfrcahmzfxkl.supabase.co/functions/
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Collab Travel CRM',
-  slug: 'collab-travel-crm',
+  slug: 'actions-collab-travel-crm',
   mode: 'cloud',
 
-  description: 'Sync your customer data, bookings, and leads with Collab Travel CRM - the all-in-one platform for modern travel agencies.',
+  description:
+    'Sync your customer data, bookings, and leads with Collab Travel CRM - the all-in-one platform for modern travel agencies.',
 
   authentication: {
     scheme: 'custom',
@@ -26,7 +27,7 @@ const destination: DestinationDefinition<Settings> = {
       const response = await request(`${COLLAB_CRM_BASE_URL}/segment-destination`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${settings.apiKey}`,
+          Authorization: `Bearer ${settings.apiKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -43,7 +44,7 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ settings }) {
     return {
       headers: {
-        'Authorization': `Bearer ${settings.apiKey}`,
+        Authorization: `Bearer ${settings.apiKey}`,
         'Content-Type': 'application/json'
       }
     }
