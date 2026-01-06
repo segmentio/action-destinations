@@ -374,20 +374,20 @@ function _parse_and_format_date(date_string: string) {
   }
 }
 
-function _parse_date(attribute_value: any): Date | null {
+function _parse_date(attribute_value: unknown): Date | null {
   /*
   This function is for converting dates or returning null if they're not valid.
   It requires the string to contain date-like patterns to avoid false positives.
   */
-  if (attribute_value.length < 8) {
+  if (typeof attribute_value !== 'string' || attribute_value.length < 8) {
     return null // Reduce false positive dates
   }
 
   // Require the string to contain date-like patterns to avoid false positives
   // Common date separators: dashes, slashes, colons, spaces with numbers
   // ISO format patterns: YYYY-MM-DD, YYYY-MM-DDTHH:mm:ss, etc.
-  const dateLikePattern = /(\d{4}[-\/]\d{1,2}[-\/]\d{1,2})|(\d{1,2}[-\/]\d{1,2}[-\/]\d{4})|(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})|(\d{1,2}\/\d{1,2}\/\d{4})/
-  
+  const dateLikePattern = /(\d{4}[-/]\d{1,2}[-/]\d{1,2})|(\d{1,2}[-/]\d{1,2}[-/]\d{4})|(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})|(\d{1,2}\/\d{1,2}\/\d{4})/
+
   // If the string doesn't contain date-like patterns, don't parse it as a date
   if (!dateLikePattern.test(attribute_value)) {
     return null
