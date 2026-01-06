@@ -3,6 +3,7 @@ import { createHmac } from 'crypto'
 import { CredsObj, YahooSubTaxonomy } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { StatsClient } from '@segment/actions-core/destination-kit'
+import { YAHOO_AUDIENCES_OAUTH_VERSION, YAHOO_AUDIENCES_TAXONOMY_API_VERSION } from './versioning-info'
 
 export function gen_customer_taxonomy_payload(settings: Settings) {
   const data = {
@@ -63,7 +64,7 @@ export function gen_oauth1_signature(client_key: string, client_secret: string, 
       .update(base_string)
       .digest('base64')
   )
-  const oauth1_auth_string = `OAuth oauth_consumer_key="${client_key}", oauth_nonce="${nonce}", oauth_signature="${signature}", oauth_signature_method="HMAC-SHA1", oauth_timestamp="${timestamp}", oauth_version="1.0"`
+  const oauth1_auth_string = `OAuth oauth_consumer_key="${client_key}", oauth_nonce="${nonce}", oauth_signature="${signature}", oauth_signature_method="HMAC-SHA1", oauth_timestamp="${timestamp}", oauth_version="${YAHOO_AUDIENCES_OAUTH_VERSION}"`
   return oauth1_auth_string
 }
 
@@ -77,7 +78,9 @@ export async function update_taxonomy(
 ) {
   const tx_client_secret = tx_creds.tx_client_secret
   const tx_client_key = tx_creds.tx_client_key
-  const url = `https://datax.yahooapis.com/v1/taxonomy/append${engage_space_id.length > 0 ? '/' + engage_space_id : ''}`
+  const url = `https://datax.yahooapis.com/${YAHOO_AUDIENCES_TAXONOMY_API_VERSION}/taxonomy/append${
+    engage_space_id.length > 0 ? '/' + engage_space_id : ''
+  }`
   const oauth1_auth_string = gen_oauth1_signature(tx_client_key, tx_client_secret, 'PUT', url)
   try {
     const add_segment_node = await request(url, {
