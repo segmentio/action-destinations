@@ -1,4 +1,4 @@
-import { RequestClient, PayloadValidationError } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError, ModifiedResponse } from '@segment/actions-core'
 
 import { Settings, AudienceSettings } from '../generated-types'
 import { Unsubscriber, Subscriber, IterableSubscribePayload, IterableUnsubscribePayload } from '../types'
@@ -61,8 +61,8 @@ export class IterableListsClient {
       }
     })
 
-    const subcribeRequests = []
-    const unSubcribeRequests = []
+    const subscribeRequests: Promise<ModifiedResponse>[] = []
+    const unsubscribeRequests: Promise<ModifiedResponse>[] = []
 
     subscribersGroup.forEach((subscribers, listId) => {
       const json: IterableSubscribePayload = {
@@ -70,7 +70,7 @@ export class IterableListsClient {
         subscribers,
         updateExistingUsersOnly: this.updateExistingUsersOnly
       }
-      subcribeRequests.push(
+      subscribeRequests.push(
         this.request(`${CONSTANTS.API_BASE_URL}/lists/subscribe`, {
           method: 'post',
           skipResponseCloning: true,
@@ -86,7 +86,7 @@ export class IterableListsClient {
         campaignId: typeof this.campaignId === 'number' ? this.campaignId : undefined,
         channelUnsubscribe: this.globalUnsubscribe
       }
-      unSubcribeRequests.push(
+      unsubscribeRequests.push(
         this.request(`${CONSTANTS.API_BASE_URL}/lists/unsubscribe`, {
           method: 'post',
           skipResponseCloning: true,
@@ -95,7 +95,7 @@ export class IterableListsClient {
       )
     })
 
-    return await Promise.all([...unsubscribersGroup, ...subscribersGroup])
+    return await Promise.all([...subscribeRequests, ...unsubscribeRequests])
   }
 
   static validate(payload: Payload) {

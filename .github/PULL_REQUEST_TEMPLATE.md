@@ -19,4 +19,10 @@ any of the tasks you completed below during your testing._
 - [ ] Tested end-to-end using the [local server](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing)
 - [ ] [If destination is already live] Tested for backward compatibility of destination. **Note:** New required fields are a breaking change.
 - [ ] [Segmenters] Tested in the staging environment
-- [ ] [Segmenters] [If applicable for this change] Tested for regression with Hadron. 
+- [ ] [Segmenters] [If applicable for this change] Tested for regression with Hadron.
+
+## Security Review
+
+_Please ensure sensitive data is properly protected in your integration._
+
+- [ ] **Reviewed all field definitions** for sensitive data (API keys, tokens, passwords, client secrets) and confirmed they use `type: 'password'`

@@ -58,6 +58,16 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       multiple: true,
       default: ['topic', 'partition', 'default_partition']
+    },
+    batch_bytes: {
+      type: 'number',
+      label: 'Batch Bytes',
+      description:
+        'Specifies the maximum number of bytes to batch before sending. The default is 1 MB, though the maximum allowed depends on the Kafka cluster. Smaller batch sizes result in more frequent requests to the cluster. Minimum is 5 KB.',
+      default: 1000000, // 1MB,
+      required: false,
+      minimum: 5000, // 5KB
+      unsafe_hidden: false
     }
   },
   dynamicFields: {

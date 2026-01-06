@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { TopsortAPIClient } from '../client'
+import { NormalizeDeviceType } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'ImpressionsList',
@@ -67,15 +68,37 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]
       }
+    },
+    deviceType: {
+      label: 'Device Type',
+      description: 'The device the user is on.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.context.device.type'
+      }
+    },
+    channel: {
+      label: 'Channel',
+      description: 'The channel where the event occurred.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.properties.channel'
+      }
     }
   },
   perform: (request, { payload, settings }) => {
     const client = new TopsortAPIClient(request, settings)
+    payload.deviceType = NormalizeDeviceType(payload.deviceType)
+
     const impressions = payload.products?.map((impression) => ({
       id: payload.id,
       occurredAt: payload.occurredAt,
       opaqueUserId: payload.opaqueUserId,
       resolvedBidId: impression.resolvedBidId,
+      deviceType: payload.deviceType,
+      channel: payload.channel,
       ...(impression.additionalAttribution && {
         additionalAttribution: impression.additionalAttribution
       })

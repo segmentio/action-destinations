@@ -3,6 +3,8 @@ import { Payload } from '../send/generated-types'
 import { KinesisClient, PutRecordsCommand } from '@aws-sdk/client-kinesis'
 import { assumeRole } from '../../../lib/AWS/sts'
 import { Logger } from '@segment/actions-core/destination-kit'
+import { RequestTimeoutError, JSONLikeObject } from '@segment/actions-core'
+import { StatsContext } from '@segment/actions-core/destination-kit'
 
 describe('validateIamRoleArnFormat', () => {
   it('should return true for a valid IAM Role ARN', () => {
@@ -63,6 +65,7 @@ jest.mock('@aws-sdk/client-kinesis')
 jest.mock('../../../lib/AWS/sts')
 
 const mockSend = jest.fn()
+
 const mockLogger: Partial<Logger> = {
   crit: jest.fn(),
   info: jest.fn(),
@@ -100,15 +103,14 @@ describe('Kinesis send', () => {
   })
 
   it('should create Kinesis client and send records successfully', async () => {
-    mockSend.mockResolvedValueOnce({ Records: [] })
+    mockSend.mockResolvedValueOnce({
+      FailedRecordCount: 0,
+      Records: [{}]
+    })
 
     await send(mockSettings, mockPayloads, undefined, mockLogger as Logger)
 
-    expect(assumeRole).toHaveBeenCalledWith(
-      mockSettings.iamRoleArn,
-      mockSettings.iamExternalId,
-      expect.any(String) // region
-    )
+    expect(assumeRole).toHaveBeenCalledWith(mockSettings.iamRoleArn, mockSettings.iamExternalId, expect.any(String))
 
     expect(KinesisClient).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -117,17 +119,150 @@ describe('Kinesis send', () => {
       })
     )
 
-    expect(mockSend).toHaveBeenCalledWith(expect.any(PutRecordsCommand), expect.any(Object))
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.any(PutRecordsCommand),
+      expect.objectContaining({
+        abortSignal: undefined
+      })
+    )
+
+    expect(PutRecordsCommand).toHaveBeenCalledWith({
+      StreamName: mockPayloads[0].streamName,
+      Records: [
+        expect.objectContaining({
+          Data: Buffer.from(JSON.stringify(mockPayloads[0].payload)),
+          PartitionKey: mockPayloads[0].partitionKey
+        })
+      ]
+    })
   })
 
-  it('should log and rethrow error when Kinesis send fails', async () => {
+  it('should handle AccessDeniedException and throw IntegrationError', async () => {
+    const error: any = new Error('Denied')
+    error.name = 'AccessDeniedException'
+
+    mockSend.mockRejectedValueOnce(error)
+
+    await expect(send(mockSettings, mockPayloads, undefined, mockLogger as Logger)).rejects.toThrow('Access denied.')
+
+    expect(mockLogger.crit).toHaveBeenCalledWith('Failed to send batch to Kinesis:', error)
+  })
+
+  it('should wrap general Kinesis errors into IntegrationError', async () => {
     const error = new Error('Kinesis failure')
     mockSend.mockRejectedValueOnce(error)
 
-    await expect(send(mockSettings, mockPayloads, undefined, mockLogger as Logger, undefined)).rejects.toThrow(
-      'Kinesis failure'
+    await expect(send(mockSettings, mockPayloads, undefined, mockLogger as Logger)).rejects.toThrow(
+      'Failed to send batch to Kinesis'
     )
 
     expect(mockLogger.crit).toHaveBeenCalledWith('Failed to send batch to Kinesis:', error)
+  })
+
+  it('should throw RequestTimeoutError when AbortError occurs', async () => {
+    const abortError: any = new Error('Aborted')
+    abortError.name = 'AbortError'
+
+    mockSend.mockRejectedValueOnce(abortError)
+
+    await expect(send(mockSettings, mockPayloads, undefined, mockLogger as Logger)).rejects.toThrow(RequestTimeoutError)
+  })
+
+  it('should return multi-status response on partial failures', async () => {
+    mockSend.mockResolvedValueOnce({
+      FailedRecordCount: 1,
+      Records: [{ ErrorCode: 'ProvisionedThroughputExceededException', ErrorMessage: 'Throttled' }]
+    })
+
+    const resp = await send(mockSettings, mockPayloads, undefined, mockLogger as Logger)
+
+    expect(resp.getAllResponses()[0].value()).toMatchObject({
+      status: 429,
+      errormessage: 'Throttled'
+    })
+  })
+
+  it('should map error codes to the appropriate status codes', async () => {
+    const multiPayloads: Payload[] = [
+      {
+        streamName: 'test-stream',
+        awsRegion: 'us-east-1',
+        partitionKey: 'pk-1',
+        payload: { data: 'record-1' },
+        max_batch_size: 500,
+        batch_keys: ['awsRegion'],
+        batch_bytes: 100000
+      },
+      {
+        streamName: 'test-stream',
+        awsRegion: 'us-east-1',
+        partitionKey: 'pk-2',
+        payload: { data: 'record-2' },
+        max_batch_size: 500,
+        batch_keys: ['awsRegion'],
+        batch_bytes: 100000
+      },
+      {
+        streamName: 'test-stream',
+        awsRegion: 'us-east-1',
+        partitionKey: 'pk-3',
+        payload: { data: 'record-3' },
+        max_batch_size: 500,
+        batch_keys: ['awsRegion'],
+        batch_bytes: 100000
+      }
+    ]
+
+    mockSend.mockResolvedValueOnce({
+      FailedRecordCount: 3,
+      Records: [
+        { ErrorCode: 'AccessDeniedException', ErrorMessage: 'Denied' },
+        { ErrorCode: 'ResourceNotFoundException', ErrorMessage: 'Missing' },
+        { ErrorCode: 'SomeRandomError', ErrorMessage: 'Unknown' }
+      ]
+    })
+
+    const resp = await send(mockSettings, multiPayloads, undefined, mockLogger as Logger)
+    const responses = resp.getAllResponses()
+
+    expect(responses[0].value()).toMatchObject({
+      status: 502,
+      errormessage: 'Denied'
+    })
+    expect(responses[1].value()).toMatchObject({
+      status: 404,
+      errormessage: 'Missing'
+    })
+    expect(responses[2].value()).toMatchObject({
+      status: 500,
+      errormessage: 'Unknown'
+    })
+  })
+
+  it('should return successful MultiStatusResponse on all records success and record metrics', async () => {
+    const mockStatsClient = { histogram: jest.fn(), incr: jest.fn() }
+    const statsContext: StatsContext = { statsClient: mockStatsClient as any, tags: ['tag1'] }
+    mockSend.mockResolvedValueOnce({
+      FailedRecordCount: 0,
+      Records: [{ ShardId: 'shard-1', SequenceNumber: 'seq-1' }]
+    })
+    const resp = await send(mockSettings, mockPayloads, statsContext, mockLogger as Logger)
+    expect(mockStatsClient.histogram).toHaveBeenCalledWith(
+      'actions_kinesis.batch_size',
+      mockPayloads.length,
+      statsContext.tags
+    )
+    expect(mockStatsClient.incr).toHaveBeenCalledWith('actions_kinesis.request_hit', 1, statsContext.tags)
+    expect(mockStatsClient.incr).toHaveBeenCalledWith(
+      'actions_kinesis.successful_record_count',
+      resp.getAllResponses().length,
+      statsContext.tags
+    )
+    const [result] = resp.getAllResponses()
+    expect(result.value()).toMatchObject({
+      status: 200,
+      body: { ShardId: 'shard-1', SequenceNumber: 'seq-1' },
+      sent: mockPayloads[0] as unknown as JSONLikeObject
+    })
   })
 })

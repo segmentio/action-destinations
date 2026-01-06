@@ -1,7 +1,7 @@
 import { createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
 import { Features } from '@segment/actions-core/mapping-kit'
 import nock from 'nock'
-import { CANARY_API_VERSION, formatToE164, commonEmailValidation, convertTimestamp } from '../functions'
+import { CANARY_API_VERSION, formatToE164, commonEmailValidation, convertTimestamp, timestampToEpochMicroseconds } from '../functions'
 import destination from '../index'
 
 const testDestination = createTestIntegration(destination)
@@ -192,3 +192,18 @@ describe('convertTimestamp', () => {
     expect(result).toEqual('2025-03-11 17:57:29+00:00')
   })
 })
+
+describe('timestampToEpochMicroseconds', () => {
+  it('should convert timestamp with milliseconds to epoch microseconds', () => {
+    const timestamp = '2025-10-31T12:13:51.053Z'
+    const result = timestampToEpochMicroseconds(timestamp)
+    expect(result).toEqual('1761912831053000')
+  })
+
+  it('should return undefined for bad timestamps', () => {
+    const timestamp = 'I AM NOT A TIMESTAMP - BLEEP BLOOP'
+    const result = timestampToEpochMicroseconds(timestamp)
+    expect(result).toEqual(undefined)
+  })
+})
+

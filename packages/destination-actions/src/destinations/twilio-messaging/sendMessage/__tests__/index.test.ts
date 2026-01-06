@@ -10,8 +10,7 @@ const defaultSettings = {
   accountSID: 'AC1234567890abcdef1234567890abcdef',
   authToken: 'test_auth_token',
   apiKeySID: 'test_api_key_sid',
-  apiKeySecret: 'test_api_key_secret',
-  region: 'us1'
+  apiKeySecret: 'test_api_key_secret'
 }
 
 describe('TwilioMessaging.sendMessage', () => {
@@ -294,6 +293,8 @@ describe('TwilioMessaging.sendMessage', () => {
       status: 'scheduled'
     })
 
+    const sendAt = new Date(Date.now() + 20 * 60 * 1000).toISOString() // set to 20 minutes from now
+    
     await testDestination.testAction('sendMessage', {
       settings: defaultSettings,
       mapping: {
@@ -304,13 +305,16 @@ describe('TwilioMessaging.sendMessage', () => {
         contentTemplateType: 'Inline',
         inlineBody: 'Scheduled message with media',
         inlineMediaUrls: ['https://example.com/scheduled-image.png'],
-        sendAt: '2025-12-31T23:59:59Z'
+        sendAt
       }
     })
   })
 
   it('should send RCS with messaging service and scheduled send', async () => {
-    nock('https://api.twilio.com').post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`, "To=%2B1234567890&SendAt=2025-12-31T23%3A59%3A59Z&MessagingServiceSid=MG5555555555bbbbbb5555555555bbbbbb&Body=Scheduled+message+with+media&MediaUrl=https%3A%2F%2Fexample.com%2Fscheduled-image.png").reply(200, {
+
+    const sendAt = new Date(Date.now() + 20 * 60 * 1000).toISOString() // set to 20 minutes from now
+
+    nock('https://api.twilio.com').post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`, `To=%2B1234567890&MessagingServiceSid=MG5555555555bbbbbb5555555555bbbbbb&SendAt=${encodeURIComponent(sendAt)}&ScheduleType=fixed&Body=Scheduled+message+with+media&MediaUrl=https%3A%2F%2Fexample.com%2Fscheduled-image.png`).reply(200, {
       sid: 'SM1234567890abcdef1234567890abcdef',
       status: 'scheduled'
     })
@@ -325,7 +329,7 @@ describe('TwilioMessaging.sendMessage', () => {
         contentTemplateType: 'Inline',
         inlineBody: 'Scheduled message with media',
         inlineMediaUrls: ['https://example.com/scheduled-image.png'],
-        sendAt: '2025-12-31T23:59:59Z'
+        sendAt
       }
     })
   })
@@ -412,7 +416,9 @@ describe('TwilioMessaging.sendMessage', () => {
   })
 
   it('should send RCS messsage with tags', async () => {
-    const body = "To=%2B1234567890&SendAt=2025-12-31T23%3A59%3A59Z&MessagingServiceSid=MG5555555555bbbbbb5555555555bbbbbb&Body=Scheduled+message+with+media&MediaUrl=https%3A%2F%2Fexample.com%2Fscheduled-image.png&Tags=%7B%22campaign_name%22%3A%22Spring+Sale+2022%22%2C%22message_type%22%3A%22cart_abandoned%22%2C%22number_tag%22%3A%2212345%22%2C%22boolean_tag%22%3A%22true%22%7D"
+    const sendAt = new Date(Date.now() + 20 * 60 * 1000).toISOString() // set to 20 minutes from now
+    
+    const body = `To=%2B1234567890&MessagingServiceSid=MG5555555555bbbbbb5555555555bbbbbb&SendAt=${encodeURIComponent(sendAt)}&ScheduleType=fixed&Body=Scheduled+message+with+media&MediaUrl=https%3A%2F%2Fexample.com%2Fscheduled-image.png&Tags=%7B%22campaign_name%22%3A%22Spring+Sale+2022%22%2C%22message_type%22%3A%22cart_abandoned%22%2C%22number_tag%22%3A%2212345%22%2C%22boolean_tag%22%3A%22true%22%7D`
     nock('https://api.twilio.com')
       .post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`, body)
       .reply(200, {
@@ -430,7 +436,7 @@ describe('TwilioMessaging.sendMessage', () => {
         contentTemplateType: 'Inline',
         inlineBody: 'Scheduled message with media',
         inlineMediaUrls: ['https://example.com/scheduled-image.png'],
-        sendAt: '2025-12-31T23:59:59Z',
+        sendAt, 
         tags: {
           campaign_name: 'Spring Sale 2022',
           message_type: 'cart_abandoned',

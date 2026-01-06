@@ -197,7 +197,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       'Name of the S3 Subfolder where the files will be uploaded to. e.g. segmentdata/ or segmentdata/audiences/',
     type: 'string',
     required: false,
-    disabledInputMethods: ['enrichment', 'function', 'variable', 'literal']
+    disabledInputMethods: []
   },
   filename_prefix: {
     label: 'Filename prefix',
@@ -232,5 +232,14 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       { label: 'txt', value: 'txt' }
     ],
     default: 'csv'
+  },
+  batch_keys: {
+    label: 'Batch Keys',
+    description: 'The keys to use for batching the events.',
+    type: 'string',
+    unsafe_hidden: true,
+    required: false,
+    multiple: true,
+    default: ['s3_aws_folder_name']
   }
 }

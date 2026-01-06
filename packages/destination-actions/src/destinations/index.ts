@@ -218,6 +218,10 @@ register('68c960b951beba1bccaeab02', './vibe-audience')
 register('690075c7aa0913d3cb27878c', './survicate')
 register('6909cac9d608c9ad592d7211', './aws-kinesis')
 register('690de842dc73c4bb198a38e6', './tiktok-app-events')
+register('6937efdfdf772b67ee7174c5', './zapier')
+register('695cde813cc7cd3831de456e', './lark')
+register('695cddba47257c593da2bd68', './collab-travel-crm')
+register('695ce1240b991455a1e5cb27', './altertable')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
