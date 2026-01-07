@@ -7,7 +7,19 @@ import { extractSchemaFromEvent, fetchEventSpec, EventSpecResponse } from './avo
 
 /**
  * Fetches event specs for all unique event names in the batch.
- * Returns a map of event name -> event spec (or null if fetch failed).
+ *
+ * Implements within-batch caching: each unique event name is fetched exactly once,
+ * even if multiple events in the batch share the same event name. This prevents
+ * duplicate API calls for the same event spec within a single batch.
+ *
+ * The cache stores both successful responses (EventSpecResponse) and failed responses (null),
+ * so failed fetches are also deduplicated and won't be retried for the same event name.
+ *
+ * @param request - RequestClient for making HTTP requests
+ * @param settings - Destination settings including apiKey and env
+ * @param payload - Array of events in the batch (all share the same anonymousId/streamId)
+ * @param streamId - The anonymousId used as stream identifier (same for all events in batch)
+ * @returns Map of event name -> event spec (or null if fetch failed)
  */
 async function fetchEventSpecsForBatch(
   request: RequestClient,
@@ -17,10 +29,12 @@ async function fetchEventSpecsForBatch(
 ): Promise<Map<string, EventSpecResponse | null>> {
   const eventSpecMap = new Map<string, EventSpecResponse | null>()
 
-  // Get unique event names from the batch
+  // Extract unique event names to avoid duplicate fetches within the batch
+  // Example: if batch has [EventA, EventB, EventA, EventC], we only fetch specs for [EventA, EventB, EventC]
   const uniqueEventNames = [...new Set(payload.map((p) => p.event))]
 
   // Fetch event specs for each unique event name in parallel
+  // Each event name is fetched exactly once, regardless of how many times it appears in the batch
   const fetchPromises = uniqueEventNames.map(async (eventName) => {
     try {
       const spec = await fetchEventSpec(request, settings.env, {
@@ -31,11 +45,15 @@ async function fetchEventSpecsForBatch(
       return { eventName, spec }
     } catch {
       // Graceful degradation - continue without spec for this event
+      // Cache null to prevent retrying failed fetches for the same event name
       return { eventName, spec: null }
     }
   })
 
   const results = await Promise.all(fetchPromises)
+
+  // Build the cache map: event name -> event spec (or null for failed fetches)
+  // This map is used to look up specs for all events in the batch
   for (const { eventName, spec } of results) {
     eventSpecMap.set(eventName, spec)
   }
