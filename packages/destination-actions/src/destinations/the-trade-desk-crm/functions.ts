@@ -64,14 +64,13 @@ export async function processPayload(input: ProcessPayloadInput): Promise<MultiS
 
   const multiStatusResponse = new MultiStatusResponse()
 
-  const payload = input.payloads
-  payload.forEach((_, index) => {
+  for (let index = 0; index < input.payloads.length; index++) {
     multiStatusResponse.setSuccessResponseAtIndex(index, {
       status: 200,
-      sent: { ...payload[index] },
+      sent: { ...input.payloads[index] },
       body: 'Successfully Uploaded to S3'
     })
-  })
+  }
 
   // Get user emails from the payloads
   const [usersFormatted, rowCount] = extractUsers(input.payloads, multiStatusResponse)
@@ -104,7 +103,7 @@ export async function processPayload(input: ProcessPayloadInput): Promise<MultiS
 
       return multiStatusResponse
     } catch (error) {
-      payload.forEach((_, i) => {
+      for (let i = 0; i < input.payloads.length; i++) {
         if (multiStatusResponse.isSuccessResponseAtIndex(i)) {
           multiStatusResponse.setErrorResponseAtIndex(i, {
             status: 500,
@@ -114,7 +113,7 @@ export async function processPayload(input: ProcessPayloadInput): Promise<MultiS
             body: `The Trade Desk Drop Endpoint upload failed: ${(error as Error).message}`
           })
         }
-      })
+      }
       return multiStatusResponse
     }
   } else {
@@ -138,17 +137,17 @@ export async function processPayload(input: ProcessPayloadInput): Promise<MultiS
       })
     } catch (error) {
       // Mark all remaining success payloads as failed if AWS upload fails
-      payload.forEach((_, index) => {
+      for (let index = 0; index < input.payloads.length; index++) {
         if (multiStatusResponse.isSuccessResponseAtIndex(index)) {
           multiStatusResponse.setErrorResponseAtIndex(index, {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Failed to upload to AWS: ${(error as Error).message}`,
-            sent: { ...payload[index] },
+            sent: { ...input.payloads[index] },
             body: `AWS upload failed: ${(error as Error).message}`
           })
         }
-      })
+      }
     }
     return multiStatusResponse
   }
