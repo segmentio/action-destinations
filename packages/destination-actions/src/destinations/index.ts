@@ -215,7 +215,6 @@ register('68b6ddcd033b3f6d006d8e1f', './taguchi')
 register('68bff47aa7bba4dd200b450a', './ms-bing-ads-audiences')
 register('68b82be249b48bae343517c7', './ms-bing-capi')
 register('68c960b951beba1bccaeab02', './vibe-audience')
-register('6911f0798a930f4522e0a8b7', './memora')
 register('690075c7aa0913d3cb27878c', './survicate')
 register('6909cac9d608c9ad592d7211', './aws-kinesis')
 register('690de842dc73c4bb198a38e6', './tiktok-app-events')
@@ -223,7 +222,7 @@ register('6937efdfdf772b67ee7174c5', './zapier')
 register('695cde813cc7cd3831de456e', './lark')
 register('695cddba47257c593da2bd68', './collab-travel-crm')
 register('695ce1240b991455a1e5cb27', './altertable')
-register('670589f2a1b3c4d5e6f78901', './memora')
+register('695d30cdac2addbdcc3baf7f', './memora')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

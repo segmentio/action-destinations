@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import upsertProfile from './upsertProfile'
 
 export const API_VERSION = 'v1'
-export const BASE_URL = 'https://memory.dev.twilio.com'
+export const BASE_URL = 'https://memory.dev.twilio.com' //TODO: change to production base URL
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Memora',
@@ -63,13 +63,6 @@ const destination: DestinationDefinition<Settings> = {
       username: settings.username,
       password: settings.password
     }
-  },
-
-  onDelete: async (_request, { settings: _settings, payload: _payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-    return true
   },
 
   actions: {

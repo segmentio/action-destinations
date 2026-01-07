@@ -10,10 +10,6 @@
   "main": "dist/cjs",
   "module": "dist/esm",
   "exports": {
-    "./*": {
-      "require": "./dist/cjs/index.js",
-      "default": "./dist/esm/index.js"
-    },
     ".": {
       "require": "./dist/cjs/index.js",
       "default": "./dist/esm/index.js"
