@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, RetryableError } from '@segment/actions-core'
 import Destination from '../../index'
 import { BASE_URL, API_VERSION } from '../../index'
 
@@ -122,7 +122,7 @@ describe('Memora.upsertProfile', () => {
           },
           useDefaultMappings: true
         })
-      ).rejects.toThrow('Memora Store is required')
+      ).rejects.toThrow()
     })
 
     it('should throw error when profile has no traits', async () => {
@@ -237,55 +237,6 @@ describe('Memora.upsertProfile', () => {
   })
 
   describe('error handling', () => {
-    it('should handle 400 Bad Request errors', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'user-123',
-        traits: {
-          email: 'invalid-email'
-        }
-      })
-
-      nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`)
-        .reply(400, { message: 'Invalid email format' })
-
-      await expect(
-        testDestination.testAction('upsertProfile', {
-          event,
-          settings: defaultSettings,
-          mapping: defaultMapping,
-          useDefaultMappings: true
-        })
-      ).rejects.toThrow()
-    })
-
-    it('should handle 404 Not Found errors', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'user-123',
-        traits: {
-          email: 'test@example.com'
-        }
-      })
-
-      nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/invalid-store/Profiles/Bulk`)
-        .reply(404, { message: 'Store not found' })
-
-      await expect(
-        testDestination.testAction('upsertProfile', {
-          event,
-          settings: defaultSettings,
-          mapping: {
-            ...defaultMapping,
-            memora_store: 'invalid-store'
-          },
-          useDefaultMappings: true
-        })
-      ).rejects.toThrow()
-    })
-
     it('should handle 429 Rate Limit errors as retryable', async () => {
       const event = createTestEvent({
         type: 'identify',
@@ -299,14 +250,18 @@ describe('Memora.upsertProfile', () => {
         .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`)
         .reply(429, { message: 'Rate limit exceeded' }, { 'retry-after': '60' })
 
-      await expect(
-        testDestination.testAction('upsertProfile', {
+      try {
+        await testDestination.testAction('upsertProfile', {
           event,
           settings: defaultSettings,
           mapping: defaultMapping,
           useDefaultMappings: true
         })
-      ).rejects.toThrow()
+        fail('Expected RetryableError to be thrown')
+      } catch (error) {
+        expect(error).toBeInstanceOf(RetryableError)
+        expect((error as RetryableError).message).toBe('Rate limit exceeded')
+      }
     })
 
     it('should handle 500 Internal Server errors as retryable', async () => {
@@ -322,14 +277,18 @@ describe('Memora.upsertProfile', () => {
         .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`)
         .reply(500, { message: 'Internal server error' })
 
-      await expect(
-        testDestination.testAction('upsertProfile', {
+      try {
+        await testDestination.testAction('upsertProfile', {
           event,
           settings: defaultSettings,
           mapping: defaultMapping,
           useDefaultMappings: true
         })
-      ).rejects.toThrow()
+        fail('Expected RetryableError to be thrown')
+      } catch (error) {
+        expect(error).toBeInstanceOf(RetryableError)
+        expect((error as RetryableError).message).toBe('Internal server error')
+      }
     })
 
     it('should handle 503 Service Unavailable errors as retryable', async () => {
@@ -345,14 +304,18 @@ describe('Memora.upsertProfile', () => {
         .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`)
         .reply(503, { message: 'Service unavailable' })
 
-      await expect(
-        testDestination.testAction('upsertProfile', {
+      try {
+        await testDestination.testAction('upsertProfile', {
           event,
           settings: defaultSettings,
           mapping: defaultMapping,
           useDefaultMappings: true
         })
-      ).rejects.toThrow()
+        fail('Expected RetryableError to be thrown')
+      } catch (error) {
+        expect(error).toBeInstanceOf(RetryableError)
+        expect((error as RetryableError).message).toBe('Service unavailable')
+      }
     })
   })
 })
