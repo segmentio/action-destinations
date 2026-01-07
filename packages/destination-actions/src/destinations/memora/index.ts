@@ -47,12 +47,6 @@ const destination: DestinationDefinition<Settings> = {
         })
         return true
       } catch (error) {
-        const httpError = error as { response?: { status: number } }
-        // Accept 401/403 as "credentials were checked" (even if invalid)
-        // Reject network errors or 5xx errors
-        if (httpError.response?.status && httpError.response.status < 500) {
-          return true
-        }
         return false
       }
     }

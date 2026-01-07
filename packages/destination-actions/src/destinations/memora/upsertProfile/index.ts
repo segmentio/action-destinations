@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The Memora Store ID to use for this profile. This should be a valid Memora Store associated with your Twilio account.',
       type: 'string',
-      required: false,
+      required: true,
       dynamic: true
     },
     contact: {
@@ -75,11 +75,6 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     memora_store: async (request, { settings }) => {
       return fetchMemoryStores(request, settings)
-    },
-    contact: {
-      __keys__: async (request, { settings, payload }) => {
-        return fetchTraitFields(request, settings, payload, 'Contact')
-      }
     }
   },
   perform: async (request, { payload, settings }) => {
@@ -307,72 +302,6 @@ async function fetchMemoryStores(
       choices: [],
       error: {
         message: 'Unable to fetch memory stores. You can still manually enter a memory store ID.',
-        code: 'FETCH_ERROR'
-      }
-    }
-  }
-}
-
-// Fetch available trait fields for a specific trait group
-async function fetchTraitFields(
-  request: ReturnType<typeof import('@segment/actions-core').createRequestClient>,
-  settings: Settings,
-  payload: Payload,
-  traitGroup: string
-) {
-  try {
-    const storeId = payload.memora_store
-
-    // If memora_store is not yet selected in the mapping, return helpful error
-    if (!storeId) {
-      return {
-        choices: [],
-        error: {
-          message: `Please select a Memora Store first to fetch available ${traitGroup} trait fields.`,
-          code: 'STORE_ID_REQUIRED'
-        }
-      }
-    }
-
-    // API endpoint: GET /ControlPlane/Stores/{storeId}/TraitGroups/{traitGroupName}
-    const response = await request<{
-      traitGroup?: {
-        traits?: Array<{
-          name: string
-          key: string
-          dataType?: string
-        }>
-      }
-      meta?: { pageToken?: string }
-    }>(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/${traitGroup}`, {
-      method: 'GET',
-      headers: {
-        ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
-      },
-      searchParams: {
-        includeTraits: 'true',
-        pageSize: '100',
-        orderBy: 'ASC'
-      },
-      skipResponseCloning: true
-    })
-
-    const traits = response?.data?.traitGroup?.traits || []
-    const choices = traits.map((trait) => ({
-      label: trait.name || trait.key,
-      value: trait.key
-    }))
-
-    return {
-      choices,
-      nextPage: response?.data?.meta?.pageToken
-    }
-  } catch (error) {
-    // Return empty choices if the API call fails
-    return {
-      choices: [],
-      error: {
-        message: 'Unable to fetch trait fields. You can still manually enter trait names.',
         code: 'FETCH_ERROR'
       }
     }
