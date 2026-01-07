@@ -1,4 +1,4 @@
-# @segment/analytics-browser-actions-google-enhanced-conversions-plugins
+# @segment/analytics-browser-actions-google-ec-plugins
 
 The Google Enhanced Conversions Plugins browser action destination for use with @segment/analytics-next.
 
