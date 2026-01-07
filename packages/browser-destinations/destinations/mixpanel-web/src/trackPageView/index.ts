@@ -24,14 +24,17 @@ const action: BrowserActionDefinition<Settings, Mixpanel, Payload> = {
   fields: {
     event_name: {
       ...event_name,
-      default: undefined,
+      default: {
+        '@path': '$.name'
+      },
       required: false
     },
     properties,
     unique_id: {
       ...unique_id,
       description: 'The unique ID to associate with the user. Settings this value will trigger a Mixpanel identify call before immediately the page event is sent.',
-      default: undefined
+      default: undefined, 
+      required: false
     },
     user_profile_properties_to_set: {
       ...user_profile_properties_to_set,
