@@ -80,9 +80,6 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload, settings }) => {
     // Single profile sync using the bulk API with a single profile payload
     const storeId = payload.memora_store
-    if (!storeId) {
-      throw new IntegrationError('Memora Store is required', 'MISSING_REQUIRED_FIELD', 400)
-    }
 
     const traitGroups = buildTraitGroups(payload)
     if (Object.keys(traitGroups).length === 0) {

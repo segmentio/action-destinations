@@ -541,4 +541,66 @@ describe('Memora.upsertProfile', () => {
       }
     })
   })
+
+  describe('dynamicFields', () => {
+    describe('memora_store', () => {
+      it('should fetch and return memory stores from Control Plane', async () => {
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
+          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
+          .reply(200, {
+            services: ['store-1', 'store-2', 'store-3'],
+            meta: {
+              pageSize: 100,
+              nextToken: 'next-page-token'
+            }
+          })
+
+        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+          settings: defaultSettings,
+          payload: {}
+        })) as any
+
+        expect(result?.choices).toEqual([
+          { label: 'store-1', value: 'store-1' },
+          { label: 'store-2', value: 'store-2' },
+          { label: 'store-3', value: 'store-3' }
+        ])
+        expect(result?.nextPage).toBe('next-page-token')
+      })
+
+      it('should handle empty services list', async () => {
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
+          .reply(200, {
+            services: [],
+            meta: { pageSize: 100 }
+          })
+
+        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+          settings: defaultSettings,
+          payload: {}
+        })) as any
+
+        expect(result?.choices).toEqual([])
+        expect(result?.nextPage).toBeUndefined()
+      })
+
+      it('should return error message when API call fails', async () => {
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
+          .reply(500, { message: 'Internal server error' })
+
+        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+          settings: defaultSettings,
+          payload: {}
+        })) as any
+
+        expect(result?.choices).toEqual([])
+        expect(result?.error).toBeDefined()
+        expect(result?.error?.message).toContain('Unable to fetch memory stores')
+        expect(result?.error?.code).toBe('FETCH_ERROR')
+      })
+    })
+  })
 })
