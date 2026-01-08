@@ -122,16 +122,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
   performBatch: async (request, { payload: payloads, settings }) => {
     const storeId = payloads[0]?.memora_store
-    if (!storeId) {
-      throw new IntegrationError('Memora Store is required', 'MISSING_REQUIRED_FIELD', 400)
-    }
 
     if (!payloads || payloads.length === 0) {
       throw new IntegrationError('No profiles provided for batch sync', 'EMPTY_BATCH', 400)
-    }
-
-    if (payloads.length > 1000) {
-      throw new IntegrationError('Batch size cannot exceed 1000 profiles', 'BATCH_SIZE_EXCEEDED', 400)
     }
 
     const profiles = payloads.map((payload, index) => {
@@ -179,51 +172,13 @@ function buildTraitGroups(payload: Payload) {
 
   // Process contact field
   if (payload.contact && typeof payload.contact === 'object') {
-    const contact = cleanObject(payload.contact)
+    const contact = payload.contact as Record<string, unknown>
     if (Object.keys(contact).length > 0) {
-      // Merge contact into Contact trait group
-      traitGroups.Contact = {
-        ...(traitGroups.Contact ?? {}),
-        ...contact
-      }
+      traitGroups.Contact = contact
     }
   }
 
   return traitGroups
-}
-
-function cleanObject(input: unknown): Record<string, unknown> {
-  if (!input || typeof input !== 'object') {
-    return {}
-  }
-
-  const value = input as Record<string, unknown>
-  const cleaned: Record<string, unknown> = {}
-
-  for (const [key, fieldValue] of Object.entries(value)) {
-    if (fieldValue === undefined || fieldValue === null) {
-      continue
-    }
-
-    if (Array.isArray(fieldValue)) {
-      if (fieldValue.length > 0) {
-        cleaned[key] = fieldValue
-      }
-      continue
-    }
-
-    if (typeof fieldValue === 'object') {
-      const nested = cleanObject(fieldValue)
-      if (Object.keys(nested).length > 0) {
-        cleaned[key] = nested
-      }
-      continue
-    }
-
-    cleaned[key] = fieldValue
-  }
-
-  return cleaned
 }
 
 // Helper function to handle Memora API errors
