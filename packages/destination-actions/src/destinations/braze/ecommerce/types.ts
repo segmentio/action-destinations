@@ -2,6 +2,8 @@ import { EVENT_NAMES } from './constants'
 import { Payload } from './generated-types'
 import { Payload as SingleProductPayload } from '../ecommerceSingleProduct/generated-types'
 
+export type SupportedSyncMode = 'add' | 'update'
+
 export type PayloadWithIndex = (Payload | SingleProductPayload) & {
     index?: number
 }

@@ -44,13 +44,6 @@ const user_alias: InputField = {
     }
 }
 
-const _update_existing_only: InputField = {
-    label: 'Update Existing Only',
-    description: 'When this flag is set to true, Braze will only update existing profiles and will not create any new ones.',
-    type: 'boolean',
-    default: false
-}
-
 const email: InputField = {
     label: 'Email',
     description: 'The user email',
@@ -556,7 +549,6 @@ export const commonFields = {
     name,
     external_id,
     user_alias,
-    _update_existing_only,
     email,
     phone,
     braze_id,

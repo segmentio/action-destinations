@@ -14,11 +14,20 @@ const action: ActionDefinition<Settings, Payload> = {
     ...commonFields,
     product
   },
-  perform: async (request, {payload, settings}) => {
-    return await send(request, [payload], settings, false)
+  syncMode: {
+    description: 'Define how the records from your destination will be synced.',
+    label: 'How to track events',
+    default: 'add',
+    choices: [
+      { label: 'Add Profile with Event', value: 'add' },
+      { label: 'Update Profile with Event', value: 'update' }
+    ]
   },
-  performBatch: async (request, {payload, settings}) => {
-    return await send(request, payload, settings, true)
+  perform: async (request, {payload, settings, syncMode}) => {
+    return await send(request, [payload], settings, false, syncMode)
+  },
+  performBatch: async (request, {payload, settings, syncMode}) => {
+    return await send(request, payload, settings, true, syncMode)
   }
 }
 

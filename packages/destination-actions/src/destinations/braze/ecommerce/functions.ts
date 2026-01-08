@@ -8,7 +8,9 @@ import {
   PayloadValidationError, 
   MultiStatusResponse 
 } from '@segment/actions-core'
+import { SyncMode } from '@segment/actions-core/destination-kit/types'
 import type { 
+  SupportedSyncMode,
   BaseEvent, 
   EcommerceEvents, 
   EcommerceEvent, 
@@ -27,11 +29,28 @@ import type {
 import { EVENT_NAMES } from './constants'
 import dayjs from 'dayjs'
 
-
-export async function send(request: RequestClient, payloads: (Payload | SingleProductPayload)[], settings: Settings, isBatch: boolean) {
+export async function send(request: RequestClient, payloads: (Payload | SingleProductPayload)[], settings: Settings, isBatch: boolean, syncMode?: SyncMode) {
   const msResponse = new MultiStatusResponse()
+
+  if(!['update', 'add'].includes(syncMode ?? '')) {
+    const message = `Invalid syncMode: ${syncMode}. Supported sync modes are 'add' and 'update'.`
+    if(isBatch){
+      payloads.forEach((payload, index) => {
+        msResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errormessage: message,
+          sent: payload as object as JSONLikeObject
+        })
+      })
+      return msResponse
+    } 
+    else {
+      throw new PayloadValidationError(message)
+    }
+  }
+
   const { endpoint } = settings
-  const { json, payloadsWithIndexes } = getJSON(payloads, settings, isBatch, msResponse)
+  const { json, payloadsWithIndexes } = getJSON(payloads, settings, isBatch, syncMode as SupportedSyncMode, msResponse)
   const url = `${endpoint}/users/track`
 
   const response = await request<BrazeTrackUserAPIResponse>(url, {
@@ -56,12 +75,10 @@ export async function send(request: RequestClient, payloads: (Payload | SinglePr
       })
     }
   })
-  
-
   return isBatch ? msResponse : response 
 }
 
-function getJSON(payloads: (Payload | SingleProductPayload)[], settings: Settings, isBatch: boolean, msResponse: MultiStatusResponse): { json: EcommerceEvents, payloadsWithIndexes: PayloadWithIndex[] } {  
+function getJSON(payloads: (Payload | SingleProductPayload)[], settings: Settings, isBatch: boolean, syncMode: SupportedSyncMode, msResponse: MultiStatusResponse): { json: EcommerceEvents, payloadsWithIndexes: PayloadWithIndex[] } {  
   const payloadsWithIndexes: PayloadWithIndex[] = [ ...payloads ]
   const events: EcommerceEvent[] = []
   payloadsWithIndexes.forEach((payload, index) => {
@@ -79,7 +96,7 @@ function getJSON(payloads: (Payload | SingleProductPayload)[], settings: Setting
     } 
     else {  
       // assume valid payload - we'll overwrite later if Braze responds with an error for this index
-      const event = getJSONItem(payload, settings)
+      const event = getJSONItem(payload, settings, syncMode)
       payload.index = events.length
       events.push(event)
       msResponse.setSuccessResponseAtIndex(index, {
@@ -93,7 +110,7 @@ function getJSON(payloads: (Payload | SingleProductPayload)[], settings: Setting
   return { json: { events }, payloadsWithIndexes }
 }
 
-function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings): EcommerceEvent {
+function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings, syncMode: SupportedSyncMode): EcommerceEvent {
     
   const { app_id } = settings
 
@@ -107,7 +124,6 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
     time: payloadTime,
     currency,
     source,
-    _update_existing_only,
     metadata
   } = payload
 
@@ -117,8 +133,8 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
     if ( user_alias?.alias_label && user_alias?.alias_name ) { 
       return true 
     }
-    if ( typeof _update_existing_only === 'boolean' ) { 
-      return _update_existing_only 
+    if ( syncMode === 'update' ) { 
+      return true
     }
     return undefined
   })()
