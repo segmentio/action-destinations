@@ -35,10 +35,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: async (request, { settings }) => {
       // Test authentication by making a request to the Memora API
-      // Note: We cannot fully test without a serviceId, which is now part of the mapping
-      // This just validates the credentials format
       try {
-        // Simple request to validate base URL is accessible
         await request(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores?pageSize=1`, {
           method: 'GET',
           headers: {
