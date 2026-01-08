@@ -103,11 +103,11 @@ const action: ActionDefinition<Settings, Payload> = {
       subscriptionMetadata
     )
   },
-  performBatch: (
+  performBatch: async (
     request,
     { payload, features, rawData, subscriptionMetadata }: ExecuteInputRaw<Settings, Payload[], RawData[]>
   ) => {
-    return processData(
+    return await processData(
       {
         request,
         payloads: payload,
@@ -119,7 +119,10 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-async function processData(input: ProcessDataInput<Payload>, subscriptionMetadata?: SubscriptionMetadata) {
+async function processData(
+  input: ProcessDataInput<Payload>,
+  subscriptionMetadata?: SubscriptionMetadata
+): Promise<MultiStatusResponse> {
   if (input.payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
       `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
@@ -139,21 +142,23 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     const sftpClient = new ClientSFTP()
     try {
       await uploadSFTP(sftpClient, input.payloads[0], filename, fileContents)
-      input.payloads.forEach((payload, index) => {
+      // Set success responses after successful upload
+      for (let index = 0; index < input.payloads.length; index++) {
         multistatus.setSuccessResponseAtIndex(index, {
           status: 200,
-          sent: payload as unknown as JSONLikeObject,
+          sent: input.payloads[index] as unknown as JSONLikeObject,
           body: 'Successfully uploaded file to SFTP'
         })
-      })
+      }
       return multistatus
     } catch (error) {
-      input.payloads.forEach((_, index) => {
+      // Set error responses on failure
+      for (let index = 0; index < input.payloads.length; index++) {
         multistatus.setErrorResponseAtIndex(index, {
           status: 500,
           errormessage: `Failed to upload file to SFTP: ${(error as Error).message}`
         })
-      })
+      }
       return multistatus
     }
   } else {
@@ -178,21 +183,23 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
           sftpFolderPath: input.payloads[0].sftp_folder_path
         }
       })
-      input.payloads.forEach((payload, index) => {
+      // Set success responses after successful AWS upload
+      for (let index = 0; index < input.payloads.length; index++) {
         multistatus.setSuccessResponseAtIndex(index, {
           status: 200,
-          sent: payload as unknown as JSONLikeObject,
+          sent: input.payloads[index] as unknown as JSONLikeObject,
           body: 'Successfully sent file to AWS for SFTP upload'
         })
-      })
+      }
       return multistatus
     } catch (error) {
-      input.payloads.forEach((_, index) => {
+      // Set error responses on failure
+      for (let index = 0; index < input.payloads.length; index++) {
         multistatus.setErrorResponseAtIndex(index, {
           status: 500,
           errormessage: `Failed to send file to AWS for SFTP upload: ${(error as Error).message}`
         })
-      })
+      }
       return multistatus
     }
   }
