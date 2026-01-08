@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-memora destination: upsertProfile action - all fields 1`] = `
+Object {
+  "profiles": Array [
+    Object {
+      "traits": Object {
+        "Contact": Object {
+          "email": "test@example.com",
+          "firstName": "Test",
+          "lastName": "User",
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-memora destination: upsertProfile action - required fields 1`] = `
+Object {
+  "profiles": Array [
+    Object {
+      "traits": Object {
+        "Contact": Object {
+          "email": "test@example.com",
+        },
+      },
+    },
+  ],
+}
+`;

@@ -222,6 +222,7 @@ register('6937efdfdf772b67ee7174c5', './zapier')
 register('695cde813cc7cd3831de456e', './lark')
 register('695cddba47257c593da2bd68', './collab-travel-crm')
 register('695ce1240b991455a1e5cb27', './altertable')
+register('695d30cdac2addbdcc3baf7f', './memora')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
