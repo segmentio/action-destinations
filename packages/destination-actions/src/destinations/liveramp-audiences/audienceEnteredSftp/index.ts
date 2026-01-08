@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, MultiStatusResponse, PayloadValidationError, JSONLikeObject } from '@segment/actions-core'
 import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
@@ -126,6 +126,8 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     )
   }
 
+  const multistatus = new MultiStatusResponse()
+
   validateSFTP(input.payloads[0])
 
   const { filename, fileContents } = generateFile(input.payloads)
@@ -135,28 +137,64 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     // LEGACY FLOW
     // -----------
     const sftpClient = new ClientSFTP()
-    return uploadSFTP(sftpClient, input.payloads[0], filename, fileContents)
+    try {
+      await uploadSFTP(sftpClient, input.payloads[0], filename, fileContents)
+      input.payloads.forEach((payload, index) => {
+        multistatus.setSuccessResponseAtIndex(index, {
+          status: 200,
+          sent: payload as unknown as JSONLikeObject,
+          body: 'Successfully uploaded file to SFTP'
+        })
+      })
+      return multistatus
+    } catch (error) {
+      input.payloads.forEach((_, index) => {
+        multistatus.setErrorResponseAtIndex(index, {
+          status: 500,
+          errormessage: `Failed to upload file to SFTP: ${(error as Error).message}`
+        })
+      })
+      return multistatus
+    }
   } else {
     //------------
     // AWS FLOW
     // -----------
     const shouldEnableCompression = input.features && input.features[LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME] === true
 
-    return sendEventToAWS({
-      audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
-      uploadType: 'sftp',
-      filename,
-      fileContents,
-      rowCount: input.payloads.length,
-      destinationInstanceID: subscriptionMetadata?.destinationConfigId,
-      subscriptionId: subscriptionMetadata?.actionConfigId,
-      gzipCompressFile: shouldEnableCompression,
-      sftpInfo: {
-        sftpUsername: input.payloads[0].sftp_username,
-        sftpPassword: input.payloads[0].sftp_password,
-        sftpFolderPath: input.payloads[0].sftp_folder_path
-      }
-    })
+    try {
+      await sendEventToAWS({
+        audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
+        uploadType: 'sftp',
+        filename,
+        fileContents,
+        rowCount: input.payloads.length,
+        destinationInstanceID: subscriptionMetadata?.destinationConfigId,
+        subscriptionId: subscriptionMetadata?.actionConfigId,
+        gzipCompressFile: shouldEnableCompression,
+        sftpInfo: {
+          sftpUsername: input.payloads[0].sftp_username,
+          sftpPassword: input.payloads[0].sftp_password,
+          sftpFolderPath: input.payloads[0].sftp_folder_path
+        }
+      })
+      input.payloads.forEach((payload, index) => {
+        multistatus.setSuccessResponseAtIndex(index, {
+          status: 200,
+          sent: payload as unknown as JSONLikeObject,
+          body: 'Successfully sent file to AWS for SFTP upload'
+        })
+      })
+      return multistatus
+    } catch (error) {
+      input.payloads.forEach((_, index) => {
+        multistatus.setErrorResponseAtIndex(index, {
+          status: 500,
+          errormessage: `Failed to send file to AWS for SFTP upload: ${(error as Error).message}`
+        })
+      })
+      return multistatus
+    }
   }
 }
 
