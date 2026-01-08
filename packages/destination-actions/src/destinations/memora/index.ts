@@ -23,7 +23,7 @@ const destination: DestinationDefinition<Settings> = {
       password: {
         label: 'API Secret',
         description: 'API Secret for Basic Authentication',
-        type: 'string',
+        type: 'password',
         required: true
       },
       twilioAccount: {
