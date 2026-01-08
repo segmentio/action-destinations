@@ -41,7 +41,7 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
     },
     position: {
       label: 'Position',
-      description: 'Position of the click in the list of Algolia search results.',
+      description: 'Position of the click in the list of Algolia search results. Positions should start from 1, not 0.',
       type: 'integer',
       required: false,
       default: {
