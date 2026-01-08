@@ -54,7 +54,7 @@ const sha256HashedRegex = /^[a-f0-9]{64}$/i
 const base64HashedRegex = /^[A-Za-z0-9+/]*={1,2}$/i
 const validEmailRegex = /^\S+@\S+\.\S+$/i
 
-export async function processPayload(input: ProcessPayloadInput) {
+export async function processPayload(input: ProcessPayloadInput): Promise<MultiStatusResponse> {
   let crmID
   if (!input.payloads[0].external_id) {
     throw new PayloadValidationError(`No external_id found in payload.`)
@@ -63,15 +63,16 @@ export async function processPayload(input: ProcessPayloadInput) {
   }
 
   const multiStatusResponse = new MultiStatusResponse()
-  // mark all payloads as successful and then filter out payloads with invalid emails
-  for (let i = 0; i < input.payloads.length; i++) {
-    const payload = input.payloads[i]
-    multiStatusResponse.setSuccessResponseAtIndex(i, {
-      sent: { ...payload },
+
+  const payload = input.payloads
+  payload.forEach((_, index) => {
+    multiStatusResponse.setSuccessResponseAtIndex(index, {
       status: 200,
-      body: 'Successfully uploaded to S3'
+      sent: { ...payload[index] },
+      body: 'Successfully Uploaded to S3'
     })
-  }
+  })
+
   // Get user emails from the payloads
   const [usersFormatted, rowCount] = extractUsers(input.payloads, multiStatusResponse)
 
@@ -103,7 +104,7 @@ export async function processPayload(input: ProcessPayloadInput) {
 
       return multiStatusResponse
     } catch (error) {
-      for (let i = 0; i < input.payloads.length; i++) {
+      payload.forEach((_, i) => {
         if (multiStatusResponse.isSuccessResponseAtIndex(i)) {
           multiStatusResponse.setErrorResponseAtIndex(i, {
             status: 500,
@@ -113,7 +114,7 @@ export async function processPayload(input: ProcessPayloadInput) {
             body: `The Trade Desk Drop Endpoint upload failed: ${(error as Error).message}`
           })
         }
-      }
+      })
       return multiStatusResponse
     }
   } else {
@@ -137,17 +138,17 @@ export async function processPayload(input: ProcessPayloadInput) {
       })
     } catch (error) {
       // Mark all remaining success payloads as failed if AWS upload fails
-      for (let i = 0; i < input.payloads.length; i++) {
-        if (multiStatusResponse.isSuccessResponseAtIndex(i)) {
-          multiStatusResponse.setErrorResponseAtIndex(i, {
+      payload.forEach((_, index) => {
+        if (multiStatusResponse.isSuccessResponseAtIndex(index)) {
+          multiStatusResponse.setErrorResponseAtIndex(index, {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Failed to upload to AWS: ${(error as Error).message}`,
-            sent: { ...input.payloads[i] },
+            sent: { ...payload[index] },
             body: `AWS upload failed: ${(error as Error).message}`
           })
         }
-      }
+      })
     }
     return multiStatusResponse
   }
