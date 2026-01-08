@@ -131,6 +131,14 @@ async function processData(
 
   const multistatus = new MultiStatusResponse()
 
+  for (let index = 0; index < input.payloads.length; index++) {
+    multistatus.setSuccessResponseAtIndex(index, {
+      status: 200,
+      sent: input.payloads[index] as unknown as JSONLikeObject,
+      body: 'Processing payload'
+    })
+  }
+
   validateSFTP(input.payloads[0])
 
   const { filename, fileContents } = generateFile(input.payloads)
@@ -142,25 +150,19 @@ async function processData(
     const sftpClient = new ClientSFTP()
     try {
       await uploadSFTP(sftpClient, input.payloads[0], filename, fileContents)
-      // Set success responses after successful upload
-      for (let index = 0; index < input.payloads.length; index++) {
-        multistatus.setSuccessResponseAtIndex(index, {
-          status: 200,
-          sent: input.payloads[index] as unknown as JSONLikeObject,
-          body: 'Successfully uploaded file to SFTP'
-        })
-      }
-      return multistatus
     } catch (error) {
       // Set error responses on failure
       for (let index = 0; index < input.payloads.length; index++) {
+        if (multistatus.isErrorResponseAtIndex(index)) {
+          continue
+        }
         multistatus.setErrorResponseAtIndex(index, {
           status: 500,
           errormessage: `Failed to upload file to SFTP: ${(error as Error).message}`
         })
       }
-      return multistatus
     }
+    return multistatus
   } else {
     //------------
     // AWS FLOW
@@ -183,25 +185,25 @@ async function processData(
           sftpFolderPath: input.payloads[0].sftp_folder_path
         }
       })
-      // Set success responses after successful AWS upload
-      for (let index = 0; index < input.payloads.length; index++) {
-        multistatus.setSuccessResponseAtIndex(index, {
-          status: 200,
-          sent: input.payloads[index] as unknown as JSONLikeObject,
-          body: 'Successfully sent file to AWS for SFTP upload'
-        })
-      }
-      return multistatus
     } catch (error) {
+      let httpStatusCode = 400
+
+      if (error?.$metadata?.httpStatusCode) {
+        httpStatusCode = error.$metadata.httpStatusCode
+      }
+
       // Set error responses on failure
       for (let index = 0; index < input.payloads.length; index++) {
+        if (multistatus.isErrorResponseAtIndex(index)) {
+          continue
+        }
         multistatus.setErrorResponseAtIndex(index, {
-          status: 500,
-          errormessage: `Failed to send file to AWS for SFTP upload: ${(error as Error).message}`
+          status: httpStatusCode,
+          errormessage: `Failed to process upload via AWS: ${(error as Error).message}`
         })
       }
-      return multistatus
     }
+    return multistatus
   }
 }
 
