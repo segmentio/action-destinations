@@ -16,6 +16,11 @@ import { ErrorResponse, ErrorData } from './types'
 import { OnMappingSaveInputs } from './dataExtensionV2/generated-types'
 import { Settings } from './generated-types'
 import { xml2js } from 'xml-js'
+import {
+  SALESFORCE_MARKETING_CLOUD_HUB_API_VERSION,
+  SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION,
+  SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION
+} from './versioning-info'
 
 function generateRows(payloads: payload_dataExtension[] | payload_contactDataExtension[]): Record<string, any>[] {
   const rows: Record<string, any>[] = []
@@ -52,15 +57,21 @@ export function upsertRows(
   }
   const rows = generateRows(payloads)
   if (key) {
-    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:${key}/rowset`, {
-      method: 'POST',
-      json: rows
-    })
+    return request(
+      `https://${subdomain}.rest.marketingcloudapis.com/hub/${SALESFORCE_MARKETING_CLOUD_HUB_API_VERSION}/dataevents/key:${key}/rowset`,
+      {
+        method: 'POST',
+        json: rows
+      }
+    )
   } else {
-    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/${id}/rowset`, {
-      method: 'POST',
-      json: rows
-    })
+    return request(
+      `https://${subdomain}.rest.marketingcloudapis.com/hub/${SALESFORCE_MARKETING_CLOUD_HUB_API_VERSION}/dataevents/${id}/rowset`,
+      {
+        method: 'POST',
+        json: rows
+      }
+    )
   }
 }
 
@@ -79,10 +90,13 @@ export function upsertRowsV2(
   }
 
   const rows = generateRows(payloads)
-  return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/${dataExtensionId}/rowset`, {
-    method: 'POST',
-    json: rows
-  })
+  return request(
+    `https://${subdomain}.rest.marketingcloudapis.com/hub/${SALESFORCE_MARKETING_CLOUD_HUB_API_VERSION}/dataevents/${dataExtensionId}/rowset`,
+    {
+      method: 'POST',
+      json: rows
+    }
+  )
 }
 
 export async function executeUpsertWithMultiStatus(
@@ -162,17 +176,17 @@ export async function executeUpsertWithMultiStatus(
         errormessage: additionalError ? additionalError[0].message : errData?.message || '',
         sent: rows[index] as Object as JSONLikeObject,
         /*
-        Setting the error response body to the additionalError array as there is no way to determine which error corresponds to which event. 
+        Setting the error response body to the additionalError array as there is no way to determine which error corresponds to which event.
         We receive an array of errors, but some errors may not be repeated even if they occur in multiple events, while others may be.
-    
-        Additionally, there is no consistent order to the errors in the array. For example, errors like 
+
+        Additionally, there is no consistent order to the errors in the array. For example, errors like
         'At least one existing field is required in the values property' consistently appear at the top of the array.
-    
-        Furthermore, every event that is processed correctly before the first erroneous event is accepted. 
-        However, any events that occur after the first error, regardless of whether they are correct or not, are rejected. 
+
+        Furthermore, every event that is processed correctly before the first erroneous event is accepted.
+        However, any events that occur after the first error, regardless of whether they are correct or not, are rejected.
         This means that all valid events following the first error will not be processed.
 
-        For more information, please refer to: 
+        For more information, please refer to:
         https://salesforce.stackexchange.com/questions/292770/import-contacts-sfmc-via-api-vs-ftp/292774#292774
         */
         body: additionalError ? (additionalError as Object as JSONLikeObject) : (errData as Object as JSONLikeObject)
@@ -239,7 +253,7 @@ const getAccessToken = async (
   request: RequestClient,
   settings: Settings
 ): Promise<{ accessToken: string; soapInstanceUrl: string }> => {
-  const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/v2/token`
+  const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/${SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION}/token`
   const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
     method: 'POST',
     body: new URLSearchParams({
@@ -288,7 +302,7 @@ const dataExtensionRequest = async (
 
   try {
     const response = await request<DataExtensionCreationResponse>(
-      `https://${auth.subdomain}.rest.marketingcloudapis.com/data/v1/customobjects`,
+      `https://${auth.subdomain}.rest.marketingcloudapis.com/data/${SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION}/customobjects`,
       {
         method: 'POST',
         json: {
@@ -365,7 +379,7 @@ const selectDataExtensionRequest = async (
 
   try {
     const response = await request<DataExtensionSelectionResponse>(
-      `https://${auth.subdomain}.rest.marketingcloudapis.com/data/v1/customobjects/${hookInputs.dataExtensionId}`,
+      `https://${auth.subdomain}.rest.marketingcloudapis.com/data/${SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION}/customobjects/${hookInputs.dataExtensionId}`,
       {
         method: 'GET',
         headers: {
@@ -462,7 +476,7 @@ const getDataExtensionsRequest = async (
 ): Promise<{ results?: DynamicFieldItem[]; error?: DynamicFieldError }> => {
   try {
     const response = await request<DataExtensionSearchResponse>(
-      `https://${auth.subdomain}.rest.marketingcloudapis.com/data/v1/customobjects`,
+      `https://${auth.subdomain}.rest.marketingcloudapis.com/data/${SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION}/customobjects`,
       {
         method: 'get',
         searchParams: {
@@ -550,7 +564,7 @@ const getDataExtensionFieldsRequest = async (
 ): Promise<{ results?: DynamicFieldItem[]; error?: DynamicFieldError }> => {
   try {
     const response = await request<DataExtensionFieldsResponse>(
-      `https://${auth.subdomain}.rest.marketingcloudapis.com/data/v1/customobjects/${dataExtensionId}/fields`,
+      `https://${auth.subdomain}.rest.marketingcloudapis.com/data/${SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION}/customobjects/${dataExtensionId}/fields`,
       {
         method: 'GET',
         headers: {
