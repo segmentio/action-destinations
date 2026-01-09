@@ -106,7 +106,7 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Order Placed',
+      name: 'Order Placed (beta)',
       subscribe: 'event = "Order Completed"',
       partnerAction: 'ecommerce',
       mapping: { 
@@ -119,7 +119,7 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Checkout Started',
+      name: 'Checkout Started (beta)',
       subscribe: 'event = "Checkout Started"',
       partnerAction: 'ecommerce',
       mapping: { 
@@ -132,7 +132,7 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Order Refunded',
+      name: 'Order Refunded (beta)',
       subscribe: 'event = "Order Refunded"',
       partnerAction: 'ecommerce',
       mapping: { 
@@ -145,7 +145,7 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Order Cancelled',
+      name: 'Order Cancelled (beta)',
       subscribe: 'event = "Order Cancelled"',
       partnerAction: 'ecommerce',
       mapping: { 
@@ -158,7 +158,7 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Product Viewed',
+      name: 'Product Viewed (beta)',
       subscribe: 'event = "Product Viewed"',
       partnerAction: 'ecommerceSingleProduct',
       mapping: { 

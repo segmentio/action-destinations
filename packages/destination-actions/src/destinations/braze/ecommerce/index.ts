@@ -9,7 +9,7 @@ import { send } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Ecommerce Event (multi product)',
-  description: 'Send a multi product ecommerce event to Braze',
+  description: '(Beta) Send a multi product [Ecommerce Recommended event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events) to Braze.',
   fields: {
     ...commonFields,
     products
