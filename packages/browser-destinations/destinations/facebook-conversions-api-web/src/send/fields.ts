@@ -1,7 +1,7 @@
 import type { InputField } from '@segment/actions-core'
 import { ACTION_SOURCES } from '../types'
 import { getDependenciesFor } from './depends-on'
-import { CURRENCY_ISO_CODES } from './constants'
+import { CURRENCY_ISO_CODES } from '../constants'
 
 export const event_config: InputField = {
     label: 'Event Configuration',
@@ -280,23 +280,6 @@ export const eventSourceUrl: InputField = {
     default: { '@path': '$.context.page.url' }
 }
 
-export const actionSource: InputField = {
-  label: 'Action Source',
-  description: 'The source of the event. This can be used to specify where the event originated from.',
-  type: 'string',
-  choices: [
-    { label: 'Email', value: ACTION_SOURCES.email },
-    { label: 'Website', value: ACTION_SOURCES.website },
-    { label: 'App', value: ACTION_SOURCES.app },
-    { label: 'Phone Call', value: ACTION_SOURCES.phone_call },
-    { label: 'Chat', value: ACTION_SOURCES.chat },
-    { label: 'Physical Store', value: ACTION_SOURCES.physical_store },
-    { label: 'System Generated', value: ACTION_SOURCES.system_generated },
-    { label: 'Other', value: ACTION_SOURCES.other }
-  ],
-  default: ACTION_SOURCES.website
-}
-
 export const userData: InputField = {
     label: 'User Data',
     description: 'User data to be sent with the event. This can include hashed identifiers like email, phone number, etc.',
@@ -340,7 +323,8 @@ export const userData: InputField = {
         db: {
             label: 'Date of Birth',
             description: 'Date of birth of the user',
-            type: 'string'
+            type: 'string',
+            format: 'date'
         },
         ct: {
             label: 'City',
@@ -395,6 +379,5 @@ export const AllFields = {
     custom_data,
     eventID, 
     eventSourceUrl, 
-    actionSource, 
     userData
 }

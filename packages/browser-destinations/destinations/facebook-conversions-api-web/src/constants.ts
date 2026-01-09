@@ -1,3 +1,9 @@
+export const MAX_INIT_COUNT = 2
+
+export const INIT_COUNT_KEY = 'fb_pixel_init_count'
+
+export const USER_DATA_KEY = 'fb_user_data'
+
 export const CURRENCY_ISO_CODES = new Set([
   'AED',
   'AFN',

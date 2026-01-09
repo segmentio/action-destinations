@@ -95,10 +95,6 @@ export interface Payload {
    */
   eventSourceUrl?: string
   /**
-   * The source of the event. This can be used to specify where the event originated from.
-   */
-  actionSource?: string
-  /**
    * User data to be sent with the event. This can include hashed identifiers like email, phone number, etc.
    */
   userData?: {
