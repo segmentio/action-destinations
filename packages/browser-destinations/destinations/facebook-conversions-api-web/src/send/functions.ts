@@ -21,8 +21,8 @@ export function send(client: FBClient, payload: Payload, settings: Settings, ana
     if(isCustom){
         const errorMessage = validate(payload)
         if(errorMessage) {
-          console.warn(`${errorMessage}`)
-          return
+            console.warn(`${errorMessage}`)
+            return
         }
     }
 
@@ -41,21 +41,22 @@ export function send(client: FBClient, payload: Payload, settings: Settings, ana
     const options = formatOptions(payload)
   
     if(isCustom){
-      client(
-        'trackSingleCustom', 
-        pixelId,
-        custom_event_name as string,
-        { ...rest },
-        options
-      )
-    } else {
-      client(
-        'trackSingle', 
-        pixelId,
-        event_name as FBStandardEventType,
-        { ...rest },
-        options
-      )
+        client(
+            'trackSingleCustom', 
+            pixelId,
+            custom_event_name as string,
+            { ...rest },
+            options
+        )
+    } 
+    else {
+        client(
+            'trackSingle', 
+            pixelId,
+            event_name as FBStandardEventType,
+            { ...rest },
+            options
+        )
     }
 }
 
@@ -139,7 +140,7 @@ function formatUserData(userData: Payload['userData']): UserData | undefined {
         ...(typeof stFormatted === 'string' ? {st: stFormatted} : {}), // lowercase 2 character state code 
         ...(typeof zp === 'string' ? {zp: zp.trim()} : {}),
         ...(typeof countryFormatted === 'string' ? {country: countryFormatted} : {}), // lowercase 2 character country code 
-        ...(typeof external_id === 'string' ? {external_id} : {})
+        ...(typeof external_id === 'string' ? {external_id: external_id.trim()} : {}) // trim whitespace
     }
 
     if(Object.keys(ud).length === 0){

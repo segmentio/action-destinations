@@ -1,5 +1,4 @@
 import type { InputField } from '@segment/actions-core'
-import { ACTION_SOURCES } from '../types'
 import { getDependenciesFor } from './depends-on'
 import { CURRENCY_ISO_CODES } from '../constants'
 
@@ -9,6 +8,7 @@ export const event_config: InputField = {
     type: 'object',
     required: true,
     additionalProperties: false,
+    defaultObjectUI: 'keyvalue',
     properties: {
         event_name: {
             label: 'Event Name',
@@ -120,7 +120,8 @@ export const contents: InputField = {
     multiple: true,
     allowNull: false,
     minimum: 1,
-    additionalProperties: true,
+    additionalProperties: false,
+    defaultObjectUI: 'keyvalue',
     properties: {
         id: {
             label: 'ID',
@@ -284,6 +285,8 @@ export const userData: InputField = {
     label: 'User Data',
     description: 'User data to be sent with the event. This can include hashed identifiers like email, phone number, etc.',
     type: 'object',
+    additionalProperties: false,
+    defaultObjectUI: 'keyvalue',
     properties: {
         external_id: {
             label: 'External ID',
@@ -348,7 +351,7 @@ export const userData: InputField = {
         }
     },
     default: {
-        external_id: { '@path': '$.context.traits.userId' },
+        external_id: { '@path': '$.userId' },
         em: { '@path': '$.context.traits.email' },
         ph: { '@path': '$.context.traits.phone' },
         fn: { '@path': '$.context.traits.first_name' },

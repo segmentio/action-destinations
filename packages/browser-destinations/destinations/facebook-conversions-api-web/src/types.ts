@@ -1,8 +1,7 @@
-
 export interface WindowWithOptionalFbq extends Omit<Window, 'fbq' | '_fbq'> {
-    fbq?: FBClient;
-    _fbq?: FBClient;
-  }
+  fbq?: FBClient;
+  _fbq?: FBClient;
+}
 
 export type FBStandardEventType =
   | 'PageView'
@@ -43,24 +42,24 @@ export type InitOptions = {
 }
 
 export type EventOptions = { 
-    eventID?: string 
-    eventSourceUrl?: string
+  eventID?: string 
+  eventSourceUrl?: string
 }
 
 export type UserData = {
-    // Identifiers
-    external_id?: string // Unique user ID from your system (FB hashes with SHA-256)
+  // Identifiers
+  external_id?: string // Unique user ID from your system (FB hashes with SHA-256)
 
-    em?: string // Email (FB hashes with SHA-256)
-    ph?: string // Phone number (FB hashes with SHA-256)
-    fn?: string // First name (FB hashes with SHA-256)
-    ln?: string // Last name (FB hashes with SHA-256)
-    ge?: string // Gender (FB hashes with SHA-256)
-    db?: string // Date of birth (FB hashes with SHA-256) - format: YYYYMMDD
-    ct?: string // City (FB hashes with SHA-256)
-    st?: string // State (FB hashes with SHA-256)
-    zp?: string // ZIP/Postal code (FB hashes with SHA-256)
-    country?: string // Country code (FB hashes with SHA-256)
+  em?: string // Email (FB hashes with SHA-256)
+  ph?: string // Phone number (FB hashes with SHA-256)
+  fn?: string // First name (FB hashes with SHA-256)
+  ln?: string // Last name (FB hashes with SHA-256)
+  ge?: string // Gender (FB hashes with SHA-256)
+  db?: string // Date of birth (FB hashes with SHA-256) - format: YYYYMMDD
+  ct?: string // City (FB hashes with SHA-256)
+  st?: string // State (FB hashes with SHA-256)
+  zp?: string // ZIP/Postal code (FB hashes with SHA-256)
+  country?: string // Country code (FB hashes with SHA-256)
 }
 
 export type FBEvent = {
@@ -84,17 +83,17 @@ export type FBEvent = {
 }
 
 export type FBClient = {
-    disablePushState?: boolean
-    loaded?: boolean
-    version?: string
-    queue?: unknown[]
-    push?: FBClient
-    callMethod?: (...args: unknown[]) => void
-    (command: 'set', key: string, value: boolean, pixelId: string): void
-    (command: 'dataProcessingOptions', options: string[], country?: number, state?: number): void
-    (command: 'init', pixelId: string, userData?: UserData, options?: InitOptions ): void
-    (command: 'trackSingle', pixelId: string, event: FBStandardEventType, params?: FBEvent, options?: EventOptions): void
-    (command: 'trackSingleCustom', pixelId: string, event: string, params?: FBEvent, options?: EventOptions): void
+  disablePushState?: boolean
+  loaded?: boolean
+  version?: string
+  queue?: unknown[]
+  push?: FBClient
+  callMethod?: (...args: unknown[]) => void
+  (command: 'set', key: string, value: boolean, pixelId: string): void
+  (command: 'dataProcessingOptions', options: string[], country?: number, state?: number): void
+  (command: 'init', pixelId: string, userData?: UserData, options?: InitOptions ): void
+  (command: 'trackSingle', pixelId: string, event: FBStandardEventType, params?: FBEvent, options?: EventOptions): void
+  (command: 'trackSingleCustom', pixelId: string, event: string, params?: FBEvent, options?: EventOptions): void
 }
 
 export const LDU = {
