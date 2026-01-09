@@ -7,17 +7,23 @@ Object {
       "_update_existing_only": true,
       "app_id": "tZlmdH(v3%S",
       "braze_id": "tZlmdH(v3%S",
-      "email": "urbapwid@avo.dz",
+      "email": "rabavori@fo.sx",
       "external_id": "tZlmdH(v3%S",
-      "name": "ecommerce.checkout_started",
+      "name": "ecommerce.order_placed",
       "phone": "tZlmdH(v3%S",
       "properties": Object {
         "cart_id": "tZlmdH(v3%S",
-        "checkout_id": "tZlmdH(v3%S",
         "currency": "HTG",
+        "discounts": Array [
+          Object {
+            "amount": -17122291498352.64,
+            "code": "tZlmdH(v3%S",
+          },
+        ],
         "metadata": Object {
           "testType": "tZlmdH(v3%S",
         },
+        "order_id": "tZlmdH(v3%S",
         "products": Array [
           Object {
             "image_url": "http://vaci.va/inu",
@@ -30,6 +36,7 @@ Object {
           },
         ],
         "source": "tZlmdH(v3%S",
+        "total_discounts": -17122291498352.64,
         "total_value": -17122291498352.64,
       },
       "time": "2025-01-01T00:00:00.000Z",
@@ -49,11 +56,11 @@ Object {
       "app_id": "tZlmdH(v3%S",
       "braze_id": "tZlmdH(v3%S",
       "external_id": "tZlmdH(v3%S",
-      "name": "ecommerce.checkout_started",
+      "name": "ecommerce.order_placed",
       "properties": Object {
         "cart_id": "tZlmdH(v3%S",
-        "checkout_id": "tZlmdH(v3%S",
         "currency": "HTG",
+        "order_id": "tZlmdH(v3%S",
         "products": Array [
           Object {
             "price": -17122291498352.64,

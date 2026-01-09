@@ -2,49 +2,70 @@ import { Payload } from './generated-types'
 import { Payload as SingleProductPayload } from '../ecommerceSingleProduct/generated-types'
 import { Settings } from '../generated-types'
 import { BrazeTrackUserAPIResponse } from '../utils'
-import { JSONLikeObject, RequestClient, PayloadValidationError, MultiStatusResponse } from '@segment/actions-core'
-import type {
-  BaseEvent,
-  EcommerceEvents,
-  EcommerceEvent,
-  MultiPropertyEventName,
-  ProductViewedEventName,
+import { 
+  JSONLikeObject,
+  RequestClient, 
+  PayloadValidationError, 
+  MultiStatusResponse 
+} from '@segment/actions-core'
+import { SyncMode } from '@segment/actions-core/destination-kit/types'
+import type { 
+  SupportedSyncMode,
+  BaseEvent, 
+  EcommerceEvents, 
+  EcommerceEvent, 
+  MultiPropertyEventName, 
+  ProductViewedEventName, 
   ProductViewedEvent,
   MultiProductBaseEvent,
-  CartUpdatedEvent,
+  //CartUpdatedEvent,
   CheckoutStartedEvent,
   OrderPlacedEvent,
   OrderRefundedEvent,
   OrderCancelledEvent,
-  PayloadWithIndex,
+  PayloadWithIndex, 
   Product
 } from './types'
 import { EVENT_NAMES } from './constants'
 import dayjs from 'dayjs'
 
-export async function send(
-  request: RequestClient,
-  payloads: (Payload | SingleProductPayload)[],
-  settings: Settings,
-  isBatch: boolean
-) {
+export async function send(request: RequestClient, payloads: (Payload | SingleProductPayload)[], settings: Settings, isBatch: boolean, syncMode?: SyncMode) {
   const msResponse = new MultiStatusResponse()
+
+  if(!['update', 'add'].includes(syncMode ?? '')) {
+    const message = `Invalid syncMode: ${syncMode}. Supported sync modes are 'add' and 'update'.`
+    if(isBatch){
+      payloads.forEach((payload, index) => {
+        msResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errormessage: message,
+          sent: payload as object as JSONLikeObject
+        })
+      })
+      return msResponse
+    } 
+    else {
+      throw new PayloadValidationError(message)
+    }
+  }
+
   const { endpoint } = settings
-  const { json, payloadsWithIndexes } = getJSON(payloads, settings, isBatch, msResponse)
+  const { json, payloadsWithIndexes } = getJSON(payloads, settings, isBatch, syncMode as SupportedSyncMode, msResponse)
   const url = `${endpoint}/users/track`
 
   const response = await request<BrazeTrackUserAPIResponse>(url, {
     method: 'POST',
-    ...(isBatch ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
+     ...(isBatch ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
     json
   })
 
   const errors = Array.isArray(response.data.errors) ? response.data.errors : []
 
   payloadsWithIndexes.forEach((payload, index) => {
-    const error = errors.find((e) => e.index === index)
+    
+    const error = errors.find(e => e.index === index)
 
-    if (error) {
+    if(error){
       msResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: 'BAD_REQUEST',
@@ -54,30 +75,28 @@ export async function send(
       })
     }
   })
-
-  return isBatch ? msResponse : response
+  return isBatch ? msResponse : response 
 }
 
-function getJSON(
-  payloads: (Payload | SingleProductPayload)[],
-  settings: Settings,
-  isBatch: boolean,
-  msResponse: MultiStatusResponse
-): { json: EcommerceEvents; payloadsWithIndexes: PayloadWithIndex[] } {
-  const payloadsWithIndexes: PayloadWithIndex[] = [...payloads]
+function getJSON(payloads: (Payload | SingleProductPayload)[], settings: Settings, isBatch: boolean, syncMode: SupportedSyncMode, msResponse: MultiStatusResponse): { json: EcommerceEvents, payloadsWithIndexes: PayloadWithIndex[] } {  
+  const payloadsWithIndexes: PayloadWithIndex[] = [ ...payloads ]
   const events: EcommerceEvent[] = []
   payloadsWithIndexes.forEach((payload, index) => {
-    const message = validate(payload, isBatch)
-    if (message) {
+    const message = validate(payload, isBatch)  
+    if(message) {
       payload.index = undefined
-      msResponse.setErrorResponseAtIndex(index, {
-        status: 400,
-        errormessage: message,
-        sent: payload as object as JSONLikeObject
-      })
-    } else {
+      msResponse.setErrorResponseAtIndex(
+        index, 
+        { 
+          status: 400,
+          errormessage: message,
+          sent: payload as object as JSONLikeObject
+        }
+      )
+    } 
+    else {  
       // assume valid payload - we'll overwrite later if Braze responds with an error for this index
-      const event = getJSONItem(payload, settings)
+      const event = getJSONItem(payload, settings, syncMode)
       payload.index = events.length
       events.push(event)
       msResponse.setSuccessResponseAtIndex(index, {
@@ -91,10 +110,11 @@ function getJSON(
   return { json: { events }, payloadsWithIndexes }
 }
 
-function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings): EcommerceEvent {
+function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings, syncMode: SupportedSyncMode): EcommerceEvent {
+    
   const { app_id } = settings
 
-  const {
+  const { 
     external_id,
     braze_id,
     email,
@@ -104,42 +124,43 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
     time: payloadTime,
     currency,
     source,
-    _update_existing_only,
     metadata
   } = payload
 
   const time = dayjs(payloadTime).toISOString()
 
   const updateExistingOnly = (() => {
-    if (user_alias?.alias_label && user_alias?.alias_name) {
-      return true
+    if ( user_alias?.alias_label && user_alias?.alias_name ) { 
+      return true 
     }
-    if (typeof _update_existing_only === 'boolean') {
-      return _update_existing_only
+    if ( syncMode === 'update' ) { 
+      return true
     }
     return undefined
   })()
 
   const baseEvent: BaseEvent = {
-    ...(external_id ? { external_id } : {}),
-    ...(braze_id ? { braze_id } : {}),
-    ...(email ? { email } : {}),
-    ...(phone ? { phone } : {}),
-    ...(user_alias ? { user_alias } : {}),
-    ...(app_id ? { app_id } : {}),
+    ...(external_id? { external_id } : {} ),
+    ...(braze_id? { braze_id } : {} ),
+    ...(email? { email } : {} ),
+    ...(phone? { phone } : {} ),
+    ...(user_alias? { user_alias } : {} ),
+    ...(app_id ? { app_id } : {} ),
     name: name as ProductViewedEventName | MultiPropertyEventName,
     time,
     properties: {
       currency,
       source,
-      ...(metadata ? { metadata } : {})
+        ...(metadata ? { metadata } : {})
     },
-    ...(typeof updateExistingOnly === 'boolean' ? { _update_existing_only: updateExistingOnly } : {})
+    ...(typeof updateExistingOnly === 'boolean' ? { _update_existing_only: updateExistingOnly } : {} )
   }
 
-  switch (name) {
+  switch(name) {
     case EVENT_NAMES.PRODUCT_VIEWED: {
-      const { product } = payload as SingleProductPayload
+      const {
+        product
+      } = payload as SingleProductPayload
 
       const event: ProductViewedEvent = {
         ...baseEvent,
@@ -150,42 +171,47 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
         }
       }
       return event
-    }
-    case EVENT_NAMES.CART_UPDATED:
+    } 
+    // case EVENT_NAMES.CART_UPDATED:
     case EVENT_NAMES.CHECKOUT_STARTED:
     case EVENT_NAMES.ORDER_PLACED:
     case EVENT_NAMES.ORDER_CANCELLED:
     case EVENT_NAMES.ORDER_REFUNDED: {
-      const { total_value } = payload as Payload
+      const {
+        total_value
+      } = payload as Payload
 
       const multiProductEvent: MultiProductBaseEvent = {
         ...baseEvent,
         name: name as MultiPropertyEventName,
         properties: {
           ...baseEvent.properties,
-          products: getProductAndMetadataJSON(payload as Payload),
+          products: getProductAndMetadataJSON( payload as Payload ),
           total_value: total_value as number
         }
       }
 
-      switch (name) {
-        case EVENT_NAMES.CART_UPDATED: {
-          const { cart_id } = payload
+      switch(name) {
+        // case EVENT_NAMES.CART_UPDATED: {
+        //   const { cart_id } = payload
 
-          const event: CartUpdatedEvent = {
-            ...multiProductEvent,
-            name: EVENT_NAMES.CART_UPDATED,
-            properties: {
-              ...multiProductEvent.properties,
-              cart_id: cart_id as string
-            }
-          }
-          return event
-        }
+        //   const event: CartUpdatedEvent = {
+        //     ...multiProductEvent,
+        //     name: EVENT_NAMES.CART_UPDATED,
+        //     properties: {
+        //       ...multiProductEvent.properties,
+        //       cart_id: cart_id as string
+        //     }
+        //   }
+        //   return event
+        // }
 
         case EVENT_NAMES.CHECKOUT_STARTED: {
-          const { checkout_id, cart_id } = payload
-
+          const { 
+            checkout_id, 
+            cart_id
+          } = payload
+          
           const event: CheckoutStartedEvent = {
             ...multiProductEvent,
             name: EVENT_NAMES.CHECKOUT_STARTED,
@@ -199,8 +225,13 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
         }
 
         case EVENT_NAMES.ORDER_PLACED: {
-          const { order_id, cart_id, total_discounts, discounts } = payload
-
+          const { 
+            order_id,
+            cart_id, 
+            total_discounts, 
+            discounts
+          } = payload
+          
           const event: OrderPlacedEvent = {
             ...multiProductEvent,
             name: EVENT_NAMES.ORDER_PLACED,
@@ -216,8 +247,12 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
         }
 
         case EVENT_NAMES.ORDER_REFUNDED: {
-          const { order_id, total_discounts, discounts } = payload
-
+          const { 
+            order_id,
+            total_discounts, 
+            discounts
+          } = payload
+          
           const event: OrderRefundedEvent = {
             ...multiProductEvent,
             name: EVENT_NAMES.ORDER_REFUNDED,
@@ -232,8 +267,13 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
         }
 
         case EVENT_NAMES.ORDER_CANCELLED: {
-          const { order_id, cancel_reason, total_discounts, discounts } = payload
-
+          const { 
+            order_id,
+            cancel_reason,
+            total_discounts, 
+            discounts
+          } = payload
+          
           const event: OrderCancelledEvent = {
             ...multiProductEvent,
             name: EVENT_NAMES.ORDER_CANCELLED,
@@ -260,12 +300,21 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
 }
 
 function getProductAndMetadataJSON(payload: Payload): Product[] {
-  return payload.products.map((product) => {
-    const { quantity, product_id, product_name, variant_id, price, image_url, product_url, ...metadata } = product
+  return payload.products.map(product => {
+    const {
+      quantity,
+      product_id,  
+      product_name,
+      variant_id,
+      price,
+      image_url,
+      product_url,
+      ...metadata
+    } = product
 
     return {
       quantity,
-      product_id,
+      product_id,  
       product_name,
       variant_id,
       price,
@@ -275,14 +324,15 @@ function getProductAndMetadataJSON(payload: Payload): Product[] {
     }
   })
 }
-
+  
 function validate(payload: Payload | SingleProductPayload, isBatch: boolean): string | void {
   const { braze_id, user_alias, external_id, email, phone } = payload
   if (!braze_id && !user_alias && !external_id && !email && !phone) {
     const message = 'One of "external_id" or "user_alias" or "braze_id" or "email" or "phone" is required.'
-    if (!isBatch) {
-      throw new PayloadValidationError(message)
-    } else {
+    if(!isBatch) {
+      throw new PayloadValidationError(message)    
+    } 
+    else {
       return message
     }
   }
@@ -290,278 +340,34 @@ function validate(payload: Payload | SingleProductPayload, isBatch: boolean): st
 
 export function currencies() {
   const codes = [
-    'AFN',
-    'EUR',
-    'ALL',
-    'DZD',
-    'USD',
-    'EUR',
-    'AOA',
-    'XCD',
-    'XCD',
-    'XAD',
-    'ARS',
-    'AMD',
-    'AWG',
-    'AUD',
-    'EUR',
-    'AZN',
-    'BSD',
-    'BHD',
-    'BDT',
-    'BBD',
-    'BYN',
-    'EUR',
-    'BZD',
-    'XOF',
-    'BMD',
-    'INR',
-    'BTN',
-    'BOB',
-    'BOV',
-    'USD',
-    'BAM',
-    'BWP',
-    'NOK',
-    'BRL',
-    'USD',
-    'BND',
-    'BGN',
-    'XOF',
-    'BIF',
-    'CVE',
-    'KHR',
-    'XAF',
-    'CAD',
-    'KYD',
-    'XAF',
-    'XAF',
-    'CLP',
-    'CLF',
-    'CNY',
-    'AUD',
-    'AUD',
-    'COP',
-    'COU',
-    'KMF',
-    'CDF',
-    'XAF',
-    'NZD',
-    'CRC',
-    'XOF',
-    'EUR',
-    'CUP',
-    'XCG',
-    'EUR',
-    'CZK',
-    'DKK',
-    'DJF',
-    'XCD',
-    'DOP',
-    'USD',
-    'EGP',
-    'SVC',
-    'USD',
-    'XAF',
-    'ERN',
-    'EUR',
-    'SZL',
-    'ETB',
-    'EUR',
-    'FKP',
-    'DKK',
-    'FJD',
-    'EUR',
-    'EUR',
-    'EUR',
-    'XPF',
-    'EUR',
-    'XAF',
-    'GMD',
-    'GEL',
-    'EUR',
-    'GHS',
-    'GIP',
-    'EUR',
-    'DKK',
-    'XCD',
-    'EUR',
-    'USD',
-    'GTQ',
-    'GBP',
-    'GNF',
-    'XOF',
-    'GYD',
-    'HTG',
-    'USD',
-    'AUD',
-    'EUR',
-    'HNL',
-    'HKD',
-    'HUF',
-    'ISK',
-    'INR',
-    'IDR',
-    'XDR',
-    'IRR',
-    'IQD',
-    'EUR',
-    'GBP',
-    'ILS',
-    'EUR',
-    'JMD',
-    'JPY',
-    'GBP',
-    'JOD',
-    'KZT',
-    'KES',
-    'AUD',
-    'KPW',
-    'KRW',
-    'KWD',
-    'KGS',
-    'LAK',
-    'EUR',
-    'LBP',
-    'LSL',
-    'ZAR',
-    'LRD',
-    'LYD',
-    'CHF',
-    'EUR',
-    'EUR',
-    'MOP',
-    'MGA',
-    'MWK',
-    'MYR',
-    'MVR',
-    'XOF',
-    'EUR',
-    'USD',
-    'EUR',
-    'MRU',
-    'MUR',
-    'EUR',
-    'XUA',
-    'MXN',
-    'MXV',
-    'USD',
-    'MDL',
-    'EUR',
-    'MNT',
-    'EUR',
-    'XCD',
-    'MAD',
-    'MZN',
-    'MMK',
-    'NAD',
-    'ZAR',
-    'AUD',
-    'NPR',
-    'EUR',
-    'XPF',
-    'NZD',
-    'NIO',
-    'XOF',
-    'NGN',
-    'NZD',
-    'AUD',
-    'MKD',
-    'USD',
-    'NOK',
-    'OMR',
-    'PKR',
-    'USD',
-    'PAB',
-    'USD',
-    'PGK',
-    'PYG',
-    'PEN',
-    'PHP',
-    'NZD',
-    'PLN',
-    'EUR',
-    'USD',
-    'QAR',
-    'EUR',
-    'RON',
-    'RUB',
-    'RWF',
-    'EUR',
-    'SHP',
-    'XCD',
-    'XCD',
-    'EUR',
-    'EUR',
-    'XCD',
-    'WST',
-    'EUR',
-    'STN',
-    'SAR',
-    'XOF',
-    'RSD',
-    'SCR',
-    'SLE',
-    'SGD',
-    'XCG',
-    'XSU',
-    'EUR',
-    'EUR',
-    'SBD',
-    'SOS',
-    'ZAR',
-    'SSP',
-    'EUR',
-    'LKR',
-    'SDG',
-    'SRD',
-    'NOK',
-    'SEK',
-    'CHF',
-    'CHE',
-    'CHW',
-    'SYP',
-    'TWD',
-    'TJS',
-    'TZS',
-    'THB',
-    'USD',
-    'XOF',
-    'NZD',
-    'TOP',
-    'TTD',
-    'TND',
-    'TRY',
-    'TMT',
-    'USD',
-    'AUD',
-    'UGX',
-    'UAH',
-    'AED',
-    'GBP',
-    'USD',
-    'USD',
-    'USN',
-    'UYU',
-    'UYI',
-    'UYW',
-    'UZS',
-    'VUV',
-    'VES',
-    'VED',
-    'VND',
-    'USD',
-    'USD',
-    'XPF',
-    'MAD',
-    'YER',
-    'ZMW',
-    'ZWG'
+    "AFN","EUR","ALL","DZD","USD","EUR","AOA","XCD","XCD","XAD","ARS","AMD",
+    "AWG","AUD","EUR","AZN","BSD","BHD","BDT","BBD","BYN","EUR","BZD","XOF",
+    "BMD","INR","BTN","BOB","BOV","USD","BAM","BWP","NOK","BRL","USD","BND",
+    "BGN","XOF","BIF","CVE","KHR","XAF","CAD","KYD","XAF","XAF","CLP","CLF",
+    "CNY","AUD","AUD","COP","COU","KMF","CDF","XAF","NZD","CRC","XOF","EUR",
+    "CUP","XCG","EUR","CZK","DKK","DJF","XCD","DOP","USD","EGP","SVC","USD",
+    "XAF","ERN","EUR","SZL","ETB","EUR","FKP","DKK","FJD","EUR","EUR","EUR",
+    "XPF","EUR","XAF","GMD","GEL","EUR","GHS","GIP","EUR","DKK","XCD","EUR",
+    "USD","GTQ","GBP","GNF","XOF","GYD","HTG","USD","AUD","EUR","HNL","HKD",
+    "HUF","ISK","INR","IDR","XDR","IRR","IQD","EUR","GBP","ILS","EUR","JMD",
+    "JPY","GBP","JOD","KZT","KES","AUD","KPW","KRW","KWD","KGS","LAK","EUR",
+    "LBP","LSL","ZAR","LRD","LYD","CHF","EUR","EUR","MOP","MGA","MWK","MYR",
+    "MVR","XOF","EUR","USD","EUR","MRU","MUR","EUR","XUA","MXN","MXV","USD",
+    "MDL","EUR","MNT","EUR","XCD","MAD","MZN","MMK","NAD","ZAR","AUD","NPR",
+    "EUR","XPF","NZD","NIO","XOF","NGN","NZD","AUD","MKD","USD","NOK","OMR",
+    "PKR","USD","PAB","USD","PGK","PYG","PEN","PHP","NZD","PLN","EUR","USD",
+    "QAR","EUR","RON","RUB","RWF","EUR","SHP","XCD","XCD","EUR","EUR","XCD",
+    "WST","EUR","STN","SAR","XOF","RSD","SCR","SLE","SGD","XCG","XSU","EUR",
+    "EUR","SBD","SOS","ZAR","SSP","EUR","LKR","SDG","SRD","NOK","SEK","CHF",
+    "CHE","CHW","SYP","TWD","TJS","TZS","THB","USD","XOF","NZD","TOP","TTD",
+    "TND","TRY","TMT","USD","AUD","UGX","UAH","AED","GBP","USD","USD","USN",
+    "UYU","UYI","UYW","UZS","VUV","VES","VED","VND","USD","USD","XPF","MAD",
+    "YER","ZMW","ZWG"
   ]
 
   const unique = Array.from(new Set(codes))
 
-  return unique.map((code) => ({
+  return unique.map(code => ({
     label: code,
     value: code
   }))

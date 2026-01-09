@@ -17,10 +17,6 @@ export interface Payload {
     alias_label: string
   }
   /**
-   * When this flag is set to true, Braze will only update existing profiles and will not create any new ones.
-   */
-  _update_existing_only?: boolean
-  /**
    * The user email
    */
   email?: string
