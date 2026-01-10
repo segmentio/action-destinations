@@ -157,7 +157,7 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
   input.payloads.forEach((_payload, index) => {
     multiStatusResponse.setSuccessResponseAtIndex(index, {
       status: 200,
-      sent: { ..._payload },
+      sent: JSON.parse(JSON.stringify(_payload)),
       body: 'Successfully uploaded to S3'
     })
   })
