@@ -126,8 +126,8 @@ function formatUserData(userData: Payload['userData']): UserData | undefined {
     } = userData
 
     const dbFormatted = formatDate(db)
-    const stFormatted = formatState(st)
-    const countryFormatted = formatCountry(country)
+    const stFormatted = fromMap(US_STATE_CODES, st)
+    const countryFormatted = fromMap(COUNTRY_CODES, country)
 
     const ud: UserData = {
         ...(typeof em === 'string' ? {em: em.toLowerCase().trim()} : {}), // lowercase and trim whitespace
@@ -163,40 +163,10 @@ function formatDate(isoDate?: string): string | undefined {
     return `${year}${month}${day}`
 }
 
-function formatState(state?: string): string | undefined {
-    if (typeof state !== 'string' || !state.trim()) {
+function fromMap(map: Map<string, string>, key?: string): string | undefined {
+    if (typeof key !== 'string' || !key.trim()) {
         return undefined
     }
 
-    const normalized = state.replace(/\s+/g, '').toLowerCase()
-
-    const abbreviation = US_STATE_CODES.get(normalized)
-    if (abbreviation) {
-        return abbreviation
-    }
-
-    if (/^[a-z]{2}$/i.test(normalized)) {
-        return normalized.toLowerCase()
-    }
-
-    return undefined
-}
-
-function formatCountry(country?: string): string | undefined {
-    if (typeof country !== 'string' || !country.trim()) {
-        return undefined
-    }
-
-    const normalized = country.replace(/\s+/g, '').toUpperCase()
-
-    const abbreviation = COUNTRY_CODES.get(normalized)
-    if (abbreviation) {
-        return abbreviation
-    }
-
-    if (/^[A-Z]{2}$/.test(normalized)) {
-        return normalized.toLowerCase()
-    }
-
-    return undefined
+    return map.get(key.trim()) || undefined
 }

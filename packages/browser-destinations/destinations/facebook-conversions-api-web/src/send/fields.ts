@@ -1,6 +1,6 @@
 import type { InputField } from '@segment/actions-core'
 import { getDependenciesFor } from './depends-on'
-import { CURRENCY_ISO_CODES } from '../constants'
+import { CURRENCY_ISO_CODES, US_STATE_CODES, COUNTRY_CODES } from '../constants'
 
 export const event_config: InputField = {
     label: 'Event Configuration',
@@ -336,8 +336,14 @@ export const userData: InputField = {
         },
         st: {
             label: 'State',
-            description: 'State of the user. Two-letter state or province code for the United States, For example, "NY" for New York.',
-            type: 'string'
+            description: 'State of the user.',
+            type: 'string',
+            choices: (() => {
+                return [...US_STATE_CODES].map(([stateName]) => ({
+                    value: stateName,
+                    label: stateName
+                }))
+            })()
         },
         zp: {
             label: 'ZIP/Postal Code',
@@ -346,8 +352,14 @@ export const userData: InputField = {
         },
         country: {
             label: 'Country',
-            description: 'Country code of the user. This should be a valid ISO 3166-1 alpha-2 country code. For example, "US" for the United States.',
-            type: 'string'
+            description: 'The country of the user.',
+            type: 'string', 
+            choices: (() => {
+                return [...COUNTRY_CODES].map(([countryName]) => ({
+                    value: countryName,
+                    label: countryName
+                }))
+            })()
         }
     },
     default: {
