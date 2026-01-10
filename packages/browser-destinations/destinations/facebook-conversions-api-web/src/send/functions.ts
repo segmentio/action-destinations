@@ -197,10 +197,13 @@ function formatDate(isoDate?: string): string | undefined {
     return `${year}${month}${day}`
 }
 
-function fromMap(map: Map<string, string>, key?: string): string | undefined {
-    if (typeof key !== 'string' || !key.trim()) {
+function fromMap(map: Map<string, string>, value?: string): string | undefined {
+    const cleaned = value?.toLowerCase().replace(/[^a-z]/g, '').trim()
+    if (!cleaned) {
         return undefined
     }
-
-    return map.get(key.trim()) || undefined
+    if(cleaned.length === 2 && Array.from(map.values()).includes(cleaned)) {
+        return cleaned
+    }
+    return map.get(cleaned) || undefined
 }

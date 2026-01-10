@@ -1,6 +1,6 @@
 import type { InputField } from '@segment/actions-core'
 import { getDependenciesFor } from './depends-on'
-import { CURRENCY_ISO_CODES, US_STATE_CODES, COUNTRY_CODES } from '../constants'
+import { CURRENCY_ISO_CODES } from '../constants'
 
 export const event_config: InputField = {
     label: 'Event Configuration',
@@ -292,7 +292,7 @@ export const userData: InputField = {
         },
         st: {
             label: 'State',
-            description: 'State of the user.',
+            description: 'State of the user. Facebook expects the 2-letter abbreviation for US states. For example, "CA" for California, or "NY" for New York.',
             type: 'string'
         },
         zp: {
@@ -302,7 +302,7 @@ export const userData: InputField = {
         },
         country: {
             label: 'Country',
-            description: 'The country of the user.',
+            description: 'The country of the user. Facebook expects the 2-letter ISO 3166-1 alpha-2 country code. For example, "US" for the United States, or "GB" for the United Kingdom.',
             type: 'string'
         }
     },
