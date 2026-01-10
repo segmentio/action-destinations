@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError, MultiStatusResponse } from '@segment/actions-core'
 import { isValidS3Path, isValidS3BucketName, normalizeS3Path, uploadS3 } from './s3'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
@@ -151,35 +151,84 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     )
   }
 
+  const multiStatusResponse = new MultiStatusResponse()
+
+  //Initially mark all payloads as successful
+  input.payloads.forEach((_payload, index) => {
+    multiStatusResponse.setSuccessResponseAtIndex(index, {
+      status: 200,
+      sent: { ..._payload },
+      body: 'Successfully uploaded to S3'
+    })
+  })
+
   const { filename, fileContents } = generateFile(input.payloads)
 
   if (input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true) {
     //------------
     // LEGACY FLOW
     // -----------
-    return uploadS3(input.payloads[0], filename, fileContents, input.request)
+    try {
+      await uploadS3(input.payloads[0], filename, fileContents, input.request)
+      return multiStatusResponse
+    } catch (error) {
+      //Mark all payloads as failed in case of error
+      input.payloads.forEach((_payload, index) => {
+        if (multiStatusResponse.isSuccessResponseAtIndex(index)) {
+          multiStatusResponse.setErrorResponseAtIndex(index, {
+            status: 500,
+            errortype: 'RETRYABLE_ERROR',
+            errormessage: `Failed to upload to LiveRamp Endpoint: ${(error as Error).message}`
+          })
+        }
+      })
+      return multiStatusResponse
+    }
   } else {
     //------------
     // AWS FLOW
     // -----------
     const shouldEnableGzipCompression = input.features && input.features[LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME] === true
-    return sendEventToAWS({
-      audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
-      uploadType: 's3',
-      filename: filename,
-      destinationInstanceID: subscriptionMetadata?.destinationConfigId,
-      subscriptionId: subscriptionMetadata?.actionConfigId,
-      fileContents,
-      rowCount: input.payloads.length,
-      gzipCompressFile: shouldEnableGzipCompression,
-      s3Info: {
-        s3BucketName: input.payloads[0].s3_aws_bucket_name,
-        s3Region: input.payloads[0].s3_aws_region,
-        s3AccessKeyId: input.payloads[0].s3_aws_access_key,
-        s3SecretAccessKey: input.payloads[0].s3_aws_secret_key,
-        s3BucketPath: input.payloads[0].s3_aws_bucket_path
+    try {
+      await sendEventToAWS({
+        audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
+        uploadType: 's3',
+        filename: filename,
+        destinationInstanceID: subscriptionMetadata?.destinationConfigId,
+        subscriptionId: subscriptionMetadata?.actionConfigId,
+        fileContents,
+        rowCount: input.payloads.length,
+        gzipCompressFile: shouldEnableGzipCompression,
+        s3Info: {
+          s3BucketName: input.payloads[0].s3_aws_bucket_name,
+          s3Region: input.payloads[0].s3_aws_region,
+          s3AccessKeyId: input.payloads[0].s3_aws_access_key,
+          s3SecretAccessKey: input.payloads[0].s3_aws_secret_key,
+          s3BucketPath: input.payloads[0].s3_aws_bucket_path
+        }
+      })
+      return multiStatusResponse
+    } catch (error) {
+      // Set default error to Bad Request
+      let httpStatusCode = 400
+
+      // If this is an AWS error
+      if (error?.$metadata?.httpStatusCode) {
+        httpStatusCode = error.$metadata.httpStatusCode
       }
-    })
+
+      //Mark all payloads as failed in case of error
+      for (let index = 0; index < input.payloads.length; index++) {
+        if (multiStatusResponse.isSuccessResponseAtIndex(index)) {
+          multiStatusResponse.setErrorResponseAtIndex(index, {
+            status: httpStatusCode,
+            errortype: 'RETRYABLE_ERROR',
+            errormessage: `Failed to upload to LiveRamp Endpoint: ${(error as Error).message}`
+          })
+        }
+      }
+      return multiStatusResponse
+    }
   }
 }
 
