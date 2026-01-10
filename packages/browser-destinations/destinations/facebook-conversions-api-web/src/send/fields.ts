@@ -293,13 +293,7 @@ export const userData: InputField = {
         st: {
             label: 'State',
             description: 'State of the user.',
-            type: 'string',
-            choices: (() => {
-                return [...US_STATE_CODES].map(([stateName]) => ({
-                    value: stateName,
-                    label: stateName
-                }))
-            })()
+            type: 'string'
         },
         zp: {
             label: 'ZIP/Postal Code',
@@ -309,13 +303,7 @@ export const userData: InputField = {
         country: {
             label: 'Country',
             description: 'The country of the user.',
-            type: 'string', 
-            choices: (() => {
-                return [...COUNTRY_CODES].map(([countryName]) => ({
-                    value: countryName,
-                    label: countryName
-                }))
-            })()
+            type: 'string'
         }
     },
     default: {

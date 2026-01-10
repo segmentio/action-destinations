@@ -9,19 +9,21 @@ import { getNotVisibleForEvent } from './depends-on'
 export function send(client: FBClient, payload: Payload, settings: Settings, analytics: Analytics) {
     const { pixelId } = settings
     const { 
-        event_config: { custom_event_name, event_name } = {},
+        event_config: { 
+            custom_event_name, 
+            event_name 
+        } = {}
     } = payload
 
     const isCustom = event_name === 'CustomEvent' ? true : false
 
-    if(isCustom){
-        const errorMessage = validate(payload)
-        if(errorMessage) {
-            console.warn(`${errorMessage}`)
-            return
-        }
-    }
+    const errorMessage = validate(payload)
 
+    if(errorMessage) {
+        console.warn(`${errorMessage}`)
+        return
+    }
+    
     const fbEvent = formatFBEvent(payload)
 
     maybeSendUserData(client, payload, settings, analytics)
@@ -83,16 +85,16 @@ function formatFBEvent(payload: Payload): FBEvent {
     } = payload
 
     const fbEvent: FBEvent = {
-        content_category,
-        content_ids,
-        content_name,
-        content_type,
-        contents,
-        currency,
-        delivery_category,
-        num_items,
-        value,
-        custom_data
+        ...(content_category ? { content_category } : {}),
+        ...(content_ids && Array.isArray(content_ids) && content_ids.length > 0 ? { content_ids } : {}),
+        ...(content_name ? { content_name } : {}),
+        ...(content_type ? { content_type } : {}),
+        ...(contents && Array.isArray(contents) && contents.length > 0 ? { contents } : {}),
+        ...(currency ? { currency } : {}),
+        ...(delivery_category ? { delivery_category } : {}),
+        ...(typeof num_items === 'number' ? { num_items } : {}),
+        ...(typeof value === 'number' ? { value } : {}),
+        ...(custom_data && Object.entries(custom_data).length > 0 ? { custom_data } : {})
     }
 
     if(show_fields === false){
@@ -103,13 +105,6 @@ function formatFBEvent(payload: Payload): FBEvent {
                 delete fbEvent[field as keyof typeof fbEvent]
             }
         })
-    }
-
-    for (const key in fbEvent) {
-        const k = key as keyof typeof fbEvent
-        if (fbEvent[k] === undefined) {
-            delete fbEvent[k]
-        }
     }
 
     return Object.keys(fbEvent).length > 0 ? fbEvent : {}
