@@ -12,6 +12,8 @@ const settings: Settings = {
   account_id: 'test123'
 }
 
+const dataExtensionId = '1234567890'
+
 const event = createTestEvent({
   timestamp: timestamp,
   type: 'track',
@@ -28,86 +30,133 @@ const payload = {
   values: {
     name: 'MARK42'
   },
-  retlOnMappingSave: {
+  onMappingSave: {
+    inputs: {},
     outputs: {
-      id: '1234567890'
+      id: dataExtensionId
     }
   }
 }
 
-const authUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/v2/token`
-const externalKeyUrl = `https://${settings.subdomain}.rest.marketingcloudapis.com/data/v1/customobjects/1234567890`
+const retlPayload = {
+  keys: {
+    id: 'version'
+  },
+  values: {
+    name: 'MARK42'
+  },
+  retlOnMappingSave: {
+    inputs: {},
+    outputs: {
+      id: dataExtensionId
+    }
+  }
+}
 
 describe('Salesforce Marketing Cloud', () => {
   describe('Async Data Extension', () => {
-    it('should send data to the correct endpoint', async () => {
-      // Mock authentication
-      nock(authUrl).post('').reply(200, {
-        access_token: 'test_access_token',
-        soap_instance_url: 'https://test123.soap.marketingcloudapis.com/'
-      })
-
-      // Mock external key lookup
-      nock(externalKeyUrl).get('').reply(200, {
-        key: '1234567890'
-      })
-
-      // Mock the async data extension API
-      nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
-        .post('/data/v1/async/dataextensions/key:1234567890/rows')
-        .reply(200, {
-          requestId: 'b241e73b-9b35-46ff-9c2d-e779ac5836a9',
-          resultMessages: []
-        })
-
-      const responses = await testDestination.testAction('asyncDataExtension', {
-        event,
-        settings,
-        mapping: payload
-      })
-
-      expect(responses.length).toBe(2) // One for external key lookup, one for async insert
-      expect(responses[1].data).toEqual({
-        requestId: 'b241e73b-9b35-46ff-9c2d-e779ac5836a9',
-        resultMessages: []
-      })
-    })
-
-    it('should throw an error if no data extension is connected', async () => {
-      await expect(
-        testDestination.testAction('asyncDataExtension', {
-          event,
-          settings,
-          mapping: {
-            keys: {
-              id: 'version'
-            },
-            values: {
-              name: 'MARK42'
-            }
-          }
-        })
-      ).rejects.toThrowError('No Data Extension Connected')
-    })
-
-    it('should throw an error if no external Key is found', async () => {
+    beforeEach(() => {
       nock.cleanAll()
-      // Mock external key lookup with empty key
-      nock(externalKeyUrl)
-        .get('') // Make sure this path matches exactly what your code requests
-        .reply(200, { key: '' })
-        .persist() // Ensure the mock persists for multiple calls
+    })
 
-      // Block any other unexpected requests
-      nock.disableNetConnect()
+    describe('perform', () => {
+      it('should send data to the async data extension endpoint', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`, {
+            items: [{ id: 'version', name: 'MARK42' }]
+          })
+          .reply(200, {
+            requestId: 'b241e73b-9b35-46ff-9c2d-e779ac5836a9',
+            resultMessages: []
+          })
 
-      await expect(
-        testDestination.testAction('asyncDataExtension', {
+        const responses = await testDestination.testAction('asyncDataExtension', {
           event,
           settings,
           mapping: payload
         })
-      ).rejects.toThrowError('No External Key found for Data Extension')
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].data).toEqual({
+          requestId: 'b241e73b-9b35-46ff-9c2d-e779ac5836a9',
+          resultMessages: []
+        })
+      })
+
+      it('should work with retlOnMappingSave hook outputs', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(200, {
+            requestId: 'test-request-id',
+            resultMessages: []
+          })
+
+        const responses = await testDestination.testAction('asyncDataExtension', {
+          event,
+          settings,
+          mapping: retlPayload
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+      })
+
+      it('should throw an error if no data extension is connected', async () => {
+        await expect(
+          testDestination.testAction('asyncDataExtension', {
+            event,
+            settings,
+            mapping: {
+              keys: { id: 'version' },
+              values: { name: 'MARK42' }
+            }
+          })
+        ).rejects.toThrowError('No Data Extension Connected')
+      })
+    })
+
+    describe('performBatch', () => {
+      it('should send batched data to the async data extension endpoint', async () => {
+        const events = [
+          createTestEvent({ userId: 'user1', properties: { id: 'v1' } }),
+          createTestEvent({ userId: 'user2', properties: { id: 'v2' } }),
+          createTestEvent({ userId: 'user3', properties: { id: 'v3' } })
+        ]
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(200, {
+            requestId: 'batch-request-id',
+            resultMessages: []
+          })
+
+        const responses = await testDestination.testBatchAction('asyncDataExtension', {
+          events,
+          settings,
+          mapping: payload
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].data).toEqual({
+          requestId: 'batch-request-id',
+          resultMessages: []
+        })
+      })
+
+      it('should throw an error if no data extension is connected in batch mode', async () => {
+        const events = [createTestEvent({ userId: 'user1' })]
+
+        await expect(
+          testDestination.testBatchAction('asyncDataExtension', {
+            events,
+            settings,
+            mapping: {
+              keys: { id: 'version' },
+              values: { name: 'MARK42' }
+            }
+          })
+        ).rejects.toThrowError('No Data Extension Connected')
+      })
     })
   })
 })
