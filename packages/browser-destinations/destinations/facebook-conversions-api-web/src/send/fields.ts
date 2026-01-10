@@ -1,7 +1,6 @@
 import type { InputField } from '@segment/actions-core'
-import { ACTION_SOURCES } from '../types'
 import { getDependenciesFor } from './depends-on'
-import { CURRENCY_ISO_CODES } from './constants'
+import { CURRENCY_ISO_CODES } from '../constants'
 
 export const event_config: InputField = {
     label: 'Event Configuration',
@@ -9,6 +8,7 @@ export const event_config: InputField = {
     type: 'object',
     required: true,
     additionalProperties: false,
+    defaultObjectUI: 'keyvalue',
     properties: {
         event_name: {
             label: 'Event Name',
@@ -63,36 +63,6 @@ export const content_category: InputField = {
     depends_on: getDependenciesFor('content_category')
 }
 
-export const content_ids: InputField = {
-    label: 'Content IDs',
-    description: "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
-    type: 'string',
-    multiple: true,
-    allowNull: false,
-    minimum: 1,
-    depends_on: getDependenciesFor('content_ids'),
-    required: {
-        match: 'all',
-        conditions: [
-        {
-            fieldKey: 'event_config.event_name',
-            operator: 'is',
-            value: ['AddToCart', 'Purchase', 'ViewContent']
-        },
-        {
-            fieldKey: 'contents', 
-            operator: 'is_not',
-            value: undefined
-        },
-        {
-            fieldKey: 'contents', 
-            operator: 'is_not',
-            value: ''
-        }
-        ]
-    }
-}
-
 export const content_name: InputField = {
     label: 'Content Name',
     description: 'The name of the page or product associated with the event.',
@@ -113,14 +83,21 @@ export const content_type: InputField = {
     depends_on: getDependenciesFor('content_type')
 }
 
+export const content_ids: InputField = {
+    label: 'Content IDs',
+    description: "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
+    type: 'string',
+    multiple: true,
+    depends_on: getDependenciesFor('content_ids')
+}
+
 export const contents: InputField = {
     label: 'Contents',
     description: 'A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.',
     type: 'object',
     multiple: true,
-    allowNull: false,
-    minimum: 1,
     additionalProperties: true,
+    defaultObjectUI: 'keyvalue',
     properties: {
         id: {
             label: 'ID',
@@ -150,27 +127,7 @@ export const contents: InputField = {
           }
         ]
     },
-    depends_on: getDependenciesFor('contents'),
-    required: {
-        match: 'all',
-        conditions: [
-        {
-            fieldKey: 'event_config.event_name',
-            operator: 'is',
-            value: ['AddToCart', 'Purchase', 'ViewContent']
-        },
-        {
-            fieldKey: 'content_ids', 
-            operator: 'is_not',
-            value: undefined
-        },
-        {
-            fieldKey: 'content_ids', 
-            operator: 'is_not',
-            value: ''
-        }
-        ]
-    }
+    depends_on: getDependenciesFor('contents')
 }    
 
 export const currency: InputField = {
@@ -244,7 +201,7 @@ export const value: InputField = {
     label: 'Value',
     description: 'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
     type: 'number',
-    default: { '@path': '$.properties.currency' },
+    default: { '@path': '$.properties.revenue' },
     depends_on: getDependenciesFor('value'),
     required: {
         match: 'all',
@@ -280,27 +237,12 @@ export const eventSourceUrl: InputField = {
     default: { '@path': '$.context.page.url' }
 }
 
-export const actionSource: InputField = {
-  label: 'Action Source',
-  description: 'The source of the event. This can be used to specify where the event originated from.',
-  type: 'string',
-  choices: [
-    { label: 'Email', value: ACTION_SOURCES.email },
-    { label: 'Website', value: ACTION_SOURCES.website },
-    { label: 'App', value: ACTION_SOURCES.app },
-    { label: 'Phone Call', value: ACTION_SOURCES.phone_call },
-    { label: 'Chat', value: ACTION_SOURCES.chat },
-    { label: 'Physical Store', value: ACTION_SOURCES.physical_store },
-    { label: 'System Generated', value: ACTION_SOURCES.system_generated },
-    { label: 'Other', value: ACTION_SOURCES.other }
-  ],
-  default: ACTION_SOURCES.website
-}
-
 export const userData: InputField = {
     label: 'User Data',
     description: 'User data to be sent with the event. This can include hashed identifiers like email, phone number, etc.',
     type: 'object',
+    additionalProperties: false,
+    defaultObjectUI: 'keyvalue',
     properties: {
         external_id: {
             label: 'External ID',
@@ -340,7 +282,8 @@ export const userData: InputField = {
         db: {
             label: 'Date of Birth',
             description: 'Date of birth of the user',
-            type: 'string'
+            type: 'string',
+            format: 'date'
         },
         ct: {
             label: 'City',
@@ -349,7 +292,7 @@ export const userData: InputField = {
         },
         st: {
             label: 'State',
-            description: 'State of the user. Two-letter state or province code for the United States, For example, "NY" for New York.',
+            description: 'State of the user. Facebook expects the 2-letter abbreviation for US states. For example, "CA" for California, or "NY" for New York.',
             type: 'string'
         },
         zp: {
@@ -359,12 +302,12 @@ export const userData: InputField = {
         },
         country: {
             label: 'Country',
-            description: 'Country code of the user. This should be a valid ISO 3166-1 alpha-2 country code. For example, "US" for the United States.',
+            description: 'The country of the user. Facebook expects the 2-letter ISO 3166-1 alpha-2 country code. For example, "US" for the United States, or "GB" for the United Kingdom.',
             type: 'string'
         }
     },
     default: {
-        external_id: { '@path': '$.context.traits.userId' },
+        external_id: { '@path': '$.userId' },
         em: { '@path': '$.context.traits.email' },
         ph: { '@path': '$.context.traits.phone' },
         fn: { '@path': '$.context.traits.first_name' },
@@ -395,6 +338,5 @@ export const AllFields = {
     custom_data,
     eventID, 
     eventSourceUrl, 
-    actionSource, 
     userData
 }
