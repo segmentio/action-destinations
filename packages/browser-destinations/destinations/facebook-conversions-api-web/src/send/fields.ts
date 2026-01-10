@@ -63,36 +63,6 @@ export const content_category: InputField = {
     depends_on: getDependenciesFor('content_category')
 }
 
-export const content_ids: InputField = {
-    label: 'Content IDs',
-    description: "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
-    type: 'string',
-    multiple: true,
-    allowNull: false,
-    minimum: 1,
-    depends_on: getDependenciesFor('content_ids'),
-    required: {
-        match: 'all',
-        conditions: [
-        {
-            fieldKey: 'event_config.event_name',
-            operator: 'is',
-            value: ['AddToCart', 'Purchase', 'ViewContent']
-        },
-        {
-            fieldKey: 'contents', 
-            operator: 'is_not',
-            value: undefined
-        },
-        {
-            fieldKey: 'contents', 
-            operator: 'is_not',
-            value: ''
-        }
-        ]
-    }
-}
-
 export const content_name: InputField = {
     label: 'Content Name',
     description: 'The name of the page or product associated with the event.',
@@ -113,14 +83,20 @@ export const content_type: InputField = {
     depends_on: getDependenciesFor('content_type')
 }
 
+export const content_ids: InputField = {
+    label: 'Content IDs',
+    description: "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
+    type: 'string',
+    multiple: true,
+    depends_on: getDependenciesFor('content_ids')
+}
+
 export const contents: InputField = {
     label: 'Contents',
     description: 'A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.',
     type: 'object',
     multiple: true,
-    allowNull: false,
-    minimum: 1,
-    additionalProperties: false,
+    additionalProperties: true,
     defaultObjectUI: 'keyvalue',
     properties: {
         id: {
@@ -151,27 +127,7 @@ export const contents: InputField = {
           }
         ]
     },
-    depends_on: getDependenciesFor('contents'),
-    required: {
-        match: 'all',
-        conditions: [
-        {
-            fieldKey: 'event_config.event_name',
-            operator: 'is',
-            value: ['AddToCart', 'Purchase', 'ViewContent']
-        },
-        {
-            fieldKey: 'content_ids', 
-            operator: 'is_not',
-            value: undefined
-        },
-        {
-            fieldKey: 'content_ids', 
-            operator: 'is_not',
-            value: ''
-        }
-        ]
-    }
+    depends_on: getDependenciesFor('contents')
 }    
 
 export const currency: InputField = {
@@ -245,7 +201,7 @@ export const value: InputField = {
     label: 'Value',
     description: 'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
     type: 'number',
-    default: { '@path': '$.properties.currency' },
+    default: { '@path': '$.properties.revenue' },
     depends_on: getDependenciesFor('value'),
     required: {
         match: 'all',

@@ -1,4 +1,4 @@
-import { UserData, EventOptions, FBClient, FBStandardEventType, FBNonStandardEventType } from '../types'
+import { FBEvent, UserData, EventOptions, FBClient, FBStandardEventType, FBNonStandardEventType } from '../types'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { UniversalStorage, Analytics } from '@segment/analytics-next'
@@ -9,11 +9,7 @@ import { getNotVisibleForEvent } from './depends-on'
 export function send(client: FBClient, payload: Payload, settings: Settings, analytics: Analytics) {
     const { pixelId } = settings
     const { 
-        event_config: { custom_event_name, show_fields, event_name } = {},
-        eventID,
-        eventSourceUrl,
-        userData,
-        ...rest
+        event_config: { custom_event_name, event_name } = {},
     } = payload
 
     const isCustom = event_name === 'CustomEvent' ? true : false
@@ -26,15 +22,7 @@ export function send(client: FBClient, payload: Payload, settings: Settings, ana
         }
     }
 
-    if(show_fields === false){
-        // If show_fields is false we delete values for fields which are hidden in the UI. 
-        const fieldsToDelete = getNotVisibleForEvent(event_name as FBStandardEventType | FBNonStandardEventType)
-        fieldsToDelete.forEach(field => {
-            if (field in rest) {
-                delete rest[field as keyof typeof rest]
-            }
-        })
-    }
+    const fbEvent = formatFBEvent(payload)
 
     maybeSendUserData(client, payload, settings, analytics)
 
@@ -45,7 +33,7 @@ export function send(client: FBClient, payload: Payload, settings: Settings, ana
             'trackSingleCustom', 
             pixelId,
             custom_event_name as string,
-            { ...rest },
+            { ...fbEvent },
             options
         )
     } 
@@ -54,7 +42,7 @@ export function send(client: FBClient, payload: Payload, settings: Settings, ana
             'trackSingle', 
             pixelId,
             event_name as FBStandardEventType,
-            { ...rest },
+            { ...fbEvent },
             options
         )
     }
@@ -68,12 +56,63 @@ function validate(payload: Payload): string | undefined {
     } = payload
 
     if(['AddToCart', 'Purchase', 'ViewContent'].includes(event_name)){
-        if(content_ids?.length === 0 || contents?.length === 0) {
-            return `content_ids or contents are required for event ${event_name}`
+        if ((!content_ids || (Array.isArray(content_ids) && content_ids.length === 0)) && (!contents || (Array.isArray(contents) && contents.length === 0))) {
+            return `At least one of content_ids or contents is required for the ${event_name} event.`
         }
     }
 
     return undefined
+}
+
+function formatFBEvent(payload: Payload): FBEvent {
+    const {
+        content_category,
+        content_ids,
+        content_name,
+        content_type,
+        contents,
+        currency,
+        delivery_category,
+        num_items,
+        value, 
+        custom_data, 
+        event_config: { 
+            event_name, 
+            show_fields 
+        } = {}
+    } = payload
+
+    const fbEvent: FBEvent = {
+        content_category,
+        content_ids,
+        content_name,
+        content_type,
+        contents,
+        currency,
+        delivery_category,
+        num_items,
+        value,
+        custom_data
+    }
+
+    if(show_fields === false){
+        // If show_fields is false we delete values for fields which are hidden in the UI. 
+        const fieldsToDelete = getNotVisibleForEvent(event_name as FBStandardEventType | FBNonStandardEventType)
+        fieldsToDelete.forEach(field => {
+            if (field in fbEvent) {
+                delete fbEvent[field as keyof typeof fbEvent]
+            }
+        })
+    }
+
+    for (const key in fbEvent) {
+        const k = key as keyof typeof fbEvent
+        if (fbEvent[k] === undefined) {
+            delete fbEvent[k]
+        }
+    }
+
+    return Object.keys(fbEvent).length > 0 ? fbEvent : {}
 }
 
 function formatOptions(payload: Payload): EventOptions | undefined {

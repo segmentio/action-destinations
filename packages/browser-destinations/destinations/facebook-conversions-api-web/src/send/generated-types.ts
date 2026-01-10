@@ -131,7 +131,7 @@ export interface Payload {
      */
     ct?: string
     /**
-     * State of the user. Two-letter state or province code for the United States, For example, "NY" for New York.
+     * State of the user.
      */
     st?: string
     /**
@@ -139,7 +139,7 @@ export interface Payload {
      */
     zp?: string
     /**
-     * Country code of the user. This should be a valid ISO 3166-1 alpha-2 country code. For example, "US" for the United States.
+     * The country of the user.
      */
     country?: string
   }
