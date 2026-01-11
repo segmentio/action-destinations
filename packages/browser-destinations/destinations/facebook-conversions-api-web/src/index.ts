@@ -84,22 +84,6 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
   },
   presets: [
     {
-      name: 'PageView',
-      subscribe: 'type = "page"',
-      partnerAction: 'send',
-      mapping: {
-        ...defaultValues(send.fields),
-        event_config: {
-          event_name: 'PageView',
-          custom_event_name: null,
-          show_fields: false
-        },
-        content_name: { '@path': '$.name' },
-        content_category: { '@path': '$.category' }
-      },
-      type: 'automatic'
-    },
-    {
       name: 'AddPaymentInfo',
       subscribe: 'event = "Payment Info Entered"',
       partnerAction: 'send',
@@ -185,6 +169,22 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
           custom_event_name: null,
           show_fields: false
         }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'PageView',
+      subscribe: 'type = "page"',
+      partnerAction: 'send',
+      mapping: {
+        ...defaultValues(send.fields),
+        event_config: {
+          event_name: 'PageView',
+          custom_event_name: null,
+          show_fields: false
+        },
+        content_name: { '@path': '$.name' },
+        content_category: { '@path': '$.category' }
       },
       type: 'automatic'
     },
