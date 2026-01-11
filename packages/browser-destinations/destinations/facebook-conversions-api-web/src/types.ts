@@ -25,18 +25,6 @@ export type FBStandardEventType =
 
 export type FBNonStandardEventType = 'CustomEvent'
 
-export type FieldName = 
- | 'content_category' 
- | 'content_ids'
- | 'content_name'
- | 'content_type'
- | 'contents'
- | 'currency'
- | 'num_items'
- | 'predicted_ltv'
- | 'status'
- | 'value'
-
 export type InitOptions = {
   agent?: string
 }
@@ -49,7 +37,6 @@ export type EventOptions = {
 export type UserData = {
   // Identifiers
   external_id?: string // Unique user ID from your system (FB hashes with SHA-256)
-
   em?: string // Email (FB hashes with SHA-256)
   ph?: string // Phone number (FB hashes with SHA-256)
   fn?: string // First name (FB hashes with SHA-256)

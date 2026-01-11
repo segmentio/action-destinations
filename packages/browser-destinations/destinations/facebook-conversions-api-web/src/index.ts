@@ -5,7 +5,6 @@ import send from './send'
 import { initScript } from './functions'
 import { FBClient, LDU } from './types'
 import { defaultValues } from '@segment/actions-core'
-import { value } from './send/fields'
 
 declare global {
   interface Window {
@@ -216,7 +215,13 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
           event_name: 'Search',
           custom_event_name: null,
           show_fields: false
-        }
+        },
+        contents: {
+          id: { '@path': '$.properties.product_id' },
+          quantity: { '@path': '$.properties.quantity' },
+          item_price: { '@path': '$.properties.price' }
+        },
+        content_ids: { '@path': '$.properties.product_id' }
       },
       type: 'automatic'
     },

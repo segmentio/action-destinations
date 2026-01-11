@@ -25,7 +25,7 @@ export interface Payload {
   /**
    * Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.
    */
-  content_ids?: string[]
+  content_ids?: string & string[]
   /**
    * The name of the page or product associated with the event.
    */
@@ -68,6 +68,10 @@ export interface Payload {
    * Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.
    */
   predicted_ltv?: number
+  /**
+   * The net revenue associated with the purchase.
+   */
+  net_revenue?: number
   /**
    * The string entered by the user for the search.
    */
@@ -131,7 +135,7 @@ export interface Payload {
      */
     ct?: string
     /**
-     * State of the user.
+     * State of the user. Facebook expects the 2-letter abbreviation for US states. For example, "CA" for California, or "NY" for New York.
      */
     st?: string
     /**
@@ -139,7 +143,7 @@ export interface Payload {
      */
     zp?: string
     /**
-     * The country of the user.
+     * The country of the user. Facebook expects the 2-letter ISO 3166-1 alpha-2 country code. For example, "US" for the United States, or "GB" for the United Kingdom.
      */
     country?: string
   }

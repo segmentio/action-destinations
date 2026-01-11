@@ -185,6 +185,14 @@ export const predicted_ltv: InputField = {
     depends_on: getDependenciesFor('predicted_ltv')
 }
 
+export const net_revenue: InputField = {
+    label: 'Net Revenue',
+    description: 'The net revenue associated with the purchase.',
+    type: 'number',
+    default: { '@path': '$.properties.net_revenue' },
+    depends_on: getDependenciesFor('net_revenue')
+}
+
 export const search_string: InputField = {
     label: 'Search String',
     description: 'The string entered by the user for the search.',
@@ -335,6 +343,7 @@ export const AllFields = {
     delivery_category,
     num_items, 
     predicted_ltv,
+    net_revenue,
     search_string,
     status,
     value,

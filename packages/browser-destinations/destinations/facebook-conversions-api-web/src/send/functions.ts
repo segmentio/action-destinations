@@ -77,6 +77,8 @@ function formatFBEvent(payload: Payload): FBEvent {
         delivery_category,
         num_items,
         value, 
+        predicted_ltv,
+        net_revenue, 
         custom_data, 
         event_config: { 
             event_name, 
@@ -94,6 +96,8 @@ function formatFBEvent(payload: Payload): FBEvent {
         ...(delivery_category ? { delivery_category } : {}),
         ...(typeof num_items === 'number' ? { num_items } : {}),
         ...(typeof value === 'number' ? { value } : {}),
+        ...(typeof predicted_ltv === 'number' ? { predicted_ltv } : {}),
+        ...(typeof net_revenue === 'number' ? { net_revenue } : {}),
         ...(custom_data && Object.entries(custom_data).length > 0 ? { custom_data } : {})
     }
 
