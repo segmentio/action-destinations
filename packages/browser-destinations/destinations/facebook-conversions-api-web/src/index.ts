@@ -5,6 +5,7 @@ import send from './send'
 import { initScript } from './functions'
 import { FBClient, LDU } from './types'
 import { defaultValues } from '@segment/actions-core'
+import { value } from './send/fields'
 
 declare global {
   interface Window {
@@ -131,7 +132,8 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
           quantity: { '@path': '$.properties.quantity' },
           item_price: { '@path': '$.properties.price' }
         },
-        content_ids: { '@path': '$.properties.product_id' }
+        content_ids: { '@path': '$.properties.product_id' },
+        value: { '@path': '$.properties.price' }
       },
       type: 'automatic'
     },    
@@ -152,7 +154,8 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
           quantity: { '@path': '$.properties.quantity' },
           item_price: { '@path': '$.properties.price' }
         },
-        content_ids: { '@path': '$.properties.product_id' }
+        content_ids: { '@path': '$.properties.product_id' },
+        value: { '@path': '$.properties.price' }
       },
       type: 'automatic'
     },
@@ -197,7 +200,8 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
           event_name: 'Purchase',
           custom_event_name: null,
           show_fields: false
-        }
+        },
+        value: { '@path': '$.properties.revenue' }
       },
       type: 'automatic'
     },

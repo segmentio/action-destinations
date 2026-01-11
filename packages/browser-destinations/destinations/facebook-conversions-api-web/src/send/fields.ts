@@ -90,7 +90,8 @@ export const content_ids: InputField = {
     description: "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
     type: 'string',
     multiple: true,
-    default: "{{ properties.products | map: 'product_id' }}",
+    default: "{{ properties.products | map: 'product_id' }}"
+    ,
     depends_on: getDependenciesFor('content_ids')
 }
 
@@ -203,7 +204,7 @@ export const value: InputField = {
     label: 'Value',
     description: 'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
     type: 'number',
-    default: { '@path': '$.properties.revenue' },
+    default: { '@path': '$.properties.value' },
     depends_on: getDependenciesFor('value'),
     required: {
         match: 'all',
