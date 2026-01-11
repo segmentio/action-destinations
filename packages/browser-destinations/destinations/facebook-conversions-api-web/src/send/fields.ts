@@ -81,6 +81,7 @@ export const content_type: InputField = {
         { value: 'product', label: 'Product' },
         { value: 'product_group', label: 'Product Group' }
     ],
+    default: 'product',
     depends_on: getDependenciesFor('content_type')
 }
 
@@ -89,6 +90,7 @@ export const content_ids: InputField = {
     description: "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
     type: 'string',
     multiple: true,
+    default: "{{ properties.products | map: 'product_id' }}",
     depends_on: getDependenciesFor('content_ids')
 }
 
@@ -122,7 +124,7 @@ export const contents: InputField = {
         '@arrayPath': [
           '$.properties.products',
           {
-            id: { '@path': '$.id' },
+            id: { '@path': '$.product_id' },
             quantity: { '@path': '$.quantity' },
             item_price: { '@path': '$.price' }
           }
@@ -164,7 +166,6 @@ export const delivery_category: InputField = {
         { value: 'curbside', label: 'Curbside' },
         { value: 'home_delivery', label: 'Home Delivery' }
     ],
-    default: 'home_delivery',
     depends_on: getDependenciesFor('delivery_category')
 }
 
@@ -172,7 +173,7 @@ export const num_items: InputField = {
     label: 'Number of Items',
     description: 'The number of items when checkout was initiated.',
     type: 'integer',
-    default: { '@path': '$.properties.quantity' },
+    default: { '@path': '$.properties.num_items' },
     depends_on: getDependenciesFor('num_items')
 }
 

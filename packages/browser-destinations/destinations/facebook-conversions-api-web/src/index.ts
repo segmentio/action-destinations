@@ -130,7 +130,8 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
           id: { '@path': '$.properties.product_id' },
           quantity: { '@path': '$.properties.quantity' },
           item_price: { '@path': '$.properties.price' }
-        }
+        },
+        content_ids: { '@path': '$.properties.product_id' }
       },
       type: 'automatic'
     },    
@@ -150,7 +151,8 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
           id: { '@path': '$.properties.product_id' },
           quantity: { '@path': '$.properties.quantity' },
           item_price: { '@path': '$.properties.price' }
-        }
+        },
+        content_ids: { '@path': '$.properties.product_id' }
       },
       type: 'automatic'
     },
@@ -230,7 +232,9 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
           id: { '@path': '$.properties.product_id' },
           quantity: { '@path': '$.properties.quantity' },
           item_price: { '@path': '$.properties.price' }
-        }
+        }, 
+        content_ids: { '@path': '$.properties.product_id' },
+        value: { '@path': '$.properties.price' }
       },
       type: 'automatic'
     }

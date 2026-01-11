@@ -9,7 +9,7 @@ export const fieldDependencies: Record<string, (FBStandardEventType | FBNonStand
     content_type: ['AddToCart', 'Purchase', 'Search', 'ViewContent'],
     contents: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'InitiateCheckout', 'Purchase', 'Search', 'ViewContent'],
     currency: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'CompleteRegistration', 'InitiateCheckout', 'Lead', 'Purchase', 'Search', 'StartTrial', 'Subscribe', 'ViewContent'],
-    delivery_category: [],
+    delivery_category: ['Purchase', 'InitiateCheckout'],
     num_items: ['InitiateCheckout', 'Purchase'],
     predicted_ltv: ['StartTrial', 'Subscribe'],
     search_string: ['Search'],
