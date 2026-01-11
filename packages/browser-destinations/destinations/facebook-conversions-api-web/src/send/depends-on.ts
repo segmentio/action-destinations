@@ -3,9 +3,9 @@ import type { FBStandardEventType, FBNonStandardEventType } from '../types'
 
 export const fieldDependencies: Record<string, (FBStandardEventType | FBNonStandardEventType)[]> = {
     custom_event_name: ['CustomEvent'],
-    content_category: [],
+    content_category: ['PageView', 'ViewContent', 'Search'],
     content_ids: ['AddPaymentInfo','AddToCart','AddToWishlist','InitiateCheckout','Purchase','Search','ViewContent'],
-    content_name: [],
+    content_name: ['PageView', 'ViewContent', 'Search'],
     content_type: ['AddToCart', 'Purchase', 'Search', 'ViewContent'],
     contents: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'InitiateCheckout', 'Purchase', 'Search', 'ViewContent'],
     currency: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'CompleteRegistration', 'InitiateCheckout', 'Lead', 'Purchase', 'Search', 'StartTrial', 'Subscribe', 'ViewContent'],

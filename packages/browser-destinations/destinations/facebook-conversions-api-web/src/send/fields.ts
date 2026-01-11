@@ -17,6 +17,7 @@ export const event_config: InputField = {
             required: true,
             choices: [
                 { label: 'Custom Event', value: 'CustomEvent' },
+                { label: 'Page View', value: 'PageView' },
                 { label: 'Add Payment Info', value: 'AddPaymentInfo' },
                 { label: 'Add To Cart', value: 'AddToCart' },
                 { label: 'Add To Wishlist', value: 'AddToWishlist' },
