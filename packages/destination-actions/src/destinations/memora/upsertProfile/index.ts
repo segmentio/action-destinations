@@ -64,10 +64,10 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       default: {
         email: { '@path': '$.properties.email' },
-        firstName: { '@path': '$.traits.first_name' },
-        lastName: { '@path': '$.traits.last_name' },
+        firstName: { '@path': '$.properties.first_name' },
+        lastName: { '@path': '$.properties.last_name' },
         phone: {
-          '@path': '$.traits.phone'
+          '@path': '$.properties.phone'
         }
       }
     }
@@ -78,88 +78,61 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, settings }) => {
-    // Single profile sync using the bulk API with a single profile payload
-    const storeId = payload.memora_store
-
-    const traitGroups = buildTraitGroups(payload)
-    if (Object.keys(traitGroups).length === 0) {
-      throw new IntegrationError('Profile must contain at least one trait group or contact field', 'EMPTY_PROFILE', 400)
-    }
-
-    try {
-      const response = await request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
-        },
-        json: {
-          profiles: [
-            {
-              traits: traitGroups
-            }
-          ]
-        }
-      })
-
-      // API returns 202 when the batch is accepted for processing
-      if (response.status !== 202) {
-        throw new IntegrationError(`Unexpected response status: ${response.status}`, 'API_ERROR', response.status)
-      }
-
-      return response
-    } catch (error) {
-      // Only handle actual HTTP errors, not our custom status check errors
-      if (error instanceof IntegrationError) {
-        throw error
-      }
-      handleMemoraApiError(error)
-    }
+    return upsertProfiles(request, [payload], settings)
   },
 
   performBatch: async (request, { payload: payloads, settings }) => {
-    const storeId = payloads[0]?.memora_store
+    return upsertProfiles(request, payloads, settings)
+  }
+}
 
-    if (!payloads || payloads.length === 0) {
-      throw new IntegrationError('No profiles provided for batch sync', 'EMPTY_BATCH', 400)
+// Process single or batch profile upserts
+async function upsertProfiles(
+  request: ReturnType<typeof import('@segment/actions-core').createRequestClient>,
+  payloads: Payload[],
+  settings: Settings
+) {
+  const storeId = payloads[0]?.memora_store
+
+  if (!payloads || payloads.length === 0) {
+    throw new IntegrationError('No profiles provided for batch sync', 'EMPTY_BATCH', 400)
+  }
+
+  const profiles = payloads.map((payload, index) => {
+    const traitGroups = buildTraitGroups(payload)
+    if (Object.keys(traitGroups).length === 0) {
+      throw new IntegrationError(
+        `Profile at index ${index} must contain at least one trait group or contact field`,
+        'EMPTY_PROFILE',
+        400
+      )
     }
 
-    const profiles = payloads.map((payload, index) => {
-      const traitGroups = buildTraitGroups(payload)
-      if (Object.keys(traitGroups).length === 0) {
-        throw new IntegrationError(
-          `Profile at index ${index} must contain at least one trait group or contact field`,
-          'EMPTY_PROFILE',
-          400
-        )
-      }
+    return { traits: traitGroups }
+  })
 
-      return { traits: traitGroups }
+  try {
+    const response = await request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
+      },
+      json: {
+        profiles
+      }
     })
 
-    try {
-      const response = await request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
-        },
-        json: {
-          profiles
-        }
-      })
-
-      if (response.status !== 202) {
-        throw new IntegrationError(`Unexpected response status: ${response.status}`, 'API_ERROR', response.status)
-      }
-
-      return response
-    } catch (error) {
-      if (error instanceof IntegrationError) {
-        throw error
-      }
-      handleMemoraApiError(error)
+    if (response.status !== 202) {
+      throw new IntegrationError(`Unexpected response status: ${response.status}`, 'API_ERROR', response.status)
     }
+
+    return response
+  } catch (error) {
+    if (error instanceof IntegrationError) {
+      throw error
+    }
+    handleMemoraApiError(error)
   }
 }
 
@@ -245,15 +218,14 @@ async function fetchMemoryStores(
     }))
 
     return {
-      choices,
-      nextPage: response?.data?.meta?.nextToken
+      choices
     }
   } catch (error) {
     // Return empty choices if the API call fails
     return {
       choices: [],
       error: {
-        message: 'Unable to fetch memory stores. You can still manually enter a memory store ID.',
+        message: 'Unable to fetch memora stores. You can still manually enter a memora store ID.',
         code: 'FETCH_ERROR'
       }
     }

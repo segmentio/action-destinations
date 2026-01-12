@@ -30,8 +30,7 @@ describe('Memora Destination', () => {
         password: 'invalid-secret'
       }
 
-      // testAuthentication should not throw, it returns false for failed auth
-      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()
     })
 
     it('should reject invalid credentials with 403', async () => {
@@ -42,7 +41,7 @@ describe('Memora Destination', () => {
         password: 'wrong-secret'
       }
 
-      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()
     })
 
     it('should handle network errors during authentication', async () => {
@@ -55,7 +54,7 @@ describe('Memora Destination', () => {
         password: 'test-api-secret'
       }
 
-      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()
     })
 
     it('should handle 500 errors during authentication', async () => {
@@ -68,7 +67,7 @@ describe('Memora Destination', () => {
         password: 'test-api-secret'
       }
 
-      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()
     })
 
     it('should handle 404 errors during authentication', async () => {
@@ -79,7 +78,7 @@ describe('Memora Destination', () => {
         password: 'test-api-secret'
       }
 
-      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()
     })
   })
 

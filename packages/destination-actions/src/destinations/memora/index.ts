@@ -33,19 +33,13 @@ const destination: DestinationDefinition<Settings> = {
         required: false
       }
     },
-    testAuthentication: async (request, { settings }) => {
-      // Test authentication by making a request to the Memora API
-      try {
-        await request(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores?pageSize=1`, {
-          method: 'GET',
-          headers: {
-            ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
-          }
-        })
-        return true
-      } catch (error) {
-        return false
-      }
+    testAuthentication: (request, { settings }) => {
+      return request(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores?pageSize=1`, {
+        method: 'GET',
+        headers: {
+          ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
+        }
+      })
     }
   },
 

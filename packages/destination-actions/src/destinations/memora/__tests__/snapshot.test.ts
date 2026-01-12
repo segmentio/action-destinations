@@ -146,7 +146,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
           settings: settingsData,
           auth: undefined
         })
-      ).rejects.toThrow('Profile must contain at least one trait group or contact field')
+      ).rejects.toThrow('Profile at index 0 must contain at least one trait group or contact field')
     })
   }
 })

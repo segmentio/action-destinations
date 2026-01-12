@@ -144,7 +144,7 @@ describe('Memora.upsertProfile', () => {
           },
           useDefaultMappings: false
         })
-      ).rejects.toThrow('Profile must contain at least one trait group or contact field')
+      ).rejects.toThrow('Profile at index 0 must contain at least one trait group or contact field')
     })
 
     it('should not include X-Pre-Auth-Context header when twilioAccount is not provided', async () => {
@@ -566,7 +566,6 @@ describe('Memora.upsertProfile', () => {
           { label: 'store-2', value: 'store-2' },
           { label: 'store-3', value: 'store-3' }
         ])
-        expect(result?.nextPage).toBe('next-page-token')
       })
 
       it('should handle empty services list', async () => {
@@ -583,7 +582,6 @@ describe('Memora.upsertProfile', () => {
         })) as any
 
         expect(result?.choices).toEqual([])
-        expect(result?.nextPage).toBeUndefined()
       })
 
       it('should return error message when API call fails', async () => {
@@ -598,7 +596,7 @@ describe('Memora.upsertProfile', () => {
 
         expect(result?.choices).toEqual([])
         expect(result?.error).toBeDefined()
-        expect(result?.error?.message).toContain('Unable to fetch memory stores')
+        expect(result?.error?.message).toContain('Unable to fetch memora stores')
         expect(result?.error?.code).toBe('FETCH_ERROR')
       })
     })
