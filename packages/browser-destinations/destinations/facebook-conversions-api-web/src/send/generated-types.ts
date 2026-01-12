@@ -25,7 +25,7 @@ export interface Payload {
   /**
    * Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.
    */
-  content_ids?: string & string[]
+  content_ids?: string[]
   /**
    * The name of the page or product associated with the event.
    */
