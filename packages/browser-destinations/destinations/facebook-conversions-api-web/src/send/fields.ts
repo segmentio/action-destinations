@@ -51,8 +51,9 @@ export const event_config: InputField = {
         }
     },
     default: {
-        show_fields: false,
-        event_name: {'@path': '$.event'}
+        event_name: 'CustomEvent',
+        custom_event_name: {'@path': '$.event'},
+        show_fields: false
     }
 }
 
