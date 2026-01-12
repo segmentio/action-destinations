@@ -74,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     memora_store: async (request, { settings }) => {
-      return fetchMemoryStores(request, settings)
+      return fetchMemoraStores(request, settings)
     }
   },
   perform: async (request, { payload, settings }) => {
@@ -185,7 +185,7 @@ function handleMemoraApiError(error: unknown): never {
   throw new RetryableError(httpError.message || 'Network error occurred')
 }
 
-interface MemoryStoresResponse {
+interface MemoraStoresResponse {
   services?: string[]
   meta?: {
     pageSize?: number
@@ -194,14 +194,14 @@ interface MemoryStoresResponse {
   }
 }
 
-// Fetch available memory stores from Control Plane
-async function fetchMemoryStores(
+// Fetch available memora stores from Control Plane
+async function fetchMemoraStores(
   request: ReturnType<typeof import('@segment/actions-core').createRequestClient>,
   settings: Settings
 ) {
   try {
-    // Call the Control Plane API to list memory stores
-    const response = await request<MemoryStoresResponse>(
+    // Call the Control Plane API to list memora stores
+    const response = await request<MemoraStoresResponse>(
       `${BASE_URL}/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`,
       {
         method: 'GET',
