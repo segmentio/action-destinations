@@ -8,6 +8,7 @@ import { JSON } from './types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Lead',
   description: 'Send a Lead to Qualified, or update an existing Lead',
+  defaultSubscription: 'type = "track" and event = "Lead Upserted"',
   fields: {
     email: {
       label: 'Email',
@@ -26,7 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }, 
     company: {
       label: 'Company',
-      description: 'The company of the lead to upsert.',
+      description: 'The company name of the lead to upsert.',
       type: 'string',
       required: false,
       default: { '@path': '$.traits.company' }
@@ -81,7 +82,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-
+console.log('Payload received in upsertLead action:', payload);
     const { 
       email, 
       phone, 
@@ -110,7 +111,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    return request(base_url + '/leads', {
+    console.log('Constructed JSON payload for Qualified API:', json);
+
+    return request(base_url + 'leads', {
       method: 'post',
       json
     })

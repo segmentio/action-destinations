@@ -10,7 +10,7 @@ export interface Payload {
    */
   phone?: string
   /**
-   * The company of the lead to upsert.
+   * The company name of the lead to upsert.
    */
   company?: string
   /**

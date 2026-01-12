@@ -3,6 +3,8 @@ import type { Settings } from './generated-types'
 
 import upsertLead from './upsertLead'
 
+import updateCompany from './updateCompany'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Qualified',
   slug: 'actions-qualified',
@@ -15,6 +17,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Key',
         description: 'Your Qualified API Key. When creating the API Key in Qualified make sure to select all scopes.',
         type: 'string',
+        format: 'password',
         required: true
       }
     },
@@ -27,13 +30,13 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ settings }) {
     return {
       headers: {
-        "Content-Type": "application/json",
-        'Authorization': `Bearer ${settings.api_key}`
+        Authorization: `Bearer ${settings.api_key}`
       }
     }
   },
   actions: {
-    upsertLead
+    upsertLead,
+    updateCompany
   }
 }
 

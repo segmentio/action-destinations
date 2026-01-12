@@ -7,12 +7,14 @@ export async function dynamicReadFields(
   type: 'string' | 'boolean' | 'number'
 ): Promise<DynamicFieldResponse> {
   try {
-    const response: LeadFieldsResponse = await request(base_url + '/leads/fields', {
+    const response: LeadFieldsResponse = await request(base_url + 'leads/fields', {
       method: 'GET',
       skipResponseCloning: true
     })
 
     return {
+      // TODO need to update code to allow for text and string types being returned together. 
+      // 'string'  | 'text'
     choices: response.data
         .filter((item) => item.type === type)
         .map((field) => ({

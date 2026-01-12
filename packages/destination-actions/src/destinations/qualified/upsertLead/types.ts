@@ -9,6 +9,13 @@ export interface JSON {
     }
 }
 
+export interface CompanyJSON {
+    domain: string
+    fields: {
+        [key: string]: unknown
+    }
+}
+
 export interface LeadFieldsResponse {
     data: {
         id: string
