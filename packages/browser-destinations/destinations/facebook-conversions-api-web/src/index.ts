@@ -92,7 +92,6 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'AddPaymentInfo',
-          custom_event_name: null,
           show_fields: false
         }
       },
@@ -107,7 +106,6 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'AddToCart',
-          custom_event_name: null,
           show_fields: false
         },
         contents: {
@@ -129,7 +127,6 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'AddToWishlist',
-          custom_event_name: null,
           show_fields: false
         },
         contents: {
@@ -151,7 +148,6 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'CompleteRegistration',
-          custom_event_name: null,
           show_fields: false
         }
       },
@@ -166,7 +162,6 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'InitiateCheckout',
-          custom_event_name: null,
           show_fields: false
         }
       },
@@ -180,7 +175,6 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'PageView',
-          custom_event_name: null,
           show_fields: false
         },
         content_name: { '@path': '$.name' },
@@ -197,10 +191,12 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'Purchase',
-          custom_event_name: null,
           show_fields: false
         },
-        value: { '@path': '$.properties.revenue' }
+        value: { '@path': '$.properties.revenue' }, 
+        custom_data: {
+          order_id: { '@path': '$.properties.order_id' }
+        }
       },
       type: 'automatic'
     },
@@ -213,7 +209,6 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'Search',
-          custom_event_name: null,
           show_fields: false
         },
         contents: {
@@ -234,7 +229,6 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'ViewContent',
-          custom_event_name: null,
           show_fields: false
         },
         contents: {

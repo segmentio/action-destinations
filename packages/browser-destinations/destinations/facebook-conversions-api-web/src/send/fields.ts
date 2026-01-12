@@ -52,7 +52,7 @@ export const event_config: InputField = {
     },
     default: {
         show_fields: false,
-        custom_event_name: {'@path': '$.event'}
+        event_name: {'@path': '$.event'}
     }
 }
 
@@ -90,7 +90,7 @@ export const content_ids: InputField = {
     description: "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
     type: 'string',
     multiple: true,
-    default: "{{ properties.products | map: 'product_id' }}"
+    default: { "@template": "{{ properties.products | map: 'product_id' }}"}
     ,
     depends_on: getDependenciesFor('content_ids')
 }

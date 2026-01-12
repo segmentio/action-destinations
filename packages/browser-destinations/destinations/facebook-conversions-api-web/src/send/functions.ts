@@ -29,7 +29,7 @@ export function send(client: FBClient, payload: Payload, settings: Settings, ana
     maybeSendUserData(client, payload, settings, analytics)
 
     const options = formatOptions(payload)
-  
+
     if(isCustom){
         client(
             'trackSingleCustom', 
