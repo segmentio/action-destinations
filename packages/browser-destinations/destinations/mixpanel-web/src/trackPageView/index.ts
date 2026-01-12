@@ -24,68 +24,21 @@ const action: BrowserActionDefinition<Settings, Mixpanel, Payload> = {
   fields: {
     event_name: {
       ...event_name,
-      default: undefined,
+      default: {
+        '@path': '$.name'
+      },
       required: false
     },
     properties,
     unique_id: {
       ...unique_id,
       description: 'The unique ID to associate with the user. Settings this value will trigger a Mixpanel identify call before immediately the page event is sent.',
-      default: undefined
+      default: undefined, 
+      required: false
     },
     user_profile_properties_to_set: {
       ...user_profile_properties_to_set,
-      default: { 
-        name: {
-          '@if': {
-            exists: { '@path': '$.context.traits.name' },
-            then: { '@path': '$.context.traits.name' },
-            else: { '@path': '$.properties.name' }
-          }
-        },
-        first_name: {
-          '@if': {
-            exists: { '@path': '$.context.traits.first_name' },
-            then: { '@path': '$.context.traits.first_name' },
-            else: { '@path': '$.properties.first_name' }
-          }
-        },
-        last_name: {
-          '@if': {
-            exists: { '@path': '$.context.traits.last_name' },
-            then: { '@path': '$.context.traits.last_name' },
-            else: { '@path': '$.properties.last_name' }
-          }
-        },
-        email: {
-          '@if': {
-            exists: { '@path': '$.context.traits.email' },
-            then: { '@path': '$.context.traits.email' },
-            else: { '@path': '$.properties.email' }
-          }
-        },  
-        phone: {
-          '@if': {
-            exists: { '@path': '$.context.traits.phone' },
-            then: { '@path': '$.context.traits.phone' },
-            else: { '@path': '$.properties.phone' }
-          }
-        },
-        avatar: {
-          '@if': {
-            exists: { '@path': '$.context.traits.avatar' },
-            then: { '@path': '$.context.traits.avatar' },
-            else: { '@path': '$.properties.avatar' }
-          }
-        },
-        created: {
-          '@if': {
-            exists: { '@path': '$.context.traits.created_at' },
-            then: { '@path': '$.context.traits.created_at' },
-            else: { '@path': '$.properties.created_at' }
-          }
-        }
-      }
+      default: undefined
     },
     user_profile_properties_to_set_once,
     user_profile_properties_to_increment,
