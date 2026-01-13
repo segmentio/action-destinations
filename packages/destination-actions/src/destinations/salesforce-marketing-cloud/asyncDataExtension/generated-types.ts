@@ -22,7 +22,7 @@ export interface Payload {
    */
   batch_bytes?: number
   /**
-   * Maximum number of events to include in each batch for async operations. Defaults to 30000.
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
 }

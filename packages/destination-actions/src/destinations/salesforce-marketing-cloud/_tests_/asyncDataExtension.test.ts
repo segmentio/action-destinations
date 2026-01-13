@@ -157,6 +157,26 @@ describe('Salesforce Marketing Cloud', () => {
           })
         ).rejects.toThrowError('No Data Extension Connected')
       })
+
+      it('should work with retlOnMappingSave hook outputs in batch mode', async () => {
+        const events = [createTestEvent({ userId: 'user1', properties: { id: 'v1' } })]
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(200, {
+            requestId: 'retl-batch-request-id',
+            resultMessages: []
+          })
+
+        const responses = await testDestination.testBatchAction('asyncDataExtension', {
+          events,
+          settings,
+          mapping: retlPayload
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+      })
     })
   })
 })
