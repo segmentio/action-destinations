@@ -80,17 +80,19 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         rt_client_secret = auth.clientSecret
       }
 
-      const jwt = generate_jwt(rt_client_key, rt_client_secret)
+      // Prefix client ID with idb2b.dsp.datax. as per new OAuth requirements
+      const prefixed_client_id = `idb2b.dsp.datax.${rt_client_key}`
+      const jwt = generate_jwt(prefixed_client_id, rt_client_secret)
       const res: ModifiedResponse<RefreshTokenResponse> = await request<RefreshTokenResponse>(
-        'https://id.b2b.yahooinc.com/identity/oauth2/access_token',
+        'https://id.b2b.yahooincapis.com/zts/v1/oauth2/token',
         {
           method: 'POST',
           body: new URLSearchParams({
             client_assertion: jwt,
             client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
             grant_type: 'client_credentials',
-            scope: 'audience',
-            realm: 'dataxonline'
+            scope: 'idb2b.dsp.datax:role.batch.writer idb2b.dsp.datax:role.online.writer',
+            aud: 'https://id.b2b.yahooincapis.com/zts/v1'
           })
         }
       )
