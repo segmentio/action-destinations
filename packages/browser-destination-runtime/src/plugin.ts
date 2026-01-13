@@ -16,7 +16,9 @@ export function generatePlugins<S, C>(
   let hasInitialized = false
   let client: C
   let analytics: Analytics
-  let initializing: Promise<C> | undefined
+  let initializing: boolean
+  let resolveInitializePromise: (v: C) => void
+  const initializePromise = new Promise<C>((res) => (resolveInitializePromise = res))
 
   const load: Plugin['load'] = async (_ctx, analyticsInstance) => {
     if (hasInitialized) {
@@ -24,13 +26,14 @@ export function generatePlugins<S, C>(
     }
 
     if (initializing) {
-      await initializing
+      await initializePromise
       return
     }
 
+    initializing = true
     analytics = analyticsInstance
-    initializing = def.initialize?.({ settings, analytics }, { loadScript, resolveWhen })
-    client = await initializing
+    client = await def.initialize?.({ settings, analytics }, { loadScript, resolveWhen })
+    resolveInitializePromise(client)
     hasInitialized = true
   }
 
@@ -69,7 +72,7 @@ export function generatePlugins<S, C>(
       name: `${def.name} ${key}`,
       type: action.lifecycleHook ?? 'destination',
       version: '0.1.0',
-      ready: () => Promise.resolve(),
+      ready: () => initializePromise,
 
       isLoaded: () => hasInitialized,
       load,
