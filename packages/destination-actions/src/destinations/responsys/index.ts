@@ -1,4 +1,5 @@
-import { DestinationDefinition, IntegrationError } from '@segment/actions-core'
+import { DestinationDefinition, IntegrationError, DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
+
 import type { Settings } from './generated-types'
 import sendCustomTraits from './sendCustomTraits'
 import sendAudience from './sendAudience'
@@ -222,7 +223,8 @@ const destination: DestinationDefinition<Settings> = {
       headers: {
         'Content-Type': 'application/json',
         authorization: `${auth?.accessToken}`
-      }
+      },
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     }
   },
   actions: {
