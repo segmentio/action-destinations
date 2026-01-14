@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
-import { API_VERSION } from '../sf-operations'
+import { SALESFORCE_API_VERSION } from '../versioning-info'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -16,7 +16,7 @@ const auth = {
 describe('Salesforce', () => {
   describe('Lead2', () => {
     it('should create a lead record', async () => {
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -71,7 +71,7 @@ describe('Salesforce', () => {
     })
 
     it('should delete a lead record given an Id', async () => {
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).delete('/Lead/123').reply(204, {})
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`).delete('/Lead/123').reply(204, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -97,14 +97,16 @@ describe('Salesforce', () => {
 
     it('should delete a lead record given some lookup traits', async () => {
       const query = encodeURIComponent(`SELECT Id FROM Lead WHERE Email = 'bob@bobsburgers.net'`)
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`)
         .get(`/?q=${query}`)
         .reply(201, {
           totalSize: 1,
           records: [{ Id: 'abc123' }]
         })
 
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).delete('/Lead/abc123').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`)
+        .delete('/Lead/abc123')
+        .reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -132,7 +134,7 @@ describe('Salesforce', () => {
     })
 
     it('should create a lead record with default mappings', async () => {
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -187,7 +189,7 @@ describe('Salesforce', () => {
     })
 
     it('should create a lead record with custom fields', async () => {
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -263,7 +265,7 @@ describe('Salesforce', () => {
       })
 
       const query = encodeURIComponent(`SELECT Id FROM Lead WHERE company = 'Krusty Krab'`)
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`)
         .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
@@ -271,7 +273,9 @@ describe('Salesforce', () => {
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`)
+        .patch('/Lead/123456')
+        .reply(201, {})
 
       const responses = await testDestination.testAction('lead2', {
         event,
@@ -342,7 +346,7 @@ describe('Salesforce', () => {
       })
 
       const query = encodeURIComponent(`SELECT Id FROM Lead WHERE company = 'Krusty Krab'`)
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`)
         .get(`/?q=${query}`)
         .reply(201, {
           Id: 'abc123',
@@ -350,7 +354,9 @@ describe('Salesforce', () => {
           records: [{ Id: '123456' }]
         })
 
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).patch('/Lead/123456').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`)
+        .patch('/Lead/123456')
+        .reply(201, {})
 
       const responses = await testDestination.testAction('lead2', {
         event,
@@ -421,12 +427,12 @@ describe('Salesforce', () => {
       })
 
       const query = encodeURIComponent(`SELECT Id FROM Lead WHERE company = 'Krusty Krab'`)
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query`).get(`/?q=${query}`).reply(201, {
         Id: 'abc123',
         totalSize: 0
       })
 
-      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).post('/Lead').reply(201, {})
+      nock(`${settings.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`).post('/Lead').reply(201, {})
 
       const responses = await testDestination.testAction('lead2', {
         event,
