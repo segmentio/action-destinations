@@ -42,6 +42,12 @@ Object {
           "token": "M8rtOywDKgN((jhUBk9",
         },
       ],
+      "subscription_groups": Array [
+        Object {
+          "subscription_group_id": "M8rtOywDKgN((jhUBk9",
+          "subscription_state": "M8rtOywDKgN((jhUBk9",
+        },
+      ],
       "testType": "M8rtOywDKgN((jhUBk9",
       "time_zone": "M8rtOywDKgN((jhUBk9",
       "twitter": Object {
@@ -103,6 +109,7 @@ Object {
       "phone": undefined,
       "push_subscribe": undefined,
       "push_tokens": undefined,
+      "subscription_groups": undefined,
       "time_zone": undefined,
       "twitter": undefined,
       "user_alias": undefined,
@@ -157,6 +164,7 @@ Object {
       "phone": undefined,
       "push_subscribe": undefined,
       "push_tokens": undefined,
+      "subscription_groups": undefined,
       "time_zone": undefined,
       "twitter": undefined,
       "user_alias": undefined,
@@ -188,6 +196,7 @@ Object {
       "phone": undefined,
       "push_subscribe": undefined,
       "push_tokens": undefined,
+      "subscription_groups": undefined,
       "time_zone": undefined,
       "twitter": undefined,
       "user_alias": undefined,

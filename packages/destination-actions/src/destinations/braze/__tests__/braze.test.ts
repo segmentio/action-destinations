@@ -81,6 +81,98 @@ describe('Braze Cloud Mode (Actions)', () => {
         ])
       })
     })
+
+    it('should send subscription_groups with user profile updates', async () => {
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user1234',
+        traits: {
+          email: 'test@example.com',
+          firstName: 'John'
+        },
+        receivedAt
+      })
+
+      const responses = await testDestination.testAction('updateUserProfile', {
+        event,
+        settings,
+        mapping: {
+          external_id: 'user1234',
+          email: 'test@example.com',
+          first_name: 'John',
+          subscription_groups: [
+            {
+              subscription_group_id: 'newsletter_123',
+              subscription_state: 'subscribed'
+            },
+            {
+              subscription_group_id: 'promotional_456',
+              subscription_state: 'unsubscribed'
+            }
+          ]
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toMatchObject({
+        attributes: expect.arrayContaining([
+          expect.objectContaining({
+            external_id: 'user1234',
+            email: 'test@example.com',
+            first_name: 'John',
+            subscription_groups: [
+              {
+                subscription_group_id: 'newsletter_123',
+                subscription_state: 'subscribed'
+              },
+              {
+                subscription_group_id: 'promotional_456',
+                subscription_state: 'unsubscribed'
+              }
+            ]
+          })
+        ])
+      })
+    })
+
+    it('should handle empty subscription_groups array', async () => {
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user1234',
+        traits: {
+          email: 'test@example.com'
+        },
+        receivedAt
+      })
+
+      const responses = await testDestination.testAction('updateUserProfile', {
+        event,
+        settings,
+        mapping: {
+          external_id: 'user1234',
+          email: 'test@example.com',
+          subscription_groups: []
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        attributes: expect.arrayContaining([
+          expect.objectContaining({
+            external_id: 'user1234',
+            email: 'test@example.com',
+            subscription_groups: []
+          })
+        ])
+      })
+    })
   })
 
   describe('trackEvent', () => {
