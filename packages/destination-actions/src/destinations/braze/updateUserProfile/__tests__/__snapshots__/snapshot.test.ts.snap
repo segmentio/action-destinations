@@ -45,7 +45,7 @@ Object {
       "subscription_groups": Array [
         Object {
           "subscription_group_id": "M8rtOywDKgN((jhUBk9",
-          "subscription_state": "M8rtOywDKgN((jhUBk9",
+          "subscription_state": "unsubscribed",
         },
       ],
       "testType": "M8rtOywDKgN((jhUBk9",
