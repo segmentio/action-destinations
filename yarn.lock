@@ -4429,33 +4429,6 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
-"@segment/action-destinations@^3.288.0":
-  version "3.457.0"
-  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.457.0.tgz#e29aa01fde60c852182f2fb7c06d06bad884437f"
-  integrity sha512-GtSBFO8PBg2ZHrjt6go0jmF/cbq/JB29HimsceAVibAVNonU+d1f8clqjBBOo7RA6EjEEQOpRW1Tl7p/NoqlGw==
-  dependencies:
-    "@amplitude/ua-parser-js" "^0.7.25"
-    "@aws-sdk/client-eventbridge" "^3.741.0"
-    "@aws-sdk/client-kinesis" "3.917.0"
-    "@aws-sdk/client-s3" "^3.600.0"
-    "@aws-sdk/client-sts" "3.614.0"
-    "@bufbuild/protobuf" "^2.2.3"
-    "@segment/a1-notation" "^2.1.4"
-    "@segment/actions-core" "^3.163.0"
-    "@segment/actions-shared" "^1.146.0"
-    "@types/node" "^22.13.1"
-    ajv-formats "^2.1.1"
-    aws4 "^1.12.0"
-    cheerio "^1.0.0-rc.10"
-    dayjs "^1.10.7"
-    escape-goat "^3"
-    google-libphonenumber "^3.2.31"
-    kafkajs "^2.2.4"
-    liquidjs "^10.8.4"
-    lodash "^4.17.21"
-    lru-cache "10.4.3"
-    ssh2-sftp-client "^12.0.1"
-
 "@segment/action-emitters@^1.3.6":
   version "1.3.6"
   resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.3.6.tgz#0160442ae99821c43a9465c05226afddec73cbe5"
@@ -4591,13 +4564,6 @@
   dependencies:
     "@segment/browser-destination-runtime" "^1.92.0"
 
-"@segment/analytics-browser-actions-facebook-conversions-api-web@^1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-facebook-conversions-api-web/-/analytics-browser-actions-facebook-conversions-api-web-1.7.0.tgz#423c05f9c61b0b2dbc135b9d822cc592e8bd1b4b"
-  integrity sha512-xCEJ0af/ZR4npvJxnsaE9aznFKz9pV5Sc6cRYSxv/aULqZWuZNhVYjEeILpa9VCqggT6lUTItPssd38KWzyLgQ==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.92.0"
-
 "@segment/analytics-browser-actions-friendbuy@^1.96.0":
   version "1.96.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-friendbuy/-/analytics-browser-actions-friendbuy-1.96.0.tgz#1988ef711e0096657c3a2f1d2000ad64a1d90b78"
@@ -4638,13 +4604,6 @@
   integrity sha512-fXKQSFbWGSgspLpJH90kJzIOQVI5O2eS4KjdRYj1vYZhX9q78Nb0S6xt8GtZuXXBwSy1N3Ewya/f4c+JeNtFPA==
   dependencies:
     "@segment/browser-destination-runtime" "^1.92.0"
-
-"@segment/analytics-browser-actions-google-enhanced-conversions-plugins@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-google-enhanced-conversions-plugins/-/analytics-browser-actions-google-enhanced-conversions-plugins-1.1.0.tgz#142f601de3d191e48597429aceb8b9c0cf954fc1"
-  integrity sha512-EWeIPGGHiknxNV9XW5BV29DHGwa9srO9a+pzsHyfIhf1iD09sJ4+lDPgKWX6TTC9iqVthGNVIddMg/E83nOlyQ==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.90.0"
 
 "@segment/analytics-browser-actions-heap@^1.93.0":
   version "1.93.0"
@@ -4832,13 +4791,6 @@
     "@segment/actions-core" "^3.163.0"
     "@segment/browser-destination-runtime" "^1.92.0"
 
-"@segment/analytics-browser-mixpanel-web-actions@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-mixpanel-web-actions/-/analytics-browser-mixpanel-web-actions-1.4.0.tgz#6d2199cb2e2308122b0dc98128110be3b9967c68"
-  integrity sha512-M8V2gdCMG6Ff9OpLpgCgg8mxpWC216xQZKFiMioJB8kVZqVkeYTmh4Acp1mPnpl+UWBVCqNxB1hJvI5L+f2NuA==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.92.0"
-
 "@segment/analytics-core@1.3.0":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-core/-/analytics-core-1.3.0.tgz#677d1087af44d31266ddf60f72f93b5d5693c933"
@@ -4872,7 +4824,7 @@
   dependencies:
     unfetch "^3.1.1"
 
-"@segment/browser-destination-runtime@^1.6.0", "@segment/browser-destination-runtime@^1.90.0", "@segment/browser-destination-runtime@^1.92.0":
+"@segment/browser-destination-runtime@^1.6.0", "@segment/browser-destination-runtime@^1.92.0":
   version "1.92.0"
   resolved "https://registry.yarnpkg.com/@segment/browser-destination-runtime/-/browser-destination-runtime-1.92.0.tgz#fc35bab7765b8cc45e43e81f660336c1b941c23e"
   integrity sha512-aLqClP672RmHbl03JZzoIWf7195bu/soaIBITnFrv4RXI+1Cp2UPf8r62xrzzhB6v9GN6aZKNfekXh1P9NUtiQ==
@@ -4885,57 +4837,6 @@
   integrity sha512-Al+ABKWlp8LsygKQ0IakmS/4B1MXvTOPDB20mpGA5sMNL+krk2EN4kmaZaA4EfF3ZZjQqmBwTfvQPVGzEJQ3pA==
   dependencies:
     "@segment/fql-ts" "^1.10.1"
-
-"@segment/destinations-manifest@^1.71.0":
-  version "1.143.0"
-  resolved "https://registry.yarnpkg.com/@segment/destinations-manifest/-/destinations-manifest-1.143.0.tgz#4794c7020e6ff16428c962df8623b3ea8f972a29"
-  integrity sha512-MI7scf+z4tvvsYLdBW9Ru6iMnHjAyCxR7wJmWM9CnY/xeSiqAI55qaLqVEFSwWnbVjr/La9HhmQw35DjyDmAMg==
-  dependencies:
-    "@segment/analytics-browser-actions-1flow" "^1.76.0"
-    "@segment/analytics-browser-actions-adobe-target" "^1.94.0"
-    "@segment/analytics-browser-actions-algolia-plugins" "^1.70.0"
-    "@segment/analytics-browser-actions-amplitude-plugins" "^1.93.0"
-    "@segment/analytics-browser-actions-braze" "^1.107.0"
-    "@segment/analytics-browser-actions-braze-cloud-plugins" "^1.107.0"
-    "@segment/analytics-browser-actions-bucket" "^1.74.0"
-    "@segment/analytics-browser-actions-cdpresolution" "^1.80.0"
-    "@segment/analytics-browser-actions-cj" "^1.7.0"
-    "@segment/analytics-browser-actions-commandbar" "^1.93.0"
-    "@segment/analytics-browser-actions-contentstack-web" "^1.36.0"
-    "@segment/analytics-browser-actions-devrev" "^1.80.0"
-    "@segment/analytics-browser-actions-facebook-conversions-api-web" "^1.7.0"
-    "@segment/analytics-browser-actions-friendbuy" "^1.96.0"
-    "@segment/analytics-browser-actions-fullsession" "^1.5.0"
-    "@segment/analytics-browser-actions-fullstory" "^1.95.0"
-    "@segment/analytics-browser-actions-google-analytics-4" "^1.103.0"
-    "@segment/analytics-browser-actions-google-campaign-manager" "^1.84.0"
-    "@segment/analytics-browser-actions-google-enhanced-conversions-plugins" "^1.1.0"
-    "@segment/analytics-browser-actions-heap" "^1.93.0"
-    "@segment/analytics-browser-actions-hubspot" "^1.93.0"
-    "@segment/analytics-browser-actions-intercom" "^1.101.0"
-    "@segment/analytics-browser-actions-iterate" "^1.94.0"
-    "@segment/analytics-browser-actions-jimo" "^1.83.0"
-    "@segment/analytics-browser-actions-koala" "^1.95.0"
-    "@segment/analytics-browser-actions-logrocket" "^1.94.0"
-    "@segment/analytics-browser-actions-ms-bing-capi" "^1.7.0"
-    "@segment/analytics-browser-actions-pendo-web-actions" "^1.84.0"
-    "@segment/analytics-browser-actions-playerzero" "^1.93.0"
-    "@segment/analytics-browser-actions-replaybird" "^1.75.0"
-    "@segment/analytics-browser-actions-ripe" "^1.94.0"
-    "@segment/analytics-browser-actions-sabil" "^1.6.0"
-    "@segment/analytics-browser-actions-screeb" "^1.94.0"
-    "@segment/analytics-browser-actions-snap-plugins" "^1.75.0"
-    "@segment/analytics-browser-actions-sprig" "^1.93.0"
-    "@segment/analytics-browser-actions-stackadapt" "^1.95.0"
-    "@segment/analytics-browser-actions-survicate" "^1.69.0"
-    "@segment/analytics-browser-actions-tiktok-pixel" "^1.95.0"
-    "@segment/analytics-browser-actions-userpilot" "^1.94.0"
-    "@segment/analytics-browser-actions-utils" "^1.93.0"
-    "@segment/analytics-browser-actions-vwo" "^1.96.0"
-    "@segment/analytics-browser-actions-wiseops" "^1.94.0"
-    "@segment/analytics-browser-hubble-web" "^1.79.0"
-    "@segment/analytics-browser-mixpanel-web-actions" "^1.4.0"
-    "@segment/browser-destination-runtime" "^1.92.0"
 
 "@segment/facade@^3.4.9":
   version "3.4.10"
