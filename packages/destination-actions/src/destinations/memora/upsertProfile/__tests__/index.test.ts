@@ -549,7 +549,7 @@ describe('Memora.upsertProfile', () => {
           .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
           .reply(200, {
-            services: ['store-1', 'store-2', 'store-3'],
+            stores: ['store-1', 'store-2', 'store-3'],
             meta: {
               pageSize: 100,
               nextToken: 'next-page-token'
@@ -568,11 +568,11 @@ describe('Memora.upsertProfile', () => {
         ])
       })
 
-      it('should handle empty services list', async () => {
+      it('should handle empty stores list', async () => {
         nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
           .reply(200, {
-            services: [],
+            stores: [],
             meta: { pageSize: 100 }
           })
 

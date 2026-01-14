@@ -186,7 +186,7 @@ function handleMemoraApiError(error: unknown): never {
 }
 
 interface MemoraStoresResponse {
-  services?: string[]
+  stores?: string[]
   meta?: {
     pageSize?: number
     nextToken?: string
@@ -211,10 +211,10 @@ async function fetchMemoraStores(
         skipResponseCloning: true
       }
     )
-    const services = response?.data?.services || []
-    const choices = services.map((serviceId: string) => ({
-      label: serviceId,
-      value: serviceId
+    const stores = response?.data?.stores || []
+    const choices = stores.map((storeId: string) => ({
+      label: storeId,
+      value: storeId
     }))
 
     return {
