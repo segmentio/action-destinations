@@ -10,6 +10,18 @@ export interface Settings {
    */
   disablePushState?: boolean
   /**
+   * Control whether Facebook’s Meta Pixel automatically collects additional page and button data to optimize ads and measurement. When this toggle is on, Auto Config is disabled and only basic pixel tracking will occur. Turning it off enables Auto Config, allowing the Pixel to automatically send page metadata and button interactions to improve ad delivery and reporting.
+   */
+  disableAutoConfig?: boolean
+  /**
+   * Control whether Facebook’s Meta Pixel uses first-party cookies. When this toggle is on, first-party cookies are disabled, enhancing user privacy. Turning it off enables the use of first-party cookies for more accurate tracking.
+   */
+  disableFirstPartyCookies?: boolean
+  /**
+   * Specifies the agent to use when sending events.
+   */
+  agent?: string
+  /**
    * Specify if and how Limited Data Use should apply.
    */
   ldu: string

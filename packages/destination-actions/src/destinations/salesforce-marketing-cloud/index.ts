@@ -9,6 +9,7 @@ import apiEvent from './apiEvent'
 // data extension. They are independent from the original actions to support a slow rollout.
 import dataExtensionV2 from './dataExtensionV2'
 import contactDataExtensionV2 from './contactDataExtensionV2'
+import { SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION } from './versioning-info'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -52,7 +53,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     refreshAccessToken: async (request, { settings }) => {
-      const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/v2/token`
+      const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/${SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION}/token`
       const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
         method: 'POST',
         body: new URLSearchParams({

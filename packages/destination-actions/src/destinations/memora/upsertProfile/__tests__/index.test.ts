@@ -544,7 +544,7 @@ describe('Memora.upsertProfile', () => {
 
   describe('dynamicFields', () => {
     describe('memora_store', () => {
-      it('should fetch and return memory stores from Control Plane', async () => {
+      it('should fetch and return Memora stores from Control Plane', async () => {
         nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')

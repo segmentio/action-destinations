@@ -37,7 +37,8 @@ beforeAll(async () => {
   })
 
   Object.defineProperty(navigator, 'userAgent', {
-    value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    value:
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
     writable: true,
     configurable: true
   })
@@ -50,7 +51,7 @@ beforeAll(async () => {
 })
 
 afterAll(() => {
-  jest.useRealTimers() 
+  jest.useRealTimers()
 })
 
 describe('ajs-integration', () => {
@@ -65,13 +66,14 @@ describe('ajs-integration', () => {
     })
     const updatedCtx = await sessionAttributesEncodedPlugin.track?.(ctx)
     const gecIntegrationsObj = updatedCtx?.event?.integrations[DESTINATION_NAME]
-    expect(gecIntegrationsObj).toEqual(
-      {"session_attributes_encoded": "eyJnYWRfY2xpY2tfaWQiOiIxMjMiLCJnYWRfdXNlcl9pZCI6IjQ1NiIsInNlc3Npb25fc3RhcnRfdGltZV91c2VjIjoiMTY3MjUzMTIwMDAwMDAwMCIsImxhbmRpbmdfcGFnZV91cmwiOiJodHRwczovL2V4YW1wbGUuY29tP2dhZF9jbGlja19pZD0xMjMmZ2FkX3VzZXJfaWQ9NDU2JmdjbGlkPWdjbGlkMTIzNCZnYnJhaWQ9Z2JyYWlkNTY3OCIsImxhbmRpbmdfcGFnZV9yZWZlcnJlciI6Imh0dHBzOi8vcmVmZXJyZXIuY29tIiwibGFuZGluZ19wYWdlX3VzZXJfYWdlbnQiOiJNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvOTEuMC40NDcyLjEyNCBTYWZhcmkvNTM3LjM2In0"}
-    )
+    expect(gecIntegrationsObj).toEqual({
+      session_attributes_encoded:
+        'eyJnYWRfY2xpY2tfaWQiOiIxMjMiLCJnYWRfdXNlcl9pZCI6IjQ1NiIsInNlc3Npb25fc3RhcnRfdGltZV91c2VjIjoiMTY3MjUzMTIwMDAwMDAwMCIsImxhbmRpbmdfcGFnZV91cmwiOiJodHRwczovL2V4YW1wbGUuY29tP2dhZF9jbGlja19pZD0xMjMmZ2FkX3VzZXJfaWQ9NDU2JmdjbGlkPWdjbGlkMTIzNCZnYnJhaWQ9Z2JyYWlkNTY3OCIsImxhbmRpbmdfcGFnZV9yZWZlcnJlciI6Imh0dHBzOi8vcmVmZXJyZXIuY29tIiwibGFuZGluZ19wYWdlX3VzZXJfYWdlbnQiOiJNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvOTEuMC40NDcyLjEyNCBTYWZhcmkvNTM3LjM2In0'
+    })
   })
 
   test('New URL with no querystring should result in cashed session_attributes_encoded value being used', async () => {
-    // Note that this test will fail if executed on its own. It requires the previous test to first be executed. 
+    // Note that this test will fail if executed on its own. It requires the previous test to first be executed.
     Object.defineProperty(window, 'location', {
       value: {
         href: 'https://example.com',
@@ -80,7 +82,7 @@ describe('ajs-integration', () => {
       writable: true,
       configurable: true
     })
-    
+
     await sessionAttributesEncodedPlugin.load(Context.system(), ajs)
     const ctx = new Context({
       type: 'track',
@@ -91,9 +93,10 @@ describe('ajs-integration', () => {
     })
     const updatedCtx = await sessionAttributesEncodedPlugin.track?.(ctx)
     const gecIntegrationsObj = updatedCtx?.event?.integrations[DESTINATION_NAME]
-    expect(gecIntegrationsObj).toEqual(
-      {"session_attributes_encoded": "eyJnYWRfY2xpY2tfaWQiOiIxMjMiLCJnYWRfdXNlcl9pZCI6IjQ1NiIsInNlc3Npb25fc3RhcnRfdGltZV91c2VjIjoiMTY3MjUzMTIwMDAwMDAwMCIsImxhbmRpbmdfcGFnZV91cmwiOiJodHRwczovL2V4YW1wbGUuY29tP2dhZF9jbGlja19pZD0xMjMmZ2FkX3VzZXJfaWQ9NDU2JmdjbGlkPWdjbGlkMTIzNCZnYnJhaWQ9Z2JyYWlkNTY3OCIsImxhbmRpbmdfcGFnZV9yZWZlcnJlciI6Imh0dHBzOi8vcmVmZXJyZXIuY29tIiwibGFuZGluZ19wYWdlX3VzZXJfYWdlbnQiOiJNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvOTEuMC40NDcyLjEyNCBTYWZhcmkvNTM3LjM2In0"}
-    )
+    expect(gecIntegrationsObj).toEqual({
+      session_attributes_encoded:
+        'eyJnYWRfY2xpY2tfaWQiOiIxMjMiLCJnYWRfdXNlcl9pZCI6IjQ1NiIsInNlc3Npb25fc3RhcnRfdGltZV91c2VjIjoiMTY3MjUzMTIwMDAwMDAwMCIsImxhbmRpbmdfcGFnZV91cmwiOiJodHRwczovL2V4YW1wbGUuY29tP2dhZF9jbGlja19pZD0xMjMmZ2FkX3VzZXJfaWQ9NDU2JmdjbGlkPWdjbGlkMTIzNCZnYnJhaWQ9Z2JyYWlkNTY3OCIsImxhbmRpbmdfcGFnZV9yZWZlcnJlciI6Imh0dHBzOi8vcmVmZXJyZXIuY29tIiwibGFuZGluZ19wYWdlX3VzZXJfYWdlbnQiOiJNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvOTEuMC40NDcyLjEyNCBTYWZhcmkvNTM3LjM2In0'
+    })
   })
 
   test('New querystring values result in a new session_attributes_encoded value', async () => {
@@ -105,7 +108,7 @@ describe('ajs-integration', () => {
       writable: true,
       configurable: true
     })
-    
+
     await sessionAttributesEncodedPlugin.load(Context.system(), ajs)
     const ctx = new Context({
       type: 'track',
@@ -116,8 +119,9 @@ describe('ajs-integration', () => {
     })
     const updatedCtx = await sessionAttributesEncodedPlugin.track?.(ctx)
     const gecIntegrationsObj = updatedCtx?.event?.integrations[DESTINATION_NAME]
-    expect(gecIntegrationsObj).toEqual(
-      { "session_attributes_encoded": "eyJnYWRfY2xpY2tfaWQiOiIxMjMiLCJnYWRfdXNlcl9pZCI6IjQ1NiIsInNlc3Npb25fc3RhcnRfdGltZV91c2VjIjoiMTY3MjUzMTIwMDAwMDAwMCIsImxhbmRpbmdfcGFnZV91cmwiOiJodHRwczovL2V4YW1wbGUuY29tP2dhZF9jbGlja19pZD0xMjMmZ2FkX3VzZXJfaWQ9NDU2JmdjbGlkPWdjbGlkMTIzNCZnYnJhaWQ9Z2JyYWlkNTY3OCIsImxhbmRpbmdfcGFnZV9yZWZlcnJlciI6Imh0dHBzOi8vcmVmZXJyZXIuY29tIiwibGFuZGluZ19wYWdlX3VzZXJfYWdlbnQiOiJNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvOTEuMC40NDcyLjEyNCBTYWZhcmkvNTM3LjM2In0"}
-    )
+    expect(gecIntegrationsObj).toEqual({
+      session_attributes_encoded:
+        'eyJnYWRfY2xpY2tfaWQiOiIxMjMiLCJnYWRfdXNlcl9pZCI6IjQ1NiIsInNlc3Npb25fc3RhcnRfdGltZV91c2VjIjoiMTY3MjUzMTIwMDAwMDAwMCIsImxhbmRpbmdfcGFnZV91cmwiOiJodHRwczovL2V4YW1wbGUuY29tP2dhZF9jbGlja19pZD0xMjMmZ2FkX3VzZXJfaWQ9NDU2JmdjbGlkPWdjbGlkMTIzNCZnYnJhaWQ9Z2JyYWlkNTY3OCIsImxhbmRpbmdfcGFnZV9yZWZlcnJlciI6Imh0dHBzOi8vcmVmZXJyZXIuY29tIiwibGFuZGluZ19wYWdlX3VzZXJfYWdlbnQiOiJNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvOTEuMC40NDcyLjEyNCBTYWZhcmkvNTM3LjM2In0'
+    })
   })
 })
