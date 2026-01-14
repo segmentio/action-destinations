@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The Memora Store ID to use for this profile. This should be a valid Memora Store associated with your Twilio account.',
       type: 'string',
-      required: false,
+      required: true,
       dynamic: true
     },
     contact: {
@@ -64,117 +64,75 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       default: {
         email: { '@path': '$.properties.email' },
-        firstName: { '@path': '$.traits.first_name' },
-        lastName: { '@path': '$.traits.last_name' },
+        firstName: { '@path': '$.properties.first_name' },
+        lastName: { '@path': '$.properties.last_name' },
         phone: {
-          '@path': '$.traits.phone'
+          '@path': '$.properties.phone'
         }
       }
     }
   },
   dynamicFields: {
     memora_store: async (request, { settings }) => {
-      return fetchMemoryStores(request, settings)
-    },
-    contact: {
-      __keys__: async (request, { settings, payload }) => {
-        return fetchTraitFields(request, settings, payload, 'Contact')
-      }
+      return fetchMemoraStores(request, settings)
     }
   },
   perform: async (request, { payload, settings }) => {
-    // Single profile sync using the bulk API with a single profile payload
-    const storeId = payload.memora_store
-    if (!storeId) {
-      throw new IntegrationError('Memora Store is required', 'MISSING_REQUIRED_FIELD', 400)
-    }
-
-    const traitGroups = buildTraitGroups(payload)
-    if (Object.keys(traitGroups).length === 0) {
-      throw new IntegrationError('Profile must contain at least one trait group or contact field', 'EMPTY_PROFILE', 400)
-    }
-
-    try {
-      const response = await request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
-        },
-        json: {
-          profiles: [
-            {
-              traits: traitGroups
-            }
-          ]
-        }
-      })
-
-      // API returns 202 when the batch is accepted for processing
-      if (response.status !== 202) {
-        throw new IntegrationError(`Unexpected response status: ${response.status}`, 'API_ERROR', response.status)
-      }
-
-      return response
-    } catch (error) {
-      // Only handle actual HTTP errors, not our custom status check errors
-      if (error instanceof IntegrationError) {
-        throw error
-      }
-      handleMemoraApiError(error)
-    }
+    return upsertProfiles(request, [payload], settings)
   },
 
   performBatch: async (request, { payload: payloads, settings }) => {
-    const storeId = payloads[0]?.memora_store
-    if (!storeId) {
-      throw new IntegrationError('Memora Store is required', 'MISSING_REQUIRED_FIELD', 400)
+    return upsertProfiles(request, payloads, settings)
+  }
+}
+
+// Process single or batch profile upserts
+async function upsertProfiles(
+  request: ReturnType<typeof import('@segment/actions-core').createRequestClient>,
+  payloads: Payload[],
+  settings: Settings
+) {
+  const storeId = payloads[0]?.memora_store
+
+  if (!payloads || payloads.length === 0) {
+    throw new IntegrationError('No profiles provided for batch sync', 'EMPTY_BATCH', 400)
+  }
+
+  const profiles = payloads.map((payload, index) => {
+    const traitGroups = buildTraitGroups(payload)
+    if (Object.keys(traitGroups).length === 0) {
+      throw new IntegrationError(
+        `Profile at index ${index} must contain at least one trait group or contact field`,
+        'EMPTY_PROFILE',
+        400
+      )
     }
 
-    if (!payloads || payloads.length === 0) {
-      throw new IntegrationError('No profiles provided for batch sync', 'EMPTY_BATCH', 400)
-    }
+    return { traits: traitGroups }
+  })
 
-    if (payloads.length > 1000) {
-      throw new IntegrationError('Batch size cannot exceed 1000 profiles', 'BATCH_SIZE_EXCEEDED', 400)
-    }
-
-    const profiles = payloads.map((payload, index) => {
-      const traitGroups = buildTraitGroups(payload)
-      if (Object.keys(traitGroups).length === 0) {
-        throw new IntegrationError(
-          `Profile at index ${index} must contain at least one trait group or contact field`,
-          'EMPTY_PROFILE',
-          400
-        )
+  try {
+    const response = await request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
+      },
+      json: {
+        profiles
       }
-
-      return { traits: traitGroups }
     })
 
-    try {
-      const response = await request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
-        },
-        json: {
-          profiles
-        }
-      })
-
-      if (response.status !== 202) {
-        throw new IntegrationError(`Unexpected response status: ${response.status}`, 'API_ERROR', response.status)
-      }
-
-      return response
-    } catch (error) {
-      if (error instanceof IntegrationError) {
-        throw error
-      }
-      handleMemoraApiError(error)
+    if (response.status !== 202) {
+      throw new IntegrationError(`Unexpected response status: ${response.status}`, 'API_ERROR', response.status)
     }
+
+    return response
+  } catch (error) {
+    if (error instanceof IntegrationError) {
+      throw error
+    }
+    handleMemoraApiError(error)
   }
 }
 
@@ -184,51 +142,13 @@ function buildTraitGroups(payload: Payload) {
 
   // Process contact field
   if (payload.contact && typeof payload.contact === 'object') {
-    const contact = cleanObject(payload.contact)
+    const contact = payload.contact as Record<string, unknown>
     if (Object.keys(contact).length > 0) {
-      // Merge contact into Contact trait group
-      traitGroups.Contact = {
-        ...(traitGroups.Contact ?? {}),
-        ...contact
-      }
+      traitGroups.Contact = contact
     }
   }
 
   return traitGroups
-}
-
-function cleanObject(input: unknown): Record<string, unknown> {
-  if (!input || typeof input !== 'object') {
-    return {}
-  }
-
-  const value = input as Record<string, unknown>
-  const cleaned: Record<string, unknown> = {}
-
-  for (const [key, fieldValue] of Object.entries(value)) {
-    if (fieldValue === undefined || fieldValue === null) {
-      continue
-    }
-
-    if (Array.isArray(fieldValue)) {
-      if (fieldValue.length > 0) {
-        cleaned[key] = fieldValue
-      }
-      continue
-    }
-
-    if (typeof fieldValue === 'object') {
-      const nested = cleanObject(fieldValue)
-      if (Object.keys(nested).length > 0) {
-        cleaned[key] = nested
-      }
-      continue
-    }
-
-    cleaned[key] = fieldValue
-  }
-
-  return cleaned
 }
 
 // Helper function to handle Memora API errors
@@ -265,8 +185,8 @@ function handleMemoraApiError(error: unknown): never {
   throw new RetryableError(httpError.message || 'Network error occurred')
 }
 
-interface MemoryStoresResponse {
-  services?: string[]
+interface MemoraStoresResponse {
+  stores?: string[]
   meta?: {
     pageSize?: number
     nextToken?: string
@@ -274,14 +194,14 @@ interface MemoryStoresResponse {
   }
 }
 
-// Fetch available memory stores from Control Plane
-async function fetchMemoryStores(
+// Fetch available memora stores from Control Plane
+async function fetchMemoraStores(
   request: ReturnType<typeof import('@segment/actions-core').createRequestClient>,
   settings: Settings
 ) {
   try {
-    // Call the Control Plane API to list memory stores
-    const response = await request<MemoryStoresResponse>(
+    // Call the Control Plane API to list memora stores
+    const response = await request<MemoraStoresResponse>(
       `${BASE_URL}/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`,
       {
         method: 'GET',
@@ -291,88 +211,21 @@ async function fetchMemoryStores(
         skipResponseCloning: true
       }
     )
-    const services = response?.data?.services || []
-    const choices = services.map((serviceId: string) => ({
-      label: serviceId,
-      value: serviceId
+    const stores = response?.data?.stores || []
+    const choices = stores.map((storeId: string) => ({
+      label: storeId,
+      value: storeId
     }))
 
     return {
-      choices,
-      nextPage: response?.data?.meta?.nextToken
+      choices
     }
   } catch (error) {
     // Return empty choices if the API call fails
     return {
       choices: [],
       error: {
-        message: 'Unable to fetch memory stores. You can still manually enter a memory store ID.',
-        code: 'FETCH_ERROR'
-      }
-    }
-  }
-}
-
-// Fetch available trait fields for a specific trait group
-async function fetchTraitFields(
-  request: ReturnType<typeof import('@segment/actions-core').createRequestClient>,
-  settings: Settings,
-  payload: Payload,
-  traitGroup: string
-) {
-  try {
-    const storeId = payload.memora_store
-
-    // If memora_store is not yet selected in the mapping, return helpful error
-    if (!storeId) {
-      return {
-        choices: [],
-        error: {
-          message: `Please select a Memora Store first to fetch available ${traitGroup} trait fields.`,
-          code: 'STORE_ID_REQUIRED'
-        }
-      }
-    }
-
-    // API endpoint: GET /ControlPlane/Stores/{storeId}/TraitGroups/{traitGroupName}
-    const response = await request<{
-      traitGroup?: {
-        traits?: Array<{
-          name: string
-          key: string
-          dataType?: string
-        }>
-      }
-      meta?: { pageToken?: string }
-    }>(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/${traitGroup}`, {
-      method: 'GET',
-      headers: {
-        ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
-      },
-      searchParams: {
-        includeTraits: 'true',
-        pageSize: '100',
-        orderBy: 'ASC'
-      },
-      skipResponseCloning: true
-    })
-
-    const traits = response?.data?.traitGroup?.traits || []
-    const choices = traits.map((trait) => ({
-      label: trait.name || trait.key,
-      value: trait.key
-    }))
-
-    return {
-      choices,
-      nextPage: response?.data?.meta?.pageToken
-    }
-  } catch (error) {
-    // Return empty choices if the API call fails
-    return {
-      choices: [],
-      error: {
-        message: 'Unable to fetch trait fields. You can still manually enter trait names.',
+        message: 'Unable to fetch memora stores. You can still manually enter a memora store ID.',
         code: 'FETCH_ERROR'
       }
     }

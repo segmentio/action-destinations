@@ -31,13 +31,18 @@ export class OptimizelyClient {
     const host = getHost(this.settings)
 
     const requestBody = this.payloads.map((payload, index) => {
+      const { traitsOrProperties } = payload
+
+      const subscription = traitsOrProperties
+        ? traitsOrProperties[payload.custom_audience_name]
+        : this.propsOrTraits[index].properties?.[payload.custom_audience_name] ??
+          this.propsOrTraits[index].traits?.[payload.custom_audience_name]
+
       return {
         audienceId: payload.segment_computation_id,
         audienceName: payload.custom_audience_name,
         timestamp: payload.timestamp,
-        subscription:
-          this.propsOrTraits[index].properties?.[payload.custom_audience_name] ??
-          this.propsOrTraits[index].traits?.[payload.custom_audience_name],
+        subscription,
         userId: payload.optimizelyUserId
       }
     })

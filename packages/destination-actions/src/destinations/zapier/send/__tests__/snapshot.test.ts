@@ -23,7 +23,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: { ...event.properties, zapSubscriptionUrl: 'https://example.com' },
+      mapping: { ...event.properties, zapSubscriptionUrl: 'https://blah.zapier.com' },
       settings: settingsData,
       auth: undefined
     })
@@ -56,7 +56,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: { ...event.properties, zapSubscriptionUrl: 'https://example.com' },
+      mapping: { ...event.properties, zapSubscriptionUrl: 'https://blah.zapier.com' },
       settings: settingsData,
       auth: undefined
     })

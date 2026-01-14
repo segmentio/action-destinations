@@ -69,6 +69,10 @@ export interface Payload {
    */
   predicted_ltv?: number
   /**
+   * The net revenue associated with the purchase.
+   */
+  net_revenue?: number
+  /**
    * The string entered by the user for the search.
    */
   search_string?: string
@@ -94,10 +98,6 @@ export interface Payload {
    * The URL of the page where the event occurred. Can be used to override the default URL taken from the current page.
    */
   eventSourceUrl?: string
-  /**
-   * The source of the event. This can be used to specify where the event originated from.
-   */
-  actionSource?: string
   /**
    * User data to be sent with the event. This can include hashed identifiers like email, phone number, etc.
    */
@@ -135,7 +135,7 @@ export interface Payload {
      */
     ct?: string
     /**
-     * State of the user. Two-letter state or province code for the United States, For example, "NY" for New York.
+     * State of the user. Facebook expects the 2-letter abbreviation for US states. For example, "CA" for California, or "NY" for New York.
      */
     st?: string
     /**
@@ -143,7 +143,7 @@ export interface Payload {
      */
     zp?: string
     /**
-     * Country code of the user. This should be a valid ISO 3166-1 alpha-2 country code. For example, "US" for the United States.
+     * The country of the user. Facebook expects the 2-letter ISO 3166-1 alpha-2 country code. For example, "US" for the United States, or "GB" for the United Kingdom.
      */
     country?: string
   }

@@ -374,23 +374,43 @@ function _parse_and_format_date(date_string: string) {
   }
 }
 
-function _parse_date(attribute_value: any): Date | null {
+function _parse_date(attribute_value: unknown): Date | null {
   /*
   This function is for converting dates or returning null if they're not valid.
+  It requires the string to contain date-like patterns to avoid false positives.
   */
-  if (attribute_value.length < 8) {
+  if (typeof attribute_value !== 'string' || attribute_value.length < 8) {
     return null // Reduce false positive dates
+  }
+
+  // Require the string to contain date-like patterns to avoid false positives
+  // Common date separators: dashes, slashes, colons, spaces with numbers
+  // ISO format patterns: YYYY-MM-DD, YYYY-MM-DDTHH:mm:ss, etc.
+  const dateLikePattern =
+    /(\d{4}[-/]\d{1,2}[-/]\d{1,2})|(\d{1,2}[-/]\d{1,2}[-/]\d{4})|(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})|(\d{1,2}\/\d{1,2}\/\d{4})/
+
+  // If the string doesn't contain date-like patterns, don't parse it as a date
+  if (!dateLikePattern.test(attribute_value)) {
+    return null
   }
 
   // Attempt to parse the attribute_value as a Date
   const date = new Date(attribute_value)
 
   // Check if the parsing was successful and the result is a valid date
-  if (!isNaN(date.getTime())) {
-    return date // Return the parsed Date
+  if (isNaN(date.getTime())) {
+    return null
   }
 
-  return null // Return null for invalid dates
+  // Additional validation: check if the parsed date is reasonable
+  // Reject dates that are too far in the past (before 1900) or future (after 2100)
+  // This helps catch cases where JavaScript's Date constructor makes unexpected interpretations
+  const year = date.getFullYear()
+  if (year < 1900 || year > 2100) {
+    return null
+  }
+
+  return date // Return the parsed Date
 }
 
 function _extract_country_language(locale: string): string[] {

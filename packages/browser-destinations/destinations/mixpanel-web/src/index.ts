@@ -42,6 +42,33 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       ...rest
     } = settings
 
+    const numericKeys = new Set([
+      'record_sessions_percent',
+      'record_min_ms',
+      'record_max_ms',
+      'record_idle_timeout_ms',
+      'cookie_expiration'
+    ])
+
+    const remainingSettings = Object.fromEntries(
+      Object.entries(rest).flatMap(([key, value]) => {
+        if (numericKeys.has(key)) {
+          if (value === undefined || value === null || value === '') {
+            return []
+          }
+          const num = Number(value)
+          if (Number.isNaN(num)) {
+            console.warn(
+              `Setting "${key}" with value "${value}" cannot be converted to a number. Setting will be ignored.`
+            )
+            return []
+          }
+          return [[key, num]]
+        }
+        return [[key, value]]
+      })
+    )
+
     const config: Config = {
       autocapture:
         autocapture === AUTOCAPTURE_OPTIONS.CUSTOM
@@ -59,7 +86,7 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
           ? true
           : false,
       persistence: persistence as PersistenceOptions,
-      ...rest
+      ...remainingSettings
     }
 
     return new Promise<Mixpanel>((resolve) => {
