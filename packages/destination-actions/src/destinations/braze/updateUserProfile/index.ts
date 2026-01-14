@@ -271,6 +271,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Array of objects used to manage a user\'s subscription status for specific subscription groups.',
       type: 'object',
       multiple: true,
+      defaultObjectUI: 'keyvalue',
       properties: {
         subscription_group_id: {
           label: 'Subscription Group ID',
