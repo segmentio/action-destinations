@@ -14,25 +14,22 @@ export interface Payload {
    */
   memora_store: string
   /**
-   * Contact information object containing email, firstName, lastName, and phone fields that will be placed in the Contact trait group in the Memora API call.
+   * Contact identifiers (email and/or phone). At least one identifier is required.
    */
-  contact?: {
+  contact_identifiers: {
     /**
      * User email address
      */
     email?: string
     /**
-     * User first name
-     */
-    firstName?: string
-    /**
-     * User last name
-     */
-    lastName?: string
-    /**
      * User phone number
      */
     phone?: string
+  }
+  /**
+   * Additional contact traits for the profile. These fields are dynamically loaded from the selected Memora Store.
+   */
+  contact_traits?: {
     [k: string]: unknown
   }
 }

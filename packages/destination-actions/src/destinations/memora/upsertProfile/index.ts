@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { IntegrationError, RetryableError } from '@segment/actions-core'
+import { IntegrationError, RetryableError, createRequestClient } from '@segment/actions-core'
 import { API_VERSION, BASE_URL } from '../index'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -32,29 +32,18 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       dynamic: true
     },
-    contact: {
-      label: 'Contact Information',
-      description:
-        'Contact information object containing email, firstName, lastName, and phone fields that will be placed in the Contact trait group in the Memora API call.',
+    contact_identifiers: {
+      label: 'Contact Identifiers',
+      description: 'Contact identifiers (email and/or phone). At least one identifier is required.',
       type: 'object',
-      required: false,
-      additionalProperties: true,
+      required: true,
+      additionalProperties: false,
       properties: {
         email: {
           label: 'Email',
           description: 'User email address',
           type: 'string',
           format: 'email'
-        },
-        firstName: {
-          label: 'First Name',
-          description: 'User first name',
-          type: 'string'
-        },
-        lastName: {
-          label: 'Last Name',
-          description: 'User last name',
-          type: 'string'
         },
         phone: {
           label: 'Phone',
@@ -64,17 +53,30 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       default: {
         email: { '@path': '$.properties.email' },
-        firstName: { '@path': '$.properties.first_name' },
-        lastName: { '@path': '$.properties.last_name' },
-        phone: {
-          '@path': '$.properties.phone'
-        }
+        phone: { '@path': '$.properties.phone' }
       }
+    },
+    contact_traits: {
+      label: 'Other Contact Traits',
+      description:
+        'Additional contact traits for the profile. These fields are dynamically loaded from the selected Memora Store.',
+      type: 'object',
+      required: false,
+      additionalProperties: true,
+      dynamic: true
     }
   },
   dynamicFields: {
     memora_store: async (request, { settings }) => {
       return fetchMemoraStores(request, settings)
+    },
+    contact_traits: {
+      __keys__: async (request, { settings, payload }) => {
+        if (!payload.memora_store) {
+          return { choices: [], error: { message: 'Please select a Memora Store first', code: 'STORE_REQUIRED' } }
+        }
+        return fetchContactTraits(request, settings, payload.memora_store)
+      }
     }
   },
   perform: async (request, { payload, settings }) => {
@@ -88,7 +90,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
 // Process single or batch profile upserts
 async function upsertProfiles(
-  request: ReturnType<typeof import('@segment/actions-core').createRequestClient>,
+  request: ReturnType<typeof createRequestClient>,
   payloads: Payload[],
   settings: Settings
 ) {
@@ -99,6 +101,16 @@ async function upsertProfiles(
   }
 
   const profiles = payloads.map((payload, index) => {
+    // Validate that at least one identifier is present
+    const identifiers = payload.contact_identifiers || {}
+    if (!identifiers.email && !identifiers.phone) {
+      throw new IntegrationError(
+        `Profile at index ${index} must contain at least one identifier (email or phone)`,
+        'MISSING_IDENTIFIER',
+        400
+      )
+    }
+
     const traitGroups = buildTraitGroups(payload)
     if (Object.keys(traitGroups).length === 0) {
       throw new IntegrationError(
@@ -139,13 +151,31 @@ async function upsertProfiles(
 // Build trait groups payload for Memora API
 function buildTraitGroups(payload: Payload) {
   const traitGroups: Record<string, Record<string, unknown>> = {}
+  const contact: Record<string, unknown> = {}
 
-  // Process contact field
-  if (payload.contact && typeof payload.contact === 'object') {
-    const contact = payload.contact as Record<string, unknown>
-    if (Object.keys(contact).length > 0) {
-      traitGroups.Contact = contact
+  // Add contact identifiers
+  if (payload.contact_identifiers) {
+    const identifiers = payload.contact_identifiers as Record<string, unknown>
+    if (identifiers.email) {
+      contact.email = identifiers.email
     }
+    if (identifiers.phone) {
+      contact.phone = identifiers.phone
+    }
+  }
+
+  // Add other contact traits
+  if (payload.contact_traits && typeof payload.contact_traits === 'object') {
+    const traits = payload.contact_traits as Record<string, unknown>
+    Object.keys(traits).forEach((key) => {
+      if (traits[key] !== undefined) {
+        contact[key] = traits[key]
+      }
+    })
+  }
+
+  if (Object.keys(contact).length > 0) {
+    traitGroups.Contact = contact
   }
 
   return traitGroups
@@ -194,11 +224,66 @@ interface MemoraStoresResponse {
   }
 }
 
-// Fetch available memora stores from Control Plane
-async function fetchMemoraStores(
-  request: ReturnType<typeof import('@segment/actions-core').createRequestClient>,
-  settings: Settings
+interface TraitDefinition {
+  name: string
+  dataType: string
+  description?: string
+}
+
+interface TraitGroupResponse {
+  traitGroupName?: string
+  traits?: TraitDefinition[]
+  meta?: {
+    pageSize?: number
+    nextToken?: string
+    previousToken?: string
+  }
+}
+
+// Fetch contact trait definitions for dynamic fields
+async function fetchContactTraits(
+  request: ReturnType<typeof createRequestClient>,
+  settings: Settings,
+  storeId: string
 ) {
+  try {
+    const response = await request<TraitGroupResponse>(
+      `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/Contact?includeTraits=true&pageSize=100`,
+      {
+        method: 'GET',
+        headers: {
+          ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
+        },
+        skipResponseCloning: true
+      }
+    )
+
+    const traits = response?.data?.traits || []
+    const choices = traits
+      .filter((trait) => trait.name !== 'email' && trait.name !== 'phone') // Exclude static identifiers
+      .map((trait) => ({
+        label: trait.name,
+        value: trait.name,
+        description: trait.description || `${trait.name} (${trait.dataType})`
+      }))
+
+    return {
+      choices,
+      nextPage: response?.data?.meta?.nextToken
+    }
+  } catch (error) {
+    return {
+      choices: [],
+      error: {
+        message: 'Unable to fetch contact traits. You can still manually enter field names.',
+        code: 'FETCH_ERROR'
+      }
+    }
+  }
+}
+
+// Fetch available memora stores from Control Plane
+async function fetchMemoraStores(request: ReturnType<typeof createRequestClient>, settings: Settings) {
   try {
     // Call the Control Plane API to list memora stores
     const response = await request<MemoraStoresResponse>(

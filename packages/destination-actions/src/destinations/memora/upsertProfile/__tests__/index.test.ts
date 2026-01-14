@@ -13,11 +13,13 @@ const defaultSettings = {
 
 const defaultMapping = {
   memora_store: 'test-store-id',
-  contact: {
-    email: { '@path': '$.traits.email' },
-    firstName: { '@path': '$.traits.first_name' },
-    lastName: { '@path': '$.traits.last_name' },
-    phone: { '@path': '$.traits.phone' }
+  contact_identifiers: {
+    email: { '@path': '$.properties.email' },
+    phone: { '@path': '$.properties.phone' }
+  },
+  contact_traits: {
+    firstName: { '@path': '$.properties.first_name' },
+    lastName: { '@path': '$.properties.last_name' }
   }
 }
 
@@ -31,7 +33,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        traits: {
+        properties: {
           email: 'john@example.com',
           first_name: 'John',
           last_name: 'Doe',
@@ -73,7 +75,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-456',
-        traits: {
+        properties: {
           email: 'jane@example.com'
         }
       })
@@ -108,7 +110,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        traits: {
+        properties: {
           email: 'test@example.com'
         }
       })
@@ -118,21 +120,19 @@ describe('Memora.upsertProfile', () => {
           event,
           settings: defaultSettings,
           mapping: {
-            contact: defaultMapping.contact
+            contact_identifiers: defaultMapping.contact_identifiers
           },
           useDefaultMappings: true
         })
       ).rejects.toThrow()
     })
 
-    it('should throw error when profile has no traits', async () => {
+    it('should throw error when profile has no identifiers', async () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        traits: {}
+        properties: {}
       })
-
-      nock(BASE_URL).put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`).reply(202, { success: true })
 
       await expect(
         testDestination.testAction('upsertProfile', {
@@ -140,18 +140,135 @@ describe('Memora.upsertProfile', () => {
           settings: defaultSettings,
           mapping: {
             memora_store: 'test-store-id',
-            contact: {}
+            contact_identifiers: {}
           },
           useDefaultMappings: false
         })
-      ).rejects.toThrow('Profile at index 0 must contain at least one trait group or contact field')
+      ).rejects.toThrow('Profile at index 0 must contain at least one identifier (email or phone)')
+    })
+
+    it('should succeed with only email provided', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-123',
+        properties: {
+          email: 'test@example.com'
+        }
+      })
+
+      let capturedBody: Record<string, unknown> = {}
+      nock(BASE_URL)
+        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
+          capturedBody = body as Record<string, unknown>
+          return true
+        })
+        .reply(202, { success: true })
+
+      const responses = await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          contact_identifiers: {
+            email: { '@path': '$.properties.email' }
+          }
+        },
+        useDefaultMappings: false
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(202)
+
+      const profiles = capturedBody.profiles as Array<{ traits: { Contact: Record<string, unknown> } }>
+      expect(profiles[0].traits.Contact).toEqual({
+        email: 'test@example.com'
+      })
+    })
+
+    it('should succeed with only phone provided', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-123',
+        properties: {
+          phone: '+1-555-0100'
+        }
+      })
+
+      let capturedBody: Record<string, unknown> = {}
+      nock(BASE_URL)
+        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
+          capturedBody = body as Record<string, unknown>
+          return true
+        })
+        .reply(202, { success: true })
+
+      const responses = await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          contact_identifiers: {
+            phone: { '@path': '$.properties.phone' }
+          }
+        },
+        useDefaultMappings: false
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(202)
+
+      const profiles = capturedBody.profiles as Array<{ traits: { Contact: Record<string, unknown> } }>
+      expect(profiles[0].traits.Contact).toEqual({
+        phone: '+1-555-0100'
+      })
+    })
+
+    it('should succeed with both email and phone provided', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-123',
+        properties: {
+          email: 'test@example.com',
+          phone: '+1-555-0100'
+        }
+      })
+
+      let capturedBody: Record<string, unknown> = {}
+      nock(BASE_URL)
+        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
+          capturedBody = body as Record<string, unknown>
+          return true
+        })
+        .reply(202, { success: true })
+
+      const responses = await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          contact_identifiers: {
+            email: { '@path': '$.properties.email' },
+            phone: { '@path': '$.properties.phone' }
+          }
+        },
+        useDefaultMappings: false
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(202)
+
+      const profiles = capturedBody.profiles as Array<{ traits: { Contact: Record<string, unknown> } }>
+      expect(profiles[0].traits.Contact).toEqual({
+        email: 'test@example.com',
+        phone: '+1-555-0100'
+      })
     })
 
     it('should not include X-Pre-Auth-Context header when twilioAccount is not provided', async () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        traits: {
+        properties: {
           email: 'test@example.com'
         }
       })
@@ -179,7 +296,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        traits: {
+        properties: {
           email: 'test@example.com'
         }
       })
@@ -210,7 +327,7 @@ describe('Memora.upsertProfile', () => {
         createTestEvent({
           type: 'identify',
           userId: 'user-1',
-          traits: {
+          properties: {
             email: 'user1@example.com',
             first_name: 'User',
             last_name: 'One'
@@ -219,7 +336,7 @@ describe('Memora.upsertProfile', () => {
         createTestEvent({
           type: 'identify',
           userId: 'user-2',
-          traits: {
+          properties: {
             email: 'user2@example.com',
             first_name: 'User',
             last_name: 'Two'
@@ -262,23 +379,21 @@ describe('Memora.upsertProfile', () => {
       ).rejects.toThrow()
     })
 
-    it('should throw error when a profile in batch has no traits', async () => {
+    it('should throw error when a profile in batch has no identifiers', async () => {
       const events = [
         createTestEvent({
           type: 'identify',
           userId: 'user-1',
-          traits: {}
+          properties: {}
         }),
         createTestEvent({
           type: 'identify',
           userId: 'user-2',
-          traits: {
+          properties: {
             email: 'user2@example.com'
           }
         })
       ]
-
-      nock(BASE_URL).put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`).reply(202, { success: true })
 
       await expect(
         testDestination.testBatchAction('upsertProfile', {
@@ -286,11 +401,69 @@ describe('Memora.upsertProfile', () => {
           settings: defaultSettings,
           mapping: {
             memora_store: 'test-store-id',
-            contact: {}
+            contact_identifiers: {
+              email: { '@path': '$.properties.email' }
+            }
           },
           useDefaultMappings: false
         })
-      ).rejects.toThrow('Profile at index 0 must contain at least one trait group or contact field')
+      ).rejects.toThrow('Profile at index 0 must contain at least one identifier (email or phone)')
+    })
+
+    it('should handle batch with different identifier combinations', async () => {
+      const events = [
+        createTestEvent({
+          type: 'identify',
+          userId: 'user-1',
+          properties: {
+            email: 'user1@example.com'
+          }
+        }),
+        createTestEvent({
+          type: 'identify',
+          userId: 'user-2',
+          properties: {
+            phone: '+1-555-0200'
+          }
+        }),
+        createTestEvent({
+          type: 'identify',
+          userId: 'user-3',
+          properties: {
+            email: 'user3@example.com',
+            phone: '+1-555-0300'
+          }
+        })
+      ]
+
+      let capturedBody: Record<string, unknown> = {}
+      nock(BASE_URL)
+        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
+          capturedBody = body as Record<string, unknown>
+          return true
+        })
+        .reply(202, { success: true })
+
+      const responses = await testDestination.testBatchAction('upsertProfile', {
+        events,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          contact_identifiers: {
+            email: { '@path': '$.properties.email' },
+            phone: { '@path': '$.properties.phone' }
+          }
+        },
+        useDefaultMappings: false
+      })
+
+      expect(responses[responses.length - 1].status).toBe(202)
+
+      const profiles = capturedBody.profiles as Array<{ traits: { Contact: Record<string, unknown> } }>
+      expect(profiles).toHaveLength(3)
+      expect(profiles[0].traits.Contact).toEqual({ email: 'user1@example.com' })
+      expect(profiles[1].traits.Contact).toEqual({ phone: '+1-555-0200' })
+      expect(profiles[2].traits.Contact).toEqual({ email: 'user3@example.com', phone: '+1-555-0300' })
     })
 
     it('should throw error when batch API returns non-202 status', async () => {
@@ -298,7 +471,7 @@ describe('Memora.upsertProfile', () => {
         createTestEvent({
           type: 'identify',
           userId: 'user-1',
-          traits: {
+          properties: {
             email: 'user1@example.com'
           }
         })
@@ -326,7 +499,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        traits: {
+        properties: {
           email: 'test@example.com'
         }
       })
@@ -355,7 +528,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        traits: {
+        properties: {
           email: 'test@example.com'
         }
       })
@@ -384,7 +557,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        traits: {
+        properties: {
           email: 'test@example.com'
         }
       })
@@ -411,7 +584,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        traits: {
+        properties: {
           email: 'test@example.com'
         }
       })
@@ -437,7 +610,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        traits: {
+        properties: {
           email: 'test@example.com'
         }
       })
@@ -464,7 +637,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        traits: {
+        properties: {
           email: 'test@example.com'
         }
       })
@@ -491,7 +664,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        traits: {
+        properties: {
           email: 'test@example.com'
         }
       })
@@ -518,7 +691,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        traits: {
+        properties: {
           email: 'test@example.com'
         }
       })
@@ -597,6 +770,66 @@ describe('Memora.upsertProfile', () => {
         expect(result?.choices).toEqual([])
         expect(result?.error).toBeDefined()
         expect(result?.error?.message).toContain('Unable to fetch memora stores')
+        expect(result?.error?.code).toBe('FETCH_ERROR')
+      })
+    })
+
+    describe('contact_traits (dynamic contact traits)', () => {
+      it('should fetch and return contact traits from Control Plane', async () => {
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/Contact?includeTraits=true&pageSize=100`)
+          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
+          .reply(200, {
+            traitGroupName: 'Contact',
+            traits: [
+              { name: 'email', dataType: 'string', description: 'Email address' },
+              { name: 'phone', dataType: 'string', description: 'Phone number' },
+              { name: 'firstName', dataType: 'string', description: 'First name' },
+              { name: 'lastName', dataType: 'string', description: 'Last name' },
+              { name: 'age', dataType: 'number', description: 'Age' }
+            ],
+            meta: {
+              pageSize: 100
+            }
+          })
+
+        const result = (await testDestination.testDynamicField('upsertProfile', 'contact_traits.__keys__', {
+          settings: defaultSettings,
+          payload: { memora_store: 'test-store-id' }
+        })) as any
+
+        // Should exclude email and phone since they're static fields
+        expect(result?.choices).toEqual([
+          { label: 'firstName', value: 'firstName', description: 'First name' },
+          { label: 'lastName', value: 'lastName', description: 'Last name' },
+          { label: 'age', value: 'age', description: 'Age' }
+        ])
+      })
+
+      it('should return error when memora_store is not selected', async () => {
+        const result = (await testDestination.testDynamicField('upsertProfile', 'contact_traits.__keys__', {
+          settings: defaultSettings,
+          payload: {}
+        })) as any
+
+        expect(result?.choices).toEqual([])
+        expect(result?.error?.message).toBe('Please select a Memora Store first')
+        expect(result?.error?.code).toBe('STORE_REQUIRED')
+      })
+
+      it('should return error message when API call fails', async () => {
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/Contact?includeTraits=true&pageSize=100`)
+          .reply(500, { message: 'Internal server error' })
+
+        const result = (await testDestination.testDynamicField('upsertProfile', 'contact_traits.__keys__', {
+          settings: defaultSettings,
+          payload: { memora_store: 'test-store-id' }
+        })) as any
+
+        expect(result?.choices).toEqual([])
+        expect(result?.error).toBeDefined()
+        expect(result?.error?.message).toContain('Unable to fetch contact traits')
         expect(result?.error?.code).toBe('FETCH_ERROR')
       })
     })
