@@ -349,7 +349,7 @@ const discounts: InputField = {
     },
     default: {
         '@arrayPath': [
-            '$.properties,discount_items',
+            '$.properties.discount_items',
             {
                 code: {'@path': '$.code'},
                 amount: {'@path': '$.amount'}
