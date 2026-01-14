@@ -341,7 +341,7 @@ describe('TheTradeDeskCrm.syncAudience', () => {
       // Type-safe access to error properties
       const errorResponse = invalidEmailResponse as MultiStatusErrorNode
       expect(errorResponse.errortype).toBe('PAYLOAD_VALIDATION_FAILED')
-      expect(errorResponse.errormessage).toContain('Invalid email: invalid-email-address')
+      expect(errorResponse.errormessage).toContain('Invalid email format')
     }
   })
 

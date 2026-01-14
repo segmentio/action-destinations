@@ -167,7 +167,7 @@ function extractUsers(payloads: Payload[], multiStatusResponse: MultiStatusRespo
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: `Invalid email: ${payload.email}`
+        errormessage: `Invalid email format`
       })
       return
     }
