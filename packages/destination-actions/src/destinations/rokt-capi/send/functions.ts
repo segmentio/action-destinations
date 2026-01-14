@@ -1,16 +1,16 @@
 import { RequestClient, MultiStatusResponse, JSONLikeObject } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { URL, BATCH_URL } from './constants'
-import { Primitive, JSON, AudienceJSON, EventJSON } from './types'
+import { Primitive, RoktJSON, AudienceJSON, EventJSON } from './types'
 import { isAlreadyHashed, processHashing } from '../../../lib/hashing-utils'
 import { PayloadValidationError } from '@segment/actions-core/*'
 
 export async function send(request: RequestClient, payload: Payload[], isBatch = false) {  
     const url = isBatch ? BATCH_URL : URL
     const msResponse = new MultiStatusResponse()
-    const indexToJsonItem: Record<number, JSON> = {}
+    const indexToJsonItem: Record<number, RoktJSON> = {}
     
-    const json: JSON[] = payload.reduce<JSON[]>((acc, p, index) => {
+    const json: RoktJSON[] = payload.reduce<RoktJSON[]>((acc, p, index) => {
         const error = validate(p)
         if(error) {
             if(!isBatch){
@@ -87,7 +87,7 @@ function validate(payload: Payload): string | undefined {
     }
 }
 
-function buildJSONItem(payload: Payload): JSON {
+function buildJSONItem(payload: Payload): RoktJSON {
     const {
         hashingConfiguration: {
             hashEmail,
@@ -119,7 +119,7 @@ function buildJSONItem(payload: Payload): JSON {
         ip
     } = payload
 
-    const device_info: JSON['device_info'] = {
+    const device_info: RoktJSON['device_info'] = {
         ...(http_header_user_agent ? { http_header_user_agent } : {}),
         ...(advertisingId && deviceType && deviceType.toLocaleLowerCase() === 'ios' ? { ios_advertising_id: advertisingId } : {}),
         ...(advertisingId && deviceType && deviceType.toLocaleLowerCase() === 'android' ? { android_advertising_id: advertisingId } : {}),
@@ -127,7 +127,7 @@ function buildJSONItem(payload: Payload): JSON {
         ...(deviceId && deviceType && deviceType.toLocaleLowerCase() === 'android' ? { android_uuid: deviceId } : {})
     }
 
-    const user_attributes: JSON['user_attributes'] = {
+    const user_attributes: RoktJSON['user_attributes'] = {
         ...(firstname ? maybeHash(firstname, hashFirstName, 'firstname', 'firstnamesha256', (value) => value.trim()) : {}),
         ...(lastname ? maybeHash(lastname, hashLastName, 'lastname', 'lastnamesha256', (value) => value.trim()) : {}),
         ...(mobile ? maybeHash(mobile, hashMobile, 'mobile', 'mobilesha256', (value) => value.trim()) : {}),
@@ -137,7 +137,7 @@ function buildJSONItem(payload: Payload): JSON {
         ...(restUserAttributes && Object.keys(restUserAttributes).length > 0 ? sanitize(restUserAttributes, ['boolean', 'string', 'number'], true) : {})
     }
 
-    const user_identities: JSON['user_identities'] = {
+    const user_identities: RoktJSON['user_identities'] = {
         ...(email ? maybeHash(email, hashEmail, 'email', 'other', (value) => value.toLocaleLowerCase().trim()) : {}),
         ...(customerid ? { customerid } : {}),
         ...(other2 ? { other2 } : {})
@@ -146,12 +146,12 @@ function buildJSONItem(payload: Payload): JSON {
     const audienceJSON = getAudienceJSON(payload)
     const eventJSON = getEventJSON(payload)
 
-    const events: JSON['events'] = [
+    const events: RoktJSON['events'] = [
         ...(audienceJSON ? [audienceJSON] : []),
         ...(eventJSON ? [eventJSON] : [])
     ]
 
-    const item: JSON = {
+    const item: RoktJSON = {
         environment: 'production',
         device_info,
         user_attributes, 
@@ -222,7 +222,7 @@ function getEventJSON(payload: Payload): EventJSON | undefined {
         return undefined
     }
 
-    const audienceJSON: EventJSON = {
+    const eventJSON: EventJSON = {
         event_type: "custom_event",
         data: {
             custom_event_type: "transaction",
@@ -238,8 +238,7 @@ function getEventJSON(payload: Payload): EventJSON | undefined {
             }
         }
     }
-
-    return audienceJSON
+    return eventJSON
 }
 
 function sanitize(obj: Record<string, unknown> | undefined, allowedTypes: ('string' | 'number' | 'boolean')[], allowArrays: boolean): Record<string, Primitive | Primitive[]> | undefined {
@@ -257,7 +256,6 @@ function sanitize(obj: Record<string, unknown> | undefined, allowedTypes: ('stri
             if (filtered.length) result[key] = filtered
         }
     })
-
     return result
 }
 

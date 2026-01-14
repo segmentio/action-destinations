@@ -1,6 +1,6 @@
 export type Primitive = string | number | boolean
 
-export interface JSON {
+export interface RoktJSON {
     environment: 'production'
     device_info: {
         http_header_user_agent?: string // user agent from web or mobile 
@@ -23,8 +23,8 @@ export interface JSON {
         [key: string]: unknown // simple types and arrays only. No objects 
     },
     user_identities: { // at least one required, or android_advertising_id or ios_advertising_id in device_info
-        email?: string // preferable 
-        other?: string // hashed email only. No other identfiier permitted here. 
+        email?: string // This is the raw EMAIL ADDRESS. NO NOT HASH IF UNHASHED. OK to send email and / or other. 
+        other?: string // This is the HASHED EMAIL ONLY. 
         customerid?: string // probably maps to Segment userId
         other2?: string // ROKT click id
     },

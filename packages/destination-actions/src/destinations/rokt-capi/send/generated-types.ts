@@ -140,11 +140,11 @@ export interface Payload {
     /**
      * Name of the audience for audience membership updates. If connecting to a Segment Engage Audience leave the field empty.
      */
-    customAudienceName: string
+    customAudienceName?: string
     /**
      * Boolean indicating whether the user is a member of the audience. If connecting to a Segment Engage Audience leave this field empty.
      */
-    customAudienceMembership: boolean
+    customAudienceMembership?: boolean
   }
   /**
    * Hidden field used figure out audience membership when syncing an Engage Audience.
@@ -165,4 +165,12 @@ export interface Payload {
      */
     computationAction?: string
   }
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
+  /**
+   * Enable sending events in batches.
+   */
+  enable_batching?: boolean
 }

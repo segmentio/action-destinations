@@ -145,8 +145,7 @@ export const fields: Record<string, InputField> = {
             email: {
                 label: 'Email',
                 description: 'User email address. This can be in plain text or hashed using SHA256. If you send plain text and would like Segment to hash the email address for you, enable the "Hash Email" field.',
-                type: 'string',
-                format: 'email'
+                type: 'string'
             },
             customerid: {
                 label: 'Customer ID',
@@ -279,16 +278,16 @@ export const fields: Record<string, InputField> = {
         defaultObjectUI: 'keyvalue:only',
         properties: {
             customAudienceName: {
-            label: 'Audience Name',
-            description: 'Name of the audience for audience membership updates. If connecting to a Segment Engage Audience leave the field empty.',
-            type: 'string',
-            required: true
+                label: 'Audience Name',
+                description: 'Name of the audience for audience membership updates. If connecting to a Segment Engage Audience leave the field empty.',
+                type: 'string',
+               // required: true
             },
             customAudienceMembership: {
-            label: 'Audience Membership',
-            description: 'Boolean indicating whether the user is a member of the audience. If connecting to a Segment Engage Audience leave this field empty.',
-            type: 'boolean',
-            required: true
+                label: 'Audience Membership',
+                description: 'Boolean indicating whether the user is a member of the audience. If connecting to a Segment Engage Audience leave this field empty.',
+                type: 'boolean',
+                //required: true
             }
         },
         default: {
@@ -334,5 +333,20 @@ export const fields: Record<string, InputField> = {
             },
             computationAction: {'@path': '$.context.personas.computation_class'}            
         }
+    }, 
+    batch_size: {
+        label: 'Batch Size',
+        description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+        type: 'number',
+        required: false,
+        default: 100,
+        maximum: 100,
+        minimum: 1
+    }, 
+    enable_batching: {
+        label: 'Enable Batching',
+        description: 'Enable sending events in batches.',
+        type: 'boolean',
+        default: true
     }
 }
