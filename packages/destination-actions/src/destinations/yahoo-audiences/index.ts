@@ -98,7 +98,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       )
       const rt_access_token = res.data.access_token
       if (rt_access_token) {
-        console.log('Successfully refreshed Yahoo Realtime API access token')
+        console.log('Successfully refreshed Yahoo Realtime API access tokens')
       }
       return { accessToken: rt_access_token }
     }
