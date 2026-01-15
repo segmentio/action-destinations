@@ -32,7 +32,7 @@ const action: BrowserActionDefinition<Settings, JimoClient, Payload> = {
     const { groupId, traits } = payload
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    jimo.client().push(['set', 'user:group', [{ groupId, traits: traits ?? {} }]])
+    jimo.client().push(['set', 'user:group', [{ groupId, traits: traits ?? {} }, { fromSegment: true }]])
   }
 }
 
