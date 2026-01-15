@@ -131,7 +131,7 @@ describe('Yahoo Audiences', () => {
           clientSecret: 'test_secret'
         })
 
-        expect(requestBody?.get('scope')).toBe('idb2b.dsp.datax:role.batch.writer idb2b.dsp.datax:role.online.writer')
+        expect(requestBody?.get('scope')).toBe('idb2b.dsp.datax:role.online.writer')
         expect(scope.isDone()).toBe(true)
       })
 
