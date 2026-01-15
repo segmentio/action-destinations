@@ -1,15 +1,13 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { 
-  commonFields,
-  product,
-} from '../ecommerce/fields'
+import { commonFields, product } from '../ecommerce/fields'
 import { send } from '../ecommerce/functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Ecommerce Event (single product)',
-  description: '(Beta) Send a single product [Ecommerce Recommended event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events) to Braze.',
+  description:
+    '(Beta) Send a single product [Ecommerce Recommended event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events) to Braze.',
   fields: {
     ...commonFields,
     product
@@ -23,10 +21,10 @@ const action: ActionDefinition<Settings, Payload> = {
       { label: 'Update Profile with Event', value: 'update' }
     ]
   },
-  perform: async (request, {payload, settings, syncMode}) => {
+  perform: async (request, { payload, settings, syncMode }) => {
     return await send(request, [payload], settings, false, syncMode)
   },
-  performBatch: async (request, {payload, settings, syncMode}) => {
+  performBatch: async (request, { payload, settings, syncMode }) => {
     return await send(request, payload, settings, true, syncMode)
   }
 }

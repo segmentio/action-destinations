@@ -23,7 +23,12 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: { ...event.properties, batch_size: 4, time: '2025-01-01T00:00:00Z', __segment_internal_sync_mode: 'add' },
+      mapping: {
+        ...event.properties,
+        batch_size: 4,
+        time: '2025-01-01T00:00:00Z',
+        __segment_internal_sync_mode: 'add'
+      },
       settings: settingsData,
       auth: undefined
     })
@@ -56,7 +61,12 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: { ...event.properties, batch_size: 4, time: '2025-01-01T00:00:00Z', __segment_internal_sync_mode: 'add'},
+      mapping: {
+        ...event.properties,
+        batch_size: 4,
+        time: '2025-01-01T00:00:00Z',
+        __segment_internal_sync_mode: 'add'
+      },
       settings: settingsData,
       auth: undefined
     })

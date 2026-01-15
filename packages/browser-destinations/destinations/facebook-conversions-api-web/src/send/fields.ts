@@ -240,7 +240,7 @@ export const custom_data: InputField = {
 export const eventID: InputField = {
   label: 'Event ID',
   description:
-    'This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API.',
+    'This ID can be any unique string. Event ID is used to deduplicate events sent both the server side Conversions API and the browser Pixel.',
   type: 'string',
   default: { '@path': '$.messageId' }
 }

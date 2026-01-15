@@ -41,7 +41,7 @@ export type UserData = {
   ph?: string // Phone number (FB hashes with SHA-256)
   fn?: string // First name (FB hashes with SHA-256)
   ln?: string // Last name (FB hashes with SHA-256)
-  ge?: string // Gender (FB hashes with SHA-256)
+  ge?: 'm' | 'f' // Gender (FB hashes with SHA-256)
   db?: string // Date of birth (FB hashes with SHA-256) - format: YYYYMMDD
   ct?: string // City (FB hashes with SHA-256)
   st?: string // State (FB hashes with SHA-256)

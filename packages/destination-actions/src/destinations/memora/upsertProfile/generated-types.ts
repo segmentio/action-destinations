@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * Enable batching of requests to Memora. Batches can contain up to 1000 profiles.
+   * Enable batching of requests to Memora. Batches are uploaded as CSV files.
    */
   enable_batching?: boolean
   /**
-   * Maximum number of profiles to include in each batch. Actual batch sizes may be lower.
+   * Maximum number of profiles to include in each CSV import. Actual batch sizes may be lower.
    */
   batch_size?: number
   /**
