@@ -2,30 +2,38 @@
 
 exports[`Testing snapshot for actions-memora destination: upsertProfile action - all fields 1`] = `
 Object {
-  "profiles": Array [
+  "columnMappings": Array [
     Object {
-      "traits": Object {
-        "Contact": Object {
-          "email": "test@example.com",
-          "firstName": "Test",
-          "lastName": "User",
-        },
-      },
+      "csvHeader": "email",
+      "traitGroupName": "Contact",
+      "traitName": "email",
+    },
+    Object {
+      "csvHeader": "firstName",
+      "traitGroupName": "Contact",
+      "traitName": "firstName",
+    },
+    Object {
+      "csvHeader": "lastName",
+      "traitGroupName": "Contact",
+      "traitName": "lastName",
     },
   ],
+  "fileSize": 51,
+  "filename": "memora-import-1768407956218.csv",
 }
 `;
 
 exports[`Testing snapshot for actions-memora destination: upsertProfile action - required fields 1`] = `
 Object {
-  "profiles": Array [
+  "columnMappings": Array [
     Object {
-      "traits": Object {
-        "Contact": Object {
-          "email": "test@example.com",
-        },
-      },
+      "csvHeader": "email",
+      "traitGroupName": "Contact",
+      "traitName": "email",
     },
   ],
+  "fileSize": 22,
+  "filename": "memora-import-1768407956203.csv",
 }
 `;

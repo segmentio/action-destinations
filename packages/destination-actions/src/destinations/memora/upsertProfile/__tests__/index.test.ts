@@ -29,7 +29,7 @@ describe('Memora.upsertProfile', () => {
   })
 
   describe('perform (single profile)', () => {
-    it('should send a profile with contact traits to Memora', async () => {
+    it('should import a profile with contact traits via CSV', async () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
@@ -41,14 +41,28 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      let capturedBody: Record<string, unknown> = {}
+      let capturedImportBody: Record<string, unknown> = {}
+      let capturedCSV = ''
+
+      // Step 1: Mock the import initiation request
       nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
-          capturedBody = body as Record<string, unknown>
+        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`, (body) => {
+          capturedImportBody = body as Record<string, unknown>
           return true
         })
         .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
-        .reply(202, { success: true })
+        .reply(201, {
+          importId: 'mem_import_12345',
+          url: 'https://example.com/presigned-url'
+        })
+
+      // Step 2: Mock the CSV upload to pre-signed URL
+      nock('https://example.com')
+        .put('/presigned-url', (body) => {
+          capturedCSV = body as string
+          return true
+        })
+        .reply(200)
 
       const responses = await testDestination.testAction('upsertProfile', {
         event,
@@ -57,21 +71,28 @@ describe('Memora.upsertProfile', () => {
         useDefaultMappings: true
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(202)
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
+      expect((responses[0].data as any).importId).toBe('mem_import_12345')
 
-      // Validate the captured body
-      const profiles = capturedBody.profiles as Array<{ traits: { Contact: Record<string, unknown> } }>
-      expect(profiles).toHaveLength(1)
-      expect(profiles[0].traits.Contact).toEqual({
-        email: 'john@example.com',
-        firstName: 'John',
-        lastName: 'Doe',
-        phone: '+1-555-0100'
-      })
+      // Validate the import request body
+      expect(capturedImportBody.filename).toMatch(/memora-import-\d+\.csv/)
+      expect(capturedImportBody.fileSize).toBeGreaterThan(0)
+      expect(capturedImportBody.columnMappings).toHaveLength(4)
+
+      // Validate CSV content
+      const csvLines = capturedCSV.split('\n')
+      expect(csvLines[0]).toContain('email')
+      expect(csvLines[0]).toContain('phone')
+      expect(csvLines[0]).toContain('firstName')
+      expect(csvLines[0]).toContain('lastName')
+      expect(csvLines[1]).toContain('john@example.com')
+      expect(csvLines[1]).toContain('+1-555-0100')
+      expect(csvLines[1]).toContain('John')
+      expect(csvLines[1]).toContain('Doe')
     })
 
-    it('should send profile with partial contact information', async () => {
+    it('should import profile with partial contact information', async () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-456',
@@ -80,13 +101,19 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      let capturedBody: Record<string, unknown> = {}
-      nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
-          capturedBody = body as Record<string, unknown>
+      let capturedCSV = ''
+
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+        importId: 'mem_import_12345',
+        url: 'https://example.com/presigned-url'
+      })
+
+      nock('https://example.com')
+        .put('/presigned-url', (body) => {
+          capturedCSV = body as string
           return true
         })
-        .reply(202, { success: true })
+        .reply(200)
 
       const responses = await testDestination.testAction('upsertProfile', {
         event,
@@ -95,15 +122,13 @@ describe('Memora.upsertProfile', () => {
         useDefaultMappings: true
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(202)
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
 
-      // Validate the captured body
-      const profiles = capturedBody.profiles as Array<{ traits: { Contact: Record<string, unknown> } }>
-      expect(profiles).toHaveLength(1)
-      expect(profiles[0].traits.Contact).toEqual({
-        email: 'jane@example.com'
-      })
+      // Validate CSV content
+      const csvLines = capturedCSV.split('\n')
+      expect(csvLines[0]).toBe('email')
+      expect(csvLines[1]).toBe('jane@example.com')
     })
 
     it('should throw error when memora_store is missing', async () => {
@@ -156,13 +181,12 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      let capturedBody: Record<string, unknown> = {}
-      nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
-          capturedBody = body as Record<string, unknown>
-          return true
-        })
-        .reply(202, { success: true })
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+        importId: 'mem_import_12345',
+        url: 'https://example.com/presigned-url'
+      })
+
+      nock('https://example.com').put('/presigned-url').reply(200)
 
       const responses = await testDestination.testAction('upsertProfile', {
         event,
@@ -176,13 +200,8 @@ describe('Memora.upsertProfile', () => {
         useDefaultMappings: false
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(202)
-
-      const profiles = capturedBody.profiles as Array<{ traits: { Contact: Record<string, unknown> } }>
-      expect(profiles[0].traits.Contact).toEqual({
-        email: 'test@example.com'
-      })
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
     })
 
     it('should succeed with only phone provided', async () => {
@@ -194,13 +213,12 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      let capturedBody: Record<string, unknown> = {}
-      nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
-          capturedBody = body as Record<string, unknown>
-          return true
-        })
-        .reply(202, { success: true })
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+        importId: 'mem_import_12345',
+        url: 'https://example.com/presigned-url'
+      })
+
+      nock('https://example.com').put('/presigned-url').reply(200)
 
       const responses = await testDestination.testAction('upsertProfile', {
         event,
@@ -214,13 +232,8 @@ describe('Memora.upsertProfile', () => {
         useDefaultMappings: false
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(202)
-
-      const profiles = capturedBody.profiles as Array<{ traits: { Contact: Record<string, unknown> } }>
-      expect(profiles[0].traits.Contact).toEqual({
-        phone: '+1-555-0100'
-      })
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
     })
 
     it('should succeed with both email and phone provided', async () => {
@@ -233,13 +246,12 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      let capturedBody: Record<string, unknown> = {}
-      nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
-          capturedBody = body as Record<string, unknown>
-          return true
-        })
-        .reply(202, { success: true })
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+        importId: 'mem_import_12345',
+        url: 'https://example.com/presigned-url'
+      })
+
+      nock('https://example.com').put('/presigned-url').reply(200)
 
       const responses = await testDestination.testAction('upsertProfile', {
         event,
@@ -254,14 +266,8 @@ describe('Memora.upsertProfile', () => {
         useDefaultMappings: false
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(202)
-
-      const profiles = capturedBody.profiles as Array<{ traits: { Contact: Record<string, unknown> } }>
-      expect(profiles[0].traits.Contact).toEqual({
-        email: 'test@example.com',
-        phone: '+1-555-0100'
-      })
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
     })
 
     it('should not include X-Pre-Auth-Context header when twilioAccount is not provided', async () => {
@@ -274,9 +280,14 @@ describe('Memora.upsertProfile', () => {
       })
 
       nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`)
+        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
         .matchHeader('X-Pre-Auth-Context', (val) => val === undefined)
-        .reply(202, { success: true })
+        .reply(201, {
+          importId: 'mem_import_12345',
+          url: 'https://example.com/presigned-url'
+        })
+
+      nock('https://example.com').put('/presigned-url').reply(200)
 
       const responses = await testDestination.testAction('upsertProfile', {
         event,
@@ -288,11 +299,11 @@ describe('Memora.upsertProfile', () => {
         useDefaultMappings: true
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(202)
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
     })
 
-    it('should throw error when API returns non-202 status', async () => {
+    it('should throw error when import initiation returns non-201 status', async () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
@@ -301,7 +312,9 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      nock(BASE_URL).put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`).reply(200, { success: true })
+      nock(BASE_URL)
+        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
+        .reply(400, { message: 'Invalid request' })
 
       try {
         await testDestination.testAction('upsertProfile', {
@@ -313,16 +326,80 @@ describe('Memora.upsertProfile', () => {
         fail('Expected IntegrationError to be thrown')
       } catch (error) {
         expect(error).toBeInstanceOf(IntegrationError)
-        expect((error as IntegrationError).message).toBe('Unexpected response status: 200')
-        expect((error as IntegrationError).status).toBe(200)
+        expect((error as IntegrationError).message).toBe('Invalid request')
       }
+    })
+
+    it('should throw error when CSV upload fails', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-123',
+        properties: {
+          email: 'test@example.com'
+        }
+      })
+
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+        importId: 'mem_import_12345',
+        url: 'https://example.com/presigned-url'
+      })
+
+      nock('https://example.com').put('/presigned-url').reply(500, { message: 'Upload failed' })
+
+      try {
+        await testDestination.testAction('upsertProfile', {
+          event,
+          settings: defaultSettings,
+          mapping: defaultMapping,
+          useDefaultMappings: true
+        })
+        fail('Expected error to be thrown')
+      } catch (error) {
+        // The upload will fail with a retryable error
+        expect(error).toBeInstanceOf(RetryableError)
+      }
+    })
+
+    it('should properly escape CSV values with commas and quotes', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-123',
+        properties: {
+          email: 'test@example.com',
+          first_name: 'John, Jr.',
+          last_name: 'O"Brien'
+        }
+      })
+
+      let capturedCSV = ''
+
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+        importId: 'mem_import_12345',
+        url: 'https://example.com/presigned-url'
+      })
+
+      nock('https://example.com')
+        .put('/presigned-url', (body) => {
+          capturedCSV = body as string
+          return true
+        })
+        .reply(200)
+
+      await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: defaultMapping,
+        useDefaultMappings: true
+      })
+
+      // Validate CSV escaping
+      expect(capturedCSV).toContain('"John, Jr."')
+      expect(capturedCSV).toContain('"O""Brien"')
     })
   })
 
   describe('performBatch (multiple profiles)', () => {
-    it('should send multiple profiles in a batch', async () => {
-      nock.cleanAll() // Ensure no leftover mocks
-
+    it('should import multiple profiles in a single CSV', async () => {
       const events = [
         createTestEvent({
           type: 'identify',
@@ -344,13 +421,19 @@ describe('Memora.upsertProfile', () => {
         })
       ]
 
-      let capturedBody: Record<string, unknown> = {}
-      nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
-          capturedBody = body as Record<string, unknown>
+      let capturedCSV = ''
+
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+        importId: 'mem_import_12345',
+        url: 'https://example.com/presigned-url'
+      })
+
+      nock('https://example.com')
+        .put('/presigned-url', (body) => {
+          capturedCSV = body as string
           return true
         })
-        .reply(202, { success: true })
+        .reply(200)
 
       const responses = await testDestination.testBatchAction('upsertProfile', {
         events,
@@ -359,13 +442,13 @@ describe('Memora.upsertProfile', () => {
         useDefaultMappings: true
       })
 
-      expect(responses[responses.length - 1].status).toBe(202)
+      expect(responses[0].status).toBe(201)
 
-      // Validate the captured body
-      const profiles = capturedBody.profiles as Array<{ traits: { Contact: Record<string, unknown> } }>
-      expect(profiles).toHaveLength(2)
-      expect(profiles[0].traits.Contact.email).toBe('user1@example.com')
-      expect(profiles[1].traits.Contact.email).toBe('user2@example.com')
+      // Validate CSV has 2 rows (plus header)
+      const csvLines = capturedCSV.split('\n')
+      expect(csvLines).toHaveLength(3) // header + 2 rows
+      expect(csvLines[1]).toContain('user1@example.com')
+      expect(csvLines[2]).toContain('user2@example.com')
     })
 
     it('should throw error when batch is empty', async () => {
@@ -410,7 +493,7 @@ describe('Memora.upsertProfile', () => {
       ).rejects.toThrow('Profile at index 0 must contain at least one identifier (email or phone)')
     })
 
-    it('should handle batch with different identifier combinations', async () => {
+    it('should handle batch with sparse data correctly', async () => {
       const events = [
         createTestEvent({
           type: 'identify',
@@ -431,18 +514,25 @@ describe('Memora.upsertProfile', () => {
           userId: 'user-3',
           properties: {
             email: 'user3@example.com',
-            phone: '+1-555-0300'
+            phone: '+1-555-0300',
+            first_name: 'User'
           }
         })
       ]
 
-      let capturedBody: Record<string, unknown> = {}
-      nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
-          capturedBody = body as Record<string, unknown>
+      let capturedCSV = ''
+
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+        importId: 'mem_import_12345',
+        url: 'https://example.com/presigned-url'
+      })
+
+      nock('https://example.com')
+        .put('/presigned-url', (body) => {
+          capturedCSV = body as string
           return true
         })
-        .reply(202, { success: true })
+        .reply(200)
 
       const responses = await testDestination.testBatchAction('upsertProfile', {
         events,
@@ -452,21 +542,27 @@ describe('Memora.upsertProfile', () => {
           contact_identifiers: {
             email: { '@path': '$.properties.email' },
             phone: { '@path': '$.properties.phone' }
+          },
+          contact_traits: {
+            firstName: { '@path': '$.properties.first_name' }
           }
         },
         useDefaultMappings: false
       })
 
-      expect(responses[responses.length - 1].status).toBe(202)
+      expect(responses[0].status).toBe(201)
 
-      const profiles = capturedBody.profiles as Array<{ traits: { Contact: Record<string, unknown> } }>
-      expect(profiles).toHaveLength(3)
-      expect(profiles[0].traits.Contact).toEqual({ email: 'user1@example.com' })
-      expect(profiles[1].traits.Contact).toEqual({ phone: '+1-555-0200' })
-      expect(profiles[2].traits.Contact).toEqual({ email: 'user3@example.com', phone: '+1-555-0300' })
+      // CSV should have all columns even if some rows don't have values
+      const csvLines = capturedCSV.split('\n')
+      expect(csvLines).toHaveLength(4) // header + 3 rows
+
+      // Validate header has all fields
+      expect(csvLines[0]).toContain('email')
+      expect(csvLines[0]).toContain('phone')
+      expect(csvLines[0]).toContain('firstName')
     })
 
-    it('should throw error when batch API returns non-202 status', async () => {
+    it('should throw error when import initiation fails for batch', async () => {
       const events = [
         createTestEvent({
           type: 'identify',
@@ -477,7 +573,9 @@ describe('Memora.upsertProfile', () => {
         })
       ]
 
-      nock(BASE_URL).put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`).reply(200, { success: true })
+      nock(BASE_URL)
+        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
+        .reply(400, { message: 'Invalid column mapping' })
 
       try {
         await testDestination.testBatchAction('upsertProfile', {
@@ -489,7 +587,7 @@ describe('Memora.upsertProfile', () => {
         fail('Expected IntegrationError to be thrown')
       } catch (error) {
         expect(error).toBeInstanceOf(IntegrationError)
-        expect((error as IntegrationError).message).toBe('Unexpected response status: 200')
+        expect((error as IntegrationError).message).toBe('Invalid column mapping')
       }
     })
   })
@@ -505,7 +603,7 @@ describe('Memora.upsertProfile', () => {
       })
 
       nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`)
+        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
         .reply(400, { message: 'Invalid profile data' })
 
       try {
@@ -534,7 +632,7 @@ describe('Memora.upsertProfile', () => {
       })
 
       nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`)
+        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
         .reply(404, { message: 'Store not found' })
 
       try {
@@ -563,7 +661,7 @@ describe('Memora.upsertProfile', () => {
       })
 
       nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`)
+        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
         .reply(429, { message: 'Rate limit exceeded' }, { 'retry-after': '60' })
 
       try {
@@ -589,7 +687,9 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      nock(BASE_URL).put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`).reply(429, {}, { 'retry-after': '120' })
+      nock(BASE_URL)
+        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
+        .reply(429, {}, { 'retry-after': '120' })
 
       try {
         await testDestination.testAction('upsertProfile', {
@@ -616,7 +716,7 @@ describe('Memora.upsertProfile', () => {
       })
 
       nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`)
+        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
         .reply(500, { message: 'Internal server error' })
 
       try {
@@ -643,7 +743,7 @@ describe('Memora.upsertProfile', () => {
       })
 
       nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`)
+        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
         .reply(503, { message: 'Service unavailable' })
 
       try {
@@ -669,7 +769,7 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      nock(BASE_URL).put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`).reply(418, {})
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(418, {})
 
       try {
         await testDestination.testAction('upsertProfile', {
@@ -697,7 +797,7 @@ describe('Memora.upsertProfile', () => {
       })
 
       nock(BASE_URL)
-        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`)
+        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
         .replyWithError({ message: 'Network timeout', code: 'ETIMEDOUT' })
 
       try {

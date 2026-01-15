@@ -14,8 +14,11 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
       nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(202)
-      nock(/.*/).persist().put(/.*/).reply(202)
+      nock(/.*/).persist().post(/.*/).reply(201, {
+        importId: 'mem_import_test',
+        url: 'https://example.com/presigned-url'
+      })
+      nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
         properties: eventData
@@ -57,8 +60,11 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
       nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(202)
-      nock(/.*/).persist().put(/.*/).reply(202)
+      nock(/.*/).persist().post(/.*/).reply(201, {
+        importId: 'mem_import_test',
+        url: 'https://example.com/presigned-url'
+      })
+      nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
         properties: eventData
