@@ -201,9 +201,11 @@ export enum CustomErrorCodes {
   OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED',
   // Destination has spent more than the alloted time and needs to self-terminate
   SELF_TIMEOUT = 'SELF_TIMEOUT',
-
   // Fallback error code if no other error code matches
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
+  // Destination not ready to process requests. Can be used in scenarios where we want to retry because destination is still processing some events due to race condition.
+  // Example: In Adobe Target, if profile creation is in progress, any updateProfile calls will fail. In such cases, we can use this error code to indicate that destination is not ready yet.
+  DESTINATION_NOT_READY = 'DESTINATION_NOT_READY'
 }
 
 const HTTP_ERROR_CODE_MAP: Record<number, HttpErrorCodes> = {
