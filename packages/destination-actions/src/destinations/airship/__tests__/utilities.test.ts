@@ -111,14 +111,14 @@ describe('Testing _build_attribute_object', () => {
       }
     }
     const result = _private._build_attributes_object(payload)
-    
+
     // These should remain as strings, not be converted to dates
     const shopNameAttr = result.find((attr: any) => attr.key === 'shop_last_store_name')
     expect(shopNameAttr?.value).toBe('SOUMAGNE 2')
-    
+
     const shopNamesAttr = result.find((attr: any) => attr.key === 'shop_visited_store_names')
     expect(shopNamesAttr?.value).toBe('BARCHON | HOGNOUL | JEMEPPE | SOUMAGNE 2')
-    
+
     const shopIdAttr = result.find((attr: any) => attr.key === 'shop_last_store_id')
     expect(shopIdAttr?.value).toBe('30290')
   })
@@ -135,18 +135,22 @@ describe('Testing _build_attribute_object', () => {
       }
     }
     const result = _private._build_attributes_object(payload)
-    
+
     const birthdateAttr = result.find((attr: any) => attr.key === 'birthdate')
     expect(birthdateAttr?.value).toBe('1965-01-25T00:47:43')
-    
+
     const accountCreationAttr = result.find((attr: any) => attr.key === 'account_creation')
     expect(accountCreationAttr?.value).toBe('2023-05-09T00:47:43')
-    
+
     const customDateAttr = result.find((attr: any) => attr.key === 'custom_date_field')
-    expect(customDateAttr?.value).toMatch(/2025-06-11/)
-    
+    // The date '2025-06-11' is parsed in local timezone, so the resulting UTC date may be
+    // 2025-06-10 or 2025-06-11 depending on the timezone where tests run
+    expect(customDateAttr?.value).toMatch(/2025-06-1[012]/)
+
     const anotherDateAttr = result.find((attr: any) => attr.key === 'another_date')
-    expect(anotherDateAttr?.value).toMatch(/1965-01-25/)
+    // The date '01/25/1965' is parsed in local timezone, so the resulting UTC date may be
+    // 1965-01-24 or 1965-01-25 or 1965-01-26 depending on the timezone where tests run
+    expect(anotherDateAttr?.value).toMatch(/1965-01-2[456]/)
   })
 })
 

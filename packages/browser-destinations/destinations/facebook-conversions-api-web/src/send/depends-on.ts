@@ -53,7 +53,7 @@ export const fieldDependencies: Record<string, (FBStandardEventType | FBNonStand
 export function getDependenciesFor(fieldName: string): DependsOnConditions {
   const conditions: Condition[] = [
     {
-      fieldKey: 'show_fields',
+      fieldKey: 'event_config.show_fields',
       operator: 'is',
       value: 'true'
     }
@@ -61,7 +61,7 @@ export function getDependenciesFor(fieldName: string): DependsOnConditions {
 
   if (fieldDependencies[fieldName]) {
     conditions.push({
-      fieldKey: 'event_name',
+      fieldKey: 'event_config.event_name',
       operator: 'is',
       value: fieldDependencies[fieldName]
     })
