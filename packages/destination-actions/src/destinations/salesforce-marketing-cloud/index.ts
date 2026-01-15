@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import contact from './contact'
 import dataExtension from './dataExtension'
@@ -8,6 +8,7 @@ import apiEvent from './apiEvent'
 // These actions include an actions hook which handles configuring the connected
 // data extension. They are independent from the original actions to support a slow rollout.
 import dataExtensionV2 from './dataExtensionV2'
+import asyncDataExtension from './asyncDataExtension'
 import contactDataExtensionV2 from './contactDataExtensionV2'
 import { SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION } from './versioning-info'
 
@@ -79,7 +80,8 @@ const destination: DestinationDefinition<Settings> = {
     contactDataExtension,
     apiEvent,
     dataExtensionV2,
-    contactDataExtensionV2
+    contactDataExtensionV2,
+    asyncDataExtension
   }
 }
 
