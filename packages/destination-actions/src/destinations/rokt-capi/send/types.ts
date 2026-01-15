@@ -50,7 +50,8 @@ export interface AudienceJSON extends BaseEvent {
     data: BaseEvent["data"] & {
         event_name: "audiencemembershipupdate"
         custom_attributes: {
-            [audienceName: string]: boolean // audience name → membership flag
+            audience_name: string
+            status: 'add' | 'drop'
         }
     }
 }

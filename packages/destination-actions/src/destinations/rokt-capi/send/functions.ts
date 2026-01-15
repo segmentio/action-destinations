@@ -1,9 +1,8 @@
-import { RequestClient, MultiStatusResponse, JSONLikeObject } from '@segment/actions-core'
+import { RequestClient, MultiStatusResponse, JSONLikeObject, PayloadValidationError } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { URL, BATCH_URL } from './constants'
 import { Primitive, RoktJSON, AudienceJSON, EventJSON } from './types'
 import { isAlreadyHashed, processHashing } from '../../../lib/hashing-utils'
-import { PayloadValidationError } from '@segment/actions-core/*'
 
 export async function send(request: RequestClient, payload: Payload[], isBatch = false) {  
     const url = isBatch ? BATCH_URL : URL
@@ -127,16 +126,6 @@ function buildJSONItem(payload: Payload): RoktJSON {
         ...(deviceId && deviceType && deviceType.toLocaleLowerCase() === 'android' ? { android_uuid: deviceId } : {})
     }
 
-    const user_attributes: RoktJSON['user_attributes'] = {
-        ...(firstname ? maybeHash(firstname, hashFirstName, 'firstname', 'firstnamesha256', (value) => value.trim()) : {}),
-        ...(lastname ? maybeHash(lastname, hashLastName, 'lastname', 'lastnamesha256', (value) => value.trim()) : {}),
-        ...(mobile ? maybeHash(mobile, hashMobile, 'mobile', 'mobilesha256', (value) => value.trim()) : {}),
-        ...(billingzipcode ? maybeHash(billingzipcode, hashBillingZipcode, 'billingzipcode', 'billingzipsha256', (value) => value.trim()) : {}),
-        ...(dateofbirth ? { dateofbirth: new Date(dateofbirth).toISOString().slice(0, 10).replace(/-/g, '')} : {}),
-        ...(gender === 'm' || gender === 'f' ? { gender } : {}),
-        ...(restUserAttributes && Object.keys(restUserAttributes).length > 0 ? sanitize(restUserAttributes, ['boolean', 'string', 'number'], true) : {})
-    }
-
     const user_identities: RoktJSON['user_identities'] = {
         ...(email ? maybeHash(email, hashEmail, 'email', 'other', (value) => value.toLocaleLowerCase().trim()) : {}),
         ...(customerid ? { customerid } : {}),
@@ -150,6 +139,19 @@ function buildJSONItem(payload: Payload): RoktJSON {
         ...(audienceJSON ? [audienceJSON] : []),
         ...(eventJSON ? [eventJSON] : [])
     ]
+
+    const { audience_name, status } = audienceJSON?.data?.custom_attributes || {}
+
+    const user_attributes: RoktJSON['user_attributes'] = {
+        ...(firstname ? maybeHash(firstname, hashFirstName, 'firstname', 'firstnamesha256', (value) => value.trim()) : {}),
+        ...(lastname ? maybeHash(lastname, hashLastName, 'lastname', 'lastnamesha256', (value) => value.trim()) : {}),
+        ...(mobile ? maybeHash(mobile, hashMobile, 'mobile', 'mobilesha256', (value) => value.trim()) : {}),
+        ...(billingzipcode ? maybeHash(billingzipcode, hashBillingZipcode, 'billingzipcode', 'billingzipsha256', (value) => value.trim()) : {}),
+        ...(dateofbirth ? { dateofbirth: new Date(dateofbirth).toISOString().slice(0, 10).replace(/-/g, '')} : {}),
+        ...(gender === 'm' || gender === 'f' ? { gender } : {}),
+        ...(restUserAttributes && Object.keys(restUserAttributes).length > 0 ? sanitize(restUserAttributes, ['boolean', 'string', 'number'], true) : {}),
+        ...(audience_name && status ? { [`segment_${audience_name}`]: status === 'add' } : {})
+    }
 
     const item: RoktJSON = {
         environment: 'production',
@@ -184,7 +186,6 @@ function getAudienceJSON(payload: Payload): AudienceJSON | undefined {
     const isEngageAudience = Boolean(engageAudienceName && traitsOrProps && computationAction)
     const audienceName: string | undefined = isEngageAudience ? engageAudienceName : customAudienceName
     const membership: boolean | undefined = isEngageAudience && engageAudienceName ? Boolean((traitsOrProps as unknown as Record<string, unknown>)[engageAudienceName]) : customAudienceMembership
-    
     if(typeof membership !== 'boolean' || !audienceName) {
         return undefined
     }
@@ -197,7 +198,8 @@ function getAudienceJSON(payload: Payload): AudienceJSON | undefined {
             timestamp_unixtime_ms: new Date(timestamp_unixtime_ms).getTime(), 
             event_name: "audiencemembershipupdate",
             custom_attributes: {
-                [audienceName]: membership
+                audience_name: audienceName,
+                status: membership ? 'add' : 'drop'
             }
         }
     }

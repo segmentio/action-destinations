@@ -291,8 +291,8 @@ export const fields: Record<string, InputField> = {
             }
         },
         default: {
-            audienceName: { '@path': '$.properties.audience_name' },
-            audienceMembership: { '@path': '$.properties.audience_membership'}
+            customAudienceName: { '@path': '$.properties.audience_name' },
+            customAudienceMembership: { '@path': '$.properties.audience_membership'}
         }
     },
     engageFields: {
