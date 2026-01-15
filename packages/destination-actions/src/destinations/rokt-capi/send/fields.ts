@@ -107,32 +107,40 @@ export const fields: Record<string, InputField> = {
                 description: 'Device user agent.',
                 type: 'string'
             }, 
-            advertisingId: {
-                label: 'Advertising ID',
-                description: 'Advertising ID from mobile device.',
+            ios_advertising_id: {
+                label: 'iOS Advertising ID',
+                description: 'Advertising ID from an iOS mobile device.',
                 type: 'string'
             }, 
-            deviceId: {
-                label: 'Device ID',
-                description: 'Device ID from mobile device.',
+            android_advertising_id: {
+                label: 'Android Advertising ID',
+                description: 'Advertising ID from an Android mobile device.',
+                type: 'string'
+            },
+            ios_idfv: {
+                label: 'iOS ID for Vendor',
+                description: 'ID for Vendor from an iOS mobile device.',
                 type: 'string'
             }, 
-            deviceType: {
-                label: 'Mobile Device Type',
-                description: 'Type of device: ios or android. All other values will be ignored. Segment uses this value to determine whether to send the device ID as ios_idfv or android_uuid and whether to send the advertising ID as ios_advertising_id or android_advertising_id.',
+            android_uuid: {
+                label: 'Android UUID',
+                description: 'UUID from an Android mobile device.',
                 type: 'string'
             }
         }, 
         default: {
             http_header_user_agent: { '@path': '$.context.userAgent' },
-            advertisingId: {
-                '@path': '$.context.device.advertisingId'
+            ios_advertising_id: {
+                '@liquid': "{% if context.device.advertisingId and context.device.type == 'ios' %}{{ context.device.advertisingId }}{% endif %}"
             },
-            deviceId: {
-                '@path': '$.context.device.id'
+            android_advertising_id: {
+                '@liquid': "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
             },
-            deviceType: {
-                '@path': '$.context.device.type'
+            ios_idfv: {
+                '@liquid': "{% if context.device.id and context.device.type == 'ios' %}{{ context.device.id }}{% endif %}"
+            },
+            android_uuid: {
+                '@liquid': "{% if context.device.id and context.device.type == 'android' %}{{ context.device.id }}{% endif %}"
             }
         }
     },

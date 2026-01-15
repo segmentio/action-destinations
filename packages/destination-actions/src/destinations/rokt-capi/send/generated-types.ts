@@ -70,17 +70,21 @@ export interface Payload {
      */
     http_header_user_agent?: string
     /**
-     * Advertising ID from mobile device.
+     * Advertising ID from an iOS mobile device.
      */
-    advertisingId?: string
+    ios_advertising_id?: string
     /**
-     * Device ID from mobile device.
+     * Advertising ID from an Android mobile device.
      */
-    deviceId?: string
+    android_advertising_id?: string
     /**
-     * Type of device: ios or android. All other values will be ignored. Segment uses this value to determine whether to send the device ID as ios_idfv or android_uuid and whether to send the advertising ID as ios_advertising_id or android_advertising_id.
+     * ID for Vendor from an iOS mobile device.
      */
-    deviceType?: string
+    ios_idfv?: string
+    /**
+     * UUID from an Android mobile device.
+     */
+    android_uuid?: string
   }
   /**
    * Unique user identifiers used to identify the user. At least one identifier is required, or the advertising ID in device info.

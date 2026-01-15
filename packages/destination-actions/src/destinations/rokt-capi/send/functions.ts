@@ -70,9 +70,10 @@ export async function send(request: RequestClient, payload: Payload[], isBatch =
 function validate(payload: Payload): string | undefined {
     const {
         device_info: {
-            advertisingId,
-            deviceId,
-            deviceType
+            ios_advertising_id,
+            android_advertising_id,
+            ios_idfv, 
+            android_uuid
         } = {},
         user_identities: {
             email,
@@ -81,8 +82,8 @@ function validate(payload: Payload): string | undefined {
         } = {}
     } = payload
 
-    if(!(email || customerid || other2 || (advertisingId && deviceType) || (deviceId && deviceType))) {
-        return 'At least one of the following is required. Advertising ID, Device ID, Email, Customer ID, ROKT Click ID. If providing advertising ID or Device ID make sure to also include Mobile Device Type.'
+    if(!(email || customerid || other2 || ios_advertising_id || android_advertising_id || ios_idfv || android_uuid)) {
+        return 'At least one of the following is required: iOS Advertising ID, Android Advertising ID, iOS ID for Vendor, Android UUID, Email, Customer ID, ROKT Click ID.'
     }
 }
 
@@ -97,9 +98,10 @@ function buildJSONItem(payload: Payload): RoktJSON {
         } = {},
         device_info: {
             http_header_user_agent,
-            advertisingId,
-            deviceId,
-            deviceType
+            ios_advertising_id,
+            android_advertising_id,
+            ios_idfv, 
+            android_uuid
         } = {},
         user_identities: {
             email,
@@ -120,10 +122,10 @@ function buildJSONItem(payload: Payload): RoktJSON {
 
     const device_info: RoktJSON['device_info'] = {
         ...(http_header_user_agent ? { http_header_user_agent } : {}),
-        ...(advertisingId && deviceType && deviceType.toLocaleLowerCase() === 'ios' ? { ios_advertising_id: advertisingId } : {}),
-        ...(advertisingId && deviceType && deviceType.toLocaleLowerCase() === 'android' ? { android_advertising_id: advertisingId } : {}),
-        ...(deviceId && deviceType && deviceType.toLocaleLowerCase() === 'ios' ? { ios_idfv: deviceId } : {}),
-        ...(deviceId && deviceType && deviceType.toLocaleLowerCase() === 'android' ? { android_uuid: deviceId } : {})
+        ...(ios_advertising_id ? { ios_advertising_id } : {}),
+        ...(android_advertising_id ? { android_advertising_id } : {}),
+        ...(ios_idfv ? { ios_idfv } : {}),
+        ...(android_uuid ? { android_uuid } : {})
     }
 
     const user_identities: RoktJSON['user_identities'] = {
