@@ -91,7 +91,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API.
+   * This ID can be any unique string. Event ID is used to deduplicate events sent both the server side Conversions API and the browser Pixel.
    */
   eventID?: string
   /**
@@ -111,7 +111,7 @@ export interface Payload {
      */
     em?: string
     /**
-     * Phone number of the user
+     * Phone number of the user. Make sure to include the country code. For example, "15551234567" for a US number.
      */
     ph?: string
     /**
@@ -139,7 +139,7 @@ export interface Payload {
      */
     st?: string
     /**
-     * ZIP or postal code of the user. For example, "94025" for Menlo Park, CA, or "10001" for New York City.
+     * ZIP or postal code of the user. For example, U.S zip code: 94035, Australia zip code: 1987, France zip code: 75018, UK zip code: m11ae.
      */
     zp?: string
     /**
