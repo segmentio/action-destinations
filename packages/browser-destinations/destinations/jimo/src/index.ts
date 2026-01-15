@@ -3,6 +3,7 @@ import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from './generated-types'
 import { initScript } from './init-script'
+import sendGroupData from './sendGroupData'
 import sendTrackEvent from './sendTrackEvent'
 import sendUserData from './sendUserData'
 import { JimoClient } from './types'
@@ -61,6 +62,13 @@ export const destination: BrowserDestinationDefinition<Settings, JimoClient> = {
       partnerAction: 'sendTrackEvent',
       mapping: defaultValues(sendTrackEvent.fields),
       type: 'automatic'
+    },
+    {
+      name: 'Send Group Data',
+      subscribe: 'type = "group"',
+      partnerAction: 'sendGroupData',
+      mapping: defaultValues(sendGroupData.fields),
+      type: 'automatic'
     }
   ],
   initialize: async ({ settings }, deps) => {
@@ -71,6 +79,7 @@ export const destination: BrowserDestinationDefinition<Settings, JimoClient> = {
     return window.segmentJimo
   },
   actions: {
+    sendGroupData,
     sendUserData,
     sendTrackEvent
   }
