@@ -172,7 +172,7 @@ function formatUserData(userData: Payload['userData']): UserData | undefined {
         ...(typeof ph === 'string' ? {ph: ph.replace(/\D/g, '')} : {}), // remove non-numeric characters
         ...(typeof fn === 'string' ? {fn: fn.toLowerCase().trim()} : {}), // lowercase and trim whitespace
         ...(typeof ln === 'string' ? {ln: ln.toLowerCase().trim()} : {}), // lowercase and trim whitespace
-        ...(typeof ge === 'string' ? {ge: ge.toLowerCase().trim()} : {}), // lowercase and trim whitespace
+        ...(typeof ge === 'string' && ['m', 'f'].includes(ge) ? { ge: ge as 'm' | 'f' } : {}), 
         ...(typeof dbFormatted === 'string' ? {db: dbFormatted} : {}), // format date to YYYYMMDD
         ...(typeof ct === 'string' ? {ct: ct.toLowerCase().replace(/\s+/g, '')} : {}), // lowercase and replace any whitespace
         ...(typeof stFormatted === 'string' ? {st: stFormatted} : {}), // lowercase 2 character state code 
