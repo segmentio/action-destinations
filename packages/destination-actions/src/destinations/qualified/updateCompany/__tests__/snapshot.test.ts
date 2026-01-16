@@ -46,6 +46,17 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
+    // Override the dynamic fields with valid test data
+    if (eventData.string_fields) {
+      eventData.string_fields = { custom_field_1: 'value1', custom_field_2: 'value2' }
+    }
+    if (eventData.boolean_fields) {
+      eventData.boolean_fields = { custom_bool_1: true, custom_bool_2: false }
+    }
+    if (eventData.number_fields) {
+      eventData.number_fields = { custom_number_1: 123, custom_number_2: 456.78 }
+    }
+
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)

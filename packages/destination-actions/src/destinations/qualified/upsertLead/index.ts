@@ -68,24 +68,21 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Additional string, text, picklist fields to set on the Lead.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
-      dynamic: true,
-      additionalProperties: true
+      dynamic: true
     },
     boolean_fields: {
       label: 'Boolean Fields',
       description: 'Additional boolean / checkbox fields to set on the Lead.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
-      dynamic: true,
-      additionalProperties: true
+      dynamic: true
     },
     number_fields: {
       label: 'Number Fields',
       description: 'Additional numeric / decimal fields to set on the Lead.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
-      dynamic: true,
-      additionalProperties: true
+      dynamic: true
     }
   },
   dynamicFields: {
