@@ -177,4 +177,8 @@ export interface Payload {
    * Enable sending events in batches.
    */
   enable_batching?: boolean
+  /**
+   * ROKT RTID value from the page URL. The detault mapping will extract the value from the URL query parameters for events sent using the Segment Javascript library, but this can be overriden if needed.
+   */
+  rtid?: string
 }

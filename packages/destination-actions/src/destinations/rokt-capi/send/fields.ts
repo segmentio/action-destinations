@@ -356,5 +356,14 @@ export const fields: Record<string, InputField> = {
         description: 'Enable sending events in batches.',
         type: 'boolean',
         default: true
+    }, 
+    rtid: {
+        label: 'RTID',
+        description: 'ROKT RTID value from the page URL. The detault mapping will extract the value from the URL query parameters for events sent using the Segment Javascript library, but this can be overriden if needed.',
+        type: 'string',
+        required: false,
+        default: {
+            '@liquid': "{% assign parts = context.page.search | split: 'rtid=' %}{% if parts[1] %}{{ parts[1] | split: '&' | first }}{% endif %}"
+        }
     }
 }

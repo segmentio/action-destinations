@@ -117,7 +117,8 @@ function buildJSONItem(payload: Payload): RoktJSON {
             gender,
             ...restUserAttributes
         } = {},
-        ip
+        ip, 
+        rtid
     } = payload
 
     const device_info: RoktJSON['device_info'] = {
@@ -155,6 +156,12 @@ function buildJSONItem(payload: Payload): RoktJSON {
         ...(audience_name && status ? { [`segment_${audience_name}`]: status === 'add' } : {})
     }
 
+    const integration_attributes: RoktJSON['integration_attributes'] = {
+        ["1277"]: {
+            passbackconversiontrackingid: rtid || ''
+        }
+    }
+
     const item: RoktJSON = {
         environment: 'production',
         device_info,
@@ -162,7 +169,8 @@ function buildJSONItem(payload: Payload): RoktJSON {
         user_identities, 
         ...(other2 ? { integration_attributes: { "1277": { passbackconversiontrackingid: other2 } } } : {}),
         ...(events && events.length > 0 ? { events } : {}),
-        ...(ip ? {ip} : {})
+        ...(ip ? {ip} : {}),
+        ...(rtid ? { integration_attributes } : {})
     }
 
     return item
