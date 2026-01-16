@@ -43,13 +43,6 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
 
-  extendRequest({ settings }) {
-    return {
-      username: settings.username,
-      password: settings.password
-    }
-  },
-
   actions: {
     upsertProfile
   }

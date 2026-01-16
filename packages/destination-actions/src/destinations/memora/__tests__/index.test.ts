@@ -83,33 +83,8 @@ describe('Memora Destination', () => {
   })
 
   describe('extendRequest', () => {
-    it('should return username and password from settings', () => {
-      const settings = {
-        username: 'test-api-key',
-        password: 'test-api-secret',
-        twilioAccount: 'AC1234567890'
-      }
-
-      const result = Destination.extendRequest?.({ settings, payload: {} } as any)
-
-      expect(result).toEqual({
-        username: 'test-api-key',
-        password: 'test-api-secret'
-      })
-    })
-
-    it('should work without twilioAccount in settings', () => {
-      const settings = {
-        username: 'test-api-key',
-        password: 'test-api-secret'
-      }
-
-      const result = Destination.extendRequest?.({ settings, payload: {} } as any)
-
-      expect(result).toEqual({
-        username: 'test-api-key',
-        password: 'test-api-secret'
-      })
+    it('should not be defined (auth is manually added per request)', () => {
+      expect(Destination.extendRequest).toBeUndefined()
     })
   })
 })
