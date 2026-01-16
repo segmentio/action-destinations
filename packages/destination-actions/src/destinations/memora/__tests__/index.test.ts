@@ -11,7 +11,7 @@ describe('Memora Destination', () => {
   })
 
   describe('Authentication', () => {
-    it('should validate valid credentials', async () => {
+    it('should validate valid credential', async () => {
       nock(BASE_URL).get(`/${API_VERSION}/ControlPlane/Stores?pageSize=1`).reply(200, { services: [] })
 
       const settings = {
