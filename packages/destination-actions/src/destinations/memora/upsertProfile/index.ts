@@ -240,8 +240,8 @@ function convertToCSV(payloads: Payload[], fields: string[]): { csv: string; col
 
   // Build column mappings for Memora API
   const columnMappings: ColumnMapping[] = fields.map((field) => ({
-    csvHeader: field,
-    traitGroupName: 'Contact',
+    columnName: field,
+    traitGroup: 'Contact',
     traitName: field
   }))
 
@@ -249,8 +249,8 @@ function convertToCSV(payloads: Payload[], fields: string[]): { csv: string; col
 }
 
 interface ColumnMapping {
-  csvHeader: string
-  traitGroupName: string
+  columnName: string
+  traitGroup: string
   traitName: string
 }
 
