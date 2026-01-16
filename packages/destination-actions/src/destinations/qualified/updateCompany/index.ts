@@ -1,13 +1,14 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { CompanyJSON } from './types'
-
+import { dynamicReadFields } from '../dynamic-functions'
+import { base_url } from '../constants'
+import type { CompanyJSON } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Company',
   description: 'Update all Leads withing a Company in Qualified.',
-  defaultSubscription: 'type = "group"',
+  defaultSubscription: 'type = "track" and event = "Leads In Company Updated"',
   fields: {
     domain: {
       label: 'Domain',
@@ -18,7 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }, 
     string_fields: {
       label: 'String Fields',
-      description: 'String fields to set on all Leads associated with the company.',
+      description: 'String, text or picklist field values to set on all Leads associated with the Company.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       dynamic: true,
@@ -26,7 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     boolean_fields: {
       label: 'Boolean Fields',
-      description: 'Boolean fields to set on all Leads associated with the company.',
+      description: 'boolean / checkbox field values to set on all Leads associated with the Company.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       dynamic: true,
@@ -34,7 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     number_fields: {
       label: 'Number Fields',
-      description: 'Number fields to set on all Leads associated with the company.',
+      description: 'Numeric / decimal field values to set on all Leads associated with the Company.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       dynamic: true,
@@ -44,40 +45,54 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     string_fields: {
       __keys__: async (request: RequestClient) => {  
-        return await dynamicReadFields(request, 'string')
+        return await dynamicReadFields(request, ['string', 'picklist', 'text'], true)
       }
     },
     boolean_fields: {
       __keys__: async (request: RequestClient) => {  
-        return await dynamicReadFields(request, 'boolean')
+        return await dynamicReadFields(request, ['boolean'], true)
       }
     },
     number_fields: {
       __keys__: async (request: RequestClient) => {  
-        return await dynamicReadFields(request, 'number')
+        return await dynamicReadFields(request, ['decimal'], true)
       }
     }
   },
-  perform: (request, { payload }) => {
+  perform: async (request, { payload }) => {
     const { 
       domain,
       string_fields, 
       boolean_fields, 
       number_fields 
     } = payload
-
-    const fields = { ...string_fields, ...boolean_fields, ...number_fields }
-
+    Object.entries(string_fields || {} as Record<string, unknown>).forEach(([key, value]) => {
+      if (typeof value !== 'string') {
+        throw new PayloadValidationError(`Invalid field value for: ${key}. Should be a string.`)
+      }
+    })
+    Object.entries(boolean_fields || {} as Record<string, unknown>).forEach(([key, value]) => {
+      if (typeof value !== 'boolean') {
+        throw new PayloadValidationError(`Invalid field value for: ${key}. Should be a boolean.`)
+      }
+    })
+    Object.entries(number_fields || {} as Record<string, unknown>).forEach(([key, value]) => {
+      if (typeof value !== 'number') {
+        throw new PayloadValidationError(`Invalid field value for: ${key}. Should be a number.`)
+      }
+    })
     const json: CompanyJSON = {
       domain,
-      fields
+      fields: {
+        ...string_fields, 
+        ...boolean_fields, 
+        ...number_fields
+      }
     }
-
     return request(base_url + 'companies', {
       method: 'post',
       json
     })
-
   }
 }
 

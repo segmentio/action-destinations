@@ -1,5 +1,5 @@
 
-export interface JSON {
+export interface LeadJSON {
     email: string
     fields: {
         phone?: string
@@ -18,9 +18,13 @@ export interface CompanyJSON {
 
 export interface LeadFieldsResponse {
     data: {
-        id: string
-        label: string
-        type: string
-        name: string
-    }[]
+        data: {
+            id: string
+            label: string
+            type: string
+            name: string
+        }[]
+    }
 }
+
+export type LeadFieldType = 'string' | 'text' | 'picklist' | 'boolean' | 'decimal';

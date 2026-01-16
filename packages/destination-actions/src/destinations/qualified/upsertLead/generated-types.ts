@@ -18,19 +18,19 @@ export interface Payload {
    */
   name?: string
   /**
-   * Additional string fields to set on the lead.
+   * Additional string, text, picklist fields to set on the Lead.
    */
   string_fields?: {
     [k: string]: unknown
   }
   /**
-   * Additional boolean fields to set on the lead.
+   * Additional boolean / checkbox fields to set on the Lead.
    */
   boolean_fields?: {
     [k: string]: unknown
   }
   /**
-   * Additional number fields to set on the lead.
+   * Additional numeric / decimal fields to set on the Lead.
    */
   number_fields?: {
     [k: string]: unknown

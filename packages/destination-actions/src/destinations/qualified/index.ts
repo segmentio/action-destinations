@@ -1,15 +1,13 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
 import upsertLead from './upsertLead'
-
 import updateCompany from './updateCompany'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Qualified',
   slug: 'actions-qualified',
   mode: 'cloud',
-
+  description: 'Qualified is a Conversational Marketing platform that helps B2B companies engage and convert website visitors into customers using real-time chat, AI-driven insights, and personalized experiences.',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -20,11 +18,6 @@ const destination: DestinationDefinition<Settings> = {
         format: 'password',
         required: true
       }
-    },
-    testAuthentication: (request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
     }
   },
   extendRequest({ settings }) {
