@@ -113,7 +113,7 @@ function buildJSONItem(payload: Payload): RoktJSON {
             lastname,
             mobile,
             billingzipcode,
-            dateofbirth,
+            dob,
             gender,
             ...restUserAttributes
         } = {},
@@ -149,7 +149,7 @@ function buildJSONItem(payload: Payload): RoktJSON {
         ...(lastname ? maybeHash(lastname, hashLastName, 'lastname', 'lastnamesha256', (value) => value.trim()) : {}),
         ...(mobile ? maybeHash(mobile, hashMobile, 'mobile', 'mobilesha256', (value) => value.trim()) : {}),
         ...(billingzipcode ? maybeHash(billingzipcode, hashBillingZipcode, 'billingzipcode', 'billingzipsha256', (value) => value.trim()) : {}),
-        ...(dateofbirth ? { dateofbirth: new Date(dateofbirth).toISOString().slice(0, 10).replace(/-/g, '')} : {}),
+        ...(dob ? { dob: new Date(dob).toISOString().slice(0, 10).replace(/-/g, '')} : {}),
         ...(gender === 'm' || gender === 'f' ? { gender } : {}),
         ...(restUserAttributes && Object.keys(restUserAttributes).length > 0 ? sanitize(restUserAttributes, ['boolean', 'string', 'number'], true) : {}),
         ...(audience_name && status ? { [`segment_${audience_name}`]: status === 'add' } : {})

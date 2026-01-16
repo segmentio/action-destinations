@@ -211,7 +211,7 @@ export const fields: Record<string, InputField> = {
                 description: 'User billing zip code.',
                 type: 'string'
             },
-            dateofbirth: {
+            dob: {
                 label: 'Date of Birth',
                 description: 'User date of birth in ISO8601 format (YYYY-MM-DD).',
                 type: 'string',
@@ -256,7 +256,7 @@ export const fields: Record<string, InputField> = {
                 else: { '@path': '$.properties.address.postal_code' }
             }
             },
-            dateofbirth: {
+            dob: {
             '@if': {
                 exists: { '@path': '$.context.traits.birthday' },
                 then: { '@path': '$.context.traits.birthday' },

@@ -18,7 +18,7 @@ export interface RoktJSON {
         lastnamesha256?: string
         mobilesha256?: string
         billingzipsha256?: string
-        dateofbirth?: string // YYYYMMDD format
+        dob?: string // YYYYMMDD format
         gender?: 'm' | 'f'
         [key: string]: unknown // simple types and arrays only. No objects 
     },

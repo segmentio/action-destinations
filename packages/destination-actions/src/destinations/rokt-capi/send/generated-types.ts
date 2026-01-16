@@ -126,7 +126,7 @@ export interface Payload {
     /**
      * User date of birth in ISO8601 format (YYYY-MM-DD).
      */
-    dateofbirth?: string
+    dob?: string
     /**
      * User gender
      */
