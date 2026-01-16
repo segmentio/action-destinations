@@ -298,18 +298,15 @@ interface MemoraStoresResponse {
 }
 
 interface TraitDefinition {
-  name: string
   dataType: string
   description?: string
+  displayName: string
+  idTypePromotion?: string | null
 }
 
 interface TraitGroupResponse {
-  traitGroupName?: string
-  traits?: TraitDefinition[]
-  meta?: {
-    pageSize?: number
-    nextToken?: string
-    previousToken?: string
+  traitGroup?: {
+    traits?: Record<string, TraitDefinition>
   }
 }
 
@@ -331,18 +328,17 @@ async function fetchContactTraits(
       }
     )
 
-    const traits = response?.data?.traits || []
-    const choices = traits
-      .filter((trait) => trait.name !== 'email' && trait.name !== 'phone') // Exclude static identifiers
-      .map((trait) => ({
-        label: trait.name,
-        value: trait.name,
-        description: trait.description || `${trait.name} (${trait.dataType})`
+    const traitsObj = response?.data?.traitGroup?.traits || {}
+    const choices = Object.entries(traitsObj)
+      .filter(([_, trait]) => trait.idTypePromotion !== 'email' && trait.idTypePromotion !== 'phone') // Exclude identifiers
+      .map(([traitName, trait]) => ({
+        label: trait.displayName || traitName,
+        value: traitName,
+        description: trait.description || `${trait.displayName} (${trait.dataType})`
       }))
 
     return {
-      choices,
-      nextPage: response?.data?.meta?.nextToken
+      choices
     }
   } catch (error) {
     return {
