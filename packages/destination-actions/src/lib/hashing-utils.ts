@@ -107,3 +107,12 @@ export function processHashing(
 
   return smartHashing.hash(value)
 }
+
+export function isAlreadyHashed(value: string, encryptionMethod: EncryptionMethod, digest: DigestType): boolean {
+  if (value.trim() === '') {
+    return false
+  }
+
+  const smartHashing = new SmartHashing(encryptionMethod, digest)
+  return smartHashing.isAlreadyHashed(value)
+}
