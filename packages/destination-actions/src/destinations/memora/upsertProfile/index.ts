@@ -146,6 +146,8 @@ async function upsertProfiles(
           'Content-Type': 'application/json',
           ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
         },
+        username: settings.username,
+        password: settings.password,
         json: {
           filename,
           fileSize: csvBuffer.length,
@@ -164,7 +166,7 @@ async function upsertProfiles(
 
     const { importId, url: uploadUrl } = importResponse.data
 
-    // Step 2: Upload CSV to pre-signed URL
+    // Step 2: Upload CSV to pre-signed URL (no auth needed)
     const uploadResponse = await request(uploadUrl, {
       method: 'PUT',
       headers: {
@@ -324,6 +326,8 @@ async function fetchContactTraits(
         headers: {
           ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
         },
+        username: settings.username,
+        password: settings.password,
         skipResponseCloning: true
       }
     )
@@ -362,6 +366,8 @@ async function fetchMemoraStores(request: ReturnType<typeof createRequestClient>
         headers: {
           ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
         },
+        username: settings.username,
+        password: settings.password,
         skipResponseCloning: true
       }
     )
