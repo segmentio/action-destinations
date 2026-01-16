@@ -880,16 +880,46 @@ describe('Memora.upsertProfile', () => {
           .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/Contact?includeTraits=true&pageSize=100`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
           .reply(200, {
-            traitGroupName: 'Contact',
-            traits: [
-              { name: 'email', dataType: 'string', description: 'Email address' },
-              { name: 'phone', dataType: 'string', description: 'Phone number' },
-              { name: 'firstName', dataType: 'string', description: 'First name' },
-              { name: 'lastName', dataType: 'string', description: 'Last name' },
-              { name: 'age', dataType: 'number', description: 'Age' }
-            ],
-            meta: {
-              pageSize: 100
+            traitGroup: {
+              description: '',
+              displayName: 'Contact',
+              traits: {
+                email: {
+                  dataType: 'STRING',
+                  description: '',
+                  displayName: 'email',
+                  idTypePromotion: 'email',
+                  validationRule: null
+                },
+                phone: {
+                  dataType: 'STRING',
+                  description: '',
+                  displayName: 'phone',
+                  idTypePromotion: 'phone',
+                  validationRule: null
+                },
+                firstName: {
+                  dataType: 'STRING',
+                  description: '',
+                  displayName: 'firstName',
+                  idTypePromotion: null,
+                  validationRule: null
+                },
+                lastName: {
+                  dataType: 'STRING',
+                  description: '',
+                  displayName: 'lastName',
+                  idTypePromotion: null,
+                  validationRule: null
+                },
+                age: {
+                  dataType: 'NUMBER',
+                  description: 'User age',
+                  displayName: 'age',
+                  idTypePromotion: null,
+                  validationRule: null
+                }
+              }
             }
           })
 
@@ -898,11 +928,11 @@ describe('Memora.upsertProfile', () => {
           payload: { memora_store: 'test-store-id' }
         })) as any
 
-        // Should exclude email and phone since they're static fields
+        // Should exclude email and phone since they're identifiers (idTypePromotion = 'email' or 'phone')
         expect(result?.choices).toEqual([
-          { label: 'firstName', value: 'firstName', description: 'First name' },
-          { label: 'lastName', value: 'lastName', description: 'Last name' },
-          { label: 'age', value: 'age', description: 'Age' }
+          { label: 'firstName', value: 'firstName', description: 'firstName (STRING)' },
+          { label: 'lastName', value: 'lastName', description: 'lastName (STRING)' },
+          { label: 'age', value: 'age', description: 'User age' }
         ])
       })
 
