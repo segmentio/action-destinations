@@ -359,11 +359,11 @@ export const fields: Record<string, InputField> = {
     }, 
     rtid: {
         label: 'RTID',
-        description: 'ROKT RTID value from the page URL. The detault mapping will extract the value from the URL query parameters for events sent using the Segment Javascript library, but this can be overriden if needed.',
+        description: "ROKT RTID value from the page URL. The 'Rokt Browser Plugin' Action automatically captures this value from the querystring in the browser, then passes it to this field.",
         type: 'string',
         required: false,
         default: {
-            '@liquid': "{% assign parts = context.page.search | split: 'rtid=' %}{% if parts[1] %}{{ parts[1] | split: '&' | first }}{% endif %}"
+            '@liquid': "{% assign rokt_rtid = integrations['Rokt Conversions API'].rtid %}{% if rokt_rtid %}{{ rokt_rtid }}{% else %}{% assign parts = context.page.search | split: 'rtid=' %}{% if parts[1] %}{{ parts[1] | split: '&' | first }}{% endif %}{% endif %}"
         }
     }
 }
