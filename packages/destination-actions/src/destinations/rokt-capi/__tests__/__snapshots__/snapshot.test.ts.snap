@@ -1,0 +1,80 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-rokt-capi destination: send action - all fields 1`] = `
+Object {
+  "device_info": Object {
+    "android_advertising_id": "xI%Z3kWrnFUD^fL(n8@",
+    "android_uuid": "xI%Z3kWrnFUD^fL(n8@",
+    "http_header_user_agent": "xI%Z3kWrnFUD^fL(n8@",
+    "ios_advertising_id": "xI%Z3kWrnFUD^fL(n8@",
+    "ios_idfv": "xI%Z3kWrnFUD^fL(n8@",
+  },
+  "environment": "production",
+  "events": Array [
+    Object {
+      "data": Object {
+        "custom_attributes": Object {
+          "audience_name": "xI%Z3kWrnFUD^fL(n8@",
+          "status": "drop",
+        },
+        "custom_event_type": "transaction",
+        "event_name": "audiencemembershipupdate",
+        "source_message_id": "xI%Z3kWrnFUD^fL(n8@",
+        "timestamp_unixtime_ms": null,
+      },
+      "event_type": "custom_event",
+    },
+    Object {
+      "data": Object {
+        "custom_attributes": Object {
+          "amount": 72258322505400.31,
+          "confirmationref": "xI%Z3kWrnFUD^fL(n8@",
+          "conversiontype": "xI%Z3kWrnFUD^fL(n8@",
+          "currency": "CAD",
+          "testType": "xI%Z3kWrnFUD^fL(n8@",
+        },
+        "custom_event_type": "transaction",
+        "event_name": "conversion",
+        "source_message_id": "xI%Z3kWrnFUD^fL(n8@",
+        "timestamp_unixtime_ms": null,
+      },
+      "event_type": "custom_event",
+    },
+  ],
+  "integration_attributes": Object {
+    "1277": Object {
+      "passbackconversiontrackingid": "xI%Z3kWrnFUD^fL(n8@",
+    },
+  },
+  "ip": "xI%Z3kWrnFUD^fL(n8@",
+  "user_attributes": Object {
+    "billingzipcode": "xI%Z3kWrnFUD^fL(n8@",
+    "dob": "20581114",
+    "firstname": "xI%Z3kWrnFUD^fL(n8@",
+    "gender": "f",
+    "lastname": "xI%Z3kWrnFUD^fL(n8@",
+    "mobile": "xI%Z3kWrnFUD^fL(n8@",
+    "segment_xI%Z3kWrnFUD^fL(n8@": false,
+  },
+  "user_identities": Object {
+    "customerid": "test-user-id-456",
+    "email": "test@example.com",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-rokt-capi destination: send action - required fields 1`] = `
+Object {
+  "device_info": Object {},
+  "environment": "production",
+  "integration_attributes": Object {
+    "1277": Object {
+      "passbackconversiontrackingid": "xI%Z3kWrnFUD^fL(n8@",
+    },
+  },
+  "user_attributes": Object {},
+  "user_identities": Object {
+    "customerid": "test-user-id-123",
+  },
+}
+`;
