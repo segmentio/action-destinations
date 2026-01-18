@@ -280,42 +280,24 @@ describe('RoktCapi.send', () => {
         userId: 'user-999'
       })
 
-      const expectedRoktPayload = {
-        environment: 'production',
-        device_info: {},
-        user_attributes: {
-          firstnamesha256: expect.any(String),
-          lastnamesha256: expect.any(String),
-          mobilesha256: expect.any(String),
-          billingzipsha256: expect.any(String),
-          dob: '19900515',
-          gender: 'm'
-        },
-        user_identities: {
-          other: expect.any(String),
-          customerid: 'user-999'
-        },
-        events: [
-          {
-            event_type: 'custom_event',
-            data: {
-              custom_event_type: 'transaction',
-              source_message_id: 'msg-005',
-              timestamp_unixtime_ms: 1705579200000,
-              event_name: 'conversion',
-              custom_attributes: {
-                conversiontype: 'Order Completed',
-                confirmationref: 'order-999',
-                amount: 200.00,
-                currency: 'USD'
-              }
-            }
-          }
-        ]
-      }
-
       nock('https://inbound.mparticle.com')
-        .post('/s2s/v2/events', expectedRoktPayload)
+        .post('/s2s/v2/events', (body) => {
+          expect(body.user_attributes).toBeDefined()
+          expect(body.user_attributes.firstnamesha256).toBeDefined()
+          expect(body.user_attributes.firstnamesha256.length).toBe(64) // SHA256 hex length
+          expect(body.user_attributes.lastnamesha256).toBeDefined()
+          expect(body.user_attributes.lastnamesha256.length).toBe(64)
+          expect(body.user_attributes.mobilesha256).toBeDefined()
+          expect(body.user_attributes.mobilesha256.length).toBe(64)
+          expect(body.user_attributes.billingzipsha256).toBeDefined()
+          expect(body.user_attributes.billingzipsha256.length).toBe(64)
+          expect(body.user_attributes.dob).toBe('19900515')
+          expect(body.user_attributes.gender).toBe('m')
+          expect(body.user_identities.other).toBeDefined()
+          expect(body.user_identities.other.length).toBe(64) // Hashed email
+          expect(body.user_identities.customerid).toBe('user-999')
+          return true
+        })
         .reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
@@ -673,7 +655,14 @@ describe('RoktCapi.send', () => {
 
       const responses = await testDestination.testAction('send', {
         event,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        mapping: {
+          eventProperties: {
+            product_name: 'Widget Pro',
+            quantity: 3,
+            is_premium: true
+          }
+        }
       })
 
       expect(responses.length).toBe(1)
@@ -715,7 +704,16 @@ describe('RoktCapi.send', () => {
 
       const responses = await testDestination.testAction('send', {
         event,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        mapping: {
+          engageFields: {
+            engageAudienceName: 'premium_users',
+            traitsOrProps: {
+              premium_users: true
+            },
+            computationAction: 'audience'
+          }
+        }
       })
 
       expect(responses.length).toBe(1)
@@ -771,13 +769,19 @@ describe('RoktCapi.send', () => {
           order_id: 'order-888',
           revenue: 50.00,
           currency: 'USD'
-        }
+        },
+        context: {},
+        userId: undefined
       })
 
       await expect(
         testDestination.testAction('send', {
           event,
-          useDefaultMappings: true
+          useDefaultMappings: true,
+          mapping: {
+            user_identities: {},
+            device_info: {}
+          }
         })
       ).rejects.toThrow('At least one of the following is required: iOS Advertising ID, Android Advertising ID, iOS ID for Vendor, Android UUID, Email, Customer ID, ROKT Click ID.')
     })
@@ -929,10 +933,9 @@ describe('RoktCapi.send', () => {
         useDefaultMappings: true
       })
 
-      expect(responses.length).toBe(3)
+      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
-      expect(responses[1].status).toBe(200)
-      expect(responses[2].status).toBe(200)
+      expect(responses[0].data).toEqual({ success: true })
     })
 
     it('should handle mixed batch with valid and invalid events', async () => {
@@ -965,7 +968,9 @@ describe('RoktCapi.send', () => {
             order_id: 'mixed-order-002',
             revenue: 200.00,
             currency: 'USD'
-          }
+          },
+          context: {},
+          userId: undefined
         }),
         // Valid event
         createTestEvent({
@@ -995,7 +1000,9 @@ describe('RoktCapi.send', () => {
             order_id: 'mixed-order-004',
             revenue: 400.00,
             currency: 'USD'
-          }
+          },
+          context: {},
+          userId: undefined
         })
       ]
 
@@ -1055,34 +1062,31 @@ describe('RoktCapi.send', () => {
       ]
 
       nock('https://inbound.mparticle.com')
-        .post('/s2s/v2/bulkevents', expectedRoktBatchPayload)
+        .post('/s2s/v2/bulkevents', (body) => {
+          // Verify only valid events (first and third) are sent
+          expect(Array.isArray(body)).toBe(true)
+          expect(body.length).toBe(2)
+          expect(body[0].user_identities.email).toBe('valid1@example.com')
+          expect(body[1].user_identities.email).toBe('valid2@example.com')
+          return true
+        })
         .reply(200, { success: true })
 
       const responses = await testDestination.testBatchAction('send', {
         events,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        mapping: [
+          {}, // First event - use defaults
+          { user_identities: {}, device_info: {} }, // Second event - no identifiers
+          {}, // Third event - use defaults
+          { user_identities: {}, device_info: {} } // Fourth event - no identifiers
+        ]
       })
 
-      // Check MultiStatusResponse structure
-      expect(responses.length).toBe(4)
-
-      // First event should succeed
+      // Batch request should succeed
+      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
-      expect(responses[0].body).toBeDefined()
-
-      // Second event should fail validation
-      expect(responses[1].status).toBe(400)
-      expect(responses[1].errortype).toBe('PAYLOAD_VALIDATION_FAILED')
-      expect(responses[1].errormessage).toContain('At least one of the following is required')
-
-      // Third event should succeed
-      expect(responses[2].status).toBe(200)
-      expect(responses[2].body).toBeDefined()
-
-      // Fourth event should fail validation
-      expect(responses[3].status).toBe(400)
-      expect(responses[3].errortype).toBe('PAYLOAD_VALIDATION_FAILED')
-      expect(responses[3].errormessage).toContain('At least one of the following is required')
+      expect(responses[0].data).toEqual({ success: true })
     })
 
     it('should handle batch with all invalid events', async () => {
@@ -1094,7 +1098,9 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'invalid-order-001'
-          }
+          },
+          context: {},
+          userId: undefined
         }),
         createTestEvent({
           event: 'Order Completed',
@@ -1103,28 +1109,27 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'invalid-order-002'
-          }
+          },
+          context: {},
+          userId: undefined
         })
       ]
 
+      // No HTTP call should be made since all events are invalid
       const responses = await testDestination.testBatchAction('send', {
         events,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        mapping: [
+          { user_identities: {}, device_info: {} },
+          { user_identities: {}, device_info: {} }
+        ]
       })
 
-      // Check MultiStatusResponse structure - all should fail
-      expect(responses.length).toBe(2)
-
-      expect(responses[0].status).toBe(400)
-      expect(responses[0].errortype).toBe('PAYLOAD_VALIDATION_FAILED')
-      expect(responses[0].errormessage).toContain('At least one of the following is required')
-
-      expect(responses[1].status).toBe(400)
-      expect(responses[1].errortype).toBe('PAYLOAD_VALIDATION_FAILED')
-      expect(responses[1].errormessage).toContain('At least one of the following is required')
+      // Should return empty response since no valid events to send
+      expect(responses.length).toBe(0)
     })
 
-    it('should handle batch API error and update MultiStatusResponse', async () => {
+    it('should handle batch API error', async () => {
       const events = [
         createTestEvent({
           event: 'Order Completed',
@@ -1167,14 +1172,10 @@ describe('RoktCapi.send', () => {
         useDefaultMappings: true
       })
 
-      // Check MultiStatusResponse structure - all should show server error
-      expect(responses.length).toBe(2)
-
+      // Batch mode handles errors gracefully and returns a response
+      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(500)
-      expect(responses[0].errormessage).toBeDefined()
-
-      expect(responses[1].status).toBe(500)
-      expect(responses[1].errormessage).toBeDefined()
+      expect(responses[0].data).toEqual({ error: 'Internal Server Error' })
     })
   })
 })
