@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 import send from './send'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Rokt Capi',
+  name: 'Rokt Conversions API',
   slug: 'actions-rokt-capi',
   mode: 'cloud',
 

@@ -56,6 +56,7 @@
     "@segment/analytics-browser-actions-wiseops": "^1.94.0",
     "@segment/analytics-browser-hubble-web": "^1.79.0",
     "@segment/analytics-browser-mixpanel-web-actions": "^1.4.0",
+    "@segment/analytics-browser-actions-rokt-plugins": "^1.0.0",
     "@segment/browser-destination-runtime": "^1.92.0"
   }
 }
