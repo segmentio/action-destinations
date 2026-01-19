@@ -19,9 +19,6 @@ export const serializeKafkaConfig = (settings: Settings): string => {
     mechanism: settings.mechanism,
     username: settings.username,
     password: settings.password,
-    accessKeyId: settings.accessKeyId,
-    secretAccessKey: settings.secretAccessKey,
-    authorizationIdentity: settings.authorizationIdentity,
     ssl_ca: settings.ssl_ca,
     ssl_cert: settings.ssl_cert,
     ssl_key: settings.ssl_key,
@@ -62,13 +59,6 @@ const getKafka = (settings: Settings) => {
           return {
             username: settings.username,
             password: settings.password,
-            mechanism: settings.mechanism
-          } as SASLOptions
-        case 'aws':
-          return {
-            accessKeyId: settings.accessKeyId,
-            secretAccessKey: settings.secretAccessKey,
-            authorizationIdentity: settings.authorizationIdentity,
             mechanism: settings.mechanism
           } as SASLOptions
         default:
@@ -115,13 +105,6 @@ export const validate = (settings: Settings) => {
     throw new IntegrationError(
       'Username and Password are required for PLAIN and SCRAM authentication mechanisms',
       'SASL_PARAMS_MISSING',
-      400
-    )
-  }
-  if (['aws'].includes(settings.mechanism) && (!settings.accessKeyId || !settings.secretAccessKey)) {
-    throw new IntegrationError(
-      'AWS Access Key ID and AWS Secret Key are required for AWS authentication mechanism',
-      'SASL_AWS_PARAMS_MISSING',
       400
     )
   }
