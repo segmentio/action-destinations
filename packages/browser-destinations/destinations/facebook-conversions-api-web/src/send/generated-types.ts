@@ -69,6 +69,10 @@ export interface Payload {
    */
   predicted_ltv?: number
   /**
+   * The net revenue associated with the purchase.
+   */
+  net_revenue?: number
+  /**
    * The string entered by the user for the search.
    */
   search_string?: string
@@ -87,17 +91,13 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API.
+   * This ID can be any unique string. Event ID is used to deduplicate events sent both the server side Conversions API and the browser Pixel.
    */
   eventID?: string
   /**
    * The URL of the page where the event occurred. Can be used to override the default URL taken from the current page.
    */
   eventSourceUrl?: string
-  /**
-   * The source of the event. This can be used to specify where the event originated from.
-   */
-  actionSource?: string
   /**
    * User data to be sent with the event. This can include hashed identifiers like email, phone number, etc.
    */
@@ -111,7 +111,7 @@ export interface Payload {
      */
     em?: string
     /**
-     * Phone number of the user
+     * Phone number of the user. Make sure to include the country code. For example, "15551234567" for a US number.
      */
     ph?: string
     /**
@@ -135,15 +135,15 @@ export interface Payload {
      */
     ct?: string
     /**
-     * State of the user. Two-letter state or province code for the United States, For example, "NY" for New York.
+     * State of the user. Facebook expects the 2-letter abbreviation for US states. For example, "CA" for California, or "NY" for New York.
      */
     st?: string
     /**
-     * ZIP or postal code of the user. For example, "94025" for Menlo Park, CA, or "10001" for New York City.
+     * ZIP or postal code of the user. For example, U.S zip code: 94035, Australia zip code: 1987, France zip code: 75018, UK zip code: m11ae.
      */
     zp?: string
     /**
-     * Country code of the user. This should be a valid ISO 3166-1 alpha-2 country code. For example, "US" for the United States.
+     * The country of the user. Facebook expects the 2-letter ISO 3166-1 alpha-2 country code. For example, "US" for the United States, or "GB" for the United Kingdom.
      */
     country?: string
   }

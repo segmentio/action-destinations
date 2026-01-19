@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Altertable's identify destination action: all fields 1`] = `
+Object {
+  "device_id": "p*Ezt^",
+  "distinct_id": "p*Ezt^",
+  "environment": "p*Ezt^",
+  "timestamp": "2024-06-01T12:00:00.000Z",
+  "traits": Object {
+    "$ip": "p*Ezt^",
+    "$lib": "p*Ezt^",
+    "$lib_version": "p*Ezt^",
+    "$os": "p*Ezt^",
+    "$referer": "http://ok.gh/evo",
+    "$url": "http://ok.gh/evo",
+    "$user_agent": "p*Ezt^",
+    "$utm_campaign": "p*Ezt^",
+    "$utm_content": "p*Ezt^",
+    "$utm_medium": "p*Ezt^",
+    "$utm_source": "p*Ezt^",
+    "$utm_term": "p*Ezt^",
+    "$viewport": "-69090444679577.6x-69090444679577.6",
+    "testType": "p*Ezt^",
+  },
+}
+`;

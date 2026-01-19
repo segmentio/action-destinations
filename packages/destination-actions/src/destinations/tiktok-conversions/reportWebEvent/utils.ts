@@ -4,6 +4,7 @@ import { Payload } from './generated-types'
 import { formatEmails, formatPhones, formatUserIds, formatString, formatAddress } from './formatter'
 import { WEB, CRM, TRAVEL_FIELDS, VEHICLE_FIELDS } from './constants'
 import { TTJSON, TTAutoProps, TTBaseProps, TTTravelProps, TTUser } from './types'
+import { TIKTOK_CONVERSIONS_API_VERSION } from '../versioning-info'
 
 export function send(request: RequestClient, settings: Settings, payload: Payload) {
   const {
@@ -53,7 +54,7 @@ export function send(request: RequestClient, settings: Settings, payload: Payloa
     ]
   }
 
-  return request('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
+  return request(`https://business-api.tiktok.com/open_api/${TIKTOK_CONVERSIONS_API_VERSION}/event/track/`, {
     method: 'post',
     json: requestJson
   })

@@ -75,6 +75,29 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'integer',
       default: 100,
       unsafe_hidden: true
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching events.',
+      type: 'string',
+      multiple: true,
+      required: false,
+      default: ['custom_audience_name'],
+      unsafe_hidden: true
+    }, 
+    traitsOrProperties: {
+      label: 'Traits or Properties',
+      description: 'User traits (for identify calls) or event properties (for track calls) to include with the audience sync.',
+      type: 'object',
+      required: false,
+      unsafe_hidden: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits' },
+          then: { '@path': '$.traits' },
+          else: { '@path': '$.properties' }
+        }
+      }
     }
   },
 

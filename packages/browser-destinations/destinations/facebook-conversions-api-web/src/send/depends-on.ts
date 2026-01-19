@@ -3,15 +3,16 @@ import type { FBStandardEventType, FBNonStandardEventType } from '../types'
 
 export const fieldDependencies: Record<string, (FBStandardEventType | FBNonStandardEventType)[]> = {
     custom_event_name: ['CustomEvent'],
-    content_category: [],
+    content_category: ['PageView', 'ViewContent', 'Search'],
     content_ids: ['AddPaymentInfo','AddToCart','AddToWishlist','InitiateCheckout','Purchase','Search','ViewContent'],
-    content_name: [],
+    content_name: ['PageView', 'ViewContent', 'Search'],
     content_type: ['AddToCart', 'Purchase', 'Search', 'ViewContent'],
     contents: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'InitiateCheckout', 'Purchase', 'Search', 'ViewContent'],
     currency: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'CompleteRegistration', 'InitiateCheckout', 'Lead', 'Purchase', 'Search', 'StartTrial', 'Subscribe', 'ViewContent'],
-    delivery_category: [],
-    num_items: ['InitiateCheckout', 'Purchase'],
-    predicted_ltv: ['StartTrial', 'Subscribe'],
+    delivery_category: ['Purchase', 'InitiateCheckout'],
+    num_items: ['InitiateCheckout'],
+    predicted_ltv: ['Purchase', 'Subscribe', 'StartTrial', 'CompleteRegistration', 'AddPaymentInfo', 'CustomEvent' ],
+    net_revenue: ['Purchase'],
     search_string: ['Search'],
     status: ['CompleteRegistration'],
     value: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'CompleteRegistration', 'InitiateCheckout', 'Lead', 'Purchase', 'Search', 'StartTrial', 'Subscribe', 'ViewContent'],
@@ -20,7 +21,7 @@ export const fieldDependencies: Record<string, (FBStandardEventType | FBNonStand
 export function getDependenciesFor(fieldName: string): DependsOnConditions {
   const conditions: Condition[] = [
       {
-          fieldKey: 'show_fields',
+          fieldKey: 'event_config.show_fields',
           operator: 'is',
           value: 'true'
       }
@@ -28,7 +29,7 @@ export function getDependenciesFor(fieldName: string): DependsOnConditions {
 
   if (fieldDependencies[fieldName]) {
       conditions.push({
-          fieldKey: 'event_name',
+          fieldKey: 'event_config.event_name',
           operator: 'is',
           value: fieldDependencies[fieldName]
       })

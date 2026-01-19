@@ -2,13 +2,14 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import send from './send'
-import { initScript } from './init-script'
+import { initScript } from './functions'
 import { FBClient, LDU } from './types'
 import { defaultValues } from '@segment/actions-core'
 
 declare global {
   interface Window {
-    fbq: FBClient
+    fbq: FBClient,
+    _fbq: FBClient
   }
 }
 
@@ -27,7 +28,26 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
     disablePushState: {
       description: "If set to true, prevents Facebook Pixel from sending PageView events on history state changes. Set to true if you want to trigger PageView events manually via the pageView Action.",
       label: 'Disable Push State',
-      type: 'boolean'
+      type: 'boolean',
+      default: false
+    },
+    disableAutoConfig: {
+      description: "Control whether Facebook’s Meta Pixel automatically collects additional page and button data to optimize ads and measurement. When this toggle is on, Auto Config is disabled and only basic pixel tracking will occur. Turning it off enables Auto Config, allowing the Pixel to automatically send page metadata and button interactions to improve ad delivery and reporting.",
+      label: 'Disable Auto Config',
+      type: 'boolean',
+      default: true
+    },
+    disableFirstPartyCookies: {
+      description: "Control whether Facebook’s Meta Pixel uses first-party cookies. When this toggle is on, first-party cookies are disabled, enhancing user privacy. Turning it off enables the use of first-party cookies for more accurate tracking.",
+      label: 'Disable First Party Cookies',
+      type: 'boolean',
+      default: false
+    },
+    agent: {
+      description: 'Specifies the agent to use when sending events.',
+      label: 'Agent',
+      type: 'string',
+      default: 'segment'
     },
     ldu: {
       label: 'Limited Data User (LDU)',
@@ -53,9 +73,8 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
       default: LDU.Disabled.key
     }
   },
-  initialize: async ({ settings }, deps) => {
-    const { pixelId, disablePushState, ldu } = settings
-    initScript(pixelId, ldu as keyof typeof LDU, disablePushState)
+  initialize: async ({ settings, analytics }, deps) => {
+    initScript(settings, analytics)
     await deps.resolveWhen(() => typeof window.fbq === 'function', 100)
     return window.fbq
   },
@@ -73,7 +92,6 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'AddPaymentInfo',
-          custom_event_name: null,
           show_fields: false
         }
       },
@@ -88,14 +106,15 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'AddToCart',
-          custom_event_name: null,
           show_fields: false
         },
         contents: {
           id: { '@path': '$.properties.product_id' },
           quantity: { '@path': '$.properties.quantity' },
           item_price: { '@path': '$.properties.price' }
-        }
+        },
+        content_ids: { '@path': '$.properties.product_id' },
+        value: { '@path': '$.properties.price' }
       },
       type: 'automatic'
     },    
@@ -108,14 +127,15 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'AddToWishlist',
-          custom_event_name: null,
           show_fields: false
         },
         contents: {
           id: { '@path': '$.properties.product_id' },
           quantity: { '@path': '$.properties.quantity' },
           item_price: { '@path': '$.properties.price' }
-        }
+        },
+        content_ids: { '@path': '$.properties.product_id' },
+        value: { '@path': '$.properties.price' }
       },
       type: 'automatic'
     },
@@ -128,7 +148,6 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'CompleteRegistration',
-          custom_event_name: null,
           show_fields: false
         }
       },
@@ -143,9 +162,23 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'InitiateCheckout',
-          custom_event_name: null,
           show_fields: false
         }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'PageView',
+      subscribe: 'type = "page"',
+      partnerAction: 'send',
+      mapping: {
+        ...defaultValues(send.fields),
+        event_config: {
+          event_name: 'PageView',
+          show_fields: false
+        },
+        content_name: { '@path': '$.name' },
+        content_category: { '@path': '$.category' }
       },
       type: 'automatic'
     },
@@ -158,8 +191,11 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'Purchase',
-          custom_event_name: null,
           show_fields: false
+        },
+        value: { '@path': '$.properties.revenue' }, 
+        custom_data: {
+          order_id: { '@path': '$.properties.order_id' }
         }
       },
       type: 'automatic'
@@ -173,9 +209,14 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'Search',
-          custom_event_name: null,
           show_fields: false
-        }
+        },
+        contents: {
+          id: { '@path': '$.properties.product_id' },
+          quantity: { '@path': '$.properties.quantity' },
+          item_price: { '@path': '$.properties.price' }
+        },
+        content_ids: { '@path': '$.properties.product_id' }
       },
       type: 'automatic'
     },
@@ -188,14 +229,15 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'ViewContent',
-          custom_event_name: null,
           show_fields: false
         },
         contents: {
           id: { '@path': '$.properties.product_id' },
           quantity: { '@path': '$.properties.quantity' },
           item_price: { '@path': '$.properties.price' }
-        }
+        }, 
+        content_ids: { '@path': '$.properties.product_id' },
+        value: { '@path': '$.properties.price' }
       },
       type: 'automatic'
     }

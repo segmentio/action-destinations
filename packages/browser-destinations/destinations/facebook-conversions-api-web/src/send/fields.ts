@@ -1,7 +1,6 @@
 import type { InputField } from '@segment/actions-core'
-import { ACTION_SOURCES } from '../types'
 import { getDependenciesFor } from './depends-on'
-import { CURRENCY_ISO_CODES } from './constants'
+import { CURRENCY_ISO_CODES } from '../constants'
 
 export const event_config: InputField = {
     label: 'Event Configuration',
@@ -9,6 +8,7 @@ export const event_config: InputField = {
     type: 'object',
     required: true,
     additionalProperties: false,
+    defaultObjectUI: 'keyvalue',
     properties: {
         event_name: {
             label: 'Event Name',
@@ -17,6 +17,7 @@ export const event_config: InputField = {
             required: true,
             choices: [
                 { label: 'Custom Event', value: 'CustomEvent' },
+                { label: 'Page View', value: 'PageView' },
                 { label: 'Add Payment Info', value: 'AddPaymentInfo' },
                 { label: 'Add To Cart', value: 'AddToCart' },
                 { label: 'Add To Wishlist', value: 'AddToWishlist' },
@@ -50,8 +51,9 @@ export const event_config: InputField = {
         }
     },
     default: {
-        show_fields: false,
-        custom_event_name: {'@path': '$.event'}
+        event_name: 'CustomEvent',
+        custom_event_name: {'@path': '$.event'},
+        show_fields: false
     }
 }
 
@@ -61,36 +63,6 @@ export const content_category: InputField = {
     type: 'string',
     default: { '@path': '$.properties.category' },
     depends_on: getDependenciesFor('content_category')
-}
-
-export const content_ids: InputField = {
-    label: 'Content IDs',
-    description: "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
-    type: 'string',
-    multiple: true,
-    allowNull: false,
-    minimum: 1,
-    depends_on: getDependenciesFor('content_ids'),
-    required: {
-        match: 'all',
-        conditions: [
-        {
-            fieldKey: 'event_config.event_name',
-            operator: 'is',
-            value: ['AddToCart', 'Purchase', 'ViewContent']
-        },
-        {
-            fieldKey: 'contents', 
-            operator: 'is_not',
-            value: undefined
-        },
-        {
-            fieldKey: 'contents', 
-            operator: 'is_not',
-            value: ''
-        }
-        ]
-    }
 }
 
 export const content_name: InputField = {
@@ -110,7 +82,18 @@ export const content_type: InputField = {
         { value: 'product', label: 'Product' },
         { value: 'product_group', label: 'Product Group' }
     ],
+    default: 'product',
     depends_on: getDependenciesFor('content_type')
+}
+
+export const content_ids: InputField = {
+    label: 'Content IDs',
+    description: "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
+    type: 'string',
+    multiple: true,
+    default: { "@liquid": "{{ properties.products | map: 'product_id' }}"}
+    ,
+    depends_on: getDependenciesFor('content_ids')
 }
 
 export const contents: InputField = {
@@ -118,9 +101,8 @@ export const contents: InputField = {
     description: 'A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.',
     type: 'object',
     multiple: true,
-    allowNull: false,
-    minimum: 1,
     additionalProperties: true,
+    defaultObjectUI: 'keyvalue',
     properties: {
         id: {
             label: 'ID',
@@ -144,33 +126,13 @@ export const contents: InputField = {
         '@arrayPath': [
           '$.properties.products',
           {
-            id: { '@path': '$.id' },
+            id: { '@path': '$.product_id' },
             quantity: { '@path': '$.quantity' },
             item_price: { '@path': '$.price' }
           }
         ]
     },
-    depends_on: getDependenciesFor('contents'),
-    required: {
-        match: 'all',
-        conditions: [
-        {
-            fieldKey: 'event_config.event_name',
-            operator: 'is',
-            value: ['AddToCart', 'Purchase', 'ViewContent']
-        },
-        {
-            fieldKey: 'content_ids', 
-            operator: 'is_not',
-            value: undefined
-        },
-        {
-            fieldKey: 'content_ids', 
-            operator: 'is_not',
-            value: ''
-        }
-        ]
-    }
+    depends_on: getDependenciesFor('contents')
 }    
 
 export const currency: InputField = {
@@ -206,7 +168,6 @@ export const delivery_category: InputField = {
         { value: 'curbside', label: 'Curbside' },
         { value: 'home_delivery', label: 'Home Delivery' }
     ],
-    default: 'home_delivery',
     depends_on: getDependenciesFor('delivery_category')
 }
 
@@ -214,7 +175,7 @@ export const num_items: InputField = {
     label: 'Number of Items',
     description: 'The number of items when checkout was initiated.',
     type: 'integer',
-    default: { '@path': '$.properties.quantity' },
+    default: { '@path': '$.properties.num_items' },
     depends_on: getDependenciesFor('num_items')
 }
 
@@ -223,6 +184,14 @@ export const predicted_ltv: InputField = {
     description: 'Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.',
     type: 'number',
     depends_on: getDependenciesFor('predicted_ltv')
+}
+
+export const net_revenue: InputField = {
+    label: 'Net Revenue',
+    description: 'The net revenue associated with the purchase.',
+    type: 'number',
+    default: { '@path': '$.properties.net_revenue' },
+    depends_on: getDependenciesFor('net_revenue')
 }
 
 export const search_string: InputField = {
@@ -244,7 +213,7 @@ export const value: InputField = {
     label: 'Value',
     description: 'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
     type: 'number',
-    default: { '@path': '$.properties.currency' },
+    default: { '@path': '$.properties.value' },
     depends_on: getDependenciesFor('value'),
     required: {
         match: 'all',
@@ -268,7 +237,7 @@ export const custom_data: InputField = {
 
 export const eventID: InputField = {
     label: 'Event ID',
-    description: 'This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API.',
+    description: 'This ID can be any unique string. Event ID is used to deduplicate events sent both the server side Conversions API and the browser Pixel.',
     type: 'string',
     default: { '@path': '$.messageId' }
 }
@@ -280,27 +249,12 @@ export const eventSourceUrl: InputField = {
     default: { '@path': '$.context.page.url' }
 }
 
-export const actionSource: InputField = {
-  label: 'Action Source',
-  description: 'The source of the event. This can be used to specify where the event originated from.',
-  type: 'string',
-  choices: [
-    { label: 'Email', value: ACTION_SOURCES.email },
-    { label: 'Website', value: ACTION_SOURCES.website },
-    { label: 'App', value: ACTION_SOURCES.app },
-    { label: 'Phone Call', value: ACTION_SOURCES.phone_call },
-    { label: 'Chat', value: ACTION_SOURCES.chat },
-    { label: 'Physical Store', value: ACTION_SOURCES.physical_store },
-    { label: 'System Generated', value: ACTION_SOURCES.system_generated },
-    { label: 'Other', value: ACTION_SOURCES.other }
-  ],
-  default: ACTION_SOURCES.website
-}
-
 export const userData: InputField = {
     label: 'User Data',
     description: 'User data to be sent with the event. This can include hashed identifiers like email, phone number, etc.',
     type: 'object',
+    additionalProperties: false,
+    defaultObjectUI: 'keyvalue',
     properties: {
         external_id: {
             label: 'External ID',
@@ -315,7 +269,7 @@ export const userData: InputField = {
         },
         ph: {
             label: 'Phone Number',
-            description: 'Phone number of the user',
+            description: 'Phone number of the user. Make sure to include the country code. For example, "15551234567" for a US number.',
             type: 'string'
         },
         fn: {
@@ -340,7 +294,8 @@ export const userData: InputField = {
         db: {
             label: 'Date of Birth',
             description: 'Date of birth of the user',
-            type: 'string'
+            type: 'string',
+            format: 'date'
         },
         ct: {
             label: 'City',
@@ -349,22 +304,22 @@ export const userData: InputField = {
         },
         st: {
             label: 'State',
-            description: 'State of the user. Two-letter state or province code for the United States, For example, "NY" for New York.',
+            description: 'State of the user. Facebook expects the 2-letter abbreviation for US states. For example, "CA" for California, or "NY" for New York.',
             type: 'string'
         },
         zp: {
             label: 'ZIP/Postal Code',
-            description: 'ZIP or postal code of the user. For example, "94025" for Menlo Park, CA, or "10001" for New York City.',
+            description: 'ZIP or postal code of the user. For example, U.S zip code: 94035, Australia zip code: 1987, France zip code: 75018, UK zip code: m11ae.',
             type: 'string'
         },
         country: {
             label: 'Country',
-            description: 'Country code of the user. This should be a valid ISO 3166-1 alpha-2 country code. For example, "US" for the United States.',
+            description: 'The country of the user. Facebook expects the 2-letter ISO 3166-1 alpha-2 country code. For example, "US" for the United States, or "GB" for the United Kingdom.',
             type: 'string'
         }
     },
     default: {
-        external_id: { '@path': '$.context.traits.userId' },
+        external_id: { '@path': '$.userId' },
         em: { '@path': '$.context.traits.email' },
         ph: { '@path': '$.context.traits.phone' },
         fn: { '@path': '$.context.traits.first_name' },
@@ -389,12 +344,12 @@ export const AllFields = {
     delivery_category,
     num_items, 
     predicted_ltv,
+    net_revenue,
     search_string,
     status,
     value,
     custom_data,
     eventID, 
     eventSourceUrl, 
-    actionSource, 
     userData
 }
