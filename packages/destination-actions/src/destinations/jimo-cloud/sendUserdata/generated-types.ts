@@ -4,11 +4,11 @@ export interface Payload {
   /**
    * The unique user identifier
    */
-  userId: string | null
+  userId: string
   /**
    * The email of the user
    */
-  email?: string | null
+  email?: string
   /**
    * User attributes coming from segment traits
    */

@@ -170,36 +170,6 @@ describe('JimoCloudActions.sendUserdata', () => {
     expect(nock.isDone()).toBe(true)
   })
 
-  it('should handle null userId gracefully', async () => {
-    nock('https://api.jimo.ai')
-      .post('/v1/segment/user', {
-        userId: null,
-        email: 'test@example.com'
-      })
-      .matchHeader('Authorization', 'test-api-key')
-      .reply(200, {})
-
-    const event = createTestEvent({
-      type: 'identify',
-      traits: {
-        email: 'test@example.com'
-      }
-    })
-
-    const responses = await testDestination.testAction('sendUserdata', {
-      event,
-      settings,
-      mapping: {
-        userId: null,
-        email: 'test@example.com'
-      }
-    })
-
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
-    expect(nock.isDone()).toBe(true)
-  })
-
   it('should properly format request with custom mapped fields', async () => {
     nock('https://api.jimo.ai')
       .post('/v1/segment/user', {

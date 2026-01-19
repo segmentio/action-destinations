@@ -13,7 +13,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       description: 'The unique user identifier',
       type: 'string',
-      allowNull: true,
       required: true,
       default: {
         '@path': '$.userId'
@@ -23,7 +22,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User email',
       description: 'The email of the user',
       type: 'string',
-      allowNull: true,
       required: false,
       default: {
         '@path': '$.traits.email'
