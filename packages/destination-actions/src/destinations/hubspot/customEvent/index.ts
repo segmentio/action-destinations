@@ -14,7 +14,12 @@ import {
 import { sendEvent } from './functions/event-completion-functions'
 import { validate } from './functions/validation-functions'
 import { eventSchema } from './functions/schema-functions'
-import { compareSchemas, saveSchemaToCache, getSchemaFromCache } from './functions/cache-functions'
+import {
+  compareSchemas,
+  saveSchemaToCache,
+  getSchemaFromCache,
+  convertNumericStrings
+} from './functions/cache-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event V2',
@@ -59,10 +64,12 @@ const send = async (
   statsContext?.statsClient?.incr(`cache.diff.${cacheSchemaDiff.match}`, 1, statsContext?.tags)
 
   if (cacheSchemaDiff.match === SchemaMatch.FullMatch) {
+    // Convert any numeric values to strings if the cached schema indicates they should be strings
+    convertNumericStrings(validPayload, cacheSchemaDiff.numericStrings)
     return await sendEvent(client, (cachedSchema as CachableSchema).fullyQualifiedName, validPayload)
   }
 
-  const hubspotSchema = await getSchemaFromHubspot(client, schema)
+  const hubspotSchema = await getSchemaFromHubspot(client, schema, validPayload)
 
   statsContext?.statsClient?.incr(
     `hubspotSchema.get.${hubspotSchema === undefined ? 'miss' : 'hit'}`,
