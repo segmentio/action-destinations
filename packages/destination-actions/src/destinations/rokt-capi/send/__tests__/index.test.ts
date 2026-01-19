@@ -1006,61 +1006,6 @@ describe('RoktCapi.send', () => {
         })
       ]
 
-      const expectedRoktBatchPayload = [
-        {
-          environment: 'production',
-          device_info: {},
-          user_attributes: {},
-          user_identities: {
-            email: 'valid1@example.com',
-            customerid: 'valid-user-001'
-          },
-          events: [
-            {
-              event_type: 'custom_event',
-              data: {
-                custom_event_type: 'transaction',
-                source_message_id: 'mixed-msg-001',
-                timestamp_unixtime_ms: 1705579200000,
-                event_name: 'conversion',
-                custom_attributes: {
-                  conversiontype: 'Order Completed',
-                  confirmationref: 'mixed-order-001',
-                  amount: 100.00,
-                  currency: 'USD'
-                }
-              }
-            }
-          ]
-        },
-        {
-          environment: 'production',
-          device_info: {},
-          user_attributes: {},
-          user_identities: {
-            email: 'valid2@example.com',
-            customerid: 'valid-user-003'
-          },
-          events: [
-            {
-              event_type: 'custom_event',
-              data: {
-                custom_event_type: 'transaction',
-                source_message_id: 'mixed-msg-003',
-                timestamp_unixtime_ms: 1705579320000,
-                event_name: 'conversion',
-                custom_attributes: {
-                  conversiontype: 'Order Completed',
-                  confirmationref: 'mixed-order-003',
-                  amount: 300.00,
-                  currency: 'USD'
-                }
-              }
-            }
-          ]
-        }
-      ]
-
       nock('https://inbound.mparticle.com')
         .post('/s2s/v2/bulkevents', (body) => {
           // Verify only valid events (first and third) are sent
