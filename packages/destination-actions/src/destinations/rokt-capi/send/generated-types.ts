@@ -178,7 +178,7 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
-   * ROKT RTID value from the page URL. The detault mapping will extract the value from the URL query parameters for events sent using the Segment Javascript library, but this can be overriden if needed.
+   * ROKT RTID value from the page URL. The 'Rokt Browser Plugin' Action automatically captures this value from the querystring in the browser, then passes it to this field.
    */
   rtid?: string
 }
