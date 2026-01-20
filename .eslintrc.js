@@ -182,7 +182,8 @@ module.exports = {
             paths: [
               {
                 name: 'fs',
-                message: 'Importing "fs" is not allowed in environment-agnostic packages. This is a Node.js built-in module.'
+                message:
+                  'Importing "fs" is not allowed in environment-agnostic packages. This is a Node.js built-in module.'
               },
               {
                 name: 'path',
@@ -206,7 +207,8 @@ module.exports = {
               },
               {
                 name: 'os',
-                message: 'Importing "os" is not allowed in environment-agnostic packages. This is a Node.js built-in module.'
+                message:
+                  'Importing "os" is not allowed in environment-agnostic packages. This is a Node.js built-in module.'
               },
               {
                 name: 'stream',
