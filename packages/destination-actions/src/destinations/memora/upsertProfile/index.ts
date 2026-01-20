@@ -134,7 +134,7 @@ async function upsertProfiles(
   // Convert to CSV
   const { csv, columnMappings } = convertToCSV(payloads, Array.from(allFields))
   const csvBuffer = Buffer.from(csv, 'utf-8')
-  const filename = `memora-import-${Date.now()}.csv`
+  const filename = 'memora-segment-import.csv'
 
   try {
     // Step 1: Request pre-signed upload URL
