@@ -103,7 +103,8 @@ describe('RoktCapi.send', () => {
         user_attributes: {},
         user_identities: {
           email: 'test@example.com',
-          customerid: 'user-123'
+          customerid: 'user-123',
+          other2: 'test-rtid-from-integrations'
         },
         events: [
           {
@@ -170,7 +171,8 @@ describe('RoktCapi.send', () => {
         user_attributes: {},
         user_identities: {
           email: 'test2@example.com',
-          customerid: 'user-456'
+          customerid: 'user-456',
+          other2: 'rtid-from-url'
         },
         events: [
           {
@@ -531,7 +533,7 @@ describe('RoktCapi.send', () => {
       expect(responses[0].status).toBe(200)
     })
 
-    it('should send ROKT Click ID (rcid) from integrations object', async () => {
+    it('should send ROKT Click ID (rtid) from integrations object', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
         messageId: 'msg-009',
@@ -546,8 +548,8 @@ describe('RoktCapi.send', () => {
           }
         },
         integrations: {
-          rokt: {
-            rcid: 'rokt-click-id-999'
+          'Rokt Conversions API': {
+            rtid: 'rokt-click-id-999'
           }
         },
         userId: 'user-444'
@@ -695,6 +697,7 @@ describe('RoktCapi.send', () => {
           expect(body.events).toBeDefined()
           expect(body.events.length).toBe(1)
           expect(body.events[0].data.event_name).toBe('audiencemembershipupdate')
+          expect(body.events[0].data.custom_event_type).toBe('other')
           expect(body.events[0].data.custom_attributes.audience_name).toBe('premium_users')
           expect(body.events[0].data.custom_attributes.status).toBe('add')
           expect(body.user_attributes.segment_premium_users).toBe(true)
@@ -706,6 +709,10 @@ describe('RoktCapi.send', () => {
         event,
         useDefaultMappings: true,
         mapping: {
+          eventDetails: {
+            source_message_id: 'msg-011',
+            timestamp_unixtime_ms: '2024-01-18T12:00:00.000Z'
+          },
           engageFields: {
             engageAudienceName: 'premium_users',
             traitsOrProps: {
@@ -743,6 +750,7 @@ describe('RoktCapi.send', () => {
           expect(body.events).toBeDefined()
           expect(body.events.length).toBe(1)
           expect(body.events[0].data.event_name).toBe('audiencemembershipupdate')
+          expect(body.events[0].data.custom_event_type).toBe('other')
           expect(body.events[0].data.custom_attributes.audience_name).toBe('high_value_customers')
           expect(body.events[0].data.custom_attributes.status).toBe('add')
           expect(body.user_attributes.segment_high_value_customers).toBe(true)
@@ -752,7 +760,13 @@ describe('RoktCapi.send', () => {
 
       const responses = await testDestination.testAction('send', {
         event,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        mapping: {
+          eventDetails: {
+            source_message_id: 'msg-012',
+            timestamp_unixtime_ms: '2024-01-18T12:00:00.000Z'
+          }
+        }
       })
 
       expect(responses.length).toBe(1)
@@ -783,7 +797,7 @@ describe('RoktCapi.send', () => {
             device_info: {}
           }
         })
-      ).rejects.toThrow('At least one of the following is required: iOS Advertising ID, Android Advertising ID, iOS ID for Vendor, Android UUID, Email, Customer ID, ROKT Click ID.')
+      ).rejects.toThrow('At least one of the following is required: iOS Advertising ID, Android Advertising ID, iOS ID for Vendor, Android UUID, Email, Customer ID, RTID.')
     })
   })
 

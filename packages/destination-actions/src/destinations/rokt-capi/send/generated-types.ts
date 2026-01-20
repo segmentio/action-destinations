@@ -98,10 +98,6 @@ export interface Payload {
      * Unique customer identifier.
      */
     customerid?: string
-    /**
-     * ROKT Click ID.
-     */
-    other2?: string
   }
   /**
    * Attributes related to the user.

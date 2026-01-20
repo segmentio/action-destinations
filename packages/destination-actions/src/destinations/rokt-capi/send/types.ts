@@ -30,7 +30,7 @@ export interface RoktJSON {
     },
     integration_attributes?: {
         "1277": {
-            passbackconversiontrackingid: string // rcid - this is the Rokt Click ID from the browser
+            passbackconversiontrackingid: string // ROKT click id. Yes, needs to be placed in this duplicate location
         }
     },
     events?: (AudienceJSON | EventJSON)[]
@@ -40,7 +40,6 @@ export interface RoktJSON {
 interface BaseEvent {
     event_type: "custom_event"
     data: {
-        custom_event_type: "transaction"
         source_message_id: string
         timestamp_unixtime_ms: number // 13-digit Unix timestamp (ms)
     }
@@ -49,6 +48,7 @@ interface BaseEvent {
 export interface AudienceJSON extends BaseEvent {
     data: BaseEvent["data"] & {
         event_name: "audiencemembershipupdate"
+        custom_event_type: "other"
         custom_attributes: {
             audience_name: string
             status: 'add' | 'drop'
@@ -59,9 +59,10 @@ export interface AudienceJSON extends BaseEvent {
 export interface EventJSON extends BaseEvent {
     data: BaseEvent["data"] & {
         event_name: "conversion"
+        custom_event_type: "transaction"
         custom_attributes: {
             conversiontype: string     // e.g. "Order Completed"
-            confirmationref: string    // unique conversion ID (e.g. order ID)
+            confirmationref?: string   // unique conversion ID (e.g. order ID)
             amount?: number
             currency?: string          // ISO 4217 (3-letter)
             [key: string]: unknown     // simple scalar values only

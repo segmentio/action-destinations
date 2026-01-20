@@ -78,12 +78,12 @@ function validate(payload: Payload): string | undefined {
         user_identities: {
             email,
             customerid,
-            other2
-        } = {}
+        } = {},
+        rtid
     } = payload
 
-    if(!(email || customerid || other2 || ios_advertising_id || android_advertising_id || ios_idfv || android_uuid)) {
-        return 'At least one of the following is required: iOS Advertising ID, Android Advertising ID, iOS ID for Vendor, Android UUID, Email, Customer ID, ROKT Click ID.'
+    if(!(email || customerid || rtid || ios_advertising_id || android_advertising_id || ios_idfv || android_uuid)) {
+        return 'At least one of the following is required: iOS Advertising ID, Android Advertising ID, iOS ID for Vendor, Android UUID, Email, Customer ID, RTID.'
     }
 }
 
@@ -105,8 +105,7 @@ function buildJSONItem(payload: Payload): RoktJSON {
         } = {},
         user_identities: {
             email,
-            customerid,
-            other2
+            customerid
         } = {},
         user_attributes: {
             firstname,
@@ -132,7 +131,7 @@ function buildJSONItem(payload: Payload): RoktJSON {
     const user_identities: RoktJSON['user_identities'] = {
         ...(email ? maybeHash(email, hashEmail, 'email', 'other', (value) => value.toLocaleLowerCase().trim()) : {}),
         ...(customerid ? { customerid } : {}),
-        ...(other2 ? { other2 } : {})
+        ...(rtid ? { other2: rtid } : {})
     }
 
     const audienceJSON = getAudienceJSON(payload)
@@ -156,21 +155,14 @@ function buildJSONItem(payload: Payload): RoktJSON {
         ...(audience_name && status ? { [`segment_${audience_name}`]: status === 'add' } : {})
     }
 
-    const integration_attributes: RoktJSON['integration_attributes'] = {
-        ["1277"]: {
-            passbackconversiontrackingid: rtid || ''
-        }
-    }
-
     const item: RoktJSON = {
         environment: 'production',
         device_info,
         user_attributes, 
         user_identities, 
-        ...(other2 ? { integration_attributes: { "1277": { passbackconversiontrackingid: other2 } } } : {}),
+        ...(rtid ? { integration_attributes: { "1277": { passbackconversiontrackingid: rtid } } } : {}),
         ...(events && events.length > 0 ? { events } : {}),
-        ...(ip ? {ip} : {}),
-        ...(rtid ? { integration_attributes } : {})
+        ...(ip ? {ip} : {})
     }
 
     return item
@@ -203,7 +195,7 @@ function getAudienceJSON(payload: Payload): AudienceJSON | undefined {
     const audienceJSON: AudienceJSON = {
         event_type: "custom_event",
         data: {
-            custom_event_type: "transaction",
+            custom_event_type: "other",
             source_message_id,
             timestamp_unixtime_ms: new Date(timestamp_unixtime_ms).getTime(), 
             event_name: "audiencemembershipupdate",
@@ -230,7 +222,7 @@ function getEventJSON(payload: Payload): EventJSON | undefined {
         eventProperties,
     } = payload
 
-    if(!conversiontype || !confirmationref) {
+    if(!conversiontype) {
         return undefined
     }
 
@@ -242,8 +234,8 @@ function getEventJSON(payload: Payload): EventJSON | undefined {
             timestamp_unixtime_ms: new Date(timestamp_unixtime_ms).getTime(), 
             event_name: "conversion",
             custom_attributes: {
-                conversiontype,
-                confirmationref,
+                conversiontype, 
+                ...(confirmationref ? { confirmationref } : {}),
                 ...(amount ? { amount } : {}),
                 ...(currency ? { currency } : {}),
                 ...sanitize(eventProperties, ['number', 'string', 'boolean'], false)

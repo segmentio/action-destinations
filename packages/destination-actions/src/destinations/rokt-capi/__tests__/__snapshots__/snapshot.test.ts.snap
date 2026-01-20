@@ -17,7 +17,7 @@ Object {
           "audience_name": "xI%Z3kWrnFUD^fL(n8@",
           "status": "drop",
         },
-        "custom_event_type": "transaction",
+        "custom_event_type": "other",
         "event_name": "audiencemembershipupdate",
         "source_message_id": "xI%Z3kWrnFUD^fL(n8@",
         "timestamp_unixtime_ms": null,
@@ -59,6 +59,7 @@ Object {
   "user_identities": Object {
     "customerid": "test-user-id-456",
     "email": "test@example.com",
+    "other2": "xI%Z3kWrnFUD^fL(n8@",
   },
 }
 `;
@@ -75,6 +76,7 @@ Object {
   "user_attributes": Object {},
   "user_identities": Object {
     "customerid": "test-user-id-123",
+    "other2": "xI%Z3kWrnFUD^fL(n8@",
   },
 }
 `;

@@ -17,7 +17,7 @@ Object {
           "audience_name": "WKK6WO",
           "status": "drop",
         },
-        "custom_event_type": "transaction",
+        "custom_event_type": "other",
         "event_name": "audiencemembershipupdate",
         "source_message_id": "WKK6WO",
         "timestamp_unixtime_ms": null,
@@ -59,6 +59,7 @@ Object {
   "user_identities": Object {
     "customerid": "test-user-id-456",
     "other": "973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b",
+    "other2": "WKK6WO",
   },
 }
 `;
@@ -75,6 +76,7 @@ Object {
   "user_attributes": Object {},
   "user_identities": Object {
     "customerid": "test-user-id-123",
+    "other2": "WKK6WO",
   },
 }
 `;

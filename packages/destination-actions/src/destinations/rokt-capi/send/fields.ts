@@ -159,11 +159,6 @@ export const fields: Record<string, InputField> = {
                 label: 'Customer ID',
                 description: 'Unique customer identifier.',
                 type: 'string'
-            },
-            other2: {
-                label: 'ROKT Click ID',
-                description: 'ROKT Click ID.',
-                type: 'string'
             }
         }, 
         default: {
@@ -174,14 +169,7 @@ export const fields: Record<string, InputField> = {
                     else: { '@path': '$.properties.email' }
                 }
             },
-            customerid: { '@path': '$.userId' },
-            other2: { 
-                '@if': {
-                    exists: { '@path': '$.integrations.rokt.rcid' },
-                    then: { '@path': '$.integrations.rokt.rcid' },
-                    else: { '@path': '$.properties.rcid' }
-                }
-            }
+            customerid: { '@path': '$.userId' }
         }
     },
     user_attributes: {
