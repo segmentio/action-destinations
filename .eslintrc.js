@@ -108,6 +108,7 @@ module.exports = {
         // Allowed exceptions for actions-core
         'packages/core/src/time.ts',
         'packages/core/src/request-client.ts',
+        'packages/core/src/destination-kit/action.ts',
         // Allowed exceptions for actions-shared
         'packages/actions-shared/src/engage/utils/isDestinationActionService.ts',
         'packages/actions-shared/src/engage/utils/MessageSendPerformer.ts'
