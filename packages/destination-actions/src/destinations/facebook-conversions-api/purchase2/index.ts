@@ -6,6 +6,7 @@ import { get_api_version } from '../utils'
 import {
   currency,
   value,
+  net_revenue,
   content_name,
   content_type,
   contents,
@@ -47,6 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: { '@path': '$.properties.revenue' }
     },
+    net_revenue: net_revenue,
     content_ids: content_ids,
     content_name: content_name,
     content_type: content_type,
@@ -127,6 +129,7 @@ const action: ActionDefinition<Settings, Payload> = {
                   ...payload.custom_data,
                   currency: payload.currency,
                   value: payload.value,
+                  net_revenue: payload.net_revenue,
                   content_ids: payload.content_ids,
                   content_name: payload.content_name,
                   content_type: payload.content_type,
