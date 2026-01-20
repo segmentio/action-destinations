@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
     batch_size: { ...batch_size }
   },
   perform: async (request, { settings, payload, features }) => {
-    return processPayload({
+    return await processPayload({
       request,
       settings,
       payloads: [payload],
@@ -25,7 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   },
   performBatch: async (request, { settings, payload, features }) => {
-    return processPayload({
+    return await processPayload({
       request,
       settings,
       payloads: payload,

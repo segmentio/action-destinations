@@ -55,20 +55,19 @@ const base64HashedRegex = /^[A-Za-z0-9+/]*={1,2}$/i
 const validEmailRegex = /^\S+@\S+\.\S+$/i
 
 export async function processPayload(input: ProcessPayloadInput): Promise<MultiStatusResponse> {
-  let crmID
   if (!input.payloads[0].external_id) {
     throw new PayloadValidationError(`No external_id found in payload.`)
-  } else {
-    crmID = input.payloads[0].external_id
   }
+
+  const crmID = input.payloads[0].external_id
 
   const multiStatusResponse = new MultiStatusResponse()
 
-  const payload = input.payloads
-  payload.forEach((_, index) => {
+  // Initially mark all payloads as successful
+  input.payloads.forEach((payload, index) => {
     multiStatusResponse.setSuccessResponseAtIndex(index, {
       status: 200,
-      sent: { ...payload[index] },
+      sent: { ...payload },
       body: 'Successfully Uploaded to S3'
     })
   })
@@ -104,17 +103,15 @@ export async function processPayload(input: ProcessPayloadInput): Promise<MultiS
 
       return multiStatusResponse
     } catch (error) {
-      payload.forEach((_, i) => {
+      for (let i = 0; i < input.payloads.length; i++) {
         if (multiStatusResponse.isSuccessResponseAtIndex(i)) {
           multiStatusResponse.setErrorResponseAtIndex(i, {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
-            errormessage: `Failed to upload to The Trade Desk Drop Endpoint: ${(error as Error).message}`,
-            sent: { ...input.payloads[i] },
-            body: `The Trade Desk Drop Endpoint upload failed: ${(error as Error).message}`
+            errormessage: `Failed to upload to The Trade Desk Drop Endpoint: ${(error as Error).message}`
           })
         }
-      })
+      }
       return multiStatusResponse
     }
   } else {
@@ -137,18 +134,25 @@ export async function processPayload(input: ProcessPayloadInput): Promise<MultiS
         }
       })
     } catch (error) {
+      // Set the default error to Bad Request
+      let httpStatusCode = 400
+
+      // If this is an AWS error, extract the status code
+      if (error?.$metadata?.httpStatusCode) {
+        httpStatusCode = error.$metadata.httpStatusCode
+      }
+
       // Mark all remaining success payloads as failed if AWS upload fails
-      payload.forEach((_, index) => {
-        if (multiStatusResponse.isSuccessResponseAtIndex(index)) {
-          multiStatusResponse.setErrorResponseAtIndex(index, {
-            status: 500,
-            errortype: 'RETRYABLE_ERROR',
-            errormessage: `Failed to upload to AWS: ${(error as Error).message}`,
-            sent: { ...payload[index] },
-            body: `AWS upload failed: ${(error as Error).message}`
-          })
+      for (let i = 0; i < input.payloads.length; i++) {
+        if (multiStatusResponse.isErrorResponseAtIndex(i)) {
+          continue
         }
-      })
+
+        multiStatusResponse.setErrorResponseAtIndex(i, {
+          status: httpStatusCode,
+          errormessage: `Failed to upload payload to Integrations Outbound Controller`
+        })
+      }
     }
     return multiStatusResponse
   }
@@ -163,9 +167,7 @@ function extractUsers(payloads: Payload[], multiStatusResponse: MultiStatusRespo
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: `Invalid email: ${payload.email}`,
-        sent: { ...payload },
-        body: `Invalid email: ${payload.email}`
+        errormessage: `Invalid email: ${payload.email}`
       })
       return
     }
