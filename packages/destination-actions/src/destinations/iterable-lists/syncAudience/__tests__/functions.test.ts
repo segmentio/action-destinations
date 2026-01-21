@@ -203,14 +203,17 @@ describe('IterableLists.syncAudience', () => {
           }
         })
 
-        // Delete userId that's auto-added by createTestEvent
-        delete event.userId
-
         await expect(
           testDestination.testAction('syncAudience', {
             event,
             settings: userIdSettings,
-            useDefaultMappings: true
+            mapping: {
+              email: { '@path': '$.traits.email' },
+              userId: undefined,
+              segmentAudienceKey: { '@path': '$.context.personas.computation_key' },
+              segmentAudienceId: { '@path': '$.context.personas.external_audience_id' },
+              traitsOrProperties: { '@path': '$.traits' }
+            }
           })
         ).rejects.toThrowError('User ID is required when Iterable Project Type = User ID')
       })
@@ -229,14 +232,17 @@ describe('IterableLists.syncAudience', () => {
           }
         })
 
-        // Delete userId that's auto-added
-        delete event.userId
-
         await expect(
           testDestination.testAction('syncAudience', {
             event,
             settings,
-            useDefaultMappings: true
+            mapping: {
+              email: undefined,
+              userId: undefined,
+              segmentAudienceKey: { '@path': '$.context.personas.computation_key' },
+              segmentAudienceId: { '@path': '$.context.personas.external_audience_id' },
+              traitsOrProperties: { '@path': '$.traits' }
+            }
           })
         ).rejects.toThrowError('Either User ID or Email is required when Iterable Project Type = Hybrid')
       })
