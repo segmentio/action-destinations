@@ -202,8 +202,17 @@ async function upsertProfiles(
 
 // Convert profiles to CSV format with column mappings
 function convertToCSV(payloads: Payload[], fields: string[]): { csv: string; columnMappings: ColumnMapping[] } {
-  // Build CSV header
-  const header = fields.join(',')
+  // Helper function to escape CSV values
+  const escapeCSVValue = (value: string): string => {
+    // Escape values that contain comma, quote, or newline
+    if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+      return `"${value.replace(/"/g, '""')}"`
+    }
+    return value
+  }
+
+  // Build CSV header with escaped field names
+  const header = fields.map(escapeCSVValue).join(',')
 
   // Build CSV rows
   const rows = payloads.map((payload) => {
@@ -227,13 +236,7 @@ function convertToCSV(payloads: Payload[], fields: string[]): { csv: string; col
         }
 
         const stringValue = String(value)
-
-        // Escape values that contain comma, quote, or newline
-        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-          return `"${stringValue.replace(/"/g, '""')}"`
-        }
-
-        return stringValue
+        return escapeCSVValue(stringValue)
       })
       .join(',')
   })

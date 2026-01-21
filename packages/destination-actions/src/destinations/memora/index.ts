@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import upsertProfile from './upsertProfile'
 
 export const API_VERSION = 'v1'
-export const BASE_URL = 'https://memory.twilio.com' //TODO: change to production base URL
+export const BASE_URL = 'https://memory.twilio.com'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Memora',

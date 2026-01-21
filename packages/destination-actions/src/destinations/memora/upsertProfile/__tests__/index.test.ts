@@ -396,6 +396,52 @@ describe('Memora.upsertProfile', () => {
       expect(capturedCSV).toContain('"John, Jr."')
       expect(capturedCSV).toContain('"O""Brien"')
     })
+
+    it('should escape CSV header field names with special characters', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-456',
+        properties: {
+          email: 'test@example.com'
+        }
+      })
+
+      let capturedCSV = ''
+
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+        importId: 'mem_import_12345',
+        url: 'https://example.com/presigned-url'
+      })
+
+      nock('https://example.com')
+        .put('/presigned-url', (body) => {
+          capturedCSV = body as string
+          return true
+        })
+        .reply(200)
+
+      await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          contact_identifiers: {
+            email: { '@path': '$.properties.email' }
+          },
+          contact_traits: {
+            'first,name': { '@path': '$.properties.email' },
+            'last"name': { '@path': '$.properties.email' }
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      // Validate CSV header escaping - field names with special characters should be escaped
+      const csvLines = capturedCSV.split('\n')
+      const header = csvLines[0]
+      expect(header).toContain('"first,name"')
+      expect(header).toContain('"last""name"')
+    })
   })
 
   describe('performBatch (multiple profiles)', () => {
