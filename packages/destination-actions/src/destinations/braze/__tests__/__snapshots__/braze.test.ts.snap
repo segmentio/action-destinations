@@ -135,7 +135,6 @@ Object {
       "phone": undefined,
       "push_subscribe": undefined,
       "push_tokens": undefined,
-      "subscription_groups": undefined,
       "time_zone": undefined,
       "twitter": undefined,
       "user_alias": undefined,
