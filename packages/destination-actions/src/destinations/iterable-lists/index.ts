@@ -8,7 +8,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   slug: 'actions-iterable-lists',
   mode: 'cloud',
   description: 'Sync Segment Engage audiences to Iterable Lists',
-
   authentication: {
     scheme: 'custom',
     fields: {
@@ -32,10 +31,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
+      const { apiKey } = settings
       return request('https://api.iterable.com/api/lists', {
         method: 'GET',
         skipResponseCloning: true,
-        headers: { 'Api-Key': settings.apiKey }
+        headers: { 'Api-Key': apiKey }
       })
     }
   },
@@ -87,10 +87,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       return { externalId: getAudienceInput.externalId }
     }
   },
-
   extendRequest({ settings }) {
+    const { apiKey } = settings
     return {
-      headers: { 'Api-Key': settings.apiKey }
+      headers: { 'Api-Key': apiKey }
     }
   },
 

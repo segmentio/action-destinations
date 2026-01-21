@@ -11,6 +11,8 @@ export interface Subscriber {
   preferUserId?: boolean
 }
 
+export type SubscriberMap = Map<number, Subscriber>
+
 export interface UnsubscribePayload {
   listId: number
   subscribers: Array<Unsubscriber>
@@ -22,3 +24,5 @@ export interface Unsubscriber {
   email?: string
   userId?: string
 }
+
+export type UnsubscriberMap = Map<number, Unsubscriber>

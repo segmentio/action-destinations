@@ -7,6 +7,7 @@ import { send } from './functions'
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync To Iterable Lists',
   description: 'Sync Segment Audience to Iterable Lists',
+  defaultSubscription: 'type = "identify" or type = "track"',
   fields,
   perform: (request, { payload, settings, audienceSettings }) => {
     return send(request, [payload], settings, false, audienceSettings)
@@ -15,7 +16,5 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     return send(request, payload, settings, true, audienceSettings)
   }
 }
-
-
 
 export default action
