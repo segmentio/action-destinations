@@ -13,15 +13,13 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Your Rokt CAPI API Key. Contact your Rokt representative to obtain this value.',
-        type: 'string',
-        format: 'password',
+        type: 'password',
         required: true
       }, 
       apiSecret: {
         label: 'API Secret',
         description: 'Your Rokt CAPI API Secret. Contact your Rokt representative to obtain this value.',
-        type: 'string',
-        format: 'password',
+        type: 'password',
         required: true
       }
     }
