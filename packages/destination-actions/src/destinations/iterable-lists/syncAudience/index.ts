@@ -72,6 +72,31 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       default: {
         '@path': '$.context.personas.external_audience_id'
       }
+    },
+    max_batch_size: {
+      label: 'Max Batch Size',
+      description: 'The maximum number of users to process in a single batch.',
+      type: 'number',
+      default: 1000,
+      maximum: 1000,
+      minimum: 2,
+      required: false
+    }, 
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'Enable batching of users to Iterable Lists',
+      type: 'boolean',
+      default: true,
+      required: true
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching users.',
+      type: 'string',
+      multiple: true,
+      unsafe_hidden: true,
+      required: false,
+      default: ['segmentAudienceId']
     }
   },
   perform: async (request, { payload, settings, audienceSettings }) => {

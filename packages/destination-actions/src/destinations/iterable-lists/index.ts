@@ -40,7 +40,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       required: false
     },
     globalUnsubscribe: {
-      label: 'Global Unsubscribe',
+      label: 'Channel Unsubscribe',
       description:
         "Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid for unsubscribe action.",
       type: 'boolean',
