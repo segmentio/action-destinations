@@ -63,13 +63,14 @@ export async function processPayload(input: ProcessPayloadInput): Promise<MultiS
 
   const multiStatusResponse = new MultiStatusResponse()
 
-  for (let index = 0; index < input.payloads.length; index++) {
+  // Initially mark all payloads as successful
+  input.payloads.forEach((payload, index) => {
     multiStatusResponse.setSuccessResponseAtIndex(index, {
       status: 200,
-      sent: { ...input.payloads[index] },
+      sent: { ...payload },
       body: 'Successfully Uploaded to S3'
     })
-  }
+  })
 
   // Get user emails from the payloads
   const [usersFormatted, rowCount] = extractUsers(input.payloads, multiStatusResponse)
@@ -166,7 +167,7 @@ function extractUsers(payloads: Payload[], multiStatusResponse: MultiStatusRespo
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: `Invalid email: ${payload.email}`
+        errormessage: `Invalid email format`
       })
       return
     }
