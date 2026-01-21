@@ -570,6 +570,9 @@ describe('MultiStatus', () => {
       },
       braze_id: {
         '@path': '$.traits.brazeId'
+      }, 
+      subscription_groups: { 
+        '@path': '$.traits.subscription_groups'
       }
     }
 
@@ -756,6 +759,86 @@ describe('MultiStatus', () => {
           errorreporter: 'DESTINATION'
         }
       ])
+    })
+
+    it('should successfully handle a batch of events with subscription details, even if one fails validation', async () => {
+      nock(settings.endpoint).post('/users/track').reply(201, {})
+
+      const events: SegmentEvent[] = [
+        // Valid Event
+        createTestEvent({
+          type: 'identify',
+          receivedAt,
+          traits: {
+            firstName: 'Example',
+            lastName: 'User',
+            externalId: 'test-external-id',
+            subscription_groups: [
+              {
+                subscription_group_id: 'newsletter_123',
+                subscription_state: 'subscribed'
+              },
+              {
+                subscription_group_id: 'promotional_456',
+                subscription_state: 'unsubscribed'
+              }
+            ]
+          }
+        }),
+        createTestEvent({
+          type: 'identify',
+          receivedAt,
+          traits: {
+            firstName: 'Example',
+            lastName: 'User',
+            email: 'user@example.com',
+            subscription_groups: [
+              {
+                subscription_group_id: 'newsletter_9898'
+              }
+            ]
+          }
+        }),
+        // Event without any user identifier
+        createTestEvent({
+          type: 'identify',
+          receivedAt,
+          traits: {
+            firstName: 'Example',
+            lastName: 'User',
+            email: 'user@example.com',
+            subscription_groups: [
+              {
+                subscription_group_id: 'newsletter_9898',
+                subscription_state: 'unsubscribed'
+              }
+            ]
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('updateUserProfile', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response[0]).toMatchObject({
+        status: 200,
+        body: 'success'
+      })
+
+      expect(response[1]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'The value at /subscription_groups/0 is missing the required field \'subscription_state\'.',
+        errorreporter: 'INTEGRATIONS'
+      })
+
+      expect(response[2]).toMatchObject({
+        status: 200,
+        body: 'success'
+      })
     })
   })
 
