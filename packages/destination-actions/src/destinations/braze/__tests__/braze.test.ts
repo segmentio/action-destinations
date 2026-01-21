@@ -90,7 +90,17 @@ describe('Braze Cloud Mode (Actions)', () => {
         userId: 'user1234',
         traits: {
           email: 'test@example.com',
-          firstName: 'John'
+          firstName: 'John',
+          subscription_groups: [
+            {
+              subscription_group_id: 'newsletter_123',
+              subscription_state: 'subscribed'
+            },
+            {
+              subscription_group_id: 'promotional_456',
+              subscription_state: 'unsubscribed'
+            }
+          ]
         },
         receivedAt
       })
@@ -102,16 +112,7 @@ describe('Braze Cloud Mode (Actions)', () => {
           external_id: 'user1234',
           email: 'test@example.com',
           first_name: 'John',
-          subscription_groups: [
-            {
-              subscription_group_id: 'newsletter_123',
-              subscription_state: 'subscribed'
-            },
-            {
-              subscription_group_id: 'promotional_456',
-              subscription_state: 'unsubscribed'
-            }
-          ]
+          subscription_groups: { '@path': '$.traits.subscription_groups'}
         }
       })
 
@@ -146,7 +147,8 @@ describe('Braze Cloud Mode (Actions)', () => {
         type: 'identify',
         userId: 'user1234',
         traits: {
-          email: 'test@example.com'
+          email: 'test@example.com',
+          subscription_groups: []
         },
         receivedAt
       })
@@ -157,7 +159,7 @@ describe('Braze Cloud Mode (Actions)', () => {
         mapping: {
           external_id: 'user1234',
           email: 'test@example.com',
-          subscription_groups: []
+          subscription_groups: { '@path': '$.traits.subscription_groups'}
         }
       })
 
@@ -167,7 +169,9 @@ describe('Braze Cloud Mode (Actions)', () => {
         attributes: expect.arrayContaining([
           expect.objectContaining({
             external_id: 'user1234',
-            email: 'test@example.com',
+            email: 'test@example.com'
+          }),
+          expect.not.objectContaining({
             subscription_groups: []
           })
         ])
