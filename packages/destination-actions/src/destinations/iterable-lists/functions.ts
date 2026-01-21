@@ -1,13 +1,14 @@
 import { RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { GetAudienceResp } from './types'
+import { CONSTANTS } from './constants'
 
 export async function getAudience(
   request: RequestClient,
   settings: Settings,
   audienceKey: string
 ): Promise<string | undefined> {
-  const response = await request('https://api.iterable.com/api/lists', {
+  const response = await request(`${CONSTANTS.API_BASE_URL}${CONSTANTS.API_CUSTOM_AUDIENCE_ENDPOINT}`, {
     method: 'GET',
     skipResponseCloning: true,
     headers: { 'Api-Key': settings.apiKey }
@@ -19,7 +20,7 @@ export async function getAudience(
 }
 
 export async function createAudience(request: RequestClient, settings: Settings, audienceKey: string): Promise<string> {
-  const response = await request('https://api.iterable.com/api/lists', {
+  const response = await request(`${CONSTANTS.API_BASE_URL}${CONSTANTS.API_CUSTOM_AUDIENCE_ENDPOINT}`, {
     method: 'POST',
     headers: { 'Api-Key': settings.apiKey },
     json: {

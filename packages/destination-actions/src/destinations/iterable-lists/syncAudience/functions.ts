@@ -140,7 +140,7 @@ async function sendList(
     defaultErrorMessage: string
 ): Promise<void> {
     try {
-        await request(`${CONSTANTS.API_BASE_URL}/lists/${endpoint}`, {
+        await request(`${CONSTANTS.API_BASE_URL}${CONSTANTS.API_CUSTOM_AUDIENCE_ENDPOINT}/${endpoint}`, {
             method: 'post',
             skipResponseCloning: true,
             json
