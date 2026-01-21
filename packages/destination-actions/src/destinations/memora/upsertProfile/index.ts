@@ -1,8 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { IntegrationError, RetryableError, createRequestClient } from '@segment/actions-core'
+import { IntegrationError, createRequestClient } from '@segment/actions-core'
 import { API_VERSION, BASE_URL } from '../index'
+import type { Logger } from '@segment/actions-core/destination-kit'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -79,12 +80,12 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { payload, settings }) => {
-    return upsertProfiles(request, [payload], settings)
+  perform: async (request, { payload, settings, logger }) => {
+    return upsertProfiles(request, [payload], settings, logger)
   },
 
-  performBatch: async (request, { payload: payloads, settings }) => {
-    return upsertProfiles(request, payloads, settings)
+  performBatch: async (request, { payload: payloads, settings, logger }) => {
+    return upsertProfiles(request, payloads, settings, logger)
   }
 }
 
@@ -92,7 +93,8 @@ const action: ActionDefinition<Settings, Payload> = {
 async function upsertProfiles(
   request: ReturnType<typeof createRequestClient>,
   payloads: Payload[],
-  settings: Settings
+  settings: Settings,
+  logger?: Logger
 ) {
   const storeId = payloads[0]?.memora_store
 
@@ -136,8 +138,11 @@ async function upsertProfiles(
   const csvBuffer = Buffer.from(csv, 'utf-8')
   const filename = 'memora-segment-import.csv'
 
+  // Step 1: Request pre-signed upload URL
+  let importId: string
+  let uploadUrl: string
+
   try {
-    // Step 1: Request pre-signed upload URL
     const importResponse = await request<{ importId: string; url: string }>(
       `${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Imports`,
       {
@@ -156,18 +161,17 @@ async function upsertProfiles(
       }
     )
 
-    if (importResponse.status !== 201) {
-      throw new IntegrationError(
-        `Failed to initiate import: ${importResponse.status}`,
-        'IMPORT_INIT_FAILED',
-        importResponse.status
-      )
-    }
+    importId = importResponse.data.importId
+    uploadUrl = importResponse.data.url
+    logger?.info?.(`Memora import initiated: ${importId} (${payloads.length} profiles)`)
+  } catch (error) {
+    logger?.error?.(`Error initiating Memora import: ${error instanceof Error ? error.message : String(error)}`)
+    throw error
+  }
 
-    const { importId, url: uploadUrl } = importResponse.data
-
-    // Step 2: Upload CSV to pre-signed URL (no auth needed)
-    const uploadResponse = await request(uploadUrl, {
+  // Step 2: Upload CSV to pre-signed URL (no auth needed)
+  try {
+    await request(uploadUrl, {
       method: 'PUT',
       headers: {
         'Content-Type': 'text/csv'
@@ -175,28 +179,21 @@ async function upsertProfiles(
       body: csvBuffer
     })
 
-    if (uploadResponse.status !== 200) {
-      throw new IntegrationError(
-        `Failed to upload CSV: ${uploadResponse.status}`,
-        'CSV_UPLOAD_FAILED',
-        uploadResponse.status
-      )
-    }
+    logger?.info?.(`CSV uploaded successfully to Memora (importId: ${importId}, ${payloads.length} profiles)`)
 
-    // Return the import response with importId for tracking
+    // Return success with importId for tracking
     return {
-      ...importResponse,
       data: {
-        ...importResponse.data,
         importId,
-        profileCount: payloads.length
+        profileCount: payloads.length,
+        success: true
       }
     }
   } catch (error) {
-    if (error instanceof IntegrationError) {
-      throw error
-    }
-    handleMemoraApiError(error)
+    logger?.error?.(
+      `Error uploading CSV to Memora (importId: ${importId}): ${error instanceof Error ? error.message : String(error)}`
+    )
+    throw error
   }
 }
 
@@ -257,40 +254,6 @@ interface ColumnMapping {
   columnName: string
   traitGroup: string
   traitName: string
-}
-
-// Helper function to handle Memora API errors
-function handleMemoraApiError(error: unknown): never {
-  const httpError = error as {
-    response?: { status: number; data?: { message?: string; code?: number }; headers?: Record<string, string> }
-    message?: string
-  }
-
-  if (httpError.response) {
-    const status = httpError.response.status
-    const data = httpError.response.data
-
-    switch (status) {
-      case 400:
-        throw new IntegrationError(data?.message || 'Bad Request - Invalid request data', 'INVALID_REQUEST_DATA', 400)
-      case 404:
-        throw new IntegrationError(data?.message || 'Profile or service not found', 'SERVICE_NOT_FOUND', 404)
-      case 429: {
-        const retryAfter = httpError.response.headers?.['retry-after']
-        const message = retryAfter ? `Rate limit exceeded. Retry after ${retryAfter} seconds` : 'Rate limit exceeded'
-        throw new RetryableError(data?.message || message)
-      }
-      case 500:
-        throw new RetryableError(data?.message || 'Internal server error')
-      case 503:
-        throw new RetryableError(data?.message || 'Service unavailable')
-      default:
-        throw new IntegrationError(data?.message || `HTTP ${status} error`, 'API_ERROR', status)
-    }
-  }
-
-  // Network or other errors
-  throw new RetryableError(httpError.message || 'Network error occurred')
 }
 
 interface MemoraStoresResponse {
