@@ -13,7 +13,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Your Jimo API key.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

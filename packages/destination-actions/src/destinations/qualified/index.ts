@@ -14,8 +14,7 @@ const destination: DestinationDefinition<Settings> = {
       api_key: {
         label: 'API Key',
         description: 'Your Qualified API Key. When creating the API Key in Qualified make sure to select all scopes.',
-        type: 'string',
-        format: 'password',
+        type: 'password',
         required: true
       }
     }
