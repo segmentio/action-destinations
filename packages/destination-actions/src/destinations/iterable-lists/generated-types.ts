@@ -5,6 +5,8 @@ export interface Settings {
    * To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.
    */
   apiKey: string
+
+  iterableProjectType: string
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
@@ -16,7 +18,7 @@ export interface AudienceSettings {
   /**
    * Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid for unsubscribe action.
    */
-  globalUnsubscribe?: boolean
+  channelUnsubscribe?: boolean
   /**
    * The numeric Campaign ID to associate with the unsubscribe. Only valid for unsubscribe action.
    */

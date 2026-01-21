@@ -1,14 +1,13 @@
-import { IntegrationError, AudienceDestinationDefinition, RequestClient, defaultValues } from '@segment/actions-core'
+import { IntegrationError, AudienceDestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
-
 import syncAudience from './syncAudience'
-import { GetAudienceResp } from './types'
+import { getAudience, createAudience } from './functions'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Iterable Lists',
   slug: 'actions-iterable-lists',
   mode: 'cloud',
-  description: 'Sync users to Iterable Lists',
+  description: 'Sync Segment Engage audiences to Iterable Lists',
 
   authentication: {
     scheme: 'custom',
@@ -19,6 +18,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         description:
           "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
         required: true
+      }, 
+      iterableProjectType: {
+        type: 'string',
+        label: 'Iterable Project Type',
+        description: 'Select the type of your Iterable project. Hybrid projects support both email and user ID based identification, while User ID-Based projects only support user ID based identification.',
+        required: true,
+        choices: [
+          { label: 'Hybrid Project', value: 'hybrid' },
+          { label: 'User ID-Based Project', value: 'userId' }
+        ],
+        default: 'hybrid'
       }
     },
     testAuthentication: (request, { settings }) => {
@@ -29,7 +39,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       })
     }
   },
-
   audienceFields: {
     updateExistingUsersOnly: {
       label: 'Update existing users only',
@@ -39,8 +48,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       default: false,
       required: false
     },
-    globalUnsubscribe: {
-      label: 'Global Unsubscribe',
+    channelUnsubscribe: {
+      label: 'Channel Unsubscribe',
       description:
         "Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid for unsubscribe action.",
       type: 'boolean',
@@ -56,8 +65,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   audienceConfig: {
     mode: {
-      type: 'synced', // Indicates that the audience is synced on some schedule
-      full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
+      type: 'synced',
+      full_audience_sync: false
     },
     async createAudience(request, { settings, personas }) {
       if (!personas) {
@@ -119,33 +128,4 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   ]
 }
-
-async function getAudience(
-  request: RequestClient,
-  settings: Settings,
-  audienceKey: string
-): Promise<string | undefined> {
-  const response = await request('https://api.iterable.com/api/lists', {
-    method: 'GET',
-    skipResponseCloning: true,
-    headers: { 'Api-Key': settings.apiKey }
-  })
-
-  const json: GetAudienceResp = (await response.data) as GetAudienceResp
-  const audience = json.lists.find((list: { id: number; name: string }) => list.name === audienceKey)
-  return audience?.id.toString() ?? undefined
-}
-
-async function createAudience(request: RequestClient, settings: Settings, audienceKey: string): Promise<string> {
-  const response = await request('https://api.iterable.com/api/lists', {
-    method: 'POST',
-    headers: { 'Api-Key': settings.apiKey },
-    json: {
-      name: audienceKey
-    }
-  })
-  const audience = await response.json()
-  return audience.listId
-}
-
 export default destination
