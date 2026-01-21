@@ -56,7 +56,7 @@ export interface Payload {
    */
   validityPeriod?: number
   /**
-   * The time that Twilio will send the message. Must be in ISO 8601 format.
+   * The time that Twilio will send the message. Must be in ISO 8601 format. Messages can be scheduled up to 35 days in advance, and at least 15 minutes in advance.
    */
   sendAt?: string
   /**
