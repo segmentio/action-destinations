@@ -5,7 +5,9 @@ export interface Settings {
    * To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.
    */
   apiKey: string
-
+  /**
+   * Select the type of your Iterable project. Hybrid projects support both email and user ID based identification, while User ID-Based projects only support user ID based identification.
+   */
   iterableProjectType: string
 }
 // Generated file. DO NOT MODIFY IT BY HAND.

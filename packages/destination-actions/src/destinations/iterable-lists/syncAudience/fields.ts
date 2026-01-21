@@ -37,7 +37,6 @@ export const fields: Record<string, InputField> = {
         description: 'Traits or Properties object from the identify() or track() call emitted by Engage',
         type: 'object',
         required: true,
-        unsafe_hidden: true,
         default: {
             '@if': {
                 exists: { '@path': '$.traits' },
@@ -50,7 +49,6 @@ export const fields: Record<string, InputField> = {
         label: 'Segment Audience Key',
         description: 'Segment Audience Key. Maps to the Iterable List "Name" when the list is created in Iterable.',
         type: 'string',
-        unsafe_hidden: true,
         required: true,
         default: {
             '@path': '$.context.personas.computation_key'
@@ -60,7 +58,6 @@ export const fields: Record<string, InputField> = {
         label: 'Segment External Audience ID',
         description: 'Segment External Audience ID. Maps to the List ID when the list is created in Iterable.',
         type: 'string',
-        unsafe_hidden: true,
         required: true,
         default: {
             '@path': '$.context.personas.external_audience_id'

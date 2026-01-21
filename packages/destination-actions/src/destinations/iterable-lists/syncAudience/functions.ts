@@ -72,7 +72,7 @@ export async function send(request: RequestClient, payload: Payload[], settings:
         }
         await sendList(
             request,
-            'subscribe',
+            CONSTANTS.SUBSCRIBE,
             json,
             subscribers,
             payload,
@@ -92,7 +92,7 @@ export async function send(request: RequestClient, payload: Payload[], settings:
         }
         await sendList(
             request,
-            'unsubscribe',
+            CONSTANTS.UNSUBSCRIBE,
             json,
             unsubscribers,
             payload,
