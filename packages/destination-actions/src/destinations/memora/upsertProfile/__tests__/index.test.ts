@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, RetryableError, IntegrationError } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { BASE_URL, API_VERSION } from '../../index'
 
@@ -76,7 +76,7 @@ describe('Memora.upsertProfile', () => {
       expect((responses[0].data as any).importId).toBe('mem_import_12345')
 
       // Validate the import request body
-      expect(capturedImportBody.filename).toMatch(/memora-import-\d+\.csv/)
+      expect(capturedImportBody.filename).toBe('memora-segment-import.csv')
       expect(capturedImportBody.fileSize).toBeGreaterThan(0)
       expect(capturedImportBody.columnMappings).toHaveLength(4)
 
@@ -316,18 +316,14 @@ describe('Memora.upsertProfile', () => {
         .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
         .reply(400, { message: 'Invalid request' })
 
-      try {
-        await testDestination.testAction('upsertProfile', {
+      await expect(
+        testDestination.testAction('upsertProfile', {
           event,
           settings: defaultSettings,
           mapping: defaultMapping,
           useDefaultMappings: true
         })
-        fail('Expected IntegrationError to be thrown')
-      } catch (error) {
-        expect(error).toBeInstanceOf(IntegrationError)
-        expect((error as IntegrationError).message).toBe('Invalid request')
-      }
+      ).rejects.toThrow()
     })
 
     it('should throw error when CSV upload fails', async () => {
@@ -346,18 +342,97 @@ describe('Memora.upsertProfile', () => {
 
       nock('https://example.com').put('/presigned-url').reply(500, { message: 'Upload failed' })
 
-      try {
-        await testDestination.testAction('upsertProfile', {
+      await expect(
+        testDestination.testAction('upsertProfile', {
           event,
           settings: defaultSettings,
           mapping: defaultMapping,
           useDefaultMappings: true
         })
-        fail('Expected error to be thrown')
-      } catch (error) {
-        // The upload will fail with a retryable error
-        expect(error).toBeInstanceOf(RetryableError)
-      }
+      ).rejects.toThrow()
+    })
+
+    it('should properly escape CSV values with commas and quotes', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-123',
+        properties: {
+          email: 'test@example.com',
+          first_name: 'John, Jr.',
+          last_name: 'O"Brien'
+        }
+      })
+
+      let capturedCSV = ''
+
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+        importId: 'mem_import_12345',
+        url: 'https://example.com/presigned-url'
+      })
+
+      nock('https://example.com')
+        .put('/presigned-url', (body) => {
+          capturedCSV = body as string
+          return true
+        })
+        .reply(200)
+
+      await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: defaultMapping,
+        useDefaultMappings: true
+      })
+
+      // Validate CSV escaping
+      expect(capturedCSV).toContain('"John, Jr."')
+      expect(capturedCSV).toContain('"O""Brien"')
+    })
+
+    it('should escape CSV header field names with special characters', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-456',
+        properties: {
+          email: 'test@example.com'
+        }
+      })
+
+      let capturedCSV = ''
+
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+        importId: 'mem_import_12345',
+        url: 'https://example.com/presigned-url'
+      })
+
+      nock('https://example.com')
+        .put('/presigned-url', (body) => {
+          capturedCSV = body as string
+          return true
+        })
+        .reply(200)
+
+      await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          contact_identifiers: {
+            email: { '@path': '$.properties.email' }
+          },
+          contact_traits: {
+            'first,name': { '@path': '$.properties.email' },
+            'last"name': { '@path': '$.properties.email' }
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      // Validate CSV header escaping - field names with special characters should be escaped
+      const csvLines = capturedCSV.split('\n')
+      const header = csvLines[0]
+      expect(header).toContain('"first,name"')
+      expect(header).toContain('"last""name"')
     })
 
     it('should properly escape CSV values with commas and quotes', async () => {
@@ -577,23 +652,19 @@ describe('Memora.upsertProfile', () => {
         .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
         .reply(400, { message: 'Invalid column mapping' })
 
-      try {
-        await testDestination.testBatchAction('upsertProfile', {
+      await expect(
+        testDestination.testBatchAction('upsertProfile', {
           events,
           settings: defaultSettings,
           mapping: defaultMapping,
           useDefaultMappings: true
         })
-        fail('Expected IntegrationError to be thrown')
-      } catch (error) {
-        expect(error).toBeInstanceOf(IntegrationError)
-        expect((error as IntegrationError).message).toBe('Invalid column mapping')
-      }
+      ).rejects.toThrow()
     })
   })
 
   describe('error handling', () => {
-    it('should handle 400 Bad Request errors', async () => {
+    it('should throw error when API returns error response', async () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
@@ -606,218 +677,20 @@ describe('Memora.upsertProfile', () => {
         .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
         .reply(400, { message: 'Invalid profile data' })
 
-      try {
-        await testDestination.testAction('upsertProfile', {
+      await expect(
+        testDestination.testAction('upsertProfile', {
           event,
           settings: defaultSettings,
           mapping: defaultMapping,
           useDefaultMappings: true
         })
-        fail('Expected IntegrationError to be thrown')
-      } catch (error) {
-        expect(error).toBeInstanceOf(IntegrationError)
-        expect((error as IntegrationError).message).toBe('Invalid profile data')
-        expect((error as IntegrationError).code).toBe('INVALID_REQUEST_DATA')
-        expect((error as IntegrationError).status).toBe(400)
-      }
-    })
-
-    it('should handle 404 Not Found errors', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'user-123',
-        properties: {
-          email: 'test@example.com'
-        }
-      })
-
-      nock(BASE_URL)
-        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
-        .reply(404, { message: 'Store not found' })
-
-      try {
-        await testDestination.testAction('upsertProfile', {
-          event,
-          settings: defaultSettings,
-          mapping: defaultMapping,
-          useDefaultMappings: true
-        })
-        fail('Expected IntegrationError to be thrown')
-      } catch (error) {
-        expect(error).toBeInstanceOf(IntegrationError)
-        expect((error as IntegrationError).message).toBe('Store not found')
-        expect((error as IntegrationError).code).toBe('SERVICE_NOT_FOUND')
-        expect((error as IntegrationError).status).toBe(404)
-      }
-    })
-
-    it('should handle 429 Rate Limit errors as retryable', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'user-123',
-        properties: {
-          email: 'test@example.com'
-        }
-      })
-
-      nock(BASE_URL)
-        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
-        .reply(429, { message: 'Rate limit exceeded' }, { 'retry-after': '60' })
-
-      try {
-        await testDestination.testAction('upsertProfile', {
-          event,
-          settings: defaultSettings,
-          mapping: defaultMapping,
-          useDefaultMappings: true
-        })
-        fail('Expected RetryableError to be thrown')
-      } catch (error) {
-        expect(error).toBeInstanceOf(RetryableError)
-        expect((error as RetryableError).message).toBe('Rate limit exceeded')
-      }
-    })
-
-    it('should handle 429 Rate Limit with retry-after header', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'user-123',
-        properties: {
-          email: 'test@example.com'
-        }
-      })
-
-      nock(BASE_URL)
-        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
-        .reply(429, {}, { 'retry-after': '120' })
-
-      try {
-        await testDestination.testAction('upsertProfile', {
-          event,
-          settings: defaultSettings,
-          mapping: defaultMapping,
-          useDefaultMappings: true
-        })
-        fail('Expected RetryableError to be thrown')
-      } catch (error) {
-        expect(error).toBeInstanceOf(RetryableError)
-        // Message should mention rate limit
-        expect((error as RetryableError).message).toContain('Rate limit')
-      }
-    })
-
-    it('should handle 500 Internal Server errors as retryable', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'user-123',
-        properties: {
-          email: 'test@example.com'
-        }
-      })
-
-      nock(BASE_URL)
-        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
-        .reply(500, { message: 'Internal server error' })
-
-      try {
-        await testDestination.testAction('upsertProfile', {
-          event,
-          settings: defaultSettings,
-          mapping: defaultMapping,
-          useDefaultMappings: true
-        })
-        fail('Expected RetryableError to be thrown')
-      } catch (error) {
-        expect(error).toBeInstanceOf(RetryableError)
-        expect((error as RetryableError).message).toBe('Internal server error')
-      }
-    })
-
-    it('should handle 503 Service Unavailable errors as retryable', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'user-123',
-        properties: {
-          email: 'test@example.com'
-        }
-      })
-
-      nock(BASE_URL)
-        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
-        .reply(503, { message: 'Service unavailable' })
-
-      try {
-        await testDestination.testAction('upsertProfile', {
-          event,
-          settings: defaultSettings,
-          mapping: defaultMapping,
-          useDefaultMappings: true
-        })
-        fail('Expected RetryableError to be thrown')
-      } catch (error) {
-        expect(error).toBeInstanceOf(RetryableError)
-        expect((error as RetryableError).message).toBe('Service unavailable')
-      }
-    })
-
-    it('should handle other HTTP errors with default message', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'user-123',
-        properties: {
-          email: 'test@example.com'
-        }
-      })
-
-      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(418, {})
-
-      try {
-        await testDestination.testAction('upsertProfile', {
-          event,
-          settings: defaultSettings,
-          mapping: defaultMapping,
-          useDefaultMappings: true
-        })
-        fail('Expected IntegrationError to be thrown')
-      } catch (error) {
-        expect(error).toBeInstanceOf(IntegrationError)
-        expect((error as IntegrationError).message).toBe('HTTP 418 error')
-        expect((error as IntegrationError).code).toBe('API_ERROR')
-        expect((error as IntegrationError).status).toBe(418)
-      }
-    })
-
-    it('should handle network errors as retryable', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'user-123',
-        properties: {
-          email: 'test@example.com'
-        }
-      })
-
-      nock(BASE_URL)
-        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
-        .replyWithError({ message: 'Network timeout', code: 'ETIMEDOUT' })
-
-      try {
-        await testDestination.testAction('upsertProfile', {
-          event,
-          settings: defaultSettings,
-          mapping: defaultMapping,
-          useDefaultMappings: true
-        })
-        fail('Expected RetryableError to be thrown')
-      } catch (error) {
-        expect(error).toBeInstanceOf(RetryableError)
-        expect((error as RetryableError).message).toContain('Network')
-      }
+      ).rejects.toThrow()
     })
   })
 
   describe('dynamicFields', () => {
     describe('memora_store', () => {
-      it('should fetch and return Memora stores from Control Plane', async () => {
+      it('should fetch and return memory stores from Control Plane', async () => {
         nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')

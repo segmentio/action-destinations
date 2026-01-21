@@ -20,7 +20,7 @@ Object {
     },
   ],
   "fileSize": 51,
-  "filename": "memora-import-1768555612079.csv",
+  "filename": "memora-segment-import.csv",
 }
 `;
 
@@ -34,6 +34,6 @@ Object {
     },
   ],
   "fileSize": 22,
-  "filename": "memora-import-1768555612067.csv",
+  "filename": "memora-segment-import.csv",
 }
 `;
