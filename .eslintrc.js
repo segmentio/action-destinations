@@ -108,6 +108,7 @@ module.exports = {
         // Allowed exceptions for actions-core
         'packages/core/src/time.ts',
         'packages/core/src/request-client.ts',
+        'packages/core/src/destination-kit/action.ts',
         // Allowed exceptions for actions-shared
         'packages/actions-shared/src/engage/utils/isDestinationActionService.ts',
         'packages/actions-shared/src/engage/utils/MessageSendPerformer.ts'
@@ -174,6 +175,11 @@ module.exports = {
             name: 'history',
             message:
               'Direct usage of "history" is not allowed in environment-agnostic packages. Use "typeof history !== \'undefined\'" for feature detection or move browser-specific code to browser-destinations package.'
+          },
+          {
+            name: 'fetch',
+            message:
+              'Direct usage of "fetch" is not allowed in environment-agnostic packages. Use "typeof fetch !== \'undefined\'" for feature detection or move browser-specific code to browser-destinations package.'
           }
         ],
         'no-restricted-imports': [

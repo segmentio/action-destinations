@@ -65,7 +65,7 @@ describe('Environment-specific code detection', () => {
 
           lines.forEach((line, index) => {
             // Skip comments and imports
-            if (line.trim().startsWith('//') || line.trim().startsWith('*') || line.trim().startsWith('import')) {
+            if (line.trim().startsWith('//') || /^\s*\*/.test(line) || line.trim().startsWith('import')) {
               return
             }
 
@@ -124,7 +124,7 @@ describe('Environment-specific code detection', () => {
 
           lines.forEach((line, index) => {
             // Skip comments and imports
-            if (line.trim().startsWith('//') || line.trim().startsWith('*') || line.trim().startsWith('import')) {
+            if (line.trim().startsWith('//') || /^\s*\*/.test(line) || line.trim().startsWith('import')) {
               return
             }
 
@@ -143,10 +143,14 @@ describe('Environment-specific code detection', () => {
               globalName === 'process' ? allowedProcessPatterns : globalName === 'Buffer' ? allowedBufferPatterns : []
             const isAllowedException = allowedPatterns.some((pattern) => pattern.test(locationString))
 
+            // For process and Buffer, allow globalThis.{globalName} usage
+            const isGlobalThisUsage =
+              (globalName === 'process' || globalName === 'Buffer') && globalThisPattern.test(line)
+
             if (
               directUsagePattern.test(line) &&
               !typeofPattern.test(line) &&
-              !globalThisPattern.test(line) &&
+              !isGlobalThisUsage &&
               !isAllowedException
             ) {
               violations.push({
@@ -191,13 +195,15 @@ describe('Environment-specific code detection', () => {
 
             if (requirePattern.test(line) || importPattern.test(line)) {
               // Skip type-only imports
-              if (!line.includes('import type')) {
-                violations.push({
-                  file: path.relative(srcDir, file),
-                  line: index + 1,
-                  content: line.trim()
-                })
+              if (line.includes('import type')) {
+                return
               }
+
+              violations.push({
+                file: path.relative(srcDir, file),
+                line: index + 1,
+                content: line.trim()
+              })
             }
           })
         })
@@ -209,6 +215,60 @@ describe('Environment-specific code detection', () => {
         throw new Error(
           `Found ${violations.length} import(s) of Node.js built-in modules:\n\n${message}\n\n` +
             `These packages should be environment-agnostic and not depend on Node.js built-ins.`
+        )
+      }
+    })
+  })
+
+  describe('Environment detection patterns', () => {
+    it('should use safe environment detection patterns', () => {
+      const violations: Array<{ file: string; line: number; content: string; issue: string }> = []
+
+      sourceFiles.forEach((file) => {
+        const content = fs.readFileSync(file, 'utf-8')
+        const lines = content.split('\n')
+
+        lines.forEach((line, index) => {
+          // Skip comments
+          if (line.trim().startsWith('//') || /^\s*\*/.test(line)) {
+            return
+          }
+
+          // Unsafe pattern: direct process usage without checks
+          // Good: typeof globalThis.process !== 'undefined'
+          // Bad: if (process) or if (process.env)
+          const unsafeProcessCheck = /\bif\s*\(\s*process[.[]/.test(line)
+          if (unsafeProcessCheck && !/globalThis\.process/.test(line) && !/typeof/.test(line)) {
+            violations.push({
+              file: path.relative(srcDir, file),
+              line: index + 1,
+              content: line.trim(),
+              issue: 'Direct process check without typeof or globalThis'
+            })
+          }
+
+          // Unsafe pattern: direct window usage without checks
+          const unsafeWindowCheck = /\bif\s*\(\s*window[.[]/.test(line)
+          if (unsafeWindowCheck && !/typeof/.test(line)) {
+            violations.push({
+              file: path.relative(srcDir, file),
+              line: index + 1,
+              content: line.trim(),
+              issue: 'Direct window check without typeof'
+            })
+          }
+        })
+      })
+
+      if (violations.length > 0) {
+        const message = violations.map((v) => `  ${v.file}:${v.line} - ${v.issue}\n    ${v.content}`).join('\n\n')
+
+        throw new Error(
+          `Found ${violations.length} unsafe environment detection pattern(s):\n\n${message}\n\n` +
+            `Always use safe feature detection:\n` +
+            `  - typeof globalThis.process !== 'undefined'\n` +
+            `  - typeof window !== 'undefined'\n` +
+            `  - typeof globalThis.process?.env === 'object'`
         )
       }
     })
