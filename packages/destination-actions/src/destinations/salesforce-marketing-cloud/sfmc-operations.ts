@@ -57,34 +57,13 @@ function isRetryableError(errData: ErrorData, status: number): boolean {
   )
 }
 
-export async function getExternalKey(
-  request: RequestClient,
-  settings: Settings,
-  dataExtensionId: string
-): Promise<string | null> {
-  if (!dataExtensionId) {
-    return Promise.resolve(null)
-  }
-  const url = `https://${settings.subdomain}.rest.marketingcloudapis.com/data/v1/customobjects/${dataExtensionId}`
-  const response = await request<{ key?: string }>(url, {
-    method: 'GET'
-  })
-  if (response.status === 200) {
-    const responseData = response.data
-    if (responseData && responseData.key) {
-      return responseData.key
-    }
-  }
-  return null
-}
-
 export async function asyncUpsertRowsV2(
   request: RequestClient,
   subdomain: String,
   payloads: payload_dataExtension[] | payload_contactDataExtension[],
-  externalKey?: string
+  dataExtensionId?: string
 ) {
-  if (!externalKey) {
+  if (!dataExtensionId) {
     throw new IntegrationError(
       `In order to send an event to a data extension Data Extension Key must be defined.`,
       'Misconfigured required field',
@@ -94,110 +73,13 @@ export async function asyncUpsertRowsV2(
   // Use flattened rows for async API
   const rows = generateFlattenedRows(payloads)
   const response = await request(
-    `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/dataextensions/key:${externalKey}/rows`,
+    `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/dataextensions/${dataExtensionId}/rows`,
     {
       method: 'PUT',
       json: { items: rows }
     }
   )
   return response
-}
-
-export async function executeAsyncUpsertRowsWithMultiStatus(
-  request: RequestClient,
-  subdomain: String,
-  payloads: payload_dataExtension[] | payload_contactDataExtension[],
-  externalKey?: string,
-  statsContext?: StatsContext
-): Promise<MultiStatusResponse> {
-  const multiStatusResponse = new MultiStatusResponse()
-  const rows = generateFlattenedRows(payloads)
-  let response: ModifiedResponse | undefined
-
-  try {
-    if (externalKey) {
-      response = await asyncUpsertRowsV2(request, subdomain, payloads, externalKey)
-    }
-
-    if (response) {
-      const responseData = response.data as JSONLikeObject[]
-      payloads.forEach((_, index) => {
-        multiStatusResponse.setSuccessResponseAtIndex(index, {
-          status: 200,
-          sent: rows[index] as Object as JSONLikeObject,
-          body: responseData[index] ? (responseData[index] as Object as JSONLikeObject) : {}
-        })
-      })
-    }
-  } catch (error) {
-    if (error instanceof IntegrationError && error.code === 'Misconfigured required field') {
-      payloads.forEach((_, index) => {
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`
-        })
-      })
-      return multiStatusResponse
-    }
-
-    // If the errors is not a http resposne error, we treat it as a generic error
-    if (!(error as ErrorResponse).response?.data) {
-      if (statsContext) {
-        const { tags, statsClient } = statsContext
-        statsClient?.incr('sfmc_upsert_rows_error', 1, [...tags])
-      }
-      payloads.forEach((_, index) => {
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 500,
-          errormessage: error.message
-        })
-      })
-      return multiStatusResponse
-    }
-
-    const err = error as ErrorResponse
-    if (err?.response?.status === 401) {
-      throw error
-    }
-
-    const errData = err?.response?.data
-    const additionalError =
-      err?.response?.data?.additionalErrors &&
-      err.response.data.additionalErrors.length > 0 &&
-      err.response.data.additionalErrors
-
-    let status = 500 // default status is 500
-    const isRetryable = isRetryableError(errData, err?.response?.status)
-    statsContext?.statsClient?.incr('sfmc_upsert_rows_error', 1, [...statsContext.tags, `retryable:${isRetryable}`])
-    if (!isRetryable && err?.response?.status) {
-      status = err.response.status
-    }
-    payloads.forEach((_, index) => {
-      multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: status,
-        errormessage: additionalError ? additionalError[0].message : errData?.message || '',
-        sent: rows[index] as Object as JSONLikeObject,
-        /*
-        Setting the error response body to the additionalError array as there is no way to determine which error corresponds to which event. 
-        We receive an array of errors, but some errors may not be repeated even if they occur in multiple events, while others may be.
-    
-        Additionally, there is no consistent order to the errors in the array. For example, errors like 
-        'At least one existing field is required in the values property' consistently appear at the top of the array.
-    
-        Furthermore, every event that is processed correctly before the first erroneous event is accepted. 
-        However, any events that occur after the first error, regardless of whether they are correct or not, are rejected. 
-        This means that all valid events following the first error will not be processed.
-
-        For more information, please refer to: 
-        https://salesforce.stackexchange.com/questions/292770/import-contacts-sfmc-via-api-vs-ftp/292774#292774
-        */
-        body: additionalError ? (additionalError as Object as JSONLikeObject) : (errData as Object as JSONLikeObject)
-      })
-    })
-  }
-
-  return multiStatusResponse
 }
 
 export function upsertRows(
