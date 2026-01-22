@@ -891,4 +891,288 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       )
     })
   })
+
+  describe('send - Client Param Builder (formatUserDataWithParamBuilder)', () => {
+    let mockClientParamBuilderInstance
+
+    beforeEach(() => {
+      mockClientParamBuilderInstance = {
+        getNormalizedAndHashedPII: jest.fn(),
+        processAndCollectAllParams: jest.fn(),
+        getFbc: jest.fn(),
+        getFbp: jest.fn()
+      }
+    })
+
+    it('should use clientParamBuilder to format email when available', () => {
+      mockAnalytics.storage.get.mockReturnValue('0')
+      mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue('hashed_email_value')
+
+      const payload = {
+        event_config: {
+          event_name: 'Purchase',
+          show_fields: false
+        },
+        content_ids: ['product-123'],
+        value: 99.99,
+        userData: {
+          em: 'TEST@EXAMPLE.COM'
+        }
+      }
+
+      send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
+
+      expect(mockClientParamBuilderInstance.processAndCollectAllParams).toHaveBeenCalled()
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('TEST@EXAMPLE.COM', 'email')
+      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ em: 'hashed_email_value' }))
+    })
+
+    it('should use clientParamBuilder to format phone number when available', () => {
+      mockAnalytics.storage.get.mockReturnValue('0')
+      mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue('hashed_phone_value')
+
+      const payload = {
+        event_config: {
+          event_name: 'Purchase',
+          show_fields: false
+        },
+        content_ids: ['product-123'],
+        value: 99.99,
+        userData: {
+          ph: '+1 (555) 123-4567'
+        }
+      }
+
+      send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
+
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith(
+        '+1 (555) 123-4567',
+        'phone'
+      )
+      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ ph: 'hashed_phone_value' }))
+    })
+
+    it('should use clientParamBuilder to format all PII fields', () => {
+      mockAnalytics.storage.get.mockReturnValue('0')
+      mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockImplementation((_, type) => {
+        return `hashed_${type}_value`
+      })
+
+      const payload = {
+        event_config: {
+          event_name: 'Purchase',
+          show_fields: false
+        },
+        content_ids: ['product-123'],
+        value: 99.99,
+        userData: {
+          em: 'test@example.com',
+          ph: '5551234567',
+          fn: 'John',
+          ln: 'Doe',
+          ge: 'm',
+          db: '1990-05-15',
+          ct: 'San Francisco',
+          st: 'CA',
+          zp: '94102',
+          country: 'US',
+          external_id: 'user-123'
+        }
+      }
+
+      send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
+
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('test@example.com', 'email')
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('5551234567', 'phone')
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('John', 'first_name')
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('Doe', 'last_name')
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('m', 'gender')
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('1990-05-15', 'date_of_birth')
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('San Francisco', 'city')
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('CA', 'state')
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('94102', 'zip_code')
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('US', 'country')
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('user-123', 'external_id')
+
+      expect(mockFbq).toHaveBeenCalledWith(
+        'init',
+        'test-pixel-123',
+        expect.objectContaining({
+          em: 'hashed_email_value',
+          ph: 'hashed_phone_value',
+          fn: 'hashed_first_name_value',
+          ln: 'hashed_last_name_value',
+          ge: 'hashed_gender_value',
+          db: 'hashed_date_of_birth_value',
+          ct: 'hashed_city_value',
+          st: 'hashed_state_value',
+          zp: 'hashed_zip_code_value',
+          country: 'hashed_country_value',
+          external_id: 'hashed_external_id_value'
+        })
+      )
+    })
+
+    it('should use clientParamBuilder getFbc and getFbp methods', () => {
+      mockAnalytics.storage.get.mockReturnValue('0')
+      mockClientParamBuilderInstance.getFbc.mockReturnValue('fb.1.1234567890.ClientParamBuilderFbc')
+      mockClientParamBuilderInstance.getFbp.mockReturnValue('fb.1.1234567890.ClientParamBuilderFbp')
+
+      const payload = {
+        event_config: {
+          event_name: 'Purchase',
+          show_fields: false
+        },
+        content_ids: ['product-123'],
+        value: 99.99,
+        userData: {
+          em: 'test@example.com',
+          fbc: 'fb.1.1234567890.PayloadFbc',
+          fbp: 'fb.1.1234567890.PayloadFbp'
+        }
+      }
+
+      send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
+
+      expect(mockClientParamBuilderInstance.processAndCollectAllParams).toHaveBeenCalled()
+      expect(mockClientParamBuilderInstance.getFbc).toHaveBeenCalled()
+      expect(mockClientParamBuilderInstance.getFbp).toHaveBeenCalled()
+
+      // ClientParamBuilder values should override payload values
+      expect(mockFbq).toHaveBeenCalledWith(
+        'init',
+        'test-pixel-123',
+        expect.objectContaining({
+          fbc: 'fb.1.1234567890.ClientParamBuilderFbc',
+          fbp: 'fb.1.1234567890.ClientParamBuilderFbp'
+        })
+      )
+    })
+
+    it('should use payload fbc/fbp when clientParamBuilder methods return null', () => {
+      mockAnalytics.storage.get.mockReturnValue('0')
+      mockClientParamBuilderInstance.getFbc.mockReturnValue(null)
+      mockClientParamBuilderInstance.getFbp.mockReturnValue(null)
+
+      const payload = {
+        event_config: {
+          event_name: 'Purchase',
+          show_fields: false
+        },
+        content_ids: ['product-123'],
+        value: 99.99,
+        userData: {
+          em: 'test@example.com',
+          fbc: 'fb.1.1234567890.PayloadFbc',
+          fbp: 'fb.1.1234567890.PayloadFbp'
+        }
+      }
+
+      send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
+
+      expect(mockClientParamBuilderInstance.getFbc).toHaveBeenCalled()
+      expect(mockClientParamBuilderInstance.getFbp).toHaveBeenCalled()
+
+      // Should fall back to payload values when clientParamBuilder returns null
+      expect(mockFbq).toHaveBeenCalledWith(
+        'init',
+        'test-pixel-123',
+        expect.objectContaining({
+          fbc: 'fb.1.1234567890.PayloadFbc',
+          fbp: 'fb.1.1234567890.PayloadFbp'
+        })
+      )
+    })
+
+    it('should fall back to default formatting when clientParamBuilder returns undefined', () => {
+      mockAnalytics.storage.get.mockReturnValue('0')
+      mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue(undefined)
+
+      const payload = {
+        event_config: {
+          event_name: 'Purchase',
+          show_fields: false
+        },
+        content_ids: ['product-123'],
+        value: 99.99,
+        userData: {
+          em: 'TEST@EXAMPLE.COM',
+          ph: '(555) 123-4567'
+        }
+      }
+
+      send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
+
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('TEST@EXAMPLE.COM', 'email')
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('(555) 123-4567', 'phone')
+
+      // When clientParamBuilder returns undefined, should fall back to default formatting
+      expect(mockFbq).toHaveBeenCalledWith(
+        'init',
+        'test-pixel-123',
+        expect.objectContaining({
+          em: 'test@example.com',
+          ph: '5551234567'
+        })
+      )
+    })
+
+    it('should call processAndCollectAllParams before getting cookie values', () => {
+      mockAnalytics.storage.get.mockReturnValue('0')
+      mockClientParamBuilderInstance.getFbc.mockReturnValue('fb.1.fbc')
+      mockClientParamBuilderInstance.getFbp.mockReturnValue('fb.1.fbp')
+
+      const payload = {
+        event_config: {
+          event_name: 'Purchase',
+          show_fields: false
+        },
+        content_ids: ['product-123'],
+        value: 99.99,
+        userData: {
+          em: 'test@example.com'
+        }
+      }
+
+      send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
+
+      const calls = mockClientParamBuilderInstance.processAndCollectAllParams.mock.invocationCallOrder
+      const fbcCalls = mockClientParamBuilderInstance.getFbc.mock.invocationCallOrder
+      const fbpCalls = mockClientParamBuilderInstance.getFbp.mock.invocationCallOrder
+
+      // processAndCollectAllParams should be called before getFbc/getFbp
+      expect(calls[0]).toBeLessThan(fbcCalls[0])
+      expect(calls[0]).toBeLessThan(fbpCalls[0])
+    })
+
+    it('should work correctly when clientParamBuilder is undefined', () => {
+      mockAnalytics.storage.get.mockReturnValue('0')
+
+      const payload = {
+        event_config: {
+          event_name: 'Purchase',
+          show_fields: false
+        },
+        content_ids: ['product-123'],
+        value: 99.99,
+        userData: {
+          em: 'TEST@EXAMPLE.COM',
+          ph: '(555) 123-4567'
+        }
+      }
+
+      // Pass undefined for clientParamBuilder
+      send(mockFbq, undefined, payload, defaultSettings, mockAnalytics)
+
+      // Should use default formatting (lowercase and trim for email, digits only for phone)
+      expect(mockFbq).toHaveBeenCalledWith(
+        'init',
+        'test-pixel-123',
+        expect.objectContaining({
+          em: 'test@example.com',
+          ph: '5551234567'
+        })
+      )
+    })
+  })
 })
