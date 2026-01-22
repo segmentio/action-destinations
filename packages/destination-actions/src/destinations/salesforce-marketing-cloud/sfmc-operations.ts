@@ -78,7 +78,7 @@ export async function getExternalKey(
   return null
 }
 
-export async function asyncInsertRowsV2(
+export async function asyncUpsertRowsV2(
   request: RequestClient,
   subdomain: String,
   payloads: payload_dataExtension[] | payload_contactDataExtension[],
@@ -96,14 +96,14 @@ export async function asyncInsertRowsV2(
   const response = await request(
     `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/dataextensions/key:${externalKey}/rows`,
     {
-      method: 'POST',
+      method: 'PUT',
       json: { items: rows }
     }
   )
   return response
 }
 
-export async function executeAsyncInsertRowsWithMultiStatus(
+export async function executeAsyncUpsertRowsWithMultiStatus(
   request: RequestClient,
   subdomain: String,
   payloads: payload_dataExtension[] | payload_contactDataExtension[],
@@ -116,7 +116,7 @@ export async function executeAsyncInsertRowsWithMultiStatus(
 
   try {
     if (externalKey) {
-      response = await asyncInsertRowsV2(request, subdomain, payloads, externalKey)
+      response = await asyncUpsertRowsV2(request, subdomain, payloads, externalKey)
     }
 
     if (response) {

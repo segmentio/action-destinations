@@ -3,15 +3,15 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { keys, enable_batching, batch_size, values_dataExtensionFields, dataExtensionHook } from '../sfmc-properties'
 import {
-  executeAsyncInsertRowsWithMultiStatus,
+  executeAsyncUpsertRowsWithMultiStatus,
   getDataExtensionFields,
-  asyncInsertRowsV2,
+  asyncUpsertRowsV2,
   getExternalKey
 } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event asynchronously to Data Extension',
-  description: 'Insert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.',
+  description: 'Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.',
   fields: {
     keys: { ...keys, required: true, dynamic: true },
     values: { ...values_dataExtensionFields, dynamic: true },
@@ -70,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('No External Key found for Data Extension', 'INVALID_CONFIGURATION', 400)
     }
 
-    return asyncInsertRowsV2(request, settings.subdomain, [payload], externalKey)
+    return asyncUpsertRowsV2(request, settings.subdomain, [payload], externalKey)
   },
   performBatch: async (request, { settings, payload, hookOutputs }) => {
     const dataExtensionId: string =
@@ -84,7 +84,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('No External Key found for Data Extension', 'INVALID_CONFIGURATION', 400)
     }
 
-    return executeAsyncInsertRowsWithMultiStatus(request, settings.subdomain, payload, externalKey)
+    return executeAsyncUpsertRowsWithMultiStatus(request, settings.subdomain, payload, externalKey)
   }
 }
 
