@@ -616,7 +616,7 @@ describe('TheTradeDeskCrm.syncAudience AWS Flow', () => {
     const multiStatusResponse = testDestination.results?.[0]?.multistatus
     expect(multiStatusResponse).toBeDefined()
     if (multiStatusResponse) {
-      expect(multiStatusResponse[multiStatusResponse.length - 1].status).toBe(400)
+      expect(multiStatusResponse[multiStatusResponse.length - 1].status).toBe(500)
       const errorResponse = multiStatusResponse[multiStatusResponse.length - 1] as MultiStatusErrorNode
       expect(errorResponse.errormessage).toContain('Failed to upload payload to Integrations Outbound Controller')
     }
@@ -691,7 +691,7 @@ describe('TheTradeDeskCrm.syncAudience AWS Flow', () => {
 
       // Second payload should have AWS upload failure error
       const awsFailureError = multiStatusResponse[multiStatusResponse.length - 1] as MultiStatusErrorNode
-      expect(awsFailureError.status).toBe(400)
+      expect(awsFailureError.status).toBe(500)
       expect(awsFailureError.errormessage).toContain('Failed to upload payload to Integrations Outbound Controller')
     }
   })
