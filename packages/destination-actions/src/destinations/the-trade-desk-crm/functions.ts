@@ -134,8 +134,8 @@ export async function processPayload(input: ProcessPayloadInput): Promise<MultiS
         }
       })
     } catch (error) {
-      // Set the default error to Bad Request
-      let httpStatusCode = 400
+      // Set the default error to Internal Server Error
+      let httpStatusCode = 500
 
       // If this is an AWS error, extract the status code
       if (error?.$metadata?.httpStatusCode) {
