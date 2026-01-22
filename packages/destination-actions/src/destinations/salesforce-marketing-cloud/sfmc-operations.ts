@@ -65,7 +65,7 @@ export async function asyncUpsertRowsV2(
 ) {
   if (!dataExtensionId) {
     throw new IntegrationError(
-      `In order to send an event to a data extension Data Extension Key must be defined.`,
+      `In order to send an event to a data extension Data Extension ID must be defined.`,
       'Misconfigured required field',
       400
     )
@@ -79,6 +79,7 @@ export async function asyncUpsertRowsV2(
       json: { items: rows }
     }
   )
+
   return response
 }
 

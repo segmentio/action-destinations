@@ -21,9 +21,9 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Bytes',
       description: 'The maximum size of a batch in bytes.',
       type: 'number',
-      unsafe_hidden: true,
       required: false,
-      default: 5000000 // 5 MB
+      default: 5000000, // 5 MB
+      unsafe_hidden: true
     },
     batch_size: {
       label: 'Batch Size',
@@ -33,7 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
       minimum: 1000,
       default: 28000,
       maximum: 30000,
-      unsafe_hidden: false
+      unsafe_hidden: true
     }
   },
   dynamicFields: {
@@ -67,6 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!dataExtensionId) {
       throw new IntegrationError('No Data Extension Connected', 'INVALID_CONFIGURATION', 400)
     }
+
     return asyncUpsertRowsV2(request, settings.subdomain, [payload], dataExtensionId)
   },
 
