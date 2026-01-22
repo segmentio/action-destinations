@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.145.1-staging-d7d79cb56.0",
+  "version": "1.146.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -43,6 +43,7 @@
     "@segment/analytics-browser-actions-playerzero": "^1.93.0",
     "@segment/analytics-browser-actions-replaybird": "^1.75.0",
     "@segment/analytics-browser-actions-ripe": "^1.94.0",
+    "@segment/analytics-browser-actions-rokt-plugins": "^1.1.0",
     "@segment/analytics-browser-actions-sabil": "^1.6.0",
     "@segment/analytics-browser-actions-screeb": "^1.94.0",
     "@segment/analytics-browser-actions-snap-plugins": "^1.75.0",

@@ -240,6 +240,12 @@ As mentioned above, the `perform` function contains the code that defines what t
 
 Segment recommends that you start with a simple task, and evolve it. Get the basics working first. Add one or two fields to start, then run `./bin/run generate:types` when you change the definition of a field. Run this step manually after changes, or run `yarn types --watch` to regenerate types when a change is detected.
 
+#### Extract Action Endpoint version
+
+For each destination the template has a `verionsing-info.ts` file where you can define the endpoint version and other
+version related information like API reference, change logs etc. This is done to automate and simplify identification
+of deprecated version through LLMs.
+
 ## Write tests
 
 Testing ensures that your destination functions the way you expect. For information on testing, see [Build and Test Cloud Destinations](testing.md).
