@@ -129,6 +129,11 @@ function maybeSendUserData(client: FBClient, payload: Payload, settings: Setting
     const userDataFormatted = formatUserData(userData)
 
     if(userDataFormatted) {
+        /* 
+            Facebook indicated that init should only trigger on a single page load up to max 2 times. 
+            When userData is created it gets added to storage and included in the next init call on page load. 
+            Facebook also advised to always send userData when it's available, even if it was collected via previous events. 
+        */
         const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
         const initCountFromStorage: string | null = storage.get(INIT_COUNT_KEY)
         const initCount: number | undefined = (initCountFromStorage && !isNaN(Number(initCountFromStorage))) 

@@ -84,7 +84,6 @@ export function initScript(settings: Settings, analytics: Analytics) {
   window.fbq('init', ...initArgs)
 
   setStorageInitCount(analytics, 1)
-  deleteStorageUserData(analytics)
 
   if(!disablePushState) {
     window.fbq('trackSingle', pixelId, 'PageView')
@@ -111,11 +110,6 @@ export const storageFallback = {
 export function setStorageInitCount(analytics: Analytics, count: number) {
   const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
   storage.set(INIT_COUNT_KEY, `${count}`)
-}
-
-export function deleteStorageUserData(analytics: Analytics) {
-  const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
-  storage.set(USER_DATA_KEY, '')
 }
 
 function getStoredUserData(analytics: Analytics): UserData | undefined { 
