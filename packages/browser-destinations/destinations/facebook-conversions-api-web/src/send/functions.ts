@@ -1,4 +1,4 @@
-import { FBEvent, UserData, EventOptions, FBClient, FBStandardEventType, FBNonStandardEventType } from '../types'
+import { FBEvent, UserData, EventOptions, FBClient, FBStandardEventType, FBNonStandardEventType, FBClientParamBuilder, PIIType, PIIParamName } from '../types'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { UniversalStorage, Analytics } from '@segment/analytics-next'
@@ -6,7 +6,7 @@ import {US_STATE_CODES, COUNTRY_CODES, MAX_INIT_COUNT, INIT_COUNT_KEY, USER_DATA
 import { storageFallback, setStorageInitCount } from '../functions'
 import { getNotVisibleForEvent } from './depends-on'
 
-export function send(client: FBClient, payload: Payload, settings: Settings, analytics: Analytics) {
+export function send(client: FBClient, clientParamBuilder: FBClientParamBuilder | undefined, payload: Payload, settings: Settings, analytics: Analytics) {
     const { pixelId } = settings
     const { 
         event_config: { 
@@ -26,7 +26,7 @@ export function send(client: FBClient, payload: Payload, settings: Settings, ana
     
     const fbEvent = formatFBEvent(payload)
 
-    maybeSendUserData(client, payload, settings, analytics)
+    maybeSendUserData(client, clientParamBuilder, payload, settings, analytics)
 
     const options = formatOptions(payload)
 
@@ -123,10 +123,14 @@ function formatOptions(payload: Payload): EventOptions | undefined {
     return Object.values(options).some(Boolean) ? options : undefined
 }
 
-function maybeSendUserData(client: FBClient, payload: Payload, settings: Settings, analytics: Analytics) {
-    const { pixelId } = settings
-    const { userData } = payload
-    const userDataFormatted = formatUserData(userData)
+function maybeSendUserData(client: FBClient, clientParamBuilder: FBClientParamBuilder | undefined, payload: Payload, settings: Settings, analytics: Analytics) {
+    const { 
+        pixelId 
+    } = settings
+    const { 
+        userData 
+    } = payload
+    const userDataFormatted = formatUserData(userData, clientParamBuilder)
 
     if(userDataFormatted) {
         /* 
@@ -149,7 +153,7 @@ function maybeSendUserData(client: FBClient, payload: Payload, settings: Setting
     }
 } 
 
-function formatUserData(userData: Payload['userData']): UserData | undefined {
+function formatUserData(userData: Payload['userData'], clientParamBuilder: FBClientParamBuilder | undefined): UserData | undefined {
     if(!userData){
         return undefined 
     }
@@ -165,31 +169,54 @@ function formatUserData(userData: Payload['userData']): UserData | undefined {
         ct, 
         st, 
         zp, 
-        country
+        country,
+        fbp, 
+        fbc
     } = userData
+    
+    let fbcValue = fbc ? fbc.trim() : undefined
+    let fbpValue = fbp ? fbp.trim() : undefined
 
-    const dbFormatted = formatDate(db)
-    const stFormatted = fromMap(US_STATE_CODES, st)
-    const countryFormatted = fromMap(COUNTRY_CODES, country)
-
+    if(clientParamBuilder){
+        clientParamBuilder.processAndCollectAllParams()
+        fbcValue = clientParamBuilder.getFbc() || fbcValue 
+        fbpValue = clientParamBuilder.getFbp() || fbpValue
+    }
+    
     const ud: UserData = {
-        ...(typeof em === 'string' ? {em: em.toLowerCase().trim()} : {}), // lowercase and trim whitespace
-        ...(typeof ph === 'string' ? {ph: ph.replace(/\D/g, '')} : {}), // remove non-numeric characters
-        ...(typeof fn === 'string' ? {fn: fn.toLowerCase().trim()} : {}), // lowercase and trim whitespace
-        ...(typeof ln === 'string' ? {ln: ln.toLowerCase().trim()} : {}), // lowercase and trim whitespace
-        ...(typeof ge === 'string' && ['m', 'f'].includes(ge) ? { ge: ge as 'm' | 'f' } : {}), 
-        ...(typeof dbFormatted === 'string' ? {db: dbFormatted} : {}), // format date to YYYYMMDD
-        ...(typeof ct === 'string' ? {ct: ct.toLowerCase().replace(/\s+/g, '')} : {}), // lowercase and replace any whitespace
-        ...(typeof stFormatted === 'string' ? {st: stFormatted} : {}), // lowercase 2 character state code 
-        ...(typeof zp === 'string' ? {zp: zp.trim()} : {}),
-        ...(typeof countryFormatted === 'string' ? {country: countryFormatted} : {}), // lowercase 2 character country code 
-        ...(typeof external_id === 'string' ? {external_id: external_id.trim()} : {}) // trim whitespace
+        ...(formatPII(em, 'email', 'em', clientParamBuilder, (s) => s.toLowerCase().trim())),
+        ...(formatPII(ph, 'phone', 'ph', clientParamBuilder, (s) => s.replace(/\D/g, ''))),
+        ...(formatPII(fn, 'first_name', 'fn', clientParamBuilder, (s) => s.toLowerCase().trim())),
+        ...(formatPII(ln, 'last_name', 'ln', clientParamBuilder, (s) => s.toLowerCase().trim())),
+        ...(formatPII(ge, 'gender', 'ge', clientParamBuilder, (s) => (['m', 'f'].includes(s) ? s as 'm' | 'f' : undefined) ) as {ge: 'm'|'f'} || {}),
+        ...(formatPII(db, 'date_of_birth', 'db', clientParamBuilder, (s) => formatDate(s))),
+        ...(formatPII(ct, 'city', 'ct', clientParamBuilder, (s) => s.toLowerCase().replace(/\s+/g, ''))),
+        ...(formatPII(st, 'state', 'st', clientParamBuilder, (s) => fromMap(US_STATE_CODES, s))),
+        ...(formatPII(zp, 'zip_code', 'zp', clientParamBuilder, (s) => s.trim())),
+        ...(formatPII(country, 'country', 'country', clientParamBuilder, (s) => fromMap(COUNTRY_CODES, s))),
+        ...(formatPII(external_id, 'external_id', 'external_id', clientParamBuilder, (s) => s.trim())),
+        ...(fbcValue ? { fbc: fbcValue } : {}),
+        ...(fbpValue ? { fbp: fbpValue } : {})
     }
 
     if(Object.keys(ud).length === 0){
         return undefined
     }
     return ud
+}
+
+function formatPII<K extends PIIParamName, V extends string>(
+    value: string | undefined, 
+    piiType: PIIType, 
+    piiParamType: K, 
+    clientParamBuilder: FBClientParamBuilder | undefined, 
+    formatter: (s: string) => string | undefined
+): Partial<Record<K, V>> {    
+    if(!value) {
+        return {}
+    }
+    const val = clientParamBuilder?.getNormalizedAndHashedPII(value, piiType) ?? formatter(value)
+    return val ? ({ [piiParamType]: val as V } as Partial<Record<K, V>>) : {}
 }
 
 function formatDate(isoDate?: string): string | undefined {

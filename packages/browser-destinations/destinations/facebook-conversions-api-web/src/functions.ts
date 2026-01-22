@@ -10,7 +10,7 @@ export function initScript(settings: Settings, analytics: Analytics) {
     disableAutoConfig, 
     disableFirstPartyCookies,
     agent,
-    ldu 
+    ldu
   } = settings as Settings & { ldu: keyof typeof LDU }
 
   (function(
