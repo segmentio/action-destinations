@@ -36,6 +36,8 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: (request, { settings }) => {
       return request(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores?pageSize=1`, {
         method: 'GET',
+        username: settings.username,
+        password: settings.password,
         headers: {
           ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
         }

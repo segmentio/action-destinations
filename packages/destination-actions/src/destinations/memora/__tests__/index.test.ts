@@ -11,8 +11,11 @@ describe('Memora Destination', () => {
   })
 
   describe('Authentication', () => {
-    it('should validate valid credentials', async () => {
-      nock(BASE_URL).get(`/${API_VERSION}/ControlPlane/Stores?pageSize=1`).reply(200, { services: [] })
+    it('should send basic auth credentials in testAuthentication', async () => {
+      nock(BASE_URL)
+        .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=1`)
+        .basicAuth({ user: 'test-api-key', pass: 'test-api-secret' })
+        .reply(200, { services: [] })
 
       const settings = {
         username: 'test-api-key',
