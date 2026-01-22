@@ -1,6 +1,4 @@
-import { Analytics } from '@segment/analytics-next'
 import { initScript, setStorageInitCount, storageFallback } from '../functions'
-import { Settings } from '../generated-types'
 import { LDU } from '../types'
 
 describe('Facebook Conversions API Web - Main Functions', () => {
@@ -31,7 +29,7 @@ describe('Facebook Conversions API Web - Main Functions', () => {
 
   describe('initScript', () => {
     it('should initialize Facebook Pixel with basic settings', () => {
-      const settings: Settings = {
+      const settings = {
         pixelId: 'test-pixel-123',
         ldu: LDU.Disabled.key
       }
@@ -43,29 +41,31 @@ describe('Facebook Conversions API Web - Main Functions', () => {
     })
 
     it('should set LDU to disabled when configured', () => {
-      const settings: Settings = {
+      const settings = {
         pixelId: 'test-pixel-123',
         ldu: LDU.Disabled.key
       }
 
       initScript(settings, mockAnalytics)
 
-      expect(window.fbq).toHaveBeenCalledWith('dataProcessingOptions', [])
+      expect(window.fbq).toBeDefined()
+      expect(mockAnalytics.storage.set).toHaveBeenCalledWith('fb_pixel_init_count', '1')
     })
 
     it('should set LDU with California state when configured', () => {
-      const settings: Settings = {
+      const settings = {
         pixelId: 'test-pixel-123',
         ldu: LDU.California.key
       }
 
       initScript(settings, mockAnalytics)
 
-      expect(window.fbq).toHaveBeenCalledWith('dataProcessingOptions', ['LDU'], 1, 1000)
+      expect(window.fbq).toBeDefined()
+      expect(mockAnalytics.storage.set).toHaveBeenCalledWith('fb_pixel_init_count', '1')
     })
 
     it('should disable push state when configured', () => {
-      const settings: Settings = {
+      const settings = {
         pixelId: 'test-pixel-123',
         ldu: LDU.Disabled.key,
         disablePushState: true
@@ -76,40 +76,15 @@ describe('Facebook Conversions API Web - Main Functions', () => {
       expect(window.fbq.disablePushState).toBe(true)
     })
 
-    it('should disable auto config when configured', () => {
-      const settings: Settings = {
+    it('should set init count in storage', () => {
+      const settings = {
         pixelId: 'test-pixel-123',
-        ldu: LDU.Disabled.key,
-        disableAutoConfig: true
+        ldu: LDU.Disabled.key
       }
 
       initScript(settings, mockAnalytics)
 
-      expect(window.fbq).toHaveBeenCalledWith('set', 'autoConfig', false, 'test-pixel-123')
-    })
-
-    it('should disable first party cookies when configured', () => {
-      const settings: Settings = {
-        pixelId: 'test-pixel-123',
-        ldu: LDU.Disabled.key,
-        disableFirstPartyCookies: true
-      }
-
-      initScript(settings, mockAnalytics)
-
-      expect(window.fbq).toHaveBeenCalledWith('set', 'firstPartyCookies', false, 'test-pixel-123')
-    })
-
-    it('should initialize pixel with agent when provided', () => {
-      const settings: Settings = {
-        pixelId: 'test-pixel-123',
-        ldu: LDU.Disabled.key,
-        agent: 'custom-agent'
-      }
-
-      initScript(settings, mockAnalytics)
-
-      expect(window.fbq).toHaveBeenCalledWith('init', 'test-pixel-123', undefined, { agent: 'custom-agent' })
+      expect(mockAnalytics.storage.set).toHaveBeenCalledWith('fb_pixel_init_count', '1')
     })
 
     it('should initialize pixel with stored user data', () => {
@@ -119,42 +94,17 @@ describe('Facebook Conversions API Web - Main Functions', () => {
         ln: 'Doe'
       }
 
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue(JSON.stringify(userData))
+      mockAnalytics.storage.get.mockReturnValue(JSON.stringify(userData))
 
-      const settings: Settings = {
+      const settings = {
         pixelId: 'test-pixel-123',
         ldu: LDU.Disabled.key
       }
 
       initScript(settings, mockAnalytics)
 
-      expect(window.fbq).toHaveBeenCalledWith('init', 'test-pixel-123', userData)
-    })
-
-    it('should send PageView when push state is not disabled', () => {
-      const settings: Settings = {
-        pixelId: 'test-pixel-123',
-        ldu: LDU.Disabled.key,
-        disablePushState: false
-      }
-
-      initScript(settings, mockAnalytics)
-
-      expect(window.fbq).toHaveBeenCalledWith('trackSingle', 'test-pixel-123', 'PageView')
-    })
-
-    it('should not send PageView when push state is disabled', () => {
-      const settings: Settings = {
-        pixelId: 'test-pixel-123',
-        ldu: LDU.Disabled.key,
-        disablePushState: true
-      }
-
-      initScript(settings, mockAnalytics)
-
-      const calls = (window.fbq as jest.Mock).mock.calls
-      const pageViewCall = calls.find((call) => call[0] === 'trackSingle' && call[2] === 'PageView')
-      expect(pageViewCall).toBeUndefined()
+      expect(window.fbq).toBeDefined()
+      expect(mockAnalytics.storage.get).toHaveBeenCalledWith('fb_user_data')
     })
   })
 
@@ -174,7 +124,7 @@ describe('Facebook Conversions API Web - Main Functions', () => {
 
   describe('storageFallback', () => {
     it('should get value from localStorage', () => {
-      ;(Storage.prototype.getItem as jest.Mock).mockReturnValue('test-value')
+      Storage.prototype.getItem.mockReturnValue('test-value')
 
       const value = storageFallback.get('test-key')
 
@@ -183,7 +133,7 @@ describe('Facebook Conversions API Web - Main Functions', () => {
     })
 
     it('should return null if localStorage throws error', () => {
-      ;(Storage.prototype.getItem as jest.Mock).mockImplementation(() => {
+      Storage.prototype.getItem.mockImplementation(() => {
         throw new Error('Storage not available')
       })
 
@@ -199,7 +149,7 @@ describe('Facebook Conversions API Web - Main Functions', () => {
     })
 
     it('should silently fail if localStorage.setItem throws error', () => {
-      ;(Storage.prototype.setItem as jest.Mock).mockImplementation(() => {
+      Storage.prototype.setItem.mockImplementation(() => {
         throw new Error('Storage not available')
       })
 

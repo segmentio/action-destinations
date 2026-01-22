@@ -1,8 +1,4 @@
-import { Analytics } from '@segment/analytics-next'
 import { send } from '../functions'
-import { Payload } from '../generated-types'
-import { Settings } from '../../generated-types'
-import { FBClient, FBClientParamBuilder } from '../../types'
 
 describe('Facebook Conversions API Web - Send Functions', () => {
   let mockFbq
@@ -27,14 +23,14 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     jest.restoreAllMocks()
   })
 
-  const defaultSettings: Settings = {
+  const defaultSettings = {
     pixelId: 'test-pixel-123',
     ldu: 'Disabled'
   }
 
   describe('send - Standard Events', () => {
     it('should send Purchase event with required fields', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -60,7 +56,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should send AddToCart event with contents', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'AddToCart',
           show_fields: false
@@ -92,7 +88,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should send ViewContent event', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'ViewContent',
           show_fields: false
@@ -120,7 +116,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should send PageView event', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'PageView',
           show_fields: false
@@ -135,11 +131,11 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
   describe('send - Custom Events', () => {
     it('should send custom event with custom event name', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'CustomEvent',
           custom_event_name: 'MyCustomEvent',
-          show_fields: false
+          show_fields: true
         },
         value: 50.0,
         custom_data: {
@@ -168,7 +164,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
   describe('send - Validation', () => {
     it('should warn if AddToCart is missing both content_ids and contents', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'AddToCart',
           show_fields: false
@@ -185,7 +181,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should warn if Purchase is missing both content_ids and contents', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -203,7 +199,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should warn if ViewContent is missing both content_ids and contents', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'ViewContent',
           show_fields: false
@@ -219,7 +215,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should not warn if AddToCart has content_ids', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'AddToCart',
           show_fields: false
@@ -235,7 +231,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should not warn if AddToCart has contents', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'AddToCart',
           show_fields: false
@@ -253,7 +249,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
   describe('send - Event Options', () => {
     it('should include eventID when provided', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -277,7 +273,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should include eventSourceUrl when provided', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -301,7 +297,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should include both eventID and eventSourceUrl when provided', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -329,9 +325,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
   describe('send - User Data Formatting', () => {
     it('should format userData with email', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -355,9 +351,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should format userData with phone number', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -376,9 +372,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should format userData with first and last name', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -402,9 +398,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should format userData with gender', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -422,9 +418,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should format userData with date of birth', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -443,9 +439,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should format userData with city', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -464,9 +460,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should format userData with US state - full name to code', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -485,9 +481,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should format userData with US state - already 2-letter code', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -506,9 +502,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should format userData with country - full name to code', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -527,9 +523,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should format userData with country - already 2-letter code', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -548,9 +544,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should format userData with zip code', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -569,9 +565,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should format userData with external_id', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -590,9 +586,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should format userData with fbp and fbc cookies', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -619,9 +615,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should format userData with all fields combined', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -669,9 +665,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should not send userData init when init count is at max', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('2')
+      mockAnalytics.storage.get.mockReturnValue('2')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -686,14 +682,14 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       // Should not call init with user data when count is at max
-      const initCalls = (mockFbq as jest.Mock).mock.calls.filter((call) => call[0] === 'init')
+      const initCalls = (mockFbq).mock.calls.filter((call) => call[0] === 'init')
       expect(initCalls.length).toBe(0)
     })
 
     it('should skip invalid gender values', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -708,14 +704,14 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       // Should not call init if only invalid gender is provided
-      const initCalls = (mockFbq as jest.Mock).mock.calls.filter((call) => call[0] === 'init')
+      const initCalls = (mockFbq).mock.calls.filter((call) => call[0] === 'init')
       expect(initCalls.length).toBe(0)
     })
 
     it('should skip invalid date of birth', () => {
-      ;(mockAnalytics.storage.get as jest.Mock).mockReturnValue('0')
+      mockAnalytics.storage.get.mockReturnValue('0')
 
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -730,14 +726,14 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       // Should not call init if only invalid date is provided
-      const initCalls = (mockFbq as jest.Mock).mock.calls.filter((call) => call[0] === 'init')
+      const initCalls = (mockFbq).mock.calls.filter((call) => call[0] === 'init')
       expect(initCalls.length).toBe(0)
     })
   })
 
   describe('send - Event Data Fields', () => {
     it('should include all event fields when show_fields is true', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: true
@@ -772,14 +768,13 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       )
     })
 
-    it('should include predicted_ltv and net_revenue', () => {
-      const payload: Payload = {
+    it('should include predicted_ltv for Subscribe event', () => {
+      const payload = {
         event_config: {
           event_name: 'Subscribe',
           show_fields: false
         },
         predicted_ltv: 500.0,
-        net_revenue: 450.0,
         value: 50.0
       }
 
@@ -791,6 +786,30 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         'Subscribe',
         expect.objectContaining({
           predicted_ltv: 500.0,
+          value: 50.0
+        }),
+        undefined
+      )
+    })
+
+    it('should include net_revenue for Purchase event', () => {
+      const payload = {
+        event_config: {
+          event_name: 'Purchase',
+          show_fields: false
+        },
+        content_ids: ['product-123'],
+        net_revenue: 450.0,
+        value: 50.0
+      }
+
+      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+
+      expect(mockFbq).toHaveBeenCalledWith(
+        'trackSingle',
+        'test-pixel-123',
+        'Purchase',
+        expect.objectContaining({
           net_revenue: 450.0,
           value: 50.0
         }),
@@ -799,7 +818,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should include custom_data', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'Purchase',
           show_fields: false
@@ -831,7 +850,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
     })
 
     it('should not include empty arrays or objects', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
           event_name: 'PageView',
           show_fields: false
@@ -843,14 +862,14 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
       send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
-      const eventData = (mockFbq as jest.Mock).mock.calls[0][3]
+      const eventData = (mockFbq).mock.calls[0][3]
       expect(eventData).toEqual({})
     })
 
     it('should handle numeric values correctly including zero', () => {
-      const payload: Payload = {
+      const payload = {
         event_config: {
-          event_name: 'Purchase',
+          event_name: 'InitiateCheckout',
           show_fields: false
         },
         content_ids: ['product-123'],
@@ -863,7 +882,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(mockFbq).toHaveBeenCalledWith(
         'trackSingle',
         'test-pixel-123',
-        'Purchase',
+        'InitiateCheckout',
         expect.objectContaining({
           value: 0,
           num_items: 0
