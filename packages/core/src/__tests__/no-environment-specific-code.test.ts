@@ -47,7 +47,16 @@ describe('Environment-specific code detection in actions-core', () => {
   })
 
   describe('Browser-specific globals', () => {
-    const browserGlobals = ['window', 'document', 'localStorage', 'sessionStorage', 'navigator', 'location', 'history']
+    const browserGlobals = [
+      'window',
+      'document',
+      'localStorage',
+      'sessionStorage',
+      'navigator',
+      'location',
+      'history',
+      'fetch'
+    ]
 
     browserGlobals.forEach((globalName) => {
       it(`should not use browser-specific global: ${globalName}`, () => {
@@ -59,7 +68,7 @@ describe('Environment-specific code detection in actions-core', () => {
 
           lines.forEach((line, index) => {
             // Skip comments and imports
-            if (line.trim().startsWith('//') || line.trim().startsWith('*') || line.trim().startsWith('import')) {
+            if (line.trim().startsWith('//') || /^\s*\*/.test(line) || line.trim().startsWith('import')) {
               return
             }
 
@@ -120,7 +129,7 @@ describe('Environment-specific code detection in actions-core', () => {
 
           lines.forEach((line, index) => {
             // Skip comments and imports
-            if (line.trim().startsWith('//') || line.trim().startsWith('*') || line.trim().startsWith('import')) {
+            if (line.trim().startsWith('//') || /^\s*\*/.test(line) || line.trim().startsWith('import')) {
               return
             }
 
@@ -175,7 +184,7 @@ describe('Environment-specific code detection in actions-core', () => {
 
   describe('Require/import checks', () => {
     it('should not use require() for Node.js built-in modules', () => {
-      const nodeBuiltins = ['fs', 'path', 'http', 'os', 'stream', 'util', 'events', 'child_process']
+      const nodeBuiltins = ['fs', 'path', 'http', 'https', 'os', 'stream', 'util', 'events', 'child_process', 'crypto']
       const violations: Array<{ file: string; line: number; content: string }> = []
 
       const allowedImports: Record<string, RegExp[]> = {
@@ -241,7 +250,7 @@ describe('Environment-specific code detection in actions-core', () => {
 
         lines.forEach((line, index) => {
           // Skip comments
-          if (line.trim().startsWith('//') || line.trim().startsWith('*')) {
+          if (line.trim().startsWith('//') || /^\s*\*/.test(line)) {
             return
           }
 
