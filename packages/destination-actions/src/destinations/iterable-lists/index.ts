@@ -51,14 +51,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     channelUnsubscribe: {
       label: 'Channel Unsubscribe',
       description:
-        "Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid for unsubscribe action.",
+        "Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid when unsubscribing a user from a List.",
       type: 'boolean',
       default: false,
       required: false
     },
     campaignId: {
       label: 'Campaign ID',
-      description: 'The numeric Campaign ID to associate with the unsubscribe. Only valid for unsubscribe action.',
+      description: 'The numeric Campaign ID to associate with the unsubscribe. Only valid when unsubscribing a user from a List.',
       type: 'number',
       required: false
     }
