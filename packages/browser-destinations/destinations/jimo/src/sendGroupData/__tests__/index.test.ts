@@ -42,7 +42,8 @@ describe('Jimo - Send Group Data', () => {
             plan: 'enterprise',
             industry: 'Technology'
           }
-        }
+        },
+        { fromSegment: true }
       ]
     ])
   })
@@ -76,7 +77,8 @@ describe('Jimo - Send Group Data', () => {
         {
           groupId: 'g2',
           traits: {}
-        }
+        },
+        { fromSegment: true }
       ]
     ])
   })
@@ -111,7 +113,8 @@ describe('Jimo - Send Group Data', () => {
         {
           groupId: 'g3',
           traits: {}
-        }
+        },
+        { fromSegment: true }
       ]
     ])
   })
