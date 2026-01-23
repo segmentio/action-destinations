@@ -10,14 +10,6 @@ type Content = {
   delivery_category?: string
 }
 
-export const append_value_event: InputField = {
-  label: 'Is Append Value',
-  description:
-    'Indicates whether to increment the value of this event to the existing value for this event in Facebook. If set to true, Facebook will add this event\'s value to the existing value for this event. If set to false or not provided, Facebook will overwrite the existing value for this event with this event\'s value.',
-  type: 'boolean',
-  default: false
-}
-
 export const custom_data: InputField = {
   label: 'Custom Data',
   description:
