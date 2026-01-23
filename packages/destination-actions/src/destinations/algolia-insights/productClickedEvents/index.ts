@@ -41,7 +41,7 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
     },
     position: {
       label: 'Position',
-      description: 'Position of the click in the list of Algolia search results.',
+      description: 'Position of the click in the list of Algolia search results. Positions should start from 1, not 0.',
       type: 'integer',
       required: false,
       default: {
@@ -116,7 +116,7 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       objectIDs: [data.payload.objectID],
       userToken: data.payload.userToken,
       authenticatedUserToken: data.payload.authenticatedUserToken,
-      positions: data.payload.position ? [data.payload.position] : undefined,
+      positions: data.payload.position != null ? [data.payload.position] : undefined,
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
     const insightPayload = { events: [insightEvent] }
