@@ -357,7 +357,6 @@ export const timestamp: InputField = {
   description: 'Hidden field: The timestamp of the event.',
   type: 'string',
   default: { '@path': '$.timestamp' },
-  required: true,
   readOnly: true,
   unsafe_hidden: true
 }
