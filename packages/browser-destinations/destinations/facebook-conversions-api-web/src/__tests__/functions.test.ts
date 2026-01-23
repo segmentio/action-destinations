@@ -2,7 +2,6 @@ import { initScript, setStorageInitCount, storageFallback } from '../functions'
 import { LDU } from '../types'
 
 describe('Facebook Conversions API Web - Main Functions', () => {
-  let mockFbq
   let mockAnalytics
 
   beforeEach(() => {
@@ -10,7 +9,6 @@ describe('Facebook Conversions API Web - Main Functions', () => {
     delete window.fbq
     delete window._fbq
 
-    mockFbq = jest.fn()
     mockAnalytics = {
       storage: {
         get: jest.fn(),
