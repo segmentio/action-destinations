@@ -92,7 +92,7 @@ async function getDmpSegmentId(
   if (body.elements?.length > 0) {
     const dmpSegmentId = `${body.elements[0].id}`
     // Cache the dmpsegment ID with no TTL so it's stored as long as possible
-    stateContext?.setResponseContext?.(cacheKey, dmpSegmentId, {})
+    stateContext?.setResponseContext?.(cacheKey, dmpSegmentId, { hour: 24 })
     return dmpSegmentId
   }
 
