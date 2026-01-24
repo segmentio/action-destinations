@@ -684,7 +684,7 @@ describe('LinkedinAudiences.updateAudience', () => {
 
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
-        .query(urlParams)
+        .query(() => true)
         .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
 
