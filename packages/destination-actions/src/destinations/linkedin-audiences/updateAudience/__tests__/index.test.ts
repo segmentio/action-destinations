@@ -708,7 +708,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       expect(responses).toBeTruthy()
       expect(responses).toHaveLength(2)
       expect(getRequestContextCalled).toBe(true)
-      expect(setResponseContextArgs).toEqual(['dmpsegment_id_personas_test_audience', 'dmp_segment_id', {}])
+      expect(setResponseContextArgs).toEqual(['dmpsegment_id_personas_test_audience', 'dmp_segment_id', { hour: 24 }])
     })
 
     it('should cache dmpsegment_id when creating a new DMP Segment', async () => {
