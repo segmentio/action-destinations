@@ -627,6 +627,128 @@ describe('LinkedinAudiences.updateAudience', () => {
         })
       ).resolves.not.toThrowError()
     })
+
+    it('should use cached dmpsegment_id if available', async () => {
+      const mockSetResponseContext = function () {}
+      const mockStoreContext = {
+        getRequestContext: (key: string): string | undefined => {
+          if (key === 'dmpsegment_id_personas_test_audience') {
+            return 'cached_dmp_segment_id'
+          }
+          return undefined
+        },
+        setResponseContext: mockSetResponseContext
+      }
+
+      // This nock should not be called because we're using the cached ID
+      const getDmpSegmentMock = nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+
+      nock(`${BASE_URL}/dmpSegments/cached_dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
+
+      const responses = await testDestination.testAction('updateAudience', {
+        event,
+        settings: {
+          ad_account_id: '123',
+          send_email: true,
+          send_google_advertising_id: true
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          personas_audience_key: 'personas_test_audience'
+        },
+        stateContext: mockStoreContext
+      })
+
+      expect(responses).toBeTruthy()
+      expect(responses).toHaveLength(1) // Only the batch update request, no getDmpSegment request
+      expect(getDmpSegmentMock.isDone()).toBeFalsy() // The nock should not have been called
+    })
+
+    it('should cache dmpsegment_id when retrieving from API', async () => {
+      let getRequestContextCalled = false
+      let setResponseContextArgs: any[] = []
+
+      const mockStoreContext = {
+        getRequestContext: (): undefined => {
+          getRequestContextCalled = true
+          return undefined
+        },
+        setResponseContext: (key: string, value: string, options: object): void => {
+          setResponseContextArgs = [key, value, options]
+        }
+      }
+
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(urlParams)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
+
+      const responses = await testDestination.testAction('updateAudience', {
+        event,
+        settings: {
+          ad_account_id: '123',
+          send_email: true,
+          send_google_advertising_id: true
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          personas_audience_key: 'personas_test_audience'
+        },
+        stateContext: mockStoreContext
+      })
+
+      expect(responses).toBeTruthy()
+      expect(responses).toHaveLength(2)
+      expect(getRequestContextCalled).toBe(true)
+      expect(setResponseContextArgs).toEqual(['dmpsegment_id_personas_test_audience', 'dmp_segment_id', {}])
+    })
+
+    it('should cache dmpsegment_id when creating a new DMP Segment', async () => {
+      let getRequestContextCalled = false
+      let setResponseContextArgs: any[] = []
+
+      const mockStoreContext = {
+        getRequestContext: (): undefined => {
+          getRequestContextCalled = true
+          return undefined
+        },
+        setResponseContext: (key: string, value: string, options: object): void => {
+          setResponseContextArgs = [key, value, options]
+        }
+      }
+
+      nock(`${BASE_URL}/dmpSegments`).get(/.*/).query(urlParams).reply(200, { elements: [] })
+      nock(`${BASE_URL}/dmpSegments`)
+        .post(/.*/, createDmpSegmentRequestBody)
+        .reply(200, {}, { 'x-linkedin-id': 'new_dmp_segment_id' })
+      nock(`${BASE_URL}/dmpSegments/new_dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
+
+      const responses = await testDestination.testAction('updateAudience', {
+        event,
+        settings: {
+          ad_account_id: '456',
+          send_email: true,
+          send_google_advertising_id: true
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          personas_audience_key: 'personas_test_audience'
+        },
+        stateContext: mockStoreContext
+      })
+
+      expect(responses).toBeTruthy()
+      expect(responses).toHaveLength(3)
+      expect(getRequestContextCalled).toBe(true)
+      expect(setResponseContextArgs).toEqual(['dmpsegment_id_personas_test_audience', 'new_dmp_segment_id', {}])
+    })
   })
 
   describe('Error cases', () => {
