@@ -658,7 +658,8 @@ describe('LinkedinAudiences.updateAudience', () => {
         useDefaultMappings: true,
         auth,
         mapping: {
-          source_segment_id: 'personas_test_audience'
+          source_segment_id: 'personas_test_audience',
+          personas_audience_key: 'personas_test_audience'
         },
         stateContext: mockStoreContext
       })
@@ -698,7 +699,8 @@ describe('LinkedinAudiences.updateAudience', () => {
         useDefaultMappings: true,
         auth,
         mapping: {
-          source_segment_id: 'personas_test_audience'
+          source_segment_id: 'personas_test_audience',
+          personas_audience_key: 'personas_test_audience'
         },
         stateContext: mockStoreContext
       })
@@ -739,7 +741,8 @@ describe('LinkedinAudiences.updateAudience', () => {
         useDefaultMappings: true,
         auth,
         mapping: {
-          source_segment_id: 'personas_test_audience'
+          source_segment_id: 'personas_test_audience',
+          personas_audience_key: 'personas_test_audience'
         },
         stateContext: mockStoreContext
       })
