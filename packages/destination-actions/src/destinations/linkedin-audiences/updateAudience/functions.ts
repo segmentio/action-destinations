@@ -90,7 +90,7 @@ async function getDmpSegmentId(
   const body = await res.json()
 
   if (body.elements?.length > 0) {
-    const dmpSegmentId = body.elements[0].id as string
+    const dmpSegmentId = `${body.elements[0].id}`
     // Cache the dmpsegment ID with no TTL so it's stored as long as possible
     stateContext?.setResponseContext?.(cacheKey, dmpSegmentId, {})
     return dmpSegmentId
