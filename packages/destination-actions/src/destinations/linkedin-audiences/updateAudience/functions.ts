@@ -75,14 +75,16 @@ async function getDmpSegmentId(
   statsContext: StatsContext | undefined,
   stateContext?: StateContext
 ): Promise<string> {
-  // Check if dmpsegment_id is already cached for this personas_audience_key
-  const cacheKey = `dmpsegment_id_${payload.personas_audience_key}`
+  // Check if dmpsegment_id is already cached for this source_segment_id
+  const cacheKey = `dmpsegment_id_${payload.source_segment_id}`
   const cachedDmpSegmentId = stateContext?.getRequestContext?.(cacheKey)
 
   if (cachedDmpSegmentId) {
+    statsContext?.statsClient?.incr('dmp_segment_cache_hit', 1, [...statsContext?.tags])
     return cachedDmpSegmentId
   }
 
+  statsContext?.statsClient?.incr('dmp_segment_cache_miss', 1, [...statsContext?.tags])
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:get-dmpSegment`])
   const res = await linkedinApiClient.getDmpSegment(settings, payload)
   const body = await res.json()
