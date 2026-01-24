@@ -96,7 +96,7 @@ async function upsertProfiles(
   settings: Settings,
   logger?: Logger
 ) {
-  logger?.crit?.('Starting Memora profile upsert process')
+  logger?.info?.('Starting Memora profile upsert process')
   const storeId = payloads[0]?.memora_store
 
   if (!payloads || payloads.length === 0) {
@@ -164,7 +164,7 @@ async function upsertProfiles(
 
     importId = importResponse.data.importId
     uploadUrl = importResponse.data.url
-    logger?.crit?.(`Memora import initiated: ${importId} (${payloads.length} profiles)`)
+    logger?.info?.(`Memora import initiated: ${importId} (${payloads.length} profiles)`)
   } catch (error) {
     logger?.error?.(`Error initiating Memora import: ${error instanceof Error ? error.message : String(error)}`)
     throw error
@@ -180,7 +180,7 @@ async function upsertProfiles(
       body: csvBuffer
     })
 
-    logger?.crit?.(`CSV uploaded successfully to Memora (importId: ${importId}, ${payloads.length} profiles)`)
+    logger?.info?.(`CSV uploaded successfully to Memora (importId: ${importId}, ${payloads.length} profiles)`)
 
     // Return success with importId for tracking
     return {
