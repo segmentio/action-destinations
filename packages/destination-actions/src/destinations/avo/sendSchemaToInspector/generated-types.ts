@@ -31,4 +31,8 @@ export interface Payload {
    * URL of the page that sent the event
    */
   pageUrl?: string
+  /**
+   * Anonymous ID of the user that sent the event
+   */
+  anonymousId?: string
 }
