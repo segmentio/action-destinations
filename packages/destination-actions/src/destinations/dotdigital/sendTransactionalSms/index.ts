@@ -1,9 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { DDCpaasApi } from '../api'
-import { CpaasMessageBody } from '../api/types'
-import { checkAndCleanMobileNumber } from '../helpers/functions'
+import { DDCpaasApi } from '@segment/actions-shared/src/dotdigital/api'
+import { CpaasMessageBody } from '@segment/actions-shared/src/dotdigital/api/types'
+import { checkAndCleanMobileNumber } from '@segment/actions-shared/src/dotdigital/helpers/functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Transactional SMS',
@@ -81,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
       body.shortenLinks = 'on'
     }
 
-    const cpaasApi = new DDCpaasApi(settings, request)
+    const cpaasApi = new DDCpaasApi(settings.api_host, request)
     return cpaasApi.sendTransactionalSms(body)
   }
 }

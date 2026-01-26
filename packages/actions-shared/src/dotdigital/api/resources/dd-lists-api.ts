@@ -1,11 +1,10 @@
 import { ModifiedResponse, RequestClient, DynamicFieldResponse } from '@segment/actions-core'
-import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
 import { List } from '../types'
 
 class DDListsApi extends DDApi {
-  constructor(settings: Settings, request: RequestClient) {
-    super(settings, request)
+  constructor(api_host: string, request: RequestClient) {
+    super(api_host, request)
   }
 
   /**

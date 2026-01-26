@@ -1,7 +1,7 @@
 import { ActionDefinition, DynamicFieldResponse, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { DDContactApi, DDListsApi, DDDataFieldsApi } from '../api'
+import { DDContactApi, DDListsApi, DDDataFieldsApi } from '@segment/actions-shared/src/dotdigital/api'
 import { contactIdentifier } from '../input-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -32,20 +32,20 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     listId: async (request: RequestClient, { settings }): Promise<DynamicFieldResponse> => {
-      return new DDListsApi(settings, request).getLists()
+      return new DDListsApi(settings.api_host, request).getLists()
     },
     dataFields: {
       __keys__: async (request, { settings }) => {
-        return new DDDataFieldsApi(settings, request).getDataFields()
+        return new DDDataFieldsApi(settings.api_host, request).getDataFields()
       }
     }
   },
 
   perform: async (request, { settings, payload }) => {
-    const fieldsAPI = new DDDataFieldsApi(settings, request)
+    const fieldsAPI = new DDDataFieldsApi(settings.api_host, request)
     await fieldsAPI.validateDataFields(payload)
 
-    const contactApi = new DDContactApi(settings, request)
+    const contactApi = new DDContactApi(settings.api_host, request)
     return contactApi.upsertContact(payload)
   }
 }

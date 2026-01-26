@@ -1,7 +1,7 @@
 import { ActionDefinition, DynamicFieldResponse, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { DDCampaignApi, DDContactApi } from '../api'
+import { DDCampaignApi, DDContactApi } from '@segment/actions-shared/src/dotdigital/api'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Email Campaign',
@@ -46,13 +46,13 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     campaignId: async (request: RequestClient, { settings }): Promise<DynamicFieldResponse> => {
-      return new DDCampaignApi(settings, request).getCampaigns()
+      return new DDCampaignApi(settings.api_host, request).getCampaigns()
     }
   },
   perform: async (request, { settings, payload }) => {
-    const contactApi = new DDContactApi(settings, request)
+    const contactApi = new DDContactApi(settings.api_host, request)
     const contactResponse = await contactApi.getContact('email', payload.email)
-    const campaignApi = new DDCampaignApi(settings, request)
+    const campaignApi = new DDCampaignApi(settings.api_host, request)
     return await campaignApi.sendCampaign(
       payload.campaignId,
       contactResponse.contactId,

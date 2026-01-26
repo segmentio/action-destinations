@@ -1,11 +1,10 @@
 import { ModifiedResponse, RequestClient } from '@segment/actions-core'
 import DDApi from '../dd-api'
 import { CpaasMessageBody } from '../types'
-import type { Settings } from '../../generated-types'
 
 class DDCpaasApi extends DDApi {
-  constructor(settings: Settings, client: RequestClient) {
-    super(settings, client)
+  constructor(api_host: string, client: RequestClient) {
+    super(api_host, client)
   }
 
   async sendTransactionalSms(body: CpaasMessageBody): Promise<unknown> {

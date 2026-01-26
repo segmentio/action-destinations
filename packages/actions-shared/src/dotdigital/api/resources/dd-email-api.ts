@@ -1,16 +1,14 @@
 import { RequestClient } from '@segment/actions-core'
-import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
 import { checkAndCleanEmail, cleanEmails } from '../../helpers/functions'
-import type { Payload } from '../../sendTransactionalEmail/generated-types'
 
 /**
  * Class representing the Dotdigital Email API.
  * Extends the base Dotdigital API class.
  */
 class DDEmailApi extends DDApi {
-  constructor(settings: Settings, client: RequestClient) {
-    super(settings, client)
+  constructor(api_host: string, client: RequestClient) {
+    super(api_host, client)
   }
 
   /**
@@ -18,7 +16,7 @@ class DDEmailApi extends DDApi {
    * @param {object} payload - The event payload.
    * @returns A promise that resolves to json.
    */
-  public async sendTransactionalEmail(payload: Payload) {
+  public async sendTransactionalEmail(payload: { toAddresses: string; ccAddresses?: string; bccAddresses?: string; subject: string; fromAddress: string; htmlContent: string; plainTextContent?: string }) {
     const toAddresses = cleanEmails(payload.toAddresses)
     const ccAddresses = cleanEmails(payload.ccAddresses)
     const bccAddresses = cleanEmails(payload.bccAddresses)

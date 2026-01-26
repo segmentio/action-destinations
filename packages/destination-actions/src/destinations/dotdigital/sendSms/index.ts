@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { DDSmsApi } from '../api'
+import { DDSmsApi } from '@segment/actions-shared/src/dotdigital/api'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send SMS',
@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    const smsApi = new DDSmsApi(settings, request)
+    const smsApi = new DDSmsApi(settings.api_host, request)
     return await smsApi.sendSms(payload.to, payload.message)
   }
 }
