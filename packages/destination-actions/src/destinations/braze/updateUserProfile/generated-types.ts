@@ -131,6 +131,19 @@ export interface Payload {
     statuses_count?: number
   }
   /**
+   * Array of objects used to manage a user's subscription status for specific subscription groups.
+   */
+  subscription_groups?: {
+    /**
+     * The identifier for the subscription group
+     */
+    subscription_group_id: string
+    /**
+     * The user's subscription status: "subscribed" or "unsubscribed"
+     */
+    subscription_state: string
+  }[]
+  /**
    * Hash of custom attributes to send to Braze
    */
   custom_attributes?: {
