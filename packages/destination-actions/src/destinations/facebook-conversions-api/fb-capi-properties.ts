@@ -10,6 +10,14 @@ type Content = {
   delivery_category?: string
 }
 
+export const is_append_event: InputField ={
+  label: 'Append Data to Existing Conversion',
+  description: 'Turn this on to add new information to a previously sent event. Curretnly supports late-calculated values for predicted lifetime value (pLTV) or net profit values. Make sure to resubmit all the original data from your connversion event as well as the pLTV or net profit values.',
+  type: 'boolean',
+  default: false,
+  required: false
+}
+
 export const custom_data: InputField = {
   label: 'Custom Data',
   description:
@@ -224,6 +232,16 @@ export const event_id: InputField = {
   type: 'string',
   default: {
     '@path': '$.messageId'
+  }
+}
+
+export const order_id: InputField = {
+  label: 'Order ID',
+  description:
+    'A unique identifier for the purchase event, typically the order ID or transaction ID from your ecommerce system.',
+  type: 'string',
+  default: {
+    '@path': '$.properties.order_id'
   }
 }
 

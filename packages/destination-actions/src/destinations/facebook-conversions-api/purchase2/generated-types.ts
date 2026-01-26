@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * Turn this on to add new information to a previously sent event. Curretnly supports late-calculated values for predicted lifetime value (pLTV) or net profit values.
+   */
+  is_append_event?: boolean
+  /**
    * This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.
    */
   action_source: string
@@ -241,6 +245,10 @@ export interface Payload {
    * This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API.
    */
   event_id?: string
+  /**
+   * A unique identifier for the purchase event, typically the order ID or transaction ID from your ecommerce system.
+   */
+  order_id?: string
   /**
    * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. This is required if the action source is "website."
    */

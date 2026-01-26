@@ -1,5 +1,6 @@
 import { InputField } from '@segment/actions-core'
 import {
+  is_append_event,
   currency,
   value,
   net_revenue,
@@ -13,6 +14,7 @@ import {
   action_source,
   event_source_url,
   event_id,
+  order_id,
   data_processing_options,
   data_processing_options_country,
   data_processing_options_state,
@@ -22,20 +24,21 @@ import { user_data_field } from '../fb-capi-user-data'
 import { app_data_field } from '../fb-capi-app-data'
 
 export const fields: Record<string, InputField> =  {
+    is_append_event,
     action_source: { ...action_source, required: true },
     currency: { ...currency, required: true },
     event_time: { ...event_time, required: true },
     user_data: user_data_field,
-    app_data_field: app_data_field,
+    app_data_field,
     value: {
       ...value,
       required: true,
       default: { '@path': '$.properties.revenue' }
     },
-    net_revenue: net_revenue,
-    content_ids: content_ids,
-    content_name: content_name,
-    content_type: content_type,
+    net_revenue,
+    content_ids,
+    content_name,
+    content_type,
     contents: {
       // Segment Checkout Started has an array of products mapping
       ...contents,
@@ -56,12 +59,13 @@ export const fields: Record<string, InputField> =  {
         ]
       }
     },
-    event_id: event_id,
-    event_source_url: event_source_url,
-    num_items: num_items,
-    custom_data: custom_data,
-    data_processing_options: data_processing_options,
-    data_processing_options_country: data_processing_options_country,
-    data_processing_options_state: data_processing_options_state,
-    test_event_code: test_event_code
+    event_id,
+    order_id,
+    event_source_url,
+    num_items,
+    custom_data,
+    data_processing_options,
+    data_processing_options_country,
+    data_processing_options_state,
+    test_event_code
 }

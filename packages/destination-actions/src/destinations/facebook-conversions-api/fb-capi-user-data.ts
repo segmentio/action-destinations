@@ -1,8 +1,8 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 import { US_STATE_CODES, COUNTRY_CODES } from './constants'
-import { Payload } from './addToCart/generated-types'
-import isEmpty from 'lodash/isEmpty'
 import { processHashing } from '../../lib/hashing-utils'
+import { UserData } from './types'
+import { Payload } from './purchase2/generated-types'
 
 // Implementation of Facebook user data object
 // https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters
@@ -188,18 +188,33 @@ export const user_data_field: InputField = {
   }
 }
 
-type UserData = Pick<Payload, 'user_data'>
-
 const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
 
-const hash = (value: string | string[] | undefined): string | string[] | undefined => {
-  if (value === undefined || !value.length) return
-
-  if (typeof value == 'string') {
-    return processHashing(value, 'sha256', 'hex')
+export const hashArray = (values: string[] | undefined): string[] | undefined => {
+  if (!values?.length) {
+    return undefined
   }
+  const cleaned = (Array.isArray(values) ? values : [values]).map(item => clean(item)).filter(Boolean)
+  const hashed = cleaned.map(item => hash(item)).filter(Boolean) as string[]
+  return hashed.length ? hashed : undefined
+}
 
-  return value.map((el: string) => processHashing(el, 'sha256', 'hex'))
+export const cleanAndHash = (value: string | undefined): string | undefined => {
+  return hash(clean(value))
+}
+
+export const hash = (value: string | undefined): string | undefined => {
+  if (value === undefined || !value.length){
+    return undefined
+  }
+  return processHashing(value, 'sha256', 'hex')
+}
+
+export const clean = (value: string | undefined): string | undefined => {
+  if (value === undefined || !value.length){
+    return undefined
+  }
+  return value.replace(/\s/g, '').toLowerCase() || undefined
 }
 
 /**
@@ -207,97 +222,108 @@ const hash = (value: string | string[] | undefined): string | string[] | undefin
  * @param payload
  * @see https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#hash
  */
-export const normalize_user_data = (payload: UserData) => {
-  if (payload.user_data.email) {
-    // Regex removes all whitespace in the string.
-    payload.user_data.email = payload.user_data.email.replace(/\s/g, '').toLowerCase()
-  }
+export const getUserData = (payloadUserData: Payload['user_data']): UserData => {
+  const { 
+    email, 
+    phone,
+    gender,
+    dateOfBirth,
+    lastName,
+    firstName,
+    city,
+    state,
+    zip,
+    country,
+    externalId,
+    client_ip_address,
+    client_user_agent,
+    fbc,
+    fbp,
+    subscriptionID,
+    leadID,
+    anonId,
+    madId,
+    fbLoginID,
+    partner_id,
+    partner_name
+  } = payloadUserData ?? {}
 
-  if (payload.user_data.phone && !isHashedInformation(payload.user_data.phone)) {
-    // Regex removes all non-numeric characters from the string.
-    payload.user_data.phone = payload.user_data.phone.replace(/\D/g, '')
-  }
+  const em = cleanAndHash(email)
 
-  if (payload.user_data.gender) {
-    payload.user_data.gender = payload.user_data.gender.replace(/\s/g, '').toLowerCase()
-    switch (payload.user_data.gender) {
+  const ph = (() => {
+    if(!phone) {
+      return undefined
+    }
+    if(!isHashedInformation(phone)){
+      // Remove all characters except numbers
+      const digits = phone.replace(/\D/g, '')
+      return hash(digits)
+    } 
+    return phone
+  })()
+
+  const ge = (() => {
+    if(isHashedInformation(gender ?? '')) {
+      return gender
+    }
+    switch (gender?.replace(/\s/g, '').toLowerCase() ?? "") {
       case 'male':
-        payload.user_data.gender = 'm'
-        break
+      case 'm':
+        return cleanAndHash('m')
       case 'female':
-        payload.user_data.gender = 'f'
-        break
+      case 'f':
+        return cleanAndHash('f')
+      default:
+        return undefined
     }
+  })()
+
+  const db = cleanAndHash(dateOfBirth)
+  
+  const ln = cleanAndHash(lastName)
+  
+  const fn = cleanAndHash(firstName)
+
+  const ct = cleanAndHash(city)
+  
+  const st = (()=> {
+    const stateCleaned = cleanAndHash(state)
+    return US_STATE_CODES.get(stateCleaned ?? "") ?? (stateCleaned || undefined)
+  })()
+  
+  const zp = cleanAndHash(zip)
+  
+  const countryValue = (() => {
+    const cleaned = clean(country)
+    return COUNTRY_CODES.get(cleaned ?? "") ?? cleaned
+  })()
+
+  const external_id = hashArray(externalId)
+  
+  const userData: UserData = {
+    // Hashing this is recommended but not required
+    ...(em ? { em } : {}),
+    ...(ph ? { ph } : {}),
+    ...(ge ? { ge } : {}),
+    ...(db ? { db } : {}),
+    ...(ln ? { ln } : {}),
+    ...(fn ? { fn } : {}),
+    ...(ct ? { ct } : {}),
+    ...(st ? { st } : {}),
+    ...(zp ? { zp } : {}),
+    ...(countryValue ? { country: countryValue } : {}),
+    ...(external_id ? { external_id } : {}), 
+    ...(client_ip_address ? { client_ip_address } : {}),
+    ...(client_user_agent ? { client_user_agent } : {}),
+    ...(fbc ? { fbc } : {}),
+    ...(fbp ? { fbp } : {}),
+    ...(subscriptionID ? { subscription_id: subscriptionID } : {}),
+    ...(typeof leadID === 'number' ? { lead_id: leadID } : {}),
+    ...(anonId ? { anon_id: anonId } : {}),
+    ...(madId ? { madid: madId } : {}),
+    ...(typeof fbLoginID === 'number' ? { fb_login_id: fbLoginID } : {}),
+    ...(partner_id ? { partner_id } : {}),
+    ...(partner_name ? { partner_name } : {})
   }
-
-  if (payload.user_data.lastName) {
-    payload.user_data.lastName = payload.user_data.lastName.replace(/\s/g, '').toLowerCase()
-  }
-
-  if (payload.user_data.firstName) {
-    payload.user_data.firstName = payload.user_data.firstName.replace(/\s/g, '').toLowerCase()
-  }
-
-  if (payload.user_data.city) {
-    payload.user_data.city = payload.user_data.city.replace(/\s/g, '').toLowerCase()
-  }
-
-  if (payload.user_data.state) {
-    payload.user_data.state = payload.user_data.state.replace(/\s/g, '').toLowerCase()
-
-    if (US_STATE_CODES.has(payload.user_data.state)) {
-      payload.user_data.state = US_STATE_CODES.get(payload.user_data.state)
-    }
-  }
-
-  if (payload.user_data.zip) {
-    payload.user_data.zip = payload.user_data.zip.replace(/\s/g, '').toLowerCase()
-  }
-
-  if (payload.user_data.country) {
-    payload.user_data.country = payload.user_data.country.replace(/\s/g, '').toLowerCase()
-
-    if (COUNTRY_CODES.has(payload.user_data.country)) {
-      payload.user_data.country = COUNTRY_CODES.get(payload.user_data.country)
-    }
-  }
-
-  if (!isEmpty(payload.user_data?.externalId)) {
-    // TO handle the backward compatibility where externalId can be string
-    if (typeof payload.user_data?.externalId === 'string') {
-      payload.user_data.externalId = [payload.user_data?.externalId]
-    }
-    payload.user_data.externalId = payload.user_data.externalId?.map((el: string) =>
-      el.replace(/\s/g, '').toLowerCase()
-    )
-  }
-}
-
-export const hash_user_data = (payload: UserData): Object => {
-  normalize_user_data(payload)
-  // Hashing this is recommended but not required
-  return {
-    em: hash(payload.user_data?.email),
-    ph: hash(payload.user_data?.phone),
-    ge: hash(payload.user_data?.gender),
-    db: hash(payload.user_data?.dateOfBirth),
-    ln: hash(payload.user_data?.lastName),
-    fn: hash(payload.user_data?.firstName),
-    ct: hash(payload.user_data?.city),
-    st: hash(payload.user_data?.state),
-    zp: hash(payload.user_data?.zip),
-    country: hash(payload.user_data?.country),
-    external_id: hash(payload.user_data?.externalId), //to provide support for externalId as string and array both
-    client_ip_address: payload.user_data?.client_ip_address,
-    client_user_agent: payload.user_data?.client_user_agent,
-    fbc: payload.user_data?.fbc,
-    fbp: payload.user_data?.fbp,
-    subscription_id: payload.user_data?.subscriptionID,
-    lead_id: payload.user_data?.leadID,
-    anon_id: payload.user_data?.anonId,
-    madid: payload.user_data?.madId,
-    fb_login_id: payload.user_data?.fbLoginID,
-    partner_id: payload.user_data?.partner_id,
-    partner_name: payload.user_data?.partner_name
-  }
+  return userData
 }
