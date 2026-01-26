@@ -2,8 +2,7 @@ import { ActionDefinition, RequestClient, DynamicFieldResponse, PayloadValidatio
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { contactIdentifier } from '../input-fields'
-import { DDEnrolmentApi, DDContactApi } from '@segment/actions-shared/src/dotdigital/api'
-import { ChannelIdentifier, Identifiers } from '@segment/actions-shared/src/dotdigital/api/types'
+import { DDEnrolmentApi, DDContactApi, ChannelIdentifier, Identifiers } from '@segment/actions-shared'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Enrol Contact to Program',

@@ -1,7 +1,7 @@
 import { ActionDefinition, DynamicFieldResponse, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { DDContactApi, DDListsApi } from '@segment/actions-shared/src/dotdigital/api'
+import { DDContactApi, DDListsApi } from '@segment/actions-shared'
 import { contactIdentifier } from '../input-fields'
 
 const action: ActionDefinition<Settings, Payload> = {

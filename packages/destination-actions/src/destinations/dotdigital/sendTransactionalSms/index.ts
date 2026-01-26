@@ -1,9 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { DDCpaasApi } from '@segment/actions-shared/src/dotdigital/api'
-import { CpaasMessageBody } from '@segment/actions-shared/src/dotdigital/api/types'
-import { checkAndCleanMobileNumber } from '@segment/actions-shared/src/dotdigital/helpers/functions'
+import { DDCpaasApi, CpaasMessageBody, checkAndCleanMobileNumber } from '@segment/actions-shared'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Transactional SMS',

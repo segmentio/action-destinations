@@ -2,7 +2,7 @@ import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { UpsertContactJSON, Identifiers, ChannelProperties, DataFields } from './types'
 import { Settings } from '../generated-types'
-import { DDDataFieldsApi } from '@segment/actions-shared/src/dotdigital/api'
+import { DDDataFieldsApi } from '@segment/actions-shared'
 
 export async function send(request: RequestClient, payload: Payload, settings: Settings) {
   const {

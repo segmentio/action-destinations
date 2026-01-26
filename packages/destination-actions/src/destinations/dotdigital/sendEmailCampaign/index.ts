@@ -1,7 +1,7 @@
 import { ActionDefinition, DynamicFieldResponse, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { DDCampaignApi, DDContactApi } from '@segment/actions-shared/src/dotdigital/api'
+import { DDCampaignApi, DDContactApi } from '@segment/actions-shared'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Email Campaign',
