@@ -89,21 +89,10 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-// Process single or batch profile imports via CSV
-async function upsertProfiles(
-  request: ReturnType<typeof createRequestClient>,
-  payloads: Payload[],
-  settings: Settings,
-  logger?: Logger
-) {
-  const storeId = payloads[0]?.memora_store
-
-  if (!payloads || payloads.length === 0) {
-    throw new IntegrationError('No profiles provided for import', 'EMPTY_BATCH', 400)
-  }
-
-  // Validate profiles and collect all unique field names
+// Validate profiles and collect all unique field names from payloads
+function validateAndCollectFields(payloads: Payload[]): Set<string> {
   const allFields = new Set<string>()
+
   payloads.forEach((payload, index) => {
     // Validate that at least one identifier is present
     const identifiers = payload.contact_identifiers || {}
@@ -115,10 +104,11 @@ async function upsertProfiles(
       )
     }
 
-    // Collect all field names
+    // Collect identifier field names
     if (identifiers.email) allFields.add('email')
     if (identifiers.phone) allFields.add('phone')
 
+    // Collect trait field names
     if (payload.contact_traits && typeof payload.contact_traits === 'object') {
       const traits = payload.contact_traits as Record<string, unknown>
       Object.keys(traits).forEach((key) => {
@@ -133,14 +123,20 @@ async function upsertProfiles(
     throw new IntegrationError('No profile fields found for import', 'EMPTY_PROFILE', 400)
   }
 
-  // Convert to CSV
-  const { csv, columnMappings } = convertToCSV(payloads, Array.from(allFields))
-  const csvBuffer = Buffer.from(csv, 'utf-8')
-  const filename = 'memora-segment-import.csv'
+  return allFields
+}
 
-  // Step 1: Request pre-signed upload URL
-  let importId: string
-  let uploadUrl: string
+// Request pre-signed upload URL from Memora API
+async function requestImportUrl(
+  request: ReturnType<typeof createRequestClient>,
+  storeId: string,
+  fileSize: number,
+  columnMappings: ColumnMapping[],
+  settings: Settings,
+  logger?: Logger
+): Promise<{ importId: string; uploadUrl: string }> {
+  const timestamp = Date.now()
+  const filename = `memora-segment-import-${storeId}-${timestamp}.csv`
 
   try {
     const importResponse = await request<{ importId: string; url: string }>(
@@ -155,37 +151,47 @@ async function upsertProfiles(
         password: settings.password,
         json: {
           filename,
-          fileSize: csvBuffer.length,
+          fileSize,
           columnMappings
         }
       }
     )
 
-    importId = importResponse.data.importId
-    uploadUrl = importResponse.data.url
-    logger?.info?.(`Memora import initiated: ${importId} (${payloads.length} profiles)`)
+    const importId = importResponse.data.importId
+    const uploadUrl = importResponse.data.url
+    logger?.info?.(`Memora import initiated: ${importId}`)
+
+    return { importId, uploadUrl }
   } catch (error) {
     logger?.error?.(`Error initiating Memora import: ${error instanceof Error ? error.message : String(error)}`)
     throw error
   }
+}
 
-  // Step 2: Upload CSV to pre-signed URL (no auth needed)
+// Upload CSV buffer to pre-signed URL
+async function uploadCSVToMemora(
+  request: ReturnType<typeof createRequestClient>,
+  uploadUrl: string,
+  csvBuffer: Buffer,
+  importId: string,
+  profileCount: number,
+  logger?: Logger
+): Promise<{ data: { importId: string; profileCount: number; success: boolean } }> {
   try {
     await request(uploadUrl, {
       method: 'PUT',
       headers: {
         'Content-Type': 'text/csv'
       },
-      body: csvBuffer
+      body: csvBuffer as unknown as BodyInit
     })
 
-    logger?.info?.(`CSV uploaded successfully to Memora (importId: ${importId}, ${payloads.length} profiles)`)
+    logger?.info?.(`CSV uploaded successfully to Memora (importId: ${importId}, ${profileCount} profiles)`)
 
-    // Return success with importId for tracking
     return {
       data: {
         importId,
-        profileCount: payloads.length,
+        profileCount,
         success: true
       }
     }
@@ -195,6 +201,40 @@ async function upsertProfiles(
     )
     throw error
   }
+}
+
+// Process single or batch profile imports via CSV
+async function upsertProfiles(
+  request: ReturnType<typeof createRequestClient>,
+  payloads: Payload[],
+  settings: Settings,
+  logger?: Logger
+) {
+  if (!payloads || payloads.length === 0) {
+    throw new IntegrationError('No profiles provided for import', 'EMPTY_BATCH', 400)
+  }
+
+  const storeId = payloads[0]?.memora_store
+
+  // Validate profiles and collect all unique field names
+  const allFields = validateAndCollectFields(payloads)
+
+  // Convert profiles to CSV format
+  const { csv, columnMappings } = convertToCSV(payloads, Array.from(allFields))
+  const csvBuffer = Buffer.from(csv, 'utf-8')
+
+  // Request pre-signed upload URL from Memora
+  const { importId, uploadUrl } = await requestImportUrl(
+    request,
+    storeId,
+    csvBuffer.length,
+    columnMappings,
+    settings,
+    logger
+  )
+
+  // Upload CSV to pre-signed URL
+  return uploadCSVToMemora(request, uploadUrl, csvBuffer, importId, payloads.length, logger)
 }
 
 // Convert profiles to CSV format with column mappings
@@ -311,10 +351,12 @@ async function fetchContactTraits(
       choices
     }
   } catch (error) {
+    const statusCode = error?.response?.status || 'unknown'
+    const errorMsg = error?.response?.data?.message || (error instanceof Error ? error.message : String(error))
     return {
       choices: [],
       error: {
-        message: 'Unable to fetch contact traits. You can still manually enter field names.',
+        message: `Unable to fetch contact traits (HTTP ${statusCode}: ${errorMsg}). You can still manually enter field names.`,
         code: 'FETCH_ERROR'
       }
     }

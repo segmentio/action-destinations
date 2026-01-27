@@ -76,7 +76,7 @@ describe('Memora.upsertProfile', () => {
       expect((responses[0].data as any).importId).toBe('mem_import_12345')
 
       // Validate the import request body
-      expect(capturedImportBody.filename).toBe('memora-segment-import.csv')
+      expect(capturedImportBody.filename).toMatch(/^memora-segment-import-test-store-id-\d{13}\.csv$/)
       expect(capturedImportBody.fileSize).toBeGreaterThan(0)
       expect(capturedImportBody.columnMappings).toHaveLength(4)
 

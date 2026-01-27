@@ -6,6 +6,17 @@ import nock from 'nock'
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-memora'
 
+// Mock Date.now() to return a fixed timestamp for consistent snapshots
+const FIXED_TIMESTAMP = 1700000000000
+const originalDateNow = Date.now
+beforeAll(() => {
+  Date.now = jest.fn(() => FIXED_TIMESTAMP)
+})
+
+afterAll(() => {
+  Date.now = originalDateNow
+})
+
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
     it(`${actionSlug} action - required fields`, async () => {
