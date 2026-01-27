@@ -10,12 +10,65 @@ type Content = {
   delivery_category?: string
 }
 
-export const is_append_event: InputField ={
+export const is_append_event: InputField = {
   label: 'Append Data to Existing Conversion',
-  description: 'Turn this on to add new information to a previously sent event. Curretnly supports late-calculated values for predicted lifetime value (pLTV) or net profit values. Make sure to resubmit all the original data from your connversion event as well as the pLTV or net profit values.',
+  description: 'Turn this on to add new information to a previously sent event. Currently supports late-calculated values for predicted lifetime value (pLTV) or net profit values. Make sure to resubmit all the original data from your conversion event as well as the pLTV or net profit values.',
   type: 'boolean',
   default: false,
   required: false
+}
+
+export const append_event_details: InputField = {
+  label: 'Append Event Details',
+  description: 'Details to append to the original event. Order Id, Event Id and Original Timestamp are used to match the original event. Net Revenue and Predicted Lifetime Value are the late-calculated values to append to the original event.',
+  type: 'object',
+  properties: {
+    original_event_time: {
+      label: 'Original Event Time',
+      description: 'A Unix timestamp in seconds indicating when the actual original event occurred. Facebook will automatically convert ISO 8601 timestamps to Unix.',
+      type: 'string'
+    },
+    original_event_order_id: {
+      label: 'Original Order ID',
+      description: 'A unique identifier for the original purchase event, typically the order ID or transaction ID from your ecommerce system. Braze uses this value to match to the original event.',
+      type: 'string'
+    },
+    original_event_id: {
+      label: 'Original Event ID',
+      description: 'This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API. Braze uses this value to match to the original event.',
+      type: 'string'
+    }, 
+    net_revenue_to_append: {
+      label: 'Net Revenue',
+      description: 'The late-calculated numeric net revenue value to append to the original event.',
+      type: 'number'
+    },
+    predicted_ltv_to_append: {
+      label: 'Predicted Lifetime Value',
+      description: 'The late-calculated numeric predicted lifetime value (pLTV) to append to the original event.',
+      type: 'number'
+    }
+  }, 
+  depends_on: {
+    match: 'any',
+    conditions: [
+      {
+        fieldKey: 'is_append_event',
+        operator: 'is',
+        value: true
+      }
+    ]
+  },
+  required: {
+    match: 'any',
+    conditions: [
+      {
+        fieldKey: 'is_append_event',
+        operator: 'is',
+        value: true
+      }
+    ]
+  }
 }
 
 export const custom_data: InputField = {
@@ -44,8 +97,34 @@ export const value: InputField = {
 
 export const net_revenue: InputField = {
   label: 'Net Revenue',
-  description: 'The numeric net revenue value associated with the purchase event.',
-  type: 'number'
+  description: 'The numeric net revenue value associated with the event.',
+  type: 'number', 
+  depends_on: {
+    match: 'any',
+    conditions: [
+      {
+        fieldKey: 'is_append_event',
+        operator: 'is_not',
+        value: true
+      }
+    ]
+  }
+}
+
+export const predicted_ltv: InputField = {
+  label: 'Predicted Lifetime Value',
+  description: 'The numeric predicted lifetime value (pLTV) associated with the event.',
+  type: 'number', 
+  depends_on: {
+    match: 'any',
+    conditions: [
+      {
+        fieldKey: 'is_append_event',
+        operator: 'is_not',
+        value: true
+      }
+    ]
+  }
 }
 
 export const content_category: InputField = {
@@ -242,7 +321,17 @@ export const order_id: InputField = {
   type: 'string',
   default: {
     '@path': '$.properties.order_id'
-  }
+  },
+  depends_on: {
+    match: 'any',
+    conditions: [
+      {
+        fieldKey: 'is_append_event',
+        operator: 'is_not',
+        value: true
+      }
+    ]
+  },
 }
 
 export const test_event_code: InputField = {

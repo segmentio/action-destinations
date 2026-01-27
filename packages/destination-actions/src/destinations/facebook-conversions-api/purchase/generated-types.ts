@@ -2,6 +2,35 @@
 
 export interface Payload {
   /**
+   * Turn this on to add new information to a previously sent event. Currently supports late-calculated values for predicted lifetime value (pLTV) or net profit values. Make sure to resubmit all the original data from your conversion event as well as the pLTV or net profit values.
+   */
+  is_append_event?: boolean
+  /**
+   * Details to append to the original event. Order Id, Event Id and Original Timestamp are used to match the original event. Net Revenue and Predicted Lifetime Value are the late-calculated values to append to the original event.
+   */
+  append_event_details?: {
+    /**
+     * The time the original event occurred, in ISO 8601 format. For example, "2023-01-01T12:00:00Z".
+     */
+    original_event_time?: string
+    /**
+     * A unique identifier for the original purchase event, typically the order ID or transaction ID from your ecommerce system. Braze uses this value to match to the original event.
+     */
+    original_event_order_id?: string
+    /**
+     * This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API. Braze uses this value to match to the original event.
+     */
+    original_event_id?: string
+    /**
+     * The late-calculated numeric net revenue value to append to the original event.
+     */
+    net_revenue_to_append?: number
+    /**
+     * The late-calculated numeric predicted lifetime value (pLTV) to append to the original event.
+     */
+    predicted_ltv_to_append?: number
+  }
+  /**
    * This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.
    */
   action_source: string
@@ -201,9 +230,13 @@ export interface Payload {
    */
   value: number
   /**
-   * The numeric net revenue value associated with the purchase event.
+   * The numeric net revenue value associated with the event.
    */
   net_revenue?: number
+  /**
+   * The numeric predicted lifetime value (pLTV) associated with the event.
+   */
+  predicted_ltv?: number
   /**
    * The content IDs associated with the event, such as product SKUs.
    */
@@ -241,6 +274,10 @@ export interface Payload {
    * This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API.
    */
   event_id?: string
+  /**
+   * A unique identifier for the purchase event, typically the order ID or transaction ID from your ecommerce system.
+   */
+  order_id?: string
   /**
    * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. This is required if the action source is "website."
    */
