@@ -20,7 +20,7 @@ export interface AudienceSettings {
   /**
    * Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid when unsubscribing a user from a List.
    */
-  channelUnsubscribe?: boolean
+  globalUnsubscribe?: boolean
   /**
    * The numeric Campaign ID to associate with the unsubscribe. Only valid when unsubscribing a user from a List.
    */

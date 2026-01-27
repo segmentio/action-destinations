@@ -17,11 +17,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         description:
           "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
         required: true
-      }, 
+      },
       iterableProjectType: {
         type: 'string',
         label: 'Iterable Project Type',
-        description: 'Select the type of your Iterable project. Hybrid projects support both email and user ID based identification, while User ID-Based projects only support user ID based identification.',
+        description:
+          'Select the type of your Iterable project. Hybrid projects support both email and user ID based identification, while User ID-Based projects only support user ID based identification.',
         required: true,
         choices: [
           { label: 'Hybrid Project', value: 'hybrid' },
@@ -48,7 +49,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       default: false,
       required: false
     },
-    channelUnsubscribe: {
+    globalUnsubscribe: {
       label: 'Channel Unsubscribe',
       description:
         "Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid when unsubscribing a user from a List.",
@@ -58,7 +59,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     campaignId: {
       label: 'Campaign ID',
-      description: 'The numeric Campaign ID to associate with the unsubscribe. Only valid when unsubscribing a user from a List.',
+      description:
+        'The numeric Campaign ID to associate with the unsubscribe. Only valid when unsubscribing a user from a List.',
       type: 'number',
       required: false
     }
