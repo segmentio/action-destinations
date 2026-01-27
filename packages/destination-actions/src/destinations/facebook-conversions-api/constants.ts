@@ -1,5 +1,5 @@
 import { FACEBOOK_CONVERSIONS_API_VERSION, FACEBOOK_CONVERSIONS_CANARY_API_VERSION } from './versioning-info'
-
+export const FLAGON_NAME = 'facebook-capi-actions-canary-version'
 export const API_VERSION = FACEBOOK_CONVERSIONS_API_VERSION
 export const CANARY_API_VERSION = FACEBOOK_CONVERSIONS_CANARY_API_VERSION
 export const CURRENCY_ISO_CODES = new Set([

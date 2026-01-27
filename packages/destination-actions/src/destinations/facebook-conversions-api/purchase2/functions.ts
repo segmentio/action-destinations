@@ -1,12 +1,9 @@
 import {  ErrorCodes, IntegrationError, PayloadValidationError, RequestClient, Features, StatsContext } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CURRENCY_ISO_CODES } from '../constants'
-import { get_api_version } from '../utils'
-import { validateContents, dataProcessingOptions } from '../fb-capi-properties'
-import { getUserData } from '../fb-capi-user-data'
-import { generate_app_data } from '../fb-capi-app-data'
-import { RequestJSON, PurchaseEventData, AppendValueEventData } from './types'
+import { RequestJSON, PurchaseEventData, AppendValueEventData, GeneratedAppData, UserData, Content } from './types'
+import { API_VERSION, CANARY_API_VERSION, FLAGON_NAME, US_STATE_CODES, COUNTRY_CODES, CURRENCY_ISO_CODES } from '../constants'
+import { processHashing } from '../../../lib/hashing-utils'
 
 export function send(request: RequestClient, payload: Payload, settings: Settings, features?: Features, statsContext?: StatsContext) {
     
@@ -95,7 +92,7 @@ export function send(request: RequestClient, payload: Payload, settings: Setting
                 ...(typeof num_items === 'number' && { num_items })
             },
             ...(() => {
-                const app_data = generate_app_data(app_data_field)
+                const app_data = generateAppData(app_data_field)
                 return app_data ? { app_data }: {}
             })(),
             ...(data_processing_options ? { data_processing_options: ['LDU'] } : {}),
@@ -130,10 +127,215 @@ export function send(request: RequestClient, payload: Payload, settings: Setting
     }
 
     return request(
-        `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
+        `https://graph.facebook.com/v${getApiVersion(features, statsContext)}/${settings.pixelId}/events`,
         {
             method: 'POST',
             json
         }
     )
+}
+
+export const generateAppData = (app_data: Payload['app_data_field']): GeneratedAppData | undefined => {
+  if (!app_data || !app_data.use_app_data) {
+    return undefined
+  }
+
+  return {
+    advertiser_tracking_enabled: app_data?.advertiser_tracking_enabled ? 1 : 0,
+    application_tracking_enabled: app_data?.application_tracking_enabled ? 1 : 0,
+    madid: app_data?.madId,
+    extinfo: [
+      app_data?.version ?? '',
+      app_data?.packageName ?? '',
+      app_data?.shortVersion ?? '',
+      app_data?.longVersion ?? '',
+      app_data?.osVersion ?? '',
+      app_data?.deviceName ?? '',
+      app_data?.locale ?? '',
+      app_data?.timezone ?? '',
+      app_data?.carrier ?? '',
+      app_data?.width ?? '',
+      app_data?.height ?? '',
+      app_data?.density ?? '',
+      app_data?.cpuCores ?? '',
+      app_data?.storageSize ?? '',
+      app_data?.freeStorage ?? '',
+      app_data?.deviceTimezone ?? ''
+    ]
+  }
+}
+
+export const getApiVersion = (features: Features | undefined, statsContext: StatsContext | undefined): string => {
+  const statsClient = statsContext?.statsClient
+  const tags = statsContext?.tags
+
+  if (features && features[FLAGON_NAME]) {
+    tags?.push(`version:${CANARY_API_VERSION}`)
+    statsClient?.incr(`fb_api_version`, 1, tags)
+    return CANARY_API_VERSION
+  }
+
+  tags?.push(`version:${API_VERSION}`)
+  statsClient?.incr(`fb_api_version`, 1, tags)
+  return API_VERSION
+}
+
+const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
+
+export const hashArray = (values: string[] | undefined): string[] | undefined => {
+  if (!values?.length) {
+    return undefined
+  }
+  const cleaned = (Array.isArray(values) ? values : [values]).map(item => clean(item)).filter(Boolean)
+  const hashed = cleaned.map(item => hash(item)).filter(Boolean) as string[]
+  return hashed.length ? hashed : undefined
+}
+
+export const cleanAndHash = (value: string | undefined): string | undefined => {
+  return hash(clean(value))
+}
+
+export const hash = (value: string | undefined): string | undefined => {
+  if (value === undefined || !value.length){
+    return undefined
+  }
+  return processHashing(value, 'sha256', 'hex')
+}
+
+export const clean = (value: string | undefined): string | undefined => {
+  if (value === undefined || !value.length){
+    return undefined
+  }
+  return value.replace(/\s/g, '').toLowerCase() || undefined
+}
+
+/**
+ * Normalization of user data properties according to Facebooks specifications.
+ * @param payload
+ * @see https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#hash
+ */
+export const getUserData = (payloadUserData: Payload['user_data']): UserData => {
+  const { 
+    email, 
+    phone,
+    gender,
+    dateOfBirth,
+    lastName,
+    firstName,
+    city,
+    state,
+    zip,
+    country,
+    externalId,
+    client_ip_address,
+    client_user_agent,
+    fbc,
+    fbp,
+    subscriptionID,
+    leadID,
+    anonId,
+    madId,
+    fbLoginID,
+    partner_id,
+    partner_name
+  } = payloadUserData ?? {}
+
+  const em = cleanAndHash(email)
+
+  const ph = (() => {
+    if(!phone) {
+      return undefined
+    }
+    if(!isHashedInformation(phone)){
+      // Remove all characters except numbers
+      const digits = phone.replace(/\D/g, '')
+      return hash(digits)
+    } 
+    return phone
+  })()
+
+  const ge = (() => {
+    if(isHashedInformation(gender ?? '')) {
+      return gender
+    }
+    switch (gender?.replace(/\s/g, '').toLowerCase() ?? "") {
+      case 'male':
+      case 'm':
+        return cleanAndHash('m')
+      case 'female':
+      case 'f':
+        return cleanAndHash('f')
+      default:
+        return undefined
+    }
+  })()
+
+  const db = cleanAndHash(dateOfBirth)
+  
+  const ln = cleanAndHash(lastName)
+  
+  const fn = cleanAndHash(firstName)
+
+  const ct = cleanAndHash(city)
+  
+  const st = (()=> {
+    const stateCleaned = cleanAndHash(state)
+    return US_STATE_CODES.get(stateCleaned ?? "") ?? (stateCleaned || undefined)
+  })()
+  
+  const zp = cleanAndHash(zip)
+  
+  const countryValue = (() => {
+    const cleaned = clean(country)
+    return COUNTRY_CODES.get(cleaned ?? "") ?? cleaned
+  })()
+
+  const external_id = hashArray(externalId)
+  
+  const userData: UserData = {
+    // Hashing this is recommended but not required
+    ...(em ? { em } : {}),
+    ...(ph ? { ph } : {}),
+    ...(ge ? { ge } : {}),
+    ...(db ? { db } : {}),
+    ...(ln ? { ln } : {}),
+    ...(fn ? { fn } : {}),
+    ...(ct ? { ct } : {}),
+    ...(st ? { st } : {}),
+    ...(zp ? { zp } : {}),
+    ...(countryValue ? { country: countryValue } : {}),
+    ...(external_id ? { external_id } : {}), 
+    ...(client_ip_address ? { client_ip_address } : {}),
+    ...(client_user_agent ? { client_user_agent } : {}),
+    ...(fbc ? { fbc } : {}),
+    ...(fbp ? { fbp } : {}),
+    ...(subscriptionID ? { subscription_id: subscriptionID } : {}),
+    ...(typeof leadID === 'number' ? { lead_id: leadID } : {}),
+    ...(anonId ? { anon_id: anonId } : {}),
+    ...(madId ? { madid: madId } : {}),
+    ...(typeof fbLoginID === 'number' ? { fb_login_id: fbLoginID } : {}),
+    ...(partner_id ? { partner_id } : {}),
+    ...(partner_name ? { partner_name } : {})
+  }
+  return userData
+}
+
+export const validateContents = (contents: Content[]): PayloadValidationError | false => {
+  const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
+
+  for (let i = 0; i < contents.length; i++) {
+    const item = contents[i]
+
+    if (!item.id) {
+      return new PayloadValidationError(`contents[${i}] must include an 'id' parameter.`)
+    }
+
+    if (item.delivery_category && !valid_delivery_categories.includes(item.delivery_category)) {
+      return new PayloadValidationError(
+        `contents[${i}].delivery_category must be one of {in_store, home_delivery, curbside}.`
+      )
+    }
+  }
+
+  return false
 }
