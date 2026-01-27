@@ -2,6 +2,7 @@ import { IntegrationError, AudienceDestinationDefinition, defaultValues } from '
 import type { AudienceSettings, Settings } from './generated-types'
 import syncAudience from './syncAudience'
 import { getAudience, createAudience } from './functions'
+import { CONSTANTS } from './constants'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Iterable Lists',
@@ -23,12 +24,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         label: 'Iterable Project Type',
         description:
           'Select the type of your Iterable project. Hybrid projects support both email and user ID based identification, while User ID-Based projects only support user ID based identification.',
-        required: true,
         choices: [
-          { label: 'Hybrid Project', value: 'hybrid' },
-          { label: 'User ID-Based Project', value: 'userId' }
+          { label: 'Hybrid Project', value: CONSTANTS.HYBRID_PROJECT_TYPE },
+          { label: 'User ID-Based Project', value: CONSTANTS.USER_ID_PROJECT_TYPE }
         ],
-        default: 'hybrid'
+        default: CONSTANTS.HYBRID_PROJECT_TYPE
       }
     },
     testAuthentication: (request, { settings }) => {

@@ -38,7 +38,7 @@ export async function send(
 
     const action = traitsOrProperties[segmentAudienceKey]
 
-    if (iterableProjectType === 'userId' && !userId) {
+    if (iterableProjectType === CONSTANTS.USER_ID_PROJECT_TYPE && !userId) {
       handleError('User ID is required when Iterable Project Type = User ID', isBatch, msResponse, index, p)
       return
     } else if (!email && !userId) {
@@ -56,7 +56,7 @@ export async function send(
       const subscriber: Subscriber = {
         ...(email ? { email } : {}),
         ...(userId ? { userId } : {}),
-        ...(iterableProjectType === 'userId' ? { preferUserId: true } : {}),
+        ...(iterableProjectType === CONSTANTS.USER_ID_PROJECT_TYPE ? { preferUserId: true } : {}),
         ...(dataFields && Object.entries(dataFields).length > 0 ? { dataFields } : {})
       }
       subscribers.set(index, subscriber)
