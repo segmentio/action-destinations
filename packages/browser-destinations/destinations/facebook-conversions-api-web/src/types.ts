@@ -47,6 +47,8 @@ export type UserData = {
   st?: string // State (FB hashes with SHA-256)
   zp?: string // ZIP/Postal code (FB hashes with SHA-256)
   country?: string // Country code (FB hashes with SHA-256)
+  fbp?: string // Facebook browser pixel ID
+  fbc?: string // Facebook click ID
 }
 
 export type FBEvent = {
@@ -82,6 +84,16 @@ export type FBClient = {
   (command: 'trackSingle', pixelId: string, event: FBStandardEventType, params?: FBEvent, options?: EventOptions): void
   (command: 'trackSingleCustom', pixelId: string, event: string, params?: FBEvent, options?: EventOptions): void
 }
+
+export type FBClientParamBuilder = {
+  getNormalizedAndHashedPII: (value: string, piiType: PIIType) => string | undefined
+  processAndCollectAllParams: () => void 
+  getFbc: () => string | undefined
+  getFbp: () => string | undefined
+}
+
+export type PIIType = 'email' | 'phone' | 'first_name' | 'last_name' | 'gender' | 'date_of_birth' | 'city' | 'state' | 'zip_code' | 'country' | 'external_id'
+export type PIIParamName = 'em' | 'ph' | 'fn' | 'ln' | 'ge' | 'db' | 'ct' | 'st' | 'zp' | 'country' | 'external_id'
 
 export const LDU = {
   Disabled: {key: 'Disabled', state: undefined, country: undefined},
