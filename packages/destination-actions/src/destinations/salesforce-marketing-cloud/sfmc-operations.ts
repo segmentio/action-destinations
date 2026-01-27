@@ -33,6 +33,21 @@ function generateRows(payloads: payload_dataExtension[] | payload_contactDataExt
   return rows
 }
 
+function generateFlattenedRows(
+  payloads: payload_dataExtension[] | payload_contactDataExtension[]
+): Record<string, any>[] {
+  const rows: Record<string, any>[] = []
+  payloads.forEach((payload: payload_dataExtension | payload_contactDataExtension) => {
+    // Create a flattened object that combines keys and values
+    const flattenedRow = {
+      ...payload.keys,
+      ...payload.values
+    }
+    rows.push(flattenedRow)
+  })
+  return rows
+}
+
 function isRetryableError(errData: ErrorData, status: number): boolean {
   return (
     status === 400 &&
@@ -40,6 +55,32 @@ function isRetryableError(errData: ErrorData, status: number): boolean {
     errData?.message.includes('Unable to save rows for data extension ID') &&
     !errData?.additionalErrors
   )
+}
+
+export async function asyncUpsertRowsV2(
+  request: RequestClient,
+  subdomain: String,
+  payloads: payload_dataExtension[] | payload_contactDataExtension[],
+  dataExtensionId?: string
+) {
+  if (!dataExtensionId) {
+    throw new IntegrationError(
+      `In order to send an event to a data extension Data Extension ID must be defined.`,
+      'Misconfigured required field',
+      400
+    )
+  }
+  // Use flattened rows for async API
+  const rows = generateFlattenedRows(payloads)
+  const response = await request(
+    `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/dataextensions/${dataExtensionId}/rows`,
+    {
+      method: 'PUT',
+      json: { items: rows }
+    }
+  )
+
+  return response
 }
 
 export function upsertRows(

@@ -246,4 +246,145 @@ describe('Heap.trackEvent', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
   })
+
+  describe('EU Region Support', () => {
+    const heapEUURL = 'https://c.eu.heap-api.com'
+
+    it('should send track event to EU endpoint when region is EU', async () => {
+      const anonId = '5a41f0df-b69a-4a99-b656-79506a86c3f8'
+      const event = createTestEvent({
+        timestamp,
+        event: eventName,
+        anonymousId: anonId,
+        userId: null,
+        messageId
+      })
+
+      body.events[0].user_identifier = {
+        anonymous_id: anonId
+      }
+
+      nock(heapEUURL).post(integrationsTrackURI, body).reply(200, {})
+
+      const responses = await testDestination.testAction('trackEvent', {
+        event,
+        useDefaultMappings: true,
+        settings: {
+          appId: HEAP_TEST_APP_ID,
+          region: 'EU'
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+    it('should send track event to US endpoint when region is US', async () => {
+      const anonId = '5a41f0df-b69a-4a99-b656-79506a86c3f8'
+      const event = createTestEvent({
+        timestamp,
+        event: eventName,
+        anonymousId: anonId,
+        userId: null,
+        messageId
+      })
+
+      body.events[0].user_identifier = {
+        anonymous_id: anonId
+      }
+
+      nock(heapURL).post(integrationsTrackURI, body).reply(200, {})
+
+      const responses = await testDestination.testAction('trackEvent', {
+        event,
+        useDefaultMappings: true,
+        settings: {
+          appId: HEAP_TEST_APP_ID,
+          region: 'US'
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+    it('should default to US endpoint when region is not specified', async () => {
+      const anonId = '5a41f0df-b69a-4a99-b656-79506a86c3f8'
+      const event = createTestEvent({
+        timestamp,
+        event: eventName,
+        anonymousId: anonId,
+        userId: null,
+        messageId
+      })
+
+      body.events[0].user_identifier = {
+        anonymous_id: anonId
+      }
+
+      nock(heapURL).post(integrationsTrackURI, body).reply(200, {})
+
+      const responses = await testDestination.testAction('trackEvent', {
+        event,
+        useDefaultMappings: true,
+        settings: {
+          appId: HEAP_TEST_APP_ID
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+    it('should send user properties to EU endpoint when region is EU and identity is provided', async () => {
+      const anonId = '5a41f0df-b69a-4a99-b656-79506a86c3f8'
+      const event: Partial<SegmentEvent> = createTestEvent({
+        timestamp,
+        event: eventName,
+        userId,
+        messageId,
+        anonymousId: anonId,
+        context: {
+          traits: {
+            name: 'Katherine Johnson',
+            email: 'kjohnson@example.com'
+          }
+        }
+      })
+      body.events[0].user_identifier = {
+        identity: userId
+      }
+
+      const userPropertiesBody = {
+        app_id: HEAP_TEST_APP_ID,
+        identity: userId,
+        properties: {
+          anonymous_id: anonId,
+          name: 'Katherine Johnson',
+          email: 'kjohnson@example.com'
+        }
+      }
+
+      nock(heapEUURL).post(addUserPropertiesURI, userPropertiesBody).reply(200, {})
+      nock(heapEUURL).post(integrationsTrackURI, body).reply(200, {})
+
+      const responses = await testDestination.testAction('trackEvent', {
+        event,
+        useDefaultMappings: true,
+        settings: {
+          appId: HEAP_TEST_APP_ID,
+          region: 'EU'
+        },
+        mapping: {
+          identity: {
+            '@path': '$.userId'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(200)
+      expect(responses[1].status).toBe(200)
+    })
+  })
 })
