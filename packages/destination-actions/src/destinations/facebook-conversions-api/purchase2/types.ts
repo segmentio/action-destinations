@@ -30,9 +30,9 @@ export interface PurchaseEventData {
         [k: string]: unknown
     }, 
     app_data?: Record<string, unknown>, 
-    data_processing_options: number | string[],
-    data_processing_options_country: number | string[],
-    data_processing_options_state: number | string[]
+    data_processing_options?: string[],
+    data_processing_options_country?: number,
+    data_processing_options_state?: number
 }
 
 export type AppendValueEventData = Omit<PurchaseEventData, 'event_name'> & {

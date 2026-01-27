@@ -71,12 +71,6 @@ export function send(request: RequestClient, payload: Payload, settings: Setting
         if (err) throw err
     }
 
-    const [data_options, country_code, state_code] = dataProcessingOptions(
-        data_processing_options,
-        data_processing_options_country,
-        data_processing_options_state
-    )
-
     const testEventCode = test_event_code || settings.testEventCode
 
     const purchaseEventData =(): PurchaseEventData => {
@@ -104,11 +98,9 @@ export function send(request: RequestClient, payload: Payload, settings: Setting
                 const app_data = generate_app_data(app_data_field)
                 return app_data ? { app_data }: {}
             })(),
-
-            /// STUCK ON REFACTORING THIS data_processing_options nonesense
-            data_processing_options: data_options,
-            data_processing_options_country: country_code,
-            data_processing_options_state: state_code
+            ...(data_processing_options ? { data_processing_options: ['LDU'] } : {}),
+            ...(data_processing_options ? { data_processing_options_country: data_processing_options_country || 0 } : {}  ),
+            ...(data_processing_options ? { data_processing_options_state: data_processing_options_state || 0 } : {}  )
         }
     }
 
