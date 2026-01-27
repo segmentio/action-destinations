@@ -2,8 +2,7 @@ import { ActionDefinition, RequestClient, DynamicFieldResponse, PayloadValidatio
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { contactIdentifier } from '../input-fields'
-import { DDEnrolmentApi, DDContactApi } from '../api'
-import { ChannelIdentifier, Identifiers } from '../api/types'
+import { DDEnrolmentApi, DDContactApi, ChannelIdentifier, Identifiers } from '@segment/actions-shared'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Enrol Contact to Program',
@@ -23,13 +22,13 @@ const action: ActionDefinition<Settings, Payload> = {
 
   dynamicFields: {
     programId: async (request: RequestClient, { settings }: { settings: Settings }): Promise<DynamicFieldResponse> => {
-      return new DDEnrolmentApi(settings, request).getPrograms()
+      return new DDEnrolmentApi(settings.api_host, request).getPrograms()
     }
   },
 
   perform: async (request, { settings, payload }) => {
-    const contactApi = new DDContactApi(settings, request)
-    const enrolmentApi = new DDEnrolmentApi(settings, request)
+    const contactApi = new DDContactApi(settings.api_host, request)
+    const enrolmentApi = new DDEnrolmentApi(settings.api_host, request)
     const { channelIdentifier, emailIdentifier, mobileNumberIdentifier, programId } = payload
 
     const identifiers: Identifiers = {
