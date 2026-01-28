@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
-import { HEAP_SEGMENT_CLOUD_LIBRARY_NAME } from '../constants'
+import { HEAP_SEGMENT_CLOUD_LIBRARY_NAME, getHeapBaseUrl } from '../constants'
 import { flat } from '../flat'
 import { getUserIdentifier, getEventName, isDefined } from '../heapUtils'
 import { IntegrationError } from '@segment/actions-core'
@@ -137,6 +137,8 @@ const action: ActionDefinition<Settings, Payload> = {
       library: 'server'
     }
 
+    const baseUrl = getHeapBaseUrl(settings.region)
+
     if (isDefined(payload.identity) && (isDefined(payload.anonymous_id) || isDefined(payload.traits))) {
       const userPropertiesPayload = {
         app_id: settings.appId,
@@ -146,7 +148,7 @@ const action: ActionDefinition<Settings, Payload> = {
           ...(payload.traits && Object.keys(payload.traits).length !== 0 && flat(payload.traits))
         }
       }
-      const addUserPropertiesRequest = request('https://heapanalytics.com/api/add_user_properties', {
+      const addUserPropertiesRequest = request(`${baseUrl}/api/add_user_properties`, {
         method: 'post',
         json: userPropertiesPayload
       })
@@ -155,7 +157,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     requests.push(
-      request('https://heapanalytics.com/api/integrations/track', {
+      request(`${baseUrl}/api/integrations/track`, {
         method: 'post',
         json: trackPayload
       })
