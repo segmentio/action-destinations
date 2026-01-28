@@ -146,5 +146,13 @@ export interface Payload {
      * The country of the user. Facebook expects the 2-letter ISO 3166-1 alpha-2 country code. For example, "US" for the United States, or "GB" for the United Kingdom.
      */
     country?: string
+    /**
+     * Use this field to pass the Facebook browser cookie value (_fbp) associated with the user. If the "Format User Data with Parameter Builder" setting is enabled, Segment will automatically capture this value from the _fbp cookie.
+     */
+    fbp?: string
+    /**
+     * Use this field to pass The Facebook browser cookie value (_fbc) associated with the user. If the "Format User Data with Parameter Builder" setting is enabled, Segment will automatically capture this value from the _fbc cookie.
+     */
+    fbc?: string
   }
 }
