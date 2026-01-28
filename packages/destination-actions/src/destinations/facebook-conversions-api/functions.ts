@@ -1,13 +1,15 @@
 import {  ErrorCodes, IntegrationError, PayloadValidationError, RequestClient, Features, StatsContext } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
-import { RequestJSON, PurchaseEventData, AppendValueEventData, GeneratedAppData, UserData, Content } from './types'
-import { API_VERSION, CANARY_API_VERSION, FLAGON_NAME, US_STATE_CODES, COUNTRY_CODES, CURRENCY_ISO_CODES } from '../constants'
-import { processHashing } from '../../../lib/hashing-utils'
+import type { Settings } from './generated-types'
+import type { Payload } from './purchase2/generated-types'
+import { RequestJSON, ViewContentEventData, InitiateCheckoutEventData, PageEventData, PurchaseEventData, AppendValueEventData, GeneratedAppData, UserData, Content } from './types'
+import { API_VERSION, CANARY_API_VERSION, FLAGON_NAME, US_STATE_CODES, COUNTRY_CODES, CURRENCY_ISO_CODES } from './constants'
+import { processHashing } from '../../lib/hashing-utils'
 
 export function send(request: RequestClient, payload: Payload, settings: Settings, features?: Features, statsContext?: StatsContext) {
     
     const { 
+        content_category,
+
         is_append_event,
         append_event_details: { 
             original_event_time,
@@ -47,7 +49,7 @@ export function send(request: RequestClient, payload: Payload, settings: Setting
         throw new PayloadValidationError('If append event is true, original event time, original event order ID, original event ID, and at least one of net revenue to append or predicted lifetime value to append must be provided')
     }
 
-    if (!CURRENCY_ISO_CODES.has(currency)) {
+    if (currency && !CURRENCY_ISO_CODES.has(currency)) {
         throw new IntegrationError(
             `${payload.currency} is not a valid currency code.`,
             ErrorCodes.INVALID_CURRENCY_CODE,
@@ -90,6 +92,79 @@ export function send(request: RequestClient, payload: Payload, settings: Setting
                 ...(content_type && { content_type }),
                 ...(contents && { contents }),
                 ...(typeof num_items === 'number' && { num_items })
+            },
+            ...(() => {
+                const app_data = generateAppData(app_data_field)
+                return app_data ? { app_data }: {}
+            })(),
+            ...(data_processing_options ? { data_processing_options: ['LDU'] } : {}),
+            ...(data_processing_options ? { data_processing_options_country: data_processing_options_country || 0 } : {}  ),
+            ...(data_processing_options ? { data_processing_options_state: data_processing_options_state || 0 } : {}  )
+        }
+    }
+
+    const pageEventData =(): PageEventData => {
+        return {
+            event_name: 'PageView',
+            event_time,
+            action_source,
+            ...(event_source_url && { event_source_url }),
+            ...(event_id && { event_id }),
+            user_data: getUserData(user_data),
+            ...(() => {
+                const app_data = generateAppData(app_data_field)
+                return app_data ? { app_data }: {}
+            })(),
+            ...(data_processing_options ? { data_processing_options: ['LDU'] } : {}),
+            ...(data_processing_options ? { data_processing_options_country: data_processing_options_country || 0 } : {}  ),
+            ...(data_processing_options ? { data_processing_options_state: data_processing_options_state || 0 } : {}  )
+        }
+    }
+
+    const initiateCheckoutEventData =(): InitiateCheckoutEventData => {
+        return {
+            event_name: 'InitiateCheckout',
+            event_time,
+            action_source,
+            ...(event_source_url && { event_source_url }),
+            ...(event_id && { event_id }),
+            user_data: getUserData(user_data),
+            custom_data: {
+                ...custom_data,
+                currency,
+                value,
+                ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
+                ...(contents && { contents }),
+                ...(typeof num_items === 'number' && { num_items }),
+                ...(content_category && { content_category })
+            },
+            ...(() => {
+                const app_data = generateAppData(app_data_field)
+                return app_data ? { app_data }: {}
+            })(),
+            ...(data_processing_options ? { data_processing_options: ['LDU'] } : {}),
+            ...(data_processing_options ? { data_processing_options_country: data_processing_options_country || 0 } : {}  ),
+            ...(data_processing_options ? { data_processing_options_state: data_processing_options_state || 0 } : {}  )
+        }
+    }
+
+    const viewContentEventData =(): ViewContentEventData => {
+        return {
+            event_name: 'ViewContent',
+            event_time,
+            action_source,
+            ...(event_source_url && { event_source_url }),
+            ...(event_id && { event_id }),
+            user_data: getUserData(user_data),
+            custom_data: {
+                ...custom_data,
+                currency,
+                value,
+                ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
+                ...(content_name && { content_name }),
+                ...(content_type && { content_type }),
+                ...(contents && { contents }),
+                ...(content_category && { content_category }),
             },
             ...(() => {
                 const app_data = generateAppData(app_data_field)

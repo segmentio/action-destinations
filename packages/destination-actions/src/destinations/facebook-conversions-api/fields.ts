@@ -633,7 +633,7 @@ export const test_event_code: InputField = {
   required: false
 }
 
-export const fields: Record<string, InputField> =  {
+export const purchaseFields: Record<string, InputField> =  {
   is_append_event,
   append_event_details,
   action_source: { ...action_source, required: true },
@@ -682,3 +682,97 @@ export const fields: Record<string, InputField> =  {
   test_event_code
 }
 
+export const pageFields: Record<string, InputField> = {
+    action_source: { ...action_source, required: true },
+    event_time: { ...event_time, required: true },
+    user_data: user_data_field,
+    app_data_field,
+    event_id,
+    event_source_url,
+    custom_data,
+    data_processing_options,
+    data_processing_options_country,
+    data_processing_options_state,
+    test_event_code
+}
+
+export const initiateCheckoutFields: Record<string, InputField> = {
+  action_source: { ...action_source, required: true },
+  event_time: { ...event_time, required: true },
+  user_data: user_data_field,
+  app_data_field: app_data_field,
+  content_category: content_category,
+  content_ids: content_ids,
+  contents: {
+    ...contents,
+    default: {
+      '@arrayPath': [
+        '$.properties.products',
+        {
+          id: {
+            '@path': '$.product_id'
+          },
+          quantity: {
+            '@path': '$.quantity'
+          },
+          item_price: {
+            '@path': '$.price'
+          }
+        }
+      ]
+    }
+  },
+  currency: currency,
+  event_id: event_id,
+  event_source_url: event_source_url,
+  num_items: num_items,
+  value: {
+    ...value,
+    default: { '@path': '$.properties.revenue' }
+  },
+  custom_data: custom_data,
+  data_processing_options: data_processing_options,
+  data_processing_options_country: data_processing_options_country,
+  data_processing_options_state: data_processing_options_state,
+  test_event_code: test_event_code
+}
+
+export const viewContentFields: Record<string, InputField> = {
+  action_source: { ...action_source, required: true },
+  event_time: { ...event_time, required: true },
+  user_data: user_data_field,
+  app_data_field: app_data_field,
+  content_category: content_category,
+  content_ids: { ...content_ids, default: { '@path': '$.properties.product_id' } },
+  content_name: content_name,
+  content_type: content_type,
+  contents: {
+    ...contents,
+    default: {
+      // Segment Product Viewed is a single product event
+      '@arrayPath': [
+        '$.properties',
+        {
+          id: {
+            '@path': '$.product_id'
+          },
+          quantity: {
+            '@path': '$.quantity'
+          },
+          item_price: {
+            '@path': '$.price'
+          }
+        }
+      ]
+    }
+  },
+  currency: currency,
+  event_id: event_id,
+  event_source_url: event_source_url,
+  value: { ...value, default: { '@path': '$.properties.price' } },
+  custom_data: custom_data,
+  data_processing_options: data_processing_options,
+  data_processing_options_country: data_processing_options_country,
+  data_processing_options_state: data_processing_options_state,
+  test_event_code: test_event_code
+}

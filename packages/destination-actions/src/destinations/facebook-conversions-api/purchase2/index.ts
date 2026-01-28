@@ -1,8 +1,8 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { fields } from '../fields'
-import { send } from './functions'
+import { purchaseFields } from '../fields'
+import { send } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Purchase V2',
@@ -14,7 +14,7 @@ const action: ActionDefinition<Settings, Payload> = {
     default: 'add',
     choices: [{ label: 'Insert Records', value: 'add' }]
   },
-  fields,
+  fields: purchaseFields,
   perform: (request, { payload, settings, features, statsContext, syncMode }) => {
     if (syncMode === 'add') {
       return send(request, payload, settings, features, statsContext)

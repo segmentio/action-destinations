@@ -3,6 +3,19 @@ export interface RequestJSON {
     test_event_code?: string
 }
 
+export interface PageEventData {
+    event_name: 'PageView',
+    event_time: string,
+    action_source: string,
+    event_source_url?: string,
+    event_id?: string,
+    user_data: UserData,
+    app_data?: Record<string, unknown>, 
+    data_processing_options?: string[],
+    data_processing_options_country?: number,
+    data_processing_options_state?: number
+}
+
 export interface PurchaseEventData {
     event_name: 'Purchase',
     event_time: string,
@@ -25,6 +38,61 @@ export interface PurchaseEventData {
             delivery_category?: string
         }>,
         num_items?: number,
+        [k: string]: unknown
+    }, 
+    app_data?: Record<string, unknown>, 
+    data_processing_options?: string[],
+    data_processing_options_country?: number,
+    data_processing_options_state?: number
+}
+
+export interface InitiateCheckoutEventData {
+    event_name: 'InitiateCheckout',
+    event_time: string,
+    action_source: string,
+    event_source_url?: string,
+    event_id?: string,
+    user_data: UserData,
+    custom_data: {
+        currency: string,
+        value: number,
+        content_ids?: string[],
+        contents?: Array<{
+            id?: string,
+            quantity?: number,
+            item_price?: number, 
+            delivery_category?: string
+        }>,
+        num_items?: number,
+        content_category?: string,
+        [k: string]: unknown
+    }, 
+    app_data?: Record<string, unknown>, 
+    data_processing_options?: string[],
+    data_processing_options_country?: number,
+    data_processing_options_state?: number
+}
+
+export interface ViewContentEventData {
+    event_name: 'ViewContent',
+    event_time: string,
+    action_source: string,
+    event_source_url?: string,
+    event_id?: string,
+    user_data: UserData,
+    custom_data: {
+        currency: string,
+        value: number,
+        content_ids?: string[],
+        content_name?: string,
+        content_type?: string,
+        contents?: Array<{
+            id?: string,
+            quantity?: number,
+            item_price?: number, 
+            delivery_category?: string
+        }>,
+        content_category?: string,
         [k: string]: unknown
     }, 
     app_data?: Record<string, unknown>, 
