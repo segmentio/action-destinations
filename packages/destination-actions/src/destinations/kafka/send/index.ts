@@ -52,10 +52,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     batch_size: {
       label: 'Batch Size',
-      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      description: 'Max batch size to send to Kafka',
       type: 'number',
       required: false,
-      default: 1000
+      unsafe_hidden: true,
+      default: 1002
     },
     batch_keys: {
       label: 'Batch Keys',

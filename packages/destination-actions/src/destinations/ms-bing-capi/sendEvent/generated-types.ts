@@ -193,7 +193,7 @@ export interface Payload {
   /**
    * Hidden field: The timestamp of the event.
    */
-  timestamp: string
+  timestamp?: string
   /**
    * Enable batching for this action.
    */
