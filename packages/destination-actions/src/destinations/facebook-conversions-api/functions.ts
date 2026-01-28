@@ -98,6 +98,24 @@ export const validate = <T extends EventTypeKey>(payload: AnyPayload, eventType:
   }
 }
 
+export const validateContents = (contents: Content[]) => {
+  const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
+
+  for (let i = 0; i < contents.length; i++) {
+    const item = contents[i]
+
+    if (!item.id) {
+      throw new PayloadValidationError(`contents[${i}] must include an 'id' parameter.`)
+    }
+
+    if (item.delivery_category && !valid_delivery_categories.includes(item.delivery_category)) {
+      throw new PayloadValidationError(
+        `contents[${i}].delivery_category must be one of {in_store, home_delivery, curbside}.`
+      )
+    }
+  }
+}
+
 export function getEventData(payload: PurchasePayload | Purchase2Payload, type: 'Purchase'): PurchaseEventData
 export function getEventData(payload: AddToCartPayload | AddToCart2Payload, type: 'AddToCart'): AddToCartEventData
 export function getEventData(payload: ViewContentPayload | ViewContent2Payload, type: 'ViewContent'): ViewContentEventData
@@ -478,22 +496,4 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
     ...(partner_name ? { partner_name } : {})
   }
   return userData
-}
-
-export const validateContents = (contents: Content[]) => {
-  const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
-
-  for (let i = 0; i < contents.length; i++) {
-    const item = contents[i]
-
-    if (!item.id) {
-      throw new PayloadValidationError(`contents[${i}] must include an 'id' parameter.`)
-    }
-
-    if (item.delivery_category && !valid_delivery_categories.includes(item.delivery_category)) {
-      throw new PayloadValidationError(
-        `contents[${i}].delivery_category must be one of {in_store, home_delivery, curbside}.`
-      )
-    }
-  }
 }

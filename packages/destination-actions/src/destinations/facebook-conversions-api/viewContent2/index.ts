@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { viewContentFields } from '../fields'
 import { send } from '../functions'
+import { EventType } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'View Content V2',
@@ -17,7 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: viewContentFields,
   perform: (request, { payload, settings, features, statsContext, syncMode }) => {
     if (syncMode === 'add') {
-      return send(request, payload, settings, features, statsContext)
+      return send(request, payload, settings, EventType.ViewContent, features, statsContext)
     } 
     else {
       throw new IntegrationError(`Sync mode ${syncMode} is not supported`, 'Misconfigured sync mode', 400)

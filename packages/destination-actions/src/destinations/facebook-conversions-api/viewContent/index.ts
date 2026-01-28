@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { viewContentFields } from '../fields'
 import { send } from '../functions'
+import { EventType } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'View Content',
@@ -10,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Product Viewed"',
   fields: viewContentFields,
   perform: (request, { payload, settings, features, statsContext }) => {
-    return send(request, payload, settings, features, statsContext)
+    return send(request, payload, settings, EventType.ViewContent, features, statsContext)
   }
 }
 

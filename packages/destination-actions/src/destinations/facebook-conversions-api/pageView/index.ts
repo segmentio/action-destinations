@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { send } from '../functions'
 import { pageFields } from '../fields'
+import { EventType } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View',
@@ -10,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "page"',
   fields: pageFields,
   perform: (request, { payload, settings, features, statsContext }) => {
-    return send(request, payload, settings, features, statsContext)
+    return send(request, payload, settings, EventType.PageView, features, statsContext)
   }
 }
 
