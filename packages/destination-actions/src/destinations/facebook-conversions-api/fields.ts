@@ -776,3 +776,112 @@ export const viewContentFields: Record<string, InputField> = {
   data_processing_options_state: data_processing_options_state,
   test_event_code: test_event_code
 }
+
+export const searchFields: Record<string, InputField> = {
+  action_source: { ...action_source, required: true },
+  event_time: { ...event_time, required: true },
+  user_data: user_data_field,
+  app_data_field: app_data_field,
+  content_category: content_category,
+  content_ids: content_ids,
+  contents: {
+    ...contents,
+    default: {
+      // Segment Products Searched is a single product event
+      '@arrayPath': [
+        '$.properties',
+        {
+          id: {
+            '@path': '$.product_id'
+          },
+          quantity: {
+            '@path': '$.quantity'
+          },
+          item_price: {
+            '@path': '$.price'
+          }
+        }
+      ]
+    }
+  },
+  currency: currency,
+  event_id: event_id,
+  event_source_url: event_source_url,
+  search_string: {
+    label: 'Search String',
+    description: 'A search query made by a user. This must be a string.',
+    type: 'string',
+    default: {
+      '@path': '$.properties.query'
+    }
+  },
+  value: value,
+  custom_data: custom_data,
+  data_processing_options: data_processing_options,
+  data_processing_options_country: data_processing_options_country,
+  data_processing_options_state: data_processing_options_state,
+  test_event_code: test_event_code
+}
+
+export const customFields: Record<string, InputField> = {
+  action_source: { ...action_source, required: true },
+  event_name: {
+    label: 'Event Name',
+    description:
+      'A Facebook [standard event](https://developers.facebook.com/docs/meta-pixel/implementation/conversion-tracking#standard-events) or [custom event](https://developers.facebook.com/docs/meta-pixel/implementation/conversion-tracking#custom-events) name.',
+    type: 'string',
+    required: true,
+    default: {
+      '@path': '$.event'
+    }
+  },
+  event_time: { ...event_time, required: true },
+  user_data: user_data_field,
+  app_data_field: app_data_field,
+  custom_data: custom_data,
+  event_id: event_id,
+  event_source_url: event_source_url,
+  data_processing_options: data_processing_options,
+  data_processing_options_country: data_processing_options_country,
+  data_processing_options_state: data_processing_options_state,
+  test_event_code: test_event_code
+}
+
+export const addToCartFields: Record<string, InputField> = {
+  action_source: { ...action_source, required: true },
+  event_time: { ...event_time, required: true },
+  user_data: user_data_field,
+  app_data_field: app_data_field,
+  content_ids: content_ids,
+  content_name: content_name,
+  content_type: content_type,
+  contents: {
+    ...contents,
+    default: {
+      // Segment Product Added is a single product event
+      '@arrayPath': [
+        '$.properties',
+        {
+          id: {
+            '@path': '$.product_id'
+          },
+          quantity: {
+            '@path': '$.quantity'
+          },
+          item_price: {
+            '@path': '$.price'
+          }
+        }
+      ]
+    }
+  },
+  currency: currency,
+  event_id: event_id,
+  event_source_url: event_source_url,
+  value: { ...value, default: { '@path': '$.properties.price' } },
+  custom_data: custom_data,
+  data_processing_options: data_processing_options,
+  data_processing_options_country: data_processing_options_country,
+  data_processing_options_state: data_processing_options_state,
+  test_event_code: test_event_code
+}

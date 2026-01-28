@@ -1,6 +1,49 @@
 export interface RequestJSON {
-    data: [PurchaseEventData | AppendValueEventData],
+    data: [PurchaseEventData | AppendValueEventData | AddToCartEventData | ViewContentEventData | InitiateCheckoutEventData | PageEventData | CustomEventData],
     test_event_code?: string
+}
+
+export interface AddToCartEventData {
+    event_name: 'AddToCart',
+    event_time: string,
+    action_source: string,
+    event_source_url?: string,
+    event_id?: string,
+    user_data: UserData,
+    custom_data: {
+        currency: string,
+        value: number,
+        content_ids?: string[],
+        content_name?: string,
+        content_type?: string,
+        contents?: Array<{
+            id?: string,
+            quantity?: number,
+            item_price?: number, 
+            delivery_category?: string
+        }>,
+        [k: string]: unknown
+    }, 
+    app_data?: Record<string, unknown>, 
+    data_processing_options?: string[],
+    data_processing_options_country?: number,
+    data_processing_options_state?: number
+}
+
+export interface CustomEventData {
+    event_name: string,
+    event_time: string,
+    action_source: string,
+    event_source_url?: string,
+    event_id?: string,
+    user_data: UserData,
+    custom_data: {
+        [k: string]: unknown
+    }, 
+    app_data?: Record<string, unknown>, 
+    data_processing_options?: string[],
+    data_processing_options_country?: number,
+    data_processing_options_state?: number
 }
 
 export interface PageEventData {
@@ -73,6 +116,33 @@ export interface InitiateCheckoutEventData {
     data_processing_options_state?: number
 }
 
+export interface SearchEventData {
+    event_name: 'Search',
+    event_time: string,
+    action_source: string,
+    event_source_url?: string,
+    event_id?: string,
+    user_data: UserData,
+    custom_data: {
+        currency: string,
+        value: number,
+        content_ids?: string[],
+        contents?: Array<{
+            id?: string,
+            quantity?: number,
+            item_price?: number, 
+            delivery_category?: string
+        }>,
+        content_category?: string,
+        search_string: string,
+        [k: string]: unknown
+    }, 
+    app_data?: Record<string, unknown>, 
+    data_processing_options?: string[],
+    data_processing_options_country?: number,
+    data_processing_options_state?: number
+}
+
 export interface ViewContentEventData {
     event_name: 'ViewContent',
     event_time: string,
@@ -92,7 +162,7 @@ export interface ViewContentEventData {
             item_price?: number, 
             delivery_category?: string
         }>,
-        content_category?: string,
+        content_category
         [k: string]: unknown
     }, 
     app_data?: Record<string, unknown>, 

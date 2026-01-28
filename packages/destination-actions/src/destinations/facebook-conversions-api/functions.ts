@@ -1,7 +1,7 @@
 import {  ErrorCodes, IntegrationError, PayloadValidationError, RequestClient, Features, StatsContext } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload } from './purchase2/generated-types'
-import { RequestJSON, ViewContentEventData, InitiateCheckoutEventData, PageEventData, PurchaseEventData, AppendValueEventData, GeneratedAppData, UserData, Content } from './types'
+import { RequestJSON, CustomEventData, AddToCartEventData, ViewContentEventData, InitiateCheckoutEventData, PageEventData, PurchaseEventData, AppendValueEventData, GeneratedAppData, UserData, Content } from './types'
 import { API_VERSION, CANARY_API_VERSION, FLAGON_NAME, US_STATE_CODES, COUNTRY_CODES, CURRENCY_ISO_CODES } from './constants'
 import { processHashing } from '../../lib/hashing-utils'
 
@@ -9,6 +9,8 @@ export function send(request: RequestClient, payload: Payload, settings: Setting
     
     const { 
         content_category,
+        search_string,
+        event_name,
 
         is_append_event,
         append_event_details: { 
@@ -72,14 +74,72 @@ export function send(request: RequestClient, payload: Payload, settings: Setting
 
     const testEventCode = test_event_code || settings.testEventCode
 
+    const commonEventData = () => {
+      return {
+        event_time,
+        action_source,
+        ...(event_source_url && { event_source_url }),
+        ...(event_id && { event_id }),
+        user_data: getUserData(user_data),
+        ...(() => {
+            const app_data = generateAppData(app_data_field)
+            return app_data ? { app_data }: {}
+        })(),
+        ...(data_processing_options ? { data_processing_options: ['LDU'] } : {}),
+        ...(data_processing_options ? { data_processing_options_country: data_processing_options_country || 0 } : {}  ),
+        ...(data_processing_options ? { data_processing_options_state: data_processing_options_state || 0 } : {}  )
+      }
+    }
+    
+    const addToCartEventData =(): AddToCartEventData => {
+        return {
+            event_name: 'AddToCart',
+            ...commonEventData(),
+            custom_data: {
+              ...custom_data,
+              currency,
+              value,
+              ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
+              ...(content_name && { content_name }),
+              ...(content_type && { content_type }),
+              ...(contents && { contents })
+            }
+        }
+    }
+
+    const customEventData = (): CustomEventData => ({
+      event_name,
+      ...commonEventData(),
+      custom_data: { ...custom_data }
+    })
+
+    const initiateCheckoutEventData =(): InitiateCheckoutEventData => {
+        return {
+            event_name: 'InitiateCheckout',
+            ...commonEventData(),
+            custom_data: {
+                ...custom_data,
+                currency,
+                value,
+                ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
+                ...(contents && { contents }),
+                ...(typeof num_items === 'number' && { num_items }),
+                ...(content_category && { content_category })
+            }
+        }
+    }
+
+    const pageEventData =(): PageEventData => {
+        return {
+            event_name: 'PageView',
+            ...commonEventData()
+        }
+    }
+
     const purchaseEventData =(): PurchaseEventData => {
         return {
             event_name: 'Purchase',
-            event_time,
-            action_source,
-            ...(event_source_url && { event_source_url }),
-            ...(event_id && { event_id }),
-            user_data: getUserData(user_data),
+            ...commonEventData(),
             custom_data: {
                 ...custom_data,
                 currency,
@@ -92,70 +152,30 @@ export function send(request: RequestClient, payload: Payload, settings: Setting
                 ...(content_type && { content_type }),
                 ...(contents && { contents }),
                 ...(typeof num_items === 'number' && { num_items })
-            },
-            ...(() => {
-                const app_data = generateAppData(app_data_field)
-                return app_data ? { app_data }: {}
-            })(),
-            ...(data_processing_options ? { data_processing_options: ['LDU'] } : {}),
-            ...(data_processing_options ? { data_processing_options_country: data_processing_options_country || 0 } : {}  ),
-            ...(data_processing_options ? { data_processing_options_state: data_processing_options_state || 0 } : {}  )
+            }
         }
     }
 
-    const pageEventData =(): PageEventData => {
+    const searchEventData =(): SearchEventData => {
         return {
-            event_name: 'PageView',
-            event_time,
-            action_source,
-            ...(event_source_url && { event_source_url }),
-            ...(event_id && { event_id }),
-            user_data: getUserData(user_data),
-            ...(() => {
-                const app_data = generateAppData(app_data_field)
-                return app_data ? { app_data }: {}
-            })(),
-            ...(data_processing_options ? { data_processing_options: ['LDU'] } : {}),
-            ...(data_processing_options ? { data_processing_options_country: data_processing_options_country || 0 } : {}  ),
-            ...(data_processing_options ? { data_processing_options_state: data_processing_options_state || 0 } : {}  )
-        }
-    }
-
-    const initiateCheckoutEventData =(): InitiateCheckoutEventData => {
-        return {
-            event_name: 'InitiateCheckout',
-            event_time,
-            action_source,
-            ...(event_source_url && { event_source_url }),
-            ...(event_id && { event_id }),
-            user_data: getUserData(user_data),
+            event_name: 'Search',
+            ...commonEventData(),
             custom_data: {
                 ...custom_data,
                 currency,
                 value,
                 ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
                 ...(contents && { contents }),
-                ...(typeof num_items === 'number' && { num_items }),
-                ...(content_category && { content_category })
-            },
-            ...(() => {
-                const app_data = generateAppData(app_data_field)
-                return app_data ? { app_data }: {}
-            })(),
-            ...(data_processing_options ? { data_processing_options: ['LDU'] } : {}),
-            ...(data_processing_options ? { data_processing_options_country: data_processing_options_country || 0 } : {}  ),
-            ...(data_processing_options ? { data_processing_options_state: data_processing_options_state || 0 } : {}  )
+                ...(content_category && { content_category }),
+                ...(search_string && { search_string })
+            }
         }
     }
 
     const viewContentEventData =(): ViewContentEventData => {
         return {
             event_name: 'ViewContent',
-            event_time,
-            action_source,
-            ...(event_source_url && { event_source_url }),
-            ...(event_id && { event_id }),
-            user_data: getUserData(user_data),
+            ...commonEventData(),
             custom_data: {
                 ...custom_data,
                 currency,
@@ -165,14 +185,7 @@ export function send(request: RequestClient, payload: Payload, settings: Setting
                 ...(content_type && { content_type }),
                 ...(contents && { contents }),
                 ...(content_category && { content_category }),
-            },
-            ...(() => {
-                const app_data = generateAppData(app_data_field)
-                return app_data ? { app_data }: {}
-            })(),
-            ...(data_processing_options ? { data_processing_options: ['LDU'] } : {}),
-            ...(data_processing_options ? { data_processing_options_country: data_processing_options_country || 0 } : {}  ),
-            ...(data_processing_options ? { data_processing_options_state: data_processing_options_state || 0 } : {}  )
+            }
         }
     }
 
