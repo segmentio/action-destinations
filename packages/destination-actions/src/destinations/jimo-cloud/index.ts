@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
+import { buildJimoUrl, JIMO_TEST_PATH } from './constants'
 import type { Settings } from './generated-types'
 import sendUserdata from './sendUserdata'
-import { TEST_URL } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Jimo Cloud (actions)',
@@ -18,14 +18,14 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request(TEST_URL, {
+      return request(buildJimoUrl(JIMO_TEST_PATH), {
         method: 'get'
       })
     }
   },
   extendRequest: ({ settings }) => {
     return {
-      headers: { Authorization: `${settings.apiKey}` }
+      headers: { Authorization: `Bearer ${settings.apiKey}` }
     }
   },
   actions: {
