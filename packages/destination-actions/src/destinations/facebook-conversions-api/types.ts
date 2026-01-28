@@ -1,5 +1,48 @@
+import { EventType } from './constants'
+import type { Payload as AddToCartPayload } from './addToCart/generated-types'
+import type { Payload as AddToCart2Payload } from './addToCart2/generated-types'
+import type { Payload as CustomPayload } from './custom/generated-types'
+import type { Payload as Custom2Payload } from './custom2/generated-types'
+import type { Payload as InitiateCheckoutPayload } from './initiateCheckout/generated-types'
+import type { Payload as InitiateCheckout2Payload } from './initiateCheckout2/generated-types'
+import type { Payload as PageViewPayload } from './pageView/generated-types'
+import type { Payload as PageView2Payload } from './pageView2/generated-types'
+import type { Payload as PurchasePayload } from './purchase/generated-types'
+import type { Payload as Purchase2Payload } from './purchase2/generated-types'
+import type { Payload as SearchPayload } from './search/generated-types'
+import type { Payload as Search2Payload } from './search2/generated-types'
+import type { Payload as ViewContentPayload } from './viewContent/generated-types'
+import type { Payload as ViewContentPayload2 } from './viewContent2/generated-types'
+
+export type AnyPayload =
+    | PurchasePayload
+    | Purchase2Payload
+    | AddToCartPayload
+    | AddToCart2Payload
+    | ViewContentPayload
+    | ViewContentPayload2
+    | InitiateCheckoutPayload
+    | InitiateCheckout2Payload
+    | PageViewPayload
+    | PageView2Payload
+    | CustomPayload
+    | Custom2Payload
+    | SearchPayload
+    | Search2Payload
+
+export type EventDataType = 
+    | PurchaseEventData 
+    | AppendValueEventData 
+    | AddToCartEventData 
+    | ViewContentEventData 
+    | InitiateCheckoutEventData 
+    | PageEventData 
+    | CustomEventData
+
+export type EventTypeKey = keyof typeof EventType
+
 export interface RequestJSON {
-    data: [PurchaseEventData | AppendValueEventData | AddToCartEventData | ViewContentEventData | InitiateCheckoutEventData | PageEventData | CustomEventData],
+    data: [EventDataType],
     test_event_code?: string
 }
 
@@ -12,7 +55,7 @@ export interface AddToCartEventData {
     user_data: UserData,
     custom_data: {
         currency: string,
-        value: number,
+        value?: number,
         content_ids?: string[],
         content_name?: string,
         content_type?: string,
@@ -98,7 +141,7 @@ export interface InitiateCheckoutEventData {
     user_data: UserData,
     custom_data: {
         currency: string,
-        value: number,
+        value?: number,
         content_ids?: string[],
         contents?: Array<{
             id?: string,
@@ -125,7 +168,7 @@ export interface SearchEventData {
     user_data: UserData,
     custom_data: {
         currency: string,
-        value: number,
+        value?: number,
         content_ids?: string[],
         contents?: Array<{
             id?: string,
@@ -134,7 +177,7 @@ export interface SearchEventData {
             delivery_category?: string
         }>,
         content_category?: string,
-        search_string: string,
+        search_string?: string,
         [k: string]: unknown
     }, 
     app_data?: Record<string, unknown>, 
@@ -152,7 +195,7 @@ export interface ViewContentEventData {
     user_data: UserData,
     custom_data: {
         currency: string,
-        value: number,
+        value?: number,
         content_ids?: string[],
         content_name?: string,
         content_type?: string,
@@ -162,7 +205,7 @@ export interface ViewContentEventData {
             item_price?: number, 
             delivery_category?: string
         }>,
-        content_category
+        content_category?: string,
         [k: string]: unknown
     }, 
     app_data?: Record<string, unknown>, 

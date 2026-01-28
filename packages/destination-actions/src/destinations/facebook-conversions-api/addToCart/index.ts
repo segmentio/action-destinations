@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { send } from '../functions'
 import { addToCartFields } from '../fields'
+import { EventType } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Cart',
@@ -10,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Product Added"',
   fields: addToCartFields,
   perform: (request, { payload, settings, features, statsContext }) => {
-    return send(request, payload, settings, features, statsContext)
+    return send(request, payload, settings, EventType.AddToCart, features, statsContext)
   }
 }
 

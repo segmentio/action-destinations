@@ -1,229 +1,301 @@
 import {  ErrorCodes, IntegrationError, PayloadValidationError, RequestClient, Features, StatsContext } from '@segment/actions-core'
-import type { Settings } from './generated-types'
-import type { Payload } from './purchase2/generated-types'
-import { RequestJSON, CustomEventData, AddToCartEventData, ViewContentEventData, InitiateCheckoutEventData, PageEventData, PurchaseEventData, AppendValueEventData, GeneratedAppData, UserData, Content } from './types'
+import { EventDataType, AnyPayload, SearchEventData, EventTypeKey, RequestJSON, CustomEventData, AddToCartEventData, ViewContentEventData, InitiateCheckoutEventData, PageEventData, PurchaseEventData, AppendValueEventData, GeneratedAppData, UserData, Content } from './types'
 import { API_VERSION, CANARY_API_VERSION, FLAGON_NAME, US_STATE_CODES, COUNTRY_CODES, CURRENCY_ISO_CODES } from './constants'
 import { processHashing } from '../../lib/hashing-utils'
+import type { Settings } from './generated-types'
+import type { Payload as AddToCartPayload } from './addToCart/generated-types'
+import type { Payload as AddToCart2Payload } from './addToCart2/generated-types'
+import type { Payload as CustomPayload } from './custom/generated-types'
+import type { Payload as Custom2Payload } from './custom2/generated-types'
+import type { Payload as InitiateCheckoutPayload } from './initiateCheckout/generated-types'
+import type { Payload as InitiateCheckout2Payload } from './initiateCheckout2/generated-types'
+import type { Payload as PageViewPayload } from './pageView/generated-types'
+import type { Payload as PageView2Payload } from './pageView2/generated-types'
+import type { Payload as PurchasePayload } from './purchase/generated-types'
+import type { Payload as Purchase2Payload } from './purchase2/generated-types'
+import type { Payload as SearchPayload } from './search/generated-types'
+import type { Payload as Search2Payload } from './search2/generated-types'
+import type { Payload as ViewContentPayload } from './viewContent/generated-types'
+import type { Payload as ViewContent2Payload } from './viewContent2/generated-types'
 
-export function send(request: RequestClient, payload: Payload, settings: Settings, features?: Features, statsContext?: StatsContext) {
-    
+export function send<T extends EventTypeKey>(request: RequestClient, payload: AnyPayload, settings: Settings, eventType: T, features?: Features, statsContext?: StatsContext) {
+  validate(payload, eventType)
+  
+  const { 
+    test_event_code,
+  } = payload
+
+  const testEventCode = test_event_code || settings.testEventCode
+
+  const data = getEventData(payload as Parameters<typeof getEventData>[0], eventType as Parameters<typeof getEventData>[1])
+
+  const json: RequestJSON = {
+    data: [data],
+    ...(testEventCode && { test_event_code: testEventCode })
+  }
+
+  return request(
+    `https://graph.facebook.com/v${getApiVersion(features, statsContext)}/${settings.pixelId}/events`,
+    {
+        method: 'POST',
+        json
+    }
+  )
+}
+
+export const validate = <T extends EventTypeKey>(payload: AnyPayload, eventType: T) => {
+  const { 
+    action_source,
+    user_data
+  } = payload
+
+  if(eventType === 'Purchase') {
     const { 
-        content_category,
-        search_string,
-        event_name,
+      is_append_event,
+      append_event_details: { 
+          original_event_time,
+          original_event_order_id,
+          original_event_id,
+          net_revenue_to_append,
+          predicted_ltv_to_append
+      } = {}
+    } = payload as PurchasePayload | Purchase2Payload
 
-        is_append_event,
-        append_event_details: { 
-            original_event_time,
-            original_event_order_id,
-            original_event_id,
-            net_revenue_to_append,
-            predicted_ltv_to_append
-        } = {},
-        currency,
-        event_time,
-        action_source,
-        event_source_url,
-        event_id,
-        order_id,
-        user_data,
-        custom_data, 
-        value,
-        net_revenue, 
-        predicted_ltv,
-        content_ids, 
-        content_name, 
-        content_type, 
-        contents, 
-        num_items,
-        app_data_field,
-        test_event_code,
-        data_processing_options,
-        data_processing_options_country,
-        data_processing_options_state
-    } = payload
-    
     if(
-        is_append_event && 
-        (!original_event_time || !original_event_order_id || !original_event_id) 
-        && (typeof net_revenue_to_append !== 'number' && typeof predicted_ltv_to_append !== 'number')
+      is_append_event && 
+      (!original_event_time || !original_event_order_id || !original_event_id) 
+      && (typeof net_revenue_to_append !== 'number' && typeof predicted_ltv_to_append !== 'number')
     ) {
-        throw new PayloadValidationError('If append event is true, original event time, original event order ID, original event ID, and at least one of net revenue to append or predicted lifetime value to append must be provided')
+      throw new PayloadValidationError('If append event is true, original event time, original event order ID, original event ID, and at least one of net revenue to append or predicted lifetime value to append must be provided')
     }
+  }
 
-    if (currency && !CURRENCY_ISO_CODES.has(currency)) {
-        throw new IntegrationError(
-            `${payload.currency} is not a valid currency code.`,
-            ErrorCodes.INVALID_CURRENCY_CODE,
-            400
-        )
-    }
+  if(eventType !== 'PageView') {
+    const { 
+      currency,
+      contents
+    } = payload as AddToCartPayload | AddToCart2Payload | ViewContentPayload | ViewContent2Payload | InitiateCheckoutPayload | InitiateCheckout2Payload | SearchPayload | Search2Payload | PurchasePayload | Purchase2Payload
 
-    if (!user_data) {
-        throw new PayloadValidationError('Must include at least one user data property')
-    }
-
-    if (action_source === 'website' && user_data.client_user_agent === undefined) {
-        throw new PayloadValidationError('If action source is "Website" then client_user_agent must be defined')
+    if (currency && typeof currency === 'string' && !CURRENCY_ISO_CODES.has(currency)) {
+      throw new IntegrationError(
+        `${currency} is not a valid currency code.`,
+        ErrorCodes.INVALID_CURRENCY_CODE,
+        400
+      )
     }
 
     if (contents) {
-        const err = validateContents(contents)
-        if (err) throw err
+      validateContents(contents) 
     }
+  }
 
-    const testEventCode = test_event_code || settings.testEventCode
+  if (!user_data) {
+    throw new PayloadValidationError('Must include at least one user data property')
+  }
 
-    const commonEventData = () => {
-      return {
-        event_time,
-        action_source,
-        ...(event_source_url && { event_source_url }),
-        ...(event_id && { event_id }),
-        user_data: getUserData(user_data),
-        ...(() => {
-            const app_data = generateAppData(app_data_field)
-            return app_data ? { app_data }: {}
-        })(),
-        ...(data_processing_options ? { data_processing_options: ['LDU'] } : {}),
-        ...(data_processing_options ? { data_processing_options_country: data_processing_options_country || 0 } : {}  ),
-        ...(data_processing_options ? { data_processing_options_state: data_processing_options_state || 0 } : {}  )
-      }
-    }
-    
-    const addToCartEventData =(): AddToCartEventData => {
-        return {
-            event_name: 'AddToCart',
-            ...commonEventData(),
-            custom_data: {
-              ...custom_data,
-              currency,
-              value,
-              ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
-              ...(content_name && { content_name }),
-              ...(content_type && { content_type }),
-              ...(contents && { contents })
-            }
-        }
-    }
-
-    const customEventData = (): CustomEventData => ({
-      event_name,
-      ...commonEventData(),
-      custom_data: { ...custom_data }
-    })
-
-    const initiateCheckoutEventData =(): InitiateCheckoutEventData => {
-        return {
-            event_name: 'InitiateCheckout',
-            ...commonEventData(),
-            custom_data: {
-                ...custom_data,
-                currency,
-                value,
-                ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
-                ...(contents && { contents }),
-                ...(typeof num_items === 'number' && { num_items }),
-                ...(content_category && { content_category })
-            }
-        }
-    }
-
-    const pageEventData =(): PageEventData => {
-        return {
-            event_name: 'PageView',
-            ...commonEventData()
-        }
-    }
-
-    const purchaseEventData =(): PurchaseEventData => {
-        return {
-            event_name: 'Purchase',
-            ...commonEventData(),
-            custom_data: {
-                ...custom_data,
-                currency,
-                value,
-                ...(order_id && { order_id }),
-                ...(typeof net_revenue === 'number' && { net_revenue }),
-                ...(typeof predicted_ltv === 'number' && { predicted_ltv }),
-                ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
-                ...(content_name && { content_name }),
-                ...(content_type && { content_type }),
-                ...(contents && { contents }),
-                ...(typeof num_items === 'number' && { num_items })
-            }
-        }
-    }
-
-    const searchEventData =(): SearchEventData => {
-        return {
-            event_name: 'Search',
-            ...commonEventData(),
-            custom_data: {
-                ...custom_data,
-                currency,
-                value,
-                ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
-                ...(contents && { contents }),
-                ...(content_category && { content_category }),
-                ...(search_string && { search_string })
-            }
-        }
-    }
-
-    const viewContentEventData =(): ViewContentEventData => {
-        return {
-            event_name: 'ViewContent',
-            ...commonEventData(),
-            custom_data: {
-                ...custom_data,
-                currency,
-                value,
-                ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
-                ...(content_name && { content_name }),
-                ...(content_type && { content_type }),
-                ...(contents && { contents }),
-                ...(content_category && { content_category }),
-            }
-        }
-    }
-
-    const appendValueEventData =(): AppendValueEventData => {
-        const data = purchaseEventData()
-        const { order_id, ...customDataWithoutOrderId } = data.custom_data;
-        return {
-            ...data,
-            event_name: 'AppendValue',
-            custom_data: {
-                ...customDataWithoutOrderId,
-                net_revenue: net_revenue_to_append,
-                predicted_ltv: predicted_ltv_to_append
-            },
-            original_event_data: {
-                event_name: 'Purchase',
-                event_time: original_event_time as string,
-                order_id: original_event_order_id,
-                event_id: original_event_id                 
-            }
-        }
-    }
-
-    const json: RequestJSON = {
-        data: [is_append_event ? appendValueEventData() : purchaseEventData()],
-        ...(testEventCode && { test_event_code: testEventCode })
-    }
-
-    return request(
-        `https://graph.facebook.com/v${getApiVersion(features, statsContext)}/${settings.pixelId}/events`,
-        {
-            method: 'POST',
-            json
-        }
-    )
+  if (action_source === 'website' && user_data.client_user_agent === undefined) {
+    throw new PayloadValidationError('If action source is "Website" then client_user_agent must be defined')
+  }
 }
 
-export const generateAppData = (app_data: Payload['app_data_field']): GeneratedAppData | undefined => {
+export function getEventData(payload: PurchasePayload | Purchase2Payload, type: 'Purchase'): PurchaseEventData
+export function getEventData(payload: AddToCartPayload | AddToCart2Payload, type: 'AddToCart'): AddToCartEventData
+export function getEventData(payload: ViewContentPayload | ViewContent2Payload, type: 'ViewContent'): ViewContentEventData
+export function getEventData(payload: InitiateCheckoutPayload | InitiateCheckout2Payload, type: 'InitiateCheckout'): InitiateCheckoutEventData
+export function getEventData(payload: PageViewPayload | PageView2Payload, type: 'PageView'): PageEventData
+export function getEventData(payload: SearchPayload | Search2Payload, type: 'Search'): SearchEventData
+export function getEventData(payload: CustomPayload | Custom2Payload, type: 'Custom'): CustomEventData
+export function getEventData(payload: AnyPayload, type: EventTypeKey): EventDataType {
+  const { 
+    event_time,
+    action_source,
+    event_source_url,
+    event_id,
+    user_data,
+    custom_data, 
+    app_data_field,
+    data_processing_options,
+    data_processing_options_country,
+    data_processing_options_state
+  } = payload
+  
+  const common = {
+    event_time,
+    action_source,
+    ...(event_source_url && { event_source_url }),
+    ...(event_id && { event_id }),
+    user_data: getUserData(user_data),
+    ...(() => {
+        const app_data = generateAppData(app_data_field)
+        return app_data ? { app_data }: {}
+    })(),
+    ...(data_processing_options ? { data_processing_options: ['LDU'] } : {}),
+    ...(data_processing_options ? { data_processing_options_country: data_processing_options_country || 0 } : {}  ),
+    ...(data_processing_options ? { data_processing_options_state: data_processing_options_state || 0 } : {}  )
+  }
+
+  switch(type) {
+    case 'AddToCart': {
+      const {
+        content_name,
+        currency,
+        value,
+        content_ids,
+        content_type,
+        contents
+      } = payload as AddToCartPayload | AddToCart2Payload
+
+      const data: AddToCartEventData = {
+        event_name: 'AddToCart',
+        ...common,
+        custom_data: {
+          ...custom_data,
+          currency: currency as string,
+          ...(typeof value ==='number'? { value }: {}),
+          ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
+          ...(content_name && { content_name }),
+          ...(content_type && { content_type }),
+          ...(contents && { contents })
+        }
+      }
+      return data
+    }
+    case 'Custom': {
+      const { 
+        event_name 
+      } = payload as CustomPayload | Custom2Payload
+
+      const data: CustomEventData = {
+        event_name,
+        ...common,
+        custom_data: { ...custom_data }
+      }
+      return data
+    }
+    case 'InitiateCheckout': {
+      const {
+        currency,
+        value,
+        content_ids,
+        content_category,
+        num_items,
+        contents
+      } = payload as InitiateCheckoutPayload | InitiateCheckout2Payload
+
+      const data: InitiateCheckoutEventData = {
+        event_name: 'InitiateCheckout',
+        ...common,
+        custom_data: {
+          ...custom_data,
+          currency: currency as string,
+          ...(typeof value ==='number'? { value }: {}),
+          ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
+          ...(contents && { contents }),
+          ...(typeof num_items === 'number' && { num_items }),
+          ...(content_category && { content_category })
+        }
+      }
+      return data
+    }
+    case "PageView": {
+      const data: PageEventData = {
+          event_name: 'PageView',
+          ...common
+      }
+      return data
+    }
+    case "Purchase": {
+      const {
+        currency,
+        value,
+        content_ids,
+        order_id,
+        net_revenue,
+        predicted_ltv,
+        content_name,
+        content_type,
+        num_items,
+        contents
+      } = payload as PurchasePayload | Purchase2Payload
+
+      const data: PurchaseEventData = {
+        event_name: 'Purchase',
+        ...common,
+        custom_data: {
+          ...custom_data,
+          currency,
+          value,
+          ...(order_id && { order_id }),
+          ...(typeof net_revenue === 'number' && { net_revenue }),
+          ...(typeof predicted_ltv === 'number' && { predicted_ltv }),
+          ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
+          ...(content_name && { content_name }),
+          ...(content_type && { content_type }),
+          ...(contents && { contents }),
+          ...(typeof num_items === 'number' && { num_items })
+        }
+      }
+      return data
+    }
+    case "Search": {
+      const {
+        currency,
+        value,
+        content_ids,
+        search_string,
+        content_category,
+        contents
+      } = payload as SearchPayload | Search2Payload
+      
+      const data: SearchEventData = {
+        event_name: 'Search',
+        ...common,
+        custom_data: {
+          ...custom_data,
+          currency: currency as string,
+          value,
+          ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
+          ...(contents && { contents }),
+          ...(content_category && { content_category }),
+          ...(search_string && { search_string })
+        }
+      }
+      return data
+    }
+    case "ViewContent": {
+      const {
+        currency,
+        value,
+        content_ids,
+        content_category,
+        content_name,
+        content_type,
+        contents
+      } = payload as ViewContentPayload | ViewContent2Payload
+
+      const data: ViewContentEventData = {
+        event_name: 'ViewContent',
+        ...common,
+        custom_data: {
+            ...custom_data,
+            currency: currency as string,
+            value,
+            ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
+            ...(content_name && { content_name }),
+            ...(content_type && { content_type }),
+            ...(contents && { contents }),
+            ...(content_category && { content_category })
+        }
+      }
+      return data
+    }
+    default: {
+      throw new PayloadValidationError(`Unsupported event type: ${type}`)
+    }
+  }
+}
+
+export const generateAppData = (app_data: AnyPayload['app_data_field']): GeneratedAppData | undefined => {
   if (!app_data || !app_data.use_app_data) {
     return undefined
   }
@@ -302,7 +374,7 @@ export const clean = (value: string | undefined): string | undefined => {
  * @param payload
  * @see https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#hash
  */
-export const getUserData = (payloadUserData: Payload['user_data']): UserData => {
+export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData => {
   const { 
     email, 
     phone,
@@ -408,22 +480,20 @@ export const getUserData = (payloadUserData: Payload['user_data']): UserData => 
   return userData
 }
 
-export const validateContents = (contents: Content[]): PayloadValidationError | false => {
+export const validateContents = (contents: Content[]) => {
   const valid_delivery_categories = ['in_store', 'curbside', 'home_delivery']
 
   for (let i = 0; i < contents.length; i++) {
     const item = contents[i]
 
     if (!item.id) {
-      return new PayloadValidationError(`contents[${i}] must include an 'id' parameter.`)
+      throw new PayloadValidationError(`contents[${i}] must include an 'id' parameter.`)
     }
 
     if (item.delivery_category && !valid_delivery_categories.includes(item.delivery_category)) {
-      return new PayloadValidationError(
+      throw new PayloadValidationError(
         `contents[${i}].delivery_category must be one of {in_store, home_delivery, curbside}.`
       )
     }
   }
-
-  return false
 }
