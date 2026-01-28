@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { fields } from './fields'
+import { fields } from '../fields'
 import { send } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {

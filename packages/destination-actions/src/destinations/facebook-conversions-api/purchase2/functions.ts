@@ -180,7 +180,7 @@ export const getApiVersion = (features: Features | undefined, statsContext: Stat
   return API_VERSION
 }
 
-const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
+export const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
 
 export const hashArray = (values: string[] | undefined): string[] | undefined => {
   if (!values?.length) {

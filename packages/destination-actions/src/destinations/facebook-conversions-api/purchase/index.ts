@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { fields } from '../purchase2/fields'
+import { fields } from '../fields'
 import { send } from '../purchase2/functions'
 
 const action: ActionDefinition<Settings, Payload> = {
