@@ -68,6 +68,14 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       minimum: 5000, // 5KB
       unsafe_hidden: false
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Max batch size to send to Kafka',
+      type: 'number',
+      required: false,
+      unsafe_hidden: true,
+      default: 1002
     }
   },
   dynamicFields: {
