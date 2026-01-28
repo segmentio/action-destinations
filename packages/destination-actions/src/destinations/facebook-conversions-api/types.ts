@@ -214,16 +214,18 @@ export interface ViewContentEventData {
     data_processing_options_state?: number
 }
 
-export type AppendValueEventData = Omit<PurchaseEventData, 'event_name'> & {
+export interface AppendValueEventData {
     event_name: 'AppendValue'
     original_event_data: {
-        event_name: 'Purchase'
-        event_time: string // original event time
-        order_id?: string
-        event_id?: string
+        event_name: string
+        event_time: string 
+        order_id: string
+        event_id: string
     }
-    custom_data: Omit<PurchaseEventData['custom_data'], 'order_id'> & {
-        order_id?: never // make sure to never include order_id in custom_data
+    custom_data: {
+        order_id?: never 
+        net_revenue?: number
+        predicted_ltv?: number
     }
 }
 

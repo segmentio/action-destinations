@@ -824,6 +824,8 @@ export const searchFields: Record<string, InputField> = {
 }
 
 export const customFields: Record<string, InputField> = {
+  is_append_event,
+  append_event_details,
   action_source: { ...action_source, required: true },
   event_name: {
     label: 'Event Name',
