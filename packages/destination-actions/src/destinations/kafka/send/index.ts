@@ -55,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Max batch size to send to Kafka',
       type: 'number',
       required: false,
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       default: 1002
     },
     batch_keys: {
