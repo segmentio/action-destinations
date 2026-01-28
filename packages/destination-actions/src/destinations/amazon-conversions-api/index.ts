@@ -57,7 +57,7 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
+        'Amazon-Ads-ClientId': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
       }
     }
   },
@@ -68,7 +68,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        eventType: 'ADD_TO_SHOPPING_CART'
+        conversionType: 'ADD_TO_SHOPPING_CART'
       },
       type: 'automatic'
     },
@@ -78,7 +78,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        eventType: 'APPLICATION'
+        conversionType: 'APPLICATION'
       },
       type: 'automatic'
     },
@@ -88,7 +88,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        eventType: 'CHECKOUT'
+        conversionType: 'CHECKOUT'
       },
       type: 'automatic'
     },
@@ -98,7 +98,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        eventType: 'CONTACT'
+        conversionType: 'CONTACT'
       },
       type: 'automatic'
     },
@@ -108,7 +108,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        eventType: 'LEAD'
+        conversionType: 'LEAD'
       },
       type: 'automatic'
     },
@@ -118,7 +118,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        eventType: 'OFF_AMAZON_PURCHASES'
+        conversionType: 'OFF_AMAZON_PURCHASES'
       },
       type: 'automatic'
     },
@@ -128,7 +128,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        eventType: 'MOBILE_APP_FIRST_START'
+        conversionType: 'MOBILE_APP_FIRST_START'
       },
       type: 'automatic'
     },
@@ -138,7 +138,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        eventType: 'PAGE_VIEW'
+        conversionType: 'PAGE_VIEW'
       },
       type: 'automatic'
     },
@@ -148,7 +148,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        eventType: 'SEARCH'
+        conversionType: 'SEARCH'
       },
       type: 'automatic'
     },
@@ -158,7 +158,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        eventType: 'SIGN_UP'
+        conversionType: 'SIGN_UP'
       },
       type: 'automatic'
     },
@@ -168,7 +168,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        eventType: 'SUBSCRIBE'
+        conversionType: 'SUBSCRIBE'
       },
       type: 'automatic'
     },
@@ -178,7 +178,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        eventType: 'OTHER'
+        conversionType: 'OTHER'
       },
       type: 'automatic'
     },

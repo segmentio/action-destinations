@@ -48,15 +48,15 @@ describe('Amazon Conversions API Destination', () => {
 
       // Check preset configurations
       expect(addToCartPreset?.partnerAction).toBe('trackConversion')
-      expect(addToCartPreset?.mapping?.eventType).toBe('ADD_TO_SHOPPING_CART')
+      expect(addToCartPreset?.mapping?.conversionType).toBe('ADD_TO_SHOPPING_CART')
       expect((addToCartPreset as any)?.subscribe).toBe('type = "track" AND event = "Product Added"')
 
       expect(pageViewPreset?.partnerAction).toBe('trackConversion')
-      expect(pageViewPreset?.mapping?.eventType).toBe('PAGE_VIEW')
+      expect(pageViewPreset?.mapping?.conversionType).toBe('PAGE_VIEW')
       expect((pageViewPreset as any)?.subscribe).toBe('type = "page"')
 
       expect(signUpPreset?.partnerAction).toBe('trackConversion')
-      expect(signUpPreset?.mapping?.eventType).toBe('SIGN_UP')
+      expect(signUpPreset?.mapping?.conversionType).toBe('SIGN_UP')
       expect((signUpPreset as any)?.subscribe).toBe('type = "track" AND event = "Signed Up"')
     })
 
@@ -64,7 +64,7 @@ describe('Amazon Conversions API Destination', () => {
       const presets = (Destination as DestinationDefinition<any>).presets || []
 
       // Get all event types from the presets
-      const presetEventTypes = presets.map(p => p.mapping?.eventType)
+      const presetEventTypes = presets.map(p => p.mapping?.conversionType)
 
       // Check that all expected Amazon event types are covered
       expect(presetEventTypes).toContain('ADD_TO_SHOPPING_CART')
@@ -109,7 +109,7 @@ describe('Amazon Conversions API Destination', () => {
         }
 
         expect(preset).toBeDefined()
-        expect(preset?.mapping?.eventType).toBe(amazonEvent)
+        expect(preset?.mapping?.conversionType).toBe(amazonEvent)
       }
     })
   })

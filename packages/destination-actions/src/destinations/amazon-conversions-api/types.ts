@@ -57,7 +57,7 @@ export interface MatchKeyV1 {
 }
 
 /**
- * Represents an event to ingest for measurement purposes. Name, eventType, eventActionSource must be provided
+ * Represents an event to ingest for measurement purposes. Name, conversionType, eventSource must be provided
  * and represents an unique event.
  */
 /**
@@ -117,19 +117,32 @@ export enum CurrencyCodeV1 {
 }
 
 export interface EventData {
-  name: string
-  eventType: ConversionTypeV2
-  eventActionSource: string
+  eventDescription: EventDescription
   countryCode: string
-  timestamp: string
+  eventTime: string
   matchKeys?: MatchKeyV1[]
   value?: number
   currencyCode?: CurrencyCodeV1
   unitsSold?: number
-  clientDedupeId?: string
-  dataProcessingOptions?: string[]
+  eventId?: string
+  dataProcessingOptions?: DataProcessingOptions
   consent?: ConsentData
-  customAttributes?: CustomAttributeV1[]
+  customData?: CustomAttributeV1[]
+  amazonAdEventKey?: string
+  partner?: string
+}
+
+export interface EventDescription {
+  conversionType: ConversionTypeV2
+  dataSetName?: string
+  eventIngestionMethod: string
+  eventSource: string
+  name: string
+}
+
+
+export interface DataProcessingOptions {
+  options: string
 }
 
 export interface RefreshTokenResponse {
@@ -139,26 +152,23 @@ export interface RefreshTokenResponse {
   refresh_token: string
 }
 
-export interface SubErrorV1 {
-  errorCode?: number
-  errorType?: string
-  errorMessage?: string
+export interface Error {
+  code: string
+  fieldLocation?: string
+  message: string
 }
 
-export interface EventDataSuccessResponseV1 {
+export interface EventMultiStatusSuccess {
   index: number
-  message?: string
+  event: EventData
 }
 
-export interface EventDataErrorResponseV1 {
-  httpStatusCode?: string
-  itemRequestId?: string
+export interface ErrorsIndex {
   index: number
-  itemId?: string
-  subErrors?: SubErrorV1[]
+  errors: Error[]
 }
 
-export interface ImportConversionEventsResponse {
-  success?: EventDataSuccessResponseV1[]
-  error?: EventDataErrorResponseV1[]
+export interface EventMultiStatusResponse {
+  success?: EventMultiStatusSuccess[]
+  error?: ErrorsIndex[]
 }
