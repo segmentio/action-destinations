@@ -1,4 +1,4 @@
-import { getUserData, clean, hash, cleanAndHash, hashArray } from '../fb-capi-user-data'
+import { getUserData, clean, hash, cleanAndHash, hashArray } from '../functions'
 import { Payload } from '../purchase2/generated-types'
 
 describe('FacebookConversionsApi', () => {

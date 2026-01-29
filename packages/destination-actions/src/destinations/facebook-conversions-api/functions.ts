@@ -72,7 +72,7 @@ export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
     }
   }
 
-  if(!isPageViewMatch(payload, eventType)) {
+  if(!isPageViewMatch(payload, eventType) && !isCustomMatch(payload, eventType)) {
     const { 
       currency,
       contents
@@ -95,8 +95,10 @@ export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
     throw new PayloadValidationError('Must include at least one user data property')
   }
 
-  if (action_source === 'website' && user_data.client_user_agent === undefined) {
-    throw new PayloadValidationError('If action source is "Website" then client_user_agent must be defined')
+  if(!isCustomMatch(payload, eventType)){
+    if (action_source === 'website' && user_data.client_user_agent === undefined) {
+        throw new PayloadValidationError('If action source is "Website" then client_user_agent must be defined')
+    }
   }
 }
 
