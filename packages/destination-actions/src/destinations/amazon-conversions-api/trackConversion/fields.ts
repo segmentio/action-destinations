@@ -10,7 +10,7 @@ export const fields: Record<string, InputField> = {
       '@path': '$.event'
     }
   },
-  eventType: {
+  conversionType: {
     label: 'Event Type',
     description: 'The standard Amazon event type.',
     type: 'string',
@@ -30,7 +30,7 @@ export const fields: Record<string, InputField> = {
       { label: 'Other', value: 'OTHER' }
     ]
   },
-  eventActionSource: {
+  eventSource: {
     label: 'Event Action Source',
     description:
       'The platform from which the event was sourced. If no value is provided, then website is used as default.',
@@ -60,7 +60,7 @@ export const fields: Record<string, InputField> = {
       '@path': '$.context.locale'
     }
   },
-  timestamp: {
+  eventTime: {
     label: 'Event Timestamp',
     description: 'The reported timestamp of when the event occurred in ISO format (YYYY-MM-DDThh:mm:ssTZD).',
     type: 'string',
@@ -87,7 +87,7 @@ export const fields: Record<string, InputField> = {
     depends_on: {
       conditions: [
         {
-          fieldKey: 'eventType',
+          fieldKey: 'conversionType',
           operator: 'is',
           value: 'OFF_AMAZON_PURCHASES'
         }
@@ -126,7 +126,7 @@ export const fields: Record<string, InputField> = {
     depends_on: {
       conditions: [
         {
-          fieldKey: 'eventType',
+          fieldKey: 'conversionType',
           operator: 'is',
           value: 'OFF_AMAZON_PURCHASES'
         }
@@ -136,10 +136,10 @@ export const fields: Record<string, InputField> = {
       '@path': '$.properties.quantity'
     }
   },
-  clientDedupeId: {
+  eventId: {
     label: 'Client Dedupe ID',
     description:
-      'Amazon Conversions API uses the `clientDedupeId` field to prevent duplicate events. By default, Segment maps the messageId to this field. For events with the same clientDedupeId, only the latest event will be processed. Please be advised that deduplication occurs across all event types, rather than being limited to individual event types.',
+      'Amazon Conversions API uses the `eventId` field to prevent duplicate events. By default, Segment maps the messageId to this field. For events with the same eventId, only the latest event will be processed. Please be advised that deduplication occurs across all event types, rather than being limited to individual event types.',
     type: 'string',
     required: false,
     default: {
@@ -308,9 +308,7 @@ export const fields: Record<string, InputField> = {
     description:
       'A list of flags for signaling how an event shall be processed. Events marked for limited data use will not be processed.',
     type: 'string',
-    multiple: true,
     required: false,
-    additionalProperties: false,
     choices: [{ label: 'Limited Data Use', value: 'LIMITED_DATA_USE' }],
     default: {
       '@path': '$.properties.dataProcessingOptions'
@@ -372,14 +370,14 @@ export const fields: Record<string, InputField> = {
       gpp: { '@path': '$.properties.gpp' }
     }
   },
-  customAttributes: {
+  customData: {
     label: 'Custom Attributes',
     description:
       'Custom attributes associated with the event to provide additional context. Note that only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.',
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue',
-    additionalProperties: true,
+    additionalProperties: false,
     properties: {
       brand: {
         label: 'Brand',

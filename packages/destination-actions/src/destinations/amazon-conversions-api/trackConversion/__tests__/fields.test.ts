@@ -4,60 +4,59 @@ describe('trackConversion fields', () => {
     it('should have all required fields defined', () => {
         // Check that required fields are present
         expect(fields.name).toBeDefined()
-        expect(fields.eventType).toBeDefined()
-        expect(fields.eventActionSource).toBeDefined()
+        expect(fields.conversionType).toBeDefined()
+        expect(fields.eventSource).toBeDefined()
         expect(fields.countryCode).toBeDefined()
-        expect(fields.timestamp).toBeDefined()
+        expect(fields.eventTime).toBeDefined()
         expect(fields.matchKeys).toBeDefined()
         expect(fields.enable_batching).toBeDefined()
     })
 
     it('should mark required fields as required', () => {
         expect(fields.name.required).toBe(true)
-        expect(fields.eventType.required).toBe(true)
-        expect(fields.eventActionSource.required).toBe(true)
+        expect(fields.conversionType.required).toBe(true)
+        expect(fields.eventSource.required).toBe(true)
         expect(fields.countryCode.required).toBe(true)
-        expect(fields.timestamp.required).toBe(true)
+        expect(fields.eventTime.required).toBe(true)
         expect(fields.matchKeys.required).toBe(true)
         expect(fields.enable_batching.required).toBe(true)
     })
 
     it('should have correct default values', () => {
         expect(fields.name.default).toEqual({ '@path': '$.event' })
-        expect(fields.timestamp.default).toEqual({ '@path': '$.timestamp' })
+        expect(fields.eventTime.default).toEqual({ '@path': '$.timestamp' })
         expect(fields.enable_batching.default).toBe(true)
     })
 
     it('should have proper types for all fields', () => {
         expect(fields.name.type).toBe('string')
-        expect(fields.eventType.type).toBe('string')
-        expect(fields.eventActionSource.type).toBe('string')
+        expect(fields.conversionType.type).toBe('string')
+        expect(fields.eventSource.type).toBe('string')
         expect(fields.countryCode.type).toBe('string')
-        expect(fields.timestamp.type).toBe('string')
+        expect(fields.eventTime.type).toBe('string')
         expect(fields.matchKeys.type).toBe('object')
         expect(fields.value?.type).toBe('number')
         expect(fields.currencyCode?.type).toBe('string')
         expect(fields.unitsSold?.type).toBe('integer')
-        expect(fields.clientDedupeId?.type).toBe('string')
+        expect(fields.eventId?.type).toBe('string')
         expect(fields.dataProcessingOptions?.type).toBe('string')
-        expect(fields.dataProcessingOptions?.multiple).toBe(true)
         expect(fields.consent?.type).toBe('object')
-        expect(fields.customAttributes?.type).toBe('object')
+        expect(fields.customData?.type).toBe('object')
         expect(fields.enable_batching.type).toBe('boolean')
         expect(fields.batch_size?.type).toBe('number')
     })
 
     it('should have proper choices for enum fields', () => {
         // Event type choices
-        expect(fields.eventType.choices).toHaveLength(12)
-        expect(fields.eventType.choices).toContainEqual({ label: 'Add to Shopping Cart', value: 'ADD_TO_SHOPPING_CART' })
-        expect(fields.eventType.choices).toContainEqual({ label: 'Page View', value: 'PAGE_VIEW' })
-        expect(fields.eventType.choices).toContainEqual({ label: 'Other', value: 'OTHER' })
+        expect(fields.conversionType.choices).toHaveLength(12)
+        expect(fields.conversionType.choices).toContainEqual({ label: 'Add to Shopping Cart', value: 'ADD_TO_SHOPPING_CART' })
+        expect(fields.conversionType.choices).toContainEqual({ label: 'Page View', value: 'PAGE_VIEW' })
+        expect(fields.conversionType.choices).toContainEqual({ label: 'Other', value: 'OTHER' })
 
         // Event action source choices
-        expect(fields.eventActionSource.choices).toHaveLength(5)
-        expect(fields.eventActionSource.choices).toContainEqual({ label: 'Website', value: 'website' })
-        expect(fields.eventActionSource.choices).toContainEqual({ label: 'Android', value: 'android' })
+        expect(fields.eventSource.choices).toHaveLength(5)
+        expect(fields.eventSource.choices).toContainEqual({ label: 'Website', value: 'website' })
+        expect(fields.eventSource.choices).toContainEqual({ label: 'Android', value: 'android' })
 
         // Currency code choices
         expect(fields.currencyCode?.choices).toBeDefined()
@@ -74,6 +73,7 @@ describe('trackConversion fields', () => {
         expect(fields.currencyCode?.depends_on).toBeDefined()
         expect(fields.currencyCode?.depends_on?.conditions).toBeDefined()
         expect(fields.currencyCode?.depends_on?.conditions?.[0]).toMatchObject({
+            fieldKey: 'conversionType',
             operator: 'is',
             value: 'OFF_AMAZON_PURCHASES'
         })
@@ -81,6 +81,7 @@ describe('trackConversion fields', () => {
         expect(fields.unitsSold?.depends_on).toBeDefined()
         expect(fields.unitsSold?.depends_on?.conditions).toBeDefined()
         expect(fields.unitsSold?.depends_on?.conditions?.[0]).toMatchObject({
+            fieldKey: 'conversionType',
             operator: 'is',
             value: 'OFF_AMAZON_PURCHASES'
         })

@@ -8,11 +8,11 @@ export interface Payload {
   /**
    * The standard Amazon event type.
    */
-  eventType: string
+  conversionType: string
   /**
    * The platform from which the event was sourced. If no value is provided, then website is used as default.
    */
-  eventActionSource: string
+  eventSource: string
   /**
    * ISO 3166-1 alpha-2 country code. e.g., US, GB. Also accepts locale codes. e.g en-US, en-GB.
    */
@@ -20,7 +20,7 @@ export interface Payload {
   /**
    * The reported timestamp of when the event occurred in ISO format (YYYY-MM-DDThh:mm:ssTZD).
    */
-  timestamp: string
+  eventTime: string
   /**
    * The value of the event.
    */
@@ -34,9 +34,9 @@ export interface Payload {
    */
   unitsSold?: number
   /**
-   * Amazon Conversions API uses the `clientDedupeId` field to prevent duplicate events. By default, Segment maps the messageId to this field. For events with the same clientDedupeId, only the latest event will be processed. Please be advised that deduplication occurs across all event types, rather than being limited to individual event types.
+   * Amazon Conversions API uses the `eventId` field to prevent duplicate events. By default, Segment maps the messageId to this field. For events with the same eventId, only the latest event will be processed. Please be advised that deduplication occurs across all event types, rather than being limited to individual event types.
    */
-  clientDedupeId?: string
+  eventId?: string
   /**
    * Match keys are used to identify the customer associated with the event for attribution. At least one match key must be provided.
    */
@@ -89,7 +89,7 @@ export interface Payload {
   /**
    * A list of flags for signaling how an event shall be processed. Events marked for limited data use will not be processed.
    */
-  dataProcessingOptions?: string[]
+  dataProcessingOptions?: string
   /**
    * Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.
    */
@@ -118,7 +118,7 @@ export interface Payload {
   /**
    * Custom attributes associated with the event to provide additional context. Note that only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.
    */
-  customAttributes?: {
+  customData?: {
     /**
      * The brand associated with the event.
      */
@@ -171,7 +171,6 @@ export interface Payload {
      * Custom attribute 10 associated with the event.
      */
     attr10?: string
-    [k: string]: unknown
   }
   /**
    * When enabled, Segment will send data in batching.
