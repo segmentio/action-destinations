@@ -42,7 +42,7 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
     const jsonItem: BingCAPIRequestItem = {
       ...data,
       eventType: eventType as 'pageLoad' | 'custom',
-      eventTime: Math.floor(new Date(eventTime ?? new Date().toUTCString()).getTime() / 1000),
+      eventTime: Math.floor(new Date(eventTime ?? new Date()).getTime() / 1000),
       adStorageConsent: adStorageConsent ?? settings.adStorageConsent,
       eventSourceUrl: eventSourceUrl,
       userData: {
