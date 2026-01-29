@@ -15,7 +15,7 @@ describe('trackConversion', () => {
         type: 'track',
         properties: {
             email: 'test@example.com',
-            conversionType: 'ADD_TO_SHOPPING_CART'
+            eventType: 'ADD_TO_SHOPPING_CART'
         }
     })
 
@@ -47,10 +47,10 @@ describe('trackConversion', () => {
                 settings,
                 mapping: {
                     name: 'test_conversion',
-                    conversionType: 'ADD_TO_SHOPPING_CART',
-                    eventSource: 'website',
+                    eventType: 'ADD_TO_SHOPPING_CART',
+                    eventActionSource: 'website',
                     countryCode: 'US',
-                    eventTime: '2023-01-01T12:00:00Z',
+                    timestamp: '2023-01-01T12:00:00Z',
                     matchKeys: {
                         email: 'test@example.com'
                     },
@@ -75,10 +75,10 @@ describe('trackConversion', () => {
                     settings,
                     mapping: {
                         name: 'test_conversion',
-                        conversionType: 'ADD_TO_SHOPPING_CART',
-                        eventSource: 'website',
+                        eventType: 'ADD_TO_SHOPPING_CART',
+                        eventActionSource: 'website',
                         countryCode: 'US',
-                        eventTime: '2023-01-01T12:00:00Z',
+                        timestamp: '2023-01-01T12:00:00Z',
                         matchKeys: {
                             email: 'invalid_email'
                         },
@@ -96,9 +96,9 @@ describe('trackConversion', () => {
                     mapping: {
                         name: 'test_conversion',
                         // Missing conversionType
-                        eventSource: 'website',
+                        eventActionSource: 'website',
                         countryCode: 'US',
-                        eventTime: '2023-01-01T12:00:00Z',
+                        timestamp: '2023-01-01T12:00:00Z',
                         matchKeys: {
                             email: 'test@example.com'
                         },
@@ -141,10 +141,10 @@ describe('trackConversion', () => {
                 settings,
                 mapping: {
                     name: 'test_batch_conversion',
-                    conversionType: 'ADD_TO_SHOPPING_CART',
-                    eventSource: 'website',
+                    eventType: 'ADD_TO_SHOPPING_CART',
+                    eventActionSource: 'website',
                     countryCode: 'US',
-                    eventTime: '2023-01-01T12:00:00Z',
+                    timestamp: '2023-01-01T12:00:00Z',
                     matchKeys: {
                         email: {
                             '@path': '$.properties.email'
@@ -192,10 +192,10 @@ describe('trackConversion', () => {
                     settings,
                     mapping: {
                         name: 'test_batch_conversion',
-                        conversionType: 'ADD_TO_SHOPPING_CART',
-                        eventSource: 'website',
+                        eventType: 'ADD_TO_SHOPPING_CART',
+                        eventActionSource: 'website',
                         countryCode: 'US',
-                        eventTime: '2023-01-01T12:00:00Z',
+                        timestamp: '2023-01-01T12:00:00Z',
                         matchKeys: {
                             email: {
                                 '@path': '$.properties.email'
@@ -230,10 +230,10 @@ describe('trackConversion', () => {
                     settings,
                     mapping: {
                         name: 'test_batch_conversion',
-                        conversionType: 'ADD_TO_SHOPPING_CART',
-                        eventSource: 'website',
+                        eventType: 'ADD_TO_SHOPPING_CART',
+                        eventActionSource: 'website',
                         countryCode: 'US',
-                        eventTime: '2023-01-01T12:00:00Z',
+                        timestamp: '2023-01-01T12:00:00Z',
                         matchKeys: {
                             email: {
                                 '@path': '$.properties.email'

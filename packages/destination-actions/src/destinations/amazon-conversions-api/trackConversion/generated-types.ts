@@ -8,11 +8,11 @@ export interface Payload {
   /**
    * The standard Amazon event type.
    */
-  conversionType: string
+  eventType: string
   /**
    * The platform from which the event was sourced. If no value is provided, then website is used as default.
    */
-  eventSource: string
+  eventActionSource: string
   /**
    * ISO 3166-1 alpha-2 country code. e.g., US, GB. Also accepts locale codes. e.g en-US, en-GB.
    */
@@ -20,7 +20,7 @@ export interface Payload {
   /**
    * The reported timestamp of when the event occurred in ISO format (YYYY-MM-DDThh:mm:ssTZD).
    */
-  eventTime: string
+  timestamp: string
   /**
    * The value of the event.
    */
@@ -34,9 +34,9 @@ export interface Payload {
    */
   unitsSold?: number
   /**
-   * Amazon Conversions API uses the `eventId` field to prevent duplicate events. By default, Segment maps the messageId to this field. For events with the same eventId, only the latest event will be processed. Please be advised that deduplication occurs across all event types, rather than being limited to individual event types.
+   * Amazon Conversions API uses the `clientDedupeId` field to prevent duplicate events. By default, Segment maps the messageId to this field. For events with the same clientDedupeId, only the latest event will be processed. Please be advised that deduplication occurs across all event types, rather than being limited to individual event types.
    */
-  eventId?: string
+  clientDedupeId?: string
   /**
    * Match keys are used to identify the customer associated with the event for attribution. At least one match key must be provided.
    */
@@ -118,7 +118,7 @@ export interface Payload {
   /**
    * Custom attributes associated with the event to provide additional context. Note that only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.
    */
-  customData?: {
+  customAttributes?: {
     /**
      * The brand associated with the event.
      */

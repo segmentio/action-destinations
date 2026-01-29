@@ -262,7 +262,7 @@ export function handleBatchResponse(
 
 export function prepareEventData(payload: Payload, settings: Settings): EventData {
   const {
-    customData,
+    customAttributes,
     matchKeys: { email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId } = {}
   } = payload
 
@@ -366,7 +366,7 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
 
   // Process custom attributes
   const customAttributeArray: CustomAttributeV1[] = []
-  Object.entries(customData ?? {}).forEach(([key, value]) => {
+  Object.entries(customAttributes ?? {}).forEach(([key, value]) => {
     if (value === undefined || value === null) return
 
     customAttributeArray.push({
@@ -377,15 +377,15 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
 
   const eventDescription: EventDescription = {
     name: payload.name,
-    conversionType: payload.conversionType as ConversionTypeV2,
-    eventSource: payload.eventSource.toUpperCase(),
+    conversionType: payload.eventType as ConversionTypeV2,
+    eventSource: payload.eventActionSource.toUpperCase(),
     eventIngestionMethod: 'SERVER_TO_SERVER'
   }
 
   const eventData: EventData = {
     eventDescription,
     countryCode: validateCountryCode(payload.countryCode),
-    eventTime: payload.eventTime
+    eventTime: payload.timestamp
   }
 
 
@@ -397,20 +397,20 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
 
   Object.assign(eventData, {
     ...(payload.value !== undefined && { value: payload.value }),
-    ...(payload.conversionType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.currencyCode && {
+    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.currencyCode && {
       currencyCode: payload.currencyCode as CurrencyCodeV1
     }),
-    ...(payload.conversionType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.unitsSold !== undefined && {
+    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.unitsSold !== undefined && {
       unitsSold: payload.unitsSold
     }),
-    ...(payload.eventId && { eventId: payload.eventId }),
+    ...(payload.clientDedupeId && { eventId: payload.clientDedupeId }),
     ...(payload.dataProcessingOptions && {
       dataProcessingOptions: {
         options: payload.dataProcessingOptions
       } as DataProcessingOptions
     }),
     ...(consent && { consent }),
-    ...(payload.customData && {
+    ...(payload.customAttributes && {
       customData: customAttributeArray.length > 0 ? customAttributeArray : undefined
     })
   })

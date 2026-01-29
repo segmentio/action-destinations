@@ -460,10 +460,10 @@ describe('trackConversion utils', () => {
     it('should prepare basic event data correctly', () => {
       const payload = {
         name: 'test_event',
-        conversionType: ConversionTypeV2.PAGE_VIEW,
-        eventSource: 'WEBSITE',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
         countryCode: 'US',
-        eventTime: '2023-01-01T12:00:00Z',
+        timestamp: '2023-01-01T12:00:00Z',
         matchKeys: {
           email: 'test@example.com'
         },
@@ -475,12 +475,12 @@ describe('trackConversion utils', () => {
       expect(result).toMatchObject({
         eventDescription: {
           name: payload.name,
-          conversionType: payload.conversionType,
-          eventSource: payload.eventSource,
+          conversionType: payload.eventType,
+          eventSource: payload.eventActionSource,
           eventIngestionMethod: "SERVER_TO_SERVER",
         },
         countryCode: payload.countryCode,
-        eventTime: payload.eventTime
+        eventTime: payload.timestamp
       })
 
       // Check that matchKeys is prepared correctly
@@ -494,10 +494,10 @@ describe('trackConversion utils', () => {
     it('should hash and normalize match keys', () => {
       const payload = {
         name: 'test_event',
-        conversionType: ConversionTypeV2.PAGE_VIEW,
-        eventSource: 'WEBSITE',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
         countryCode: 'US',
-        eventTime: '2023-01-01T12:00:00Z',
+        timestamp: '2023-01-01T12:00:00Z',
         matchKeys: {
           email: 'Test@Example.com',
           phone: '+1 (555) 123-4567',
@@ -535,10 +535,10 @@ describe('trackConversion utils', () => {
       // Create payload with more than 11 match keys (impossible with current schema but testing the logic)
       const payload = {
         name: 'test_event',
-        conversionType: ConversionTypeV2.PAGE_VIEW,
-        eventSource: 'WEBSITE',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
         countryCode: 'US',
-        eventTime: '2023-01-01T12:00:00Z',
+        timestamp: '2023-01-01T12:00:00Z',
         matchKeys: {
           email: 'test1@example.com',
           phone: '+1 (555) 123-4567',
@@ -573,10 +573,10 @@ describe('trackConversion utils', () => {
     it('should throw an error if no match keys are provided', () => {
       const payload = {
         name: 'test_event',
-        conversionType: ConversionTypeV2.PAGE_VIEW,
-        eventSource: 'WEBSITE',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
         countryCode: 'US',
-        eventTime: '2023-01-01T12:00:00Z',
+        timestamp: '2023-01-01T12:00:00Z',
         matchKeys: {},
         enable_batching: true
       }
@@ -587,10 +587,10 @@ describe('trackConversion utils', () => {
     it('should include currencyCode and unitsSold when conversionType is OFF_AMAZON_PURCHASES', () => {
       const payload: Payload = {
         name: 'purchase_event',
-        conversionType: ConversionTypeV2.OFF_AMAZON_PURCHASES,
-        eventSource: 'WEBSITE',
+        eventType: ConversionTypeV2.OFF_AMAZON_PURCHASES,
+        eventActionSource: 'WEBSITE',
         countryCode: 'US',
-        eventTime: '2023-01-01T12:00:00Z',
+        timestamp: '2023-01-01T12:00:00Z',
         currencyCode: 'USD',
         unitsSold: 2,
         matchKeys: {
@@ -609,10 +609,10 @@ describe('trackConversion utils', () => {
     it('should exclude currencyCode and unitsSold when conversionType is not OFF_AMAZON_PURCHASES', () => {
       const payload: Payload = {
         name: 'view_event',
-        conversionType: ConversionTypeV2.PAGE_VIEW,
-        eventSource: 'WEBSITE',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
         countryCode: 'US',
-        eventTime: '2023-01-01T12:00:00Z',
+        timestamp: '2023-01-01T12:00:00Z',
         currencyCode: 'USD',
         unitsSold: 2,
         matchKeys: {
@@ -631,14 +631,14 @@ describe('trackConversion utils', () => {
     it('should include optional fields when provided', () => {
       const payload: Payload = {
         name: 'purchase_event',
-        conversionType: ConversionTypeV2.OFF_AMAZON_PURCHASES,
-        eventSource: 'WEBSITE',
+        eventType: ConversionTypeV2.OFF_AMAZON_PURCHASES,
+        eventActionSource: 'WEBSITE',
         countryCode: 'US',
-        eventTime: '2023-01-01T12:00:00Z',
+        timestamp: '2023-01-01T12:00:00Z',
         value: 99.99,
         currencyCode: 'USD',
         unitsSold: 2,
-        eventId: 'dedup-123',
+        clientDedupeId: 'dedup-123',
         dataProcessingOptions: "LIMITED_DATA_USE",
         matchKeys: {
           email: 'test@example.com'
@@ -648,7 +648,7 @@ describe('trackConversion utils', () => {
           amznAdStorage: 'GRANTED',
           amznUserData: 'GRANTED'
         },
-        customData: {
+        customAttributes: {
           brand: 'brand1',
           category: 'category1',
           productId: 'productId1',

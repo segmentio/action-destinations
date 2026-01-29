@@ -68,7 +68,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        conversionType: 'ADD_TO_SHOPPING_CART'
+        eventType: 'ADD_TO_SHOPPING_CART'
       },
       type: 'automatic'
     },
@@ -78,7 +78,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        conversionType: 'APPLICATION'
+        eventType: 'APPLICATION'
       },
       type: 'automatic'
     },
@@ -88,7 +88,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        conversionType: 'CHECKOUT'
+        eventType: 'CHECKOUT'
       },
       type: 'automatic'
     },
@@ -98,7 +98,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        conversionType: 'CONTACT'
+        eventType: 'CONTACT'
       },
       type: 'automatic'
     },
@@ -108,7 +108,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        conversionType: 'LEAD'
+        eventType: 'LEAD'
       },
       type: 'automatic'
     },
@@ -118,7 +118,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        conversionType: 'OFF_AMAZON_PURCHASES'
+        eventType: 'OFF_AMAZON_PURCHASES'
       },
       type: 'automatic'
     },
@@ -128,7 +128,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        conversionType: 'MOBILE_APP_FIRST_START'
+        eventType: 'MOBILE_APP_FIRST_START'
       },
       type: 'automatic'
     },
@@ -138,7 +138,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        conversionType: 'PAGE_VIEW'
+        eventType: 'PAGE_VIEW'
       },
       type: 'automatic'
     },
@@ -148,7 +148,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        conversionType: 'SEARCH'
+        eventType: 'SEARCH'
       },
       type: 'automatic'
     },
@@ -158,7 +158,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        conversionType: 'SIGN_UP'
+        eventType: 'SIGN_UP'
       },
       type: 'automatic'
     },
@@ -168,7 +168,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        conversionType: 'SUBSCRIBE'
+        eventType: 'SUBSCRIBE'
       },
       type: 'automatic'
     },
@@ -178,7 +178,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
-        conversionType: 'OTHER'
+        eventType: 'OTHER'
       },
       type: 'automatic'
     },
