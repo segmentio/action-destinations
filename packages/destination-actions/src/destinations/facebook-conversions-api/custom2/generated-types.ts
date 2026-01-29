@@ -6,6 +6,31 @@ export interface Payload {
    */
   is_append_event?: boolean
   /**
+   * Details to append to the original event. Order Id, Event Id and Original Timestamp are used to match the original event. Net Revenue and Predicted Lifetime Value are the late-calculated values to append to the original event.
+   */
+  append_event_details?: {
+    /**
+     * A timestamp indicating when the actual original event occurred in ISO 8601 format.
+     */
+    original_event_time?: string
+    /**
+     * A unique identifier for the original purchase event, typically the order ID or transaction ID from your ecommerce system. Facebook uses this value to match to the original event.
+     */
+    original_event_order_id?: string
+    /**
+     * This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API. Facebook uses this value to match to the original event.
+     */
+    original_event_id?: string
+    /**
+     * The late-calculated numeric net revenue value to append to the original event.
+     */
+    net_revenue_to_append?: number
+    /**
+     * The late-calculated numeric predicted lifetime value (pLTV) to append to the original event.
+     */
+    predicted_ltv_to_append?: number
+  }
+  /**
    * This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.
    */
   action_source: string
@@ -20,31 +45,6 @@ export interface Payload {
   /**
    * These parameters are a set of identifiers Facebook can use for targeted attribution. You must provide at least one of the following parameters in your request. More information on recommended User Data parameters in Facebook’s [Best Practices for Conversions API](https://www.facebook.com/business/help/308855623839366).
    */
-  /**
-   * Details to append to the original event. Order Id, Event Id and Original Timestamp are used to match the original event. Net Revenue and Predicted Lifetime Value are the late-calculated values to append to the original event.
-   */
-  append_event_details?: {
-    /**
-     * The time the original event occurred, in ISO 8601 format. For example, "2023-01-01T12:00:00Z".
-     */
-    original_event_time?: string
-    /**
-     * A unique identifier for the original purchase event, typically the order ID or transaction ID from your ecommerce system. Braze uses this value to match to the original event.
-     */
-    original_event_order_id?: string
-    /**
-     * This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API. Braze uses this value to match to the original event.
-     */
-    original_event_id?: string
-    /**
-     * The late-calculated numeric net revenue value to append to the original event.
-     */
-    net_revenue_to_append?: number
-    /**
-     * The late-calculated numeric predicted lifetime value (pLTV) to append to the original event.
-     */
-    predicted_ltv_to_append?: number
-  }
   user_data: {
     /**
      * Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.

@@ -10,15 +10,15 @@ export interface Payload {
    */
   append_event_details?: {
     /**
-     * The time the original event occurred, in ISO 8601 format. For example, "2023-01-01T12:00:00Z".
+     * A timestamp indicating when the actual original event occurred in ISO 8601 format.
      */
     original_event_time?: string
     /**
-     * A unique identifier for the original purchase event, typically the order ID or transaction ID from your ecommerce system. Braze uses this value to match to the original event.
+     * A unique identifier for the original purchase event, typically the order ID or transaction ID from your ecommerce system. Facebook uses this value to match to the original event.
      */
     original_event_order_id?: string
     /**
-     * This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API. Braze uses this value to match to the original event.
+     * This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API. Facebook uses this value to match to the original event.
      */
     original_event_id?: string
     /**

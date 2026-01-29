@@ -355,8 +355,9 @@ export const append_event_details: InputField = {
   properties: {
     original_event_time: {
       label: 'Original Event Time',
-      description: 'A Unix timestamp in seconds indicating when the actual original event occurred. Facebook will automatically convert ISO 8601 timestamps to Unix.',
-      type: 'string'
+      description: 'A timestamp indicating when the actual original event occurred in ISO 8601 format.',
+      type: 'string',
+      format: 'date-time'
     },
     original_event_order_id: {
       label: 'Original Order ID',
