@@ -404,8 +404,8 @@ export const convertToAppendValueEventData =(data: PurchaseEventData | CustomEve
       event_name: 'AppendValue',
       custom_data: {
           ...restCustomData,
-          net_revenue: net_revenue_to_append,
-          predicted_ltv: predicted_ltv_to_append
+          ...(typeof net_revenue_to_append ==='number' ? { net_revenue: net_revenue_to_append } : {}),
+          ...(typeof predicted_ltv_to_append ==='number' ? { predicted_ltv: predicted_ltv_to_append } : {})
       },
       original_event_data: {
           event_name,

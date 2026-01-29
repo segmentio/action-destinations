@@ -38,6 +38,7 @@ export type EventDataType =
     | InitiateCheckoutEventData 
     | PageEventData 
     | CustomEventData
+    | SearchEventData
 
 export type EventTypeKey = keyof typeof EventType
 
@@ -173,9 +174,9 @@ export interface AppendValueEventData extends BaseEventData {
         event_id?: string
     }
     custom_data: {
-        order_id?: never 
         net_revenue?: number
         predicted_ltv?: number
+        [k: string]: unknown
     }
 }
 
