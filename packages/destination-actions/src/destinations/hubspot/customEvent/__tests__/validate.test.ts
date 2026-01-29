@@ -60,7 +60,7 @@ describe('Hubspot.customEvent', () => {
         object_type: 'contact'
       },
       properties: {
-        custom_prop_str_number: '12345' // A numberic string
+        custom_prop_str_number: '12345' // A numberic string.
       }
     }
 
