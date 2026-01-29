@@ -352,16 +352,6 @@ export const customData: InputField = {
   }
 }
 
-export const timestamp: InputField = {
-  label: 'Event Timestamp',
-  description: 'Hidden field: The timestamp of the event.',
-  type: 'string',
-  default: { '@path': '$.timestamp' },
-  required: true,
-  readOnly: true,
-  unsafe_hidden: true
-}
-
 export const enable_batching: InputField = {
   label: 'Enable Batching',
   description: 'Enable batching for this action.',
