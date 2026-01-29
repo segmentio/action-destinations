@@ -46,13 +46,20 @@ export interface RequestJSON {
     test_event_code?: string
 }
 
-export interface AddToCartEventData {
+export interface BaseEventData {
+    event_time: string
+    action_source: string
+    event_source_url?: string
+    event_id?: string
+    user_data: UserData
+    app_data?: Record<string, unknown>
+    data_processing_options?: string[]
+    data_processing_options_country?: number
+    data_processing_options_state?: number
+}
+
+export interface AddToCartEventData extends BaseEventData {
     event_name: 'AddToCart',
-    event_time: string,
-    action_source: string,
-    event_source_url?: string,
-    event_id?: string,
-    user_data: UserData,
     custom_data: {
         currency: string,
         value?: number,
@@ -66,54 +73,28 @@ export interface AddToCartEventData {
             delivery_category?: string
         }>,
         [k: string]: unknown
-    }, 
-    app_data?: Record<string, unknown>, 
-    data_processing_options?: string[],
-    data_processing_options_country?: number,
-    data_processing_options_state?: number
+    }
 }
 
-export interface CustomEventData {
+export interface CustomEventData extends BaseEventData {
     event_name: string,
-    event_time: string,
-    action_source: string,
-    event_source_url?: string,
-    event_id?: string,
-    user_data: UserData,
     custom_data: {
         [k: string]: unknown
-    }, 
-    app_data?: Record<string, unknown>, 
-    data_processing_options?: string[],
-    data_processing_options_country?: number,
-    data_processing_options_state?: number
+    }
 }
 
-export interface PageEventData {
-    event_name: 'PageView',
-    event_time: string,
-    action_source: string,
-    event_source_url?: string,
-    event_id?: string,
-    user_data: UserData,
-    app_data?: Record<string, unknown>, 
-    data_processing_options?: string[],
-    data_processing_options_country?: number,
-    data_processing_options_state?: number
+export interface PageEventData extends BaseEventData {
+    event_name: 'PageView'
 }
 
-export interface PurchaseEventData {
+export interface PurchaseEventData extends BaseEventData {
     event_name: 'Purchase',
-    event_time: string,
-    action_source: string,
-    event_source_url?: string,
-    event_id?: string,
-    user_data: UserData,
     custom_data: {
         currency: string,
         value: number,
         order_id?: string,
         net_revenue?: number,
+        predicted_ltv?: number,
         content_ids?: string[],
         content_name?: string,
         content_type?: string,
@@ -125,20 +106,11 @@ export interface PurchaseEventData {
         }>,
         num_items?: number,
         [k: string]: unknown
-    }, 
-    app_data?: Record<string, unknown>, 
-    data_processing_options?: string[],
-    data_processing_options_country?: number,
-    data_processing_options_state?: number
+    }
 }
 
-export interface InitiateCheckoutEventData {
+export interface InitiateCheckoutEventData extends BaseEventData {
     event_name: 'InitiateCheckout',
-    event_time: string,
-    action_source: string,
-    event_source_url?: string,
-    event_id?: string,
-    user_data: UserData,
     custom_data: {
         currency: string,
         value?: number,
@@ -152,20 +124,11 @@ export interface InitiateCheckoutEventData {
         num_items?: number,
         content_category?: string,
         [k: string]: unknown
-    }, 
-    app_data?: Record<string, unknown>, 
-    data_processing_options?: string[],
-    data_processing_options_country?: number,
-    data_processing_options_state?: number
+    }
 }
 
-export interface SearchEventData {
+export interface SearchEventData extends BaseEventData {
     event_name: 'Search',
-    event_time: string,
-    action_source: string,
-    event_source_url?: string,
-    event_id?: string,
-    user_data: UserData,
     custom_data: {
         currency: string,
         value?: number,
@@ -179,20 +142,11 @@ export interface SearchEventData {
         content_category?: string,
         search_string?: string,
         [k: string]: unknown
-    }, 
-    app_data?: Record<string, unknown>, 
-    data_processing_options?: string[],
-    data_processing_options_country?: number,
-    data_processing_options_state?: number
+    }
 }
 
-export interface ViewContentEventData {
+export interface ViewContentEventData extends BaseEventData {
     event_name: 'ViewContent',
-    event_time: string,
-    action_source: string,
-    event_source_url?: string,
-    event_id?: string,
-    user_data: UserData,
     custom_data: {
         currency: string,
         value?: number,
@@ -207,14 +161,10 @@ export interface ViewContentEventData {
         }>,
         content_category?: string,
         [k: string]: unknown
-    }, 
-    app_data?: Record<string, unknown>, 
-    data_processing_options?: string[],
-    data_processing_options_country?: number,
-    data_processing_options_state?: number
+    }
 }
 
-export interface AppendValueEventData {
+export interface AppendValueEventData extends BaseEventData {
     event_name: 'AppendValue'
     original_event_data: {
         event_name: string

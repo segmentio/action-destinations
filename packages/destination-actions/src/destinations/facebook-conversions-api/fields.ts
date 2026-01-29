@@ -360,12 +360,12 @@ export const append_event_details: InputField = {
     },
     original_event_order_id: {
       label: 'Original Order ID',
-      description: 'A unique identifier for the original purchase event, typically the order ID or transaction ID from your ecommerce system. Braze uses this value to match to the original event.',
+      description: 'A unique identifier for the original purchase event, typically the order ID or transaction ID from your ecommerce system. Facebook uses this value to match to the original event.',
       type: 'string'
     },
     original_event_id: {
       label: 'Original Event ID',
-      description: 'This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API. Braze uses this value to match to the original event.',
+      description: 'This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API. Facebook uses this value to match to the original event.',
       type: 'string'
     }, 
     net_revenue_to_append: {

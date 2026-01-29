@@ -1,5 +1,5 @@
 import {  ErrorCodes, IntegrationError, PayloadValidationError, RequestClient, Features, StatsContext } from '@segment/actions-core'
-import { EventDataType, AnyPayload, SearchEventData, EventTypeKey, RequestJSON, CustomEventData, AddToCartEventData, ViewContentEventData, InitiateCheckoutEventData, PageEventData, PurchaseEventData, AppendValueEventData, GeneratedAppData, UserData, Content } from './types'
+import { BaseEventData, EventDataType, AnyPayload, SearchEventData, EventTypeKey, RequestJSON, CustomEventData, AddToCartEventData, ViewContentEventData, InitiateCheckoutEventData, PageEventData, PurchaseEventData, AppendValueEventData, GeneratedAppData, UserData, Content } from './types'
 import { API_VERSION, CANARY_API_VERSION, FLAGON_NAME, US_STATE_CODES, COUNTRY_CODES, CURRENCY_ISO_CODES } from './constants'
 import { processHashing } from '../../lib/hashing-utils'
 import type { Settings } from './generated-types'
@@ -51,11 +51,10 @@ export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
     user_data
   } = payload
 
-  if(isPurchaseMatch(payload, eventType)) {
+  if(isPurchaseMatch(payload, eventType) || isCustomMatch(payload, eventType)) {
     const { 
       is_append_event,
       append_event_details: { 
-          original_event_time,
           original_event_order_id,
           original_event_id,
           net_revenue_to_append,
@@ -63,12 +62,13 @@ export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
       } = {}
     } = payload
 
-    if(
-      is_append_event && 
-      (!original_event_time || !original_event_order_id || !original_event_id) 
-      && (typeof net_revenue_to_append !== 'number' && typeof predicted_ltv_to_append !== 'number')
-    ) {
-      throw new PayloadValidationError('If append event is true, original event time, original event order ID, original event ID, and at least one of net revenue to append or predicted lifetime value to append must be provided')
+    if(is_append_event) {
+      if(!original_event_order_id && !original_event_id) {
+        throw new PayloadValidationError('If append event is true, one of "Append Event Details > Original Event ID" or "Append Event Details > Original Order ID" must be provided.')
+      }
+      if(typeof net_revenue_to_append !== 'number' && typeof predicted_ltv_to_append !== 'number'){
+        throw new PayloadValidationError('If append event is true, at least one of "Append Event Details > Net Revenue" or "Append Event Details > Predicted Lifetime Value" must be provided as a number')
+      }
     }
   }
 
@@ -160,7 +160,7 @@ export function getEventData(payload: AnyPayload, type: EventTypeKey): EventData
     data_processing_options_state
   } = payload
   
-  const common = {
+  const common: BaseEventData = {
     event_time,
     action_source,
     ...(event_source_url && { event_source_url }),
