@@ -62,9 +62,6 @@ function cleanPropObj(
     ) {
       // If the value can be cast to a boolean
       cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
-    } else if (!isNaN(Number(value))) {
-      // If the value can be cast to a number
-      cleanObj[cleanKey] = Number(value)
     } else if (typeof value === 'object' && value !== null) {
       // If the value is an object
       cleanObj[cleanKey] = JSON.stringify(value).trim()
