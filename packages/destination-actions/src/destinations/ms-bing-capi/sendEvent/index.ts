@@ -33,7 +33,7 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
 
   payloads.forEach((payload) => {
     const {
-      data: { eventTime, eventType, adStorageConsent, eventSourceUrl } = {},
+      data: { eventTime, eventType, adStorageConsent, eventSourceUrl, eventName } = {},
       userData: { em, ph, ...restOfUserData } = {},
       customData,
       items,
@@ -45,6 +45,7 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
       eventTime: Math.floor(new Date(eventTime ?? new Date()).getTime() / 1000),
       adStorageConsent: adStorageConsent ?? settings.adStorageConsent,
       eventSourceUrl: eventSourceUrl,
+      eventName: eventName,
       userData: {
         ...restOfUserData,
         em: em ? processHashing(em, 'sha256', 'hex', (v) => v.trim().toLowerCase()) : null,
