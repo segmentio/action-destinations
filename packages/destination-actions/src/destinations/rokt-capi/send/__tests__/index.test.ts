@@ -712,14 +712,12 @@ describe('RoktCapi.send', () => {
           eventDetails: {
             source_message_id: 'msg-011',
             timestamp_unixtime_ms: '2024-01-18T12:00:00.000Z'
+          },         
+          engageAudienceName: 'premium_users',
+          traitsOrProps: {
+            premium_users: true
           },
-          engageFields: {
-            engageAudienceName: 'premium_users',
-            traitsOrProps: {
-              premium_users: true
-            },
-            computationAction: 'audience'
-          }
+          computationAction: 'audience'
         }
       })
 
