@@ -8,7 +8,6 @@ import {
   EventCompletionReq,
   PropertyCreateResp
 } from './types'
-import { HUBSPOT_CRM_API_VERSION } from '../versioning-info'
 
 export class Client {
   request: RequestClient
@@ -19,7 +18,7 @@ export class Client {
 
   async getEventDefinition(eventName: string): Promise<ModifiedResponse<GetEventDefinitionResp>> {
     return await this.request<GetEventDefinitionResp>(
-      `${HUBSPOT_BASE_URL}/events/${HUBSPOT_CRM_API_VERSION}/event-definitions/${eventName}/?includeProperties=true`,
+      `${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`,
       {
         method: 'GET',
         skipResponseCloning: true,
@@ -29,32 +28,26 @@ export class Client {
   }
 
   async send(json: EventCompletionReq) {
-    return this.request(`${HUBSPOT_BASE_URL}/events/${HUBSPOT_CRM_API_VERSION}/send`, {
+    return this.request(`${HUBSPOT_BASE_URL}/events/v3/send`, {
       method: 'POST',
       json
     })
   }
 
   async createEventDefinition(json: CreateEventDefinitionReq): Promise<ModifiedResponse<CreateEventDefinitionResp>> {
-    return await this.request<CreateEventDefinitionResp>(
-      `${HUBSPOT_BASE_URL}/events/${HUBSPOT_CRM_API_VERSION}/event-definitions`,
-      {
-        method: 'POST',
-        json,
-        skipResponseCloning: true,
-        throwHttpErrors: false
-      }
-    )
+    return await this.request<CreateEventDefinitionResp>(`${HUBSPOT_BASE_URL}/events/v3/event-definitions`, {
+      method: 'POST',
+      json,
+      skipResponseCloning: true,
+      throwHttpErrors: false
+    })
   }
 
   async createPropertyDefinition(json: CreatePropDefinitionReq, eventName: string) {
-    return this.request<PropertyCreateResp>(
-      `${HUBSPOT_BASE_URL}/events/${HUBSPOT_CRM_API_VERSION}/event-definitions/${eventName}/property`,
-      {
-        method: 'POST',
-        json,
-        throwHttpErrors: false
-      }
-    )
+    return this.request<PropertyCreateResp>(`${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/property`, {
+      method: 'POST',
+      json,
+      throwHttpErrors: false
+    })
   }
 }

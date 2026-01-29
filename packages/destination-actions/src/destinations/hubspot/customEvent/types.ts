@@ -21,7 +21,6 @@ export interface SchemaDiff {
   missingProperties: {
     [key: string]: SegmentProperty
   }
-  numericStrings: string[]
 }
 
 export interface Schema {

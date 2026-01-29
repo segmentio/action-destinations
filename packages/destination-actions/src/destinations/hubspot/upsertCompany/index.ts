@@ -13,7 +13,6 @@ import {
 } from '../errors'
 import { flattenObject, ResponseInfo, SearchResponse, UpsertRecordResponse } from '../utils'
 import { Hubspot } from '../api'
-import { HUBSPOT_CRM_API_VERSION } from '../versioning-info'
 
 interface CompanyProperty {
   name: string
@@ -362,7 +361,7 @@ function createSegmentUniqueIdentifierProperty(request: RequestClient) {
     formField: false
   }
 
-  return request<UpsertRecordResponse>(`${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/properties/companies`, {
+  return request<UpsertRecordResponse>(`${HUBSPOT_BASE_URL}/crm/v3/properties/companies`, {
     method: 'POST',
     json: {
       ...segmentUniqueIdentifierProperty
@@ -384,7 +383,7 @@ function associateCompanyToContact(
   associationType: string
 ) {
   return request<CompanyContactAssociationResponse>(
-    `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/objects/companies/${companyId}/associations/contacts/${contactId}/${associationType}`,
+    `${HUBSPOT_BASE_URL}/crm/v3/objects/companies/${companyId}/associations/contacts/${contactId}/${associationType}`,
     {
       method: 'PUT'
     }

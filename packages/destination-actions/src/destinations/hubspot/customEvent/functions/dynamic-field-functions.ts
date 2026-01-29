@@ -5,7 +5,6 @@ import { SUPPORTED_HUBSPOT_OBJECT_TYPES, DEFAULT_CUSTOM_EVENT_PROPERTIES } from 
 import { cleanEventName } from './validation-functions'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { Payload } from '../generated-types'
-import { HUBSPOT_CRM_API_VERSION } from '../../versioning-info'
 
 export const dynamicFields = {
   event_name: async (request: RequestClient) => {
@@ -45,7 +44,7 @@ async function dynamicReadEventNames(request: RequestClient): Promise<DynamicFie
 
   try {
     const response: ResponseType = await request(
-      `${HUBSPOT_BASE_URL}/events/${HUBSPOT_CRM_API_VERSION}/event-definitions/?includeProperties=false`,
+      `${HUBSPOT_BASE_URL}/events/v3/event-definitions/?includeProperties=false`,
       {
         method: 'GET',
         skipResponseCloning: true
@@ -91,13 +90,10 @@ async function dynamicReadObjectTypes(request: RequestClient): Promise<DynamicFi
   const defaultChoices = SUPPORTED_HUBSPOT_OBJECT_TYPES
 
   try {
-    const response: ResponseType = await request(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/schemas?archived=false`,
-      {
-        method: 'GET',
-        skipResponseCloning: true
-      }
-    )
+    const response: ResponseType = await request(`${HUBSPOT_BASE_URL}/crm/v3/schemas?archived=false`, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
     const choices = response.data.results.map((schema) => ({
       label: `${schema.labels.plural} (Custom)`,
       value: schema.fullyQualifiedName
@@ -147,7 +143,7 @@ async function dynamicReadProperties(request: RequestClient, eventName: string):
   try {
     // initially get full list of events. API doesn't offer ability to filter using fullyQualifiedName
     const response: ResponseType = await request(
-      `${HUBSPOT_BASE_URL}/events/${HUBSPOT_CRM_API_VERSION}/event-definitions/?includeProperties=true`,
+      `${HUBSPOT_BASE_URL}/events/v3/event-definitions/?includeProperties=true`,
       {
         method: 'GET',
         skipResponseCloning: true

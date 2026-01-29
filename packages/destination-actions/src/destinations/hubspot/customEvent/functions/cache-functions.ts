@@ -2,7 +2,6 @@ import { PayloadValidationError, StatsContext } from '@segment/actions-core'
 import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import { SegmentProperty, Schema, CachableSchema, SchemaDiff } from '../types'
 import { LRUCache } from 'lru-cache'
-import { Payload } from '../generated-types'
 
 export const cache = new LRUCache<string, CachableSchema>({
   max: 2000,
@@ -43,7 +42,7 @@ export async function saveSchemaToCache(
 
 export function compareSchemas(schema1: Schema, schema2: CachableSchema | undefined): SchemaDiff {
   if (schema2 === undefined) {
-    return { match: 'no_match', missingProperties: {}, numericStrings: [] }
+    return { match: 'no_match', missingProperties: {} }
   }
 
   if (schema1.name !== schema2.name && schema1.name !== schema2.fullyQualifiedName) {
@@ -51,17 +50,11 @@ export function compareSchemas(schema1: Schema, schema2: CachableSchema | undefi
   }
 
   const missingProperties: { [key: string]: SegmentProperty } = {}
-  const numericStrings: string[] = []
 
   for (const [key, prop1] of Object.entries(schema1.properties)) {
     const prop2 = schema2.properties[key]
     if (prop2 === undefined) {
       missingProperties[key] = prop1
-      continue
-    }
-    // Handle case where we inferred number but HubSpot/cache has string
-    if (prop1.type === 'number' && prop2.type === 'string') {
-      numericStrings.push(key)
       continue
     }
     if (prop1.stringFormat === prop2.stringFormat && prop1.type === prop2.type) {
@@ -73,23 +66,6 @@ export function compareSchemas(schema1: Schema, schema2: CachableSchema | undefi
 
   return {
     match: Object.keys(missingProperties).length > 0 ? 'properties_missing' : 'full_match',
-    missingProperties,
-    numericStrings
-  }
-}
-
-/**
- * Converts numeric property values to strings when the schema indicates they should be strings.
- * This handles the case where numeric strings like "123" get coerced to numbers during schema inference,
- * but HubSpot actually has the property defined as a string type.
- */
-export function convertNumericStrings(validPayload: Payload, numericStrings: string[]): void {
-  if (!validPayload.properties || numericStrings.length === 0) {
-    return
-  }
-  for (const propName of numericStrings) {
-    if (validPayload.properties[propName] !== undefined) {
-      validPayload.properties[propName] = String(validPayload.properties[propName])
-    }
+    missingProperties
   }
 }

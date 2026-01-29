@@ -51,4 +51,31 @@ describe('Hubspot.customEvent', () => {
     const validatedPayload = validate(payload)
     expect(validatedPayload).toEqual(expectedValidatedPayload)
   })
+
+  it('should not coerce numeric strings to numbers in properties', async () => {
+    const testPayload: Payload = {
+      event_name: 'Test Event Name 2',
+      record_details: {
+        email: 'test@example.com',
+        object_type: 'contact'
+      },
+      properties: {
+        custom_prop_str_number: '12345' // A numberic string
+      }
+    }
+
+    const expectedPayload: Payload = {
+      event_name: 'test_event_name_2',
+      record_details: {
+        object_type: 'contact',
+        email: 'test@example.com'
+      },
+      properties: {
+        custom_prop_str_number: '12345' // Should remain a string
+      }
+    }
+
+    const validatedPayload = validate(testPayload)
+    expect(validatedPayload).toEqual(expectedPayload)
+  })
 })

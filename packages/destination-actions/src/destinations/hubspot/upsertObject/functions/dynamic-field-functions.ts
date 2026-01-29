@@ -5,7 +5,6 @@ import { SUPPORTED_HUBSPOT_OBJECT_TYPES } from '../constants'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { Payload } from '../generated-types'
 import { DynamicFieldContext } from '@segment/actions-core/destination-kittypes'
-import { HUBSPOT_CRM_API_VERSION, HUBSPOT_CRM_ASSOCIATIONS_API_VERSION } from '../../versioning-info'
 
 enum AssociationCategory {
   HUBSPOT_DEFINED = 'HUBSPOT_DEFINED',
@@ -181,13 +180,10 @@ async function dynamicReadIdFields(request: RequestClient, objectType: string): 
   }
 
   try {
-    const response: ResponseType = await request(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/properties/${objectType}`,
-      {
-        method: 'GET',
-        skipResponseCloning: true
-      }
-    )
+    const response: ResponseType = await request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${objectType}`, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
 
     return {
       choices: [
@@ -253,13 +249,10 @@ async function dynamicReadPropertyGroups(request: RequestClient, objectType: str
   }
 
   try {
-    const response: ResponseType = await request(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/properties/${objectType}/groups`,
-      {
-        method: 'GET',
-        skipResponseCloning: true
-      }
-    )
+    const response: ResponseType = await request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${objectType}/groups`, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
 
     return {
       choices: response.data.results
@@ -311,7 +304,7 @@ async function dynamicReadAssociationLabels(
 
   try {
     const response: ResponseType = await request(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_ASSOCIATIONS_API_VERSION}/associations/${fromObjectType}/${toObjectType}/labels`,
+      `${HUBSPOT_BASE_URL}/crm/v4/associations/${fromObjectType}/${toObjectType}/labels`,
       {
         method: 'GET',
         skipResponseCloning: true
@@ -364,13 +357,10 @@ async function dynamicReadObjectTypes(request: RequestClient): Promise<DynamicFi
   }
 
   try {
-    const response: ResponseType = await request(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/schemas?archived=false`,
-      {
-        method: 'GET',
-        skipResponseCloning: true
-      }
-    )
+    const response: ResponseType = await request(`${HUBSPOT_BASE_URL}/crm/v3/schemas?archived=false`, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
     const choices = response.data.results
       .map((schema) => ({
         label: `${schema.labels.plural} (Custom)`,
@@ -423,9 +413,7 @@ async function dynamicReadProperties(
   }
 
   try {
-    const url = `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/properties/${objectType}${
-      sensitive ? '?dataSensitivity=sensitive' : ''
-    }`
+    const url = `${HUBSPOT_BASE_URL}/crm/v3/properties/${objectType}${sensitive ? '?dataSensitivity=sensitive' : ''}`
     const response: ResponseType = await request(url, {
       method: 'GET',
       skipResponseCloning: true
@@ -509,7 +497,7 @@ async function dynamicReadLists(request: RequestClient, objectType: string) {
   }
 
   try {
-    const url = `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/lists/search`
+    const url = `${HUBSPOT_BASE_URL}/crm/v3/lists/search`
     let allLists: ResultItem[] = []
     let hasMore = true
     let offset: number | undefined = undefined
@@ -558,7 +546,7 @@ async function readObjectSchema(request: RequestClient, objectType: string): Pro
     }
   }
 
-  const url = `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/schemas/${objectType}`
+  const url = `${HUBSPOT_BASE_URL}/crm/v3/schemas/${objectType}`
   const response: ResponseType = await request(url, {
     method: 'GET'
   })
