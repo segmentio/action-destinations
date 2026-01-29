@@ -29,7 +29,7 @@ export function send<T extends EventTypeKey>(request: RequestClient, payload: An
     testEventCode
   } = settings
 
-  const data = getEventData(payload as Parameters<typeof getEventData>[0], eventType as Parameters<typeof getEventData>[1])
+  const data = getEventData(payload, eventType)
 
   const json: RequestJSON = {
     data: [data],
@@ -45,7 +45,7 @@ export function send<T extends EventTypeKey>(request: RequestClient, payload: An
   )
 }
 
-export const validate = <T extends EventTypeKey>(payload: AnyPayload, eventType: T) => {
+export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
   const { 
     action_source,
     user_data
@@ -118,31 +118,31 @@ export const validateContents = (contents: Content[]) => {
   }
 }
 
-export const isAddToCartMatch = (payload: AnyPayload, type: EventTypeKey): payload is AddToCartPayload | AddToCart2Payload => {
+export const isAddToCartMatch = (_payload: AnyPayload, type: EventTypeKey): _payload is AddToCartPayload | AddToCart2Payload => {
   return type === 'AddToCart'
 }
 
-export const isCustomMatch = (payload: AnyPayload, type: EventTypeKey): payload is CustomPayload | Custom2Payload => {
+export const isCustomMatch = (_payload: AnyPayload, type: EventTypeKey): _payload is CustomPayload | Custom2Payload => {
   return type === 'Custom'
 }
 
-export const isInitiateCheckoutMatch = (payload: AnyPayload, type: EventTypeKey): payload is InitiateCheckoutPayload | InitiateCheckout2Payload => {
+export const isInitiateCheckoutMatch = (_payload: AnyPayload, type: EventTypeKey): _payload is InitiateCheckoutPayload | InitiateCheckout2Payload => {
   return type === 'InitiateCheckout'
 }
 
-export const isPageViewMatch = (payload: AnyPayload, type: EventTypeKey): payload is PageViewPayload | PageView2Payload => {
+export const isPageViewMatch = (_payload: AnyPayload, type: EventTypeKey): _payload is PageViewPayload | PageView2Payload => {
   return type === 'PageView'
 }
 
-export const isPurchaseMatch = (payload: AnyPayload, type: EventTypeKey): payload is PurchasePayload | Purchase2Payload => {
+export const isPurchaseMatch = (_payload: AnyPayload, type: EventTypeKey): _payload is PurchasePayload | Purchase2Payload => {
   return type === 'Purchase'
 }
 
-export const isSearchMatch = (payload: AnyPayload, type: EventTypeKey): payload is SearchPayload | Search2Payload => {
+export const isSearchMatch = (_payload: AnyPayload, type: EventTypeKey): _payload is SearchPayload | Search2Payload => {
   return type === 'Search'
 }
 
-export const isViewContentMatch = (payload: AnyPayload, type: EventTypeKey): payload is ViewContentPayload | ViewContent2Payload => {
+export const isViewContentMatch = (_payload: AnyPayload, type: EventTypeKey): _payload is ViewContentPayload | ViewContent2Payload => {
   return type === 'ViewContent'
 }
 
@@ -209,14 +209,19 @@ export function getEventData(payload: AnyPayload, type: EventTypeKey): EventData
         throw new PayloadValidationError('Invalid Custom payload')
       }
       const { 
-        event_name 
+        event_name,
+        is_append_event
       } = payload
 
-      const data: CustomEventData = {
+      let data: CustomEventData | AppendValueEventData = {
         event_name,
         ...common,
         custom_data: { ...custom_data }
       }
+
+      if(is_append_event) {
+        data = convertToAppendValueEventData(data, payload, type)
+      } 
       return data
     }
     case 'InitiateCheckout': {
@@ -294,7 +299,7 @@ export function getEventData(payload: AnyPayload, type: EventTypeKey): EventData
       }
 
       if(is_append_event) {
-        data = convertToAppendValueEventData(data, payload)
+        data = convertToAppendValueEventData(data, payload, type)
       } 
       return data
     }
