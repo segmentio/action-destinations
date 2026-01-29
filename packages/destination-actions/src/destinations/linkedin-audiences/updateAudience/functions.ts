@@ -1,22 +1,24 @@
-import type {StatsContext } from '@segment/actions-core'
+import type { StatsContext } from '@segment/actions-core'
 import { RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { LinkedInAudiences } from '../api'
 import { LinkedInAudiencePayload } from '../types'
 import { processHashing } from '../../../lib/hashing-utils'
+import { StateContext } from '@segment/actions-core/destination-kit'
 
 export async function processPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
-  statsContext: StatsContext | undefined
+  statsContext: StatsContext | undefined,
+  stateContext?: StateContext
 ) {
   validate(settings, payloads)
 
   const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
 
-  const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0], statsContext)
+  const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0], statsContext, stateContext)
   const elements = extractUsers(settings, payloads)
 
   // We should never hit this condition because at least an email or a
@@ -70,17 +72,34 @@ async function getDmpSegmentId(
   linkedinApiClient: LinkedInAudiences,
   settings: Settings,
   payload: Payload,
-  statsContext: StatsContext | undefined
+  statsContext: StatsContext | undefined,
+  stateContext?: StateContext
 ): Promise<string> {
+  // Check if dmpsegment_id is already cached for this source_segment_id
+  const cacheKey = `dmpsegment_id_${payload.source_segment_id}`
+  const cachedDmpSegmentId = stateContext?.getRequestContext?.(cacheKey)
+
+  if (cachedDmpSegmentId) {
+    statsContext?.statsClient?.incr('dmp_segment_cache_hit', 1, [...statsContext?.tags])
+    return cachedDmpSegmentId
+  }
+
+  statsContext?.statsClient?.incr('dmp_segment_cache_miss', 1, [...statsContext?.tags])
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:get-dmpSegment`])
   const res = await linkedinApiClient.getDmpSegment(settings, payload)
   const body = await res.json()
 
   if (body.elements?.length > 0) {
-    return body.elements[0].id
+    const dmpSegmentId = `${body.elements[0].id}`
+    // Cache the dmpsegment ID with no TTL so it's stored as long as possible
+    stateContext?.setResponseContext?.(cacheKey, dmpSegmentId, { hour: 24 })
+    return dmpSegmentId
   }
 
-  return createDmpSegment(linkedinApiClient, settings, payload, statsContext)
+  const dmpSegmentId = await createDmpSegment(linkedinApiClient, settings, payload, statsContext)
+  // Cache the newly created dmpsegment ID with no TTL so it's stored as long as possible
+  stateContext?.setResponseContext?.(cacheKey, dmpSegmentId, {})
+  return dmpSegmentId
 }
 
 async function createDmpSegment(
