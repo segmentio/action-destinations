@@ -29,7 +29,7 @@ const action: BrowserActionDefinition<Settings, MoengageSDK, Payload> = {
       event_name, 
       attributes 
     } = payload
-    return client.track_event(event_name, attributes || {})
+    client.track_event(event_name, attributes || {})
   }
 }
 

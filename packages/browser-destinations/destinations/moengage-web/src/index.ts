@@ -4,12 +4,7 @@ import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
 import { initializeSDK } from './functions'
-import { MoengageSDK } from './types'
-declare global {
-  interface Window {
-    Moengage: MoengageSDK
-  }
-}
+import { MoengageSDK, InitConfig } from './types'
 
 export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = {
   name: 'Moengage Web',
@@ -158,24 +153,64 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
     }
   },
   initialize: async ({ settings, analytics }, deps) => {
+    const { 
+        app_id,
+        env,
+        project_id,
+        swPath,
+        enableSPA,
+        disable_onsite,
+        customProxyDomain,
+        bots_list,
+        disableCookies,
+        disableSdk,
+        cards_enabled,
+        css_selector_inbox_icon,
+        floating_bell_icon_desktop,
+        floating_bell_icon_mobile
+    } = settings
+    
     await initializeSDK(settings)
     
-    await deps.resolveWhen(() => typeof window.Moengage.onsite === 'function', 100)
-    
-    const client = window.Moengage
-    
-    const originalReset = analytics.reset
-    
-    analytics.reset = (...args) => {
-      if (typeof originalReset === 'function') {
-        originalReset(...args)
-      }
-      if (client && typeof client.destroy_session === 'function') {
-        client.destroy_session()
-      }
+    const initConfig: InitConfig = {
+        app_id, 
+        env,
+        ...(project_id ? { project_id } : {}),
+        ...(typeof enableSPA === 'boolean' ? { enableSPA } : {}),
+        ...(typeof disable_onsite === 'boolean' ? { disable_onsite } : {}),
+        ...(typeof customProxyDomain === 'string' && customProxyDomain.length>0 ? { customProxyDomain } : {}),
+        ...(Array.isArray(bots_list) && bots_list.length>0 ? { bots_list: bots_list} : {}),
+        ...(typeof disableCookies === 'boolean' ? { disableCookies } : {}),
+        ...(typeof disableSdk === 'boolean' ? { disableSdk } : {}),
+        ...(swPath ? { swPath } : {}),
+        ...(cards_enabled ? {
+            cards: {
+                enable: cards_enabled,
+                ...(typeof css_selector_inbox_icon === 'string' && css_selector_inbox_icon.length > 0 ? { placeholder: css_selector_inbox_icon } : {}),
+                ...(typeof floating_bell_icon_desktop === 'boolean' ? { webFloating: { enable: floating_bell_icon_desktop } } : {}),
+                ...(typeof floating_bell_icon_mobile === 'boolean' ? { mWebFloating: { enable: floating_bell_icon_mobile } } : {})
+            }
+        } : {})
     }
 
-    return client
+    await deps.resolveWhen(() => typeof window.moe === 'function', 100)
+    
+    if(window.moe) {
+      window.Moengage = window.moe(initConfig)
+      await deps.resolveWhen(() => typeof window?.Moengage?.onsite === 'function', 100)
+      const client = window.Moengage
+      const originalReset = analytics.reset
+      analytics.reset = (...args) => {
+        if (typeof originalReset === 'function') {
+          originalReset(...args)
+        }
+        if (client && typeof client.destroy_session === 'function') {
+          client.destroy_session()
+        }
+      }
+      return client
+    }
+    throw new Error('Moengage SDK not available')
   },
   actions: {
     trackEvent,

@@ -24,16 +24,16 @@ export interface Identifiers {
 }
 
 export interface InitConfig {
-    app_id: string, 
+    app_id: string,
     env: string,
-    project_id?: string 
+    project_id?: string
     enableSPA?: boolean
     disable_onsite?: boolean
     customProxyDomain?: string
     bots_list?: string[]
     disableCookies?: boolean
     disableSdk?: boolean
-    swPath?: string  
+    swPath?: string
     cards?: {
         enable: boolean,
         placeholder?: string,
@@ -43,5 +43,14 @@ export interface InitConfig {
         mWebFloating?: {
             enable: boolean
         }
+    }
+}
+
+declare global {
+    interface Window {
+        Moengage?: MoengageSDK
+        moe?: (config: InitConfig) => MoengageSDK
+        moengage_q?: Array<{ f: string; a: unknown[] }>
+        moengage_object?: string
     }
 }

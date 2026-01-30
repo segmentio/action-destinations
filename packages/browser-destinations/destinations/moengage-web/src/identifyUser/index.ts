@@ -111,11 +111,16 @@ const action: BrowserActionDefinition<Settings, MoengageSDK, Payload> = {
     const numIds = Object.entries(identifiers || {}).length
     const userId = identifiers?.user_id
 
-    if(numIds === 1 && userId) {
-      return client.identifyUser(userId)
+    if(numIds === 1 && userId && typeof userId === 'string') {
+      client.identifyUser(userId)
     }
     else if (numIds > 0 && identifiers) {
-      return client.identifyUser(identifiers as Identifiers)
+      const strIdentifiers = Object.fromEntries(
+        Object.entries(identifiers).filter(([_, value]) => typeof value === 'string')
+      ) as Identifiers
+      if(Object.keys(strIdentifiers).length > 0){
+        client.identifyUser(strIdentifiers)
+      }
     }
     if(first_name) {
       client.add_first_name(first_name)

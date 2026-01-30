@@ -1,28 +1,16 @@
 import { Settings } from './generated-types'
-import { MoengageSDK, InitConfig } from './types'
 
 export async function initializeSDK(settings: Settings) {
     const { 
-        app_id,
-        env,
         moeDataCenter,
-        project_id,
-        swPath,
-        enableSPA,
-        disable_onsite,
-        customProxyDomain,
-        bots_list,
-        disableCookies,
-        disableSdk,
-        cards_enabled,
-        css_selector_inbox_icon,
-        floating_bell_icon_desktop,
-        floating_bell_icon_mobile
     } = settings
-    
+
+    // MoEngage SDK loader snippet - vendor code
+    /* eslint-disable */
     !(function (e, n, i, t, a, r, o, d) {
     if (!moeDataCenter || !moeDataCenter.match(/^dc_[0-9]+$/gm))
         return console.error( "Data center has not been passed correctly. Please follow the SDK installation instruction carefully." );
+    // @ts-expect-error - vendor code
     var s = (e[a] = e[a] || []);
     if (((s.invoked = 0), s.initialised > 0 || s.invoked > 0))
         return (
@@ -33,6 +21,7 @@ export async function initializeSDK(settings: Settings) {
         );
     e.moengage_object = a;
     var l = {},
+        // @ts-expect-error - vendor code
         g = function n(i) {
         return function () {
             for (var n = arguments.length, t = Array(n), a = 0; a < n; a++)
@@ -61,15 +50,24 @@ export async function initializeSDK(settings: Settings) {
         "getUserIdentities",
         ],
         m = { onsite: ["getData", "registerCallback", "getSelfHandledOSM"] };
+    // @ts-expect-error - vendor code
     for (var c in u) l[u[c]] = g(u[c]);
     for (var v in m)
+        // @ts-expect-error - vendor code
         for (var f in m[v])
+        // @ts-expect-error - vendor code
         null == l[v] && (l[v] = {}), (l[v][m[v][f]] = g(v + "." + m[v][f]));
-    (r = n.createElement(i)),
+            // @ts-expect-error - vendor code
+        (r = n.createElement(i)),
+        // @ts-expect-error - vendor code
         (o = n.getElementsByTagName("head")[0]),
+        // @ts-expect-error - vendor code
         (r.async = 1),
+        // @ts-expect-error - vendor code
         (r.src = t),
+        // @ts-expect-error - vendor code
         o.appendChild(r),
+        // @ts-expect-error - vendor code
         (e.moe =
         e.moe ||
         function () {
@@ -80,12 +78,15 @@ export async function initializeSDK(settings: Settings) {
                 !1)
             : ((d = arguments.length <= 0 ? void 0 : arguments[0]), l);
         }),
+        // @ts-expect-error - vendor code
         r.addEventListener("load", function () {
         if (d)
             return (
+            // @ts-expect-error - vendor code
             (e[a] = e.moe(d)), (e[a].initialised = e[a].initialised + 1 || 1), !0
             );
         }),
+        // @ts-expect-error - vendor code
         r.addEventListener("error", function () {
         return console.error("Moengage Web SDK loading failed."), !1;
         });
@@ -98,27 +99,5 @@ export async function initializeSDK(settings: Settings) {
         "/moe_webSdk.min.latest.js",
     "Moengage"
     );
-
-    const initConfig: InitConfig = {
-        app_id, 
-        env,
-        ...(project_id ? { project_id } : {}),
-        ...(typeof enableSPA === 'boolean' ? { enableSPA } : {}),
-        ...(typeof disable_onsite === 'boolean' ? { disable_onsite } : {}),
-        ...(typeof customProxyDomain === 'string' && customProxyDomain.length>0 ? { customProxyDomain } : {}),
-        ...(Array.isArray(bots_list) && bots_list.length>0 ? { bots_list: bots_list} : {}),
-        ...(typeof disableCookies === 'boolean' ? { disableCookies } : {}),
-        ...(typeof disableSdk === 'boolean' ? { disableSdk } : {}),
-        ...(swPath ? { swPath } : {}),
-        ...(cards_enabled ? {
-            cards: {
-                enable: cards_enabled,
-                ...(typeof css_selector_inbox_icon === 'string' && css_selector_inbox_icon.length > 0 ? { placeholder: css_selector_inbox_icon } : {}),
-                ...(typeof floating_bell_icon_desktop === 'boolean' ? { webFloating: { enable: floating_bell_icon_desktop } } : {}),
-                ...(typeof floating_bell_icon_mobile === 'boolean' ? { mWebFloating: { enable: floating_bell_icon_mobile } } : {})
-            }
-        } : {})
-    }
-
-    window.Moengage = moe(initConfig) as MoengageSDK
+    /* eslint-enable */
 }
