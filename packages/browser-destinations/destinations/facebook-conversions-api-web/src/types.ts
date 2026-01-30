@@ -1,6 +1,6 @@
 export interface WindowWithOptionalFbq extends Omit<Window, 'fbq' | '_fbq'> {
-  fbq?: FBClient;
-  _fbq?: FBClient;
+  fbq?: FBClient
+  _fbq?: FBClient
 }
 
 export type FBStandardEventType =
@@ -29,8 +29,8 @@ export type InitOptions = {
   agent?: string
 }
 
-export type EventOptions = { 
-  eventID?: string 
+export type EventOptions = {
+  eventID?: string
   eventSourceUrl?: string
 }
 
@@ -47,6 +47,8 @@ export type UserData = {
   st?: string // State (FB hashes with SHA-256)
   zp?: string // ZIP/Postal code (FB hashes with SHA-256)
   country?: string // Country code (FB hashes with SHA-256)
+  fbp?: string // Facebook browser pixel ID
+  fbc?: string // Facebook click ID
 }
 
 export type FBEvent = {
@@ -63,7 +65,7 @@ export type FBEvent = {
   currency?: string
   delivery_category?: string
   num_items?: number
-  value?: number 
+  value?: number
   custom_data?: {
     [k: string]: unknown
   }
@@ -78,26 +80,47 @@ export type FBClient = {
   callMethod?: (...args: unknown[]) => void
   (command: 'set', key: string, value: boolean, pixelId: string): void
   (command: 'dataProcessingOptions', options: string[], country?: number, state?: number): void
-  (command: 'init', pixelId: string, userData?: UserData, options?: InitOptions ): void
+  (command: 'init', pixelId: string, userData?: UserData, options?: InitOptions): void
   (command: 'trackSingle', pixelId: string, event: FBStandardEventType, params?: FBEvent, options?: EventOptions): void
   (command: 'trackSingleCustom', pixelId: string, event: string, params?: FBEvent, options?: EventOptions): void
 }
 
+export type FBClientParamBuilder = {
+  getNormalizedAndHashedPII: (value: string, piiType: PIIType) => string | undefined
+  processAndCollectAllParams: () => void
+  getFbc: () => string | undefined
+  getFbp: () => string | undefined
+}
+
+export type PIIType =
+  | 'email'
+  | 'phone'
+  | 'first_name'
+  | 'last_name'
+  | 'gender'
+  | 'date_of_birth'
+  | 'city'
+  | 'state'
+  | 'zip_code'
+  | 'country'
+  | 'external_id'
+export type PIIParamName = 'em' | 'ph' | 'fn' | 'ln' | 'ge' | 'db' | 'ct' | 'st' | 'zp' | 'country' | 'external_id'
+
 export const LDU = {
-  Disabled: {key: 'Disabled', state: undefined, country: undefined},
-  GeolocationLogic: {key: 'GeolocationLogic', state: 0, country: 0},
-  California: {key: 'California', state: 1000, country: 1},
-  Colorado: {key: 'Colorado', state: 1001, country: 1},
-  Connecticut: {key: 'Connecticut', state: 1002, country: 1},
-  Florida: {key: 'Florida', state: 1003, country: 1},
-  Oregon: {key: 'Oregon', state: 1004, country: 1},
-  Texas: {key: 'Texas', state: 1005, country: 1},
-  Montana: {key: 'Montana', state: 1006, country: 1},
-  Delaware: {key: 'Delaware', state: 1007, country: 1},
-  Nebraska: {key: 'Nebraska', state: 1008, country: 1},
-  NewHampshire: {key: 'NewHampshire', state: 1009, country: 1},
-  NewJersey: {key: 'NewJersey', state: 1010, country: 1},
-  Minnesota: {key: 'Minnesota', state: 1011, country: 1}
+  Disabled: { key: 'Disabled', state: undefined, country: undefined },
+  GeolocationLogic: { key: 'GeolocationLogic', state: 0, country: 0 },
+  California: { key: 'California', state: 1000, country: 1 },
+  Colorado: { key: 'Colorado', state: 1001, country: 1 },
+  Connecticut: { key: 'Connecticut', state: 1002, country: 1 },
+  Florida: { key: 'Florida', state: 1003, country: 1 },
+  Oregon: { key: 'Oregon', state: 1004, country: 1 },
+  Texas: { key: 'Texas', state: 1005, country: 1 },
+  Montana: { key: 'Montana', state: 1006, country: 1 },
+  Delaware: { key: 'Delaware', state: 1007, country: 1 },
+  Nebraska: { key: 'Nebraska', state: 1008, country: 1 },
+  NewHampshire: { key: 'NewHampshire', state: 1009, country: 1 },
+  NewJersey: { key: 'NewJersey', state: 1010, country: 1 },
+  Minnesota: { key: 'Minnesota', state: 1011, country: 1 }
 } as const
 
 export type LDU = typeof LDU[keyof typeof LDU]

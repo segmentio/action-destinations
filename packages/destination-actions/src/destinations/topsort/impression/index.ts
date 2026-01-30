@@ -159,7 +159,7 @@ const action: ActionDefinition<Settings, Payload> = {
               direction: 'right'
             }
           },
-          else: { '@path': '$.properties.page' }
+          else: { '@path': '$.properties.placement' }
         }
       }
     },

@@ -1,5 +1,6 @@
 import { RequestClient, IntegrationError, APIError } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
+import { ADOBE_TARGET_API_VERSION } from './versioning-info'
 
 function getNestedObjects(obj: { [x: string]: any }, objectPath = '', attributes: { [x: string]: string } = {}) {
   // Do not run on null or undefined
@@ -60,7 +61,7 @@ export default class AdobeTarget {
   ): Promise<IntegrationError | undefined> => {
     try {
       await this.request(
-        `https://${clientCode}.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${userId}?client=${clientCode}`,
+        `https://${clientCode}.tt.omtrdc.net/rest/${ADOBE_TARGET_API_VERSION}/profiles/thirdPartyId/${userId}?client=${clientCode}`,
         { method: 'get', skipResponseCloning: true }
       )
     } catch (error) {

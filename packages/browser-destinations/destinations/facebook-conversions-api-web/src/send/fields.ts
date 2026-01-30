@@ -3,353 +3,377 @@ import { getDependenciesFor } from './depends-on'
 import { CURRENCY_ISO_CODES } from '../constants'
 
 export const event_config: InputField = {
-    label: 'Event Configuration',
-    description: 'Specify the type of Facebook Conversions API event to send.',
-    type: 'object',
-    required: true,
-    additionalProperties: false,
-    defaultObjectUI: 'keyvalue',
-    properties: {
-        event_name: {
-            label: 'Event Name',
-            description: "Facebook Conversions API Event Name to send. Select 'Custom Event' to send a non standard event.",
-            type: 'string',
-            required: true,
-            choices: [
-                { label: 'Custom Event', value: 'CustomEvent' },
-                { label: 'Page View', value: 'PageView' },
-                { label: 'Add Payment Info', value: 'AddPaymentInfo' },
-                { label: 'Add To Cart', value: 'AddToCart' },
-                { label: 'Add To Wishlist', value: 'AddToWishlist' },
-                { label: 'Complete Registration', value: 'CompleteRegistration' },
-                { label: 'Contact', value: 'Contact' },
-                { label: 'Customize Product', value: 'CustomizeProduct' },
-                { label: 'Donate', value: 'Donate' },
-                { label: 'Find Location', value: 'FindLocation' },
-                { label: 'Initiate Checkout', value: 'InitiateCheckout' },
-                { label: 'Lead', value: 'Lead' },
-                { label: 'Purchase', value: 'Purchase' },
-                { label: 'Schedule', value: 'Schedule' },
-                { label: 'Search', value: 'Search' },
-                { label: 'Start Trial', value: 'StartTrial' },
-                { label: 'Submit Application', value: 'SubmitApplication' },
-                { label: 'Subscribe', value: 'Subscribe' },
-                { label: 'View Content', value: 'ViewContent' }
-            ]
-        },
-        custom_event_name:{
-            label: 'Custom Event Name',
-            description: 'Custom event name to send to Facebook',
-            type: 'string',
-            depends_on: getDependenciesFor('custom_event_name')
-        },
-        show_fields: {
-            label: 'Show all fields',
-            description: 'Show all fields, even those which are not relevant to the selected Event Name.',
-            type: 'boolean',
-            default: false
-        }
+  label: 'Event Configuration',
+  description: 'Specify the type of Facebook Conversions API event to send.',
+  type: 'object',
+  required: true,
+  additionalProperties: false,
+  defaultObjectUI: 'keyvalue',
+  properties: {
+    event_name: {
+      label: 'Event Name',
+      description: "Facebook Conversions API Event Name to send. Select 'Custom Event' to send a non standard event.",
+      type: 'string',
+      required: true,
+      choices: [
+        { label: 'Custom Event', value: 'CustomEvent' },
+        { label: 'Page View', value: 'PageView' },
+        { label: 'Add Payment Info', value: 'AddPaymentInfo' },
+        { label: 'Add To Cart', value: 'AddToCart' },
+        { label: 'Add To Wishlist', value: 'AddToWishlist' },
+        { label: 'Complete Registration', value: 'CompleteRegistration' },
+        { label: 'Contact', value: 'Contact' },
+        { label: 'Customize Product', value: 'CustomizeProduct' },
+        { label: 'Donate', value: 'Donate' },
+        { label: 'Find Location', value: 'FindLocation' },
+        { label: 'Initiate Checkout', value: 'InitiateCheckout' },
+        { label: 'Lead', value: 'Lead' },
+        { label: 'Purchase', value: 'Purchase' },
+        { label: 'Schedule', value: 'Schedule' },
+        { label: 'Search', value: 'Search' },
+        { label: 'Start Trial', value: 'StartTrial' },
+        { label: 'Submit Application', value: 'SubmitApplication' },
+        { label: 'Subscribe', value: 'Subscribe' },
+        { label: 'View Content', value: 'ViewContent' }
+      ]
     },
-    default: {
-        event_name: 'CustomEvent',
-        custom_event_name: {'@path': '$.event'},
-        show_fields: false
+    custom_event_name: {
+      label: 'Custom Event Name',
+      description: 'Custom event name to send to Facebook',
+      type: 'string',
+      depends_on: getDependenciesFor('custom_event_name')
+    },
+    show_fields: {
+      label: 'Show all fields',
+      description: 'Show all fields, even those which are not relevant to the selected Event Name.',
+      type: 'boolean',
+      default: false
     }
+  },
+  default: {
+    event_name: 'CustomEvent',
+    custom_event_name: { '@path': '$.event' },
+    show_fields: false
+  }
 }
 
 export const content_category: InputField = {
-    label: 'Content Category',
-    description: 'The category of the content associated with the event.',
-    type: 'string',
-    default: { '@path': '$.properties.category' },
-    depends_on: getDependenciesFor('content_category')
+  label: 'Content Category',
+  description: 'The category of the content associated with the event.',
+  type: 'string',
+  default: { '@path': '$.properties.category' },
+  depends_on: getDependenciesFor('content_category')
 }
 
 export const content_name: InputField = {
-    label: 'Content Name',
-    description: 'The name of the page or product associated with the event.',
-    type: 'string',
-    default: { '@path': '$.properties.name' },
-    depends_on: getDependenciesFor('content_name')
+  label: 'Content Name',
+  description: 'The name of the page or product associated with the event.',
+  type: 'string',
+  default: { '@path': '$.properties.name' },
+  depends_on: getDependenciesFor('content_name')
 }
 
 export const content_type: InputField = {
-    label: 'Content Type',
-    description:
-        'If the IDs being passed in content_ids or contents parameter are IDs of products, then the value should be product. If product group IDs are being passed, then the value should be product_group. If no content_type is provided, Meta will match the event to every item that has the same ID, independent of its type.',
-    type: 'string',
-    choices: [
-        { value: 'product', label: 'Product' },
-        { value: 'product_group', label: 'Product Group' }
-    ],
-    default: 'product',
-    depends_on: getDependenciesFor('content_type')
+  label: 'Content Type',
+  description:
+    'If the IDs being passed in content_ids or contents parameter are IDs of products, then the value should be product. If product group IDs are being passed, then the value should be product_group. If no content_type is provided, Meta will match the event to every item that has the same ID, independent of its type.',
+  type: 'string',
+  choices: [
+    { value: 'product', label: 'Product' },
+    { value: 'product_group', label: 'Product Group' }
+  ],
+  default: 'product',
+  depends_on: getDependenciesFor('content_type')
 }
 
 export const content_ids: InputField = {
-    label: 'Content IDs',
-    description: "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
-    type: 'string',
-    multiple: true,
-    default: { "@liquid": "{{ properties.products | map: 'product_id' }}"}
-    ,
-    depends_on: getDependenciesFor('content_ids')
+  label: 'Content IDs',
+  description:
+    "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
+  type: 'string',
+  multiple: true,
+  default: { '@liquid': "{{ properties.products | map: 'product_id' }}" },
+  depends_on: getDependenciesFor('content_ids')
 }
 
 export const contents: InputField = {
-    label: 'Contents',
-    description: 'A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.',
-    type: 'object',
-    multiple: true,
-    additionalProperties: true,
-    defaultObjectUI: 'keyvalue',
-    properties: {
-        id: {
-            label: 'ID',
-            description: 'The product ID of the purchased item.',
-            type: 'string',
-            required: true
-        },
-        quantity: {
-            label: 'Quantity',
-            description: 'The number of items purchased.',
-            type: 'integer',
-            required: true
-        },
-        item_price: {
-            label: 'Item Price',
-            description: 'The price of the item.',
-            type: 'number'
-        }
+  label: 'Contents',
+  description:
+    'A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.',
+  type: 'object',
+  multiple: true,
+  additionalProperties: true,
+  defaultObjectUI: 'keyvalue',
+  properties: {
+    id: {
+      label: 'ID',
+      description: 'The product ID of the purchased item.',
+      type: 'string',
+      required: true
     },
-    default: {
-        '@arrayPath': [
-          '$.properties.products',
-          {
-            id: { '@path': '$.product_id' },
-            quantity: { '@path': '$.quantity' },
-            item_price: { '@path': '$.price' }
-          }
-        ]
+    quantity: {
+      label: 'Quantity',
+      description: 'The number of items purchased.',
+      type: 'integer',
+      required: true
     },
-    depends_on: getDependenciesFor('contents')
-}    
+    item_price: {
+      label: 'Item Price',
+      description: 'The price of the item.',
+      type: 'number'
+    }
+  },
+  default: {
+    '@arrayPath': [
+      '$.properties.products',
+      {
+        id: { '@path': '$.product_id' },
+        quantity: { '@path': '$.quantity' },
+        item_price: { '@path': '$.price' }
+      }
+    ]
+  },
+  depends_on: getDependenciesFor('contents')
+}
 
 export const currency: InputField = {
-    label: 'Currency',
-    description: 'The currency for the value specified. Currency must be a valid ISO 4217 three-digit currency code.',
-    type: 'string',
-    default: { '@path': '$.properties.currency' },
-    depends_on: getDependenciesFor('currency'),
-    choices:(() => {
-        return [...CURRENCY_ISO_CODES].map(code => ({
-            value: code,
-            label: code
-        }))
-    })(),
-    required: {
-        match: 'all',
-        conditions: [
-            {
-                fieldKey: 'event_config.event_name',
-                operator: 'is',
-                value: 'Purchase'
-            }
-        ]
-    }
+  label: 'Currency',
+  description: 'The currency for the value specified. Currency must be a valid ISO 4217 three-digit currency code.',
+  type: 'string',
+  default: { '@path': '$.properties.currency' },
+  depends_on: getDependenciesFor('currency'),
+  choices: (() => {
+    return [...CURRENCY_ISO_CODES].map((code) => ({
+      value: code,
+      label: code
+    }))
+  })(),
+  required: {
+    match: 'all',
+    conditions: [
+      {
+        fieldKey: 'event_config.event_name',
+        operator: 'is',
+        value: 'Purchase'
+      }
+    ]
+  }
 }
 
 export const delivery_category: InputField = {
-    label: 'Delivery Category',
-    description: 'Category of the delivery',
-    type: 'string',
-    choices: [
-        { value: 'in_store', label: 'In Store' },
-        { value: 'curbside', label: 'Curbside' },
-        { value: 'home_delivery', label: 'Home Delivery' }
-    ],
-    depends_on: getDependenciesFor('delivery_category')
+  label: 'Delivery Category',
+  description: 'Category of the delivery',
+  type: 'string',
+  choices: [
+    { value: 'in_store', label: 'In Store' },
+    { value: 'curbside', label: 'Curbside' },
+    { value: 'home_delivery', label: 'Home Delivery' }
+  ],
+  depends_on: getDependenciesFor('delivery_category')
 }
 
 export const num_items: InputField = {
-    label: 'Number of Items',
-    description: 'The number of items when checkout was initiated.',
-    type: 'integer',
-    default: { '@path': '$.properties.num_items' },
-    depends_on: getDependenciesFor('num_items')
+  label: 'Number of Items',
+  description: 'The number of items when checkout was initiated.',
+  type: 'integer',
+  default: { '@path': '$.properties.num_items' },
+  depends_on: getDependenciesFor('num_items')
 }
 
 export const predicted_ltv: InputField = {
-    label: 'Predicted LTV',
-    description: 'Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.',
-    type: 'number',
-    depends_on: getDependenciesFor('predicted_ltv')
+  label: 'Predicted LTV',
+  description: 'Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.',
+  type: 'number',
+  depends_on: getDependenciesFor('predicted_ltv')
 }
 
 export const net_revenue: InputField = {
-    label: 'Net Revenue',
-    description: 'The net revenue associated with the purchase.',
-    type: 'number',
-    default: { '@path': '$.properties.net_revenue' },
-    depends_on: getDependenciesFor('net_revenue')
+  label: 'Net Revenue',
+  description: 'The net revenue associated with the purchase.',
+  type: 'number',
+  default: { '@path': '$.properties.net_revenue' },
+  depends_on: getDependenciesFor('net_revenue')
 }
 
 export const search_string: InputField = {
-    label: 'Search String',
-    description: 'The string entered by the user for the search.',
-    type: 'string',
-    default: { '@path': '$.properties.query' },
-    depends_on: getDependenciesFor('search_string')
+  label: 'Search String',
+  description: 'The string entered by the user for the search.',
+  type: 'string',
+  default: { '@path': '$.properties.query' },
+  depends_on: getDependenciesFor('search_string')
 }
 
 export const status: InputField = {
-    label: 'Registration Status',
-    description: 'The status of the registration. true for completed registrations, false otherwise.',
-    type: 'boolean',
-    depends_on: getDependenciesFor('status')
+  label: 'Registration Status',
+  description: 'The status of the registration. true for completed registrations, false otherwise.',
+  type: 'boolean',
+  depends_on: getDependenciesFor('status')
 }
 
 export const value: InputField = {
-    label: 'Value',
-    description: 'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
-    type: 'number',
-    default: { '@path': '$.properties.value' },
-    depends_on: getDependenciesFor('value'),
-    required: {
-        match: 'all',
-        conditions: [
-            {
-                fieldKey: 'event_config.event_name',
-                operator: 'is',
-                value: 'Purchase'
-            }
-        ]
-    }
+  label: 'Value',
+  description:
+    'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
+  type: 'number',
+  default: { '@path': '$.properties.value' },
+  depends_on: getDependenciesFor('value'),
+  required: {
+    match: 'all',
+    conditions: [
+      {
+        fieldKey: 'event_config.event_name',
+        operator: 'is',
+        value: 'Purchase'
+      }
+    ]
+  }
 }
 
 export const custom_data: InputField = {
-    label: 'Custom Data',
-    description: 'The custom data object can be used to pass custom properties.',
-    type: 'object',
-    additionalProperties: true,
-    defaultObjectUI: 'keyvalue'
+  label: 'Custom Data',
+  description: 'The custom data object can be used to pass custom properties.',
+  type: 'object',
+  additionalProperties: true,
+  defaultObjectUI: 'keyvalue'
 }
 
 export const eventID: InputField = {
-    label: 'Event ID',
-    description: 'This ID can be any unique string. Event ID is used to deduplicate events sent both the server side Conversions API and the browser Pixel.',
-    type: 'string',
-    default: { '@path': '$.messageId' }
+  label: 'Event ID',
+  description:
+    'This ID can be any unique string. Event ID is used to deduplicate events sent both the server side Conversions API and the browser Pixel.',
+  type: 'string',
+  default: { '@path': '$.messageId' }
 }
 
 export const eventSourceUrl: InputField = {
-    label: 'Event Source URL',
-    description: 'The URL of the page where the event occurred. Can be used to override the default URL taken from the current page.',
-    type: 'string',
-    default: { '@path': '$.context.page.url' }
+  label: 'Event Source URL',
+  description:
+    'The URL of the page where the event occurred. Can be used to override the default URL taken from the current page.',
+  type: 'string',
+  default: { '@path': '$.context.page.url' }
 }
 
 export const userData: InputField = {
-    label: 'User Data',
-    description: 'User data to be sent with the event. This can include hashed identifiers like email, phone number, etc.',
-    type: 'object',
-    additionalProperties: false,
-    defaultObjectUI: 'keyvalue',
-    properties: {
-        external_id: {
-            label: 'External ID',
-            description: 'A unique identifier for the user from your system',
-            type: 'string'
-        },
-        em: {
-            label: 'Email',
-            description: 'Email address of the user',
-            type: 'string',
-            format: 'email'
-        },
-        ph: {
-            label: 'Phone Number',
-            description: 'Phone number of the user. Make sure to include the country code. For example, "15551234567" for a US number.',
-            type: 'string'
-        },
-        fn: {
-            label: 'First Name',
-            description: 'First name of the user',
-            type: 'string'  
-        },
-        ln: {
-            label: 'Last Name',
-            description: 'Last name of the user',
-            type: 'string'
-        },
-        ge: {
-            label: 'Gender',
-            description: 'Gender of the user. If unknown leave blank.',
-            type: 'string',
-            choices: [
-                { label: 'Male', value: 'm' },
-                { label: 'Female', value: 'f' }
-            ]
-        },
-        db: {
-            label: 'Date of Birth',
-            description: 'Date of birth of the user',
-            type: 'string',
-            format: 'date'
-        },
-        ct: {
-            label: 'City',
-            description: 'City of the user',
-            type: 'string'
-        },
-        st: {
-            label: 'State',
-            description: 'State of the user. Facebook expects the 2-letter abbreviation for US states. For example, "CA" for California, or "NY" for New York.',
-            type: 'string'
-        },
-        zp: {
-            label: 'ZIP/Postal Code',
-            description: 'ZIP or postal code of the user. For example, U.S zip code: 94035, Australia zip code: 1987, France zip code: 75018, UK zip code: m11ae.',
-            type: 'string'
-        },
-        country: {
-            label: 'Country',
-            description: 'The country of the user. Facebook expects the 2-letter ISO 3166-1 alpha-2 country code. For example, "US" for the United States, or "GB" for the United Kingdom.',
-            type: 'string'
-        }
+  label: 'User Data',
+  description:
+    'User data to be sent with the event. This can include hashed identifiers like email, phone number, etc.',
+  type: 'object',
+  additionalProperties: false,
+  defaultObjectUI: 'keyvalue',
+  properties: {
+    external_id: {
+      label: 'External ID',
+      description: 'A unique identifier for the user from your system',
+      type: 'string'
     },
-    default: {
-        external_id: { '@path': '$.userId' },
-        em: { '@path': '$.context.traits.email' },
-        ph: { '@path': '$.context.traits.phone' },
-        fn: { '@path': '$.context.traits.first_name' },
-        ln: { '@path': '$.context.traits.last_name' },
-        ge: { '@path': '$.context.traits.gender' },
-        db: { '@path': '$.context.traits.birthday' },
-        ct: { '@path': '$.context.traits.address.city' },
-        st: { '@path': '$.context.traits.address.state' },
-        zp: { '@path': '$.context.traits.address.postal_code' },
-        country: { '@path': '$.context.traits.address.country' }
+    em: {
+      label: 'Email',
+      description: 'Email address of the user',
+      type: 'string',
+      format: 'email'
+    },
+    ph: {
+      label: 'Phone Number',
+      description:
+        'Phone number of the user. Make sure to include the country code. For example, "15551234567" for a US number.',
+      type: 'string'
+    },
+    fn: {
+      label: 'First Name',
+      description: 'First name of the user',
+      type: 'string'
+    },
+    ln: {
+      label: 'Last Name',
+      description: 'Last name of the user',
+      type: 'string'
+    },
+    ge: {
+      label: 'Gender',
+      description: 'Gender of the user. If unknown leave blank.',
+      type: 'string',
+      choices: [
+        { label: 'Male', value: 'm' },
+        { label: 'Female', value: 'f' }
+      ]
+    },
+    db: {
+      label: 'Date of Birth',
+      description: 'Date of birth of the user',
+      type: 'string',
+      format: 'date'
+    },
+    ct: {
+      label: 'City',
+      description: 'City of the user',
+      type: 'string'
+    },
+    st: {
+      label: 'State',
+      description:
+        'State of the user. Facebook expects the 2-letter abbreviation for US states. For example, "CA" for California, or "NY" for New York.',
+      type: 'string'
+    },
+    zp: {
+      label: 'ZIP/Postal Code',
+      description:
+        'ZIP or postal code of the user. For example, U.S zip code: 94035, Australia zip code: 1987, France zip code: 75018, UK zip code: m11ae.',
+      type: 'string'
+    },
+    country: {
+      label: 'Country',
+      description:
+        'The country of the user. Facebook expects the 2-letter ISO 3166-1 alpha-2 country code. For example, "US" for the United States, or "GB" for the United Kingdom.',
+      type: 'string'
+    },
+    fbp: {
+      label: 'FBP',
+      description:
+        'Use this field to pass the Facebook browser cookie value (_fbp) associated with the user. If the "Format User Data with Parameter Builder" setting is enabled, Segment will automatically capture this value from the _fbp cookie.',
+      type: 'string'
+    },
+    fbc: {
+      label: 'FBC',
+      description:
+        'Use this field to pass The Facebook browser cookie value (_fbc) associated with the user. If the "Format User Data with Parameter Builder" setting is enabled, Segment will automatically capture this value from the _fbc cookie.',
+      type: 'string'
     }
+  },
+  default: {
+    external_id: { '@path': '$.userId' },
+    em: { '@path': '$.context.traits.email' },
+    ph: { '@path': '$.context.traits.phone' },
+    fn: { '@path': '$.context.traits.first_name' },
+    ln: { '@path': '$.context.traits.last_name' },
+    ge: { '@path': '$.context.traits.gender' },
+    db: { '@path': '$.context.traits.birthday' },
+    ct: { '@path': '$.context.traits.address.city' },
+    st: { '@path': '$.context.traits.address.state' },
+    zp: { '@path': '$.context.traits.address.postal_code' },
+    country: { '@path': '$.context.traits.address.country' },
+    fbp: { '@path': '$.context.traits.fbp' },
+    fbc: { '@path': '$.context.traits.fbc' },
+    client_ip_address: { '@path': '$.context.traits.client_ip_address' }
+  }
 }
 
 export const AllFields = {
-    event_config, 
-    content_category,
-    content_ids, 
-    content_name,
-    content_type, 
-    contents,
-    currency,
-    delivery_category,
-    num_items, 
-    predicted_ltv,
-    net_revenue,
-    search_string,
-    status,
-    value,
-    custom_data,
-    eventID, 
-    eventSourceUrl, 
-    userData
+  event_config,
+  content_category,
+  content_ids,
+  content_name,
+  content_type,
+  contents,
+  currency,
+  delivery_category,
+  num_items,
+  predicted_ltv,
+  net_revenue,
+  search_string,
+  status,
+  value,
+  custom_data,
+  eventID,
+  eventSourceUrl,
+  userData
 }

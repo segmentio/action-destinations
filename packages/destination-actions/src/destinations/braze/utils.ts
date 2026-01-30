@@ -433,6 +433,11 @@ export function updateUserProfile(
           push_tokens: payload.push_tokens,
           time_zone: payload.time_zone,
           twitter: payload.twitter,
+          ...(typeof payload.subscription_groups === 'object' &&
+          Array.isArray(payload.subscription_groups) &&
+          payload.subscription_groups.length > 0
+            ? { subscription_groups: payload.subscription_groups }
+            : {}),
           _update_existing_only: updateExistingOnly
         }
       ]
@@ -513,6 +518,11 @@ export async function updateBatchedUserProfile(
       push_tokens: payload.push_tokens,
       time_zone: payload.time_zone,
       twitter: payload.twitter,
+      ...(typeof payload.subscription_groups === 'object' &&
+      Array.isArray(payload.subscription_groups) &&
+      payload.subscription_groups.length > 0
+        ? { subscription_groups: payload.subscription_groups }
+        : {}),
       _update_existing_only: updateExistingOnly
     }
 

@@ -1,0 +1,82 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for RoktCapi's send destination action: all fields 1`] = `
+Object {
+  "device_info": Object {
+    "android_advertising_id": "WKK6WO",
+    "android_uuid": "WKK6WO",
+    "http_header_user_agent": "WKK6WO",
+    "ios_advertising_id": "WKK6WO",
+    "ios_idfv": "WKK6WO",
+  },
+  "environment": "production",
+  "events": Array [
+    Object {
+      "data": Object {
+        "custom_attributes": Object {
+          "audience_name": "WKK6WO",
+          "status": "drop",
+        },
+        "custom_event_type": "other",
+        "event_name": "audiencemembershipupdate",
+        "source_message_id": "WKK6WO",
+        "timestamp_unixtime_ms": null,
+      },
+      "event_type": "custom_event",
+    },
+    Object {
+      "data": Object {
+        "custom_attributes": Object {
+          "amount": -77631899282964.48,
+          "confirmationref": "WKK6WO",
+          "conversiontype": "WKK6WO",
+          "currency": "MOP",
+          "testType": "WKK6WO",
+        },
+        "custom_event_type": "transaction",
+        "event_name": "conversion",
+        "source_message_id": "WKK6WO",
+        "timestamp_unixtime_ms": null,
+      },
+      "event_type": "custom_event",
+    },
+  ],
+  "integration_attributes": Object {
+    "1277": Object {
+      "passbackconversiontrackingid": "WKK6WO",
+    },
+  },
+  "ip": "WKK6WO",
+  "user_attributes": Object {
+    "billingzipsha256": "48a5148278bf4f3c462889d35a6a0754f9dd7caf00a3c62f5eeac31fe6f7e654",
+    "dob": "20920116",
+    "firstnamesha256": "48a5148278bf4f3c462889d35a6a0754f9dd7caf00a3c62f5eeac31fe6f7e654",
+    "gender": "m",
+    "lastnamesha256": "48a5148278bf4f3c462889d35a6a0754f9dd7caf00a3c62f5eeac31fe6f7e654",
+    "mobilesha256": "48a5148278bf4f3c462889d35a6a0754f9dd7caf00a3c62f5eeac31fe6f7e654",
+    "segment_WKK6WO": false,
+  },
+  "user_identities": Object {
+    "customerid": "test-user-id-456",
+    "other": "973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b",
+    "other2": "WKK6WO",
+  },
+}
+`;
+
+exports[`Testing snapshot for RoktCapi's send destination action: required fields 1`] = `
+Object {
+  "device_info": Object {},
+  "environment": "production",
+  "integration_attributes": Object {
+    "1277": Object {
+      "passbackconversiontrackingid": "WKK6WO",
+    },
+  },
+  "user_attributes": Object {},
+  "user_identities": Object {
+    "customerid": "test-user-id-123",
+    "other2": "WKK6WO",
+  },
+}
+`;
