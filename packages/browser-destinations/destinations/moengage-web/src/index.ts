@@ -2,10 +2,12 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import trackEvent from './trackEvent'
+import identifyUser from './identifyUser'
 import { initializeSDK } from './functions'
+import { MoengageSDK } from './types'
 
 // Switch from unknown to the partner SDK client types
-export const destination: BrowserDestinationDefinition<Settings, unknown> = {
+export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = {
   name: 'Moengage Web',
   slug: 'actions-moengage-web',
   mode: 'device',
@@ -81,7 +83,8 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
       label: 'Bots List',
       type: 'string',
       description: 'A comma delimited list of bot user agents to ignore when tracking events.',
-      required: false
+      required: false, 
+      multiple: true
     },
     disableCookies: {
       label: 'Disable Cookies',
@@ -151,11 +154,25 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
     }
   },
   initialize: async ({ settings, analytics }, deps) => {
-    return await initializeSDK(settings)
-  },
+    await initializeSDK(settings)
+    await deps.resolveWhen(() => typeof window.Moengage.onsite === 'function', 100)
 
+    const client = window.Moengage
+
+    const originalReset = analytics.reset
+    analytics.reset = (...args) => {
+      if (typeof originalReset === 'function') {
+        originalReset(...args)
+      }
+      if (client && typeof client.destroy_session === 'function') {
+        client.destroy_session()
+      }
+    }
+    return client
+  },
   actions: {
-    trackEvent
+    trackEvent,
+    identifyUser
   }
 }
 

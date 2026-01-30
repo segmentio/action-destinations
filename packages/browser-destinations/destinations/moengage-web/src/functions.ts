@@ -1,22 +1,23 @@
 import { Settings } from './generated-types'
+import { MoengageSDK, InitConfig } from './types'
 
-export async function initializeSDK(settings: Settings): MoengageSDK {
+export async function initializeSDK(settings: Settings) {
     const { 
-    app_id,
-    env,
-    moeDataCenter,
-    project_id,
-    swPath,
-    enableSPA,
-    disable_onsite,
-    customProxyDomain,
-    bots_list,
-    disableCookies,
-    disableSdk,
-    cards_enabled,
-    css_selector_inbox_icon,
-    floating_bell_icon_desktop,
-    floating_bell_icon_mobile
+        app_id,
+        env,
+        moeDataCenter,
+        project_id,
+        swPath,
+        enableSPA,
+        disable_onsite,
+        customProxyDomain,
+        bots_list,
+        disableCookies,
+        disableSdk,
+        cards_enabled,
+        css_selector_inbox_icon,
+        floating_bell_icon_desktop,
+        floating_bell_icon_mobile
     } = settings
     
     !(function (e, n, i, t, a, r, o, d) {
@@ -98,30 +99,26 @@ export async function initializeSDK(settings: Settings): MoengageSDK {
     "Moengage"
     );
 
-    Moengage = moe({
+    const initConfig: InitConfig = {
         app_id, 
         env,
         ...(project_id ? { project_id } : {}),
         ...(typeof enableSPA === 'boolean' ? { enableSPA } : {}),
         ...(typeof disable_onsite === 'boolean' ? { disable_onsite } : {}),
         ...(typeof customProxyDomain === 'string' && customProxyDomain.length>0 ? { customProxyDomain } : {}),
-        ...(typeof bots_list === 'string' && bots_list.length>0 ? { bots_list: bots_list.split(',').map(bot => bot.trim()) } : {}),
+        ...(Array.isArray(bots_list) && bots_list.length>0 ? { bots_list: bots_list} : {}),
         ...(typeof disableCookies === 'boolean' ? { disableCookies } : {}),
         ...(typeof disableSdk === 'boolean' ? { disableSdk } : {}),
         ...(swPath ? { swPath } : {}),
         ...(cards_enabled ? {
             cards: {
                 enable: cards_enabled,
-                placeholder: css_selector_inbox_icon,
-                webFloating: {
-                    enable: floating_bell_icon_desktop
-                },
-                mWebFloating: {
-                    enable: floating_bell_icon_mobile
-                }
+                ...(typeof css_selector_inbox_icon === 'string' && css_selector_inbox_icon.length > 0 ? { placeholder: css_selector_inbox_icon } : {}),
+                ...(typeof floating_bell_icon_desktop === 'boolean' ? { webFloating: { enable: floating_bell_icon_desktop } } : {}),
+                ...(typeof floating_bell_icon_mobile === 'boolean' ? { mWebFloating: { enable: floating_bell_icon_mobile } } : {})
             }
         } : {})
-    });
+    }
 
-    return Moengage as MoengageSDK
+    window.Moengage = moe(initConfig) as MoengageSDK
 }

@@ -36,7 +36,7 @@ export interface Settings {
   /**
    * A comma delimited list of bot user agents to ignore when tracking events.
    */
-  bots_list?: string
+  bots_list?: string[]
   /**
    * Disable Moengage from setting cookies on your website when the page loads.
    */
@@ -45,8 +45,10 @@ export interface Settings {
    * Disable the Moengage SDK from initializing on your website when the page loads. You can use this to conditionally load the SDK based on user consent.
    */
   disableSdk?: boolean
-
-  cards_enabled: boolean
+  /**
+   * Enable MoEngage Cards on your website to engage users with personalized content.
+   */
+  cards_enabled?: boolean
   /**
    * The CSS selector for the MoEngage Inbox icon on your website. The user will click this icon to open the inbox.
    */
