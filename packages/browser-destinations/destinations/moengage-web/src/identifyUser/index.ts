@@ -1,7 +1,7 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { MoengageSDK } from '../types'
+import { MoengageSDK, Identifiers } from '../types'
 
 const action: BrowserActionDefinition<Settings, MoengageSDK, Payload> = {
   title: 'Identify User',
@@ -114,8 +114,8 @@ const action: BrowserActionDefinition<Settings, MoengageSDK, Payload> = {
     if(numIds === 1 && userId) {
       return client.identifyUser(userId)
     }
-    else if (numIds > 0) {
-      return client.identifyUser(identifiers)
+    else if (numIds > 0 && identifiers) {
+      return client.identifyUser(identifiers as Identifiers)
     }
     if(first_name) {
       client.add_first_name(first_name)

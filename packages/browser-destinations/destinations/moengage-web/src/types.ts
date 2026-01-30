@@ -12,6 +12,7 @@ export interface MoengageSDK {
     call_web_push(config: unknown) : void
     identifyUser(identifiers: string | Identifiers) : void
     getUserIdentities() : Record<string, unknown>
+    onsite(): void
 }
 
 export interface Attributes {
@@ -19,7 +20,7 @@ export interface Attributes {
 }
 
 export interface Identifiers {
-    [k : string]: string
+    [k : string]: string 
 }
 
 export interface InitConfig {

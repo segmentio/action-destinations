@@ -5,8 +5,12 @@ import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
 import { initializeSDK } from './functions'
 import { MoengageSDK } from './types'
+declare global {
+  interface Window {
+    Moengage: MoengageSDK
+  }
+}
 
-// Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = {
   name: 'Moengage Web',
   slug: 'actions-moengage-web',
@@ -155,11 +159,13 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
   },
   initialize: async ({ settings, analytics }, deps) => {
     await initializeSDK(settings)
+    
     await deps.resolveWhen(() => typeof window.Moengage.onsite === 'function', 100)
-
+    
     const client = window.Moengage
-
+    
     const originalReset = analytics.reset
+    
     analytics.reset = (...args) => {
       if (typeof originalReset === 'function') {
         originalReset(...args)
@@ -168,6 +174,7 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
         client.destroy_session()
       }
     }
+
     return client
   },
   actions: {
