@@ -69,13 +69,19 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
     }, 
     host: {
       label: 'Host',
-      description: 'The recording server host domain. Can be set to direct recorded events to a proxy that you host. Defaults to `fullstory.com`.',
+      description: "The recording server host domain. Can be set to direct recorded events to a proxy that you host. Defaults to 'fullstory.com'.",
       type: 'string',
       required: false
     }, 
     appHost: {
       label: 'App Host',
-      description: 'Use this to set the app host for displaying session urls. If using a version of [Fullstory Relay](https://help.fullstory.com/hc/en-us/articles/360046112593-How-to-send-captured-traffic-to-your-First-Party-Domain-using-Fullstory-Relay), you may need to set appHost "app.fullstory.com" or "app.eu1.fullstory.com" depending on your region.',
+      description: 'The App Host is used to define the specific base URL for the Fullstory application where session URLs are generated and displayed.',
+      type: 'string',
+      required: false
+    }, 
+    script: {
+      label: 'Custom Script URL',
+      description: "Optionally specify a custom FullStory script URL. Useful if you are self-hosting the FullStory script or using a proxy. The detault is 'edge.fullstory.com/s/fs.js'.",
       type: 'string',
       required: false
     }
@@ -90,12 +96,17 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
   },
   initialize: async ({ settings }, dependencies) => {
 
-    const { host, appHost } = settings
+    const { 
+      host, 
+      appHost,
+      script
+    } = settings
 
     const inputOptions = {
       ...settings, 
-      ...(host ? { host: settings.host } : {}),
-      ...(appHost ? { appHost: settings.appHost } : {})
+      ...(host ? { host } : {}),
+      ...(appHost ? { appHost } : {}),
+      ...(script ? { script } : {})
     } 
 
     initFullStory(inputOptions)
