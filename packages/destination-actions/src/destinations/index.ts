@@ -227,6 +227,7 @@ register('695d30cdac2addbdcc3baf7f', './memora')
 register('697088b36245ed59c958d615', './rokt-capi')
 register('69708853c934696ffa66b6ef', './qualified')
 register('69708875e5073cee011f9be2', './jimo-cloud')
+register('698085f267252abcf3254a52', './dotdigital-audiences')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
