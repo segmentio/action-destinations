@@ -2,8 +2,18 @@ import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { processHashing } from '../../../lib/hashing-utils'
 
 import { extractSchemaFromEvent, fetchEventSpec, EventSpecResponse } from './avo'
+
+/**
+ * Hashes an ID using SHA-256 to ensure non-PII compliance.
+ * @param id - The ID to hash
+ * @returns The hex-encoded SHA-256 hash of the ID
+ */
+function hashId(id: string): string {
+  return processHashing(id, 'sha256', 'hex')
+}
 
 /**
  * Fetches event specs for all unique event names in the batch.
@@ -66,9 +76,18 @@ const processEvents = async (request: RequestClient, settings: Settings, payload
     throw new PayloadValidationError('No events to process')
   }
 
-  // Events are batched by anonymousId, so all events in a batch have the same anonymousId
-  // anonymousId is a required field, so it will always be present
-  const streamId = payload[0].anonymousId as string
+  // Resolve streamId: prefer anonymousId, fallback to hashed userId, or 'unknown' if both are missing
+  // Events are batched by anonymousId/userId, so all events in a batch share the same identity
+  const firstPayload = payload[0]
+  let streamId: string
+  if (firstPayload.anonymousId) {
+    streamId = firstPayload.anonymousId
+  } else if (firstPayload.userId) {
+    // Hash userId to ensure non-PII compliance
+    streamId = hashId(firstPayload.userId)
+  } else {
+    streamId = 'unknown'
+  }
 
   // Fetch event specs once per unique event name in the batch (no caching, rely on batching)
   const eventSpecMap = await fetchEventSpecsForBatch(request, settings, payload, streamId)
@@ -177,9 +196,19 @@ const sendSchemaAction: ActionDefinition<Settings, Payload> = {
       label: 'Anonymous ID',
       type: 'string',
       description: 'Anonymous ID of the user. Used as stream identifier for batching and event spec fetching.',
-      required: true,
+      required: false,
       default: {
         '@path': '$.anonymousId'
+      }
+    },
+    userId: {
+      label: 'User ID',
+      type: 'string',
+      description:
+        'User ID of the user. Used as fallback stream identifier (hashed) when anonymousId is not available.',
+      required: false,
+      default: {
+        '@path': '$.userId'
       }
     },
     batch_size: {
@@ -198,7 +227,7 @@ const sendSchemaAction: ActionDefinition<Settings, Payload> = {
       required: false,
       multiple: true,
       unsafe_hidden: true,
-      default: ['anonymousId']
+      default: ['anonymousId', 'userId']
     }
   },
   perform: async (request, { payload, settings }) => {
