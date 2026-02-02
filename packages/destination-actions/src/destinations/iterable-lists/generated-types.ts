@@ -5,6 +5,10 @@ export interface Settings {
    * To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.
    */
   apiKey: string
+  /**
+   * Select the type of your Iterable project. Hybrid projects support both email and user ID based identification, while User ID-Based projects only support user ID based identification.
+   */
+  iterableProjectType?: string
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
@@ -14,11 +18,11 @@ export interface AudienceSettings {
    */
   updateExistingUsersOnly?: boolean
   /**
-   * Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid for unsubscribe action.
+   * Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid when unsubscribing a user from a List.
    */
   globalUnsubscribe?: boolean
   /**
-   * The numeric Campaign ID to associate with the unsubscribe. Only valid for unsubscribe action.
+   * The numeric Campaign ID to associate with the unsubscribe. Only valid when unsubscribing a user from a List.
    */
   campaignId?: number
 }
