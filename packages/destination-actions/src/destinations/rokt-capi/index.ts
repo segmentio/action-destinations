@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import send from './send'
 
@@ -36,6 +36,22 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
+  presets: [
+    {
+        name: 'Send',
+        subscribe: 'event = "Order Completed"',
+        partnerAction: 'send',
+        mapping: defaultValues(send.fields),
+        type: 'automatic'
+    },
+    {
+        name: 'Rokt Browser Plugin',
+        subscribe: 'type = "track" or type = "identify" or type = "page" or type = "group" or type = "alias"',
+        partnerAction: 'roktPlugin',
+        mapping: {},
+        type: 'automatic'
+    }
+  ],
   actions: {
     send
   }

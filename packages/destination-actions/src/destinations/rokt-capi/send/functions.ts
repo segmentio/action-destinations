@@ -50,7 +50,7 @@ export async function send(request: RequestClient, payload: Payload[], isBatch =
                 throw error
             }
             payload.forEach((p, index) => {
-                if(msResponse.isErrorResponseAtIndex(index)) {
+                if(!msResponse.isErrorResponseAtIndex(index)) {
                     msResponse.setErrorResponseAtIndex(index, {
                         status: error.response.status,
                         errormessage: error.message,
@@ -178,17 +178,29 @@ function getAudienceJSON(payload: Payload): AudienceJSON | undefined {
             customAudienceName,
             customAudienceMembership
         } = {},
-        engageFields: {
-            engageAudienceName,
-            traitsOrProps,
-            computationAction
-        } = {}
+        engageAudienceName,
+        traitsOrProps,
+        computationAction
     } = payload
 
-    const isEngageAudience = Boolean(engageAudienceName && traitsOrProps && computationAction)
+    const isEngageAudience = engageAudienceName && traitsOrProps && computationAction && typeof traitsOrProps[engageAudienceName] === 'boolean'
     const audienceName: string | undefined = isEngageAudience ? engageAudienceName : customAudienceName
-    const membership: boolean | undefined = isEngageAudience && engageAudienceName ? Boolean((traitsOrProps as unknown as Record<string, unknown>)[engageAudienceName]) : customAudienceMembership
-    if(typeof membership !== 'boolean' || !audienceName) {
+
+    if(!audienceName) {
+        return undefined
+    }
+
+    const membership: boolean | undefined = (() => {
+        if(isEngageAudience) {
+            const engageMembership = traitsOrProps[engageAudienceName]
+            return typeof engageMembership === 'boolean' ? engageMembership : undefined
+        } 
+        else {
+            return typeof customAudienceMembership === 'boolean' ? customAudienceMembership : undefined
+        }
+    })() 
+
+    if(typeof membership !== 'boolean') {
         return undefined
     }
 
