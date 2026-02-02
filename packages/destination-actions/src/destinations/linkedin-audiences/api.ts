@@ -2,7 +2,7 @@ import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
 
 import type { Settings } from './generated-types'
 import type { Payload } from './updateAudience/generated-types'
-import { BASE_URL, LINKEDIN_API_VERSION, LINKEDIN_SOURCE_PLATFORM } from './constants'
+import { BASE_URL, LINKEDIN_SOURCE_PLATFORM } from './constants'
 import type { ProfileAPIResponse, AdAccountUserResponse, LinkedInAudiencePayload } from './types'
 
 export class LinkedInAudiences {
@@ -61,8 +61,7 @@ export class LinkedInAudiences {
     return this.request(`${BASE_URL}/dmpSegments/${dmpSegmentId}/users`, {
       method: 'POST',
       headers: {
-        'X-RestLi-Method': 'BATCH_CREATE',
-        'Linkedin-Version': LINKEDIN_API_VERSION // https://learn.microsoft.com/en-us/linkedin/marketing/matched-audiences/create-and-manage-segment-users?view=li-lms-2025-11&tabs=curl
+        'X-RestLi-Method': 'BATCH_CREATE'
       },
       json: {
         elements

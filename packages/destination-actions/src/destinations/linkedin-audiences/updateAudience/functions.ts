@@ -1,5 +1,5 @@
 import type { StatsContext } from '@segment/actions-core'
-import { RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
+import { RequestClient, RetryableError, IntegrationError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { LinkedInAudiences } from '../api'
@@ -38,11 +38,28 @@ export async function processPayload(
 
   const res = await linkedinApiClient.batchUpdate(dmpSegmentId, elements)
 
+  // Handle 401 explicitly so the framework can trigger token refresh.
+  // Without this, 401s are swallowed by throwHttpErrors: false and converted
+  // to RetryableError, preventing the OAuth refresh flow from executing.
+  if (res.status === 401) {
+    statsContext?.statsClient?.incr('linkedin_dmp_segment_update_error', 1, [
+      ...statsContext?.tags,
+      `status_code:${res.status}`
+    ])
+    throw new InvalidAuthenticationError(
+      'Invalid LinkedIn OAuth access token. Please reauthenticate to retrieve a valid access token.'
+    )
+  }
+
   // At this point, if LinkedIn's API returns a 404 error, it's because the audience
   // Segment just created isn't available yet for updates via this endpoint.
   // Audiences are usually available to accept batches of data 1 - 2 minutes after
   // they're created. Here, we'll throw an error and let Centrifuge handle the retry.
   if (res.status !== 200) {
+    statsContext?.statsClient?.incr('linkedin_dmp_segment_update_error', 1, [
+      ...statsContext?.tags,
+      `status_code:${res.status}`
+    ])
     throw new RetryableError('Error while attempting to update LinkedIn DMP Segment. This batch will be retried.')
   }
 
