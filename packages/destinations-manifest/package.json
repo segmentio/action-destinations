@@ -57,6 +57,7 @@
     "@segment/analytics-browser-actions-wiseops": "^1.95.0",
     "@segment/analytics-browser-hubble-web": "^1.80.0",
     "@segment/analytics-browser-mixpanel-web-actions": "^1.6.0",
+    "@segment/analytics-browser-actions-moengage-web": "^1.0.0",
     "@segment/browser-destination-runtime": "^1.93.0"
   }
 }
