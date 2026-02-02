@@ -140,8 +140,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'sdk.fra-01.braze.eu' },
         { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'sdk.fra-02.braze.eu' },
         { label: 'AU-01 (https://dashboard.au-01.braze.com)', value: 'sdk.au-01.braze.com' },
-        { label: 'ID-01 (https://dashboard.id-01.braze.com)', value: 'sdk.id-01.braze.com' },
-        { label: 'JP-01 (https://dashboard.jp-01.braze.com)', value: 'sdk.jp-01.braze.com' }
+        { label: 'ID-01 (https://dashboard.id-01.braze.com)', value: 'sdk.id-01.braze.com' }
       ],
       default: 'sdk.iad-01.braze.com',
       required: true
