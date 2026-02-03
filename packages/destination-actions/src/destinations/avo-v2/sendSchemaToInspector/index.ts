@@ -1,25 +1,8 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { extractSchemaFromEvent } from './avo'
-
-const processEvents = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
-  const events = payload.map((value) => extractSchemaFromEvent(value, settings.appVersionPropertyName))
-
-  const endpoint = 'https://api.avo.app/inspector/segment/v1/track'
-
-  return request(endpoint, {
-    method: 'post',
-    headers: {
-      accept: 'application/json',
-      'content-type': 'application/json',
-      'api-key': settings.apiKey,
-      env: settings.env
-    },
-    body: JSON.stringify(events)
-  })
-}
+import { processEvents } from './avo'
 
 const sendSchemaAction: ActionDefinition<Settings, Payload> = {
   title: 'Track Schema From Event',
@@ -89,6 +72,43 @@ const sendSchemaAction: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.page.url'
       }
+    },
+    anonymousId: {
+      label: 'Anonymous ID',
+      type: 'string',
+      description: 'Anonymous ID of the user. Used as stream identifier for batching and event spec fetching.',
+      required: false,
+      default: {
+        '@path': '$.anonymousId'
+      }
+    },
+    userId: {
+      label: 'User ID',
+      type: 'string',
+      description:
+        'User ID of the user. Used as fallback stream identifier (hashed) when anonymousId is not available.',
+      required: false,
+      default: {
+        '@path': '$.userId'
+      }
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      required: false,
+      default: 10,
+      readOnly: false,
+      unsafe_hidden: false
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching events together.',
+      type: 'string',
+      required: false,
+      multiple: true,
+      unsafe_hidden: false,
+      default: ['anonymousId', 'userId']
     }
   },
   perform: async (request, { payload, settings }) => {

@@ -6,8 +6,8 @@ import sendSchemaAction from './sendSchemaToInspector'
 import { Environment } from './sendSchemaToInspector/avo-types'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Avo',
-  slug: 'actions-avo',
+  name: 'Avo Inspector v2',
+  slug: 'actions-avo-v2',
   mode: 'cloud',
 
   authentication: {
@@ -18,6 +18,13 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Avo Inspector API Key can be found in the Inspector setup page on your source in Avo.',
         type: 'string',
         required: true
+      },
+      inspectorEncryptionKey: {
+        label: 'Avo Inspector Public Key',
+        description:
+          'Optional. Enables verification of the property values against your Tracking Plan (e.g. allowed values, regex patterns, min/max constraints). Values are end-to-end encrypted and Avo can not decrypt them. Read more: https://www.avo.app/docs/inspector/connect-inspector-to-segment#property-value-validation-optional',
+        type: 'string',
+        required: false
       },
       env: {
         label: 'Environment',

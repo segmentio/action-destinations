@@ -31,4 +31,20 @@ export interface Payload {
    * URL of the page that sent the event
    */
   pageUrl?: string
+  /**
+   * Anonymous ID of the user. Used as stream identifier for batching and event spec fetching.
+   */
+  anonymousId?: string
+  /**
+   * User ID of the user. Used as fallback stream identifier (hashed) when anonymousId is not available.
+   */
+  userId?: string
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
+  /**
+   * The keys to use for batching events together.
+   */
+  batch_keys?: string[]
 }

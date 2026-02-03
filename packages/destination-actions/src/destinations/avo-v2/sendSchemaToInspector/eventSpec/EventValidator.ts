@@ -584,7 +584,6 @@ function convertValueToString(value: RuntimePropertyValue): string {
       return JSON.stringify(value)
     } catch (e) {
       // Circular reference or other serialization error
-      console.warn(`[Avo Inspector] Failed to stringify value: ${e}`)
       return String(value)
     }
   }
@@ -631,7 +630,6 @@ function checkAllowedValues(
         allowedValuesCache.set(allowedArrayJson, allowedSet)
       } catch (e) {
         // Invalid JSON - skip this constraint
-        console.warn(`[Avo Inspector] Invalid allowed values JSON: ${allowedArrayJson}`)
         continue
       }
     }
@@ -670,7 +668,6 @@ function checkRegexPatterns(
       }
     } catch (e) {
       // Invalid regex - skip this constraint
-      console.warn(`[Avo Inspector] Invalid regex pattern: ${pattern}`)
     }
   }
 }
@@ -695,7 +692,6 @@ function checkMinMaxRanges(
 
   // NaN values fail all min/max constraints (comparisons with NaN are always false)
   if (Number.isNaN(value)) {
-    console.warn(`[Avo Inspector] NaN value fails min/max constraint`)
     for (const eventIds of Object.values(minMaxRanges)) {
       addIdsToSet(eventIds, failedIds)
     }
@@ -710,7 +706,6 @@ function checkMinMaxRanges(
 
     if (isNaN(min) || isNaN(max)) {
       // Invalid range format - skip this constraint
-      console.warn(`[Avo Inspector] Invalid min/max range: ${rangeStr}`)
       continue
     }
 
