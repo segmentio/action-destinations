@@ -75,7 +75,7 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
     }, 
     appHost: {
       label: 'App Host',
-      description: 'The App Host is used to define the specific base URL for the Fullstory application where session URLs are generated and displayed.',
+      description: "The App Host is used to define the specific base URL for the Fullstory application where session URLs are generated and displayed. Leave blank if using the default value for \"Host\"",
       type: 'string',
       required: false
     }, 
