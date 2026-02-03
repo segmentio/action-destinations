@@ -1,7 +1,7 @@
 import { IntegrationError, AudienceDestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 import syncAudience from './syncAudience'
-import { getAudience, createAudience } from './functions'
+import { getAudienceByName, getAudienceByID, createAudience } from './functions'
 import { CONSTANTS } from './constants'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
@@ -78,15 +78,19 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing computation parameters: Key', 'MISSING_REQUIRED_FIELD', 422)
       }
       const audienceKey = personas.computation_key
-      let externalId = await getAudience(request, settings, audienceKey)
+      let externalId = await getAudienceByName(request, settings, audienceKey)
       if (externalId) {
         return { externalId }
       }
       externalId = await createAudience(request, settings, audienceKey)
       return { externalId }
     },
-    async getAudience(_, getAudienceInput) {
-      return { externalId: getAudienceInput.externalId }
+    async getAudience(request, { settings, externalId}) {
+      const id = await getAudienceByID(request, settings, externalId)
+      if(!id){
+        throw new IntegrationError(`Audience with ID ${externalId} not found in Iterable`, 'AUDIENCE_NOT_FOUND', 404)
+      }
+      return { externalId: id }
     }
   },
   extendRequest({ settings }) {
