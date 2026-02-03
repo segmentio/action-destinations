@@ -81,7 +81,7 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
     }, 
     script: {
       label: 'Custom Script URL',
-      description: "Optionally specify a custom FullStory script URL. Useful if you are self-hosting the FullStory script or using a proxy. The detault is 'edge.fullstory.com/s/fs.js'.",
+      description: "Optionally specify a custom FullStory script URL. Useful if you are using a proxy. The default is 'edge.fullstory.com/s/fs.js'.",
       type: 'string',
       required: false
     }
