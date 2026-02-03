@@ -352,6 +352,7 @@ export const append_event_details: InputField = {
   label: 'Append Event Details',
   description: 'Details to append to the original event. Order Id, Event Id and Original Timestamp are used to match the original event. Net Revenue and Predicted Lifetime Value are the late-calculated values to append to the original event.',
   type: 'object',
+  defaultObjectUI: 'keyvalue',
   properties: {
     original_event_time: {
       label: 'Original Event Time',
