@@ -89,7 +89,7 @@ export interface Payload {
   /**
    * A list of flags for signaling how an event shall be processed. Events marked for limited data use will not be processed.
    */
-  dataProcessingOptions?: string
+  dataProcessingOptions?: string[]
   /**
    * Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.
    */

@@ -308,7 +308,9 @@ export const fields: Record<string, InputField> = {
     description:
       'A list of flags for signaling how an event shall be processed. Events marked for limited data use will not be processed.',
     type: 'string',
+    multiple: true,
     required: false,
+    additionalProperties: false,
     choices: [{ label: 'Limited Data Use', value: 'LIMITED_DATA_USE' }],
     default: {
       '@path': '$.properties.dataProcessingOptions'

@@ -639,7 +639,7 @@ describe('trackConversion utils', () => {
         currencyCode: 'USD',
         unitsSold: 2,
         clientDedupeId: 'dedup-123',
-        dataProcessingOptions: "LIMITED_DATA_USE",
+        dataProcessingOptions: ["LIMITED_DATA_USE"],
         matchKeys: {
           email: 'test@example.com'
         },

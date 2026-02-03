@@ -404,11 +404,13 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
       unitsSold: payload.unitsSold
     }),
     ...(payload.clientDedupeId && { eventId: payload.clientDedupeId }),
-    ...(payload.dataProcessingOptions && {
+    ...(payload.dataProcessingOptions?.[0] && {
       dataProcessingOptions: {
-        options: payload.dataProcessingOptions
+        options: payload.dataProcessingOptions[0]
       } as DataProcessingOptions
     }),
+
+
     ...(consent && { consent }),
     ...(payload.customAttributes && {
       customData: customAttributeArray.length > 0 ? customAttributeArray : undefined
