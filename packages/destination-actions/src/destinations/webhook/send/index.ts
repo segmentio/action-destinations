@@ -57,6 +57,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
+    const isProd = process?.env?.NODE_ENV === 'production'
+    if (!isProd && payload.url && payload.url == 'https://blackhole-webhook.segment.build/') {
+      console.log('Skipping webhook call to blackhole URL in non-production environment.')
+      return Promise.resolve({ success: true })
+    }
+
     try {
       return request(payload.url, {
         method: payload.method as RequestMethod,
@@ -71,6 +77,11 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: (request, { payload, statsContext }) => {
     // Expect these to be the same across the payloads
     const { url, method, headers } = payload[0]
+
+    const isProd = process?.env?.NODE_ENV === 'production'
+    if (!isProd && url == 'https://blackhole-webhook.segment.build/') {
+      return Promise.resolve({ success: true })
+    }
 
     if (statsContext) {
       const { statsClient, tags } = statsContext
