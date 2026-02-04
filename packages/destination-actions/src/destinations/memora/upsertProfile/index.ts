@@ -2,8 +2,8 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, createRequestClient } from '@segment/actions-core'
-import { API_VERSION, BASE_URL } from '../index'
 import type { Logger } from '@segment/actions-core/destination-kit'
+import { API_VERSION, BASE_URL } from '../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
