@@ -218,16 +218,16 @@ export const fields: Record<string, InputField> = {
         default: {
             firstname: {
             '@if': {
-                exists: { '@path': '$.traits.firstName' },
-                then: { '@path': '$.traits.firstName' },
-                else: { '@path': '$.properties.firstName' }
+                exists: { '@path': '$.traits.first_name' },
+                then: { '@path': '$.traits.first_name' },
+                else: { '@path': '$.properties.first_name' }
             }
             },
             lastname: {
             '@if': {
-                exists: { '@path': '$.traits.lastName' },
-                then: { '@path': '$.traits.lastName' },
-                else: { '@path': '$.properties.lastName' }
+                exists: { '@path': '$.traits.last_name' },
+                then: { '@path': '$.traits.last_name' },
+                else: { '@path': '$.properties.last_name' }
             }
             },
             mobile: {
