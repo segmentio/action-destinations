@@ -164,8 +164,8 @@ export const fields: Record<string, InputField> = {
         default: {
             email: {
                 '@if': {
-                    exists: { '@path': '$.context.traits.email' },
-                    then: { '@path': '$.context.traits.email' },
+                    exists: { '@path': '$.traits.email' },
+                    then: { '@path': '$.traits.email' },
                     else: { '@path': '$.properties.email' }
                 }
             },
@@ -218,43 +218,43 @@ export const fields: Record<string, InputField> = {
         default: {
             firstname: {
             '@if': {
-                exists: { '@path': '$.context.traits.firstName' },
-                then: { '@path': '$.context.traits.firstName' },
+                exists: { '@path': '$.traits.firstName' },
+                then: { '@path': '$.traits.firstName' },
                 else: { '@path': '$.properties.firstName' }
             }
             },
             lastname: {
             '@if': {
-                exists: { '@path': '$.context.traits.lastName' },
-                then: { '@path': '$.context.traits.lastName' },
+                exists: { '@path': '$.traits.lastName' },
+                then: { '@path': '$.traits.lastName' },
                 else: { '@path': '$.properties.lastName' }
             }
             },
             mobile: {
             '@if': {
-                exists: { '@path': '$.context.traits.phone' },
-                then: { '@path': '$.context.traits.phone' },
+                exists: { '@path': '$.traits.phone' },
+                then: { '@path': '$.traits.phone' },
                 else: { '@path': '$.properties.phone' }
             }
             },
             billingzipcode: {
             '@if': {
-                exists: { '@path': '$.context.traits.address.postal_code' },
-                then: { '@path': '$.context.traits.address.postal_code' },
+                exists: { '@path': '$.traits.address.postal_code' },
+                then: { '@path': '$.traits.address.postal_code' },
                 else: { '@path': '$.properties.address.postal_code' }
             }
             },
             dob: {
             '@if': {
-                exists: { '@path': '$.context.traits.birthday' },
-                then: { '@path': '$.context.traits.birthday' },
+                exists: { '@path': '$.traits.birthday' },
+                then: { '@path': '$.traits.birthday' },
                 else: { '@path': '$.properties.birthday' }
             }
             },
             gender: {
             '@if': {
-                exists: { '@path': '$.context.traits.gender' },
-                then: { '@path': '$.context.traits.gender' },
+                exists: { '@path': '$.traits.gender' },
+                then: { '@path': '$.traits.gender' },
                 else: { '@path': '$.properties.gender' }
             }
             }
