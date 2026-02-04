@@ -1,0 +1,1 @@
+export type Region = 'north_america' | 'europe'
