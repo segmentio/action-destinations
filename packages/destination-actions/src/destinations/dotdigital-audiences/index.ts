@@ -1,7 +1,8 @@
-import { defaultValues, AudienceDestinationDefinition } from '@segment/actions-core'
+import { defaultValues, AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
-import { CreateListJSON , CreateListResp, GetListResp} from './types'
+import { VisibilityOption, CreateListJSON , CreateListResp} from './types'
+import { DDListsApi } from '@segment/actions-shared'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Dotdigital Audiences',
@@ -51,6 +52,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       description: 'A Dotdigital list name',
       type: 'string',
       required: true
+    }, 
+    visibility: {
+      label: 'Visibility',
+      description: 'The visibility of the Dotdigital list',
+      type: 'string',
+      required: true,
+      choices: [
+        { label: 'Public', value: 'Public' },
+        { label: 'Private', value: 'Private' }
+      ],
+      default: 'Private'
     }
   },
   audienceConfig: {
@@ -60,13 +72,27 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const { 
-        settings, 
-        audienceName 
+        settings: {
+          api_host 
+        }, 
+        audienceName, 
+        audienceSettings: { 
+          visibility 
+        } = {} 
       } = createAudienceInput
-      const url = `${settings.api_host}/v2/address-books`
+
+      const lists = await new DDListsApi(api_host, request).getLists()
+
+      const exists = lists.choices.find((list) => list.label === audienceName)
+
+      if(exists) {
+        return { externalId: exists.value }
+      }
+
+      const url = `${api_host}/v2/address-books`
       const json: CreateListJSON = {
         name: audienceName,
-        visibility: 'Public'
+        visibility: visibility as VisibilityOption
       }
 
       const response = await request<CreateListResp>(
@@ -77,23 +103,21 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         }
       )
       const jsonOutput = await response.json()
-      return { externalId: jsonOutput.id }
+      return { externalId: String(jsonOutput.id) }
     },
     async getAudience(request, getAudienceInput) {
       const { 
-        settings,
-        externalId, 
+        settings: { 
+          api_host 
+        }, 
+        externalId 
       } = getAudienceInput
-      const url = `${settings.api_host}/v2/address-books/${externalId}`
-
-      const response = await request<GetListResp>(
-        url,
-        {
-          method: 'GET'
-        }
-      )
-      const jsonOutput = await response.json()
-      return { externalId: jsonOutput.id }
+      const lists = await new DDListsApi(api_host, request).getLists()
+      const exists = lists.choices.find((list) => list.value === externalId.toString())
+      if(!exists) {
+        throw new IntegrationError(`Audience with id ${externalId} not found`, 'Not Found', 404)
+      }
+      return { externalId }
     }
   },
   actions: {

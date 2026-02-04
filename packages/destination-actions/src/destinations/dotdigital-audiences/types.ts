@@ -1,16 +1,12 @@
 export interface CreateListJSON {
     name: string;
-    visibility: 'Public'
+    visibility: VisibilityOption
 }
 
 export interface CreateListResp {
     id: number,
     name: string,
-    visibility: 'Public'
+    visibility: VisibilityOption
 }
 
-export interface GetListResp {
-    id: number,
-    name: string,
-    visibility: 'Public'
-}
+export type VisibilityOption = 'Public' | 'Private'
