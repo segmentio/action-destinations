@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 
 . "$(dirname "$0")/_/husky.sh"
-
-# Temporarily disabled for CI environment with network restrictions
-echo "Skipping gitleaks and lint-staged checks"
-exit 0
-
 set -ex
 
 if ! command -v gitleaks -h &> /dev/null
