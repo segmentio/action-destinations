@@ -74,8 +74,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Max batch size to send to Kafka',
       type: 'number',
       required: false,
-      unsafe_hidden: true,
-      default: 1002
+      unsafe_hidden: false,
+      default: 1002 // Added to support cohort batching for RETL sources where the batch size requirement is greater than 1001
     }
   },
   dynamicFields: {
