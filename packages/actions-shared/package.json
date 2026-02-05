@@ -64,7 +64,7 @@
       "<rootDir>/test/setup-after-env.ts"
     ]
   },
-  "resolutions": {
-    "semver": "6.3.1"
+  "overrides": {
+    "semver": "^7.5.2"
   }
 }
