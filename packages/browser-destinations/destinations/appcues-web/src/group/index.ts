@@ -16,7 +16,7 @@ const action: BrowserActionDefinition<Settings, Appcues, Payload> = {
       default: { '@path': '$.groupId' }
     },
     traits: {
-      label: 'User traits',
+      label: 'Group traits',
       description: 'Properties to associate with the group / account / company.',
       required: false,
       type: 'object',
