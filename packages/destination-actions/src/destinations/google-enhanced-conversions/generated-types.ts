@@ -9,6 +9,10 @@ export interface Settings {
    * ID of your Google Ads Account. This should be 10-digits and in XXX-XXX-XXXX format. **Required if you are using a mapping that sends data to the Google Ads API.**
    */
   customerId?: string
+  /**
+   * ID of your Google Ads Manager Account. This should be 10-digits and in XXX-XXX-XXXX format. **Required if you want your Manager Account to handle data for its connected accounts.**
+   */
+  loginCustomerId?: string
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
