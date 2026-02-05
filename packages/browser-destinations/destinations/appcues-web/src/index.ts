@@ -16,7 +16,7 @@ export const destination: BrowserDestinationDefinition<Settings, Appcues> = {
     accountID: {
       label: 'Appcues Account ID',
       description: 'Your Appcues Account ID.',
-      type: 'string',
+      type: 'password',
       required: true
     },
     region: {
