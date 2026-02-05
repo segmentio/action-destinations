@@ -80,7 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const isProd = process?.env?.NODE_ENV === 'production'
     if (!isProd && url == 'https://blackhole-webhook.segment.build/') {
-      return Promise.resolve({ success: true })
+      return Promise.resolve({ success: true, batchSize: payload.length })
     }
 
     if (statsContext) {
