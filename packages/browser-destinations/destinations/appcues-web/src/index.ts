@@ -39,10 +39,10 @@ export const destination: BrowserDestinationDefinition<Settings, Appcues> = {
     }
   },
   initialize: async ({ settings }, deps) => {
-    const { 
-        region, 
-        accountID,
-        enableURLDetection
+    const {
+      region,
+      accountID,
+      enableURLDetection
     } = settings
     const url = region === 'EU' ? URL.EU : URL.US
     window.AppcuesSettings = { enableURLDetection };
