@@ -257,7 +257,7 @@ function isEventProperty(child: unknown): child is EventProperty {
  * Merges validation results into the event schema properties.
  * Recursively walks the schema and attaches failedEventIds/passedEventIds to matching properties.
  */
-function mergeValidationResults(
+export function mergeValidationResults(
   eventProperties: EventProperty[],
   propertyResults: Record<string, PropertyValidationResult>
 ): void {

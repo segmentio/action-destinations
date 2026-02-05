@@ -14,14 +14,29 @@ export function extractSchema(
   const isDevOrStaging = env === 'dev' || env === 'staging'
   const canSendEncryptedValues = hasEncryptionKey && isDevOrStaging
 
+  // Track visited objects to detect circular references
+  const visited = new WeakSet<object>()
+
   const mapping = (obj: unknown): SchemaChild => {
     if (Array.isArray(obj)) {
+      // Check for circular reference
+      if (visited.has(obj)) {
+        return 'list'
+      }
+      visited.add(obj)
+
       const list = obj.map((x: unknown) => {
         return mapping(x)
       })
 
       return removeDuplicates(list)
     } else if (typeof obj === 'object' && obj !== null) {
+      // Check for circular reference
+      if (visited.has(obj)) {
+        return 'object'
+      }
+      visited.add(obj)
+
       const mappedResult: Array<EventProperty> = []
       for (const [key, val] of Object.entries(obj)) {
         const mappedEntry: EventProperty = {
