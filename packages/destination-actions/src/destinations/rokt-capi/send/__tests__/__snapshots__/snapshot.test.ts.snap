@@ -15,7 +15,7 @@ Object {
       "data": Object {
         "custom_attributes": Object {
           "audience_name": "WKK6WO",
-          "status": "drop",
+          "status": "add",
         },
         "custom_event_type": "other",
         "event_name": "audiencemembershipupdate",
@@ -54,7 +54,7 @@ Object {
     "gender": "m",
     "lastnamesha256": "48a5148278bf4f3c462889d35a6a0754f9dd7caf00a3c62f5eeac31fe6f7e654",
     "mobilesha256": "48a5148278bf4f3c462889d35a6a0754f9dd7caf00a3c62f5eeac31fe6f7e654",
-    "segment_WKK6WO": false,
+    "segment_WKK6WO": true,
   },
   "user_identities": Object {
     "customerid": "test-user-id-456",

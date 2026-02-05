@@ -1,7 +1,8 @@
-import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import Destination from '../../index'
+import nock from 'nock'
+import { JIMO_BASE_URL, JIMO_USER_PATH } from '../../constants'
 import { Settings } from '../../generated-types'
+import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -15,11 +16,11 @@ describe('JimoCloudActions.sendUserdata', () => {
   })
 
   it('should send user data with only userId (required field)', async () => {
-    nock('https://api.jimo.ai')
-      .post('/v1/segment/user', {
+    nock(JIMO_BASE_URL)
+      .post(JIMO_USER_PATH, {
         userId: 'user123'
       })
-      .matchHeader('Authorization', 'test-api-key')
+      .matchHeader('Authorization', 'Bearer test-api-key')
       .reply(200, {})
 
     const event = createTestEvent({
@@ -41,12 +42,12 @@ describe('JimoCloudActions.sendUserdata', () => {
   })
 
   it('should send user data with userId and email', async () => {
-    nock('https://api.jimo.ai')
-      .post('/v1/segment/user', {
+    nock(JIMO_BASE_URL)
+      .post(JIMO_USER_PATH, {
         userId: 'user123',
         email: 'test@example.com'
       })
-      .matchHeader('Authorization', 'test-api-key')
+      .matchHeader('Authorization', 'Bearer test-api-key')
       .reply(200, {})
 
     const event = createTestEvent({
@@ -69,8 +70,8 @@ describe('JimoCloudActions.sendUserdata', () => {
   })
 
   it('should send user data with userId, email, and traits', async () => {
-    nock('https://api.jimo.ai')
-      .post('/v1/segment/user', {
+    nock(JIMO_BASE_URL)
+      .post(JIMO_USER_PATH, {
         userId: 'user123',
         email: 'test@example.com',
         traits: {
@@ -79,7 +80,7 @@ describe('JimoCloudActions.sendUserdata', () => {
           company: 'Acme Inc'
         }
       })
-      .matchHeader('Authorization', 'test-api-key')
+      .matchHeader('Authorization', 'Bearer test-api-key')
       .reply(200, {})
 
     const event = createTestEvent({
@@ -105,15 +106,15 @@ describe('JimoCloudActions.sendUserdata', () => {
   })
 
   it('should send user data with traits but without email', async () => {
-    nock('https://api.jimo.ai')
-      .post('/v1/segment/user', {
+    nock(JIMO_BASE_URL)
+      .post(JIMO_USER_PATH, {
         userId: 'user123',
         traits: {
           name: 'John Doe',
           age: 30
         }
       })
-      .matchHeader('Authorization', 'test-api-key')
+      .matchHeader('Authorization', 'Bearer test-api-key')
       .reply(200, {})
 
     const event = createTestEvent({
@@ -143,11 +144,11 @@ describe('JimoCloudActions.sendUserdata', () => {
   })
 
   it('should not include email or traits if they are not provided', async () => {
-    nock('https://api.jimo.ai')
-      .post('/v1/segment/user', {
+    nock(JIMO_BASE_URL)
+      .post(JIMO_USER_PATH, {
         userId: 'user123'
       })
-      .matchHeader('Authorization', 'test-api-key')
+      .matchHeader('Authorization', 'Bearer test-api-key')
       .reply(200, {})
 
     const event = createTestEvent({
@@ -171,15 +172,15 @@ describe('JimoCloudActions.sendUserdata', () => {
   })
 
   it('should properly format request with custom mapped fields', async () => {
-    nock('https://api.jimo.ai')
-      .post('/v1/segment/user', {
+    nock(JIMO_BASE_URL)
+      .post(JIMO_USER_PATH, {
         userId: 'custom-user-id',
         email: 'custom@example.com',
         traits: {
           customField: 'customValue'
         }
       })
-      .matchHeader('Authorization', 'test-api-key')
+      .matchHeader('Authorization', 'Bearer test-api-key')
       .reply(200, {})
 
     const event = createTestEvent({
@@ -209,8 +210,8 @@ describe('JimoCloudActions.sendUserdata', () => {
   })
 
   it('should use default mappings correctly', async () => {
-    nock('https://api.jimo.ai')
-      .post('/v1/segment/user', {
+    nock(JIMO_BASE_URL)
+      .post(JIMO_USER_PATH, {
         userId: 'user123',
         email: 'test@example.com',
         traits: {
@@ -218,7 +219,7 @@ describe('JimoCloudActions.sendUserdata', () => {
           plan: 'premium'
         }
       })
-      .matchHeader('Authorization', 'test-api-key')
+      .matchHeader('Authorization', 'Bearer test-api-key')
       .reply(200, {})
 
     const event = createTestEvent({

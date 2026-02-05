@@ -755,6 +755,60 @@ describe('LinkedinAudiences.updateAudience', () => {
   })
 
   describe('Error cases', () => {
+    it('should throw InvalidAuthenticationError when LinkedIn API returns 401', async () => {
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(401, {
+        message: 'Unauthorized',
+        status: 401
+      })
+
+      await expect(
+        testDestination.testAction('updateAudience', {
+          event,
+          settings: {
+            ad_account_id: '123',
+            send_email: true,
+            send_google_advertising_id: true
+          },
+          useDefaultMappings: true,
+          auth,
+          mapping: {
+            personas_audience_key: 'personas_test_audience'
+          }
+        })
+      ).rejects.toThrow('Invalid LinkedIn OAuth access token. Please reauthenticate to retrieve a valid access token.')
+    })
+
+    it('should throw RetryableError when LinkedIn API returns non-200 status (e.g., 404)', async () => {
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(404, {
+        message: 'Not Found',
+        status: 404
+      })
+
+      await expect(
+        testDestination.testAction('updateAudience', {
+          event,
+          settings: {
+            ad_account_id: '123',
+            send_email: true,
+            send_google_advertising_id: true
+          },
+          useDefaultMappings: true,
+          auth,
+          mapping: {
+            personas_audience_key: 'personas_test_audience'
+          }
+        })
+      ).rejects.toThrow('Error while attempting to update LinkedIn DMP Segment. This batch will be retried.')
+    })
+
     it('should fail if `personas_audience_key` field does not match the `source_segment_id` field', async () => {
       await expect(
         testDestination.testAction('updateAudience', {

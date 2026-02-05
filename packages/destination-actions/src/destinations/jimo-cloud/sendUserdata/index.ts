@@ -1,7 +1,7 @@
-import { omit, ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, omit } from '@segment/actions-core'
+import { buildJimoUrl, JIMO_USER_PATH } from '../constants'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { URL } from '../constants'
 import { UserJSON } from './types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...(Object.entries(restOfTraits).length > 0 ? { traits: restOfTraits } : {})
     }
 
-    return request(URL, {
+    return request(buildJimoUrl(JIMO_USER_PATH), {
       method: 'post',
       json
     })
