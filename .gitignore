@@ -15,4 +15,4 @@ playwright-report
 
 # NX
 .nx/cache
-.nx/workspace-data
+.nx/workspace-data.copilot-timestamp
