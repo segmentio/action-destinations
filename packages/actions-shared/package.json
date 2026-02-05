@@ -63,5 +63,8 @@
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"
     ]
+  },
+  "overrides": {
+    "semver": "^7.5.2"
   }
 }

@@ -111,5 +111,8 @@
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
       "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     }
+  },
+  "overrides": {
+    "semver": "^7.5.2"
   }
 }

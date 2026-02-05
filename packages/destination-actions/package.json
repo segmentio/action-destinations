@@ -42,7 +42,7 @@
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
     "@aws-sdk/client-eventbridge": "^3.741.0",
-    "@aws-sdk/client-kinesis": "3.917.0",
+    "@aws-sdk/client-kinesis": "^3.974.0",
     "@aws-sdk/client-s3": "^3.600.0",
     "@aws-sdk/client-sts": "3.614.0",
     "@bufbuild/protobuf": "^2.2.3",
@@ -92,5 +92,8 @@
       "__tests__/__helpers__/"
     ]
   },
-  "gitHead": "9c04e12c4a0e81f6b68dca0a297fb2c0209d2431"
+  "gitHead": "9c04e12c4a0e81f6b68dca0a297fb2c0209d2431",
+  "overrides": {
+    "semver": "^7.5.2"
+  }
 }
