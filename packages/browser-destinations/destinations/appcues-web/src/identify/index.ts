@@ -5,7 +5,7 @@ import type { Appcues } from '../types'
 import { flatten } from '../functions'
 
 const action: BrowserActionDefinition<Settings, Appcues, Payload> = {
-  title: 'Track',
+  title: 'Identify',
   description: 'Send Segment identify events to Appcues.',
   platform: 'web',
   fields: {
