@@ -5,13 +5,14 @@ import destination from '../../index'
 const testDestination = createTestIntegration(destination)
 
 describe('RoktCapi.send', () => {
+
   beforeEach(() => {
     jest.clearAllMocks()
     nock.cleanAll()
   })
 
   describe('Single Event Tests', () => {
-    it.skip('should send a basic conversion event with required fields', async () => {
+    it('should send a basic conversion event with required fields', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
         messageId: 'msg-001',
@@ -59,7 +60,9 @@ describe('RoktCapi.send', () => {
         ip: '192.168.1.1'
       }
 
-      nock('https://inbound.mparticle.com').post('/s2s/v2/events', expectedRoktPayload).reply(200, { success: true })
+      nock('https://inbound.mparticle.com')
+        .post('/s2s/v2/events', expectedRoktPayload)
+        .reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
         event,
@@ -70,7 +73,7 @@ describe('RoktCapi.send', () => {
       expect(responses[0].status).toBe(200)
     })
 
-    it.skip('should map rtid from integrations.Rokt Conversions API.rtid', async () => {
+    it('should map rtid from integrations.Rokt Conversions API.rtid', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
         messageId: 'msg-002',
@@ -127,7 +130,9 @@ describe('RoktCapi.send', () => {
         }
       }
 
-      nock('https://inbound.mparticle.com').post('/s2s/v2/events', expectedRoktPayload).reply(200, { success: true })
+      nock('https://inbound.mparticle.com')
+        .post('/s2s/v2/events', expectedRoktPayload)
+        .reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
         event,
@@ -138,7 +143,7 @@ describe('RoktCapi.send', () => {
       expect(responses[0].status).toBe(200)
     })
 
-    it.skip('should fallback to URL query parameter when integrations.Rokt Conversions API.rtid is not present', async () => {
+    it('should fallback to URL query parameter when integrations.Rokt Conversions API.rtid is not present', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
         messageId: 'msg-003',
@@ -193,7 +198,9 @@ describe('RoktCapi.send', () => {
         }
       }
 
-      nock('https://inbound.mparticle.com').post('/s2s/v2/events', expectedRoktPayload).reply(200, { success: true })
+      nock('https://inbound.mparticle.com')
+        .post('/s2s/v2/events', expectedRoktPayload)
+        .reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
         event,
@@ -204,7 +211,7 @@ describe('RoktCapi.send', () => {
       expect(responses[0].status).toBe(200)
     })
 
-    it.skip('should hash email when hashEmail is enabled', async () => {
+    it('should hash email when hashEmail is enabled', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
         messageId: 'msg-004',
@@ -212,7 +219,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           order_id: 'order-789',
-          revenue: 150.0,
+          revenue: 150.00,
           currency: 'USD'
         },
         context: {
@@ -248,7 +255,7 @@ describe('RoktCapi.send', () => {
       expect(responses[0].status).toBe(200)
     })
 
-    it.skip('should send user attributes with hashing', async () => {
+    it('should send user attributes with hashing', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
         messageId: 'msg-005',
@@ -256,7 +263,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           order_id: 'order-999',
-          revenue: 200.0,
+          revenue: 200.00,
           currency: 'USD'
         },
         context: {
@@ -313,7 +320,7 @@ describe('RoktCapi.send', () => {
       expect(responses[0].status).toBe(200)
     })
 
-    it.skip('should send user attributes without hashing', async () => {
+    it('should send user attributes without hashing', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
         messageId: 'msg-006',
@@ -321,7 +328,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           order_id: 'order-111',
-          revenue: 75.0,
+          revenue: 75.00,
           currency: 'USD'
         },
         context: {
@@ -366,7 +373,7 @@ describe('RoktCapi.send', () => {
               custom_attributes: {
                 conversiontype: 'Order Completed',
                 confirmationref: 'order-111',
-                amount: 75.0,
+                amount: 75.00,
                 currency: 'USD'
               }
             }
@@ -374,7 +381,9 @@ describe('RoktCapi.send', () => {
         ]
       }
 
-      nock('https://inbound.mparticle.com').post('/s2s/v2/events', expectedRoktPayload).reply(200, { success: true })
+      nock('https://inbound.mparticle.com')
+        .post('/s2s/v2/events', expectedRoktPayload)
+        .reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
         event,
@@ -394,7 +403,7 @@ describe('RoktCapi.send', () => {
       expect(responses[0].status).toBe(200)
     })
 
-    it.skip('should send device information for iOS', async () => {
+    it('should send device information for iOS', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
         messageId: 'msg-007',
@@ -402,7 +411,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           order_id: 'order-222',
-          revenue: 120.0,
+          revenue: 120.00,
           currency: 'USD'
         },
         context: {
@@ -438,7 +447,7 @@ describe('RoktCapi.send', () => {
               custom_attributes: {
                 conversiontype: 'Order Completed',
                 confirmationref: 'order-222',
-                amount: 120.0,
+                amount: 120.00,
                 currency: 'USD'
               }
             }
@@ -446,7 +455,9 @@ describe('RoktCapi.send', () => {
         ]
       }
 
-      nock('https://inbound.mparticle.com').post('/s2s/v2/events', expectedRoktPayload).reply(200, { success: true })
+      nock('https://inbound.mparticle.com')
+        .post('/s2s/v2/events', expectedRoktPayload)
+        .reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
         event,
@@ -457,7 +468,7 @@ describe('RoktCapi.send', () => {
       expect(responses[0].status).toBe(200)
     })
 
-    it.skip('should send device information for Android', async () => {
+    it('should send device information for Android', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
         messageId: 'msg-008',
@@ -465,7 +476,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           order_id: 'order-333',
-          revenue: 85.0,
+          revenue: 85.00,
           currency: 'USD'
         },
         context: {
@@ -501,7 +512,7 @@ describe('RoktCapi.send', () => {
               custom_attributes: {
                 conversiontype: 'Order Completed',
                 confirmationref: 'order-333',
-                amount: 85.0,
+                amount: 85.00,
                 currency: 'USD'
               }
             }
@@ -509,7 +520,9 @@ describe('RoktCapi.send', () => {
         ]
       }
 
-      nock('https://inbound.mparticle.com').post('/s2s/v2/events', expectedRoktPayload).reply(200, { success: true })
+      nock('https://inbound.mparticle.com')
+        .post('/s2s/v2/events', expectedRoktPayload)
+        .reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
         event,
@@ -520,7 +533,7 @@ describe('RoktCapi.send', () => {
       expect(responses[0].status).toBe(200)
     })
 
-    it.skip('should send ROKT Click ID (rtid) from integrations object', async () => {
+    it('should send ROKT Click ID (rtid) from integrations object', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
         messageId: 'msg-009',
@@ -573,7 +586,9 @@ describe('RoktCapi.send', () => {
         ]
       }
 
-      nock('https://inbound.mparticle.com').post('/s2s/v2/events', expectedRoktPayload).reply(200, { success: true })
+      nock('https://inbound.mparticle.com')
+        .post('/s2s/v2/events', expectedRoktPayload)
+        .reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
         event,
@@ -584,7 +599,7 @@ describe('RoktCapi.send', () => {
       expect(responses[0].status).toBe(200)
     })
 
-    it.skip('should send custom event properties', async () => {
+    it('should send custom event properties', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
         messageId: 'msg-010',
@@ -592,7 +607,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           order_id: 'order-555',
-          revenue: 300.0,
+          revenue: 300.00,
           currency: 'USD',
           product_name: 'Widget Pro',
           quantity: 3,
@@ -625,7 +640,7 @@ describe('RoktCapi.send', () => {
               custom_attributes: {
                 conversiontype: 'Order Completed',
                 confirmationref: 'order-555',
-                amount: 300.0,
+                amount: 300.00,
                 currency: 'USD',
                 product_name: 'Widget Pro',
                 quantity: 3,
@@ -636,7 +651,9 @@ describe('RoktCapi.send', () => {
         ]
       }
 
-      nock('https://inbound.mparticle.com').post('/s2s/v2/events', expectedRoktPayload).reply(200, { success: true })
+      nock('https://inbound.mparticle.com')
+        .post('/s2s/v2/events', expectedRoktPayload)
+        .reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
         event,
@@ -695,7 +712,7 @@ describe('RoktCapi.send', () => {
           eventDetails: {
             source_message_id: 'msg-011',
             timestamp_unixtime_ms: '2024-01-18T12:00:00.000Z'
-          },
+          },         
           engageAudienceName: 'premium_users',
           traitsOrProps: {
             premium_users: true
@@ -762,7 +779,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           order_id: 'order-888',
-          revenue: 50.0,
+          revenue: 50.00,
           currency: 'USD'
         },
         context: {},
@@ -778,14 +795,12 @@ describe('RoktCapi.send', () => {
             device_info: {}
           }
         })
-      ).rejects.toThrow(
-        'At least one of the following is required: iOS Advertising ID, Android Advertising ID, iOS ID for Vendor, Android UUID, Email, Customer ID, RTID.'
-      )
+      ).rejects.toThrow('At least one of the following is required: iOS Advertising ID, Android Advertising ID, iOS ID for Vendor, Android UUID, Email, Customer ID, RTID.')
     })
   })
 
   describe('Batch Event Tests', () => {
-    it.skip('should send a batch of valid events', async () => {
+    it('should send a batch of valid events', async () => {
       const events = [
         createTestEvent({
           event: 'Order Completed',
@@ -794,7 +809,7 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'batch-order-001',
-            revenue: 100.0,
+            revenue: 100.00,
             currency: 'USD'
           },
           context: {
@@ -811,7 +826,7 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'batch-order-002',
-            revenue: 200.0,
+            revenue: 200.00,
             currency: 'USD'
           },
           context: {
@@ -828,7 +843,7 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'batch-order-003',
-            revenue: 300.0,
+            revenue: 300.00,
             currency: 'USD'
           },
           context: {
@@ -860,7 +875,7 @@ describe('RoktCapi.send', () => {
                 custom_attributes: {
                   conversiontype: 'Order Completed',
                   confirmationref: 'batch-order-001',
-                  amount: 100.0,
+                  amount: 100.00,
                   currency: 'USD'
                 }
               }
@@ -886,7 +901,7 @@ describe('RoktCapi.send', () => {
                 custom_attributes: {
                   conversiontype: 'Order Completed',
                   confirmationref: 'batch-order-002',
-                  amount: 200.0,
+                  amount: 200.00,
                   currency: 'USD'
                 }
               }
@@ -912,7 +927,7 @@ describe('RoktCapi.send', () => {
                 custom_attributes: {
                   conversiontype: 'Order Completed',
                   confirmationref: 'batch-order-003',
-                  amount: 300.0,
+                  amount: 300.00,
                   currency: 'USD'
                 }
               }
@@ -935,7 +950,7 @@ describe('RoktCapi.send', () => {
       expect(responses[0].data).toEqual({ success: true })
     })
 
-    it.skip('should handle mixed batch with valid and invalid events', async () => {
+    it('should handle mixed batch with valid and invalid events', async () => {
       const events = [
         // Valid event
         createTestEvent({
@@ -945,7 +960,7 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'mixed-order-001',
-            revenue: 100.0,
+            revenue: 100.00,
             currency: 'USD'
           },
           context: {
@@ -963,7 +978,7 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'mixed-order-002',
-            revenue: 200.0,
+            revenue: 200.00,
             currency: 'USD'
           },
           context: {},
@@ -977,7 +992,7 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'mixed-order-003',
-            revenue: 300.0,
+            revenue: 300.00,
             currency: 'USD'
           },
           context: {
@@ -995,7 +1010,7 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'mixed-order-004',
-            revenue: 400.0,
+            revenue: 400.00,
             currency: 'USD'
           },
           context: {},
@@ -1105,7 +1120,9 @@ describe('RoktCapi.send', () => {
         })
       ]
 
-      nock('https://inbound.mparticle.com').post('/s2s/v2/bulkevents').reply(500, { error: 'Internal Server Error' })
+      nock('https://inbound.mparticle.com')
+        .post('/s2s/v2/bulkevents')
+        .reply(500, { error: 'Internal Server Error' })
 
       const responses = await testDestination.testBatchAction('send', {
         events,
