@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { BASE_URL, API_VERSION } from '../../index'
+import { API_VERSION, BASE_URL } from '../../versioning-info'
 
 const testDestination = createTestIntegration(Destination)
 
