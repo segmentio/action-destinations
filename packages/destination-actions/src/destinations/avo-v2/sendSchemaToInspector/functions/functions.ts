@@ -19,53 +19,6 @@ import { validateEvent } from './event-validator-functions'
 import { Payload } from '../generated-types'
 import { DEFAULT_BASE_URL } from '../../constants'
 
-/**
- * Extracts schema from a single event payload, optionally validating against an event spec.
- */
-export function extractSchemaFromEvent(
-  payload: Payload,
-  appVersionPropertyName: string | undefined,
-  publicEncryptionKey: string | undefined,
-  env: string,
-  eventSpec: EventSpec | null
-): EventSchemaBody {
-  const { event, pageUrl, appName, properties, messageId, createdAt } = payload
-
-  const eventProperties = extractSchema(properties, publicEncryptionKey, env)
-  let eventSpecMetadata: EventSpecMetadata | undefined
-
-  if (eventSpec) {
-    try {
-      const validationResult: ValidationResult = validateEvent(properties as RuntimeProperties, eventSpec)
-      mergeValidationResults(eventProperties, validationResult.propertyResults)
-      eventSpecMetadata = validationResult.metadata
-    } catch {
-      // Validation failed, continue without metadata
-    }
-  }
-
-  const itemJSON: EventSchemaBody = {
-    appName: appName ?? (pageUrl ? pageUrl.split('/')[2] : 'unnamed Segment app'),
-    appVersion:
-      appVersionPropertyName && properties[appVersionPropertyName]
-        ? (properties[appVersionPropertyName] as string)
-        : payload.appVersion ?? 'unversioned',
-    libVersion: '2.0.0',
-    libPlatform: 'Segment',
-    messageId,
-    createdAt,
-    sessionId: '',
-    ...(publicEncryptionKey ? { publicEncryptionKey } : {}),
-    type: 'event',
-    eventName: event,
-    eventProperties,
-    eventId: null,
-    eventHash: null,
-    ...(typeof eventSpecMetadata !== 'undefined' ? { eventSpecMetadata } : {})
-  }
-  return itemJSON
-}
-
 export const send = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {
   const anonymousId = payloads[0]?.anonymousId
   const userId = payloads[0]?.userId

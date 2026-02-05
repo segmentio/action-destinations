@@ -1,8 +1,10 @@
-import { extractSchemaFromEvent } from '../functions/functions'
+import { send } from '../functions/functions'
 import type { Payload } from '../generated-types'
-import type { EventSpec } from '../types'
+import type { EventSchemaBody, EventSpecResponseWire } from '../types'
+import type { Settings } from '../../generated-types'
+import type { RequestClient } from '@segment/actions-core'
 
-describe('extractSchemaFromEvent', () => {
+describe('send', () => {
   const mockEvent: Payload = {
     event: 'TestEvent',
     messageId: 'test-message-id',
@@ -14,15 +16,19 @@ describe('extractSchemaFromEvent', () => {
     anonymousId: 'test-stream-id'
   }
 
-  const validEventSpec: EventSpec = {
+  const baseSettings: Settings = {
+    apiKey: 'test-api-key',
+    env: 'prod'
+  }
+
+  const validEventSpecResponse: EventSpecResponseWire = {
     events: [
       {
-        branchId: 'main',
-        baseEventId: 'test-event-id',
-        variantIds: [],
-        props: {
-          userId: { type: 'string', required: true, isList: false },
-          amount: { type: 'number', required: false, isList: false }
+        b: 'main',
+        id: 'test-event-id',
+        vids: [],
+        p: {
+          userId: { t: 'string', r: true }
         }
       }
     ],
@@ -34,8 +40,50 @@ describe('extractSchemaFromEvent', () => {
     }
   }
 
-  it('should return event body with validation when eventSpec is provided', () => {
-    const result = extractSchemaFromEvent(mockEvent, undefined, undefined, 'dev', validEventSpec)
+  const createRequestMock = (eventSpecResponse?: EventSpecResponseWire) => {
+    let postUrl: string | undefined
+    let postOptions: { json?: unknown } | undefined
+    const request = jest.fn().mockImplementation((url: string, options: { method?: string; json?: unknown }) => {
+      if (options?.method === 'GET') {
+        return Promise.resolve({
+          data:
+            eventSpecResponse ??
+            ({
+              events: [],
+              metadata: {
+                schemaId: 'empty',
+                branchId: 'main',
+                latestActionId: 'action-id'
+              }
+            } as EventSpecResponseWire)
+        })
+      }
+
+      if (options?.method === 'post') {
+        postUrl = url
+        postOptions = options
+        return Promise.resolve({ data: {} })
+      }
+
+      throw new Error(`Unexpected request: ${String(options?.method)} ${url}`)
+    }) as unknown as RequestClient
+
+    return {
+      request,
+      getPostedEvent: () => (postOptions?.json as EventSchemaBody[] | undefined)?.[0],
+      getPostUrl: () => postUrl
+    }
+  }
+
+  it('should send event body with validation when eventSpec is provided', async () => {
+    const { request, getPostedEvent, getPostUrl } = createRequestMock(validEventSpecResponse)
+
+    await send(request, { ...baseSettings, env: 'dev' }, [mockEvent])
+
+    const result = getPostedEvent()
+    if (!result) {
+      throw new Error('No event was posted')
+    }
 
     expect(result).toBeDefined()
     expect(result.eventName).toBe('TestEvent')
@@ -43,10 +91,18 @@ describe('extractSchemaFromEvent', () => {
     expect(result.messageId).toBe('test-message-id')
     // Should include validation metadata when spec is provided
     expect(result.eventSpecMetadata).toBeDefined()
+    expect(getPostUrl()).toBe('https://api.avo.app/inspector/segment/v1/track')
   })
 
-  it('should return event body without validation when eventSpec is null', () => {
-    const result = extractSchemaFromEvent(mockEvent, undefined, undefined, 'dev', null)
+  it('should send event body without validation when env is not dev/staging', async () => {
+    const { request, getPostedEvent } = createRequestMock()
+
+    await send(request, baseSettings, [mockEvent])
+
+    const result = getPostedEvent()
+    if (!result) {
+      throw new Error('No event was posted')
+    }
 
     expect(result).toBeDefined()
     expect(result.eventName).toBe('TestEvent')
@@ -56,7 +112,7 @@ describe('extractSchemaFromEvent', () => {
     expect(result.eventSpecMetadata).toBeUndefined()
   })
 
-  it('should work with appVersionPropertyName', () => {
+  it('should work with appVersionPropertyName', async () => {
     const eventWithAppVersion: Payload = {
       ...mockEvent,
       properties: {
@@ -65,88 +121,143 @@ describe('extractSchemaFromEvent', () => {
       }
     }
 
-    const result = extractSchemaFromEvent(eventWithAppVersion, 'customAppVersion', undefined, 'dev', null)
+    const { request, getPostedEvent } = createRequestMock()
 
+    await send(request, { ...baseSettings, appVersionPropertyName: 'customAppVersion' }, [eventWithAppVersion])
+
+    const result = getPostedEvent()
+    if (!result) {
+      throw new Error('No event was posted')
+    }
     expect(result).toBeDefined()
     expect(result.appVersion).toBe('2.0.0')
   })
 
-  it('should handle events without properties', () => {
+  it('should handle events without properties', async () => {
     const eventWithoutProperties: Payload = {
       ...mockEvent,
       properties: {}
     }
 
-    const result = extractSchemaFromEvent(eventWithoutProperties, undefined, undefined, 'dev', null)
+    const { request, getPostedEvent } = createRequestMock()
+
+    await send(request, baseSettings, [eventWithoutProperties])
+
+    const result = getPostedEvent()
+    if (!result) {
+      throw new Error('No event was posted')
+    }
 
     expect(result).toBeDefined()
     expect(result.eventName).toBe('TestEvent')
     expect(result.eventProperties).toEqual([])
   })
 
-  it('should handle events with pageUrl for appName extraction', () => {
+  it('should handle events with pageUrl for appName extraction', async () => {
     const eventWithPageUrl: Payload = {
       ...mockEvent,
       pageUrl: 'https://example.com/page'
     }
 
-    const result = extractSchemaFromEvent(eventWithPageUrl, undefined, undefined, 'dev', null)
+    const { request, getPostedEvent } = createRequestMock()
+
+    await send(request, baseSettings, [eventWithPageUrl])
+
+    const result = getPostedEvent()
+    if (!result) {
+      throw new Error('No event was posted')
+    }
 
     expect(result).toBeDefined()
     expect(result.appName).toBe('example.com')
   })
 
-  it('should use default appName when not provided', () => {
+  it('should use default appName when not provided', async () => {
     const eventWithoutAppName: Payload = {
       ...mockEvent,
       appName: undefined,
       pageUrl: undefined
     }
 
-    const result = extractSchemaFromEvent(eventWithoutAppName, undefined, undefined, 'dev', null)
+    const { request, getPostedEvent } = createRequestMock()
+
+    await send(request, baseSettings, [eventWithoutAppName])
+
+    const result = getPostedEvent()
+    if (!result) {
+      throw new Error('No event was posted')
+    }
 
     expect(result).toBeDefined()
     expect(result.appName).toBe('unnamed Segment app')
   })
 
-  it('should use default appVersion when not provided', () => {
+  it('should use default appVersion when not provided', async () => {
     const eventWithoutAppVersion: Payload = {
       ...mockEvent,
       appVersion: undefined
     }
 
-    const result = extractSchemaFromEvent(eventWithoutAppVersion, undefined, undefined, 'dev', null)
+    const { request, getPostedEvent } = createRequestMock()
+
+    await send(request, baseSettings, [eventWithoutAppVersion])
+
+    const result = getPostedEvent()
+    if (!result) {
+      throw new Error('No event was posted')
+    }
 
     expect(result).toBeDefined()
     expect(result.appVersion).toBe('unversioned')
   })
 
-  it('should use appName from payload when provided', () => {
+  it('should use appName from payload when provided', async () => {
     const eventWithAppName: Payload = {
       ...mockEvent,
       appName: 'My App'
     }
 
-    const result = extractSchemaFromEvent(eventWithAppName, undefined, undefined, 'dev', null)
+    const { request, getPostedEvent } = createRequestMock()
+
+    await send(request, baseSettings, [eventWithAppName])
+
+    const result = getPostedEvent()
+    if (!result) {
+      throw new Error('No event was posted')
+    }
 
     expect(result).toBeDefined()
     expect(result.appName).toBe('My App')
   })
 
-  it('should use appVersion from payload when provided', () => {
+  it('should use appVersion from payload when provided', async () => {
     const eventWithAppVersion: Payload = {
       ...mockEvent,
       appVersion: '1.0.0'
     }
 
-    const result = extractSchemaFromEvent(eventWithAppVersion, undefined, undefined, 'dev', null)
+    const { request, getPostedEvent } = createRequestMock()
+
+    await send(request, baseSettings, [eventWithAppVersion])
+
+    const result = getPostedEvent()
+    if (!result) {
+      throw new Error('No event was posted')
+    }
 
     expect(result).toBeDefined()
     expect(result.appVersion).toBe('1.0.0')
   })
 
-  it('should extract event properties from payload', () => {
-    const result = extractSchemaFromEvent(mockEvent, undefined, undefined, 'dev', null)
+  it('should extract event properties from payload', async () => {
+    const { request, getPostedEvent } = createRequestMock()
+
+    await send(request, baseSettings, [mockEvent])
+
+    const result = getPostedEvent()
+    if (!result) {
+      throw new Error('No event was posted')
+    }
 
     expect(result).toBeDefined()
     expect(result.eventProperties).toHaveLength(2)
@@ -158,24 +269,5 @@ describe('extractSchemaFromEvent', () => {
     const amountProp = result.eventProperties.find((p) => p.propertyName === 'amount')
     expect(amountProp).toBeDefined()
     expect(amountProp?.propertyType).toBe('int')
-  })
-
-  it('should continue without validation if validation throws', () => {
-    // Create an event spec that might cause validation issues
-    const problematicEventSpec: EventSpec = {
-      events: [],
-      metadata: {
-        schemaId: 'test-schema-id',
-        branchId: 'main',
-        latestActionId: 'test-action-id',
-        sourceId: 'test-source-id'
-      }
-    }
-
-    const result = extractSchemaFromEvent(mockEvent, undefined, undefined, 'dev', problematicEventSpec)
-
-    expect(result).toBeDefined()
-    expect(result.eventName).toBe('TestEvent')
-    expect(result.type).toBe('event')
   })
 })
