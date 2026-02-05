@@ -1,6 +1,6 @@
-import { extractSchemaFromEvent } from '../avo'
+import { extractSchemaFromEvent } from '../functions/functions'
 import type { Payload } from '../generated-types'
-import type { EventSpecResponse } from '../eventSpec/EventFetcherTypes'
+import type { EventSpec } from '../types'
 
 describe('extractSchemaFromEvent', () => {
   const mockEvent: Payload = {
@@ -14,7 +14,7 @@ describe('extractSchemaFromEvent', () => {
     anonymousId: 'test-stream-id'
   }
 
-  const validEventSpec: EventSpecResponse = {
+  const validEventSpec: EventSpec = {
     events: [
       {
         branchId: 'main',
@@ -42,7 +42,7 @@ describe('extractSchemaFromEvent', () => {
     expect(result.type).toBe('event')
     expect(result.messageId).toBe('test-message-id')
     // Should include validation metadata when spec is provided
-    expect(result.metadata).toBeDefined()
+    expect(result.eventSpecMetadata).toBeDefined()
   })
 
   it('should return event body without validation when eventSpec is null', () => {
@@ -53,7 +53,7 @@ describe('extractSchemaFromEvent', () => {
     expect(result.type).toBe('event')
     expect(result.messageId).toBe('test-message-id')
     // Should not include validation metadata when spec is null
-    expect(result.metadata).toBeUndefined()
+    expect(result.eventSpecMetadata).toBeUndefined()
   })
 
   it('should work with appVersionPropertyName', () => {
@@ -162,7 +162,7 @@ describe('extractSchemaFromEvent', () => {
 
   it('should continue without validation if validation throws', () => {
     // Create an event spec that might cause validation issues
-    const problematicEventSpec: EventSpecResponse = {
+    const problematicEventSpec: EventSpec = {
       events: [],
       metadata: {
         schemaId: 'test-schema-id',

@@ -1,11 +1,12 @@
-import { validateEvent } from '../eventSpec/EventValidator'
-import { EventSpecResponse } from '../eventSpec/EventFetcherTypes'
+import { validateEvent } from '../functions/event-validator-functions'
+import type { EventSpec } from '../types'
 
 describe('EventValidator', () => {
-  const mockSpec: EventSpecResponse = {
-    metadata: {},
+  const mockSpec: EventSpec = {
+    metadata: { schemaId: 'schema_1', branchId: 'main', latestActionId: 'action_1' },
     events: [
       {
+        branchId: 'main',
         baseEventId: 'evt_1',
         variantIds: [],
         props: {
@@ -82,10 +83,11 @@ describe('EventValidator', () => {
 
   it('handles depth limit', () => {
     // Create deep structure
-    const deepSpec: EventSpecResponse = {
-      metadata: {},
+    const deepSpec: EventSpec = {
+      metadata: { schemaId: 'schema_1', branchId: 'main', latestActionId: 'action_1' },
       events: [
         {
+          branchId: 'main',
           baseEventId: 'evt_1',
           variantIds: [],
           props: {
@@ -118,10 +120,11 @@ describe('EventValidator', () => {
   })
 
   it('validates unbounded min/max', () => {
-    const unboundedSpec: EventSpecResponse = {
-      metadata: {},
+    const unboundedSpec: EventSpec = {
+      metadata: { schemaId: 'schema_1', branchId: 'main', latestActionId: 'action_1' },
       events: [
         {
+          branchId: 'main',
           baseEventId: 'evt_1',
           variantIds: [],
           props: {
@@ -150,10 +153,11 @@ describe('EventValidator', () => {
   })
 
   it('skips validation for optional properties with null/undefined values', () => {
-    const optionalSpec: EventSpecResponse = {
-      metadata: {},
+    const optionalSpec: EventSpec = {
+      metadata: { schemaId: 'schema_1', branchId: 'main', latestActionId: 'action_1' },
       events: [
         {
+          branchId: 'main',
           baseEventId: 'evt_1',
           variantIds: [],
           props: {

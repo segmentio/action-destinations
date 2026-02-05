@@ -1,15 +1,13 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { send } from './functions/functions'
 
-import { processEvents } from './avo'
-
-const sendSchemaAction: ActionDefinition<Settings, Payload> = {
+const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Schema From Event',
   description: 'Sends event schema to the Avo Inspector API',
   defaultSubscription: 'type = "track"',
   fields: {
-    // Define any fields your action expects here
     event: {
       label: 'Event Name',
       type: 'string',
@@ -107,15 +105,14 @@ const sendSchemaAction: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       multiple: true,
-      unsafe_hidden: false,
       default: ['anonymousId', 'userId']
     }
   },
   perform: async (request, { payload, settings }) => {
-    return processEvents(request, settings, [payload])
+    return send(request, settings, [payload])
   },
   performBatch: async (request, { payload, settings }) => {
-    return processEvents(request, settings, payload)
+    return send(request, settings, payload)
   }
 }
-export default sendSchemaAction
+export default action

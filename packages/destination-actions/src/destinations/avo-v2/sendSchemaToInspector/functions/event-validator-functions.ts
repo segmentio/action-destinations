@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * EventValidator - Client-side validation of tracking events against the Avo Tracking Plan.
  *
@@ -13,12 +12,14 @@
  */
 
 import type {
-  EventSpecResponse,
-  EventSpecEntry,
-  PropertyConstraints,
+  EventSpec,
+  Event,
+  PropertyConstraint,
   PropertyValidationResult,
-  ValidationResult
-} from './EventFetcherTypes'
+  ValidationResult,
+  RuntimePropertyValue,
+  RuntimeProperties
+} from '../types'
 
 // =============================================================================
 // HELPER FUNCTIONS FOR NESTED PROPERTIES
@@ -39,8 +40,8 @@ function deepCopyConstraintMapping(mapping: Record<string, string[]>): Record<st
 /**
  * Deep copies children constraints recursively.
  */
-function deepCopyChildren(children: Record<string, PropertyConstraints>): Record<string, PropertyConstraints> {
-  const result: Record<string, PropertyConstraints> = {}
+function deepCopyChildren(children: Record<string, PropertyConstraint>): Record<string, PropertyConstraint> {
+  const result: Record<string, PropertyConstraint> = {}
   for (const [propName, constraintsUnknown] of Object.entries(children)) {
     const constraints = constraintsUnknown
     result[propName] = {
@@ -60,7 +61,7 @@ function deepCopyChildren(children: Record<string, PropertyConstraints>): Record
 /**
  * Merges children constraints from source into target recursively.
  */
-function mergeChildren(target: Record<string, PropertyConstraints>, source: Record<string, PropertyConstraints>): void {
+function mergeChildren(target: Record<string, PropertyConstraint>, source: Record<string, PropertyConstraint>): void {
   for (const [propName, sourceConstraintsUnknown] of Object.entries(source)) {
     const sourceConstraints = sourceConstraintsUnknown
     if (!target[propName]) {
@@ -106,7 +107,7 @@ function mergeChildren(target: Record<string, PropertyConstraints>, source: Reco
 /**
  * Merges constraint mappings (pinnedValues, allowedValues, etc.) from source into target.
  */
-function mergeConstraintMappings(target: PropertyConstraints, source: PropertyConstraints): void {
+function mergeConstraintMappings(target: PropertyConstraint, source: PropertyConstraint): void {
   if (source.pinnedValues) {
     if (!target.pinnedValues) {
       target.pinnedValues = {}
@@ -180,12 +181,6 @@ function mergeConstraintMappings(target: PropertyConstraints, source: PropertyCo
 /**
  * Runtime property value - can be any JSON-compatible type
  */
-export type RuntimePropertyValue = string | number | boolean | null | undefined | object | Array<any>
-
-/**
- * Runtime properties map
- */
-export type RuntimeProperties = Record<string, RuntimePropertyValue>
 
 // =============================================================================
 // CACHES
@@ -236,7 +231,7 @@ function getOrCompileRegex(pattern: string): RegExp {
  * @param specResponse - The EventSpecResponse from the backend
  * @returns ValidationResult with baseEventId, metadata, and per-property results
  */
-export function validateEvent(properties: RuntimeProperties, specResponse: EventSpecResponse): ValidationResult {
+export function validateEvent(properties: RuntimeProperties, specResponse: EventSpec): ValidationResult {
   // Collect all eventIds from all events
   const allEventIds = collectAllEventIds(specResponse.events)
 
@@ -272,7 +267,7 @@ export function validateEvent(properties: RuntimeProperties, specResponse: Event
 /**
  * Collects all eventIds (baseEventId + variantIds) from all events.
  */
-function collectAllEventIds(events: EventSpecEntry[]): string[] {
+function collectAllEventIds(events: Event[]): string[] {
   const ids: string[] = []
   for (const event of events) {
     ids.push(event.baseEventId)
@@ -295,7 +290,7 @@ function collectAllEventIds(events: EventSpecEntry[]): string[] {
  *
  *   Result: { method: { pinnedValues: { "email": ["evt_1"], "phone": ["evt_2"] } } }
  */
-function collectConstraintsByPropertyName(events: EventSpecEntry[]): Record<string, PropertyConstraints> {
+function collectConstraintsByPropertyName(events: Event[]): Record<string, PropertyConstraint> {
   // Fast path: no events
   if (events.length === 0) {
     return {}
@@ -307,7 +302,7 @@ function collectConstraintsByPropertyName(events: EventSpecEntry[]): Record<stri
   }
 
   // Multiple events: aggregate constraints from all events
-  const result: Record<string, PropertyConstraints> = {}
+  const result: Record<string, PropertyConstraint> = {}
 
   for (const event of events) {
     for (const [propName, constraintsUnknown] of Object.entries(event.props)) {
@@ -359,7 +354,7 @@ const MAX_CHILD_DEPTH = 2
  */
 function validatePropertyConstraints(
   value: RuntimePropertyValue,
-  constraints: PropertyConstraints,
+  constraints: PropertyConstraint,
   allEventIds: string[],
   depth = 0
 ): PropertyValidationResult {
@@ -387,7 +382,7 @@ function validatePropertyConstraints(
 
 function validateListProperty(
   value: RuntimePropertyValue,
-  constraints: PropertyConstraints,
+  constraints: PropertyConstraint,
   allEventIds: string[],
   depth: number
 ): PropertyValidationResult {
@@ -398,12 +393,13 @@ function validateListProperty(
   const listValue = value
 
   // Handle list of objects
-  if (constraints.children) {
-    const aggregatedChildrenResults: Record<string, { failed: Set<string>; passed: Set<string>; children: any }> = {}
+  if (constraints.children && Array.isArray(listValue) && listValue.length > 0) {
+    const aggregatedChildrenResults: Record<string, { failed: Set<string>; passed: Set<string>; children: unknown }> =
+      {}
 
     for (const item of listValue) {
       // Validate each item as an object
-      const itemResult = validateObjectProperty(item, constraints, allEventIds, depth) // depth is same because list is property itself?
+      const itemResult = validateObjectProperty(item as RuntimePropertyValue, constraints, allEventIds, depth) // depth is same because list is property itself?
       // Actually, if we treat list items as "children" of list, maybe depth should increase?
       // But typically list wrapper doesn't count as schema depth in Avo?
       // Let's assume depth doesn't increase for list items wrapper, but does for object structure.
@@ -448,16 +444,16 @@ function validateListProperty(
     const itemFailedIds = new Set<string>()
 
     if (constraints.pinnedValues) {
-      checkPinnedValues(item, constraints.pinnedValues, itemFailedIds)
+      checkPinnedValues(item as RuntimePropertyValue, constraints.pinnedValues, itemFailedIds)
     }
     if (constraints.allowedValues) {
-      checkAllowedValues(item, constraints.allowedValues, itemFailedIds)
+      checkAllowedValues(item as RuntimePropertyValue, constraints.allowedValues, itemFailedIds)
     }
     if (constraints.regexPatterns) {
-      checkRegexPatterns(item, constraints.regexPatterns, itemFailedIds)
+      checkRegexPatterns(item as RuntimePropertyValue, constraints.regexPatterns, itemFailedIds)
     }
     if (constraints.minMaxRanges) {
-      checkMinMaxRanges(item, constraints.minMaxRanges, itemFailedIds)
+      checkMinMaxRanges(item as RuntimePropertyValue, constraints.minMaxRanges, itemFailedIds)
     }
 
     addIdsToSet(Array.from(itemFailedIds), failedIds)
@@ -468,7 +464,7 @@ function validateListProperty(
 
 function validateObjectProperty(
   value: RuntimePropertyValue,
-  constraints: PropertyConstraints,
+  constraints: PropertyConstraint,
   allEventIds: string[],
   depth: number
 ): PropertyValidationResult {
@@ -505,7 +501,7 @@ function validateObjectProperty(
 
 function validatePrimitiveProperty(
   value: RuntimePropertyValue,
-  constraints: PropertyConstraints,
+  constraints: PropertyConstraint,
   allEventIds: string[]
 ): PropertyValidationResult {
   const failedIds = new Set<string>()

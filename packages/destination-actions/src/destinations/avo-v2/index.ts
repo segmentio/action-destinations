@@ -2,8 +2,8 @@
 
 import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import sendSchemaAction from './sendSchemaToInspector'
-import { Environment } from './sendSchemaToInspector/avo-types'
+import sendSchemaToInspector from './sendSchemaToInspector'
+import { Environment } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Avo Inspector v2',
@@ -16,14 +16,14 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'Avo Inspector API Key',
         description: 'Avo Inspector API Key can be found in the Inspector setup page on your source in Avo.',
-        type: 'string',
+        type: 'password',
         required: true
       },
-      inspectorEncryptionKey: {
-        label: 'Avo Inspector Public Key',
+      publicEncryptionKey: {
+        label: 'Avo Inspector Public Encryption Key',
         description:
           'Optional. Enables verification of the property values against your Tracking Plan (e.g. allowed values, regex patterns, min/max constraints). Values are end-to-end encrypted and Avo can not decrypt them. Read more: https://www.avo.app/docs/inspector/connect-inspector-to-segment#property-value-validation-optional',
-        type: 'string',
+        type: 'password',
         required: false
       },
       env: {
@@ -43,14 +43,15 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      // Return a request that tests/validates the user's credentials.
+      const { apiKey } = settings
+
       const resp = request(`https://api.avo.app/auth/inspector/validate`, {
         method: 'post',
         headers: {
-          'Content-Type': 'application/json' // This line is crucial for sending JSON content
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          apiKey: settings.apiKey
+          apiKey
         })
       })
 
@@ -62,12 +63,12 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Track Schema From Event',
       subscribe: 'type = "track"',
       partnerAction: 'sendSchemaToInspector',
-      mapping: defaultValues(sendSchemaAction.fields),
+      mapping: defaultValues(sendSchemaToInspector.fields),
       type: 'automatic'
     }
   ],
   actions: {
-    sendSchemaToInspector: sendSchemaAction // Add your action here
+    sendSchemaToInspector
   }
 }
 
