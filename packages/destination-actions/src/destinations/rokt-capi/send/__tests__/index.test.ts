@@ -91,40 +91,6 @@ describe('RoktCapi.send', () => {
         }
       })
 
-      const expectedRoktPayload = {
-        environment: 'production',
-        device_info: {},
-        user_attributes: {},
-        user_identities: {
-          email: 'test@example.com',
-          customerid: 'user-123',
-          other2: 'test-rtid-from-integrations'
-        },
-        integration_attributes: {
-          '1277': {
-            passbackconversiontrackingid: 'test-rtid-from-integrations'
-          }
-        },
-        events: [
-          {
-            event_type: 'custom_event',
-            data: {
-              custom_event_type: 'transaction',
-              source_message_id: 'msg-002',
-              timestamp_unixtime_ms: 1705579200000,
-              event_name: 'conversion',
-              custom_attributes: {
-                conversiontype: 'Order Completed',
-                confirmationref: 'order-123',
-                amount: 99.99,
-                currency: 'USD'
-              }
-            }
-          }
-        ],
-        ip: '8.8.8.8'
-      }
-
       nock('https://inbound.mparticle.com')
         .post('/s2s/v2/events', (body) => {
           expect(body.user_identities.other2).toBe('test-rtid-from-integrations')
@@ -163,40 +129,6 @@ describe('RoktCapi.send', () => {
         },
         userId: 'user-456'
       })
-
-      const expectedRoktPayload = {
-        environment: 'production',
-        device_info: {},
-        user_attributes: {},
-        user_identities: {
-          email: 'test2@example.com',
-          customerid: 'user-456',
-          other2: 'rtid-from-url'
-        },
-        integration_attributes: {
-          '1277': {
-            passbackconversiontrackingid: 'rtid-from-url'
-          }
-        },
-        events: [
-          {
-            event_type: 'custom_event',
-            data: {
-              custom_event_type: 'transaction',
-              source_message_id: 'msg-003',
-              timestamp_unixtime_ms: 1705579200000,
-              event_name: 'conversion',
-              custom_attributes: {
-                conversiontype: 'Order Completed',
-                confirmationref: 'order-456',
-                amount: 49.99,
-                currency: 'USD'
-              }
-            }
-          }
-        ],
-        ip: '8.8.8.8'
-      }
 
       nock('https://inbound.mparticle.com')
         .post('/s2s/v2/events', (body) => {
@@ -340,40 +272,6 @@ describe('RoktCapi.send', () => {
         },
         userId: 'user-111'
       })
-
-      const expectedRoktPayload = {
-        environment: 'production',
-        device_info: {},
-        user_attributes: {
-          firstname: 'Jane',
-          lastname: 'Smith',
-          mobile: '+9876543210',
-          billingzipcode: '54321',
-          dob: '19851020',
-          gender: 'f'
-        },
-        user_identities: {
-          email: 'user2@example.com',
-          customerid: 'user-111'
-        },
-        events: [
-          {
-            event_type: 'custom_event',
-            data: {
-              custom_event_type: 'transaction',
-              source_message_id: 'msg-006',
-              timestamp_unixtime_ms: 1705579200000,
-              event_name: 'conversion',
-              custom_attributes: {
-                conversiontype: 'Order Completed',
-                confirmationref: 'order-111',
-                amount: 75.00,
-                currency: 'USD'
-              }
-            }
-          }
-        ]
-      }
 
       nock('https://inbound.mparticle.com')
         .post('/s2s/v2/events', (body) => {
@@ -555,38 +453,6 @@ describe('RoktCapi.send', () => {
         userId: 'user-444'
       })
 
-      const expectedRoktPayload = {
-        environment: 'production',
-        device_info: {},
-        user_attributes: {},
-        user_identities: {
-          email: 'user@test.com',
-          customerid: 'user-444',
-          other2: 'rokt-click-id-999'
-        },
-        integration_attributes: {
-          '1277': {
-            passbackconversiontrackingid: 'rokt-click-id-999'
-          }
-        },
-        events: [
-          {
-            event_type: 'custom_event',
-            data: {
-              custom_event_type: 'transaction',
-              source_message_id: 'msg-009',
-              timestamp_unixtime_ms: 1705579200000,
-              event_name: 'conversion',
-              custom_attributes: {
-                conversiontype: 'Order Completed',
-                confirmationref: 'order-444'
-              }
-            }
-          }
-        ],
-        ip: '8.8.8.8'
-      }
-
       nock('https://inbound.mparticle.com')
         .post('/s2s/v2/events', (body) => {
           expect(body.user_identities.other2).toBe('rokt-click-id-999')
@@ -623,37 +489,6 @@ describe('RoktCapi.send', () => {
         },
         userId: 'user-555'
       })
-
-      const expectedRoktPayload = {
-        environment: 'production',
-        device_info: {},
-        user_attributes: {},
-        user_identities: {
-          email: 'user@test.com',
-          customerid: 'user-555'
-        },
-        events: [
-          {
-            event_type: 'custom_event',
-            data: {
-              custom_event_type: 'transaction',
-              source_message_id: 'msg-010',
-              timestamp_unixtime_ms: 1705579200000,
-              event_name: 'conversion',
-              custom_attributes: {
-                conversiontype: 'Order Completed',
-                confirmationref: 'order-555',
-                amount: 300.00,
-                currency: 'USD',
-                product_name: 'Widget Pro',
-                quantity: 3,
-                is_premium: true
-              }
-            }
-          }
-        ],
-        ip: '8.8.8.8'
-      }
 
       nock('https://inbound.mparticle.com')
         .post('/s2s/v2/events', (body) => {
@@ -846,90 +681,6 @@ describe('RoktCapi.send', () => {
           },
           userId: 'batch-user-003'
         })
-      ]
-
-      const expectedRoktBatchPayload = [
-        {
-          environment: 'production',
-          device_info: {},
-          user_attributes: {},
-          user_identities: {
-            email: 'batch1@example.com',
-            customerid: 'batch-user-001'
-          },
-          events: [
-            {
-              event_type: 'custom_event',
-              data: {
-                custom_event_type: 'transaction',
-                source_message_id: 'batch-msg-001',
-                timestamp_unixtime_ms: 1705579200000,
-                event_name: 'conversion',
-                custom_attributes: {
-                  conversiontype: 'Order Completed',
-                  confirmationref: 'batch-order-001',
-                  amount: 100.00,
-                  currency: 'USD'
-                }
-              }
-            }
-          ],
-          ip: '8.8.8.8'
-        },
-        {
-          environment: 'production',
-          device_info: {},
-          user_attributes: {},
-          user_identities: {
-            email: 'batch2@example.com',
-            customerid: 'batch-user-002'
-          },
-          events: [
-            {
-              event_type: 'custom_event',
-              data: {
-                custom_event_type: 'transaction',
-                source_message_id: 'batch-msg-002',
-                timestamp_unixtime_ms: 1705579260000,
-                event_name: 'conversion',
-                custom_attributes: {
-                  conversiontype: 'Order Completed',
-                  confirmationref: 'batch-order-002',
-                  amount: 200.00,
-                  currency: 'USD'
-                }
-              }
-            }
-          ],
-          ip: '8.8.8.8'
-        },
-        {
-          environment: 'production',
-          device_info: {},
-          user_attributes: {},
-          user_identities: {
-            email: 'batch3@example.com',
-            customerid: 'batch-user-003'
-          },
-          events: [
-            {
-              event_type: 'custom_event',
-              data: {
-                custom_event_type: 'transaction',
-                source_message_id: 'batch-msg-003',
-                timestamp_unixtime_ms: 1705579320000,
-                event_name: 'conversion',
-                custom_attributes: {
-                  conversiontype: 'Order Completed',
-                  confirmationref: 'batch-order-003',
-                  amount: 300.00,
-                  currency: 'USD'
-                }
-              }
-            }
-          ],
-          ip: '8.8.8.8'
-        }
       ]
 
       nock('https://inbound.mparticle.com')
