@@ -111,8 +111,5 @@
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
       "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
     }
-  },
-  "resolutions": {
-    "semver": "6.3.1"
   }
 }

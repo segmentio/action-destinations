@@ -112,8 +112,5 @@
         "isolatedModules": true
       }
     }
-  },
-  "resolutions": {
-    "semver": "6.3.1"
   }
 }
