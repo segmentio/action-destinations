@@ -44,6 +44,12 @@ const destination: AudienceDestinationDefinition<Settings> = {
         description:
           'ID of your Google Ads Account. This should be 10-digits and in XXX-XXX-XXXX format. **Required if you are using a mapping that sends data to the Google Ads API.**',
         type: 'string'
+      },
+      loginCustomerId: {
+        label: 'Login Customer ID',
+        description:
+          'ID of your Google Ads Manager Account. This should be 10-digits and in XXX-XXX-XXXX format. **Required if you want your Manager Account to handle data for its connected accounts.**',
+        type: 'string'
       }
     },
     testAuthentication: async (_request) => {
@@ -70,10 +76,12 @@ const destination: AudienceDestinationDefinition<Settings> = {
       return { accessToken: res.data.access_token }
     }
   },
-  extendRequest({ auth }) {
+  extendRequest({ auth, settings }) {
+    const loginCustomerId = settings?.loginCustomerId?.replace(/-/g, '')
     return {
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`
+        authorization: `Bearer ${auth?.accessToken}`,
+        ...(loginCustomerId && { 'login-customer-id': loginCustomerId })
       }
     }
   },
