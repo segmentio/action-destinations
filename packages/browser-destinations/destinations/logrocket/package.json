@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-logrocket",
-  "version": "1.94.1-staging-cbe8f26f5.0",
+  "version": "1.94.1-staging-32bf0b1ad.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,8 +15,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "3.163.1-staging-cbe8f26f5.0",
-    "@segment/browser-destination-runtime": "1.92.1-staging-cbe8f26f5.0",
+    "@segment/actions-core": "3.163.1-staging-32bf0b1ad.0",
+    "@segment/browser-destination-runtime": "1.92.1-staging-32bf0b1ad.0",
     "logrocket": "^9.0.0"
   },
   "peerDependencies": {
