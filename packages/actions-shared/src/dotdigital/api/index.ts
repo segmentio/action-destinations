@@ -6,3 +6,6 @@ export { default as DDCpaasApi } from './resources/dd-cpaas-api'
 export { default as DDSmsApi } from './resources/dd-sms-api'
 export { default as DDCampaignApi } from './resources/dd-campaign-api'
 export { default as DDEmailApi } from './resources/dd-email-api'
+
+// Re-export types
+export type { default as DDApi } from './dd-api'
