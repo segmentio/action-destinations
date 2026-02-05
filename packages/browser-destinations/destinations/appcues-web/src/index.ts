@@ -45,7 +45,7 @@ export const destination: BrowserDestinationDefinition<Settings, Appcues> = {
       enableURLDetection
     } = settings
     const url = region === 'EU' ? URL.EU : URL.US
-    window.AppcuesSettings = { enableURLDetection };
+    window.AppcuesSettings = { enableURLDetection }
     await deps.loadScript(`//${url}/${accountID}.js`)
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'Appcues'), 100)
     return window.Appcues
