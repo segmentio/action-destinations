@@ -52,7 +52,7 @@ export async function send(request: RequestClient, payload: Payload[], isBatch =
             payload.forEach((p, index) => {
                 if(!msResponse.isErrorResponseAtIndex(index)) {
                     msResponse.setErrorResponseAtIndex(index, {
-                        status: error.response.status,
+                        status: error.response?.status || 500,
                         errormessage: error.message,
                         sent: indexToJsonItem[index] as unknown as JSONLikeObject || {},
                         body: JSON.stringify(p)
