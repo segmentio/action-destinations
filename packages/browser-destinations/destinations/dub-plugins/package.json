@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-dub-plugins",
-  "version": "1.9.1-staging-1806c7b06.0",
+  "version": "1.9.1-staging-4f1ebd4f4.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,7 +15,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "1.92.1-staging-1806c7b06.0"
+    "@segment/browser-destination-runtime": "1.92.1-staging-4f1ebd4f4.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
