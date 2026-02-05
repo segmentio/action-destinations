@@ -83,7 +83,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const lists = await new DDListsApi(api_host, request).getLists()
 
-      const exists = lists.choices.find((list) => list.label === audienceName)
+      const exists = lists.choices.find((list: { value: string; label: string }) => list.label === audienceName)
 
       if(exists) {
         return { externalId: exists.value }
@@ -113,7 +113,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         externalId 
       } = getAudienceInput
       const lists = await new DDListsApi(api_host, request).getLists()
-      const exists = lists.choices.find((list) => list.value === externalId.toString())
+      const exists = lists.choices.find((list: { value: string; label: string }) => list.value === externalId.toString())
       if(!exists) {
         throw new IntegrationError(`Audience with id ${externalId} not found`, 'Not Found', 404)
       }
