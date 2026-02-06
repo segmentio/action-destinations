@@ -7,6 +7,7 @@ import page from './page'
 import identify from './identify'
 import group from './group'
 import { URL } from './constants'
+import { defaultValues } from '@segment/actions-core'
 
 export const destination: BrowserDestinationDefinition<Settings, Appcues> = {
   name: 'Appcues Web',
@@ -32,10 +33,10 @@ export const destination: BrowserDestinationDefinition<Settings, Appcues> = {
     },
     enableURLDetection: {
       label: 'Enable URL Detection',
-      description: 'Enable or disable URL detection in Appcues. If this is disabled, page events should be triggered manually.',
+      description: 'Enable or disable URL detection in Appcues. If enabled, page events should not be triggered manually using the page action.',
       type: 'boolean',
       required: true,
-      default: true
+      default: false
     }
   },
   initialize: async ({ settings }, deps) => {
@@ -50,7 +51,15 @@ export const destination: BrowserDestinationDefinition<Settings, Appcues> = {
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'Appcues'), 100)
     return window.Appcues
   },
-  presets: [],
+  presets: [
+    {
+      name: 'Page',
+      subscribe: 'type = "page"',
+      partnerAction: 'page',
+      mapping: defaultValues(page.fields),
+      type: 'automatic'
+    }
+  ],
   actions: {
     track,
     page,
