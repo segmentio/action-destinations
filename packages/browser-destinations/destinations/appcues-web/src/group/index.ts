@@ -2,7 +2,7 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { Appcues } from '../types'
-import { flatten } from '../functions'
+
 const action: BrowserActionDefinition<Settings, Appcues, Payload> = {
   title: 'Group',
   description: 'Send Segment group events to Appcues.',
@@ -26,8 +26,7 @@ const action: BrowserActionDefinition<Settings, Appcues, Payload> = {
   defaultSubscription: 'type = "group"',
   perform: (appcues, { payload }) => {
     const { groupId, traits } = payload
-    const traitsFlattened = flatten(traits || {})
-    appcues.group(groupId, traitsFlattened)
+    appcues.group(groupId, traits)
   }
 }
 

@@ -69,7 +69,7 @@ describe('Appcues.group', () => {
     })
   })
 
-  test('group() flattens nested traits', async () => {
+  test('group() handles nested traits and arrays', async () => {
     const subscriptions: Subscription[] = [
       {
         partnerAction: 'group',
@@ -113,7 +113,7 @@ describe('Appcues.group', () => {
         city: 'New York',
         country: 'USA'
       },
-      industries: 'tech,finance'
+      industries: ['tech', 'finance']
     })
   })
 })

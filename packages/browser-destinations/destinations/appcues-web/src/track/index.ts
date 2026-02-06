@@ -2,7 +2,6 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { Appcues } from '../types'
-import { flatten } from '../functions'
 
 const action: BrowserActionDefinition<Settings, Appcues, Payload> = {
   title: 'Track',
@@ -27,8 +26,7 @@ const action: BrowserActionDefinition<Settings, Appcues, Payload> = {
   defaultSubscription: 'type = "track"',
   perform: (appcues, { payload }) => {
     const { event, properties } = payload
-    const propertiesFlattened = flatten(properties || {})
-    appcues.track(event, propertiesFlattened)
+    appcues.track(event, properties)
   }
 }
 

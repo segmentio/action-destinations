@@ -70,7 +70,7 @@ describe('Appcues.identify', () => {
     })
   })
 
-  test('identify() flattens nested traits', async () => {
+  test('identify() handles nested traits and arrays', async () => {
     const subscriptions: Subscription[] = [
       {
         partnerAction: 'identify',
@@ -113,7 +113,7 @@ describe('Appcues.identify', () => {
         city: 'San Francisco',
         state: 'CA'
       },
-      tags: 'vip,beta'
+      tags: ['vip', 'beta']
     })
   })
 })

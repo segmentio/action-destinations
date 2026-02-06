@@ -69,7 +69,7 @@ describe('Appcues.track', () => {
     })
   })
 
-  test('track() flattens nested properties', async () => {
+  test('track() handles nested properties and arrays', async () => {
     const subscriptions: Subscription[] = [
       {
         partnerAction: 'track',
@@ -112,7 +112,10 @@ describe('Appcues.track', () => {
 
     expect(mockAppcues.track).toHaveBeenCalledWith('Purchase Completed', {
       total: 99.99,
-      items: '{"name":"Product A","price":49.99},{"name":"Product B","price":50}',
+      items: [
+        { name: 'Product A', price: 49.99 },
+        { name: 'Product B', price: 50.00 }
+      ],
       shipping: {
         method: 'express',
         cost: 10

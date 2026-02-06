@@ -1,5 +1,3 @@
-import { JSONObject } from "@segment/analytics-next"
-
 declare global {
   interface Window {
     Appcues: Appcues
@@ -19,7 +17,5 @@ export interface AppcuesSettings {
 }
 
 export type Properties = {
-  [k: string]: PropValue
+  [k: string]: unknown
 }
-
-export type PropValue = string | number | boolean | null | JSONObject

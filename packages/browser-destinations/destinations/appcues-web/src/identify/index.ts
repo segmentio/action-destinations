@@ -2,7 +2,6 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { Appcues } from '../types'
-import { flatten } from '../functions'
 
 const action: BrowserActionDefinition<Settings, Appcues, Payload> = {
   title: 'Identify',
@@ -27,8 +26,7 @@ const action: BrowserActionDefinition<Settings, Appcues, Payload> = {
   defaultSubscription: 'type = "identify"',
   perform: (appcues, { payload }) => {
     const { userId, traits } = payload
-    const traitsFlattened = flatten(traits || {})
-    appcues.identify(userId, traitsFlattened)
+    appcues.identify(userId, traits)
   }
 }
 
