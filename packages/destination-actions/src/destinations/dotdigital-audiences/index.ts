@@ -78,66 +78,117 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         audienceName,
         audienceSettings: {
           visibility
-        } = {}
+        } = {},
+        statsContext,
+        logger
       } = createAudienceInput
 
-      console.log('createAudience: Starting audience creation',
-        { audienceName, visibility, api_host })
+      const statsClient = statsContext?.statsClient
+      const statsTags = statsContext?.tags
 
-      console.log('createAudience: Fetching existing Dotdigital lists')
-      const lists = await new DDListsApi(api_host, request).getLists()
-      console.log('createAudience: Fetched existing lists',
-        { count: lists.choices?.length || 0 })
+      try {
+        logger?.info('createAudience: Starting audience creation',
+          `audienceName: ${audienceName}`,
+          `visibility: ${visibility}`,
+          `api_host: ${api_host}`)
+        statsClient?.incr('createAudience.started', 1, statsTags)
 
-      const exists = lists.choices.find((list: { value: string; label: string }) => list.label === audienceName)
+        logger?.info('createAudience: Fetching existing Dotdigital lists')
+        const lists = await new DDListsApi(api_host, request).getLists()
+        logger?.info('createAudience: Fetched existing lists',
+          `count: ${lists.choices?.length || 0}`)
+        statsClient?.incr('createAudience.lists_fetched', 1, statsTags)
 
-      if(exists) {
-        console.log('createAudience: Audience already exists',
-          { audienceName, externalId: exists.value })
-        return { externalId: exists.value }
-      }
+        const exists = lists.choices.find((list: { value: string; label: string }) => list.label === audienceName)
 
-      console.log('createAudience: Audience does not exist, creating new audience')
-      const url = `${api_host}/v2/address-books`
-      const json: CreateListJSON = {
-        name: audienceName,
-        visibility: visibility as VisibilityOption
-      }
-
-      console.log('createAudience: Sending POST request to create audience',
-        { url, payload: json })
-
-      const response = await request<CreateListResp>(
-        url,
-        {
-          method: 'POST',
-          json
+        if(exists) {
+          logger?.info('createAudience: Audience already exists',
+            `audienceName: ${audienceName}`,
+            `externalId: ${exists.value}`)
+          statsClient?.incr('createAudience.already_exists', 1, statsTags)
+          return { externalId: exists.value }
         }
-      )
 
-      console.log('createAudience: Received response',
-        { status: response.status })
+        logger?.info('createAudience: Audience does not exist, creating new audience')
+        const url = `${api_host}/v2/address-books`
+        const json: CreateListJSON = {
+          name: audienceName,
+          visibility: visibility as VisibilityOption
+        }
 
-      const jsonOutput = await response.json()
+        logger?.info('createAudience: Sending POST request to create audience',
+          `url: ${url}`,
+          `payload: ${JSON.stringify(json)}`)
 
-      console.log('createAudience: Successfully created audience',
-        { externalId: jsonOutput.id, response: jsonOutput })
+        const response = await request<CreateListResp>(
+          url,
+          {
+            method: 'POST',
+            json
+          }
+        )
 
-      return { externalId: String(jsonOutput.id) }
+        logger?.info('createAudience: Received response',
+          `status: ${response.status}`)
+
+        const jsonOutput = await response.json()
+
+        logger?.info('createAudience: Successfully created audience',
+          `externalId: ${jsonOutput.id}`,
+          `response: ${JSON.stringify(jsonOutput)}`)
+        statsClient?.incr('createAudience.success', 1, statsTags)
+        return { externalId: String(jsonOutput.id) }
+      } catch (error) {
+        logger?.error('createAudience: Error occurred',
+          `error: ${error}`)
+        statsClient?.incr('createAudience.error', 1, statsTags)
+        throw error
+      }
     },
     async getAudience(request, getAudienceInput) {
-      const { 
-        settings: { 
-          api_host 
-        }, 
-        externalId 
+      const {
+        settings: {
+          api_host
+        },
+        externalId,
+        statsContext,
+        logger
       } = getAudienceInput
-      const lists = await new DDListsApi(api_host, request).getLists()
-      const exists = lists.choices.find((list: { value: string; label: string }) => list.value === externalId.toString())
-      if(!exists) {
-        throw new IntegrationError(`Audience with id ${externalId} not found`, 'Not Found', 404)
+
+      const statsClient = statsContext?.statsClient
+      const statsTags = statsContext?.tags
+
+      try {
+        logger?.info('getAudience: Starting audience lookup',
+          `externalId: ${externalId}`,
+          `api_host: ${api_host}`)
+        statsClient?.incr('getAudience.started', 1, statsTags)
+
+        logger?.info('getAudience: Fetching Dotdigital lists')
+        const lists = await new DDListsApi(api_host, request).getLists()
+        logger?.info('getAudience: Fetched lists',
+          `count: ${lists.choices?.length || 0}`)
+        statsClient?.incr('getAudience.lists_fetched', 1, statsTags)
+
+        const exists = lists.choices.find((list: { value: string; label: string }) => list.value === externalId.toString())
+
+        if(!exists) {
+          logger?.warn('getAudience: Audience not found',
+            `externalId: ${externalId}`)
+          statsClient?.incr('getAudience.not_found', 1, statsTags)
+          throw new IntegrationError(`Audience with id ${externalId} not found`, 'Not Found', 404)
+        }
+
+        logger?.info('getAudience: Successfully found audience',
+          `externalId: ${externalId}`)
+        statsClient?.incr('getAudience.success', 1, statsTags)
+        return { externalId }
+      } catch (error) {
+        logger?.error('getAudience: Error occurred',
+          `error: ${error}`)
+        statsClient?.incr('getAudience.error', 1, statsTags)
+        throw error
       }
-      return { externalId }
     }
   },
   actions: {
