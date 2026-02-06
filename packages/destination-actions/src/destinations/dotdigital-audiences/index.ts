@@ -71,29 +71,41 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const { 
+      const {
         settings: {
-          api_host 
-        }, 
-        audienceName, 
-        audienceSettings: { 
-          visibility 
-        } = {} 
+          api_host
+        },
+        audienceName,
+        audienceSettings: {
+          visibility
+        } = {}
       } = createAudienceInput
 
+      console.log('createAudience: Starting audience creation',
+        { audienceName, visibility, api_host })
+
+      console.log('createAudience: Fetching existing Dotdigital lists')
       const lists = await new DDListsApi(api_host, request).getLists()
+      console.log('createAudience: Fetched existing lists',
+        { count: lists.choices?.length || 0 })
 
       const exists = lists.choices.find((list: { value: string; label: string }) => list.label === audienceName)
 
       if(exists) {
+        console.log('createAudience: Audience already exists',
+          { audienceName, externalId: exists.value })
         return { externalId: exists.value }
       }
 
+      console.log('createAudience: Audience does not exist, creating new audience')
       const url = `${api_host}/v2/address-books`
       const json: CreateListJSON = {
         name: audienceName,
         visibility: visibility as VisibilityOption
       }
+
+      console.log('createAudience: Sending POST request to create audience',
+        { url, payload: json })
 
       const response = await request<CreateListResp>(
         url,
@@ -102,7 +114,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           json
         }
       )
+
+      console.log('createAudience: Received response',
+        { status: response.status })
+
       const jsonOutput = await response.json()
+
+      console.log('createAudience: Successfully created audience',
+        { externalId: jsonOutput.id, response: jsonOutput })
+
       return { externalId: String(jsonOutput.id) }
     },
     async getAudience(request, getAudienceInput) {
