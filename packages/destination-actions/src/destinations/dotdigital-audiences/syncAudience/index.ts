@@ -85,8 +85,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
       defaultObjectUI: 'keyvalue:only',
-      additionalProperties: false,
-      dynamic: true
+      additionalProperties: false
     }
   },
   perform: async (request, { payload, settings }) => {

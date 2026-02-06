@@ -18,9 +18,9 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * A Dotdigital list name
+   * A Dotdigital list name. Leave blank to use the audience name from Segment.
    */
-  audienceName: string
+  audienceName?: string
   /**
    * The visibility of the Dotdigital list
    */

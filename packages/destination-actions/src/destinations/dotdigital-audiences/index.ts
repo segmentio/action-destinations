@@ -49,9 +49,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceFields: {
     audienceName: {
       label: 'Dotdigital List Name',
-      description: 'A Dotdigital list name',
+      description: 'A Dotdigital list name. Leave blank to use the audience name from Segment.',
       type: 'string',
-      required: true
+      required: false
     }, 
     visibility: {
       label: 'Visibility',
@@ -77,13 +77,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         }, 
         audienceName, 
         audienceSettings: { 
+          audienceName: customAudienceName,
           visibility 
         } = {} 
       } = createAudienceInput
 
       const lists = await new DDListsApi(api_host, request).getLists()
 
-      const exists = lists.choices.find((list: { value: string; label: string }) => list.label === audienceName)
+      const exists = lists.choices.find((list: { value: string; label: string }) => list.label === (customAudienceName ?? audienceName))
 
       if(exists) {
         return { externalId: exists.value }
@@ -91,7 +92,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const url = `${api_host}/v2/address-books`
       const json: CreateListJSON = {
-        name: audienceName,
+        name: customAudienceName ??audienceName,
         visibility: visibility as VisibilityOption
       }
 
