@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.146.1-staging-876233cf3.0",
+  "version": "1.146.1-staging-f87e29f0c.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -24,13 +24,13 @@
     "@segment/analytics-browser-actions-commandbar": "^1.93.0",
     "@segment/analytics-browser-actions-contentstack-web": "^1.36.0",
     "@segment/analytics-browser-actions-devrev": "^1.80.0",
-    "@segment/analytics-browser-actions-facebook-conversions-api-web": "1.9.1-staging-876233cf3.0",
+    "@segment/analytics-browser-actions-facebook-conversions-api-web": "1.9.1-staging-f87e29f0c.0",
     "@segment/analytics-browser-actions-friendbuy": "^1.96.0",
     "@segment/analytics-browser-actions-fullsession": "^1.5.0",
     "@segment/analytics-browser-actions-fullstory": "^1.95.0",
     "@segment/analytics-browser-actions-google-analytics-4": "^1.103.0",
     "@segment/analytics-browser-actions-google-campaign-manager": "^1.84.0",
-    "@segment/analytics-browser-actions-google-ec-plugins": "1.2.1-staging-876233cf3.0",
+    "@segment/analytics-browser-actions-google-ec-plugins": "1.2.1-staging-f87e29f0c.0",
     "@segment/analytics-browser-actions-heap": "^1.93.0",
     "@segment/analytics-browser-actions-hubspot": "^1.93.0",
     "@segment/analytics-browser-actions-intercom": "^1.101.0",
@@ -43,7 +43,7 @@
     "@segment/analytics-browser-actions-playerzero": "^1.93.0",
     "@segment/analytics-browser-actions-replaybird": "^1.75.0",
     "@segment/analytics-browser-actions-ripe": "^1.94.0",
-    "@segment/analytics-browser-actions-rokt-plugins": "1.1.1-staging-876233cf3.0",
+    "@segment/analytics-browser-actions-rokt-plugins": "1.1.1-staging-f87e29f0c.0",
     "@segment/analytics-browser-actions-sabil": "^1.6.0",
     "@segment/analytics-browser-actions-screeb": "^1.94.0",
     "@segment/analytics-browser-actions-snap-plugins": "^1.75.0",
@@ -56,7 +56,7 @@
     "@segment/analytics-browser-actions-vwo": "^1.96.0",
     "@segment/analytics-browser-actions-wiseops": "^1.94.0",
     "@segment/analytics-browser-hubble-web": "^1.79.0",
-    "@segment/analytics-browser-mixpanel-web-actions": "1.5.1-staging-876233cf3.0",
+    "@segment/analytics-browser-mixpanel-web-actions": "1.5.1-staging-f87e29f0c.0",
     "@segment/browser-destination-runtime": "^1.92.0"
   }
 }
