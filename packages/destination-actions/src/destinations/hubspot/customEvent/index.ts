@@ -64,12 +64,12 @@ const send = async (
   statsContext?.statsClient?.incr(`cache.diff.${cacheSchemaDiff.match}`, 1, statsContext?.tags)
 
   if (cacheSchemaDiff.match === SchemaMatch.FullMatch) {
-    // Convert any numeric values to strings if the cached schema indicates they should be strings
+    
     convertNumericStrings(validPayload, cacheSchemaDiff.numericStrings)
     return await sendEvent(client, (cachedSchema as CachableSchema).fullyQualifiedName, validPayload)
   }
 
-  const hubspotSchema = await getSchemaFromHubspot(client, schema, validPayload)
+  const hubspotSchema = await getSchemaFromHubspot(client, schema)
 
   statsContext?.statsClient?.incr(
     `hubspotSchema.get.${hubspotSchema === undefined ? 'miss' : 'hit'}`,
@@ -80,6 +80,8 @@ const send = async (
   const hubspotSchemaDiff = compareSchemas(schema, hubspotSchema)
 
   statsContext?.statsClient?.incr(`hubspotSchemaDiff.diff.${hubspotSchemaDiff.match}`, 1, statsContext?.tags)
+
+  convertNumericStrings(validPayload, hubspotSchemaDiff.numericStrings)
 
   switch (hubspotSchemaDiff.match) {
     case SchemaMatch.FullMatch: {

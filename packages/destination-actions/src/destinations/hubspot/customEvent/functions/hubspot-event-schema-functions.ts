@@ -11,12 +11,10 @@ import {
   PropertyCreateResp
 } from '../types'
 import { Client } from '../client'
-import { Payload } from '../generated-types'
 
 export async function getSchemaFromHubspot(
   client: Client,
-  schema: Schema,
-  validPayload: Payload
+  schema: Schema
 ): Promise<CachableSchema | undefined> {
   const response = await client.getEventDefinition(schema.name)
 
@@ -55,19 +53,13 @@ export async function getSchemaFromHubspot(
               )
             }
 
-            // If we inferred type as number but HubSpot has string, convert back to string
             if (prop.type === 'number' && maybeMatch.type === 'string') {
-              // Convert the payload property value to string
-              if (validPayload.properties && validPayload.properties[propName] !== undefined) {
-                validPayload.properties[propName] = String(validPayload.properties[propName])
-              }
-              // Update schema to match HubSpot's type
               props[propName] = {
                 type: 'string',
                 stringFormat: 'string'
               }
             }
-            // For other type mismatches with number, still throw error
+
             else if (prop.type === 'number' && ['datetime', 'enumeration'].includes(maybeMatch.type)) {
               throw new PayloadValidationError(
                 `Hubspot.CustomEvent.getSchemaFromHubspot: Expected type ${prop.type} for property ${propName} - Hubspot returned type ${maybeMatch.type}`
