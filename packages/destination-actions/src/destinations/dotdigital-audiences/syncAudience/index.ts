@@ -28,6 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "Segment's friendly name for the Audience",
       type: 'string',
       required: true,
+      dynamic: true,
       default: {
         '@path': '$.context.personas.computation_key'
       }
@@ -84,7 +85,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `An object containing key/value pairs for data fields assigned to this Contact. Custom Data Fields must already be defined in Dotdigital.`,
       type: 'object',
       required: false,
-      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
       defaultObjectUI: 'keyvalue:only',
       additionalProperties: false,
       dynamic: true
@@ -100,7 +100,7 @@ const action: ActionDefinition<Settings, Payload> = {
             method: 'GET',
             skipResponseCloning: true
           })
-      
+
           return {
             choices: [
               ...response.data
