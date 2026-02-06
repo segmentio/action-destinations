@@ -1,15 +1,10 @@
-import {
-  InvalidAuthenticationError,
-  JSONLikeObject,
-  MultiStatusResponse,
-  PayloadValidationError,
-  RequestClient
-} from '@segment/actions-core'
+import { InvalidAuthenticationError } from '@segment/actions-core'
+import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
-import { AudienceRecord, HashedPIIObject, RecordsResponseType } from './types'
+import { AudienceRecord, HashedPIIObject } from './types'
+import { CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID } from './utils'
 import { processHashing } from '../../lib/hashing-utils'
-import { CONSTANTS, REGEX_EXTERNALUSERID, ALPHA_NUMERIC, EMAIL_ALLOWED, NON_DIGIT, SYNC_TO } from './constants'
 import { AMAZON_AMC_API_VERSION } from './versioning-info'
 
 export async function processPayload(
@@ -53,20 +48,7 @@ export async function processPayload(
  */
 export function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: AudienceSettings) {
   const records: AudienceRecord[] = []
-  const [audienceId, connectionId = ''] = payloads[0].audienceId.split(':')
-
-  const { syncTo, advertiserId, amcInstanceId, amcAccountId, amcAccountMarketplaceId } = audienceSettings || {}
-
-  if ((!syncTo || syncTo === SYNC_TO.DSP) && !advertiserId) {
-    throw new PayloadValidationError('Advertiser Id value is required when syncing an audience to DSP')
-  }
-
-  if (syncTo === SYNC_TO.AMC && (!amcInstanceId || !amcAccountId || !amcAccountMarketplaceId)) {
-    throw new PayloadValidationError(
-      'AMC Instance Id, AMC Account Id and AMC Account Marketplace Id value are required when syncing audience to AMC'
-    )
-  }
-
+  const { audienceId } = payloads[0]
   payloads.forEach((payload: Payload) => {
     // Check if the externalUserId matches the pattern
     if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
@@ -89,9 +71,8 @@ export function createPayloadToUploadRecords(payloads: Payload[], audienceSettin
   }
 
   return {
-    records,
-    audienceId,
-    ...(connectionId ? { targetResource: { connectionId } } : {})
+    records: records,
+    audienceId: audienceId
   }
 }
 
@@ -109,27 +90,6 @@ function validateAndPreparePayload(
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}'
-      })
-      return
-    }
-
-    const { syncTo, advertiserId, amcInstanceId, amcAccountId, amcAccountMarketplaceId } = audienceSettings || {}
-
-    if ((!syncTo || syncTo === SYNC_TO.DSP) && !advertiserId) {
-      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Advertiser Id value is required when syncing an audience to DSP'
-      })
-      return
-    }
-
-    if (syncTo === SYNC_TO.AMC && (!amcInstanceId || !amcAccountId || !amcAccountMarketplaceId)) {
-      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage:
-          'AMC Instance Id, AMC Account Id and AMC Account Marketplace Id value are required when syncing audience to AMC'
       })
       return
     }
@@ -178,13 +138,10 @@ export async function processBatchPayload(
     return multiStatusResponse
   }
 
-  const [audienceId, connectionId = ''] = payloads[0].audienceId.split(':')
-
-  const payloadString = JSON.stringify({
-    audienceId: audienceId,
-    records: filteredPayloads,
-    ...(connectionId ? { targetResource: { connectionId } } : {})
-  }).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
+  const payloadString = JSON.stringify({ audienceId: payloads[0].audienceId, records: filteredPayloads }).replace(
+    /"audienceId":"(\d+)"/,
+    '"audienceId":$1'
+  )
 
   const response = await request<RecordsResponseType>(`${settings.region}/amc/audiences/records`, {
     method: 'POST',
@@ -244,17 +201,22 @@ function normalize(value: string, allowedChars: RegExp, trim = true): string {
   return normalized
 }
 
+// Define allowed character patterns
+const alphanumeric = /[^a-z0-9]/g
+const emailAllowed = /[^a-z0-9.@-]/g
+const nonDigits = /[^\d]/g
+
 // Combine city,state,firstName,lastName normalization
 function normalizeStandard(value: string): string {
-  return normalize(value, ALPHA_NUMERIC)
+  return normalize(value, alphanumeric)
 }
 
 function normalizePhone(phone: string): string {
-  return normalize(phone, NON_DIGIT)
+  return normalize(phone, nonDigits)
 }
 
 function normalizeEmail(email: string): string {
-  return normalize(email, EMAIL_ALLOWED)
+  return normalize(email, emailAllowed)
 }
 
 /**
