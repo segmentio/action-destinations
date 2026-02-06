@@ -77,7 +77,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
     }
   },
   extendRequest({ auth, settings }) {
-    const loginCustomerId = settings?.loginCustomerId?.replace(/-/g, '')
+    const loginCustomerId = settings?.loginCustomerId?.trim().replace(/-/g, '')
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,

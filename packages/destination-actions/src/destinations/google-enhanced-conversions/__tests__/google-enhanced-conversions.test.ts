@@ -40,6 +40,35 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses[0].status).toBe(201)
     })
 
+    it('should trim whitespace from loginCustomerId in header', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          email: 'janedoe@gmail.com',
+          orderId: '123'
+        }
+      })
+
+      nock('https://www.google.com/ads/event/api/v1')
+        .post(`?conversion_tracking_id=${conversionTrackingId}`)
+        .reply(201, {})
+
+      const responses = await testDestination.testAction('postConversion', {
+        event,
+        mapping: { conversion_label: conversionLabel },
+        useDefaultMappings: true,
+        settings: {
+          conversionTrackingId,
+          loginCustomerId: '    987-654-3210     '
+        }
+      })
+
+      expect((responses[0].options.headers as any)?.get?.('login-customer-id')).toBe('9876543210')
+      expect((responses[0].options.headers as any)?.has?.('login-customer-id')).toBe(true)
+      expect(responses[0].status).toBe(201)
+    })
+
     it('should strip dashes from loginCustomerId in header', async () => {
       const event = createTestEvent({
         timestamp,
@@ -91,7 +120,39 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      expect((responses[0].options.headers as any)?.get?.('login-customer-id')).toBeNull()
+      const headers = responses[0].options.headers as any
+      expect(headers?.get?.('login-customer-id')).toBeNull()
+      expect(headers?.has?.('login-customer-id')).toBe(false)
+      expect(responses[0].status).toBe(201)
+    })
+
+    it('should not include login-customer-id header when loginCustomerId is an empty string', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          email: 'janedoe@gmail.com',
+          orderId: '123'
+        }
+      })
+
+      nock('https://www.google.com/ads/event/api/v1')
+        .post(`?conversion_tracking_id=${conversionTrackingId}`)
+        .reply(201, {})
+
+      const responses = await testDestination.testAction('postConversion', {
+        event,
+        mapping: { conversion_label: conversionLabel },
+        useDefaultMappings: true,
+        settings: {
+          conversionTrackingId,
+          loginCustomerId: ''
+        }
+      })
+
+      const headers = responses[0].options.headers as any
+      expect(headers?.get?.('login-customer-id')).toBeNull()
+      expect(headers?.has?.('login-customer-id')).toBe(false)
       expect(responses[0].status).toBe(201)
     })
   })
