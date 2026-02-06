@@ -2,9 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import upsertProfile from './upsertProfile'
-
-export const API_VERSION = 'v1'
-export const BASE_URL = 'https://memory.twilio.com'
+import { API_VERSION, BASE_URL } from './versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Memora',
