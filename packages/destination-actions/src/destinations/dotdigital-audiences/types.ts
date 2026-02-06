@@ -10,3 +10,12 @@ export interface CreateListResp {
 }
 
 export type VisibilityOption = 'Public' | 'Private'
+
+export type GetDataFieldResponse = Array<DataFieldResponseItem>
+
+export type DataFieldResponseItem = {
+    name: string
+    type: string
+    visibility: VisibilityOption    
+    defaultvalue: unknown
+}

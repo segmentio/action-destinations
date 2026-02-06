@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { send } from './functions'
+import { GetDataFieldResponse } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -85,7 +86,42 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
       defaultObjectUI: 'keyvalue:only',
-      additionalProperties: false
+      additionalProperties: false,
+      dynamic: true
+    }
+  },
+  dynamicFields: {
+    dataFields: {
+      __keys__: async (request, {settings}) => {
+        const { api_host } = settings
+        try {
+          const url = `${api_host}/v2/data-fields`
+          const response = await request<GetDataFieldResponse>(url, {
+            method: 'GET',
+            skipResponseCloning: true
+          })
+      
+          return {
+            choices: [
+              ...response.data
+                .map((item) => {
+                  return {
+                    label: `${item.name} - ${item.type}`,
+                    value: item.name
+                  }
+                })
+            ]
+          }
+        } catch (err) {
+          return {
+            choices: [],
+            error: {
+              message: err?.response?.data?.message ?? 'Unknown error: dynamicReadProperties',
+              code: err?.response?.status ?? '500'
+            }
+          }
+        }
+      }
     }
   },
   perform: async (request, { payload, settings }) => {

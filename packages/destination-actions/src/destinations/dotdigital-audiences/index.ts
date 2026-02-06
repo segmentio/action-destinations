@@ -25,13 +25,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },    
       username: {
         label: 'Username',
-        description: 'Your Dotdigital username',
+        description: 'Your Dotdigital API username',
         type: 'string',
         required: true
       },
       password: {
         label: 'Password',
-        description: 'Your Dotdigital password.',
+        description: 'Your Dotdigital API password',
         type: 'password',
         required: true
       }
