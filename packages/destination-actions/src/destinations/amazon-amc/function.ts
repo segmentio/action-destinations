@@ -10,6 +10,7 @@ import type { Payload } from './syncAudiencesToDSP/generated-types'
 import { AudienceRecord, HashedPIIObject, RecordsResponseType } from './types'
 import { processHashing } from '../../lib/hashing-utils'
 import { CONSTANTS, REGEX_EXTERNALUSERID, ALPHA_NUMERIC, EMAIL_ALLOWED, NON_DIGIT, SYNC_TO } from './constants'
+import { AMAZON_AMC_API_VERSION } from './versioning-info'
 
 export async function processPayload(
   request: RequestClient,
@@ -25,7 +26,7 @@ export async function processPayload(
     method: 'POST',
     body: payloadString,
     headers: {
-      'Content-Type': 'application/vnd.amcaudiences.v1+json'
+      'Content-Type': `application/vnd.amcaudiences.${AMAZON_AMC_API_VERSION}+json`
     },
     timeout: 15000
   })
