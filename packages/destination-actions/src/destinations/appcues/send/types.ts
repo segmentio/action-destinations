@@ -15,7 +15,7 @@ export interface AppcuesTrackRequest extends BaseAppcuesRequest {
 
 export interface AppcuesIdentifyRequest extends BaseAppcuesRequest {
   type: 'identify'
-  traits: Record<string, unknown>
+  traits?: Record<string, unknown>
 }
 
 export interface AppcuesGroupRequest extends BaseAppcuesRequest {

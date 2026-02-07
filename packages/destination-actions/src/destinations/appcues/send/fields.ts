@@ -1,8 +1,6 @@
-import type { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
+import type { InputField } from '@segment/actions-core'
 
-export const fields: ActionDefinition<Settings, Payload>['fields'] = {
+export const fields: Record<string, InputField> = {
   userId: {
     label: 'User ID',
     description: 'The unique user identifier',

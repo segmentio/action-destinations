@@ -14,7 +14,7 @@ export async function sendToAppcues(request: RequestClient, endpoint: string, ap
   })
 }
 
-export async function performSend(request: RequestClient, payload: Payload, settings: Settings) {
+export async function send(request: RequestClient, payload: Payload, settings: Settings) {
   const { endpoint, apiKey } = settings
   const {
     userId,
