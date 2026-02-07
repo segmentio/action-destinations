@@ -50,7 +50,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Integrations object to control which destinations receive this event
+   * Integrations object
    */
   integrations?: {
     [k: string]: unknown

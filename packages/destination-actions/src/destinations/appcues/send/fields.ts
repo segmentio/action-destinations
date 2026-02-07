@@ -172,7 +172,7 @@ export const fields: Record<string, InputField> = {
   },
   integrations: {
     label: 'Integrations',
-    description: 'Integrations object to control which destinations receive this event',
+    description: 'Integrations object',
     type: 'object',
     default: {
       '@path': '$.integrations'
