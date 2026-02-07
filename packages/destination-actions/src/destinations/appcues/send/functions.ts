@@ -46,7 +46,7 @@ export async function send(request: RequestClient, payload: Payload, settings: S
   const baseFields = buildBaseFields(payload)
   const requests: Promise<unknown>[] = []
 
-  // Build and send primary event based on type
+  // Send track event
   if (type === 'track') {
     if (!event) {
       throw new Error('Event name is required for track events')
@@ -58,7 +58,10 @@ export async function send(request: RequestClient, payload: Payload, settings: S
       ...baseFields
     }
     requests.push(sendToAppcues(request, endpoint, apiKey, trackRequest))
-  } else if (type === 'page') {
+  }
+
+  // Send page event
+  if (type === 'page') {
     const pageRequest: AppcuesPageRequest = {
       type: 'page',
       ...(name ? { name } : {}),
@@ -66,7 +69,10 @@ export async function send(request: RequestClient, payload: Payload, settings: S
       ...baseFields
     }
     requests.push(sendToAppcues(request, endpoint, apiKey, pageRequest))
-  } else if (type === 'screen') {
+  }
+
+  // Send screen event
+  if (type === 'screen') {
     const screenRequest: AppcuesScreenRequest = {
       type: 'screen',
       ...(name ? { name } : {}),
@@ -74,46 +80,35 @@ export async function send(request: RequestClient, payload: Payload, settings: S
       ...baseFields
     }
     requests.push(sendToAppcues(request, endpoint, apiKey, screenRequest))
-  } else if (type === 'identify') {
+  }
+
+  // Send identify event for identify type OR for track/page/screen with user_traits
+  if (
+    type === 'identify' ||
+    (['track', 'page', 'screen'].includes(type) && user_traits && Object.keys(user_traits).length > 0)
+  ) {
     const identifyRequest: AppcuesIdentifyRequest = {
       type: 'identify',
       ...(user_traits && Object.keys(user_traits).length > 0 ? { traits: user_traits } : {}),
       ...baseFields
     }
     requests.push(sendToAppcues(request, endpoint, apiKey, identifyRequest))
-  } else if (type === 'group') {
-    if (groupId) {
-      const groupRequest: AppcuesGroupRequest = {
-        type: 'group',
-        groupId,
-        ...(group_traits && Object.keys(group_traits).length > 0 ? { traits: group_traits } : {}),
-        ...baseFields
-      }
-      requests.push(sendToAppcues(request, endpoint, apiKey, groupRequest))
-    }
-  } else {
-    throw new Error(`Invalid event type: ${type}. Must be one of: track, page, screen, identify, group`)
   }
 
-  // Send additional identify event for track, page, screen if user_traits is present
-  if (['track', 'page', 'screen'].includes(type) && user_traits && Object.keys(user_traits).length > 0) {
-    const identifyRequest: AppcuesIdentifyRequest = {
-      type: 'identify',
-      traits: user_traits,
-      ...baseFields
-    }
-    requests.push(sendToAppcues(request, endpoint, apiKey, identifyRequest))
-  }
-
-  // Send additional group event for non-group types if groupId and group_traits are present
-  if (type !== 'group' && groupId && group_traits && Object.keys(group_traits).length > 0) {
+  // Send group event for group type OR for other types with groupId and group_traits
+  if (groupId && (type === 'group' || (group_traits && Object.keys(group_traits).length > 0))) {
     const groupRequest: AppcuesGroupRequest = {
       type: 'group',
       groupId,
-      traits: group_traits,
+      ...(group_traits && Object.keys(group_traits).length > 0 ? { traits: group_traits } : {}),
       ...baseFields
     }
     requests.push(sendToAppcues(request, endpoint, apiKey, groupRequest))
+  }
+
+  // Validate that at least one event type was valid
+  if (!['track', 'page', 'screen', 'identify', 'group'].includes(type)) {
+    throw new Error(`Invalid event type: ${type}. Must be one of: track, page, screen, identify, group`)
   }
 
   // Execute all requests in parallel
