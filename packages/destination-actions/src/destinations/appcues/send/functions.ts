@@ -1,7 +1,7 @@
 import type { RequestClient } from '@segment/actions-core'
-import type { Settings } from './generated-types'
-import type { Payload } from './send/generated-types'
-import type { AppcuesRequest } from './types'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import type { AppcuesRequest, AppcuesTrackRequest, AppcuesIdentifyRequest, AppcuesGroupRequest } from './types'
 
 export async function sendToAppcues(request: RequestClient, endpoint: string, apiKey: string, data: AppcuesRequest) {
   return request(endpoint, {
@@ -30,11 +30,11 @@ export async function performSend(request: RequestClient, payload: Payload, sett
     messageId
   } = payload
 
-  const requests: Promise<any>[] = []
+  const requests: Promise<unknown>[] = []
 
   // Send track event if event is present
   if (event) {
-    const trackRequest: AppcuesRequest = {
+    const trackRequest: AppcuesTrackRequest = {
       type: 'track',
       event,
       ...(userId ? { userId } : {}),
@@ -51,7 +51,7 @@ export async function performSend(request: RequestClient, payload: Payload, sett
 
   // Send identify event if user_traits is present and has properties
   if (user_traits && Object.keys(user_traits).length > 0) {
-    const identifyRequest: AppcuesRequest = {
+    const identifyRequest: AppcuesIdentifyRequest = {
       type: 'identify',
       traits: user_traits,
       ...(userId ? { userId } : {}),
@@ -67,7 +67,7 @@ export async function performSend(request: RequestClient, payload: Payload, sett
 
   // Send group event if groupId is present
   if (groupId) {
-    const groupRequest: AppcuesRequest = {
+    const groupRequest: AppcuesGroupRequest = {
       type: 'group',
       groupId,
       ...(userId ? { userId } : {}),
