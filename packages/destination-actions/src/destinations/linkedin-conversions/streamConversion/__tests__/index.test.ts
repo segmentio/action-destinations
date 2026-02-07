@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, RefreshTokenAndRetryError } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { BASE_URL } from '../../constants'
 import Destination from '../../index'
@@ -590,6 +590,35 @@ describe('LinkedinConversions.streamConversion', () => {
         }
       })
     ).rejects.toThrowError("User Info is missing the required field 'firstName'.")
+  })
+
+  it('should throw RefreshTokenAndRetryError when LinkedIn returns 401 with serviceErrorCode 65601', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(401, {
+      message: 'The token used in the request has been revoked by the user',
+      serviceErrorCode: 65601,
+      status: 401
+    })
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrow(RefreshTokenAndRetryError)
   })
 
   it('should throw an error if the userInfo object is defined without a last name', async () => {

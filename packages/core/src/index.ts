@@ -36,6 +36,7 @@ export {
   IntegrationError,
   InvalidAuthenticationError,
   RetryableError,
+  RefreshTokenAndRetryError,
   PayloadValidationError,
   SelfTimeoutError,
   APIError,

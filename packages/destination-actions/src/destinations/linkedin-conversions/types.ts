@@ -17,6 +17,7 @@ export interface LinkedInError {
       message: string
       code: string
       status: number
+      serviceErrorCode?: number
     }
   }
 }

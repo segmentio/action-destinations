@@ -1,7 +1,12 @@
 import https from 'https'
 
 import type { DestinationDefinition, ModifiedResponse } from '@segment/actions-core'
-import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
+import {
+  InvalidAuthenticationError,
+  IntegrationError,
+  ErrorCodes,
+  RefreshTokenAndRetryError
+} from '@segment/actions-core'
 
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
@@ -148,7 +153,20 @@ const destination: DestinationDefinition<Settings> = {
         authorization: `Bearer ${auth?.accessToken}`,
         'LinkedIn-Version': LINKEDIN_API_VERSION
       },
-      agent
+      agent,
+      afterResponse: [
+        (_request, _options, response) => {
+          if (response.status === 401) {
+            const body = response.data as Record<string, unknown> | undefined
+            if (body && body.serviceErrorCode === 65601) {
+              throw new RefreshTokenAndRetryError(
+                'LinkedIn eventual consistency: token not yet propagated (serviceErrorCode 65601)'
+              )
+            }
+          }
+          return response
+        }
+      ]
     }
   },
 

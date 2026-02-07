@@ -1,4 +1,4 @@
-import { ErrorCodes, IntegrationError } from '../errors'
+import { ErrorCodes, IntegrationError, RefreshTokenAndRetryError, RetryableError } from '../errors'
 import { ActionDefinition, MultiStatusResponse } from '../destination-kit/action'
 import {
   StateContext,
@@ -1451,6 +1451,74 @@ describe('destination kit', () => {
           { data: 'this is a test', output: 'Action Executed' }
         ])
         expect(spy).toHaveBeenCalledTimes(0)
+      })
+
+      test('should refresh token and throw RetryableError when RefreshTokenAndRetryError is thrown', async () => {
+        let callCount = 0
+        const destinationWithRefreshAndRetry: DestinationDefinition<JSONObject> = {
+          name: 'Test RefreshAndRetry Destination',
+          mode: 'cloud',
+          authentication: authentication,
+          actions: {
+            customEvent: {
+              title: 'Send a Custom Event',
+              description: 'Send events to a custom event in API',
+              defaultSubscription: 'type = "identify"',
+              fields: {
+                advertiserId: {
+                  label: 'Advertiser ID',
+                  description: 'Advertiser Id',
+                  type: 'string',
+                  required: true
+                }
+              },
+              perform: (_request: any) => {
+                callCount++
+                // Always throw RefreshTokenAndRetryError to simulate LinkedIn 65601
+                throw new RefreshTokenAndRetryError(
+                  'LinkedIn eventual consistency: token not yet propagated (serviceErrorCode 65601)'
+                )
+              }
+            }
+          }
+        }
+
+        const destinationTest = new Destination(destinationWithRefreshAndRetry)
+        const testEvent: SegmentEvent = {
+          traits: { a: 'foo' },
+          userId: '3456fff',
+          type: 'identify'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "identify"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event123',
+              advertiserId: '1231241241'
+            }
+          },
+          oauth: {
+            access_token: 'some-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const eventOptions = {
+          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
+            jest.fn(() => Promise.resolve())
+          }
+        }
+        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
+        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
+
+        // handleError should refresh the token and then throw RetryableError
+        await expect(destinationTest.onEvent(testEvent, testSettings, eventOptions)).rejects.toThrow(RetryableError)
+        // The perform was called once, then handleError refreshed the token and threw RetryableError
+        // which exits the retry loop immediately
+        expect(callCount).toBe(1)
+        expect(refreshTokenSpy).toHaveBeenCalledTimes(1)
+        expect(UpdateTokenSpy).toHaveBeenCalledTimes(1)
       })
     })
     describe('onBatch', () => {
