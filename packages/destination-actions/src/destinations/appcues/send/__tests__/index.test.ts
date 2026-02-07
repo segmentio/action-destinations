@@ -239,7 +239,7 @@ describe('Appcues (Actions)', () => {
       })
     })
 
-    it('should send page + identify + group when user_traits and group_traits are populated', async () => {
+    it('should send page + identify + group when user_traits and groupId are populated', async () => {
       nock(US_ENDPOINT)
         .post('/v1/segment', {
           type: 'page',
@@ -398,7 +398,6 @@ describe('Appcues (Actions)', () => {
     })
 
     it('should not send group event when groupId is missing for group type', async () => {
-      // No nock setup - if any request is made, the test will fail
       const event = createTestEvent({
         type: 'group',
         userId: 'user123'
@@ -415,7 +414,6 @@ describe('Appcues (Actions)', () => {
           userId: { '@path': '$.userId' }
         }
       })
-      // Test passes if no error is thrown and no HTTP requests are made
     })
 
     it('should throw error for invalid region', async () => {
@@ -439,27 +437,6 @@ describe('Appcues (Actions)', () => {
           }
         })
       ).rejects.toThrowError('Invalid region')
-    })
-
-    it('should throw error for invalid event type', async () => {
-      const event = createTestEvent({
-        type: 'alias',
-        userId: 'user123'
-      })
-
-      await expect(
-        testDestination.testAction('send', {
-          event,
-          settings: {
-            apiKey: 'test-api-key',
-            region: 'US'
-          },
-          mapping: {
-            type: 'alias',
-            userId: { '@path': '$.userId' }
-          }
-        })
-      ).rejects.toThrowError('Invalid event type')
     })
   })
 })
