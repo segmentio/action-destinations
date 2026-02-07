@@ -95,15 +95,17 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     requests.push(sendToAppcues(request, endpoint, apiKey, identifyRequest))
   }
 
-  // Send group event for group type OR for other types with groupId and group_traits
-  if (groupId && (type === 'group' || (group_traits && Object.keys(group_traits).length > 0))) {
-    const groupRequest: AppcuesGroupRequest = {
-      type: 'group',
-      groupId,
-      ...(group_traits && Object.keys(group_traits).length > 0 ? { traits: group_traits } : {}),
-      ...baseFields
+  // Send group event for group type OR for track/page/screen with groupId
+  if (type === 'group' || (['track', 'page', 'screen'].includes(type) && groupId)) {
+    if (groupId) {
+      const groupRequest: AppcuesGroupRequest = {
+        type: 'group',
+        groupId,
+        ...(group_traits && Object.keys(group_traits).length > 0 ? { traits: group_traits } : {}),
+        ...baseFields
+      }
+      requests.push(sendToAppcues(request, endpoint, apiKey, groupRequest))
     }
-    requests.push(sendToAppcues(request, endpoint, apiKey, groupRequest))
   }
 
   // Validate that at least one event type was valid
