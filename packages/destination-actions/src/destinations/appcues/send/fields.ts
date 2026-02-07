@@ -128,16 +128,6 @@ export const fields: Record<string, InputField> = {
     label: 'Group ID',
     description: 'The unique group identifier',
     type: 'string',
-    required: {
-      match: 'all',
-      conditions: [
-        {
-          fieldKey: 'type',
-          operator: 'is',
-          value: 'group'
-        }
-      ]
-    },
     depends_on: {
       match: 'all',
       conditions: [

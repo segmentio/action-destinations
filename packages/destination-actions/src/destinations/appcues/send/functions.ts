@@ -96,16 +96,15 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     }
 
     case 'group': {
-      if (!groupId) {
-        throw new Error('Group ID is required for group events')
+      if (groupId) {
+        const groupRequest: AppcuesGroupRequest = {
+          type: 'group',
+          groupId,
+          ...(group_traits && Object.keys(group_traits).length > 0 ? { traits: group_traits } : {}),
+          ...baseFields
+        }
+        requests.push(sendToAppcues(request, endpoint, apiKey, groupRequest))
       }
-      const groupRequest: AppcuesGroupRequest = {
-        type: 'group',
-        groupId,
-        ...(group_traits && Object.keys(group_traits).length > 0 ? { traits: group_traits } : {}),
-        ...baseFields
-      }
-      requests.push(sendToAppcues(request, endpoint, apiKey, groupRequest))
       break
     }
 

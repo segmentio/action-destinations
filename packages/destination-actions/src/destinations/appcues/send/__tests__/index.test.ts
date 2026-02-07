@@ -397,25 +397,25 @@ describe('Appcues (Actions)', () => {
       ).rejects.toThrowError('Event name is required for track events')
     })
 
-    it('should throw error when groupId is missing for group type', async () => {
+    it('should not send group event when groupId is missing for group type', async () => {
+      // No nock setup - if any request is made, the test will fail
       const event = createTestEvent({
         type: 'group',
         userId: 'user123'
       })
 
-      await expect(
-        testDestination.testAction('send', {
-          event,
-          settings: {
-            apiKey: 'test-api-key',
-            region: 'US'
-          },
-          mapping: {
-            type: 'group',
-            userId: { '@path': '$.userId' }
-          }
-        })
-      ).rejects.toThrowError('Group ID is required for group events')
+      await testDestination.testAction('send', {
+        event,
+        settings: {
+          apiKey: 'test-api-key',
+          region: 'US'
+        },
+        mapping: {
+          type: 'group',
+          userId: { '@path': '$.userId' }
+        }
+      })
+      // Test passes if no error is thrown and no HTTP requests are made
     })
 
     it('should throw error for invalid region', async () => {
