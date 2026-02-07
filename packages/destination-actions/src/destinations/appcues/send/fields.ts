@@ -1,6 +1,22 @@
 import type { InputField } from '@segment/actions-core'
 
 export const fields: Record<string, InputField> = {
+  type: {
+    label: 'Event Type',
+    description: 'The type of event to send to Appcues',
+    type: 'string',
+    required: true,
+    choices: [
+      { label: 'Track', value: 'track' },
+      { label: 'Page', value: 'page' },
+      { label: 'Screen', value: 'screen' },
+      { label: 'Identify', value: 'identify' },
+      { label: 'Group', value: 'group' }
+    ],
+    default: {
+      '@path': '$.type'
+    }
+  },
   userId: {
     label: 'User ID',
     description: 'The unique user identifier',
@@ -21,12 +37,46 @@ export const fields: Record<string, InputField> = {
     label: 'Event Name',
     description: 'The name of the event to track',
     type: 'string',
+    required: true,
+    depends_on: {
+      match: 'all',
+      conditions: [
+        {
+          fieldKey: 'type',
+          operator: 'is',
+          value: 'track'
+        }
+      ]
+    },
     default: {
       '@path': '$.event'
     }
   },
+  name: {
+    label: 'Name',
+    description: 'The name of the page or screen',
+    type: 'string',
+    depends_on: {
+      match: 'any',
+      conditions: [
+        {
+          fieldKey: 'type',
+          operator: 'is',
+          value: 'page'
+        },
+        {
+          fieldKey: 'type',
+          operator: 'is',
+          value: 'screen'
+        }
+      ]
+    },
+    default: {
+      '@path': '$.name'
+    }
+  },
   properties: {
-    label: 'Event Properties',
+    label: 'Properties',
     description: 'Properties associated with the event',
     type: 'object',
     default: {
@@ -49,6 +99,17 @@ export const fields: Record<string, InputField> = {
     label: 'Group ID',
     description: 'The unique group identifier',
     type: 'string',
+    required: true,
+    depends_on: {
+      match: 'all',
+      conditions: [
+        {
+          fieldKey: 'type',
+          operator: 'is',
+          value: 'group'
+        }
+      ]
+    },
     default: {
       '@path': '$.groupId'
     }

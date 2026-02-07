@@ -1,7 +1,14 @@
 import type { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { AppcuesRequest, AppcuesTrackRequest, AppcuesIdentifyRequest, AppcuesGroupRequest } from './types'
+import type {
+  AppcuesRequest,
+  AppcuesTrackRequest,
+  AppcuesPageRequest,
+  AppcuesScreenRequest,
+  AppcuesIdentifyRequest,
+  AppcuesGroupRequest
+} from './types'
 import { REGION_ENDPOINTS } from '../constants'
 
 export async function sendToAppcues(request: RequestClient, endpoint: string, apiKey: string, data: AppcuesRequest) {
@@ -15,6 +22,18 @@ export async function sendToAppcues(request: RequestClient, endpoint: string, ap
   })
 }
 
+function buildBaseFields(payload: Payload) {
+  const { userId, anonymousId, context, integrations, timestamp, messageId } = payload
+  return {
+    ...(userId ? { userId } : {}),
+    ...(anonymousId ? { anonymousId } : {}),
+    ...(context ? { context } : {}),
+    ...(integrations ? { integrations } : {}),
+    ...(timestamp ? { timestamp } : {}),
+    ...(messageId ? { messageId } : {})
+  }
+}
+
 export async function send(request: RequestClient, payload: Payload, settings: Settings) {
   const { region, apiKey } = settings
   const endpoint = REGION_ENDPOINTS[region]
@@ -23,76 +42,98 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     throw new Error(`Invalid region: ${region}. Must be one of: ${Object.keys(REGION_ENDPOINTS).join(', ')}`)
   }
 
-  const {
-    userId,
-    anonymousId,
-    event,
-    properties,
-    user_traits,
-    groupId,
-    group_traits,
-    context,
-    integrations,
-    timestamp,
-    messageId
-  } = payload
+  const { type, event, name, properties, user_traits, groupId, group_traits } = payload
 
   const requests: Promise<unknown>[] = []
+  const baseFields = buildBaseFields(payload)
 
-  // Send track event if event is present
-  if (event) {
-    const trackRequest: AppcuesTrackRequest = {
-      type: 'track',
-      event,
-      ...(userId ? { userId } : {}),
-      ...(anonymousId ? { anonymousId } : {}),
-      ...(properties ? { properties } : {}),
-      ...(context ? { context } : {}),
-      ...(integrations ? { integrations } : {}),
-      ...(timestamp ? { timestamp } : {}),
-      ...(messageId ? { messageId } : {})
+  // Send primary event based on type
+  switch (type) {
+    case 'track': {
+      if (!event) {
+        throw new Error('Event name is required for track events')
+      }
+      const trackRequest: AppcuesTrackRequest = {
+        type: 'track',
+        event,
+        ...(properties ? { properties } : {}),
+        ...baseFields
+      }
+      requests.push(sendToAppcues(request, endpoint, apiKey, trackRequest))
+      break
     }
 
-    requests.push(sendToAppcues(request, endpoint, apiKey, trackRequest))
+    case 'page': {
+      const pageRequest: AppcuesPageRequest = {
+        type: 'page',
+        ...(name ? { name } : {}),
+        ...(properties ? { properties } : {}),
+        ...baseFields
+      }
+      requests.push(sendToAppcues(request, endpoint, apiKey, pageRequest))
+      break
+    }
+
+    case 'screen': {
+      const screenRequest: AppcuesScreenRequest = {
+        type: 'screen',
+        ...(name ? { name } : {}),
+        ...(properties ? { properties } : {}),
+        ...baseFields
+      }
+      requests.push(sendToAppcues(request, endpoint, apiKey, screenRequest))
+      break
+    }
+
+    case 'identify': {
+      const identifyRequest: AppcuesIdentifyRequest = {
+        type: 'identify',
+        ...(user_traits && Object.keys(user_traits).length > 0 ? { traits: user_traits } : {}),
+        ...baseFields
+      }
+      requests.push(sendToAppcues(request, endpoint, apiKey, identifyRequest))
+      break
+    }
+
+    case 'group': {
+      if (!groupId) {
+        throw new Error('Group ID is required for group events')
+      }
+      const groupRequest: AppcuesGroupRequest = {
+        type: 'group',
+        groupId,
+        ...(group_traits && Object.keys(group_traits).length > 0 ? { traits: group_traits } : {}),
+        ...baseFields
+      }
+      requests.push(sendToAppcues(request, endpoint, apiKey, groupRequest))
+      break
+    }
+
+    default:
+      throw new Error(`Invalid event type: ${type}. Must be one of: track, page, screen, identify, group`)
   }
 
-  // Send identify event if user_traits is present and has properties
-  if (user_traits && Object.keys(user_traits).length > 0) {
+  // Send identify event if user_traits is present (for track, page, screen events)
+  if (type !== 'identify' && user_traits && Object.keys(user_traits).length > 0) {
     const identifyRequest: AppcuesIdentifyRequest = {
       type: 'identify',
       traits: user_traits,
-      ...(userId ? { userId } : {}),
-      ...(anonymousId ? { anonymousId } : {}),
-      ...(context ? { context } : {}),
-      ...(integrations ? { integrations } : {}),
-      ...(timestamp ? { timestamp } : {}),
-      ...(messageId ? { messageId } : {})
+      ...baseFields
     }
-
     requests.push(sendToAppcues(request, endpoint, apiKey, identifyRequest))
   }
 
-  // Send group event if groupId is present
-  if (groupId) {
+  // Send group event if groupId and group_traits are present (for non-group events)
+  if (type !== 'group' && groupId && group_traits && Object.keys(group_traits).length > 0) {
     const groupRequest: AppcuesGroupRequest = {
       type: 'group',
       groupId,
-      ...(userId ? { userId } : {}),
-      ...(anonymousId ? { anonymousId } : {}),
-      ...(group_traits && Object.keys(group_traits).length > 0 ? { traits: group_traits } : {}),
-      ...(context ? { context } : {}),
-      ...(integrations ? { integrations } : {}),
-      ...(timestamp ? { timestamp } : {}),
-      ...(messageId ? { messageId } : {})
+      traits: group_traits,
+      ...baseFields
     }
-
     requests.push(sendToAppcues(request, endpoint, apiKey, groupRequest))
   }
 
   // Execute all requests in parallel
-  if (requests.length === 0) {
-    throw new Error('No valid data to send. At least one of event, user_traits, or groupId must be provided.')
-  }
-
   await Promise.all(requests)
 }

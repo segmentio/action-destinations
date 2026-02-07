@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * The type of event to send to Appcues
+   */
+  type: string
+  /**
    * The unique user identifier
    */
   userId?: string
@@ -13,6 +17,10 @@ export interface Payload {
    * The name of the event to track
    */
   event?: string
+  /**
+   * The name of the page or screen
+   */
+  name?: string
   /**
    * Properties associated with the event
    */
