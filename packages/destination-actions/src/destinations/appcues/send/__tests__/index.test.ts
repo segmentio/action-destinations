@@ -394,7 +394,7 @@ describe('Appcues (Actions)', () => {
             userId: { '@path': '$.userId' }
           }
         })
-      ).rejects.toThrowError('Event name is required for track events')
+      ).rejects.toThrowError("The root value is missing the required field 'event'")
     })
 
     it('should not send group event when groupId is missing for group type', async () => {

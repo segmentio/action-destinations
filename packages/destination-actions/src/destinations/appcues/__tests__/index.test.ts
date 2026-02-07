@@ -11,6 +11,6 @@ describe('Appcues (Actions)', () => {
   it('should have correct authentication fields', () => {
     expect(Destination.authentication.scheme).toBe('custom')
     expect(Destination.authentication.fields.apiKey).toBeDefined()
-    expect(Destination.authentication.fields.endpoint).toBeDefined()
+    expect(Destination.authentication.fields.region).toBeDefined()
   })
 })
