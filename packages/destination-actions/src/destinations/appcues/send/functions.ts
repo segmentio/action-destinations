@@ -94,16 +94,14 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     requests.push(sendToAppcues(request, endpoint, apiKey, identifyRequest))
   }
 
-  if (type === 'group' || (['track', 'page', 'screen'].includes(type) && groupId)) {
-    if (groupId) {
-      const groupRequest: AppcuesGroupRequest = {
-        type: 'group',
-        groupId,
-        ...(group_traits && Object.keys(group_traits).length > 0 ? { traits: group_traits } : {}),
-        ...baseFields
-      }
-      requests.push(sendToAppcues(request, endpoint, apiKey, groupRequest))
+  if (groupId && (type === 'group' || ['track', 'page', 'screen'].includes(type))) {
+    const groupRequest: AppcuesGroupRequest = {
+      type: 'group',
+      groupId,
+      ...(group_traits && Object.keys(group_traits).length > 0 ? { traits: group_traits } : {}),
+      ...baseFields
     }
+    requests.push(sendToAppcues(request, endpoint, apiKey, groupRequest))
   }
 
   await Promise.all(requests)
