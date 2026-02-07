@@ -88,6 +88,26 @@ export const fields: Record<string, InputField> = {
     label: 'Properties',
     description: 'Properties associated with the event',
     type: 'object',
+    depends_on: {
+      match: 'any',
+      conditions: [
+        {
+          fieldKey: 'type',
+          operator: 'is',
+          value: 'track'
+        },
+        {
+          fieldKey: 'type',
+          operator: 'is',
+          value: 'page'
+        },
+        {
+          fieldKey: 'type',
+          operator: 'is',
+          value: 'screen'
+        }
+      ]
+    },
     default: {
       '@path': '$.properties'
     }
