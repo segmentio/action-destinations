@@ -1,11 +1,5 @@
 import type { StatsContext } from '@segment/actions-core'
-import {
-  RequestClient,
-  RetryableError,
-  IntegrationError,
-  InvalidAuthenticationError,
-  RefreshTokenAndRetryError
-} from '@segment/actions-core'
+import { RequestClient, RetryableError, IntegrationError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { LinkedInAudiences } from '../api'
@@ -52,12 +46,6 @@ export async function processPayload(
       ...statsContext?.tags,
       `status_code:${res.status}`
     ])
-    const body = res.data as Record<string, unknown> | undefined
-    if (body && body.serviceErrorCode === 65601) {
-      throw new RefreshTokenAndRetryError(
-        'LinkedIn eventual consistency: token not yet propagated (serviceErrorCode 65601)'
-      )
-    }
     throw new InvalidAuthenticationError(
       'Invalid LinkedIn OAuth access token. Please reauthenticate to retrieve a valid access token.'
     )

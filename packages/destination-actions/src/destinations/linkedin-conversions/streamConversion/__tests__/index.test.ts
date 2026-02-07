@@ -621,6 +621,35 @@ describe('LinkedinConversions.streamConversion', () => {
     ).rejects.toThrow(RefreshTokenAndRetryError)
   })
 
+  it('should throw RefreshTokenAndRetryError when LinkedIn returns 401 with serviceErrorCode 65602', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(401, {
+      message: 'The token used in the request has been revoked by the user',
+      serviceErrorCode: 65602,
+      status: 401
+    })
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrow(RefreshTokenAndRetryError)
+  })
+
   it('should throw an error if the userInfo object is defined without a last name', async () => {
     await expect(
       testDestination.testAction('streamConversion', {

@@ -783,6 +783,34 @@ describe('LinkedinAudiences.updateAudience', () => {
       ).rejects.toThrow(RefreshTokenAndRetryError)
     })
 
+    it('should throw RefreshTokenAndRetryError when LinkedIn API returns 401 with serviceErrorCode 65602', async () => {
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(401, {
+        message: 'The token used in the request has been revoked by the user',
+        serviceErrorCode: 65602,
+        status: 401
+      })
+
+      await expect(
+        testDestination.testAction('updateAudience', {
+          event,
+          settings: {
+            ad_account_id: '123',
+            send_email: true,
+            send_google_advertising_id: true
+          },
+          useDefaultMappings: true,
+          auth,
+          mapping: {
+            personas_audience_key: 'personas_test_audience'
+          }
+        })
+      ).rejects.toThrow(RefreshTokenAndRetryError)
+    })
+
     it('should throw InvalidAuthenticationError when LinkedIn API returns 401 without serviceErrorCode 65601', async () => {
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)

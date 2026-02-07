@@ -8,7 +8,7 @@ import {
 import type { Settings } from './generated-types'
 import { LinkedInConversions } from './api'
 import type { LinkedInTestAuthenticationError, RefreshTokenResponse, LinkedInRefreshTokenError } from './types'
-import { LINKEDIN_API_VERSION } from './constants'
+import { LINKEDIN_API_VERSION, LINKEDIN_TOKEN_PROPAGATION_ERROR_CODES } from './constants'
 import https from 'https'
 import streamConversion from './streamConversion'
 
@@ -110,9 +110,10 @@ const destination: DestinationDefinition<Settings> = {
         (_request, _options, response) => {
           if (response.status === 401) {
             const body = response.data as Record<string, unknown> | undefined
-            if (body && body.serviceErrorCode === 65601) {
+            const serviceErrorCode = body?.serviceErrorCode as number | undefined
+            if (serviceErrorCode && LINKEDIN_TOKEN_PROPAGATION_ERROR_CODES.includes(serviceErrorCode)) {
               throw new RefreshTokenAndRetryError(
-                'LinkedIn eventual consistency: token not yet propagated (serviceErrorCode 65601)'
+                `LinkedIn eventual consistency: token not yet propagated (serviceErrorCode ${serviceErrorCode})`
               )
             }
           }
