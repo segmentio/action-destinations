@@ -1,4 +1,5 @@
 import type { RequestClient } from '@segment/actions-core'
+import { PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type {
@@ -39,17 +40,18 @@ export async function send(request: RequestClient, payload: Payload, settings: S
   const endpoint = REGION_ENDPOINTS[region]
 
   if (!endpoint) {
-    throw new Error(`Invalid region: ${region}. Must be one of: ${Object.keys(REGION_ENDPOINTS).join(', ')}`)
+    throw new PayloadValidationError(
+      `Invalid region: ${region}. Must be one of: ${Object.keys(REGION_ENDPOINTS).join(', ')}`
+    )
   }
 
   const { type, event, name, properties, user_traits, groupId, group_traits } = payload
   const baseFields = buildBaseFields(payload)
   const requests: Promise<unknown>[] = []
 
-  // Send track event
   if (type === 'track') {
     if (!event) {
-      throw new Error('Event name is required for track events')
+      throw new PayloadValidationError('Event name is required for track events')
     }
     const trackRequest: AppcuesTrackRequest = {
       type: 'track',
@@ -60,7 +62,6 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     requests.push(sendToAppcues(request, endpoint, apiKey, trackRequest))
   }
 
-  // Send page event
   if (type === 'page') {
     const pageRequest: AppcuesPageRequest = {
       type: 'page',
@@ -71,7 +72,6 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     requests.push(sendToAppcues(request, endpoint, apiKey, pageRequest))
   }
 
-  // Send screen event
   if (type === 'screen') {
     const screenRequest: AppcuesScreenRequest = {
       type: 'screen',
@@ -82,7 +82,6 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     requests.push(sendToAppcues(request, endpoint, apiKey, screenRequest))
   }
 
-  // Send identify event for identify type OR for track/page/screen with user_traits
   if (
     type === 'identify' ||
     (['track', 'page', 'screen'].includes(type) && user_traits && Object.keys(user_traits).length > 0)
@@ -95,7 +94,6 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     requests.push(sendToAppcues(request, endpoint, apiKey, identifyRequest))
   }
 
-  // Send group event for group type OR for track/page/screen with groupId
   if (type === 'group' || (['track', 'page', 'screen'].includes(type) && groupId)) {
     if (groupId) {
       const groupRequest: AppcuesGroupRequest = {
@@ -108,11 +106,5 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     }
   }
 
-  // Validate that at least one event type was valid
-  if (!['track', 'page', 'screen', 'identify', 'group'].includes(type)) {
-    throw new Error(`Invalid event type: ${type}. Must be one of: track, page, screen, identify, group`)
-  }
-
-  // Execute all requests in parallel
   await Promise.all(requests)
 }
