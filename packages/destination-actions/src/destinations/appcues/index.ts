@@ -17,16 +17,16 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         required: true
       },
-      endpoint: {
-        label: 'Endpoint Region',
-        description: 'Select the regional endpoint for your Appcues account.',
+      region: {
+        label: 'Region',
+        description: 'Select the region for your Appcues account.',
         type: 'string',
         required: true,
         choices: [
-          { label: 'US', value: 'https://segment.appcues.com/v1/segment' },
-          { label: 'EU', value: 'https://segment.eu.appcues.com/v1/segment' }
+          { label: 'US', value: 'US' },
+          { label: 'EU', value: 'EU' }
         ],
-        default: 'https://segment.appcues.com/v1/segment'
+        default: 'US'
       }
     }
   },

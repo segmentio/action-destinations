@@ -44,7 +44,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          endpoint: 'https://segment.appcues.com/v1/segment'
+          region: 'US'
         },
         mapping: {
           userId: { '@path': '$.userId' },
@@ -84,7 +84,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          endpoint: 'https://segment.appcues.com/v1/segment'
+          region: 'US'
         },
         mapping: {
           userId: { '@path': '$.userId' },
@@ -121,7 +121,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          endpoint: 'https://segment.appcues.com/v1/segment'
+          region: 'US'
         },
         useDefaultMappings: true
       })
@@ -156,7 +156,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          endpoint: 'https://segment.appcues.com/v1/segment'
+          region: 'US'
         },
         mapping: {
           userId: { '@path': '$.userId' },
@@ -208,7 +208,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          endpoint: 'https://segment.appcues.com/v1/segment'
+          region: 'US'
         },
         mapping: {
           userId: { '@path': '$.userId' },
@@ -274,7 +274,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          endpoint: 'https://segment.appcues.com/v1/segment'
+          region: 'US'
         },
         mapping: {
           userId: { '@path': '$.userId' },
@@ -322,7 +322,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          endpoint: 'https://segment.appcues.com/v1/segment'
+          region: 'US'
         },
         mapping: {
           userId: { '@path': '$.userId' },
@@ -333,7 +333,7 @@ describe('Appcues (Actions)', () => {
       })
     })
 
-    it('should work with EU endpoint', async () => {
+    it('should work with EU region', async () => {
       nock(EU_ENDPOINT)
         .post('/v1/segment', {
           type: 'track',
@@ -352,7 +352,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          endpoint: 'https://segment.eu.appcues.com/v1/segment'
+          region: 'EU'
         },
         mapping: {
           userId: { '@path': '$.userId' },
@@ -372,7 +372,7 @@ describe('Appcues (Actions)', () => {
           event,
           settings: {
             apiKey: 'test-api-key',
-            endpoint: 'https://segment.appcues.com/v1/segment'
+            region: 'US'
           },
           mapping: {
             userId: { '@path': '$.userId' }
@@ -400,7 +400,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          endpoint: 'https://segment.appcues.com/v1/segment'
+          region: 'US'
         },
         mapping: {
           userId: { '@path': '$.userId' },
@@ -408,6 +408,28 @@ describe('Appcues (Actions)', () => {
           user_traits: {}
         }
       })
+    })
+
+    it('should throw error for invalid region', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Product Viewed',
+        userId: 'user123'
+      })
+
+      await expect(
+        testDestination.testAction('send', {
+          event,
+          settings: {
+            apiKey: 'test-api-key',
+            region: 'INVALID'
+          },
+          mapping: {
+            userId: { '@path': '$.userId' },
+            event: { '@path': '$.event' }
+          }
+        })
+      ).rejects.toThrowError('Invalid region')
     })
   })
 })

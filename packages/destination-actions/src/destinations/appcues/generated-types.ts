@@ -6,7 +6,7 @@ export interface Settings {
    */
   apiKey: string
   /**
-   * Select the regional endpoint for your Appcues account.
+   * Select the region for your Appcues account.
    */
-  endpoint: string
+  region: string
 }

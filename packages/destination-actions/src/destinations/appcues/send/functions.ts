@@ -2,6 +2,7 @@ import type { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { AppcuesRequest, AppcuesTrackRequest, AppcuesIdentifyRequest, AppcuesGroupRequest } from './types'
+import { REGION_ENDPOINTS } from '../constants'
 
 export async function sendToAppcues(request: RequestClient, endpoint: string, apiKey: string, data: AppcuesRequest) {
   return request(endpoint, {
@@ -15,7 +16,13 @@ export async function sendToAppcues(request: RequestClient, endpoint: string, ap
 }
 
 export async function send(request: RequestClient, payload: Payload, settings: Settings) {
-  const { endpoint, apiKey } = settings
+  const { region, apiKey } = settings
+  const endpoint = REGION_ENDPOINTS[region]
+
+  if (!endpoint) {
+    throw new Error(`Invalid region: ${region}. Must be one of: ${Object.keys(REGION_ENDPOINTS).join(', ')}`)
+  }
+
   const {
     userId,
     anonymousId,
