@@ -1,6 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import send from './send'
+import { presets } from './presets'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Appcues (Actions)',
@@ -30,6 +31,8 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
+
+  presets,
 
   actions: {
     send
