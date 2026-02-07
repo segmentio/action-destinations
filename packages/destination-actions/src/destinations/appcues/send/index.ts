@@ -1,27 +1,8 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
-interface AppcuesRequest {
-  type: string
-  userId?: string
-  anonymousId?: string
-  event?: string
-  properties?: Record<string, any>
-  traits?: Record<string, any>
-  groupId?: string
-}
-
-async function sendToAppcues(request: RequestClient, endpoint: string, apiKey: string, data: AppcuesRequest) {
-  return request(endpoint, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    json: data
-  })
-}
+import type { AppcuesRequest } from '../types'
+import { sendToAppcues } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
@@ -46,7 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.anonymousId'
       }
     },
-    event_name: {
+    event: {
       label: 'Event Name',
       description: 'The name of the event to track',
       type: 'string',
@@ -67,7 +48,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Traits to identify the user with',
       type: 'object',
       default: {
-        '@path': '$.traits'
+        '@if': {
+          exists: { '@path': '$.context.traits' },
+          then: { '@path': '$.context.traits' },
+          else: { '@path': '$.traits' }
+        }
       }
     },
     groupId: {
@@ -81,29 +66,73 @@ const action: ActionDefinition<Settings, Payload> = {
     group_traits: {
       label: 'Group Traits',
       description: 'Traits associated with the group',
+      type: 'object'
+    },
+    context: {
+      label: 'Context',
+      description: 'Context object containing additional event metadata',
       type: 'object',
       default: {
-        '@path': '$.traits'
+        '@path': '$.context'
+      }
+    },
+    integrations: {
+      label: 'Integrations',
+      description: 'Integrations object to control which destinations receive this event',
+      type: 'object',
+      default: {
+        '@path': '$.integrations'
+      }
+    },
+    timestamp: {
+      label: 'Timestamp',
+      description: 'The timestamp of the event',
+      type: 'string',
+      default: {
+        '@path': '$.timestamp'
+      }
+    },
+    messageId: {
+      label: 'Message ID',
+      description: 'The unique message identifier',
+      type: 'string',
+      default: {
+        '@path': '$.messageId'
       }
     }
   },
 
   perform: async (request, { payload, settings }) => {
     const { endpoint, apiKey } = settings
-    const { userId, anonymousId, event_name, properties, user_traits, groupId, group_traits } = payload
+    const {
+      userId,
+      anonymousId,
+      event,
+      properties,
+      user_traits,
+      groupId,
+      group_traits,
+      context,
+      integrations,
+      timestamp,
+      messageId
+    } = payload
 
     const requests: Promise<any>[] = []
 
-    // Send track event if event_name is present
-    if (event_name) {
+    // Send track event if event is present
+    if (event) {
       const trackRequest: AppcuesRequest = {
         type: 'track',
-        event: event_name
+        event,
+        ...(userId ? { userId } : {}),
+        ...(anonymousId ? { anonymousId } : {}),
+        ...(properties ? { properties } : {}),
+        ...(context ? { context } : {}),
+        ...(integrations ? { integrations } : {}),
+        ...(timestamp ? { timestamp } : {}),
+        ...(messageId ? { messageId } : {})
       }
-
-      if (userId) trackRequest.userId = userId
-      if (anonymousId) trackRequest.anonymousId = anonymousId
-      if (properties) trackRequest.properties = properties
 
       requests.push(sendToAppcues(request, endpoint, apiKey, trackRequest))
     }
@@ -112,11 +141,14 @@ const action: ActionDefinition<Settings, Payload> = {
     if (user_traits && Object.keys(user_traits).length > 0) {
       const identifyRequest: AppcuesRequest = {
         type: 'identify',
-        traits: user_traits
+        traits: user_traits,
+        ...(userId ? { userId } : {}),
+        ...(anonymousId ? { anonymousId } : {}),
+        ...(context ? { context } : {}),
+        ...(integrations ? { integrations } : {}),
+        ...(timestamp ? { timestamp } : {}),
+        ...(messageId ? { messageId } : {})
       }
-
-      if (userId) identifyRequest.userId = userId
-      if (anonymousId) identifyRequest.anonymousId = anonymousId
 
       requests.push(sendToAppcues(request, endpoint, apiKey, identifyRequest))
     }
@@ -125,13 +157,14 @@ const action: ActionDefinition<Settings, Payload> = {
     if (groupId) {
       const groupRequest: AppcuesRequest = {
         type: 'group',
-        groupId: groupId
-      }
-
-      if (userId) groupRequest.userId = userId
-      if (anonymousId) groupRequest.anonymousId = anonymousId
-      if (group_traits && Object.keys(group_traits).length > 0) {
-        groupRequest.traits = group_traits
+        groupId,
+        ...(userId ? { userId } : {}),
+        ...(anonymousId ? { anonymousId } : {}),
+        ...(group_traits && Object.keys(group_traits).length > 0 ? { traits: group_traits } : {}),
+        ...(context ? { context } : {}),
+        ...(integrations ? { integrations } : {}),
+        ...(timestamp ? { timestamp } : {}),
+        ...(messageId ? { messageId } : {})
       }
 
       requests.push(sendToAppcues(request, endpoint, apiKey, groupRequest))
@@ -139,7 +172,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Execute all requests in parallel
     if (requests.length === 0) {
-      throw new Error('No valid data to send. At least one of event_name, user_traits, or groupId must be provided.')
+      throw new Error('No valid data to send. At least one of event, user_traits, or groupId must be provided.')
     }
 
     await Promise.all(requests)

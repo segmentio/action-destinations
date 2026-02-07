@@ -8,7 +8,10 @@ const EU_ENDPOINT = 'https://segment.eu.appcues.com'
 
 describe('Appcues (Actions)', () => {
   describe('send', () => {
-    it('should send a track event when event_name is present', async () => {
+    it('should send a track event when event is present', async () => {
+      const timestamp = '2024-01-01T00:00:00.000Z'
+      const messageId = 'test-message-id-123'
+
       nock(US_ENDPOINT)
         .post('/v1/segment', {
           type: 'track',
@@ -18,7 +21,9 @@ describe('Appcues (Actions)', () => {
           properties: {
             product_id: 'prod123',
             name: 'Test Product'
-          }
+          },
+          timestamp,
+          messageId
         })
         .reply(200, { success: true })
 
@@ -27,6 +32,8 @@ describe('Appcues (Actions)', () => {
         event: 'Product Viewed',
         userId: 'user123',
         anonymousId: 'anon123',
+        timestamp,
+        messageId,
         properties: {
           product_id: 'prod123',
           name: 'Test Product'
@@ -42,8 +49,10 @@ describe('Appcues (Actions)', () => {
         mapping: {
           userId: { '@path': '$.userId' },
           anonymousId: { '@path': '$.anonymousId' },
-          event_name: { '@path': '$.event' },
-          properties: { '@path': '$.properties' }
+          event: { '@path': '$.event' },
+          properties: { '@path': '$.properties' },
+          timestamp: { '@path': '$.timestamp' },
+          messageId: { '@path': '$.messageId' }
         }
       })
     })
@@ -82,6 +91,39 @@ describe('Appcues (Actions)', () => {
           anonymousId: { '@path': '$.anonymousId' },
           user_traits: { '@path': '$.traits' }
         }
+      })
+    })
+
+    it('should use context.traits for user_traits with conditional default', async () => {
+      nock(US_ENDPOINT)
+        .post('/v1/segment', {
+          type: 'identify',
+          userId: 'user123',
+          traits: {
+            email: 'test@example.com',
+            plan: 'enterprise'
+          }
+        })
+        .reply(200, { success: true })
+
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user123',
+        context: {
+          traits: {
+            email: 'test@example.com',
+            plan: 'enterprise'
+          }
+        }
+      })
+
+      await testDestination.testAction('send', {
+        event,
+        settings: {
+          apiKey: 'test-api-key',
+          endpoint: 'https://segment.appcues.com/v1/segment'
+        },
+        useDefaultMappings: true
       })
     })
 
@@ -171,7 +213,7 @@ describe('Appcues (Actions)', () => {
         mapping: {
           userId: { '@path': '$.userId' },
           anonymousId: { '@path': '$.anonymousId' },
-          event_name: { '@path': '$.event' },
+          event: { '@path': '$.event' },
           properties: { '@path': '$.properties' },
           user_traits: { '@path': '$.traits' }
         }
@@ -237,13 +279,56 @@ describe('Appcues (Actions)', () => {
         mapping: {
           userId: { '@path': '$.userId' },
           anonymousId: { '@path': '$.anonymousId' },
-          event_name: { '@path': '$.event' },
+          event: { '@path': '$.event' },
           properties: { '@path': '$.properties' },
           user_traits: { '@path': '$.traits' },
           groupId: { '@path': '$.groupId' },
           group_traits: {
             name: 'Acme Inc'
           }
+        }
+      })
+    })
+
+    it('should include context and integrations when present', async () => {
+      const context = {
+        library: { name: 'analytics.js', version: '4.0.0' },
+        page: { url: 'https://example.com' }
+      }
+      const integrations = {
+        All: false,
+        Appcues: true
+      }
+
+      nock(US_ENDPOINT)
+        .post('/v1/segment', {
+          type: 'track',
+          userId: 'user123',
+          event: 'Page Viewed',
+          context,
+          integrations
+        })
+        .reply(200, { success: true })
+
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Page Viewed',
+        userId: 'user123',
+        context,
+        integrations
+      })
+
+      await testDestination.testAction('send', {
+        event,
+        settings: {
+          apiKey: 'test-api-key',
+          endpoint: 'https://segment.appcues.com/v1/segment'
+        },
+        mapping: {
+          userId: { '@path': '$.userId' },
+          event: { '@path': '$.event' },
+          context: { '@path': '$.context' },
+          integrations: { '@path': '$.integrations' }
         }
       })
     })
@@ -271,7 +356,7 @@ describe('Appcues (Actions)', () => {
         },
         mapping: {
           userId: { '@path': '$.userId' },
-          event_name: { '@path': '$.event' }
+          event: { '@path': '$.event' }
         }
       })
     })
@@ -319,7 +404,7 @@ describe('Appcues (Actions)', () => {
         },
         mapping: {
           userId: { '@path': '$.userId' },
-          event_name: { '@path': '$.event' },
+          event: { '@path': '$.event' },
           user_traits: {}
         }
       })

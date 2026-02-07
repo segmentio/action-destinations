@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * The name of the event to track
    */
-  event_name?: string
+  event?: string
   /**
    * Properties associated with the event
    */
@@ -35,4 +35,24 @@ export interface Payload {
   group_traits?: {
     [k: string]: unknown
   }
+  /**
+   * Context object containing additional event metadata
+   */
+  context?: {
+    [k: string]: unknown
+  }
+  /**
+   * Integrations object to control which destinations receive this event
+   */
+  integrations?: {
+    [k: string]: unknown
+  }
+  /**
+   * The timestamp of the event
+   */
+  timestamp?: string
+  /**
+   * The unique message identifier
+   */
+  messageId?: string
 }
