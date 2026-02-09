@@ -276,14 +276,12 @@ export const fields: Record<string, InputField> = {
             customAudienceName: {
                 label: 'Audience Name',
                 description: 'Name of the audience for audience membership updates. If connecting to a Segment Engage Audience leave the field empty.',
-                type: 'string',
-               // required: true
+                type: 'string'
             },
             customAudienceMembership: {
                 label: 'Audience Membership',
                 description: 'Boolean indicating whether the user is a member of the audience. If connecting to a Segment Engage Audience leave this field empty.',
-                type: 'boolean',
-                //required: true
+                type: 'boolean'
             }
         },
         default: {

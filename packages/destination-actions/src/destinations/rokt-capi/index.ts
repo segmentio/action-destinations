@@ -45,6 +45,16 @@ const destination: DestinationDefinition<Settings> = {
         type: 'automatic'
     },
     {
+        name: 'Sync Engage Audience',
+        subscribe: 'type = "identify"',
+        partnerAction: 'send',
+        mapping: {
+          ...defaultValues(send.fields),
+          rtid: { '@path': '$.traits.rtid' }
+        },
+        type: 'automatic'
+    },
+    {
         name: 'Rokt Browser Plugin',
         subscribe: 'type = "track" or type = "identify" or type = "page" or type = "group" or type = "alias"',
         partnerAction: 'roktPlugin',
