@@ -52,7 +52,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
         type: 'string'
       }
     },
-    testAuthentication: async (_request) => {
+    testAuthentication: async (_request, { settings }) => {
       /* NOTE: Commenting this out until we surface the OAuth login flow in the Actions configuration wizard
       const res = await request<UserInfoResponse>('https://www.googleapis.com/oauth2/v3/userinfo', {
         method: 'GET'
@@ -60,6 +60,19 @@ const destination: AudienceDestinationDefinition<Settings> = {
 
       return { name: res.data.name || res.data.email }
       */
+
+      // Validate loginCustomerId format if provided
+      if (settings.loginCustomerId) {
+        const cleanedId = settings.loginCustomerId.replace(/-/g, '')
+        if (!/^\d{10}$/.test(cleanedId)) {
+          throw new IntegrationError(
+            'Login Customer ID must be 10 digits in XXX-XXX-XXXX format',
+            'INVALID_LOGIN_CUSTOMER_ID',
+            400
+          )
+        }
+      }
+
       return true
     },
     refreshAccessToken: async (request, { auth }) => {
