@@ -64,7 +64,6 @@ const send = async (
   statsContext?.statsClient?.incr(`cache.diff.${cacheSchemaDiff.match}`, 1, statsContext?.tags)
 
   if (cacheSchemaDiff.match === SchemaMatch.FullMatch) {
-    
     convertNumericStrings(validPayload, cacheSchemaDiff.numericStrings)
     return await sendEvent(client, (cachedSchema as CachableSchema).fullyQualifiedName, validPayload)
   }
@@ -97,7 +96,14 @@ const send = async (
           400
         )
       }
-      const cacheableSchema = { ...schema, fullyQualifiedName: (hubspotSchema as CachableSchema).fullyQualifiedName }
+      const cacheableSchema = {
+        ...schema,
+        fullyQualifiedName: (hubspotSchema as CachableSchema).fullyQualifiedName,
+        properties: {
+          ...(hubspotSchema as CachableSchema).properties, // Existing properties from HubSpot with their types instead of inferred types
+          ...hubspotSchemaDiff.missingProperties // Add new properties with inferred types
+        }
+      }
       await updateHubspotSchema(client, cacheableSchema.fullyQualifiedName, hubspotSchemaDiff)
       await saveSchemaToCache(cacheableSchema, subscriptionMetadata, statsContext)
       return await sendEvent(client, cacheableSchema.fullyQualifiedName, validPayload)

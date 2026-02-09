@@ -1098,5 +1098,110 @@ describe('Hubspot.customEvent', () => {
       expect(responses.length).toBe(2)
       expect(responses[1].status).toBe(200)
     })
+
+    it('should convert numeric strings on subsequent cache hits after PropertiesMissing case', async () => {
+      const event1 = createTestEvent({
+        timestamp: timestamp,
+        event: 'Custom Event 7',
+        messageId: 'aaa-bbb-ccc',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: {
+          numeric_string_prop: '123', // Will be inferred as number, but HubSpot has it as string
+          new_prop: 'new value' // Triggers PropertiesMissing
+        }
+      } as Partial<SegmentEvent>)
+
+      // fetches the event definition from Hubspot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_7/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_7',
+          fullyQualifiedName: 'pe23132826_custom_event_7',
+          properties: [
+            {
+              name: 'numeric_string_prop',
+              type: 'string', // HubSpot has this as string
+              archived: false
+            }
+            // new_prop doesn't exist yet - this triggers PropertiesMissing
+          ]
+        })
+
+      // creates property on Hubspot
+      nock('https://api.hubapi.com')
+        .post('/events/v3/event-definitions/pe23132826_custom_event_7/property', {
+          name: 'new_prop',
+          label: 'new_prop',
+          type: 'string',
+          description: 'new_prop - (created by Segment)'
+        })
+        .reply(200, {})
+
+      // sends first event completion to Hubspot
+      nock('https://api.hubapi.com')
+        .post('/events/v3/send', {
+          eventName: 'pe23132826_custom_event_7',
+          objectId: undefined,
+          email: 'bibitybobity@example.com',
+          utk: undefined,
+          occurredAt: timestamp,
+          properties: {
+            numeric_string_prop: '123', // Should be converted to string
+            new_prop: 'new value'
+          }
+        })
+        .reply(200, {})
+
+      const responses1 = await testDestination.testAction('customEvent', {
+        event: event1,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses1.length).toBe(3)
+      expect(responses1[2].status).toBe(200)
+
+      // Event 2: Same schema, should hit cache
+      const event2 = createTestEvent({
+        timestamp: timestamp,
+        event: 'Custom Event 7',
+        messageId: 'ddd-eee-fff',
+        type: 'track',
+        userId: 'user_id_2',
+        properties: {
+          numeric_string_prop: '456', // Different numeric string value
+          new_prop: 'another value'
+        }
+      } as Partial<SegmentEvent>)
+
+      // sends second event completion to Hubspot - should NOT fetch schema (cache hit)
+      nock('https://api.hubapi.com')
+        .post('/events/v3/send', {
+          eventName: 'pe23132826_custom_event_7',
+          objectId: undefined,
+          email: 'bibitybobity@example.com',
+          utk: undefined,
+          occurredAt: timestamp,
+          properties: {
+            numeric_string_prop: '456', // SHOULD be converted to string
+            new_prop: 'another value'
+          }
+        })
+        .reply(200, {})
+
+      const responses2 = await testDestination.testAction('customEvent', {
+        event: event2,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses2.length).toBe(1) // Cache hit, no HubSpot schema fetch
+      expect(responses2[0].status).toBe(200)
+    })
   })
 })
