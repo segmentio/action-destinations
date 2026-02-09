@@ -97,7 +97,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: 10,
       readOnly: false,
-      unsafe_hidden: false
+      unsafe_hidden: true
     },
     batch_keys: {
       label: 'Batch Keys',
@@ -105,7 +105,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       multiple: true,
-      default: ['anonymousId', 'userId']
+      default: ['anonymousId', 'userId'],
+      unsafe_hidden: true
     }
   },
   perform: async (request, { payload, settings }) => {
