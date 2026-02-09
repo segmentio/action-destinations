@@ -8,6 +8,61 @@ const conversionTrackingId = '_conversion_id_'
 const conversionLabel = '_conversion_'
 
 describe('GoogleEnhancedConversions', () => {
+  describe('testAuthentication', () => {
+    it('should validate loginCustomerId format - valid format', async () => {
+      await expect(
+        testDestination.testAuthentication({
+          conversionTrackingId,
+          loginCustomerId: '123-456-7890'
+        })
+      ).resolves.not.toThrow()
+    })
+
+    it('should validate loginCustomerId format - valid format without dashes', async () => {
+      await expect(
+        testDestination.testAuthentication({
+          conversionTrackingId,
+          loginCustomerId: '1234567890'
+        })
+      ).resolves.not.toThrow()
+    })
+
+    it('should reject loginCustomerId with invalid format - too few digits', async () => {
+      await expect(
+        testDestination.testAuthentication({
+          conversionTrackingId,
+          loginCustomerId: '123-456-789'
+        })
+      ).rejects.toThrow('Login Customer ID must be 10 digits in XXX-XXX-XXXX format')
+    })
+
+    it('should reject loginCustomerId with invalid format - too many digits', async () => {
+      await expect(
+        testDestination.testAuthentication({
+          conversionTrackingId,
+          loginCustomerId: '123-456-78901'
+        })
+      ).rejects.toThrow('Login Customer ID must be 10 digits in XXX-XXX-XXXX format')
+    })
+
+    it('should reject loginCustomerId with invalid format - contains letters', async () => {
+      await expect(
+        testDestination.testAuthentication({
+          conversionTrackingId,
+          loginCustomerId: '123-456-789A'
+        })
+      ).rejects.toThrow('Login Customer ID must be 10 digits in XXX-XXX-XXXX format')
+    })
+
+    it('should allow empty/undefined loginCustomerId since it is optional', async () => {
+      await expect(
+        testDestination.testAuthentication({
+          conversionTrackingId
+        })
+      ).resolves.not.toThrow()
+    })
+  })
+
   describe('extendRequest - login-customer-id header', () => {
     it('should include login-customer-id header when loginCustomerId is provided', async () => {
       const event = createTestEvent({
