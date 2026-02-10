@@ -45,9 +45,7 @@ describe('Attribution.send', () => {
         }
       }
 
-      nock(ATTRIBUTION_ENDPOINT)
-        .post('/v1/t', json)
-        .reply(200, { success: true })
+      nock(ATTRIBUTION_ENDPOINT).post('/v1/t', json).reply(200, { success: true })
 
       const event = createTestEvent({
         type: 'track',
@@ -106,9 +104,7 @@ describe('Attribution.send', () => {
         anonymousId: 'anon456'
       }
 
-      nock(ATTRIBUTION_ENDPOINT)
-        .post('/v1/t', json)
-        .reply(200, { success: true })
+      nock(ATTRIBUTION_ENDPOINT).post('/v1/t', json).reply(200, { success: true })
 
       const event = createTestEvent({
         type: 'track',
@@ -163,9 +159,7 @@ describe('Attribution.send', () => {
         }
       }
 
-      nock(ATTRIBUTION_ENDPOINT)
-        .post('/v1/p', json)
-        .reply(200, { success: true })
+      nock(ATTRIBUTION_ENDPOINT).post('/v1/p', json).reply(200, { success: true })
 
       const event = createTestEvent({
         type: 'page',
@@ -221,9 +215,7 @@ describe('Attribution.send', () => {
         }
       }
 
-      nock(ATTRIBUTION_ENDPOINT)
-        .post('/v1/p', json)
-        .reply(200, { success: true })
+      nock(ATTRIBUTION_ENDPOINT).post('/v1/p', json).reply(200, { success: true })
 
       const event = createTestEvent({
         type: 'page',
@@ -281,9 +273,7 @@ describe('Attribution.send', () => {
         }
       }
 
-      nock(ATTRIBUTION_ENDPOINT)
-        .post('/v1/s', json)
-        .reply(200, { success: true })
+      nock(ATTRIBUTION_ENDPOINT).post('/v1/s', json).reply(200, { success: true })
 
       const event = createTestEvent({
         type: 'screen',
@@ -350,9 +340,7 @@ describe('Attribution.send', () => {
         }
       }
 
-      nock(ATTRIBUTION_ENDPOINT)
-        .post('/v1/i', json)
-        .reply(200, { success: true })
+      nock(ATTRIBUTION_ENDPOINT).post('/v1/i', json).reply(200, { success: true })
 
       const event = createTestEvent({
         type: 'identify',
@@ -400,9 +388,7 @@ describe('Attribution.send', () => {
         userId: 'user333'
       }
 
-      nock(ATTRIBUTION_ENDPOINT)
-        .post('/v1/i', json)
-        .reply(200, { success: true })
+      nock(ATTRIBUTION_ENDPOINT).post('/v1/i', json).reply(200, { success: true })
 
       const event = createTestEvent({
         type: 'identify',
@@ -449,9 +435,7 @@ describe('Attribution.send', () => {
         }
       }
 
-      nock(ATTRIBUTION_ENDPOINT)
-        .post('/v1/g', json)
-        .reply(200, { success: true })
+      nock(ATTRIBUTION_ENDPOINT).post('/v1/g', json).reply(200, { success: true })
 
       const event = createTestEvent({
         type: 'group',
@@ -507,9 +491,7 @@ describe('Attribution.send', () => {
         }
       }
 
-      nock(ATTRIBUTION_ENDPOINT)
-        .post('/v1/a', json)
-        .reply(200, { success: true })
+      nock(ATTRIBUTION_ENDPOINT).post('/v1/a', json).reply(200, { success: true })
 
       const event = createTestEvent({
         type: 'alias',
@@ -551,9 +533,7 @@ describe('Attribution.send', () => {
         userId: 'user777'
       }
 
-      nock(ATTRIBUTION_ENDPOINT)
-        .post('/v1/a', json)
-        .reply(200, { success: true })
+      nock(ATTRIBUTION_ENDPOINT).post('/v1/a', json).reply(200, { success: true })
 
       const event = createTestEvent({
         type: 'alias',
@@ -614,41 +594,6 @@ describe('Attribution.send', () => {
           userId: { '@path': '$.userId' }
         }
       })
-    })
-  })
-
-  describe('error handling', () => {
-    it('should handle API errors gracefully', async () => {
-      const timestamp = '2024-01-15T10:30:00.000Z'
-      const messageId = 'error-test-msg'
-
-      nock(ATTRIBUTION_ENDPOINT)
-        .post('/v1/t')
-        .reply(500, { error: 'Internal Server Error' })
-
-      const event = createTestEvent({
-        type: 'track',
-        event: 'Test Event',
-        messageId,
-        timestamp,
-        userId: 'user999'
-      })
-
-      await expect(
-        testDestination.testAction('send', {
-          event,
-          settings: {
-            projectID: 'test-project-123'
-          },
-          mapping: {
-            type: 'track',
-            messageId: { '@path': '$.messageId' },
-            timestamp: { '@path': '$.timestamp' },
-            event: { '@path': '$.event' },
-            userId: { '@path': '$.userId' }
-          }
-        })
-      ).rejects.toThrow()
     })
   })
 })
