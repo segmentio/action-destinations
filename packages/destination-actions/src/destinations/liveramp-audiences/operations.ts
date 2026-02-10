@@ -51,7 +51,10 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   }
 
   // Convert headers to an ordered array for consistent indexing
+  // Sort alphabetically (excluding audience_key which is always first) to ensure consistent field order
   const headerArray = Array.from(headers)
+  const otherHeaders = headerArray.filter((h) => h !== 'audience_key').sort()
+  const sortedHeaderArray = ['audience_key', ...otherHeaders]
 
   // Declare rows as an empty Buffer
   let rows = Buffer.from('')
@@ -60,9 +63,9 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   for (let i = 0; i < payloads.length; i++) {
     const payload = payloads[i]
     // Initialize row with empty strings aligned with header count
-    const row: string[] = new Array(headerArray.length).fill('')
+    const row: string[] = new Array(sortedHeaderArray.length).fill('')
 
-    row[headerArray.indexOf('audience_key')] = enquoteIdentifier(payload.audience_key)
+    row[sortedHeaderArray.indexOf('audience_key')] = enquoteIdentifier(payload.audience_key)
 
     // Using a set to keep track of unhashed_identifier_data keys that have already been processed
     // This guarantees that when both hashed and unhashed keys share the same key-value pair the unhashed one
@@ -72,7 +75,7 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
     // Process unhashed_identifier_data first
     if (payload.unhashed_identifier_data) {
       for (const key of Object.keys(payload.unhashed_identifier_data)) {
-        const index = headerArray.indexOf(key)
+        const index = sortedHeaderArray.indexOf(key)
         unhashedKeys.add(key)
         /*Identifiers need to be hashed according to LiveRamp spec's: https://docs.liveramp.com/connect/en/formatting-identifiers.html 
         Phone Number requires SHA1 and email uses sha256 */
@@ -94,7 +97,7 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
         // if a key exists in both identifier_data and unhashed_identifier_data
         // the value from identifier_data will be skipped, prioritizing the unhashed_identifier_data value.
         if (!unhashedKeys.has(key)) {
-          const index = headerArray.indexOf(key)
+          const index = sortedHeaderArray.indexOf(key)
           row[index] = enquoteIdentifier(String(payload.identifier_data[key]))
         }
       }
@@ -106,7 +109,7 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   }
 
   // Add headers to the beginning of the file contents
-  rows = Buffer.concat([Buffer.from(headerArray.join(payloads[0].delimiter) + '\n'), rows])
+  rows = Buffer.concat([Buffer.from(sortedHeaderArray.join(payloads[0].delimiter) + '\n'), rows])
 
   const filename = payloads[0].filename
   return { filename, fileContents: rows }
