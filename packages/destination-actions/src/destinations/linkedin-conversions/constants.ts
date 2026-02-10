@@ -63,7 +63,7 @@ export const DEPENDS_ON_CONVERSION_RULE_ID: DependsOnConditions = {
   conditions: [
     {
       fieldKey: 'conversionRuleId',
-      operator: 'is_not',
+      operator: 'is',
       value: undefined
     }
   ]

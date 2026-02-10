@@ -59,12 +59,14 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
           type: 'string',
           label: 'Name',
           description: 'The name of the conversion rule.',
+          required: true,
           depends_on: DEPENDS_ON_CONVERSION_RULE_ID
         },
         conversionType: {
           type: 'string',
           label: 'Conversion Type',
           description: 'The type of conversion rule.',
+          required: true,
           choices: CONVERSION_TYPE_OPTIONS,
           depends_on: DEPENDS_ON_CONVERSION_RULE_ID
         },
@@ -72,6 +74,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
           label: 'Attribution Type',
           description: 'The attribution type for the conversion rule.',
           type: 'string',
+          required: true,
           choices: [
             { label: 'Each Campaign', value: 'LAST_TOUCH_BY_CAMPAIGN' },
             { label: 'Single Campaign', value: 'LAST_TOUCH_BY_CONVERSION' }
@@ -138,6 +141,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
         }
       },
       performHook: async (request, { hookInputs, hookOutputs }) => {
+        console.log(request)
         const linkedIn = new LinkedInConversions(request)
 
         let hookReturn: ActionHookResponse<OnMappingSaveOutputs>
@@ -284,7 +288,8 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     },
     externalIds: {
       label: 'External ID',
-      description: "An identifier your organization uses for the user. See [LinkedIn's documentation](https://learn.microsoft.com/en-us/linkedin/marketing/conversions/custom-matching-identifiers?view=li-lms-2025-08) for more details.",
+      description:
+        "An identifier your organization uses for the user. See [LinkedIn's documentation](https://learn.microsoft.com/en-us/linkedin/marketing/conversions/custom-matching-identifiers?view=li-lms-2025-08) for more details.",
       type: 'string',
       multiple: true,
       required: false
