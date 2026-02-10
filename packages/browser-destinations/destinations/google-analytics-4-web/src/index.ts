@@ -205,7 +205,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
     },
     domain: {
       description: "A custom domain to load the Google Analytics script from. For more information see [Google's Documentation](https://developers.google.com/tag-platform/tag-manager/server-side/dependency-serving?tag=gtag&option=cdn).",
-      label: 'Domain',
+      label: 'Google Custom Domain',
       type: 'string',
       default: 'www.googletagmanager.com'
     }
