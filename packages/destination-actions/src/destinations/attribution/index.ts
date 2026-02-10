@@ -1,5 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { defaultValues } from '@segment/actions-core'
 
 import send from './send'
 
@@ -17,21 +18,26 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
-    },
-    testAuthentication: (request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
     }
   },
   extendRequest({ settings }) {
     const { projectID } = settings
     return {
       headers: {
-        Authorization: `Basic ${Buffer.from(':' + projectID).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(':' + projectID).toString('base64')}`
       }
     }
   },
+  presets: [
+    {
+      name: 'Send Events',
+      subscribe:
+        'type = "track" or type = "identify" or type = "page" or type = "screen" or type = "group" or type = "alias"',
+      partnerAction: 'send',
+      mapping: defaultValues(send.fields),
+      type: 'automatic'
+    }
+  ],
   actions: {
     send
   }
