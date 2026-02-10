@@ -39,7 +39,7 @@ describe('trackConversion', () => {
     describe('perform', () => {
         it('should send event data successfully', async () => {
             nock(`${Region.NA}`)
-                .post('/adsApi/v1/create/events')
+                .post('/events/v1')
                 .reply(200, { success: true })
 
             const responses = await testDestination.testAction('trackConversion', {
@@ -66,7 +66,7 @@ describe('trackConversion', () => {
         it('should handle API errors', async () => {
             // Mock an API error response
             nock(`${Region.NA}`)
-                .post('/adsApi/v1/create/events')
+                .post('/events/v1')
                 .replyWithError('Invalid event data')
 
             await expect(
@@ -95,7 +95,7 @@ describe('trackConversion', () => {
                     settings,
                     mapping: {
                         name: 'test_conversion',
-                        // Missing conversionType
+                        // Missing eventType
                         eventActionSource: 'website',
                         countryCode: 'US',
                         timestamp: '2023-01-01T12:00:00Z',
@@ -130,10 +130,14 @@ describe('trackConversion', () => {
         it('should process a batch of events successfully', async () => {
             // Mock a 207 multi-status response
             nock(`${Region.NA}`)
-                .post('/adsApi/v1/create/events')
+                .post('/events/v1')
                 .reply(207, {
-                    success: [{ index: 0, event: null }],
-                    error: [{ index: 1, errors: [{ code: "BAD_REQUEST", message: 'Invalid data' }] }]
+                    success: [
+                        { index: 1, message: 'Success' }
+                    ],
+                    error: [
+                        { index: 2, httpStatusCode: '400', subErrors: [{ errorMessage: 'Invalid event' }] }
+                    ]
                 })
 
             const responses = await testDestination.testBatchAction('trackConversion', {
@@ -165,9 +169,9 @@ describe('trackConversion', () => {
         it('should handle validation errors for individual payloads', async () => {
             // Mock the API request to send a partial success response
             nock(`${Region.NA}`)
-                .post('/adsApi/v1/create/events')
+                .post('/events/v1')
                 .reply(207, {
-                    success: [{ index: 0, event: null }, { index: 1, event: null }],
+                    success: [{ index: 1, message: 'Success' },{ index: 2, message: 'Success' }],
                     error: []
                 })
 
@@ -217,7 +221,7 @@ describe('trackConversion', () => {
 
         it('should handle API errors in batch mode', async () => {
             nock(`${Region.NA}`)
-                .post('/adsApi/v1/create/events')
+                .post('/events/v1')
                 .reply(500, { error: 'Internal server error' })
 
             // Spy on console.error to prevent error output during the test

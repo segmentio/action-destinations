@@ -11,13 +11,11 @@ import type { Settings } from '../generated-types'
 import type {
   EventData,
   ConsentData,
-  EventDescription,
-  DataProcessingOptions,
   RegionValue,
   AmazonConsentFormat,
-  EventMultiStatusResponse,
-  EventMultiStatusSuccess,
-  ErrorsIndex,
+  ImportConversionEventsResponse,
+  EventDataSuccessResponseV1,
+  EventDataErrorResponseV1,
   MatchKeyV1,
   CurrencyCodeV1,
   CustomAttributeV1
@@ -46,12 +44,13 @@ export function validateConsent(consent: Payload['consent'], region: RegionValue
   const { ipAddress, amznAdStorage, amznUserData, tcf, gpp } = consent || {}
   const consentData: Partial<ConsentData> = {
     ...(hasStringValue(ipAddress) && { geo: { ipAddress } }),
-    ...(hasStringValue(amznUserData) && {
-      amazonConsent: {
-        amznUserData,
-        ...(hasStringValue(amznAdStorage) && { amznAdStorage })
-      } as AmazonConsentFormat
-    }),
+    ...(hasStringValue(amznAdStorage) &&
+      hasStringValue(amznUserData) && {
+        amazonConsent: {
+          amznAdStorage,
+          amznUserData
+        } as AmazonConsentFormat
+      }),
     ...(hasStringValue(tcf) && { tcf }),
     ...(hasStringValue(gpp) && { gpp })
   }
@@ -143,10 +142,11 @@ export async function sendEventsRequest<ImportConversionEventsResponse>(
   // Ensure eventData is always an array
   const events = Array.isArray(eventData) ? eventData : [eventData]
 
-  return await request<ImportConversionEventsResponse>(`${settings.region}/adsApi/v1/create/events`, {
+  return await request<ImportConversionEventsResponse>(`${settings.region}/events/v1`, {
     method: 'POST',
     json: {
-      events: events
+      eventData: events,
+      ingestionMethod: 'SERVER_TO_SERVER'
     },
     headers: {
       'Amazon-Ads-AccountId': settings.advertiserId
@@ -185,15 +185,15 @@ export function validateCountryCode(input: string): string {
 }
 
 export function handleResponse(
-  response: ModifiedResponse<EventMultiStatusResponse>
-): ModifiedResponse<EventMultiStatusResponse> {
+  response: ModifiedResponse<ImportConversionEventsResponse>
+): ModifiedResponse<ImportConversionEventsResponse> {
   if (response.status === 207 && response.data) {
     const responseData = response.data
 
     if (responseData.error && Array.isArray(responseData.error) && responseData.error.length > 0) {
       return {
         ...response,
-        status: 400
+        status: Number(responseData.error[0].httpStatusCode) || 400
       }
     }
   }
@@ -205,25 +205,25 @@ export function handleResponse(
  * Handles 207 multistatus responses with errors
  */
 export function handleBatchResponse(
-  response: ModifiedResponse<EventMultiStatusResponse>,
+  response: ModifiedResponse<ImportConversionEventsResponse>,
   validPayloads: EventData[],
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse
 ): MultiStatusResponse {
   if (response.status === 207 && response.data) {
     const responseData = response.data
-    const successMap: Record<number, EventMultiStatusSuccess> = {}
-    const errorMap: Record<number, ErrorsIndex> = {}
+    const successMap: Record<number, EventDataSuccessResponseV1> = {}
+    const errorMap: Record<number, EventDataErrorResponseV1> = {}
 
     if (responseData.success && Array.isArray(responseData.success)) {
       responseData.success.forEach((item) => {
-        successMap[item.index] = item
+        successMap[item.index - 1] = item
       })
     }
 
     if (responseData.error && Array.isArray(responseData.error)) {
       responseData.error.forEach((item) => {
-        errorMap[item.index] = item
+        errorMap[item.index - 1] = item
       })
     }
 
@@ -232,10 +232,10 @@ export function handleBatchResponse(
       if (errorMap[arrayPosition]) {
         const errorResult = errorMap[arrayPosition]
         multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
-          status: parseInt('400', 10),
+          status: parseInt(errorResult.httpStatusCode || '400', 10),
           sent: payload as unknown as JSONLikeObject,
           body: errorResult as unknown as JSONLikeObject,
-          errormessage: errorResult.errors[0].message || 'Error processing payload'
+          errormessage: errorResult.subErrors?.[0]?.errorMessage || 'Error processing payload'
         })
       } else if (successMap[arrayPosition]) {
         multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
@@ -375,19 +375,14 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     })
   })
 
-  const eventDescription: EventDescription = {
-    name: payload.name,
-    conversionType: payload.eventType as ConversionTypeV2,
-    eventSource: payload.eventActionSource.toUpperCase(),
-    eventIngestionMethod: 'SERVER_TO_SERVER'
-  }
-
+  // Prepare event data
   const eventData: EventData = {
-    eventDescription,
+    name: payload.name,
+    eventType: payload.eventType as ConversionTypeV2,
+    eventActionSource: payload.eventActionSource.toUpperCase(),
     countryCode: validateCountryCode(payload.countryCode),
-    eventTime: payload.timestamp
+    timestamp: payload.timestamp
   }
-
 
   if (matchKeys) {
     eventData.matchKeys = matchKeys
@@ -403,17 +398,11 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.unitsSold !== undefined && {
       unitsSold: payload.unitsSold
     }),
-    ...(payload.clientDedupeId && { eventId: payload.clientDedupeId }),
-    ...(payload.dataProcessingOptions?.[0] && {
-      dataProcessingOptions: {
-        options: payload.dataProcessingOptions[0]
-      } as DataProcessingOptions
-    }),
-
-
+    ...(payload.clientDedupeId && { clientDedupeId: payload.clientDedupeId }),
+    ...(payload.dataProcessingOptions && { dataProcessingOptions: payload.dataProcessingOptions }),
     ...(consent && { consent }),
     ...(payload.customAttributes && {
-      customData: customAttributeArray.length > 0 ? customAttributeArray : undefined
+      customAttributes: customAttributeArray.length > 0 ? customAttributeArray : undefined
     })
   })
 

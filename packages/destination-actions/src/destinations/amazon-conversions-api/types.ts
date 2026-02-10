@@ -57,7 +57,7 @@ export interface MatchKeyV1 {
 }
 
 /**
- * Represents an event to ingest for measurement purposes. Name, conversionType, eventSource must be provided
+ * Represents an event to ingest for measurement purposes. Name, eventType, eventActionSource must be provided
  * and represents an unique event.
  */
 /**
@@ -117,32 +117,19 @@ export enum CurrencyCodeV1 {
 }
 
 export interface EventData {
-  eventDescription: EventDescription
+  name: string
+  eventType: ConversionTypeV2
+  eventActionSource: string
   countryCode: string
-  eventTime: string
+  timestamp: string
   matchKeys?: MatchKeyV1[]
   value?: number
   currencyCode?: CurrencyCodeV1
   unitsSold?: number
-  eventId?: string
-  dataProcessingOptions?: DataProcessingOptions
+  clientDedupeId?: string
+  dataProcessingOptions?: string[]
   consent?: ConsentData
-  customData?: CustomAttributeV1[]
-  amazonAdEventKey?: string
-  partner?: string
-}
-
-export interface EventDescription {
-  conversionType: ConversionTypeV2
-  dataSetName?: string
-  eventIngestionMethod: string
-  eventSource: string
-  name: string
-}
-
-
-export interface DataProcessingOptions {
-  options: string
+  customAttributes?: CustomAttributeV1[]
 }
 
 export interface RefreshTokenResponse {
@@ -152,23 +139,26 @@ export interface RefreshTokenResponse {
   refresh_token: string
 }
 
-export interface Error {
-  code: string
-  fieldLocation?: string
-  message: string
+export interface SubErrorV1 {
+  errorCode?: number
+  errorType?: string
+  errorMessage?: string
 }
 
-export interface EventMultiStatusSuccess {
+export interface EventDataSuccessResponseV1 {
   index: number
-  event: EventData
+  message?: string
 }
 
-export interface ErrorsIndex {
+export interface EventDataErrorResponseV1 {
+  httpStatusCode?: string
+  itemRequestId?: string
   index: number
-  errors: Error[]
+  itemId?: string
+  subErrors?: SubErrorV1[]
 }
 
-export interface EventMultiStatusResponse {
-  success?: EventMultiStatusSuccess[]
-  error?: ErrorsIndex[]
+export interface ImportConversionEventsResponse {
+  success?: EventDataSuccessResponseV1[]
+  error?: EventDataErrorResponseV1[]
 }

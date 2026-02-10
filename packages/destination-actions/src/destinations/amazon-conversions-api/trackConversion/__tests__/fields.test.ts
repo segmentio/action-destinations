@@ -40,6 +40,7 @@ describe('trackConversion fields', () => {
         expect(fields.unitsSold?.type).toBe('integer')
         expect(fields.clientDedupeId?.type).toBe('string')
         expect(fields.dataProcessingOptions?.type).toBe('string')
+        expect(fields.dataProcessingOptions?.multiple).toBe(true)
         expect(fields.consent?.type).toBe('object')
         expect(fields.customAttributes?.type).toBe('object')
         expect(fields.enable_batching.type).toBe('boolean')
@@ -73,7 +74,6 @@ describe('trackConversion fields', () => {
         expect(fields.currencyCode?.depends_on).toBeDefined()
         expect(fields.currencyCode?.depends_on?.conditions).toBeDefined()
         expect(fields.currencyCode?.depends_on?.conditions?.[0]).toMatchObject({
-            fieldKey: 'eventType',
             operator: 'is',
             value: 'OFF_AMAZON_PURCHASES'
         })
@@ -81,7 +81,6 @@ describe('trackConversion fields', () => {
         expect(fields.unitsSold?.depends_on).toBeDefined()
         expect(fields.unitsSold?.depends_on?.conditions).toBeDefined()
         expect(fields.unitsSold?.depends_on?.conditions?.[0]).toMatchObject({
-            fieldKey: 'eventType',
             operator: 'is',
             value: 'OFF_AMAZON_PURCHASES'
         })
