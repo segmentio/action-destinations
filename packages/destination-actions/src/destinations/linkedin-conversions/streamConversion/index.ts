@@ -141,7 +141,6 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
         }
       },
       performHook: async (request, { hookInputs, hookOutputs }) => {
-        console.log(request)
         const linkedIn = new LinkedInConversions(request)
 
         let hookReturn: ActionHookResponse<OnMappingSaveOutputs>
