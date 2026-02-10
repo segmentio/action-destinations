@@ -10,7 +10,7 @@ export interface Settings {
    */
   region: string
   /**
-   * Enable or disable URL detection in Appcues. If this is disabled, page events should be triggered manually.
+   * Enable or disable URL detection in Appcues. If enabled, page events should not be triggered manually using the page action.
    */
   enableURLDetection: boolean
 }
