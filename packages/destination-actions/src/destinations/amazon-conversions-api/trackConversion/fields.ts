@@ -379,7 +379,7 @@ export const fields: Record<string, InputField> = {
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue',
-    additionalProperties: true,
+    additionalProperties: false,
     properties: {
       brand: {
         label: 'Brand',
