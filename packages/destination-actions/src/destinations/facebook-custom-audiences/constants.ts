@@ -1,3 +1,7 @@
+export const CREATE_AUDIENCE_URL = "https://graph.facebook.com/v24.0/act_<AD_ACCOUNT_ID>/customaudiences"
+export const GET_AUDIENCE_URL = "https://graph.facebook.com/${API_VERSION}/${externalId}"
+export const EXTERNAL_ID_KEY = 'id'
+
 export const US_STATE_CODES = new Map<string, string>([
   ['arizona', 'az'],
   ['alabama', 'al'],
@@ -51,6 +55,5 @@ export const US_STATE_CODES = new Map<string, string>([
   ['wyoming', 'wy']
 ])
 export const API_VERSION = 'v24.0'
-export const CANARY_API_VERSION = 'v24.0'
 export const BASE_URL = 'https://graph.facebook.com'
 export const FACEBOOK_CUSTOM_AUDIENCE_FLAGON = 'facebook-custom-audience-actions-canary-version'

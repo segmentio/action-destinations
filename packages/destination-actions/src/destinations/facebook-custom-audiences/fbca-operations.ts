@@ -2,8 +2,7 @@ import { DynamicFieldItem, DynamicFieldError, RequestClient, Features } from '@s
 import { Payload } from './sync/generated-types'
 import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions } from './fbca-properties'
 import { EmptyValueError, processHashing } from '../../lib/hashing-utils'
-import { StatsContext } from '@segment/actions-core/destination-kit'
-import { API_VERSION, BASE_URL, CANARY_API_VERSION, FACEBOOK_CUSTOM_AUDIENCE_FLAGON } from './constants'
+import { API_VERSION, BASE_URL } from './constants'
 import { PayloadValidationError } from '@segment/actions-core'
 
 // exported for unit testing
@@ -90,26 +89,16 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
   }
 }
 
-export const getApiVersion = (features?: Features, statsContext?: StatsContext): string => {
-  const statsClient = statsContext?.statsClient
-  const tags = statsContext?.tags
-
-  const version = features && features[FACEBOOK_CUSTOM_AUDIENCE_FLAGON] ? CANARY_API_VERSION : API_VERSION
-  tags?.push(`version:${version}`)
-  statsClient?.incr(`actions_facebook_custom_audience`, 1, tags)
-  return version
-}
-
 export default class FacebookClient {
   request: RequestClient
   adAccountId: string
   features: Features | undefined
   baseUrl: string
 
-  constructor(request: RequestClient, adAccountId: string, features?: Features, statsContext?: StatsContext) {
+  constructor(request: RequestClient, adAccountId: string, features?: Features) {
     this.request = request
     this.adAccountId = this.formatAdAccount(adAccountId)
-    this.baseUrl = `${BASE_URL}/${getApiVersion(features, statsContext)}/`
+    this.baseUrl = `${BASE_URL}/${API_VERSION}/`
     this.features = features || undefined
   }
 
