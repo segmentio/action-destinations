@@ -34,6 +34,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * A timestamp of when the person was identified. Default is current date and time. Used for ordering updates to the person.
+   */
+  timestamp?: string
+  /**
    * Convert dates to Unix timestamps (seconds since Epoch).
    */
   convert_timestamp?: boolean

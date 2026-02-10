@@ -48,6 +48,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -92,6 +93,7 @@ describe('CustomerIO', () => {
           identifiers: {
             email: userId
           },
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -137,6 +139,7 @@ describe('CustomerIO', () => {
           identifiers: {
             email: traits.email
           },
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -183,6 +186,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -247,6 +251,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -277,6 +282,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -307,6 +313,38 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
+          timestamp: dayjs.utc(timestamp).unix(),
+          type: 'person'
+        })
+      })
+
+      it("should not convert timestamp if it's invalid", async () => {
+        const userId = 'abc123'
+        const timestamp = '2018-03-04T12:08:56.235 PDT'
+        const traits = {
+          full_name: 'Test User'
+        }
+        const event = createTestEvent({
+          userId,
+          timestamp,
+          traits
+        })
+        const response = await action('createUpdatePerson', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toEqual({
+          action: 'identify',
+          attributes: {
+            ...traits,
+            anonymous_id: event.anonymousId
+          },
+          identifiers: {
+            id: userId
+          },
+          timestamp,
           type: 'person'
         })
       })
@@ -352,6 +390,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -389,6 +428,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -442,6 +482,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -493,6 +534,7 @@ describe('CustomerIO', () => {
               identifiers: { object_type_id: '2', object_id: groupId }
             }
           ],
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -521,6 +563,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -567,6 +610,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -628,6 +672,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -688,6 +733,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
