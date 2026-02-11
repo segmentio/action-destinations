@@ -51,6 +51,8 @@ export interface Payload {
   context?: {
     [k: string]: unknown
   }
-
+  /**
+   * The previous ID of the user to send to Attribution.
+   */
   previousId?: string
 }
