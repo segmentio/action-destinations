@@ -39,7 +39,7 @@ describe('Appcues Web initialization', () => {
     const mockLoadScript = jest.fn().mockResolvedValue(undefined)
     const mockResolveWhen = jest.fn().mockResolvedValue(undefined)
 
-    jest.spyOn(destination, 'initialize').mockImplementation(async ({ settings }, deps) => {
+    jest.spyOn(destination, 'initialize').mockImplementation(async () => {
       await mockLoadScript()
       ;(window as any).Appcues = mockAppcuesInstance
       await mockResolveWhen()
