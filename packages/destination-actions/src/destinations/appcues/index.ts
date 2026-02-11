@@ -28,6 +28,12 @@ const destination: DestinationDefinition<Settings> = {
           { label: 'EU', value: 'EU' }
         ],
         default: 'US'
+      },
+      accountId: {
+        label: 'Account ID',
+        description: 'Your Appcues account ID.',
+        type: 'string',
+        required: true
       }
     }
   },

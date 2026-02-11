@@ -36,14 +36,15 @@ function buildBaseFields(payload: Payload) {
 }
 
 export async function send(request: RequestClient, payload: Payload, settings: Settings) {
-  const { region, apiKey } = settings
-  const endpoint = REGION_ENDPOINTS[region]
+  const { region, apiKey, accountId } = settings
 
-  if (!endpoint) {
+  if (!REGION_ENDPOINTS[region]) {
     throw new PayloadValidationError(
       `Invalid region: ${region}. Must be one of: ${Object.keys(REGION_ENDPOINTS).join(', ')}`
     )
   }
+
+  const endpoint = `${REGION_ENDPOINTS[region]}/v2/accounts/${accountId}/segment/direct`
 
   const { type, event, name, properties, user_traits, groupId, group_traits } = payload
   const baseFields = buildBaseFields(payload)

@@ -5,12 +5,13 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 const US_ENDPOINT = 'https://segment.appcues.com'
 const EU_ENDPOINT = 'https://segment.eu.appcues.com'
+const TEST_ACCOUNT_ID = 'test-account-id'
 
 describe('Appcues (Actions)', () => {
   describe('send', () => {
     it('should send a track event', async () => {
       nock(US_ENDPOINT)
-        .post('/v1/segment', {
+        .post(`/v2/accounts/${TEST_ACCOUNT_ID}/segment/direct`, {
           type: 'track',
           userId: 'user123',
           anonymousId: 'anon123',
@@ -35,7 +36,8 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          region: 'US'
+          region: 'US',
+          accountId: TEST_ACCOUNT_ID
         },
         mapping: {
           type: 'track',
@@ -49,7 +51,7 @@ describe('Appcues (Actions)', () => {
 
     it('should send a page event', async () => {
       nock(US_ENDPOINT)
-        .post('/v1/segment', {
+        .post(`/v2/accounts/${TEST_ACCOUNT_ID}/segment/direct`, {
           type: 'page',
           userId: 'user123',
           name: 'Home',
@@ -72,7 +74,8 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          region: 'US'
+          region: 'US',
+          accountId: TEST_ACCOUNT_ID
         },
         mapping: {
           type: 'page',
@@ -85,7 +88,7 @@ describe('Appcues (Actions)', () => {
 
     it('should send a screen event', async () => {
       nock(US_ENDPOINT)
-        .post('/v1/segment', {
+        .post(`/v2/accounts/${TEST_ACCOUNT_ID}/segment/direct`, {
           type: 'screen',
           userId: 'user123',
           name: 'Dashboard',
@@ -108,7 +111,8 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          region: 'US'
+          region: 'US',
+          accountId: TEST_ACCOUNT_ID
         },
         mapping: {
           type: 'screen',
@@ -121,7 +125,7 @@ describe('Appcues (Actions)', () => {
 
     it('should send an identify event', async () => {
       nock(US_ENDPOINT)
-        .post('/v1/segment', {
+        .post(`/v2/accounts/${TEST_ACCOUNT_ID}/segment/direct`, {
           type: 'identify',
           userId: 'user123',
           traits: {
@@ -144,7 +148,8 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          region: 'US'
+          region: 'US',
+          accountId: TEST_ACCOUNT_ID
         },
         mapping: {
           type: 'identify',
@@ -156,7 +161,7 @@ describe('Appcues (Actions)', () => {
 
     it('should send a group event', async () => {
       nock(US_ENDPOINT)
-        .post('/v1/segment', {
+        .post(`/v2/accounts/${TEST_ACCOUNT_ID}/segment/direct`, {
           type: 'group',
           userId: 'user123',
           groupId: 'group123',
@@ -179,7 +184,8 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          region: 'US'
+          region: 'US',
+          accountId: TEST_ACCOUNT_ID
         },
         mapping: {
           type: 'group',
@@ -192,7 +198,7 @@ describe('Appcues (Actions)', () => {
 
     it('should send track + identify when user_traits is populated', async () => {
       nock(US_ENDPOINT)
-        .post('/v1/segment', {
+        .post(`/v2/accounts/${TEST_ACCOUNT_ID}/segment/direct`, {
           type: 'track',
           userId: 'user123',
           event: 'Product Viewed',
@@ -203,7 +209,7 @@ describe('Appcues (Actions)', () => {
         .reply(200, { success: true })
 
       nock(US_ENDPOINT)
-        .post('/v1/segment', {
+        .post(`/v2/accounts/${TEST_ACCOUNT_ID}/segment/direct`, {
           type: 'identify',
           userId: 'user123',
           traits: {
@@ -225,7 +231,8 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          region: 'US'
+          region: 'US',
+          accountId: TEST_ACCOUNT_ID
         },
         mapping: {
           type: 'track',
@@ -241,7 +248,7 @@ describe('Appcues (Actions)', () => {
 
     it('should send page + identify + group when user_traits and groupId are populated', async () => {
       nock(US_ENDPOINT)
-        .post('/v1/segment', {
+        .post(`/v2/accounts/${TEST_ACCOUNT_ID}/segment/direct`, {
           type: 'page',
           userId: 'user123',
           name: 'Home'
@@ -249,7 +256,7 @@ describe('Appcues (Actions)', () => {
         .reply(200, { success: true })
 
       nock(US_ENDPOINT)
-        .post('/v1/segment', {
+        .post(`/v2/accounts/${TEST_ACCOUNT_ID}/segment/direct`, {
           type: 'identify',
           userId: 'user123',
           traits: {
@@ -259,7 +266,7 @@ describe('Appcues (Actions)', () => {
         .reply(200, { success: true })
 
       nock(US_ENDPOINT)
-        .post('/v1/segment', {
+        .post(`/v2/accounts/${TEST_ACCOUNT_ID}/segment/direct`, {
           type: 'group',
           userId: 'user123',
           groupId: 'group123',
@@ -279,7 +286,8 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          region: 'US'
+          region: 'US',
+          accountId: TEST_ACCOUNT_ID
         },
         mapping: {
           type: 'page',
@@ -308,7 +316,7 @@ describe('Appcues (Actions)', () => {
       }
 
       nock(US_ENDPOINT)
-        .post('/v1/segment', {
+        .post(`/v2/accounts/${TEST_ACCOUNT_ID}/segment/direct`, {
           type: 'track',
           userId: 'user123',
           event: 'Product Viewed',
@@ -333,7 +341,8 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          region: 'US'
+          region: 'US',
+          accountId: TEST_ACCOUNT_ID
         },
         mapping: {
           type: 'track',
@@ -349,7 +358,7 @@ describe('Appcues (Actions)', () => {
 
     it('should work with EU region', async () => {
       nock(EU_ENDPOINT)
-        .post('/v1/segment', {
+        .post(`/v2/accounts/${TEST_ACCOUNT_ID}/segment/direct`, {
           type: 'track',
           userId: 'user123',
           event: 'Product Viewed'
@@ -366,7 +375,8 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          region: 'EU'
+          region: 'EU',
+          accountId: TEST_ACCOUNT_ID
         },
         mapping: {
           type: 'track',
@@ -387,7 +397,8 @@ describe('Appcues (Actions)', () => {
           event,
           settings: {
             apiKey: 'test-api-key',
-            region: 'US'
+            region: 'US',
+            accountId: TEST_ACCOUNT_ID
           },
           mapping: {
             type: 'track',
@@ -407,7 +418,8 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
-          region: 'US'
+          region: 'US',
+          accountId: TEST_ACCOUNT_ID
         },
         mapping: {
           type: 'group',
@@ -428,7 +440,8 @@ describe('Appcues (Actions)', () => {
           event,
           settings: {
             apiKey: 'test-api-key',
-            region: 'INVALID'
+            region: 'INVALID',
+            accountId: TEST_ACCOUNT_ID
           },
           mapping: {
             type: 'track',

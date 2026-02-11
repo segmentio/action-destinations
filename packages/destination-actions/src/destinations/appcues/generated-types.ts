@@ -9,4 +9,8 @@ export interface Settings {
    * Select the region for your Appcues account.
    */
   region: string
+  /**
+   * Your Appcues account ID.
+   */
+  accountId: string
 }

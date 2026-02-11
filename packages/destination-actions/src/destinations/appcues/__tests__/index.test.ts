@@ -12,5 +12,6 @@ describe('Appcues (Actions)', () => {
     expect(Destination.authentication.scheme).toBe('custom')
     expect(Destination.authentication.fields.apiKey).toBeDefined()
     expect(Destination.authentication.fields.region).toBeDefined()
+    expect(Destination.authentication.fields.accountId).toBeDefined()
   })
 })
