@@ -9,6 +9,7 @@ import deletePerson from './deletePerson'
 import mergePeople from './mergePeople'
 import reportDeliveryEvent from './reportDeliveryEvent'
 import reportContentEvent from './reportContentEvent'
+import { CUSTOMERIO_CUSTOMERS_API_VERSION } from './versioning-info'
 import suppressPerson from './suppressPerson'
 import unsuppressPerson from './unsuppressPerson'
 import trackEvent from './trackEvent'
@@ -141,7 +142,7 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'event = "Report Content Event"',
       partnerAction: 'reportContentEvent',
       mapping: defaultValues(reportContentEvent.fields),
-      type: 'automatic',
+      type: 'automatic'
     },
     {
       name: 'Associated Entity Added',
@@ -220,7 +221,7 @@ const destination: DestinationDefinition<Settings> = {
   onDelete(request, { settings, payload }) {
     const { userId } = payload
 
-    const url = `${trackApiEndpoint(settings)}/api/v1/customers/${userId}`
+    const url = `${trackApiEndpoint(settings)}/api/${CUSTOMERIO_CUSTOMERS_API_VERSION}/customers/${userId}`
 
     return request(url, {
       method: 'DELETE'

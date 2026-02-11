@@ -316,6 +316,16 @@ export const userData: InputField = {
             label: 'Country',
             description: 'The country of the user. Facebook expects the 2-letter ISO 3166-1 alpha-2 country code. For example, "US" for the United States, or "GB" for the United Kingdom.',
             type: 'string'
+        }, 
+        fbp: {
+            label: 'FBP',
+            description: 'Use this field to pass the Facebook browser cookie value (_fbp) associated with the user. If the "Format User Data with Parameter Builder" setting is enabled, Segment will automatically capture this value from the _fbp cookie.',
+            type: 'string'
+        },
+        fbc: {
+            label: 'FBC',
+            description: 'Use this field to pass The Facebook browser cookie value (_fbc) associated with the user. If the "Format User Data with Parameter Builder" setting is enabled, Segment will automatically capture this value from the _fbc cookie.',
+            type: 'string'
         }
     },
     default: {
@@ -329,7 +339,10 @@ export const userData: InputField = {
         ct: { '@path': '$.context.traits.address.city' },
         st: { '@path': '$.context.traits.address.state' },
         zp: { '@path': '$.context.traits.address.postal_code' },
-        country: { '@path': '$.context.traits.address.country' }
+        country: { '@path': '$.context.traits.address.country' }, 
+        fbp: { '@path': '$.context.traits.fbp' },
+        fbc: { '@path': '$.context.traits.fbc' },
+        client_ip_address: { '@path': '$.context.traits.client_ip_address' }
     }
 }
 

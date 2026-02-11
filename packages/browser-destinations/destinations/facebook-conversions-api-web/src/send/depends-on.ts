@@ -19,26 +19,30 @@ export const fieldDependencies: Record<string, (FBStandardEventType | FBNonStand
 }
 
 export function getDependenciesFor(fieldName: string): DependsOnConditions {
-  const conditions: Condition[] = [
-      {
-          fieldKey: 'event_config.show_fields',
-          operator: 'is',
-          value: 'true'
-      }
-  ]
-
-  if (fieldDependencies[fieldName]) {
-      conditions.push({
-          fieldKey: 'event_config.event_name',
-          operator: 'is',
-          value: fieldDependencies[fieldName]
-      })
-  }
-
-  return {
-      match: 'any',
-      conditions
-  }
+    const conditions: Condition[] = [
+        {
+            fieldKey: 'event_config.show_fields',
+            operator: 'is',
+            value: 'true'
+        }
+    ]
+    
+    const dependencies = fieldDependencies[fieldName]
+    
+    if(Array.isArray(dependencies) && dependencies.length > 1) {
+        dependencies.forEach(dep => {
+            conditions.push({
+                fieldKey: 'event_config.event_name',
+                operator: 'is',
+                value: dep
+            })
+        })
+    }
+    
+    return {
+        match: 'any',
+        conditions
+    }
 }
 
 export function getNotVisibleForEvent(event: FBStandardEventType | FBNonStandardEventType): string[] {

@@ -2,9 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import upsertProfile from './upsertProfile'
-
-export const API_VERSION = 'v1'
-export const BASE_URL = 'https://memory.dev.twilio.com' //TODO: change to production base URL
+import { API_VERSION, BASE_URL } from './versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Memora',
@@ -36,17 +34,12 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: (request, { settings }) => {
       return request(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores?pageSize=1`, {
         method: 'GET',
+        username: settings.username,
+        password: settings.password,
         headers: {
           ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
         }
       })
-    }
-  },
-
-  extendRequest({ settings }) {
-    return {
-      username: settings.username,
-      password: settings.password
     }
   },
 

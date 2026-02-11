@@ -223,6 +223,11 @@ register('695cde813cc7cd3831de456e', './lark')
 register('695cddba47257c593da2bd68', './collab-travel-crm')
 register('695ce1240b991455a1e5cb27', './altertable')
 register('695d30cdac2addbdcc3baf7f', './memora')
+register('697088b36245ed59c958d615', './rokt-capi')
+register('69708853c934696ffa66b6ef', './qualified')
+register('69708875e5073cee011f9be2', './jimo-cloud')
+register('698085f267252abcf3254a52', './dotdigital-audiences')
+register('69857992cdfcc50bdf75d589', './memora-internal')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

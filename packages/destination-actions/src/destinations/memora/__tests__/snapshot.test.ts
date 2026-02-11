@@ -6,6 +6,17 @@ import nock from 'nock'
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-memora'
 
+// Mock Date.now() to return a fixed timestamp for consistent snapshots
+const FIXED_TIMESTAMP = 1700000000000
+const originalDateNow = Date.now
+beforeAll(() => {
+  Date.now = jest.fn(() => FIXED_TIMESTAMP)
+})
+
+afterAll(() => {
+  Date.now = originalDateNow
+})
+
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
     it(`${actionSlug} action - required fields`, async () => {
@@ -14,8 +25,11 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
       nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(202)
-      nock(/.*/).persist().put(/.*/).reply(202)
+      nock(/.*/).persist().post(/.*/).reply(201, {
+        importId: 'mem_import_test',
+        url: 'https://example.com/presigned-url'
+      })
+      nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
         properties: eventData
@@ -25,7 +39,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const mapping = {
         ...event.properties,
         memora_store: 'test-store-id',
-        contact: {
+        contact_identifiers: {
           email: 'test@example.com'
         }
       }
@@ -57,8 +71,11 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
       nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(202)
-      nock(/.*/).persist().put(/.*/).reply(202)
+      nock(/.*/).persist().post(/.*/).reply(201, {
+        importId: 'mem_import_test',
+        url: 'https://example.com/presigned-url'
+      })
+      nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
         properties: eventData
@@ -68,8 +85,10 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const mapping = {
         ...event.properties,
         memora_store: 'test-store-id',
-        contact: {
-          email: 'test@example.com',
+        contact_identifiers: {
+          email: 'test@example.com'
+        },
+        contact_traits: {
           firstName: 'Test',
           lastName: 'User'
         }
@@ -105,7 +124,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const mapping = {
         ...event.properties,
-        contact: {
+        contact_identifiers: {
           email: 'test@example.com'
         }
       }
@@ -136,7 +155,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const mapping = {
         ...event.properties,
         memora_store: 'test-store-id',
-        contact: {}
+        contact_identifiers: {}
       }
 
       await expect(
@@ -146,7 +165,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
           settings: settingsData,
           auth: undefined
         })
-      ).rejects.toThrow('Profile at index 0 must contain at least one trait group or contact field')
+      ).rejects.toThrow('Profile at index 0 must contain at least one identifier (email or phone)')
     })
   }
 })

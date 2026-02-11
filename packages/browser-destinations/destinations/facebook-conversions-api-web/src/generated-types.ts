@@ -25,4 +25,8 @@ export interface Settings {
    * Specify if and how Limited Data Use should apply.
    */
   ldu: string
+  /**
+   * If enabled, uses Facebook’s Parameter Builder library to help ensure that User Data values are properly formatted before being sent to Facebook.
+   */
+  formatUserDataWithParamBuilder?: boolean
 }

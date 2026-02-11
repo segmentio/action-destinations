@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
-import { BASE_URL, API_VERSION } from '../index'
+import { API_VERSION, BASE_URL } from '../versioning-info'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -11,8 +11,11 @@ describe('Memora Destination', () => {
   })
 
   describe('Authentication', () => {
-    it('should validate valid credentials', async () => {
-      nock(BASE_URL).get(`/${API_VERSION}/ControlPlane/Stores?pageSize=1`).reply(200, { services: [] })
+    it('should send basic auth credentials in testAuthentication', async () => {
+      nock(BASE_URL)
+        .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=1`)
+        .basicAuth({ user: 'test-api-key', pass: 'test-api-secret' })
+        .reply(200, { services: [] })
 
       const settings = {
         username: 'test-api-key',
@@ -83,33 +86,8 @@ describe('Memora Destination', () => {
   })
 
   describe('extendRequest', () => {
-    it('should return username and password from settings', () => {
-      const settings = {
-        username: 'test-api-key',
-        password: 'test-api-secret',
-        twilioAccount: 'AC1234567890'
-      }
-
-      const result = Destination.extendRequest?.({ settings, payload: {} } as any)
-
-      expect(result).toEqual({
-        username: 'test-api-key',
-        password: 'test-api-secret'
-      })
-    })
-
-    it('should work without twilioAccount in settings', () => {
-      const settings = {
-        username: 'test-api-key',
-        password: 'test-api-secret'
-      }
-
-      const result = Destination.extendRequest?.({ settings, payload: {} } as any)
-
-      expect(result).toEqual({
-        username: 'test-api-key',
-        password: 'test-api-secret'
-      })
+    it('should not be defined (auth is manually added per request)', () => {
+      expect(Destination.extendRequest).toBeUndefined()
     })
   })
 })
