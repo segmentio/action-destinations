@@ -44,7 +44,7 @@ const destination: DestinationDefinition<Settings> = {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Amazon-Advertising-API-ClientId': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
+          'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
         },
         timeout: 2500
       })
