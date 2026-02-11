@@ -43,7 +43,8 @@ const destination: DestinationDefinition<Settings> = {
       return await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Amazon-Advertising-API-ClientId': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
         },
         timeout: 2500
       })
@@ -56,8 +57,7 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ auth }) {
     return {
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`,
-        'Amazon-Ads-ClientId': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
+        authorization: `Bearer ${auth?.accessToken}`
       }
     }
   },
