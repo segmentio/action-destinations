@@ -18,11 +18,7 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         format: 'uri',
         required: true,
-        default: 'https://ingest.klime.com',
-        choices: [
-          { value: 'https://ingest.klime.com', label: 'Production' },
-          { value: 'https://ingest.klime.dev', label: 'Development' }
-        ]
+        default: 'https://i.klime.com'
       },
       writeKey: {
         label: 'Write Key',

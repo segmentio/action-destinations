@@ -3,7 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import destination from '../index'
 
 const testDestination = createTestIntegration(destination)
-const settings = { apiEndpoint: 'https://ingest.klime.com', writeKey: 'test-write-key' }
+const settings = { apiEndpoint: 'https://i.klime.com', writeKey: 'test-write-key' }
 
 describe('Klime', () => {
   afterEach(() => {
@@ -19,7 +19,7 @@ describe('Klime', () => {
         properties: { buttonName: 'Sign up' }
       })
 
-      nock('https://ingest.klime.com')
+      nock('https://i.klime.com')
         .post('/v1/batch')
         .matchHeader('Authorization', 'Bearer test-write-key')
         .reply(200, { status: 'ok', accepted: 1, failed: 0 })
@@ -44,7 +44,7 @@ describe('Klime', () => {
         enable_batching: true
       }
 
-      nock('https://ingest.klime.com')
+      nock('https://i.klime.com')
         .post('/v1/batch', {
           batch: [
             {
@@ -74,7 +74,7 @@ describe('Klime', () => {
         createTestEvent({ type: 'track', event: 'Event 2', userId: 'user_2' })
       ]
 
-      nock('https://ingest.klime.com').post('/v1/batch').reply(200, { status: 'ok', accepted: 2, failed: 0 })
+      nock('https://i.klime.com').post('/v1/batch').reply(200, { status: 'ok', accepted: 2, failed: 0 })
 
       const responses = await testDestination.testBatchAction('track', {
         events,
@@ -95,7 +95,7 @@ describe('Klime', () => {
         traits: { email: 'test@example.com', name: 'Test User' }
       })
 
-      nock('https://ingest.klime.com')
+      nock('https://i.klime.com')
         .post('/v1/batch')
         .matchHeader('Authorization', 'Bearer test-write-key')
         .reply(200, { status: 'ok', accepted: 1, failed: 0 })
@@ -119,7 +119,7 @@ describe('Klime', () => {
         enable_batching: true
       }
 
-      nock('https://ingest.klime.com')
+      nock('https://i.klime.com')
         .post('/v1/batch', {
           batch: [
             {
@@ -148,7 +148,7 @@ describe('Klime', () => {
         createTestEvent({ type: 'identify', userId: 'user_2', traits: { name: 'User 2' } })
       ]
 
-      nock('https://ingest.klime.com').post('/v1/batch').reply(200, { status: 'ok', accepted: 2, failed: 0 })
+      nock('https://i.klime.com').post('/v1/batch').reply(200, { status: 'ok', accepted: 2, failed: 0 })
 
       const responses = await testDestination.testBatchAction('identify', {
         events,
@@ -170,7 +170,7 @@ describe('Klime', () => {
         traits: { name: 'Acme Inc', plan: 'enterprise' }
       })
 
-      nock('https://ingest.klime.com')
+      nock('https://i.klime.com')
         .post('/v1/batch')
         .matchHeader('Authorization', 'Bearer test-write-key')
         .reply(200, { status: 'ok', accepted: 1, failed: 0 })
@@ -195,7 +195,7 @@ describe('Klime', () => {
         enable_batching: true
       }
 
-      nock('https://ingest.klime.com')
+      nock('https://i.klime.com')
         .post('/v1/batch', {
           batch: [
             {
@@ -225,7 +225,7 @@ describe('Klime', () => {
         createTestEvent({ type: 'group', groupId: 'group_2', traits: { name: 'Group 2' } })
       ]
 
-      nock('https://ingest.klime.com').post('/v1/batch').reply(200, { status: 'ok', accepted: 2, failed: 0 })
+      nock('https://i.klime.com').post('/v1/batch').reply(200, { status: 'ok', accepted: 2, failed: 0 })
 
       const responses = await testDestination.testBatchAction('group', {
         events,
