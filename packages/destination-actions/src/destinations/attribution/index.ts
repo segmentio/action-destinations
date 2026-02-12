@@ -24,7 +24,7 @@ const destination: DestinationDefinition<Settings> = {
     const { projectID } = settings
     return {
       headers: {
-        Authorization: `Basic ${Buffer.from(':' + projectID).toString('base64')}`
+        Authorization: `Basic ${Buffer.from(projectID + ':').toString('base64')}`
       }
     }
   },
