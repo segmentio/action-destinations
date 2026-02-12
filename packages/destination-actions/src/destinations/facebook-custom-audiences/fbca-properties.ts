@@ -1,30 +1,4 @@
-import { GlobalSetting, InputField } from '@segment/actions-core'
 import { US_STATE_CODES } from './constants'
-
-export const adAccountId: GlobalSetting = {
-  type: 'string',
-  label: 'Advertiser Account ID',
-  description: 'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762).',
-  required: true
-}
-
-export const enable_batching: InputField = {
-  label: 'Enable Batching',
-  description: 'Enable batching of requests.',
-  type: 'boolean',
-  default: true,
-  unsafe_hidden: true,
-  required: true
-}
-
-export const batch_size: InputField = {
-  label: 'Batch Size',
-  description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
-  type: 'number',
-  default: 10000,
-  unsafe_hidden: true,
-  required: true
-}
 
 // A hardcoded list of all possible schema properties that can be sent to Facebook.
 // If the payloads do not contain a value for one of these schema properties, then empty string will be sent

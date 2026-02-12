@@ -1,6 +1,5 @@
-export const CREATE_AUDIENCE_URL = "https://graph.facebook.com/v24.0/act_<AD_ACCOUNT_ID>/customaudiences"
-export const GET_AUDIENCE_URL = "https://graph.facebook.com/${API_VERSION}/${externalId}"
-export const EXTERNAL_ID_KEY = 'id'
+export const CREATE_AUDIENCE_URL = 'https://graph.facebook.com/v24.0/act_<AD_ACCOUNT_ID>/customaudiences'
+export const GET_AUDIENCE_URL = 'https://graph.facebook.com/${API_VERSION}/${externalId}'
 
 export const US_STATE_CODES = new Map<string, string>([
   ['arizona', 'az'],
