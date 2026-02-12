@@ -53,6 +53,61 @@ describe('Posthog.event', () => {
     })
   })
 
+  it('should include $disable_geoip in batch event properties when disable_geoip setting is true', async () => {
+    const event = createTestEvent({
+      event: 'Test Event',
+      userId: 'test-user-id',
+      properties: { testProperty: 'test-value' }
+    })
+
+    nock(endpoint).post('/batch/').reply(200, {})
+
+    const responses = await testDestination.testAction('event', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        api_key: apiKey,
+        endpoint: endpoint,
+        project_id: projectId,
+        historical_migration: false,
+        disable_geoip: true
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    const payload = JSON.parse(responses[0].options.body as string)
+    expect(payload.batch[0].properties).toMatchObject({
+      $disable_geoip: true
+    })
+  })
+
+  it('should not include $disable_geoip when disable_geoip setting is false', async () => {
+    const event = createTestEvent({
+      event: 'Test Event',
+      userId: 'test-user-id',
+      properties: { testProperty: 'test-value' }
+    })
+
+    nock(endpoint).post('/batch/').reply(200, {})
+
+    const responses = await testDestination.testAction('event', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        api_key: apiKey,
+        endpoint: endpoint,
+        project_id: projectId,
+        historical_migration: false,
+        disable_geoip: false
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    const payload = JSON.parse(responses[0].options.body as string)
+    expect(payload.batch[0].properties.$disable_geoip).toBeUndefined()
+  })
+
   it('should throw error if required fields are missing', async () => {
     const event = createTestEvent({
       properties: {
