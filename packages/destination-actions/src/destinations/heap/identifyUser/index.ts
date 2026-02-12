@@ -72,7 +72,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    return request('https://heapanalytics.com/api/add_user_properties', {
+    return request(`${settings.baseUri}/api/add_user_properties`, {
       method: 'post',
       json: addUserPropertiesPayload
     })

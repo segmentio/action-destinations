@@ -34,6 +34,19 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The app_id corresponding to one of your projects.',
         type: 'string',
         required: true
+      },
+      baseUri: {
+        label: 'API Region',
+        description:
+          'Select the Heap API region for your account. If your Heap data is in an EU datacenter, select EU.',
+        type: 'string',
+        format: 'uri',
+        choices: [
+          { label: 'US (Default)', value: 'https://heapanalytics.com' },
+          { label: 'EU', value: 'https://c.eu.heap-api.com' }
+        ],
+        default: 'https://heapanalytics.com',
+        required: true
       }
     }
   },

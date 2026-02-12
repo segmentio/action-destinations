@@ -11,7 +11,7 @@ describe('Heap.trackEvent', () => {
   const userId = 'thisIsAFakeUserId'
   const messageId = '123'
   const eventName = 'Test Event'
-  const heapURL = 'https://heapanalytics.com'
+  const HEAP_TEST_BASE_URI = 'https://thisIsAFakeHeapAnalyticsUri.com'
   const integrationsTrackURI = '/api/integrations/track'
   const addUserPropertiesURI = '/api/add_user_properties'
   type traits = {
@@ -92,14 +92,15 @@ describe('Heap.trackEvent', () => {
       }
     }
 
-    nock(heapURL).post(addUserPropertiesURI, userPropertiesBody).reply(200, {})
-    nock(heapURL).post(integrationsTrackURI, body).reply(200, {})
+    nock(HEAP_TEST_BASE_URI).post(addUserPropertiesURI, userPropertiesBody).reply(200, {})
+    nock(HEAP_TEST_BASE_URI).post(integrationsTrackURI, body).reply(200, {})
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
       useDefaultMappings: true,
       settings: {
-        appId: HEAP_TEST_APP_ID
+        appId: HEAP_TEST_APP_ID,
+        baseUri: HEAP_TEST_BASE_URI
       },
       mapping: {
         identity: {
@@ -128,13 +129,14 @@ describe('Heap.trackEvent', () => {
       anonymous_id: anonId
     }
 
-    nock(heapURL).post(integrationsTrackURI, body).reply(200, {})
+    nock(HEAP_TEST_BASE_URI).post(integrationsTrackURI, body).reply(200, {})
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
       useDefaultMappings: true,
       settings: {
-        appId: HEAP_TEST_APP_ID
+        appId: HEAP_TEST_APP_ID,
+        baseUri: HEAP_TEST_BASE_URI
       }
     })
     expect(responses.length).toBe(1)
@@ -165,13 +167,14 @@ describe('Heap.trackEvent', () => {
       ...getFlatObject()
     }
 
-    nock(heapURL).post(integrationsTrackURI, body).reply(200, {})
+    nock(HEAP_TEST_BASE_URI).post(integrationsTrackURI, body).reply(200, {})
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
       useDefaultMappings: true,
       settings: {
-        appId: HEAP_TEST_APP_ID
+        appId: HEAP_TEST_APP_ID,
+        baseUri: HEAP_TEST_BASE_URI
       }
     })
 
@@ -200,13 +203,14 @@ describe('Heap.trackEvent', () => {
       ...body.events[0].custom_properties
     }
 
-    nock(heapURL).post(integrationsTrackURI, body).reply(200, {})
+    nock(HEAP_TEST_BASE_URI).post(integrationsTrackURI, body).reply(200, {})
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
       useDefaultMappings: true,
       settings: {
-        appId: HEAP_TEST_APP_ID
+        appId: HEAP_TEST_APP_ID,
+        baseUri: HEAP_TEST_BASE_URI
       }
     })
     expect(responses.length).toBe(1)
@@ -233,13 +237,14 @@ describe('Heap.trackEvent', () => {
       ...body.events[0].custom_properties
     }
 
-    nock(heapURL).post(integrationsTrackURI, body).reply(200, {})
+    nock(HEAP_TEST_BASE_URI).post(integrationsTrackURI, body).reply(200, {})
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
       useDefaultMappings: true,
       settings: {
-        appId: HEAP_TEST_APP_ID
+        appId: HEAP_TEST_APP_ID,
+        baseUri: HEAP_TEST_BASE_URI
       }
     })
 

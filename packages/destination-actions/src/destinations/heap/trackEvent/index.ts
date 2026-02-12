@@ -146,7 +146,7 @@ const action: ActionDefinition<Settings, Payload> = {
           ...(payload.traits && Object.keys(payload.traits).length !== 0 && flat(payload.traits))
         }
       }
-      const addUserPropertiesRequest = request('https://heapanalytics.com/api/add_user_properties', {
+      const addUserPropertiesRequest = request(`${settings.baseUri}/api/add_user_properties`, {
         method: 'post',
         json: userPropertiesPayload
       })
@@ -155,7 +155,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     requests.push(
-      request('https://heapanalytics.com/api/integrations/track', {
+      request(`${settings.baseUri}/api/integrations/track`, {
         method: 'post',
         json: trackPayload
       })
