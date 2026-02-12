@@ -6,6 +6,8 @@ import { EmptyValueError, processHashing } from '../../../lib/hashing-utils'
 import { GetAllAudienceResponse, FacebookSyncRequestParams } from './types'
 import { FacebookResponseError } from '../types'
 import { API_VERSION, BASE_URL } from '../constants'
+import { Settings } from '../generated-types'
+import { createAudience, getAudience } from '../functions'
 
 export async function send(
   request: RequestClient,
@@ -125,6 +127,82 @@ export async function syncAudience(
   })
 }
 
+export async function getExistingAudienceIdChoices(request: RequestClient, { settings }: { settings: Settings }) {
+  const { retlAdAccountId } = settings
+  const { choices, error } = await getAllAudiences(request, retlAdAccountId)
+  if (error) {
+    return { error, choices: [] }
+  }
+  return {
+    choices
+  }
+}
+
+export async function performHook(
+  request: RequestClient,
+  retlAdAccountId: string,
+  operation?: string,
+  audienceName?: string,
+  existingAudienceId?: string
+) {
+  if (operation === 'create') {
+    if (!audienceName || typeof audienceName !== 'string') {
+      return {
+        error: {
+          message: 'Missing audience name value',
+          code: 'MISSING_REQUIRED_FIELD'
+        }
+      }
+    } else {
+      const { data: { externalId } = {}, error } = await createAudience(request, audienceName, retlAdAccountId)
+
+      if (error) {
+        return { error }
+      }
+
+      return {
+        successMessage: `Audience created with ID: ${externalId}`,
+        savedData: {
+          audienceId: externalId,
+          audienceName
+        }
+      }
+    }
+  }
+
+  if (operation === 'existing') {
+    if (!existingAudienceId || typeof existingAudienceId !== 'string') {
+      return {
+        error: {
+          message: 'Missing audience ID value',
+          code: 'MISSING_REQUIRED_FIELD'
+        }
+      }
+    } else {
+      const { data: { name } = {}, error } = await getAudience(request, existingAudienceId)
+
+      if (error) {
+        return { error }
+      }
+
+      return {
+        successMessage: `Connected to audience with ID: ${existingAudienceId}`,
+        savedData: {
+          audienceId: existingAudienceId,
+          audienceName: name
+        }
+      }
+    }
+  }
+
+  return {
+    error: {
+      message: 'Invalid operation',
+      code: 'INVALID_OPERATION'
+    }
+  }
+}
+
 export const generateData = (payloads: Payload[]): (string | number)[][] => {
   const data: (string | number)[][] = new Array(payloads.length)
 
@@ -147,7 +225,23 @@ export const generateData = (payloads: Payload[]): (string | number)[][] => {
   return data
 }
 
-const appendToDataRow = (key: string, value: string | number, row: (string | number)[]) => {
+export const normalizationFunctions = new Map<string, (value: string) => string>([
+  ['email', (value: string) => value.trim().toLowerCase()],
+  ['phone', normalizePhone],
+  ['gender', normalizeGender],
+  ['year', (value: string) => value.trim()],
+  ['month', normalizeMonth],
+  ['day', (value: string) => value.trim()],
+  ['last', normalizeName],
+  ['first', normalizeName],
+  ['firstInitial', (value: string) => value.trim().toLowerCase()],
+  ['city', normalizeCity],
+  ['state', normalizeState],
+  ['zip', normalizeZip],
+  ['country', normalizeCountry]
+])
+
+function appendToDataRow(key: string, value: string | number, row: (string | number)[]) {
   const index = segmentSchemaKeyToArrayIndex.get(key)
 
   if (index === undefined) {
@@ -173,13 +267,13 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
   }
 }
 
-const normalizePhone = (value: string): string => {
+function normalizePhone(value: string): string {
   const removedNonNumveric = value.replace(/\D/g, '')
 
   return removedNonNumveric.replace(/^0+/, '')
 }
 
-const normalizeGender = (value: string): string => {
+function normalizeGender(value: string): string {
   const lowerCaseValue = value.toLowerCase().trim()
 
   if (['male', 'boy', 'm'].includes(lowerCaseValue)) return 'm'
@@ -188,7 +282,7 @@ const normalizeGender = (value: string): string => {
   return value
 }
 
-const normalizeMonth = (value: string): string => {
+function normalizeMonth(value: string): string {
   const normalizedValue = value.replace(/\s/g, '').trim()
 
   if (normalizedValue.length === 2 && typeof Number(normalizedValue) === 'number') {
@@ -223,18 +317,18 @@ const normalizeMonth = (value: string): string => {
   return `${monthIndex + 1}`
 }
 
-const normalizeName = (value: string): string => {
+function normalizeName(value: string): string {
   return value.trim().toLowerCase().replace(/\p{P}/gu, '')
 }
 
-const normalizeCity = (value: string): string => {
+function normalizeCity(value: string): string {
   return value
     .trim()
     .replace(/[\s\W_]/g, '')
     .toLowerCase()
 }
 
-const normalizeState = (value: string): string => {
+function normalizeState(value: string): string {
   if (US_STATE_CODES.has(value.toLowerCase().trim())) {
     return US_STATE_CODES.get(value.toLowerCase().trim()) as string
   }
@@ -245,7 +339,7 @@ const normalizeState = (value: string): string => {
     .toLowerCase()
 }
 
-const normalizeZip = (value: string): string => {
+function normalizeZip(value: string): string {
   if (value.includes('-')) {
     return value.split('-')[0]
   }
@@ -253,25 +347,9 @@ const normalizeZip = (value: string): string => {
   return value.trim().replace(/\s/g, '').toLowerCase()
 }
 
-const normalizeCountry = (value: string): string => {
+function normalizeCountry(value: string): string {
   return value
     .trim()
     .replace(/[\s\W_]/g, '')
     .toLowerCase()
 }
-
-export const normalizationFunctions = new Map<string, (value: string) => string>([
-  ['email', (value: string) => value.trim().toLowerCase()],
-  ['phone', normalizePhone],
-  ['gender', normalizeGender],
-  ['year', (value: string) => value.trim()],
-  ['month', normalizeMonth],
-  ['day', (value: string) => value.trim()],
-  ['last', normalizeName],
-  ['first', normalizeName],
-  ['firstInitial', (value: string) => value.trim().toLowerCase()],
-  ['city', normalizeCity],
-  ['state', normalizeState],
-  ['zip', normalizeZip],
-  ['country', normalizeCountry]
-])

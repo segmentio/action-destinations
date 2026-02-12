@@ -1,4 +1,8 @@
 import { InputField } from '@segment/actions-core'
+import { ActionHookDefinition } from '@segment/actions-core/destination-kit'
+import type { Settings, AudienceSettings } from '../generated-types'
+import type { Payload, RetlOnMappingSaveOutputs, RetlOnMappingSaveInputs } from './generated-types'
+import { getExistingAudienceIdChoices } from './functions'
 
 export const fields: Record<string, InputField> = {
   externalId: {
@@ -140,6 +144,77 @@ export const fields: Record<string, InputField> = {
     type: 'number',
     default: 10000,
     unsafe_hidden: true,
+    required: true
+  }
+}
+
+export const retlHookInputFields: ActionHookDefinition<
+  Settings,
+  Payload,
+  AudienceSettings,
+  RetlOnMappingSaveInputs,
+  RetlOnMappingSaveOutputs
+>['inputFields'] = {
+  operation: {
+    type: 'string',
+    label: 'Create a new custom audience or connect to an existing one?',
+    description:
+      'Choose to either create a new custom audience or use an existing one. If you opt to create a new audience, we will display the required fields for audience creation. If you opt to use an existing audience, a drop-down menu will appear, allowing you to select from all the custom audiences in your ad account.',
+    choices: [
+      { label: 'Create New Audience', value: 'create' },
+      { label: 'Connect to Existing Audience', value: 'existing' }
+    ],
+    default: 'create'
+  },
+  audienceName: {
+    type: 'string',
+    label: 'Audience Creation Name',
+    description: 'The name of the audience in Facebook.',
+    default: 'TODO: Model Name by default',
+    depends_on: {
+      conditions: [
+        {
+          fieldKey: 'operation',
+          operator: 'is',
+          value: 'create'
+        }
+      ]
+    }
+  },
+  existingAudienceId: {
+    type: 'string',
+    label: 'Existing Audience ID',
+    description: 'The ID of the audience in Facebook.',
+    depends_on: {
+      conditions: [
+        {
+          fieldKey: 'operation',
+          operator: 'is',
+          value: 'existing'
+        }
+      ]
+    },
+    dynamic: getExistingAudienceIdChoices
+  }
+}
+
+export const retlHookOutputTypes: ActionHookDefinition<
+  Settings,
+  Payload,
+  AudienceSettings,
+  RetlOnMappingSaveInputs,
+  RetlOnMappingSaveOutputs
+>['outputTypes'] = {
+  audienceName: {
+    type: 'string',
+    label: 'Audience Name',
+    description: 'The name of the audience in Facebook this mapping is connected to.',
+    required: true
+  },
+  audienceId: {
+    type: 'string',
+    label: 'Audience ID',
+    description: 'The ID of the audience in Facebook.',
     required: true
   }
 }
