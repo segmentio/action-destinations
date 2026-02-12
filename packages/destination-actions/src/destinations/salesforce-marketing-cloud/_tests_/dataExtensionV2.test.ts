@@ -321,9 +321,11 @@ describe('Salesforce Marketing Cloud', () => {
         })
 
         expect(responses.length).toBe(1)
-        expect(responses[0].status).toBe(400)
-        expect(responses[0].errortype).toBe('BAD_REQUEST')
-        expect(responses[0].errormessage).toBe('Invalid field value')
+        expect(responses[0]).toMatchObject({
+          status: 400,
+          errortype: 'BAD_REQUEST',
+          errormessage: 'Invalid field value'
+        })
       })
 
       it('should handle 500 server error in batch mode', async () => {
@@ -362,8 +364,11 @@ describe('Salesforce Marketing Cloud', () => {
         })
 
         expect(responses.length).toBe(1)
-        expect(responses[0].status).toBe(500)
-        expect(responses[0].errormessage).toContain('Internal Server Error')
+        expect(responses[0]).toMatchObject({
+          status: 500
+        })
+        expect(responses[0]).toHaveProperty('errormessage')
+        expect((responses[0] as any).errormessage).toContain('Internal Server Error')
       })
 
       it('should handle retryable error (error code 10006) in batch mode', async () => {
@@ -404,8 +409,10 @@ describe('Salesforce Marketing Cloud', () => {
 
         expect(responses.length).toBe(1)
         // Error code 10006 should be marked as retryable (status 500)
-        expect(responses[0].status).toBe(500)
-        expect(responses[0].errortype).toBe('INTERNAL_SERVER_ERROR')
+        expect(responses[0]).toMatchObject({
+          status: 500,
+          errortype: 'INTERNAL_SERVER_ERROR'
+        })
       })
     })
 
