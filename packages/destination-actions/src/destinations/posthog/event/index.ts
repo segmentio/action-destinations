@@ -11,7 +11,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     event_type: {
       label: 'Event Type',
-      description: 'For regular analytics events, use `track`. For page views, use `page`. For mobile screens, use `screen`.',
+      description:
+        'For regular analytics events, use `track`. For page views, use `page`. For mobile screens, use `screen`.',
       type: 'string',
       choices: [
         { label: 'track', value: 'track' },
@@ -136,21 +137,23 @@ function send(request: RequestClient, settings: Settings, payload: Payload[]) {
   }
 
   const json: BatchJSON = {
-      api_key: settings.api_key,
-      historical_migration: settings.historical_migration,
-      batch: payload.map((payload) => ({
-        event: payload.event_type === 'page' ? '$pageview' : payload.event_type === 'screen' ? '$screen': payload.event_name,
-        timestamp: payload.timestamp,
-        properties: {
-          ...payload.properties,
-          $current_url: payload.event_type === 'page' ? payload.current_url  : undefined,
-          $screen_name: payload.event_type === 'screen' ? payload.screen_name : undefined,
-          distinct_id: payload.distinct_id,
-          $process_person_profile: payload.anonymous_event_capture
-        }
-     }))
+    api_key: settings.api_key,
+    historical_migration: settings.historical_migration,
+    batch: payload.map((payload) => ({
+      event:
+        payload.event_type === 'page' ? '$pageview' : payload.event_type === 'screen' ? '$screen' : payload.event_name,
+      timestamp: payload.timestamp,
+      properties: {
+        ...payload.properties,
+        $current_url: payload.event_type === 'page' ? payload.current_url : undefined,
+        $screen_name: payload.event_type === 'screen' ? payload.screen_name : undefined,
+        distinct_id: payload.distinct_id,
+        $process_person_profile: payload.anonymous_event_capture,
+        $disable_geoip: settings.disable_geoip || undefined
+      }
+    }))
   }
-  
+
   return request(url, {
     method: 'post',
     headers,

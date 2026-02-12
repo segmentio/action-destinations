@@ -9,19 +9,18 @@ export interface BatchEvent {
 }
 
 export interface BatchPageEvent extends BatchEvent {
-  event: "$pageview"
-  properties: BatchEvent["properties"] & {
-    "$current_url": string
+  event: '$pageview'
+  properties: BatchEvent['properties'] & {
+    $current_url: string
   }
 }
 
 export interface BatchScreenEvent extends BatchEvent {
-  event: "$screen"
-  properties: BatchEvent["properties"] & {
-    "$screen_name": string
+  event: '$screen'
+  properties: BatchEvent['properties'] & {
+    $screen_name: string
   }
 }
-
 
 export interface BatchJSON {
   api_key: string
@@ -37,6 +36,7 @@ export interface IdentifyEvent {
     $set: {
       [key: string]: unknown
     }
+    $disable_geoip?: boolean
   }
   timestamp?: string | number
 }
