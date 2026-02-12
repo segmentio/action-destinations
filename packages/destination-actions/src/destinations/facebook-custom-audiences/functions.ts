@@ -77,7 +77,7 @@ export async function getAudience(
     if (externalId !== id) {
       return {
         error: {
-          message: `Audience ID mismatch. Expected: ${externalId}, Received: ${id}`,
+          message: `Audience not found. Audience ID mismatch. Expected: ${externalId}, Received: ${id}`,
           code: 'ID_MISMATCH'
         }
       }
