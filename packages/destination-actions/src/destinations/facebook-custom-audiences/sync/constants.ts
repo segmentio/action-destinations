@@ -1,0 +1,96 @@
+export const US_STATE_CODES = new Map<string, string>([
+  ['arizona', 'az'],
+  ['alabama', 'al'],
+  ['alaska', 'ak'],
+  ['arkansas', 'ar'],
+  ['california', 'ca'],
+  ['colorado', 'co'],
+  ['connecticut', 'ct'],
+  ['delaware', 'de'],
+  ['florida', 'fl'],
+  ['georgia', 'ga'],
+  ['hawaii', 'hi'],
+  ['idaho', 'id'],
+  ['illinois', 'il'],
+  ['indiana', 'in'],
+  ['iowa', 'ia'],
+  ['kansas', 'ks'],
+  ['kentucky', 'ky'],
+  ['louisiana', 'la'],
+  ['maine', 'me'],
+  ['maryland', 'md'],
+  ['massachusetts', 'ma'],
+  ['michigan', 'mi'],
+  ['minnesota', 'mn'],
+  ['mississippi', 'ms'],
+  ['missouri', 'mo'],
+  ['montana', 'mt'],
+  ['nebraska', 'ne'],
+  ['nevada', 'nv'],
+  ['newhampshire', 'nh'],
+  ['newjersey', 'nj'],
+  ['newmexico', 'nm'],
+  ['newyork', 'ny'],
+  ['northcarolina', 'nc'],
+  ['northdakota', 'nd'],
+  ['ohio', 'oh'],
+  ['oklahoma', 'ok'],
+  ['oregon', 'or'],
+  ['pennsylvania', 'pa'],
+  ['rhodeisland', 'ri'],
+  ['southcarolina', 'sc'],
+  ['southdakota', 'sd'],
+  ['tennessee', 'tn'],
+  ['texas', 'tx'],
+  ['utah', 'ut'],
+  ['vermont', 'vt'],
+  ['virginia', 'va'],
+  ['washington', 'wa'],
+  ['westvirginia', 'wv'],
+  ['wisconsin', 'wi'],
+  ['wyoming', 'wy']
+])
+
+// A hardcoded list of all possible schema properties that can be sent to Facebook.
+// If the payloads do not contain a value for one of these schema properties, then empty string will be sent
+export const SCHEMA_PROPERTIES = [
+  'EXTERN_ID',
+  'EMAIL',
+  'PHONE',
+  'GEN',
+  'DOBY',
+  'DOBM',
+  'DOBD',
+  'LN',
+  'FN',
+  'FI',
+  'CT',
+  'ST',
+  'ZIP',
+  'MADID',
+  'COUNTRY'
+]
+
+// A list of the segment equivalent to each Facebook schema property
+// It is important that each segment schema property is in the same order as the Facebook schema properties
+export const SEGMENT_SCHEMA_PROPERTIES = [
+  'externalId',
+  'email',
+  'phone',
+  'gender',
+  'year',
+  'month',
+  'day',
+  'last',
+  'first',
+  'firstInitial',
+  'city',
+  'state',
+  'zip',
+  'mobileAdId',
+  'country'
+]
+
+export const segmentSchemaKeyToArrayIndex = new Map<string, number>(
+  SEGMENT_SCHEMA_PROPERTIES.map((property, index) => [property, index])
+)

@@ -1,8 +1,9 @@
-import { IntegrationError, ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import FacebookClient from '../fbca-operations'
 import { fields } from './fields'
+import { getAudience, createAudience } from '../functions'
+import { send, getAllAudiences } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -52,14 +53,12 @@ const action: ActionDefinition<Settings, Payload> = {
               }
             ]
           },
-          dynamic: async (request, { settings, features }) => {
-            const fbClient = new FacebookClient(request, settings.retlAdAccountId, features)
-            const { choices, error } = await fbClient.getAllAudiences()
-
+          dynamic: async (request, { settings }) => {
+            const { retlAdAccountId } = settings
+            const { choices, error } = await getAllAudiences(request, retlAdAccountId)
             if (error) {
               return { error, choices: [] }
             }
-
             return {
               choices
             }
@@ -80,56 +79,56 @@ const action: ActionDefinition<Settings, Payload> = {
           required: true
         }
       },
-      performHook: async (request, { settings, hookInputs, features }) => {
-        const fbClient = new FacebookClient(request, settings.retlAdAccountId, features)
+      performHook: async (request, { settings, hookInputs }) => {
+        const { operation, audienceName, existingAudienceId } = hookInputs
+        const { retlAdAccountId } = settings
 
-        if (hookInputs.operation === 'create' && !hookInputs.audienceName) {
-          return {
-            error: {
-              message: 'Missing audience name value',
-              code: 'MISSING_REQUIRED_FIELD'
-            }
-          }
-        }
-
-        if (hookInputs.operation === 'existing' && !hookInputs.existingAudienceId) {
-          return {
-            error: {
-              message: 'Missing audience ID value',
-              code: 'MISSING_REQUIRED_FIELD'
-            }
-          }
-        }
-
-        if (hookInputs.operation === 'existing' && hookInputs.existingAudienceId) {
-          const { data, error } = await fbClient.getSingleAudience(hookInputs.existingAudienceId)
-
-          if (error) {
+        if (operation === 'create') {
+          if (!audienceName || typeof audienceName !== 'string') {
             return {
               error: {
-                message: error.error.message,
-                code: error.error.type
+                message: 'Missing audience name value',
+                code: 'MISSING_REQUIRED_FIELD'
+              }
+            }
+          } else {
+            const { data: { externalId } = {}, error } = await createAudience(request, audienceName, retlAdAccountId)
+
+            if (error) {
+              return { error }
+            }
+
+            return {
+              successMessage: `Audience created with ID: ${externalId}`,
+              savedData: {
+                audienceId: externalId,
+                audienceName
               }
             }
           }
-
-          return {
-            successMessage: `Connected to audience with ID: ${hookInputs.existingAudienceId}`,
-            savedData: {
-              audienceId: hookInputs.existingAudienceId,
-              audienceName: data?.name
-            }
-          }
         }
 
-        if (hookInputs.operation === 'create' && hookInputs.audienceName) {
-          const { data } = await fbClient.createAudience(hookInputs.audienceName)
+        if (operation === 'existing') {
+          if (!existingAudienceId || typeof existingAudienceId !== 'string') {
+            return {
+              error: {
+                message: 'Missing audience ID value',
+                code: 'MISSING_REQUIRED_FIELD'
+              }
+            }
+          } else {
+            const { data: { name } = {}, error } = await getAudience(request, existingAudienceId)
 
-          return {
-            successMessage: `Audience created with ID: ${data.id}`,
-            savedData: {
-              audienceId: data.id,
-              audienceName: hookInputs.audienceName
+            if (error) {
+              return { error }
+            }
+
+            return {
+              successMessage: `Connected to audience with ID: ${existingAudienceId}`,
+              savedData: {
+                audienceId: existingAudienceId,
+                audienceName: name
+              }
             }
           }
         }
@@ -153,31 +152,11 @@ const action: ActionDefinition<Settings, Payload> = {
     ]
   },
   fields,
-  perform: async (request, { settings, payload, hookOutputs, syncMode, features, statsContext }) => {
-    const fbClient = new FacebookClient(request, settings.retlAdAccountId, features, statsContext)
-
-    if (syncMode && ['upsert', 'delete'].includes(syncMode)) {
-      return await fbClient.syncAudience({
-        audienceId: hookOutputs?.retlOnMappingSave?.outputs?.audienceId ?? payload.external_audience_id,
-        payloads: [payload],
-        deleteUsers: syncMode === 'delete' ? true : false
-      })
-    }
-
-    throw new IntegrationError('Sync mode is required for perform', 'MISSING_REQUIRED_FIELD', 400)
+  perform: async (request, { payload, hookOutputs, syncMode }) => {
+    return await send(request, [payload], hookOutputs, syncMode)
   },
-  performBatch: async (request, { settings, payload, hookOutputs, syncMode, features, statsContext }) => {
-    const fbClient = new FacebookClient(request, settings.retlAdAccountId, features, statsContext)
-
-    if (syncMode && ['upsert', 'delete'].includes(syncMode)) {
-      return await fbClient.syncAudience({
-        audienceId: hookOutputs?.retlOnMappingSave?.outputs?.audienceId ?? payload[0].external_audience_id,
-        payloads: payload,
-        deleteUsers: syncMode === 'delete' ? true : false
-      })
-    }
-
-    throw new IntegrationError('Sync mode is required for performBatch', 'MISSING_REQUIRED_FIELD', 400)
+  performBatch: async (request, { payload, hookOutputs, syncMode }) => {
+    return await send(request, payload, hookOutputs, syncMode)
   }
 }
 

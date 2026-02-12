@@ -1,5 +1,5 @@
 import createRequestClient from '../../../../../core/src/request-client'
-import FacebookClient, { generateData } from '../fbca-operations'
+import FacebookClient, { generateData } from '../sync/fbca-operations'
 import { Settings } from '../generated-types'
 import nock from 'nock'
 import { Payload } from '../sync/generated-types'

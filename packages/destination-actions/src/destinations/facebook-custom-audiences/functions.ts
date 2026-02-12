@@ -1,100 +1,100 @@
 import { RequestClient, IntegrationError } from '@segment/actions-core'
-import { CreateAudienceInput, AudienceResult, GetAudienceInput } from '@segment/actions-core/destination-kit'
-import type { Settings, AudienceSettings } from './generated-types'
-import { CreateAudienceRequest, CreateAudienceResponse, GetAudienceResponse } from './types'
-import { API_VERSION } from './constants'
+import { FacebookResponseError, CreateAudienceRequest, CreateAudienceResponse, GetAudienceResponse } from './types'
+import { API_VERSION, BASE_URL } from './constants'
 
 export async function createAudience(
   request: RequestClient,
-  createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>
-): Promise<AudienceResult> {
-  const { audienceName, audienceSettings: { engageAdAccountId: adAccountId, audienceDescription } = {} } =
-    createAudienceInput
-
-  if (!audienceName) {
+  name: string,
+  adAccountId: string,
+  description?: string
+): Promise<{ data?: { externalId: string }; error?: { message: string; code: string } }> {
+  if (!name) {
     throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
   }
   if (!adAccountId) {
     throw new IntegrationError('Missing ad account ID value', 'MISSING_REQUIRED_FIELD', 400)
   }
 
-  const url = `https://graph.facebook.com/${API_VERSION}/act_${adAccountId}/customaudiences`
+  const url = `${BASE_URL}/${API_VERSION}/act_${
+    adAccountId.startsWith('act_') ? adAccountId.slice(4) : adAccountId
+  }/customaudiences`
 
-  const payload: CreateAudienceRequest = {
-    name: audienceName,
-    description: audienceDescription || '',
+  const json: CreateAudienceRequest = {
+    name,
     subtype: 'CUSTOM',
-    customer_file_source: 'BOTH_USER_AND_PARTNER_PROVIDED'
+    customer_file_source: 'BOTH_USER_AND_PARTNER_PROVIDED',
+    ...(description ? { description } : {})
   }
 
-  let response
   try {
-    response = await request<CreateAudienceResponse>(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams(payload as unknown as Record<string, string>)
+    const response = await request<CreateAudienceResponse>(url, {
+      method: 'post',
+      json
     })
-  } catch (err) {
-    let message = err.response?.content || err.message
-    let userTitle: string | undefined, userMsg: string | undefined
 
-    if (typeof message === 'string') {
-      try {
-        const parsed = JSON.parse(message)
-        if (parsed?.error) {
-          userTitle = parsed.error.error_user_title
-          userMsg = parsed.error.error_user_msg || parsed.error.error_user_message
+    const r = await response.json()
+    const id = r.id
+
+    if (!id) {
+      return {
+        error: {
+          message: 'Invalid response from create audience request',
+          code: 'INVALID_RESPONSE'
         }
-      } catch (e) {
-        // No-Op. Add the error message to the message variable.
       }
     }
-
-    if (userTitle || userMsg) {
-      message = `${userTitle ? userTitle + ': ' : ''}${userMsg || ''}`.trim()
+    return { data: { externalId: id } }
+  } catch (error) {
+    const err = error as FacebookResponseError
+    return {
+      error: {
+        message: err.error.message,
+        code: err.error.type
+      }
     }
-
-    throw new IntegrationError(String(message), 'CREATE_AUDIENCE_FAILED', 400)
-  }
-
-  const r = await response.json()
-
-  const id = r.id
-
-  if (!id) {
-    throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
-  }
-
-  return {
-    externalId: id
   }
 }
 
 export async function getAudience(
   request: RequestClient,
-  getAudienceInput: GetAudienceInput<Settings, AudienceSettings>
-): Promise<AudienceResult> {
-  const { externalId } = getAudienceInput
+  externalId: string
+): Promise<{ data?: { externalId?: string; name: string }; error?: { message: string; code: string } }> {
+  const url = `${BASE_URL}/${API_VERSION}/${externalId}`
 
-  const url = `https://graph.facebook.com/${API_VERSION}/${externalId}`
+  try {
+    const response = await request<GetAudienceResponse>(url, { method: 'GET' })
+    const r = await response.json()
+    const { id, name } = r
 
-  const response = await request<GetAudienceResponse>(url, { method: 'GET' })
-
-  const r = await response.json()
-
-  const id = r.id
-
-  if (!id) {
-    throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
-  }
-
-  if (externalId !== id) {
-    throw new IntegrationError("Couldn't find audience", 'INVALID_RESPONSE', 400)
-  }
-
-  return {
-    externalId: id
+    if (!id) {
+      return {
+        error: {
+          message: 'Invalid response from get audience request',
+          code: 'INVALID_RESPONSE'
+        }
+      }
+    }
+    if (externalId !== id) {
+      return {
+        error: {
+          message: `Audience ID mismatch. Expected: ${externalId}, Received: ${id}`,
+          code: 'ID_MISMATCH'
+        }
+      }
+    }
+    return {
+      data: {
+        externalId: id,
+        name: name || ''
+      }
+    }
+  } catch (error) {
+    const err = error as FacebookResponseError
+    return {
+      error: {
+        message: err.error.message,
+        code: err.error.type
+      }
+    }
   }
 }
