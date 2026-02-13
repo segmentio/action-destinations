@@ -98,7 +98,7 @@ export function hasSyncModevalue(syncMode: string | undefined): boolean {
   return typeof syncMode === 'string' && ['upsert', 'delete'].includes(syncMode) ? true : false
 }
 
-function getJSON(payloads: Payload[]): AudienceJSON {
+export function getJSON(payloads: Payload[]): AudienceJSON {
   const data = getData(payloads)
   const app_ids: string[] = []
   const page_ids: string[] = []
@@ -122,7 +122,7 @@ function getJSON(payloads: Payload[]): AudienceJSON {
   }
 }
 
-function validate(audienceId: unknown, isEngageAudience: boolean, hasSyncMode: boolean) {
+export function validate(audienceId: unknown, isEngageAudience: boolean, hasSyncMode: boolean) {
   if (!audienceId || typeof audienceId !== 'string') {
     throw new PayloadValidationError(
       'Missing audience ID.'
@@ -176,13 +176,13 @@ export function getData(payloads: Payload[]): FacebookDataRow[]{
   return data
 }
 
-function normalizePhone(value: string): string {
+export function normalizePhone(value: string): string {
   const removedNonNumveric = value.replace(/\D/g, '')
 
   return removedNonNumveric.replace(/^0+/, '')
 }
 
-function normalizeGender(value: string): string {
+export function normalizeGender(value: string): string {
   const lowerCaseValue = value.toLowerCase().trim()
 
   if (['male', 'boy', 'm'].includes(lowerCaseValue)) return 'm'
@@ -191,7 +191,7 @@ function normalizeGender(value: string): string {
   return value
 }
 
-function normalizeMonth(value: string): string {
+export function normalizeMonth(value: string): string {
   const normalizedValue = value.replace(/\s/g, '').trim()
 
   if (normalizedValue.length === 2 && typeof Number(normalizedValue) === 'number') {
@@ -226,18 +226,18 @@ function normalizeMonth(value: string): string {
   return `${monthIndex + 1}`
 }
 
-function normalizeName(value: string): string {
+export function normalizeName(value: string): string {
   return value.trim().toLowerCase().replace(/\p{P}/gu, '')
 }
 
-function normalizeCity(value: string): string {
+export function normalizeCity(value: string): string {
   return value
     .trim()
     .replace(/[\s\W_]/g, '')
     .toLowerCase()
 }
 
-function normalizeState(value: string): string {
+export function normalizeState(value: string): string {
   if (US_STATE_CODES.has(value.toLowerCase().trim())) {
     return US_STATE_CODES.get(value.toLowerCase().trim()) as string
   }
@@ -248,7 +248,7 @@ function normalizeState(value: string): string {
     .toLowerCase()
 }
 
-function normalizeZip(value: string): string {
+export function normalizeZip(value: string): string {
   if (value.includes('-')) {
     return value.split('-')[0]
   }
@@ -256,7 +256,7 @@ function normalizeZip(value: string): string {
   return value.trim().replace(/\s/g, '').toLowerCase()
 }
 
-function normalizeCountry(value: string): string {
+export function normalizeCountry(value: string): string {
   return value
     .trim()
     .replace(/[\s\W_]/g, '')
