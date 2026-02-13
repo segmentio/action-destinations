@@ -1,10 +1,15 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, JSONLikeObject } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { keys, values_dataExtensionFields, dataExtensionHook } from '../sfmc-properties'
-import { getDataExtensionFields, asyncUpsertRowsV2 } from '../sfmc-operations'
+import { getDataExtensionFields, asyncUpsertRowsV2, pollAsyncOperation } from '../sfmc-operations'
 
-const action: ActionDefinition<Settings, Payload> = {
+// Define the minimal payload type for polling operations
+interface PollPayload {
+  operationId: string
+}
+
+const action: ActionDefinition<Settings, Payload, unknown, unknown, unknown, PollPayload> = {
   title: 'Send Event asynchronously to Data Extension',
   description: 'Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.',
   fields: {
@@ -52,6 +57,14 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
+  pollFields: {
+    operationId: {
+      label: 'Operation ID',
+      description: 'The ID of the asynchronous operation to poll.',
+      type: 'string',
+      required: true
+    }
+  },
   hooks: {
     retlOnMappingSave: {
       ...dataExtensionHook
@@ -79,6 +92,54 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('No Data Extension Connected', 'INVALID_CONFIGURATION', 400)
     }
     return asyncUpsertRowsV2(request, settings.subdomain, payload, dataExtensionId)
+  },
+
+  pollStatus: async (request, { settings, payload }) => {
+    // Get the operation ID from the payload
+    const operationId = payload.operationId
+
+    if (!operationId) {
+      throw new IntegrationError('Operation ID is required for polling.', 'INVALID_REQUEST', 400)
+    }
+
+    // Poll the SFMC async operation status
+    const pollResult = await pollAsyncOperation(request, settings.subdomain, operationId)
+
+    // Map SFMC status to framework status
+    let status: 'pending' | 'completed' | 'failed'
+    switch (pollResult.status) {
+      case 'Complete':
+        status = 'completed'
+        break
+      case 'Failed':
+      case 'Error':
+        status = 'failed'
+        break
+      case 'InProcess':
+      case 'Queued':
+      default:
+        status = 'pending'
+        break
+    }
+
+    const results = pollResult.results || {}
+    const context: JSONLikeObject = {
+      operationId: pollResult.operationId,
+      completedAt: pollResult.completedAt
+    }
+
+    return {
+      results: [
+        {
+          status: status,
+          message: pollResult.errorMessage || `Operation ${operationId} is ${pollResult.status}`,
+          result: results as JSONLikeObject,
+          context: context
+        }
+      ],
+      overallStatus: status,
+      message: pollResult.errorMessage || `Async operation ${status}`
+    }
   }
 }
 
