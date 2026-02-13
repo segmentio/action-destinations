@@ -6,3 +6,10 @@ export const adAccountId: GlobalSetting = {
   description: 'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762).',
   required: true
 }
+
+export const audienceDescription: GlobalSetting = {
+  type: 'string',
+  label: 'Description',
+  description: 'A brief description about your audience.',
+  required: true
+}

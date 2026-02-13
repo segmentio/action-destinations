@@ -2,7 +2,8 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { fields, retlHookInputFields, retlHookOutputTypes } from './fields'
-import { send, performHook } from './functions'
+import { send } from './functions'
+import { performHook } from './hook-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',

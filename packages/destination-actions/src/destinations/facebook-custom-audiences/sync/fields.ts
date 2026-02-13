@@ -26,12 +26,6 @@ export const fields: Record<string, InputField> = {
       'User’s phone number, including country code. Punctuation and spaces are ok (ex: 1-234-567-8910 or +44 844 412 4653)',
     category: 'hashedPII'
   },
-  country: {
-    type: 'string',
-    label: 'Country',
-    description: 'User’s country. Use 2-letter country codes in ISO 3166-1 alpha-2 format.',
-    category: 'hashedPII'
-  },
   birth: {
     type: 'object',
     label: 'Date of Birth',
@@ -76,6 +70,12 @@ export const fields: Record<string, InputField> = {
       }
     }
   },
+  gender: {
+    type: 'string',
+    label: 'Gender',
+    description: 'User’s gender (m for male, f for female)',
+    category: 'hashedPII'
+  },
   city: {
     type: 'string',
     label: 'City',
@@ -96,10 +96,10 @@ export const fields: Record<string, InputField> = {
       'User’s postal code. For the US, use only the first 5 digits. For the UK, use the Area/District/Sector format.',
     category: 'hashedPII'
   },
-  gender: {
+  country: {
     type: 'string',
-    label: 'Gender',
-    description: 'User’s gender (m for male, f for female)',
+    label: 'Country',
+    description: 'User’s country. Use 2-letter country codes in ISO 3166-1 alpha-2 format.',
     category: 'hashedPII'
   },
   mobileAdId: {

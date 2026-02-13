@@ -1,7 +1,7 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
-import { adAccountId } from './fields'
+import { adAccountId, audienceDescription } from './fields'
 import sync from './sync'
 import { createAudience, getAudience } from './functions'
 import { presets } from './presets'
@@ -26,12 +26,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   audienceFields: {
     engageAdAccountId: adAccountId,
-    audienceDescription: {
-      type: 'string',
-      label: 'Description',
-      description: 'A brief description about your audience.',
-      required: true
-    }
+    audienceDescription
   },
   audienceConfig: {
     mode: {

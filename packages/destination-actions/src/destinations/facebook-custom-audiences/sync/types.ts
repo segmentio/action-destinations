@@ -1,3 +1,5 @@
+import { SCHEMA_PROPERTIES } from './constants'
+
 export interface GetAllAudienceResponse {
   data: {
     id: string
@@ -7,9 +9,27 @@ export interface GetAllAudienceResponse {
 
 export interface FacebookSyncRequestParams {
   payload: {
-    schema: string[]
-    data: (string | number)[][]
+    schema: typeof SCHEMA_PROPERTIES
+    data: FacebookDataRow[]
     app_ids?: string[]
     page_ids?: string[]
   }
 }
+
+export type FacebookDataRow = [
+  string, // EXTERN_ID (externalId)
+  string, // EMAIL
+  string, // PHONE
+  string, // DOBY (year)
+  string, // DOBM (month)
+  string, // DOBD (day)
+  string, // LN (last)
+  string, // FN (first)
+  string, // FI (firstInitial)
+  string, // GEN (gender) 
+  string, // CT (city)
+  string, // ST (state)
+  string, // ZIP
+  string, // MADID (mobileAdId)
+  string  // COUNTRY
+];
