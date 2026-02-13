@@ -40,10 +40,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   fields,
   perform: async (request, { payload, hookOutputs, syncMode }) => {
-    return await send(request, [payload], hookOutputs, syncMode)
+    return await send(request, [payload], false, hookOutputs, syncMode)
   },
   performBatch: async (request, { payload, hookOutputs, syncMode }) => {
-    return await send(request, payload, hookOutputs, syncMode)
+    return await send(request, payload, true, hookOutputs, syncMode)
   }
 }
 

@@ -1,30 +1,37 @@
 import { US_STATE_CODES, SCHEMA_PROPERTIES } from './constants'
 import { Payload } from './generated-types'
-import { RequestClient, IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError, IntegrationError, MultiStatusResponse } from '@segment/actions-core'
+import type { JSONLikeObject } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 import { AudienceJSON, FacebookDataRow } from './types'
 import { API_VERSION, BASE_URL } from '../constants'
+import { FacebookResponseError } from '../types'
 
 export async function send(
   request: RequestClient,
   payloads: Payload[],
+  isBatch: boolean,
   hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
   syncMode?: string
 ) {
+  const msResponse = new MultiStatusResponse()
   const audienceId = getAudienceId(payloads[0], hookOutputs)
   const isEngage = isEngageAudience(payloads[0])
   const hasSyncMode = hasSyncModevalue(syncMode)
+  const errorMessage = validate(audienceId, isEngage, hasSyncMode)
 
-  validate(audienceId, isEngage, hasSyncMode)
+  if(errorMessage){
+    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage)
+  }
   
-  let deletePayloads: Payload[] = []
-  let addPayloads: Payload[] = []
+  const addMap = new Map<number, Payload>()
+  const deleteMap = new Map<number, Payload>()
 
   if (!isEngage) {
-    syncMode === 'delete' ? deletePayloads = [...payloads] : addPayloads = [...payloads]
+    syncMode === 'delete' ? payloads.forEach((payload, index) => deleteMap.set(index, payload)) : payloads.forEach((payload, index) => addMap.set(index, payload))
   } 
   else {
-    payloads.forEach((payload) => {
+    payloads.forEach((payload, index) => {
       const { 
         engage_fields: { 
           traits_or_properties, 
@@ -35,35 +42,111 @@ export async function send(
       const isAudienceMember = traits_or_properties && typeof audience_key === 'string' && traits_or_properties[audience_key] === true
 
       if (isAudienceMember) {
-        addPayloads.push(payload)
+        addMap.set(index, payload)
       } 
       else {
-        deletePayloads.push(payload)
+        deleteMap.set(index, payload)
       }
     })
   }
 
-  const requests = []
+  const requests: Promise<void>[] = []
 
-  if (addPayloads.length > 0) {
+  if (addMap.size > 0) {
     requests.push(
-      request(`${BASE_URL}/${API_VERSION}/${audienceId}/users`, {
-        method: 'POST',
-        json: getJSON(addPayloads)
-      })
+      sendRequest(request, audienceId, addMap, msResponse, 'POST', isBatch)
     )
   }
 
-  if (deletePayloads.length > 0) {
+  if (deleteMap.size > 0) {
     requests.push(
-      request(`${BASE_URL}/${API_VERSION}/${audienceId}/users`, {
-        method: 'DELETE',
-        json: getJSON(deletePayloads)
-      })
+      sendRequest(request, audienceId, deleteMap, msResponse, 'DELETE', isBatch)
     )
   }
 
-  return await Promise.all(requests)
+  await Promise.all(requests)
+
+  if(isBatch) {
+    return msResponse
+  }
+}
+
+export async function sendRequest(request: RequestClient, audienceId: string, map: Map<number, Payload>, msResponse: MultiStatusResponse, method: 'POST' | 'DELETE', isBatch: boolean): Promise<void> {
+  const indices = Array.from(map.keys())
+  const payloads = Array.from(map.values())
+  const json = getJSON(payloads)
+
+  try {
+    await request(`${BASE_URL}/${API_VERSION}/${audienceId}/users`, {
+      method,
+      json
+    })
+    for (let i = 0; i < indices.length; i++) {
+      const originalIndex = indices[i]
+      msResponse.setSuccessResponseAtIndex(originalIndex, {
+        status: 200,
+        body: {          
+          data: json.payload.data[i],
+          method,
+          audienceId
+        },
+        sent: payloads[i] as unknown as JSONLikeObject
+      })
+    }
+  }
+  catch (error) {
+    const {
+      response: {
+        status = 500,
+        data: {
+          error: {
+            message: facebookMessage,
+            code: errorCode,
+            type: errorType = 'FACEBOOK_API_ERROR'
+          } = {} as FacebookResponseError
+        } = {}
+      } = {},
+      message: genericMessage
+    } = error  || {}
+
+    const errorMessage = `${facebookMessage} ${genericMessage} ${errorCode}`.trim()
+
+    if(!isBatch) {
+      throw new IntegrationError(errorMessage, errorType as string, errorCode as number)
+    }
+
+    for (let i = 0; i < indices.length; i++) {
+      const originalIndex = indices[i]
+      msResponse.setErrorResponseAtIndex(originalIndex, {
+        status,
+        errortype: errorType,
+        errormessage: errorMessage,
+        body: {
+          data: json.payload.data[i],
+          method,
+          audienceId
+        },
+        sent: payloads[i] as unknown as JSONLikeObject
+      })
+    }
+  }
+}
+
+export function returnErrorResponse(msResponse: MultiStatusResponse, payloads: Payload[], isBatch: boolean, errorMmessage: string): MultiStatusResponse {
+  if (isBatch) {
+    payloads.forEach((payload, i) => {
+      msResponse.setErrorResponseAtIndex(i, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: errorMmessage,
+        sent: payload as unknown as JSONLikeObject
+      })
+    })
+    return msResponse
+  }
+  else {
+    throw new PayloadValidationError(errorMmessage)
+  }
 }
 
 export function getAudienceId(payload: Payload, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }): string  {
@@ -122,15 +205,13 @@ export function getJSON(payloads: Payload[]): AudienceJSON {
   }
 }
 
-export function validate(audienceId: unknown, isEngageAudience: boolean, hasSyncMode: boolean) {
+export function validate(audienceId: unknown, isEngageAudience: boolean, hasSyncMode: boolean): string | undefined {
   if (!audienceId || typeof audienceId !== 'string') {
-    throw new PayloadValidationError(
-      'Missing audience ID.'
-    )
+    return 'Missing audience ID.'
   }
 
   if (!isEngageAudience && !hasSyncMode) {
-    throw new IntegrationError('Audience payloads should have a Sync mode value, or should be sent from Engage', 'MISSING_REQUIRED_FIELD', 400)
+    return 'Audience payloads should have a Sync mode value, or should be sent from Engage.'
   }
 } 
 
