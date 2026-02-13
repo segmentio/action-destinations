@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, createRequestClient } from '@segment/actions-core'
@@ -319,11 +319,7 @@ interface TraitGroupResponse {
 }
 
 // Fetch contact trait definitions for dynamic fields
-async function fetchContactTraits(
-  request: ReturnType<typeof createRequestClient>,
-  settings: Settings,
-  storeId: string
-) {
+async function fetchContactTraits(request: RequestClient, settings: Settings, storeId: string) {
   try {
     const response = await request<TraitGroupResponse>(
       `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/Contact?includeTraits=true&pageSize=100`,
@@ -364,7 +360,7 @@ async function fetchContactTraits(
 }
 
 // Fetch available memora stores from Control Plane
-async function fetchMemoraStores(request: ReturnType<typeof createRequestClient>, settings: Settings) {
+async function fetchMemoraStores(request: RequestClient, settings: Settings) {
   try {
     // Call the Control Plane API to list memora stores
     const response = await request<MemoraStoresResponse>(
@@ -379,7 +375,9 @@ async function fetchMemoraStores(request: ReturnType<typeof createRequestClient>
         skipResponseCloning: true
       }
     )
+
     const stores = response?.data?.stores || []
+
     const choices = stores.map((storeId: string) => ({
       label: storeId,
       value: storeId
