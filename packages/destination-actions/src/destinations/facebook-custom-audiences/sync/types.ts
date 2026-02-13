@@ -13,6 +13,7 @@ export interface AudienceJSON {
     data: FacebookDataRow[]
     app_ids?: string[]
     page_ids?: string[]
+    ig_account_ids?: string[]
   }
 }
 
@@ -30,6 +31,6 @@ export type FacebookDataRow = [
   string, // CT (city)
   string, // ST (state)
   string, // ZIP
-  string, // MADID (mobileAdId)
-  string  // COUNTRY
-];
+  string,  // COUNTRY
+  string // MADID (mobileAdId)
+]

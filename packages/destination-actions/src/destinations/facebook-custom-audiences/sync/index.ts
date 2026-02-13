@@ -31,7 +31,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   syncMode: {
     label: 'Sync Mode',
-    description: 'The sync mode to use when syncing data to Facebook.',
+    description: 'Used with Reverse ETL only. Set to upsert to add audience members, or delete to remove audience members.',
     default: 'upsert',
     choices: [
       { value: 'upsert', label: 'Upsert' },

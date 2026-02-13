@@ -11,40 +11,25 @@ export async function send(
   hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
   syncMode?: string
 ) {
-  const { 
-    retlOnMappingSave: { 
-      outputs: { 
-        audienceId: hookAudienceId 
-      } = {} 
-    } = {} 
-  } = hookOutputs ?? {}
-  
-  const { 
-    computation_class, 
-    audience_key,
-    traits_or_properties, 
-    external_audience_id: payloadAudienceId 
-  } = payloads[0]
+  const audienceId = getAudienceId(payloads[0], hookOutputs)
+  const isEngage = isEngageAudience(payloads[0])
+  const hasSyncMode = hasSyncModevalue(syncMode)
 
-  const audienceId = hookAudienceId ?? payloadAudienceId
-  
-  const isEngageAudience = typeof traits_or_properties === 'object' && audience_key && computation_class && ['audience', 'journey_step'].includes(computation_class) ? true : false
-  
-  const hasSyncMode = typeof syncMode === 'string' && ['upsert', 'delete'].includes(syncMode) ? true : false
-
-  validate(audienceId, isEngageAudience, hasSyncMode)
+  validate(audienceId, isEngage, hasSyncMode)
   
   let deletePayloads: Payload[] = []
   let addPayloads: Payload[] = []
 
-  if (!isEngageAudience) {
+  if (!isEngage) {
     syncMode === 'delete' ? deletePayloads = [...payloads] : addPayloads = [...payloads]
   } 
   else {
     payloads.forEach((payload) => {
       const { 
-        traits_or_properties,
-        audience_key       
+        engage_fields: { 
+          traits_or_properties, 
+          audience_key 
+        } = {}       
       } = payload
     
       const isAudienceMember = traits_or_properties && typeof audience_key === 'string' && traits_or_properties[audience_key] === true
@@ -81,15 +66,49 @@ export async function send(
   return await Promise.all(requests)
 }
 
+export function getAudienceId(payload: Payload, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }): string  {
+  const { 
+    retlOnMappingSave: { 
+      outputs: { 
+        audienceId: hookAudienceId 
+      } = {} 
+    } = {} 
+  } = hookOutputs ?? {}
+  
+  const { 
+    external_audience_id: payloadAudienceId 
+  } = payload
+
+  return (hookAudienceId ?? payloadAudienceId) as string
+}
+
+export function isEngageAudience(payload: Payload): boolean {
+  const { 
+    engage_fields: { 
+      computation_class, 
+      audience_key, 
+      traits_or_properties 
+    } = {} 
+  } = payload
+
+  return typeof traits_or_properties === 'object' && audience_key && computation_class && ['audience', 'journey_step'].includes(computation_class) ? true : false
+}
+
+export function hasSyncModevalue(syncMode: string | undefined): boolean {
+  return typeof syncMode === 'string' && ['upsert', 'delete'].includes(syncMode) ? true : false
+}
+
 function getJSON(payloads: Payload[]): AudienceJSON {
   const data = getData(payloads)
   const app_ids: string[] = []
   const page_ids: string[] = []
+  const ig_account_ids: string[] = []
   
   payloads.forEach((payload) => {
-    const { appId, pageId } = payload
+    const { appId, pageId, igAccountIds } = payload
     app_ids.push(typeof appId === 'string' && appId ? appId : '')
     page_ids.push(typeof pageId === 'string' && pageId ? pageId : '')
+    ig_account_ids.push(typeof igAccountIds === 'string' && igAccountIds ? igAccountIds : '')
   })
 
   return {
@@ -97,7 +116,8 @@ function getJSON(payloads: Payload[]): AudienceJSON {
       schema: SCHEMA_PROPERTIES,
       data,
       ...(app_ids?.some((id) => id?.trim() !== '') ? { app_ids } : {}),
-      ...(page_ids?.some((id) => id?.trim() !== '') ? { page_ids } : {})
+      ...(page_ids?.some((id) => id?.trim() !== '') ? { page_ids } : {}),
+      ...(ig_account_ids?.some((id) => id?.trim() !== '') ? { ig_account_ids } : {})
     }
   }
 }

@@ -51,7 +51,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         settings: { retlAdAccountId } = {} 
       } = createAudienceInput
 
-      const addAccountId = engageAdAccountId ?? retlAdAccountId as string
+      const addAccountId = (engageAdAccountId ?? retlAdAccountId) as string
 
       const { data: { externalId: id } = {}, error } = await createAudience(request, audienceName, addAccountId, audienceDescription)
       if (error) {
