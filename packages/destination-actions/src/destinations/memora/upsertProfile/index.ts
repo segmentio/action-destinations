@@ -305,6 +305,11 @@ interface MemoraStoresResponse {
   }
 }
 
+interface MemoraStoreDetails {
+  displayName: string
+  id: string
+}
+
 interface TraitDefinition {
   dataType: string
   description?: string
@@ -378,9 +383,26 @@ async function fetchMemoraStores(request: RequestClient, settings: Settings) {
 
     const stores = response?.data?.stores || []
 
-    const choices = stores.map((storeId: string) => ({
-      label: storeId,
-      value: storeId
+    // This is not the most efficient way to get store details, but the Control Plane API does not currently provide an endpoint to list stores with their details in a single call.
+    // We need to make individual calls to get store details in order to display more information in the dropdown (e.g. store name).
+    // Fortunately, most accounts will have a small number of stores (max 5), so this should not be a major performance issue. If we find that this is causing performance problems, we can consider caching store details or adding an endpoint to the Control Plane API to list stores with their details.
+    const memoraStores = await Promise.all(
+      stores.map((storeId: string) => {
+        return request<MemoraStoreDetails>(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}`, {
+          method: 'GET',
+          headers: {
+            ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
+          },
+          username: settings.username,
+          password: settings.password,
+          skipResponseCloning: true
+        })
+      })
+    )
+
+    const choices = memoraStores.map((store) => ({
+      label: store.data?.displayName || store.data?.id,
+      value: store.data?.id
     }))
 
     return {
@@ -391,7 +413,7 @@ async function fetchMemoraStores(request: RequestClient, settings: Settings) {
     return {
       choices: [],
       error: {
-        message: 'Unable to fetch memora stores. You can still manually enter a memora store ID.',
+        message: 'Unable to fetch memora stores. Enter the memora store ID manually.',
         code: 'FETCH_ERROR'
       }
     }
