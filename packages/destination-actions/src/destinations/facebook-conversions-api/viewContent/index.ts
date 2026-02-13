@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
     contents: {
       ...contents,
       default: {
-        // Segment Product Viewed is a single product event
+        // Segment Product Viewed is a single product event.
         '@arrayPath': [
           '$.properties',
           {
