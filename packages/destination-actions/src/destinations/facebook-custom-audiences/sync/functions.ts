@@ -5,7 +5,6 @@ import type { JSONLikeObject } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 import { AudienceJSON, FacebookDataRow } from './types'
 import { API_VERSION, BASE_URL } from '../constants'
-import { FacebookResponseError } from '../types'
 
 export async function send(
   request: RequestClient,
@@ -101,15 +100,16 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
         data: {
           error: {
             message: facebookMessage,
-            code: errorCode,
+            code: errorCode = 400,
             type: errorType = 'FACEBOOK_API_ERROR'
-          } = {} as FacebookResponseError
+          } = {}
         } = {}
       } = {},
       message: genericMessage
     } = error  || {}
 
-    const errorMessage = `${facebookMessage} ${genericMessage} ${errorCode}`.trim()
+    const message = facebookMessage || genericMessage || 'Unknown error'
+    const errorMessage: string = errorCode ? `${message} (code: ${errorCode})` : message
 
     if(!isBatch) {
       throw new IntegrationError(errorMessage, errorType as string, errorCode as number)
@@ -132,20 +132,20 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
   }
 }
 
-export function returnErrorResponse(msResponse: MultiStatusResponse, payloads: Payload[], isBatch: boolean, errorMmessage: string): MultiStatusResponse {
+export function returnErrorResponse(msResponse: MultiStatusResponse, payloads: Payload[], isBatch: boolean, errorMessage: string): MultiStatusResponse {
   if (isBatch) {
     payloads.forEach((payload, i) => {
       msResponse.setErrorResponseAtIndex(i, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: errorMmessage,
+        errormessage: errorMessage,
         sent: payload as unknown as JSONLikeObject
       })
     })
     return msResponse
   }
   else {
-    throw new PayloadValidationError(errorMmessage)
+    throw new PayloadValidationError(errorMessage)
   }
 }
 
