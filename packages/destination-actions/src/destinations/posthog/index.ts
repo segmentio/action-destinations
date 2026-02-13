@@ -42,7 +42,7 @@ const destination: DestinationDefinition<Settings> = {
         type: 'boolean',
         default: false
       },
-      disable_geoip: {
+      geoip_disable: {
         label: 'Disable GeoIP Collection',
         description:
           'If enabled, [GeoIP collection](https://github.com/PostHog/posthog-plugin-geoip) will be disabled. This will prevent the collection of IP addresses and other geolocation data.',

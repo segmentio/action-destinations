@@ -20,5 +20,5 @@ export interface Settings {
   /**
    * If enabled, [GeoIP collection](https://github.com/PostHog/posthog-plugin-geoip) will be disabled. This will prevent the collection of IP addresses and other geolocation data.
    */
-  disable_geoip?: boolean
+  geoip_disable?: boolean
 }

@@ -49,7 +49,7 @@ describe('Posthog.identify', () => {
     expect(payload.timestamp).toBe(event.timestamp)
   })
 
-  it('should include $disable_geoip in properties when disable_geoip setting is true', async () => {
+  it('should include $geoip_disable in properties when geoip_disable setting is true', async () => {
     const event = createTestEvent({
       userId: 'test-user-id',
       traits: { name: 'Test User', email: 'test@example.com' },
@@ -66,7 +66,7 @@ describe('Posthog.identify', () => {
         endpoint: endpoint,
         project_id: projectId,
         historical_migration: false,
-        disable_geoip: true
+        geoip_disable: true
       }
     })
 
@@ -75,11 +75,11 @@ describe('Posthog.identify', () => {
     const payload = JSON.parse(responses[0].options.body as string)
     expect(payload.properties).toMatchObject({
       $set: event.traits,
-      $disable_geoip: true
+      $geoip_disable: true
     })
   })
 
-  it('should not include $disable_geoip when disable_geoip setting is false', async () => {
+  it('should not include $geoip_disable when geoip_disable setting is false', async () => {
     const event = createTestEvent({
       userId: 'test-user-id',
       traits: { name: 'Test User' },
@@ -96,13 +96,13 @@ describe('Posthog.identify', () => {
         endpoint: endpoint,
         project_id: projectId,
         historical_migration: false,
-        disable_geoip: false
+        geoip_disable: false
       }
     })
 
     expect(responses.length).toBe(1)
     const payload = JSON.parse(responses[0].options.body as string)
-    expect(payload.properties.$disable_geoip).toBeUndefined()
+    expect(payload.properties.$geoip_disable).toBeUndefined()
   })
 
   it('should throw error if required fields are missing', async () => {

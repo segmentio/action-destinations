@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       distinct_id: payload.distinct_id,
       properties: {
         $set: payload.properties,
-        $disable_geoip: settings.disable_geoip || undefined
+        $geoip_disable: settings.geoip_disable || undefined
       },
       timestamp: payload.timestamp
     }
