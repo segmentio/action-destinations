@@ -79,6 +79,43 @@ describe('Posthog.identify', () => {
     })
   })
 
+  it('should include extra_properties in properties when provided', async () => {
+    const event = createTestEvent({
+      userId: 'test-user-id',
+      traits: { name: 'Test User', email: 'test@example.com' },
+      timestamp: '2024-01-01T00:00:00.000Z'
+    })
+
+    nock(endpoint).post('/i/v0/e/').reply(200, {})
+
+    const extraProperties = { custom_key: 'custom_value', another_key: 123 }
+
+    const responses = await testDestination.testAction('identify', {
+      event,
+      useDefaultMappings: true,
+      mapping: {
+        distinct_id: { '@path': '$.userId' },
+        properties: { '@path': '$.traits' },
+        timestamp: { '@path': '$.timestamp' },
+        extra_properties: extraProperties
+      },
+      settings: {
+        api_key: apiKey,
+        endpoint: endpoint,
+        project_id: projectId,
+        historical_migration: false
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    const payload = JSON.parse(responses[0].options.body as string)
+    expect(payload.properties).toMatchObject({
+      $set: event.traits,
+      ...extraProperties
+    })
+  })
+
   it('should not include $geoip_disable when geoip_disable setting is false', async () => {
     const event = createTestEvent({
       userId: 'test-user-id',

@@ -15,4 +15,10 @@ export interface Payload {
    * The timestamp of the event
    */
   timestamp?: string | number
+  /**
+   * Extra properties to add to the event object
+   */
+  extra_properties?: {
+    [k: string]: unknown
+  }
 }

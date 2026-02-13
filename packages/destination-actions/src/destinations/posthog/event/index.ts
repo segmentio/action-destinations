@@ -120,6 +120,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number',
       default: 100,
       unsafe_hidden: true
+    },
+    extra_properties: {
+      label: 'Extra Properties',
+      description: 'Extra properties to add to the event object',
+      type: 'object',
+      required: false,
+      defaultObjectUI: 'keyvalue'
     }
   },
   perform: (request, { settings, payload }) => {
@@ -149,7 +156,8 @@ function send(request: RequestClient, settings: Settings, payload: Payload[]) {
         $screen_name: payload.event_type === 'screen' ? payload.screen_name : undefined,
         distinct_id: payload.distinct_id,
         $process_person_profile: payload.anonymous_event_capture,
-        $geoip_disable: settings.geoip_disable || undefined
+        $geoip_disable: settings.geoip_disable || undefined,
+        ...payload.extra_properties
       }
     }))
   }

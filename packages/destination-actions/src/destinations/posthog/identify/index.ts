@@ -34,6 +34,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.timestamp'
       },
       required: false
+    },
+    extra_properties: {
+      label: 'Extra Properties',
+      description: 'Extra properties to add to the event object',
+      type: 'object',
+      required: false,
+      defaultObjectUI: 'keyvalue'
     }
   },
   perform: (request, { payload, settings }) => {
@@ -47,7 +54,8 @@ const action: ActionDefinition<Settings, Payload> = {
       distinct_id: payload.distinct_id,
       properties: {
         $set: payload.properties,
-        $geoip_disable: settings.geoip_disable || undefined
+        $geoip_disable: settings.geoip_disable || undefined,
+        ...payload.extra_properties
       },
       timestamp: payload.timestamp
     }
