@@ -2,12 +2,7 @@ import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { FacebookResponseError, CreateAudienceRequest, CreateAudienceResponse, GetAudienceResponse } from './types'
 import { API_VERSION, BASE_URL } from './constants'
 
-export async function createAudience(
-  request: RequestClient,
-  name: string,
-  adAccountId: string,
-  description?: string
-): Promise<{ data?: { externalId: string }; error?: { message: string; code: string } }> {
+export async function createAudience(request: RequestClient, name: string, adAccountId: string, description?: string): Promise<{ data?: { externalId: string }; error?: { message: string; code: string } }> {
   if (!name) {
     throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
   }
@@ -55,10 +50,7 @@ export async function createAudience(
   }
 }
 
-export async function getAudience(
-  request: RequestClient,
-  externalId: string
-): Promise<{ data?: { externalId?: string; name: string }; error?: { message: string; code: string } }> {
+export async function getAudience(request: RequestClient, externalId: string): Promise<{ data?: { externalId?: string; name: string }; error?: { message: string; code: string } }> {
   const url = `${BASE_URL}/${API_VERSION}/${externalId}`
 
   try {

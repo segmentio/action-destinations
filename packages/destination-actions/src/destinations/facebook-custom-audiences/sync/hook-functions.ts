@@ -8,7 +8,7 @@ import { createAudience, getAudience } from '../functions'
 
 export async function performHook(
   request: RequestClient,
-  retlAdAccountId: string,
+  adAccountId: string,
   operation?: string,
   audienceName?: string,
   existingAudienceId?: string
@@ -22,7 +22,7 @@ export async function performHook(
         }
       }
     } else {
-      const { data: { externalId } = {}, error } = await createAudience(request, audienceName, retlAdAccountId)
+      const { data: { externalId } = {}, error } = await createAudience(request, audienceName, adAccountId)
 
       if (error) {
         return { error }
@@ -73,8 +73,8 @@ export async function performHook(
 
 
 export async function getExistingAudienceIdChoices(request: RequestClient, { settings }: { settings: Settings }) {
-  const { retlAdAccountId } = settings
-  const { choices, error } = await getAllAudiences(request, retlAdAccountId)
+  const { retlAdAccountId: adAccountId } = settings
+  const { choices, error } = await getAllAudiences(request, adAccountId)
   if (error) {
     return { error, choices: [] }
   }

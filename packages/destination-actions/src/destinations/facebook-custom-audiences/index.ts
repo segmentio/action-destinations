@@ -14,7 +14,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      retlAdAccountId: adAccountId
+      retlAdAccountId: 
+      {
+        ...adAccountId,
+        description: 'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762). This is required to set up the connection, but can be overriden using the Engage Audience setting named "Advertiser Account ID".' 
+      }
     }
   },
   extendRequest({ auth }) {
@@ -25,7 +29,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   audienceFields: {
-    engageAdAccountId: adAccountId,
+    engageAdAccountId: {
+        ...adAccountId,
+        description: 'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762). This overrides the main Destination settings named "Advertiser Account ID".',
+        required: false
+      },
     audienceDescription
   },
   audienceConfig: {
@@ -34,20 +42,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const { audienceName, audienceSettings: { engageAdAccountId: adAccountId, audienceDescription } = {} } =
-        createAudienceInput
-      const { data: { externalId: id } = {}, error } = await createAudience(
-        request,
-        audienceName,
-        adAccountId as string,
-        audienceDescription
-      )
+      const { 
+        audienceName, 
+        audienceSettings: { 
+          engageAdAccountId, 
+          audienceDescription 
+        } = {},
+        settings: { retlAdAccountId } = {} 
+      } = createAudienceInput
+
+      const addAccountId = engageAdAccountId ?? retlAdAccountId as string
+
+      const { data: { externalId: id } = {}, error } = await createAudience(request, audienceName, addAccountId, audienceDescription)
       if (error) {
-        throw new IntegrationError(
-          error.message || 'Failed to create audience',
-          error.code || 'CREATE_AUDIENCE_FAILED',
-          400
-        )
+        throw new IntegrationError( error.message || 'Failed to create audience', error.code || 'CREATE_AUDIENCE_FAILED', 400)
       }
       return { externalId: id as string }
     },

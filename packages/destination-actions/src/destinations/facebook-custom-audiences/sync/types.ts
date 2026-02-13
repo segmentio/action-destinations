@@ -7,7 +7,7 @@ export interface GetAllAudienceResponse {
   }[]
 }
 
-export interface FacebookSyncRequestParams {
+export interface AudienceJSON {
   payload: {
     schema: typeof SCHEMA_PROPERTIES
     data: FacebookDataRow[]

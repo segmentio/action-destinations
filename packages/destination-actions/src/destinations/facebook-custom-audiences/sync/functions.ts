@@ -2,7 +2,7 @@ import { US_STATE_CODES, SCHEMA_PROPERTIES } from './constants'
 import { Payload } from './generated-types'
 import { RequestClient, IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
-import { FacebookSyncRequestParams, FacebookDataRow } from './types'
+import { AudienceJSON, FacebookDataRow } from './types'
 import { API_VERSION, BASE_URL } from '../constants'
 
 export async function send(
@@ -11,22 +11,78 @@ export async function send(
   hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
   syncMode?: string
 ) {
-  const { retlOnMappingSave: { outputs: { audienceId: hookAudienceId } = {} } = {} } = hookOutputs ?? {}
-  const { external_audience_id: payloadAudienceId } = payloads[0]
-  const audienceId = hookAudienceId ?? payloadAudienceId
+  const { 
+    retlOnMappingSave: { 
+      outputs: { 
+        audienceId: hookAudienceId 
+      } = {} 
+    } = {} 
+  } = hookOutputs ?? {}
+  
+  const { 
+    computation_class, 
+    audience_key,
+    traits_or_properties, 
+    external_audience_id: payloadAudienceId 
+  } = payloads[0]
 
-  if (!audienceId || typeof audienceId !== 'string') {
-    throw new PayloadValidationError(
-      'Missing audience ID. Please provide an audience ID in the payload or connect to an audience in the hook.'
+  const audienceId = hookAudienceId ?? payloadAudienceId
+  
+  const isEngageAudience = typeof traits_or_properties === 'object' && audience_key && computation_class && ['audience', 'journey_step'].includes(computation_class) ? true : false
+  
+  const hasSyncMode = typeof syncMode === 'string' && ['upsert', 'delete'].includes(syncMode) ? true : false
+
+  validate(audienceId, isEngageAudience, hasSyncMode)
+  
+  let deletePayloads: Payload[] = []
+  let addPayloads: Payload[] = []
+
+  if (!isEngageAudience) {
+    syncMode === 'delete' ? deletePayloads = [...payloads] : addPayloads = [...payloads]
+  } 
+  else {
+    payloads.forEach((payload) => {
+      const { 
+        traits_or_properties,
+        audience_key       
+      } = payload
+    
+      const isAudienceMember = traits_or_properties && typeof audience_key === 'string' && traits_or_properties[audience_key] === true
+
+      if (isAudienceMember) {
+        addPayloads.push(payload)
+      } 
+      else {
+        deletePayloads.push(payload)
+      }
+    })
+  }
+
+  const requests = []
+
+  if (addPayloads.length > 0) {
+    requests.push(
+      request(`${BASE_URL}/${API_VERSION}/${audienceId}/users`, {
+        method: 'POST',
+        json: getJSON(addPayloads)
+      })
     )
   }
 
-  if (!syncMode || !['upsert', 'delete'].includes(syncMode)) {
-    throw new IntegrationError('Sync mode is required', 'MISSING_REQUIRED_FIELD', 400)
+  if (deletePayloads.length > 0) {
+    requests.push(
+      request(`${BASE_URL}/${API_VERSION}/${audienceId}/users`, {
+        method: 'DELETE',
+        json: getJSON(deletePayloads)
+      })
+    )
   }
-  
-  const deleteUsers = syncMode === 'delete' ? true : false
-  const data = generateData(payloads)
+
+  return await Promise.all(requests)
+}
+
+function getJSON(payloads: Payload[]): AudienceJSON {
+  const data = getData(payloads)
   const app_ids: string[] = []
   const page_ids: string[] = []
   
@@ -36,7 +92,7 @@ export async function send(
     page_ids.push(typeof pageId === 'string' && pageId ? pageId : '')
   })
 
-  const params: FacebookSyncRequestParams = {
+  return {
     payload: {
       schema: SCHEMA_PROPERTIES,
       data,
@@ -44,14 +100,21 @@ export async function send(
       ...(page_ids?.some((id) => id?.trim() !== '') ? { page_ids } : {})
     }
   }
-
-  return await request(`${BASE_URL}/${API_VERSION}/${audienceId}/users`, {
-    method: deleteUsers === true ? 'delete' : 'post',
-    json: params
-  })
 }
 
-export const generateData = (payloads: Payload[]): FacebookDataRow[] => {
+function validate(audienceId: unknown, isEngageAudience: boolean, hasSyncMode: boolean) {
+  if (!audienceId || typeof audienceId !== 'string') {
+    throw new PayloadValidationError(
+      'Missing audience ID.'
+    )
+  }
+
+  if (!isEngageAudience && !hasSyncMode) {
+    throw new IntegrationError('Audience payloads should have a Sync mode value, or should be sent from Engage', 'MISSING_REQUIRED_FIELD', 400)
+  }
+} 
+
+export function getData(payloads: Payload[]): FacebookDataRow[]{
   const data: FacebookDataRow[] = new Array(payloads.length)
 
   payloads.forEach((payload, index) => {

@@ -17,11 +17,11 @@ const action: ActionDefinition<Settings, Payload> = {
       outputTypes: retlHookOutputTypes,
       performHook: async (request, { settings, hookInputs }) => {
         const { operation, audienceName, existingAudienceId } = hookInputs
-        const { retlAdAccountId } = settings
+        const { retlAdAccountId: adAccountId } = settings
 
         return await performHook(
           request,
-          retlAdAccountId,
+          adAccountId,
           operation as string,
           audienceName as string,
           existingAudienceId as string
