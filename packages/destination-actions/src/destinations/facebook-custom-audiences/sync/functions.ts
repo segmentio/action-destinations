@@ -84,12 +84,12 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
       const originalIndex = indices[i]
       msResponse.setSuccessResponseAtIndex(originalIndex, {
         status: 200,
-        body: {          
+        body: payloads[i] as unknown as JSONLikeObject,
+        sent: {          
           data: json.payload.data[i],
           method,
           audienceId
-        },
-        sent: payloads[i] as unknown as JSONLikeObject
+        }
       })
     }
   }
@@ -121,12 +121,12 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
         status,
         errortype: errorType,
         errormessage: errorMessage,
-        body: {
+        body: payloads[i] as unknown as JSONLikeObject,
+        sent: {
           data: json.payload.data[i],
           method,
           audienceId
-        },
-        sent: payloads[i] as unknown as JSONLikeObject
+        }
       })
     }
   }
@@ -139,7 +139,7 @@ export function returnErrorResponse(msResponse: MultiStatusResponse, payloads: P
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: errorMessage,
-        sent: payload as unknown as JSONLikeObject
+        body: payload as unknown as JSONLikeObject
       })
     })
     return msResponse
