@@ -560,7 +560,7 @@ describe('Attribution.send', () => {
   describe('authentication', () => {
     it('should include Authorization header with projectID', async () => {
       const projectID = 'test-project-secret-123'
-      const expectedAuth = `Basic ${Buffer.from(':' + projectID).toString('base64')}`
+      const expectedAuth = `Basic ${Buffer.from(projectID + ':').toString('base64')}`
 
       const timestamp = '2024-01-15T10:30:00.000Z'
       const messageId = 'auth-test-msg'
