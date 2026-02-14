@@ -3,6 +3,7 @@ import type { Settings } from './generated-types'
 import { defaultValues } from '@segment/actions-core'
 
 import send from './send'
+import { ATTRIBUTION_ENDPOINT } from './send/functions'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Attribution',
@@ -18,13 +19,19 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
+    },
+    testAuthentication: async (request, { settings }) => {
+      const { projectID } = settings
+      return request(`${ATTRIBUTION_ENDPOINT}/check_auth`, {
+        method: 'POST'
+      })
     }
   },
   extendRequest({ settings }) {
     const { projectID } = settings
     return {
       headers: {
-        Authorization: `Basic ${Buffer.from(':' + projectID).toString('base64')}`
+        Authorization: `Basic ${Buffer.from(projectID + ':').toString('base64')}`
       }
     }
   },

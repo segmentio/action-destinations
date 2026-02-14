@@ -2,6 +2,8 @@ import { RequestClient } from '@segment/actions-core'
 import type { AttributionEvent, BaseEvent, Page, Screen, Track, Group, Alias, Identify } from './types'
 import { Payload } from './generated-types'
 
+export const ATTRIBUTION_ENDPOINT = 'https://track.attributionapp.com'
+
 export function send(request: RequestClient, payload: Payload) {
   const {
     messageId,
@@ -72,7 +74,7 @@ export function send(request: RequestClient, payload: Payload) {
 
 export function sendJSON(request: RequestClient, json: AttributionEvent) {
   const { type } = json
-  const url = `https://track.attributionapp.com/v1/${type[0]}`
+  const url = `${ATTRIBUTION_ENDPOINT}/v1/${type[0]}`
   return request(url, {
     method: 'POST',
     json
