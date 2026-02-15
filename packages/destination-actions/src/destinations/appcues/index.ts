@@ -8,7 +8,6 @@ const destination: DestinationDefinition<Settings> = {
   slug: 'actions-appcues',
   mode: 'cloud',
   description: 'Send events to Appcues.',
-
   authentication: {
     scheme: 'custom',
     fields: {
@@ -16,6 +15,18 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Key',
         description: 'Your Appcues API key.',
         type: 'password',
+        required: true
+      },
+      apiSecret: {
+        label: 'API Secret',
+        description: 'Your Appcues API secret.',
+        type: 'password',
+        required: true
+      },
+      accountId: {
+        label: 'Account ID',
+        description: 'Your Appcues account ID.',
+        type: 'string',
         required: true
       },
       region: {
@@ -28,18 +39,19 @@ const destination: DestinationDefinition<Settings> = {
           { label: 'EU', value: 'EU' }
         ],
         default: 'US'
-      },
-      accountId: {
-        label: 'Account ID',
-        description: 'Your Appcues account ID.',
-        type: 'string',
-        required: true
       }
     }
   },
-
+  extendRequest({ settings }) {
+    const { apiKey, apiSecret } = settings
+    return {
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${apiKey}:${apiSecret}`).toString('base64')}`,
+        'Content-Type': 'application/json'
+      }
+    }
+  },
   presets,
-
   actions: {
     send
   }

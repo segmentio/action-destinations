@@ -36,6 +36,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
+          apiSecret: 'test-api-secret',
           region: 'US',
           accountId: TEST_ACCOUNT_ID
         },
@@ -74,6 +75,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
+          apiSecret: 'test-api-secret',
           region: 'US',
           accountId: TEST_ACCOUNT_ID
         },
@@ -111,6 +113,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
+          apiSecret: 'test-api-secret',
           region: 'US',
           accountId: TEST_ACCOUNT_ID
         },
@@ -148,6 +151,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
+          apiSecret: 'test-api-secret',
           region: 'US',
           accountId: TEST_ACCOUNT_ID
         },
@@ -184,6 +188,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
+          apiSecret: 'test-api-secret',
           region: 'US',
           accountId: TEST_ACCOUNT_ID
         },
@@ -231,6 +236,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
+          apiSecret: 'test-api-secret',
           region: 'US',
           accountId: TEST_ACCOUNT_ID
         },
@@ -286,6 +292,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
+          apiSecret: 'test-api-secret',
           region: 'US',
           accountId: TEST_ACCOUNT_ID
         },
@@ -341,6 +348,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
+          apiSecret: 'test-api-secret',
           region: 'US',
           accountId: TEST_ACCOUNT_ID
         },
@@ -418,6 +426,7 @@ describe('Appcues (Actions)', () => {
         event,
         settings: {
           apiKey: 'test-api-key',
+          apiSecret: 'test-api-secret',
           region: 'US',
           accountId: TEST_ACCOUNT_ID
         },
