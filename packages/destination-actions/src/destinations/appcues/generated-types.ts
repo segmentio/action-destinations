@@ -12,7 +12,7 @@ export interface Settings {
   /**
    * Your Appcues account ID.
    */
-  accountId: string
+  accountId: number
   /**
    * Select the region for your Appcues account.
    */

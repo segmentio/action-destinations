@@ -26,7 +26,7 @@ const destination: DestinationDefinition<Settings> = {
       accountId: {
         label: 'Account ID',
         description: 'Your Appcues account ID.',
-        type: 'string',
+        type: 'number',
         required: true
       },
       region: {
