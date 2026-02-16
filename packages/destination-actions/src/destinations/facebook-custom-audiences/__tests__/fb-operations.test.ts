@@ -1,54 +1,11 @@
-import createRequestClient from '../../../../../core/src/request-client'
-import FacebookClient, { generateData } from '../fbca-operations'
-import { Settings } from '../generated-types'
-import nock from 'nock'
 import { Payload } from '../sync/generated-types'
-import { normalizationFunctions } from '../fbca-properties'
-import { Features, PayloadValidationError } from '@segment/actions-core'
-import { API_VERSION, BASE_URL, CANARY_API_VERSION } from '../constants'
+import { PayloadValidationError } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
+import { generateData, normalizationFunctions } from '../sync/functions'
 
-const requestClient = createRequestClient()
-const settings: Settings = {
-  retlAdAccountId: 'act_123456'
-}
 const EMPTY = ''
 
 describe('Facebook Custom Audiences', () => {
-  const features: Features = { 'facebook-custom-audience-actions-canary-version': true }
-  // feature flag is set
-  const canaryFacebookClient = new FacebookClient(requestClient, settings.retlAdAccountId, features)
-  // feature flag is not set
-  const defaultFacebookClient = new FacebookClient(requestClient, settings.retlAdAccountId, {})
-  describe('retlOnMappingSave hook', () => {
-    const hookInputs = {
-      audienceName: 'test-audience'
-    }
-
-    it('should create a custom audience in facebook with CANARY_API_VERSION', async () => {
-      nock(`${BASE_URL}/${CANARY_API_VERSION}/`)
-        .post(`/${settings.retlAdAccountId}/customaudiences`, {
-          name: hookInputs.audienceName,
-          subtype: 'CUSTOM',
-          customer_file_source: 'BOTH_USER_AND_PARTNER_PROVIDED'
-        })
-        .reply(201, { id: '123' })
-
-      await canaryFacebookClient.createAudience(hookInputs.audienceName)
-    })
-
-    it('should create a custom audience in facebook with default API_VERSION', async () => {
-      nock(`${BASE_URL}/${API_VERSION}/`)
-        .post(`/${settings.retlAdAccountId}/customaudiences`, {
-          name: hookInputs.audienceName,
-          subtype: 'CUSTOM',
-          customer_file_source: 'BOTH_USER_AND_PARTNER_PROVIDED'
-        })
-        .reply(201, { id: '123' })
-
-      await defaultFacebookClient.createAudience(hookInputs.audienceName)
-    })
-  })
 
   describe('generateData', () => {
     it('should generate data correctly for a single user', async () => {
