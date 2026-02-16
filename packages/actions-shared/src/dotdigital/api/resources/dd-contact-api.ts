@@ -1,6 +1,6 @@
 import { ModifiedResponse, RequestClient } from '@segment/actions-core'
 import DDApi from '../dd-api'
-import { Contact, ChannelIdentifier, Identifiers, ChannelProperties, UpsertContactJSON, DataFields } from '../types'
+import { Contact, ChannelIdentifier, Identifiers, ResubscribeOptions, ChannelProperties, UpsertContactJSON, DataFields } from '../types'
 
 class DDContactApi extends DDApi {
   constructor(api_host: string, client: RequestClient) {
@@ -39,14 +39,118 @@ class DDContactApi extends DDApi {
    * @param {Payload} payload - The event payload.
    * @returns {Promise<Contact>} A promise resolving to the contact data.
    */
-  public async upsertContact(payload: { 
-    channelIdentifier: string, 
-    emailIdentifier?: string, 
-    mobileNumberIdentifier?: string, 
-    listId: number, 
-    dataFields?: {[k: string]: unknown} 
+  public async upsertContact(payload: {
+    channelIdentifier: string,
+    emailIdentifier?: string,
+    mobileNumberIdentifier?: string,
+    emailType?: string,
+    optInType?: string,
+    updateEmailSubscription: boolean,
+    emailSubscriptionStatus?: string,
+    emailResubscribe: boolean,
+    resubscribeWithoutChallengeEmail: boolean,
+    preferredLocale?: string,
+    redirectUrlAfterChallenge?: string,
+    updateSmsSubscription: boolean,
+    smsSubscriptionStatus?: string,
+    listId: number,
+    dataFields?: {[k: string]: unknown}
   }): Promise<Contact> {
-    const { channelIdentifier, emailIdentifier, mobileNumberIdentifier, listId, dataFields } = payload
+    const {
+      channelIdentifier,
+      emailIdentifier,
+      mobileNumberIdentifier,
+      emailType = 'html',
+      optInType = 'single',
+      updateEmailSubscription = true,
+      emailSubscriptionStatus = 'subscribed',
+      emailResubscribe = false,
+      resubscribeWithoutChallengeEmail = false,
+      preferredLocale,
+      redirectUrlAfterChallenge,
+      updateSmsSubscription = true,
+      smsSubscriptionStatus = 'subscribed',
+      listId,
+      dataFields
+    } = payload
+
+    const idValue = channelIdentifier === 'email' ? emailIdentifier : mobileNumberIdentifier
+
+    const identifiers: Identifiers = {
+      ...(emailIdentifier && { email: emailIdentifier }),
+      ...(mobileNumberIdentifier && { mobileNumber: mobileNumberIdentifier })
+    }
+
+    const channelProperties: ChannelProperties = {}
+
+    // Email channel properties
+    if (emailIdentifier) {
+      channelProperties.email = {
+        emailType,
+        optInType
+      }
+
+      if (updateEmailSubscription) {
+        if (emailSubscriptionStatus === 'subscribed') {
+          // Only send status if resubscribe is enabled
+          if (emailResubscribe) {
+            channelProperties.email.status = 'subscribed'
+
+            const resubscribeOptions: ResubscribeOptions = {
+              resubscribeWithNoChallenge: resubscribeWithoutChallengeEmail
+            }
+
+            if (!resubscribeWithoutChallengeEmail) {
+              if (preferredLocale) resubscribeOptions.preferredLocale = preferredLocale
+              if (redirectUrlAfterChallenge) resubscribeOptions.redirectUrlAfterChallenge = redirectUrlAfterChallenge
+            }
+
+            channelProperties.email.resubscribeOptions = resubscribeOptions
+          }
+        } else if (emailSubscriptionStatus) {
+          // For unsubscribed/suppressed, always send the status
+          channelProperties.email.status = emailSubscriptionStatus
+        }
+      }
+    }
+
+    // SMS channel properties
+    if (mobileNumberIdentifier && updateSmsSubscription && smsSubscriptionStatus) {
+      channelProperties.sms = {
+        status: smsSubscriptionStatus
+      }
+    }
+
+    const data: UpsertContactJSON = {
+      identifiers,
+      channelProperties,
+      ...(listId && { lists: [listId] }),
+      dataFields: dataFields as DataFields
+    }
+
+    const response: ModifiedResponse<Contact> = await this.patch<Contact, UpsertContactJSON>(
+      `/contacts/v3/${channelIdentifier}/${idValue}?merge-option=overwrite`,
+      data
+    )
+
+    return response.data
+  }
+
+  /**
+   * Unsubscribes a contact .
+   * @param {Payload} payload - The event payload.
+   * @returns {Promise<Contact>} A promise resolving to the contact data.
+   */
+  public async unsubscribeContact(payload: {
+    channelIdentifier: string,
+    emailIdentifier?: string,
+    mobileNumberIdentifier?: string
+  }): Promise<Contact> {
+    const {
+      channelIdentifier,
+      emailIdentifier,
+      mobileNumberIdentifier
+    } = payload
 
     const idValue = channelIdentifier === 'email' ? emailIdentifier : mobileNumberIdentifier
 
@@ -57,22 +161,16 @@ class DDContactApi extends DDApi {
 
     const channelProperties: ChannelProperties = {
       ...(emailIdentifier && {
-        email: {
-          status: 'subscribed',
-          emailType: 'html',
-          optInType: 'single'
-        }
+        email: { status: 'unsubscribed' }
       }),
       ...(mobileNumberIdentifier && {
-        sms: { status: 'subscribed' }
+        sms: { status: 'unsubscribed' }
       })
     }
 
     const data: UpsertContactJSON = {
       identifiers,
-      channelProperties,
-      lists: [listId],
-      dataFields: dataFields as DataFields
+      channelProperties
     }
 
     const response: ModifiedResponse<Contact> = await this.patch<Contact, UpsertContactJSON>(

@@ -40,11 +40,17 @@ export interface DataFields {
   [key: string]: string | number | boolean | null
 }
 
+export interface ResubscribeOptions {
+  resubscribeWithNoChallenge?: boolean
+  preferredLocale?: string
+  redirectUrlAfterChallenge?: string
+}
 export interface ChannelProperties {
   email?: {
-    status: string
-    emailType: string
-    optInType: string
+    status?: string
+    emailType?: string
+    optInType?: string
+    resubscribeOptions?: ResubscribeOptions
   }
   sms?: {
     status: string
@@ -103,7 +109,7 @@ export type ChannelIdentifier = { email: string; 'mobileNumber'?: never } | { 'm
 export interface UpsertContactJSON {
   identifiers: Identifiers
   channelProperties: ChannelProperties
-  lists: number[]
+  lists?: number[]
   dataFields?: DataFields
 }
 
