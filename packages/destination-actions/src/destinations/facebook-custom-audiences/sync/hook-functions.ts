@@ -114,11 +114,24 @@ export async function getAllAudiences(
       choices: []
     }
   } catch (error) {
-    const err = error as FacebookResponseError
+
+    const {
+      response: {
+        data: {
+          error: {
+            message,
+            type,
+            code,
+            error_subcode,
+            fbtrace_id
+          }
+        }
+      }
+    } = error as FacebookResponseError
     return {
       error: {
-        message: err.error.message || 'An error occurred while fetching audiences from Facebook',
-        code: err.error.type || 'UNKNOWN_ERROR'
+        message: `"message": "${message}", "type": "${type}", "code": ${code}, "error_subcode": ${error_subcode}, "fbtrace_id": "${fbtrace_id}"`,
+        code: type
       },
       choices: []
     }
