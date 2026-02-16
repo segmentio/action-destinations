@@ -25,7 +25,7 @@ export async function performHook(
       const { data: { externalId } = {}, error } = await createAudience(request, audienceName, adAccountId)
 
       if (error) {
-        return { error }
+        return { error, choices: [] }
       }
 
       return {

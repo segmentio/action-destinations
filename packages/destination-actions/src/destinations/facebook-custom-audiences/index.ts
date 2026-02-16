@@ -52,10 +52,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       } = createAudienceInput
 
       const addAccountId = (engageAdAccountId ?? retlAdAccountId) as string
-
       const { data: { externalId: id } = {}, error } = await createAudience(request, audienceName, addAccountId, audienceDescription)
       if (error) {
-        throw new IntegrationError( error.message || 'Failed to create audience', error.code || 'CREATE_AUDIENCE_FAILED', 400)
+        throw new IntegrationError(error.message || 'Failed to create audience', error.code || 'CREATE_AUDIENCE_FAILED', 400)
       }
       return { externalId: id as string }
     },
