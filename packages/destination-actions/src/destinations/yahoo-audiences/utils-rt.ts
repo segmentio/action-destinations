@@ -29,7 +29,7 @@ export function generate_jwt(client_id: string, client_secret: string): string {
     sub: client_id,
     aud: url,
     jti: random_id,
-    exp: current_time + 3600,
+    exp: current_time + 21600,
     iat: current_time
   }
   const jwt_header = {

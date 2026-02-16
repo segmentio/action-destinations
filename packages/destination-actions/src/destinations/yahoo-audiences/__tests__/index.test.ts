@@ -269,7 +269,7 @@ describe('Yahoo Audiences', () => {
       expect(payload.exp).toBeDefined()
       expect(payload.iat).toBeDefined()
       expect(payload.exp).toBeGreaterThan(payload.iat)
-      expect(payload.exp - payload.iat).toBe(3600) // 1 hour expiration
+      expect(payload.exp - payload.iat).toBe(21600) // 6 hour expiration
     })
 
     it('should use the correct audience URL in JWT payload', () => {
@@ -323,7 +323,7 @@ describe('Yahoo Audiences', () => {
       expect(payload1.jti).not.toBe(payload2.jti)
     })
 
-    it('should set expiration time to 1 hour from issued time', () => {
+    it('should set expiration time to 6 hour from issued time', () => {
       const clientId = 'idb2b.dsp.datax.test_client'
       const clientSecret = 'test_secret'
 
@@ -338,8 +338,8 @@ describe('Yahoo Audiences', () => {
       expect(payload.iat).toBeGreaterThanOrEqual(beforeGeneration)
       expect(payload.iat).toBeLessThanOrEqual(afterGeneration)
 
-      // exp should be 3600 seconds (1 hour) after iat
-      expect(payload.exp - payload.iat).toBe(3600)
+      // exp should be 21600 seconds (6 hours) after iat
+      expect(payload.exp - payload.iat).toBe(21600)
     })
   })
 
