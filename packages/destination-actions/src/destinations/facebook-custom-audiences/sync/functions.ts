@@ -19,31 +19,27 @@ export async function send(
   const hasSyncMode = hasSyncModevalue(syncMode)
   const errorMessage = validate(audienceId, isEngage, hasSyncMode)
 
-  if(errorMessage){
+  if (errorMessage) {
     return returnErrorResponse(msResponse, payloads, isBatch, errorMessage)
   }
-  
+
   const addMap = new Map<number, Payload>()
   const deleteMap = new Map<number, Payload>()
 
   if (!isEngage) {
-    syncMode === 'delete' ? payloads.forEach((payload, index) => deleteMap.set(index, payload)) : payloads.forEach((payload, index) => addMap.set(index, payload))
-  } 
-  else {
+    syncMode === 'delete'
+      ? payloads.forEach((payload, index) => deleteMap.set(index, payload))
+      : payloads.forEach((payload, index) => addMap.set(index, payload))
+  } else {
     payloads.forEach((payload, index) => {
-      const { 
-        engage_fields: { 
-          traits_or_properties, 
-          audience_key 
-        } = {}       
-      } = payload
-    
-      const isAudienceMember = traits_or_properties && typeof audience_key === 'string' && traits_or_properties[audience_key] === true
+      const { engage_fields: { traits_or_properties, audience_key } = {} } = payload
+
+      const isAudienceMember =
+        traits_or_properties && typeof audience_key === 'string' && traits_or_properties[audience_key] === true
 
       if (isAudienceMember) {
         addMap.set(index, payload)
-      } 
-      else {
+      } else {
         deleteMap.set(index, payload)
       }
     })
@@ -52,25 +48,28 @@ export async function send(
   const requests: Promise<void>[] = []
 
   if (addMap.size > 0) {
-    requests.push(
-      sendRequest(request, audienceId, addMap, msResponse, 'POST', isBatch)
-    )
+    requests.push(sendRequest(request, audienceId, addMap, msResponse, 'POST', isBatch))
   }
 
   if (deleteMap.size > 0) {
-    requests.push(
-      sendRequest(request, audienceId, deleteMap, msResponse, 'DELETE', isBatch)
-    )
+    requests.push(sendRequest(request, audienceId, deleteMap, msResponse, 'DELETE', isBatch))
   }
 
   await Promise.all(requests)
 
-  if(isBatch) {
+  if (isBatch) {
     return msResponse
   }
 }
 
-export async function sendRequest(request: RequestClient, audienceId: string, map: Map<number, Payload>, msResponse: MultiStatusResponse, method: 'POST' | 'DELETE', isBatch: boolean): Promise<void> {
+export async function sendRequest(
+  request: RequestClient,
+  audienceId: string,
+  map: Map<number, Payload>,
+  msResponse: MultiStatusResponse,
+  method: 'POST' | 'DELETE',
+  isBatch: boolean
+): Promise<void> {
   const indices = Array.from(map.keys())
   const payloads = Array.from(map.values())
   const json = getJSON(payloads)
@@ -85,33 +84,32 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
       msResponse.setSuccessResponseAtIndex(originalIndex, {
         status: 200,
         body: payloads[i] as unknown as JSONLikeObject,
-        sent: {          
+        sent: {
           data: json.payload.data[i],
           method,
           audienceId
         }
       })
     }
-  }
-  catch (error) {
+  } catch (error) {
     const {
       response: {
         status = 500,
         data: {
           error: {
-            message: facebookMessage,
+            message: facebookMessage = undefined,
             code: errorCode = 400,
             type: errorType = 'FACEBOOK_API_ERROR'
           } = {}
         } = {}
       } = {},
       message: genericMessage
-    } = error  || {}
+    } = error || {}
 
     const message = facebookMessage || genericMessage || 'Unknown error'
     const errorMessage: string = errorCode ? `${message} (code: ${errorCode})` : message
 
-    if(!isBatch) {
+    if (!isBatch) {
       throw new IntegrationError(errorMessage, errorType as string, errorCode as number)
     }
 
@@ -132,7 +130,12 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
   }
 }
 
-export function returnErrorResponse(msResponse: MultiStatusResponse, payloads: Payload[], isBatch: boolean, errorMessage: string): MultiStatusResponse {
+export function returnErrorResponse(
+  msResponse: MultiStatusResponse,
+  payloads: Payload[],
+  isBatch: boolean,
+  errorMessage: string
+): MultiStatusResponse {
   if (isBatch) {
     payloads.forEach((payload, i) => {
       msResponse.setErrorResponseAtIndex(i, {
@@ -143,38 +146,31 @@ export function returnErrorResponse(msResponse: MultiStatusResponse, payloads: P
       })
     })
     return msResponse
-  }
-  else {
+  } else {
     throw new PayloadValidationError(errorMessage)
   }
 }
 
-export function getAudienceId(payload: Payload, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }): string  {
-  const { 
-    retlOnMappingSave: { 
-      outputs: { 
-        audienceId: hookAudienceId 
-      } = {} 
-    } = {} 
-  } = hookOutputs ?? {}
-  
-  const { 
-    external_audience_id: payloadAudienceId 
-  } = payload
+export function getAudienceId(
+  payload: Payload,
+  hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }
+): string {
+  const { retlOnMappingSave: { outputs: { audienceId: hookAudienceId = undefined } = {} } = {} } = hookOutputs ?? {}
+
+  const { external_audience_id: payloadAudienceId } = payload
 
   return (hookAudienceId ?? payloadAudienceId) as string
 }
 
 export function isEngageAudience(payload: Payload): boolean {
-  const { 
-    engage_fields: { 
-      computation_class, 
-      audience_key, 
-      traits_or_properties 
-    } = {} 
-  } = payload
+  const { engage_fields: { computation_class, audience_key, traits_or_properties } = {} } = payload
 
-  return typeof traits_or_properties === 'object' && audience_key && computation_class && ['audience', 'journey_step'].includes(computation_class) ? true : false
+  return typeof traits_or_properties === 'object' &&
+    audience_key &&
+    computation_class &&
+    ['audience', 'journey_step'].includes(computation_class)
+    ? true
+    : false
 }
 
 export function hasSyncModevalue(syncMode: string | undefined): boolean {
@@ -186,7 +182,7 @@ export function getJSON(payloads: Payload[]): AudienceJSON {
   const app_ids: string[] = []
   const page_ids: string[] = []
   const ig_account_ids: string[] = []
-  
+
   payloads.forEach((payload) => {
     const { appId, pageId, igAccountIds } = payload
     app_ids.push(typeof appId === 'string' && appId ? appId : '')
@@ -213,9 +209,9 @@ export function validate(audienceId: unknown, isEngageAudience: boolean, hasSync
   if (!isEngageAudience && !hasSyncMode) {
     return 'Audience payloads should have a Sync mode value, or should be sent from Engage.'
   }
-} 
+}
 
-export function getData(payloads: Payload[]): FacebookDataRow[]{
+export function getData(payloads: Payload[]): FacebookDataRow[] {
   const data: FacebookDataRow[] = new Array(payloads.length)
 
   payloads.forEach((payload, index) => {
@@ -223,7 +219,7 @@ export function getData(payloads: Payload[]): FacebookDataRow[]{
       externalId,
       email,
       phone,
-      birth: { year, month, day } = {}, 
+      birth: { year, month, day } = {},
       name: { last, first, firstInitial } = {},
       gender,
       city,
@@ -234,10 +230,10 @@ export function getData(payloads: Payload[]): FacebookDataRow[]{
     } = payload
 
     const row: FacebookDataRow = [
-      externalId ?? '', 
+      externalId ?? '',
       email ? processHashing(email.trim().toLowerCase(), 'sha256', 'hex') : '',
-      phone ? processHashing(phone,  'sha256', 'hex', normalizePhone) ?? '' : '',
-      year ? processHashing(year.trim(), 'sha256', 'hex')  ?? '' : '',
+      phone ? processHashing(phone, 'sha256', 'hex', normalizePhone) ?? '' : '',
+      year ? processHashing(year.trim(), 'sha256', 'hex') ?? '' : '',
       month ? processHashing(normalizeMonth(month), 'sha256', 'hex') ?? '' : '',
       day ? processHashing(day.trim(), 'sha256', 'hex') ?? '' : '',
       last ? processHashing(normalizeName(last), 'sha256', 'hex') ?? '' : '',
