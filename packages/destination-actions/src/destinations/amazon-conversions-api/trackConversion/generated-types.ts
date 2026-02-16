@@ -171,6 +171,7 @@ export interface Payload {
      * Custom attribute 10 associated with the event.
      */
     attr10?: string
+    [k: string]: unknown
   }
   /**
    * When enabled, Segment will send data in batching.

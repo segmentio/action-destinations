@@ -294,7 +294,7 @@ export const fields: Record<string, InputField> = {
         description: 'Name of the audience for audience membership updates. If connecting to a Segment Engage Audience, leave the detault mapping as is.',
         type: 'string',
         unsafe_hidden: true,
-        default: { '@path': '$.context.personas.audience_key' }
+        default: { '@path': '$.context.personas.computation_key' }
     },
     traitsOrProps: {
         label: 'Traits or properties object',
