@@ -31,7 +31,7 @@ export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unkno
 Generates the LiveRamp ingestion file. Expected format:
 liveramp_audience_key[1],identifier_data[0..n]
 */
-function generateFile(payloads: s3Payload[] | sftpPayload[]) {
+function generateFile(payloads: s3Payload[] | sftpPayload[], alphabeticalFieldOrder = false) {
   const headers = new Set<string>()
   headers.add('audience_key')
 
@@ -51,10 +51,11 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   }
 
   // Convert headers to an ordered array for consistent indexing
-  // Sort alphabetically (excluding audience_key which is always first) to ensure consistent field order
   const headerArray = Array.from(headers)
-  const otherHeaders = headerArray.filter((h) => h !== 'audience_key').sort()
-  const sortedHeaderArray = ['audience_key', ...otherHeaders]
+  // Sort alphabetically (excluding audience_key which is always first) if feature flag is enabled
+  const sortedHeaderArray = alphabeticalFieldOrder
+    ? ['audience_key', ...headerArray.filter((h) => h !== 'audience_key').sort()]
+    : headerArray
 
   // Declare rows as an empty Buffer
   let rows = Buffer.from('')

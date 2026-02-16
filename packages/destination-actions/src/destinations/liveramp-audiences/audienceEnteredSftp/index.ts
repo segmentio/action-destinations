@@ -5,7 +5,8 @@ import { sendEventToAWS } from '../awsClient'
 import {
   LIVERAMP_MIN_RECORD_COUNT,
   LIVERAMP_LEGACY_FLOW_FLAG_NAME,
-  LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME
+  LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME,
+  LIVERAMP_ALPHABETICAL_FIELD_ORDER_FLAG_NAME
 } from '../properties'
 
 import type { Settings } from '../generated-types'
@@ -128,7 +129,8 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
 
   validateSFTP(input.payloads[0])
 
-  const { filename, fileContents } = generateFile(input.payloads)
+  const alphabeticalFieldOrder = input.features?.[LIVERAMP_ALPHABETICAL_FIELD_ORDER_FLAG_NAME] === true
+  const { filename, fileContents } = generateFile(input.payloads, alphabeticalFieldOrder)
 
   if (input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true) {
     //------------

@@ -91,7 +91,7 @@ describe('Test operations', () => {
         }
       ]
 
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key,email\n${enquoteIdentifier('1001')},${enquoteIdentifier('john@example.com')}`
       expect(result.fileContents.toString()).toBe(expected)
     })
@@ -109,7 +109,7 @@ describe('Test operations', () => {
       ]
       const normalizedName = normalize('name', 'John Doe')
       const hashedName = processHashing(normalizedName, 'sha256', 'hex')
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key,email,name\n${enquoteIdentifier('1002')},${enquoteIdentifier(
         'john@example.com'
       )},${enquoteIdentifier(hashedName)}`
@@ -137,7 +137,7 @@ describe('Test operations', () => {
       ]
       const hashedAlice = processHashing('Alice', 'sha256', 'hex', (value: string) => normalize('name', value))
       const hashedBob = processHashing('Bob', 'sha256', 'hex', (value: string) => normalize('name', value))
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key,email,name\n${enquoteIdentifier('1003')},${enquoteIdentifier(
         'alice@example.com'
       )},${enquoteIdentifier(hashedAlice)}\n${enquoteIdentifier('1004')},${enquoteIdentifier(
@@ -158,7 +158,7 @@ describe('Test operations', () => {
         }
       ]
       const hashedEve = processHashing('Eve', 'sha256', 'hex', (value: string) => normalize('name', value))
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key,name\n${enquoteIdentifier('1005')},${enquoteIdentifier(hashedEve)}`
       expect(result.fileContents.toString()).toBe(expected)
     })
@@ -175,7 +175,7 @@ describe('Test operations', () => {
         }
       ]
       const hashedNote = processHashing('Hello, "John"\nNew line', 'sha256', 'hex')
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key,email,note\n${enquoteIdentifier('1006')},${enquoteIdentifier(
         'test@example.com'
       )},${enquoteIdentifier(hashedNote)}`
@@ -219,7 +219,7 @@ describe('Test operations', () => {
         }
       ]
 
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
 
       const expectedFileContents = `audience_key,email\n"aud001","973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b"\n"aud002","973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b"\n"aud003","973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b"`
 
@@ -258,7 +258,7 @@ describe('Test operations', () => {
         }
       ]
 
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
 
       const expectedFileContents = `audience_key,email,example_identifier\n"aud001",,\n"aud002","973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b",\n"aud003","973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b","66a0acf498240ea61ce3ce698c5a30eb6824242b39695f8689d7c32499c79748"`
 
@@ -278,7 +278,7 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key,note\n${enquoteIdentifier('1007')},${enquoteIdentifier('Hello, world')}`
       expect(result.fileContents.toString()).toBe(expected)
     })
@@ -293,7 +293,7 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key,description\n${enquoteIdentifier('1008')},${enquoteIdentifier(
         'First line\nSecond line'
       )}`
@@ -310,7 +310,7 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key,note\n${enquoteIdentifier('1009')},${enquoteIdentifier(
         'He said, "Hello" to everyone'
       )}`
@@ -327,7 +327,7 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key,note\n${enquoteIdentifier('1010')},${enquoteIdentifier(
         'Welcome, "John"\nHave a nice day'
       )}`
@@ -344,7 +344,7 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key,email,name\n${enquoteIdentifier('1011')},${enquoteIdentifier(
         'test@example.com'
       )},""`
@@ -355,7 +355,7 @@ describe('Test operations', () => {
       const payloads: Payload[] = [
         { audience_key: '1012', delimiter: ',', filename: 'output.csv', enable_batching: true }
       ]
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key\n${enquoteIdentifier('1012')}`
       expect(result.fileContents.toString()).toBe(expected)
     })
@@ -370,7 +370,7 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key;email;phone\n${enquoteIdentifier('1013')};${enquoteIdentifier(
         'example@example.com'
       )};${enquoteIdentifier('1234567890')}`
@@ -381,7 +381,7 @@ describe('Test operations', () => {
       const payloads: Payload[] = [
         { audience_key: '1014', delimiter: ',', filename: 'output.csv', enable_batching: true }
       ]
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key\n${enquoteIdentifier('1014')}`
       expect(result.fileContents.toString()).toBe(expected)
     })
@@ -397,7 +397,7 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key,long_field\n${enquoteIdentifier('1015')},${enquoteIdentifier(longString)}`
       expect(result.fileContents.toString()).toBe(expected)
     })
@@ -418,7 +418,7 @@ describe('Test operations', () => {
         normalize('email', value)
       )
 
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
       const expected = `audience_key,email\n${enquoteIdentifier('1016')},${enquoteIdentifier(hashedUnhashedEmail)}`
 
       expect(result.fileContents.toString()).toBe(expected)
@@ -451,7 +451,7 @@ describe('Test operations', () => {
         }
       ]
 
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
 
       const expected = [
         `audience_key,email,first_name,liveramp_test`,
@@ -495,7 +495,7 @@ describe('Test operations', () => {
       const hashedUniqueValue = processHashing('424242', 'sha256', 'hex', (value: string) =>
         normalize('unique_value', value)
       )
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
 
       // Expected headers are audience_key, email, first_name, liveramp_test, unique_value (alphabetically sorted)
       const expected = [
@@ -521,7 +521,7 @@ describe('Test operations', () => {
         }
       ]
 
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
 
       const expected = [`audience_key`, `${enquoteIdentifier('test_audience')}`].join('\n')
 
@@ -575,7 +575,7 @@ describe('Test operations', () => {
         }
       ]
 
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
 
       const hashedCountry = processHashing('US', 'sha256', 'hex', (value: string) => normalize('country', value))
       const hashedUniqueValue = processHashing('only_in_third', 'sha256', 'hex', (value: string) =>
@@ -690,7 +690,7 @@ describe('Test operations', () => {
         }
       ]
 
-      const result = generateFile(payloads)
+      const result = generateFile(payloads, true)
 
       const expected = [
         'audience_key,ADDRESS1,ADDRESS2,CITY,FAVORITECOLOR,FIRSTNAME,LASTNAME,LOVESDOGS,SHOPPERSCORE,STATE,UNDER25,ZIP',
@@ -757,8 +757,8 @@ describe('Test operations', () => {
         }
       ]
 
-      const result1 = generateFile(batch1)
-      const result2 = generateFile(batch2)
+      const result1 = generateFile(batch1, true)
+      const result2 = generateFile(batch2, true)
 
       // Fields should now be alphabetically sorted: audience_key,field_a,field_b,field_c,field_d,field_e,field_f
       const expected = [
@@ -859,8 +859,8 @@ describe('Test operations', () => {
         }
       ]
 
-      const result1 = generateFile(batch1)
-      const result2 = generateFile(batch2)
+      const result1 = generateFile(batch1, true)
+      const result2 = generateFile(batch2, true)
 
       // Both should have alphabetically sorted fields: audience_key,age,city,country,email,first_name,last_name,phone
       const headers1 = result1.fileContents.toString().split('\n')[0]
