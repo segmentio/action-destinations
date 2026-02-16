@@ -39,12 +39,24 @@ export async function createAudience(request: RequestClient, name: string, adAcc
       }
     }
     return { data: { externalId: id } }
-  } catch (error) {
-    const err = error as FacebookResponseError
+  } catch (error) {    
+    const {
+      response: {
+        data: {
+          error: {
+            message,
+            type,
+            code,
+            error_subcode,
+            fbtrace_id
+          }
+        }
+      }
+    } = error as FacebookResponseError
     return {
       error: {
-        message: err.error.message,
-        code: err.error.type
+        message: `"message": "${message}", "type": "${type}", "code": ${code}, "error_subcode": ${error_subcode}, "fbtrace_id": "${fbtrace_id}"`,
+        code: type
       }
     }
   }
@@ -81,11 +93,23 @@ export async function getAudience(request: RequestClient, externalId: string): P
       }
     }
   } catch (error) {
-    const err = error as FacebookResponseError
+    const {
+      response: {
+        data: {
+          error: {
+            message,
+            type,
+            code,
+            error_subcode,
+            fbtrace_id
+          }
+        }
+      }
+    } = error as FacebookResponseError
     return {
       error: {
-        message: err.error.message,
-        code: err.error.type
+        message: `"message": "${message}", "type": "${type}", "code": ${code}, "error_subcode": ${error_subcode}, "fbtrace_id": "${fbtrace_id}"`,
+        code: type
       }
     }
   }
