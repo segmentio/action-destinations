@@ -22,9 +22,9 @@ const action: ActionDefinition<Settings, Payload> = {
         return await performHook(
           request,
           adAccountId,
-          operation as string,
-          audienceName as string,
-          existingAudienceId as string
+          operation as string | undefined,
+          audienceName as string | undefined,
+          existingAudienceId as string | undefined
         )
       }
     }
