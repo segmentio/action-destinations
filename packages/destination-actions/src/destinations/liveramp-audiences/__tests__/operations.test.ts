@@ -874,4 +874,169 @@ describe('Test operations', () => {
       expect(headers2).toBe('audience_key,age,city,country,email,first_name,last_name,phone')
     })
   })
+
+  describe('isIncomingAlphabetical detection', () => {
+    it('uses insertion order by default when no alphabetical flag is provided', () => {
+      const payloads: Payload[] = [
+        {
+          audience_key: 'user1',
+          identifier_data: {
+            zip: '12345',
+            email: 'user@example.com'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        }
+      ]
+
+      // Call without second parameter to test default value
+      const result = generateFile(payloads)
+
+      // Should use insertion order (zip, email)
+      const headers = result.fileContents.toString().split('\n')[0]
+      expect(headers).toBe('audience_key,zip,email')
+    })
+
+    it('detects when incoming headers are already in alphabetical order', () => {
+      const payloads: Payload[] = [
+        {
+          audience_key: 'user1',
+          identifier_data: {
+            email: 'user@example.com',
+            first_name: 'John',
+            last_name: 'Doe'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        }
+      ]
+
+      const result = generateFile(payloads, false)
+
+      // Headers: email, first_name, last_name - which is alphabetical
+      expect(result.isIncomingAlphabetical).toBe(true)
+    })
+
+    it('detects when incoming headers are not in alphabetical order', () => {
+      const payloads: Payload[] = [
+        {
+          audience_key: 'user1',
+          identifier_data: {
+            zip: '12345',
+            email: 'user@example.com',
+            first_name: 'John'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        }
+      ]
+
+      const result = generateFile(payloads, false)
+
+      // Headers: zip, email, first_name - zip is after first_name alphabetically
+      expect(result.isIncomingAlphabetical).toBe(false)
+    })
+
+    it('returns true for single field besides audience_key', () => {
+      const payloads: Payload[] = [
+        {
+          audience_key: 'user1',
+          identifier_data: {
+            email: 'user@example.com'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        }
+      ]
+
+      const result = generateFile(payloads, false)
+
+      // Single field is trivially alphabetical
+      expect(result.isIncomingAlphabetical).toBe(true)
+    })
+
+    it('handles mixed identifier_data and unhashed_identifier_data', () => {
+      const payloads: Payload[] = [
+        {
+          audience_key: 'user1',
+          identifier_data: {
+            city: 'NYC',
+            state: 'NY'
+          },
+          unhashed_identifier_data: {
+            email: 'user@example.com',
+            phone_number: '555-1234'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        }
+      ]
+
+      const result = generateFile(payloads, false)
+
+      // Combined headers: city, state, email, phone_number
+      // Alphabetically: city, email, phone_number, state
+      expect(result.isIncomingAlphabetical).toBe(false)
+    })
+
+    it('detects alphabetical order with multiple payloads', () => {
+      const payloads: Payload[] = [
+        {
+          audience_key: 'user1',
+          identifier_data: {
+            age: '30',
+            email: 'user1@example.com'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        },
+        {
+          audience_key: 'user2',
+          identifier_data: {
+            age: '25',
+            email: 'user2@example.com',
+            first_name: 'Jane'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        }
+      ]
+
+      const result = generateFile(payloads, false)
+
+      // Combined unique headers: age, email, first_name - alphabetical
+      expect(result.isIncomingAlphabetical).toBe(true)
+    })
+
+    it('works correctly when alphabetical sorting is enabled', () => {
+      const payloads: Payload[] = [
+        {
+          audience_key: 'user1',
+          identifier_data: {
+            zip: '12345',
+            email: 'user@example.com'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        }
+      ]
+
+      const result = generateFile(payloads, true)
+
+      // Even though we're sorting, it should still detect incoming order was not alphabetical
+      expect(result.isIncomingAlphabetical).toBe(false)
+
+      // And the output should be sorted
+      const headers = result.fileContents.toString().split('\n')[0]
+      expect(headers).toBe('audience_key,email,zip')
+    })
+  })
 })
