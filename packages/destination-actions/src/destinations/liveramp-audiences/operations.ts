@@ -1,4 +1,4 @@
-import { RequestClient, ExecuteInput } from '@segment/actions-core'
+import { RequestClient, ExecuteInput, StatsContext } from '@segment/actions-core'
 import type { Payload as s3Payload } from './audienceEnteredS3/generated-types'
 import type { Payload as sftpPayload } from './audienceEnteredSftp/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
@@ -19,6 +19,7 @@ export type ProcessDataInput<T extends s3Payload | sftpPayload> = {
   payloads: T[]
   features?: Record<string, boolean>
   rawData?: RawData[]
+  statsContext?: StatsContext
 }
 
 export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unknown> = ExecuteInput<
@@ -52,10 +53,14 @@ function generateFile(payloads: s3Payload[] | sftpPayload[], alphabeticalFieldOr
 
   // Convert headers to an ordered array for consistent indexing
   const headerArray = Array.from(headers)
+
+  // Check if incoming headers (excluding audience_key) are already in alphabetical order
+  const incomingHeaders = headerArray.filter((h) => h !== 'audience_key')
+  const sortedIncomingHeaders = [...incomingHeaders].sort()
+  const isIncomingAlphabetical = incomingHeaders.every((header, index) => header === sortedIncomingHeaders[index])
+
   // Sort alphabetically (excluding audience_key which is always first) if feature flag is enabled
-  const sortedHeaderArray = alphabeticalFieldOrder
-    ? ['audience_key', ...headerArray.filter((h) => h !== 'audience_key').sort()]
-    : headerArray
+  const sortedHeaderArray = alphabeticalFieldOrder ? ['audience_key', ...sortedIncomingHeaders] : headerArray
 
   // Declare rows as an empty Buffer
   let rows = Buffer.from('')
@@ -78,7 +83,7 @@ function generateFile(payloads: s3Payload[] | sftpPayload[], alphabeticalFieldOr
       for (const key of Object.keys(payload.unhashed_identifier_data)) {
         const index = sortedHeaderArray.indexOf(key)
         unhashedKeys.add(key)
-        /*Identifiers need to be hashed according to LiveRamp spec's: https://docs.liveramp.com/connect/en/formatting-identifiers.html 
+        /*Identifiers need to be hashed according to LiveRamp spec's: https://docs.liveramp.com/connect/en/formatting-identifiers.html
         Phone Number requires SHA1 and email uses sha256 */
         if (key === 'phone_number') {
           row[index] = `"${processHashing(String(payload.unhashed_identifier_data[key]), 'sha1', 'hex', (value) =>
@@ -113,7 +118,7 @@ function generateFile(payloads: s3Payload[] | sftpPayload[], alphabeticalFieldOr
   rows = Buffer.concat([Buffer.from(sortedHeaderArray.join(payloads[0].delimiter) + '\n'), rows])
 
   const filename = payloads[0].filename
-  return { filename, fileContents: rows }
+  return { filename, fileContents: rows, isIncomingAlphabetical }
 }
 /*
   To avoid collision with delimeters, we should surround identifiers with quotation marks.

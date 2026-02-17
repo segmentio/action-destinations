@@ -92,28 +92,30 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (
     request,
-    { payload, features, rawData, subscriptionMetadata }: ExecuteInputRaw<Settings, Payload, RawData>
+    { payload, features, rawData, subscriptionMetadata, statsContext }: ExecuteInputRaw<Settings, Payload, RawData>
   ) => {
     return processData(
       {
         request,
         payloads: [payload],
         features,
-        rawData: rawData ? [rawData] : []
+        rawData: rawData ? [rawData] : [],
+        statsContext
       },
       subscriptionMetadata
     )
   },
   performBatch: (
     request,
-    { payload, features, rawData, subscriptionMetadata }: ExecuteInputRaw<Settings, Payload[], RawData[]>
+    { payload, features, rawData, subscriptionMetadata, statsContext }: ExecuteInputRaw<Settings, Payload[], RawData[]>
   ) => {
     return processData(
       {
         request,
         payloads: payload,
         features,
-        rawData
+        rawData,
+        statsContext
       },
       subscriptionMetadata
     )
@@ -130,7 +132,16 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
   validateSFTP(input.payloads[0])
 
   const alphabeticalFieldOrder = input.features?.[LIVERAMP_ALPHABETICAL_FIELD_ORDER_FLAG_NAME] === true
-  const { filename, fileContents } = generateFile(input.payloads, alphabeticalFieldOrder)
+  const { filename, fileContents, isIncomingAlphabetical } = generateFile(input.payloads, alphabeticalFieldOrder)
+
+  // Track metric for whether incoming headers are in alphabetical order
+  if (input.statsContext?.statsClient) {
+    const incomingOrder = isIncomingAlphabetical ? 'alphabetical' : 'non_alphabetical'
+    input.statsContext.statsClient.incr('liveramp_audiences.incoming_header_order', 1, [
+      ...(input.statsContext.tags || []),
+      `order:${incomingOrder}`
+    ])
+  }
 
   if (input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true) {
     //------------
