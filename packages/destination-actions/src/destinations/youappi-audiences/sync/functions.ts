@@ -64,15 +64,16 @@ export async function sendRequest(
       method: 'post',
       json
     })
-    
+
     for (let i = 0; i < indices.length; i++) {
       const originalIndex = indices[i]
+      const { audience_name, audience_id } = payloads[i]
       msResponse.setSuccessResponseAtIndex(originalIndex, {
         status: 200,
         body: payloads[i] as unknown as JSONLikeObject,
         sent: { 
           device_identities: getIds(payloads[i]),
-          audiences:getAudiences(payloads[i].audience_name, action)
+          audiences:getAudiences(audience_id, audience_name, action)
         }
       })
     }
@@ -86,6 +87,7 @@ export async function sendRequest(
 
     for (let i = 0; i < indices.length; i++) {
       const originalIndex = indices[i]
+      const { audience_name, audience_id } = payloads[i]
       msResponse.setErrorResponseAtIndex(originalIndex, {
         status,
         errortype: code,
@@ -93,7 +95,7 @@ export async function sendRequest(
         body: payloads[i] as unknown as JSONLikeObject,
         sent: { 
           device_identities: getIds(payloads[i]),
-          audiences:getAudiences(payloads[i].audience_name, action)
+          audiences:getAudiences(audience_id, audience_name, action)
         }
       })
     }
@@ -102,14 +104,14 @@ export async function sendRequest(
 
 export function getJSON(payloads: Payload[], settings: Settings, action: 'add' | 'remove'): RequestJSON {
   const { api_key } = settings
-  const { audience_name } = payloads[0]
+  const { audience_id, audience_name } = payloads[0]
   
   const json: RequestJSON = {
     api_key,
     device_identities: payloads.flatMap((payload) => {
       return getIds(payload)
     }),
-    audiences: getAudiences(audience_name, action)
+    audiences: getAudiences(audience_id, audience_name, action)
   }
   return json
 }
@@ -122,9 +124,9 @@ function getIds (payload: Payload): RequestJSON['device_identities'] {
   return identities
 }
 
-function getAudiences(audience_name: string, action: 'add' | 'remove'): RequestJSON['audiences']{
+function getAudiences(audience_id: string, audience_name: string, action: 'add' | 'remove'): RequestJSON['audiences']{
   return [{
-    audience_id: [...audience_name].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0),
+    audience_id: [...audience_id].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0),
     audience_name,
     action
   }]
