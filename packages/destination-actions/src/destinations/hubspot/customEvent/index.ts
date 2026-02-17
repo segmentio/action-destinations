@@ -14,7 +14,12 @@ import {
 import { sendEvent } from './functions/event-completion-functions'
 import { validate } from './functions/validation-functions'
 import { eventSchema } from './functions/schema-functions'
-import { compareSchemas, saveSchemaToCache, getSchemaFromCache } from './functions/cache-functions'
+import {
+  compareSchemas,
+  saveSchemaToCache,
+  getSchemaFromCache,
+  convertNumericStrings
+} from './functions/cache-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event V2',
@@ -59,6 +64,7 @@ const send = async (
   statsContext?.statsClient?.incr(`cache.diff.${cacheSchemaDiff.match}`, 1, statsContext?.tags)
 
   if (cacheSchemaDiff.match === SchemaMatch.FullMatch) {
+    convertNumericStrings(validPayload, cacheSchemaDiff.numericStrings)
     return await sendEvent(client, (cachedSchema as CachableSchema).fullyQualifiedName, validPayload)
   }
 
@@ -74,6 +80,8 @@ const send = async (
 
   statsContext?.statsClient?.incr(`hubspotSchemaDiff.diff.${hubspotSchemaDiff.match}`, 1, statsContext?.tags)
 
+  convertNumericStrings(validPayload, hubspotSchemaDiff.numericStrings)
+
   switch (hubspotSchemaDiff.match) {
     case SchemaMatch.FullMatch: {
       await saveSchemaToCache(hubspotSchema as CachableSchema, subscriptionMetadata, statsContext)
@@ -88,7 +96,14 @@ const send = async (
           400
         )
       }
-      const cacheableSchema = { ...schema, fullyQualifiedName: (hubspotSchema as CachableSchema).fullyQualifiedName }
+      const cacheableSchema = {
+        ...schema,
+        fullyQualifiedName: (hubspotSchema as CachableSchema).fullyQualifiedName,
+        properties: {
+          ...(hubspotSchema as CachableSchema).properties, // Existing properties from HubSpot with their types instead of inferred types
+          ...hubspotSchemaDiff.missingProperties // Add new properties with inferred types
+        }
+      }
       await updateHubspotSchema(client, cacheableSchema.fullyQualifiedName, hubspotSchemaDiff)
       await saveSchemaToCache(cacheableSchema, subscriptionMetadata, statsContext)
       return await sendEvent(client, cacheableSchema.fullyQualifiedName, validPayload)

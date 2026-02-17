@@ -8,6 +8,7 @@ import { Payload as TrackPurchasePayload } from './trackPurchase/generated-types
 import { Payload as UpdateUserProfilePayload } from './updateUserProfile/generated-types'
 import { getUserAlias } from './userAlias'
 import { HTTPError } from '@segment/actions-core'
+import { MAX_BATCH_SIZE } from './constants'
 type DateInput = string | Date | number | null | undefined
 type DateOutput = string | undefined | null
 
@@ -261,6 +262,7 @@ export async function sendBatchedTrackPurchase(
   payloads: TrackPurchasePayload[],
   syncMode?: 'add' | 'update'
 ) {
+  let objectCount = 0
   const multiStatusResponse = new MultiStatusResponse()
 
   const flattenedPayload: JSONLikeObject[] = []
@@ -271,7 +273,29 @@ export async function sendBatchedTrackPurchase(
   const reservedKeys = Object.keys(action.fields.products.properties ?? {})
 
   payloads.forEach((payload, originalBatchIndex) => {
-    const { braze_id, external_id, email } = payload
+    const { braze_id, external_id, email, products } = payload
+
+    if (Array.isArray(products) && products.length > MAX_BATCH_SIZE) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+        status: 413,
+        errortype: 'PAYLOAD_TOO_LARGE',
+        body: payload as unknown as JSONLikeObject,
+        errormessage: `Max batch size exceeded. This payload contains ${products.length} products, which is more than Braze's maximum batch size of ${MAX_BATCH_SIZE} objects per batch.`
+      })
+      return
+    }
+
+    objectCount += Array.isArray(products) ? products.length : 0
+    if (objectCount > MAX_BATCH_SIZE) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+        status: 429,
+        errortype: 'RETRYABLE_ERROR',
+        body: payload as unknown as JSONLikeObject,
+        errormessage: `Max batch size exceeded. This event was included in a batch which then exceeded Braze's maximum batch size of ${MAX_BATCH_SIZE} objects per batch. This payload will be retried in another batch.`
+      })
+      return
+    }
+
     // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
     const user_alias = getUserAlias(payload.user_alias)
 
@@ -286,10 +310,11 @@ export async function sendBatchedTrackPurchase(
     }
 
     // Filter if no products are there to send
-    if (payload.products.length === 0) {
+    if (products.length === 0) {
       multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
+        body: payload as unknown as JSONLikeObject,
         errormessage: 'This event was not sent to Braze because it did not contain any products.'
       })
       return
@@ -316,7 +341,7 @@ export async function sendBatchedTrackPurchase(
     // we are grouping them together to keep track of what was sent to Braze
     const flattenedPayloadGroup: JSONLikeObject[] = []
 
-    payload.products.forEach((product) => {
+    products.forEach((product) => {
       const flattenedPayloadItem = {
         ...requestBase,
         product_id: product.product_id,
@@ -346,6 +371,11 @@ export async function sendBatchedTrackPurchase(
       body: 'success'
     })
   })
+
+  // If all payloads were rejected, return early without making API call
+  if (flattenedPayload.length === 0) {
+    return multiStatusResponse
+  }
 
   const response = request<BrazeTrackUserAPIResponse>(`${settings.endpoint}/users/track`, {
     method: 'post',
@@ -433,7 +463,11 @@ export function updateUserProfile(
           push_tokens: payload.push_tokens,
           time_zone: payload.time_zone,
           twitter: payload.twitter,
-          ...(typeof payload.subscription_groups === 'object' && Array.isArray(payload.subscription_groups) && payload.subscription_groups.length>0 ? { subscription_groups: payload.subscription_groups } : {}),
+          ...(typeof payload.subscription_groups === 'object' &&
+          Array.isArray(payload.subscription_groups) &&
+          payload.subscription_groups.length > 0
+            ? { subscription_groups: payload.subscription_groups }
+            : {}),
           _update_existing_only: updateExistingOnly
         }
       ]
@@ -514,7 +548,11 @@ export async function updateBatchedUserProfile(
       push_tokens: payload.push_tokens,
       time_zone: payload.time_zone,
       twitter: payload.twitter,
-      ...(typeof payload.subscription_groups === 'object' && Array.isArray(payload.subscription_groups) && payload.subscription_groups.length>0 ? { subscription_groups: payload.subscription_groups } : {}),
+      ...(typeof payload.subscription_groups === 'object' &&
+      Array.isArray(payload.subscription_groups) &&
+      payload.subscription_groups.length > 0
+        ? { subscription_groups: payload.subscription_groups }
+        : {}),
       _update_existing_only: updateExistingOnly
     }
 

@@ -36,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: (request, {payload, settings}) => {
+  perform: (request, { payload, settings }) => {
     const url = `${settings.endpoint}/i/v0/e/`
     const headers = {
       'Content-Type': 'application/json'
@@ -46,7 +46,8 @@ const action: ActionDefinition<Settings, Payload> = {
       api_key: settings.api_key,
       distinct_id: payload.distinct_id,
       properties: {
-        $set: payload.properties
+        $set: payload.properties,
+        $geoip_disable: settings.geoip_disable || undefined
       },
       timestamp: payload.timestamp
     }

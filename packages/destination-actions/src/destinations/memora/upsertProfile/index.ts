@@ -58,11 +58,11 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     contact_traits: {
-      label: 'Other Contact Traits',
+      label: 'Contact Traits',
       description:
-        'Additional contact traits for the profile. These fields are dynamically loaded from the selected Memora Store.',
+        'Contact traits for the profile. At least one trait is required. These fields are dynamically loaded from the selected Memora Store.',
       type: 'object',
-      required: false,
+      required: true,
       additionalProperties: true,
       dynamic: true
     }
@@ -89,41 +89,55 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-// Validate profiles and collect all unique field names from payloads
-function validateAndCollectFields(payloads: Payload[]): Set<string> {
+// Filter and validate profiles, collecting all unique field names from valid payloads
+function validateAndCollectFields(
+  payloads: Payload[],
+  logger?: Logger
+): { validPayloads: Payload[]; allFields: Set<string> } {
   const allFields = new Set<string>()
+  const validPayloads: Payload[] = []
 
   payloads.forEach((payload, index) => {
-    // Validate that at least one identifier is present
+    // Check that at least one identifier is present
     const identifiers = payload.contact_identifiers || {}
-    if (!identifiers.email && !identifiers.phone) {
-      throw new IntegrationError(
-        `Profile at index ${index} must contain at least one identifier (email or phone)`,
-        'MISSING_IDENTIFIER',
-        400
-      )
+    const hasIdentifier = !!(identifiers.email || identifiers.phone)
+
+    // Check that at least one trait is present
+    const traits = (
+      payload.contact_traits && typeof payload.contact_traits === 'object' ? payload.contact_traits : {}
+    ) as Record<string, unknown>
+    const hasTraits = Object.keys(traits).some((key) => traits[key] !== undefined)
+
+    // Filter out profiles that don't have both identifier and trait
+    if (!hasIdentifier || !hasTraits) {
+      logger?.warn?.(`Skipping profile at index ${index}: ${!hasIdentifier ? 'missing identifier' : 'missing trait'}`)
+      return
     }
+
+    // Profile is valid, collect it and its fields
+    validPayloads.push(payload)
 
     // Collect identifier field names
     if (identifiers.email) allFields.add('email')
     if (identifiers.phone) allFields.add('phone')
 
     // Collect trait field names
-    if (payload.contact_traits && typeof payload.contact_traits === 'object') {
-      const traits = payload.contact_traits as Record<string, unknown>
-      Object.keys(traits).forEach((key) => {
-        if (traits[key] !== undefined) {
-          allFields.add(key)
-        }
-      })
-    }
+    Object.keys(traits).forEach((key) => {
+      if (traits[key] !== undefined) {
+        allFields.add(key)
+      }
+    })
   })
 
-  if (allFields.size === 0) {
-    throw new IntegrationError('No profile fields found for import', 'EMPTY_PROFILE', 400)
+  if (validPayloads.length === 0) {
+    throw new IntegrationError(
+      'No valid profiles found for import. All profiles must contain at least one identifier (email or phone) and at least one trait.',
+      'NO_VALID_PROFILES',
+      400
+    )
   }
 
-  return allFields
+  return { validPayloads, allFields }
 }
 
 // Request pre-signed upload URL from Memora API
@@ -216,11 +230,13 @@ async function upsertProfiles(
 
   const storeId = payloads[0]?.memora_store
 
-  // Validate profiles and collect all unique field names
-  const allFields = validateAndCollectFields(payloads)
+  // Filter and validate profiles, collecting all unique field names
+  const { validPayloads, allFields } = validateAndCollectFields(payloads, logger)
+
+  logger?.info?.(`Processing ${validPayloads.length} valid profiles out of ${payloads.length} total`)
 
   // Convert profiles to CSV format
-  const { csv, columnMappings } = convertToCSV(payloads, Array.from(allFields))
+  const { csv, columnMappings } = convertToCSV(validPayloads, Array.from(allFields))
   const csvBuffer = Buffer.from(csv, 'utf-8')
 
   // Request pre-signed upload URL from Memora
@@ -234,7 +250,7 @@ async function upsertProfiles(
   )
 
   // Upload CSV to pre-signed URL
-  return uploadCSVToMemora(request, uploadUrl, csvBuffer, importId, payloads.length, logger)
+  return uploadCSVToMemora(request, uploadUrl, csvBuffer, importId, validPayloads.length, logger)
 }
 
 // Convert profiles to CSV format with column mappings

@@ -97,7 +97,8 @@ describe('Memora.upsertProfile', () => {
         type: 'identify',
         userId: 'user-456',
         properties: {
-          email: 'jane@example.com'
+          email: 'jane@example.com',
+          first_name: 'Jane'
         }
       })
 
@@ -127,8 +128,10 @@ describe('Memora.upsertProfile', () => {
 
       // Validate CSV content
       const csvLines = capturedCSV.split('\n')
-      expect(csvLines[0]).toBe('email')
-      expect(csvLines[1]).toBe('jane@example.com')
+      expect(csvLines[0]).toContain('email')
+      expect(csvLines[0]).toContain('firstName')
+      expect(csvLines[1]).toContain('jane@example.com')
+      expect(csvLines[1]).toContain('Jane')
     })
 
     it('should throw error when memora_store is missing', async () => {
@@ -165,11 +168,39 @@ describe('Memora.upsertProfile', () => {
           settings: defaultSettings,
           mapping: {
             memora_store: 'test-store-id',
-            contact_identifiers: {}
+            contact_identifiers: {},
+            contact_traits: {
+              firstName: { '@path': '$.properties.first_name' }
+            }
           },
           useDefaultMappings: false
         })
-      ).rejects.toThrow('Profile at index 0 must contain at least one identifier (email or phone)')
+      ).rejects.toThrow('No valid profiles found for import')
+    })
+
+    it('should throw error when profile has no traits', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-123',
+        properties: {
+          email: 'test@example.com'
+        }
+      })
+
+      await expect(
+        testDestination.testAction('upsertProfile', {
+          event,
+          settings: defaultSettings,
+          mapping: {
+            memora_store: 'test-store-id',
+            contact_identifiers: {
+              email: { '@path': '$.properties.email' }
+            },
+            contact_traits: {}
+          },
+          useDefaultMappings: false
+        })
+      ).rejects.toThrow('No valid profiles found for import')
     })
 
     it('should succeed with only email provided', async () => {
@@ -177,7 +208,8 @@ describe('Memora.upsertProfile', () => {
         type: 'identify',
         userId: 'user-123',
         properties: {
-          email: 'test@example.com'
+          email: 'test@example.com',
+          first_name: 'Test'
         }
       })
 
@@ -195,6 +227,9 @@ describe('Memora.upsertProfile', () => {
           memora_store: 'test-store-id',
           contact_identifiers: {
             email: { '@path': '$.properties.email' }
+          },
+          contact_traits: {
+            firstName: { '@path': '$.properties.first_name' }
           }
         },
         useDefaultMappings: false
@@ -209,7 +244,8 @@ describe('Memora.upsertProfile', () => {
         type: 'identify',
         userId: 'user-123',
         properties: {
-          phone: '+1-555-0100'
+          phone: '+1-555-0100',
+          first_name: 'Test'
         }
       })
 
@@ -227,6 +263,9 @@ describe('Memora.upsertProfile', () => {
           memora_store: 'test-store-id',
           contact_identifiers: {
             phone: { '@path': '$.properties.phone' }
+          },
+          contact_traits: {
+            firstName: { '@path': '$.properties.first_name' }
           }
         },
         useDefaultMappings: false
@@ -242,7 +281,8 @@ describe('Memora.upsertProfile', () => {
         userId: 'user-123',
         properties: {
           email: 'test@example.com',
-          phone: '+1-555-0100'
+          phone: '+1-555-0100',
+          first_name: 'Test'
         }
       })
 
@@ -261,6 +301,9 @@ describe('Memora.upsertProfile', () => {
           contact_identifiers: {
             email: { '@path': '$.properties.email' },
             phone: { '@path': '$.properties.phone' }
+          },
+          contact_traits: {
+            firstName: { '@path': '$.properties.first_name' }
           }
         },
         useDefaultMappings: false
@@ -275,7 +318,9 @@ describe('Memora.upsertProfile', () => {
         type: 'identify',
         userId: 'user-123',
         properties: {
-          email: 'test@example.com'
+          email: 'test@example.com',
+          first_name: 'Test',
+          last_name: 'User'
         }
       })
 
@@ -500,7 +545,61 @@ describe('Memora.upsertProfile', () => {
       ).rejects.toThrow()
     })
 
-    it('should throw error when a profile in batch has no identifiers', async () => {
+    it('should filter out invalid profiles and process valid ones', async () => {
+      const events = [
+        createTestEvent({
+          type: 'identify',
+          userId: 'user-1',
+          properties: {}
+        }),
+        createTestEvent({
+          type: 'identify',
+          userId: 'user-2',
+          properties: {
+            email: 'user2@example.com',
+            first_name: 'User'
+          }
+        })
+      ]
+
+      let capturedCSV = ''
+
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+        importId: 'mem_import_12345',
+        url: 'https://example.com/presigned-url'
+      })
+
+      nock('https://example.com')
+        .put('/presigned-url', (body) => {
+          capturedCSV = body as string
+          return true
+        })
+        .reply(200)
+
+      const responses = await testDestination.testBatchAction('upsertProfile', {
+        events,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          contact_identifiers: {
+            email: { '@path': '$.properties.email' }
+          },
+          contact_traits: {
+            firstName: { '@path': '$.properties.first_name' }
+          }
+        },
+        useDefaultMappings: false
+      })
+
+      expect(responses[0].status).toBe(201)
+
+      // CSV should only have 1 valid profile
+      const csvLines = capturedCSV.split('\n')
+      expect(csvLines).toHaveLength(2) // header + 1 row (invalid profile filtered out)
+      expect(csvLines[1]).toContain('user2@example.com')
+    })
+
+    it('should throw error when all profiles in batch are invalid', async () => {
       const events = [
         createTestEvent({
           type: 'identify',
@@ -524,11 +623,14 @@ describe('Memora.upsertProfile', () => {
             memora_store: 'test-store-id',
             contact_identifiers: {
               email: { '@path': '$.properties.email' }
+            },
+            contact_traits: {
+              firstName: { '@path': '$.properties.first_name' }
             }
           },
           useDefaultMappings: false
         })
-      ).rejects.toThrow('Profile at index 0 must contain at least one identifier (email or phone)')
+      ).rejects.toThrow('No valid profiles found for import')
     })
 
     it('should handle batch with sparse data correctly', async () => {
@@ -537,14 +639,16 @@ describe('Memora.upsertProfile', () => {
           type: 'identify',
           userId: 'user-1',
           properties: {
-            email: 'user1@example.com'
+            email: 'user1@example.com',
+            first_name: 'User1'
           }
         }),
         createTestEvent({
           type: 'identify',
           userId: 'user-2',
           properties: {
-            phone: '+1-555-0200'
+            phone: '+1-555-0200',
+            first_name: 'User2'
           }
         }),
         createTestEvent({
