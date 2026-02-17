@@ -1,6 +1,6 @@
 import type { Payload } from './generated-types'
 import type { Settings } from '../generated-types'
-
+import { RequestClient } from '@segment/actions-core'
 const prepareJSON = (payload: Payload) => ({
   type: 'group' as const,
   messageId: payload.messageId,
