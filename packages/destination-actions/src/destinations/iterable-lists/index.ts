@@ -1,15 +1,14 @@
-import { IntegrationError, AudienceDestinationDefinition, RequestClient, defaultValues } from '@segment/actions-core'
+import { IntegrationError, AudienceDestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
-
 import syncAudience from './syncAudience'
-import { GetAudienceResp } from './types'
+import { getAudienceByName, getAudienceByID, createAudience } from './functions'
+import { CONSTANTS } from './constants'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Iterable Lists',
   slug: 'actions-iterable-lists',
   mode: 'cloud',
-  description: 'Sync users to Iterable Lists',
-
+  description: 'Sync Segment Engage audiences to Iterable Lists',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -19,17 +18,28 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         description:
           "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
         required: true
+      },
+      iterableProjectType: {
+        type: 'string',
+        label: 'Iterable Project Type',
+        description:
+          'Select the type of your Iterable project. Hybrid projects support both email and user ID based identification, while User ID-Based projects only support user ID based identification.',
+        choices: [
+          { label: 'Hybrid Project', value: CONSTANTS.HYBRID_PROJECT_TYPE },
+          { label: 'User ID-Based Project', value: CONSTANTS.USER_ID_PROJECT_TYPE }
+        ],
+        default: CONSTANTS.HYBRID_PROJECT_TYPE
       }
     },
     testAuthentication: (request, { settings }) => {
+      const { apiKey } = settings
       return request('https://api.iterable.com/api/lists', {
         method: 'GET',
         skipResponseCloning: true,
-        headers: { 'Api-Key': settings.apiKey }
+        headers: { 'Api-Key': apiKey }
       })
     }
   },
-
   audienceFields: {
     updateExistingUsersOnly: {
       label: 'Update existing users only',
@@ -40,24 +50,25 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       required: false
     },
     globalUnsubscribe: {
-      label: 'Global Unsubscribe',
+      label: 'Channel Unsubscribe',
       description:
-        "Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid for unsubscribe action.",
+        "Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid when unsubscribing a user from a List.",
       type: 'boolean',
       default: false,
       required: false
     },
     campaignId: {
       label: 'Campaign ID',
-      description: 'The numeric Campaign ID to associate with the unsubscribe. Only valid for unsubscribe action.',
+      description:
+        'The numeric Campaign ID to associate with the unsubscribe. Only valid when unsubscribing a user from a List.',
       type: 'number',
       required: false
     }
   },
   audienceConfig: {
     mode: {
-      type: 'synced', // Indicates that the audience is synced on some schedule
-      full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
+      type: 'synced',
+      full_audience_sync: false
     },
     async createAudience(request, { settings, personas }) {
       if (!personas) {
@@ -67,21 +78,25 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing computation parameters: Key', 'MISSING_REQUIRED_FIELD', 422)
       }
       const audienceKey = personas.computation_key
-      let externalId = await getAudience(request, settings, audienceKey)
+      let externalId = await getAudienceByName(request, settings, audienceKey)
       if (externalId) {
         return { externalId }
       }
       externalId = await createAudience(request, settings, audienceKey)
       return { externalId }
     },
-    async getAudience(_, getAudienceInput) {
-      return { externalId: getAudienceInput.externalId }
+    async getAudience(request, { settings, externalId }) {
+      const id = await getAudienceByID(request, settings, externalId)
+      if (!id) {
+        throw new IntegrationError(`Audience with ID ${externalId} not found in Iterable`, 'AUDIENCE_NOT_FOUND', 404)
+      }
+      return { externalId: id }
     }
   },
-
   extendRequest({ settings }) {
+    const { apiKey } = settings
     return {
-      headers: { 'Api-Key': settings.apiKey }
+      headers: { 'Api-Key': apiKey }
     }
   },
 
@@ -119,33 +134,4 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   ]
 }
-
-async function getAudience(
-  request: RequestClient,
-  settings: Settings,
-  audienceKey: string
-): Promise<string | undefined> {
-  const response = await request('https://api.iterable.com/api/lists', {
-    method: 'GET',
-    skipResponseCloning: true,
-    headers: { 'Api-Key': settings.apiKey }
-  })
-
-  const json: GetAudienceResp = (await response.data) as GetAudienceResp
-  const audience = json.lists.find((list: { id: number; name: string }) => list.name === audienceKey)
-  return audience?.id.toString() ?? undefined
-}
-
-async function createAudience(request: RequestClient, settings: Settings, audienceKey: string): Promise<string> {
-  const response = await request('https://api.iterable.com/api/lists', {
-    method: 'POST',
-    headers: { 'Api-Key': settings.apiKey },
-    json: {
-      name: audienceKey
-    }
-  })
-  const audience = await response.json()
-  return audience.listId
-}
-
 export default destination
