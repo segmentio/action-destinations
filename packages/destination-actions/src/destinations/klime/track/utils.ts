@@ -12,7 +12,7 @@ const prepareJSON = (payload: Payload) => ({
   context: payload.context
 })
 
-export const sendRequest = async (request: Function, settings: Settings, payload: Payload[]) => {
+export const sendRequest = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   return request(`${settings.apiEndpoint}/v1/batch`, {
     method: 'post',
     json: { batch: payload.map(prepareJSON) }
