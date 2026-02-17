@@ -131,7 +131,7 @@ function validateAndCollectFields(
 
   if (validPayloads.length === 0) {
     throw new IntegrationError(
-      'No valid profiles found for import. All profiles must contain at least one identifier (email or phone) and at least one trait.',
+      'No valid profiles found for import. All profiles must contain at least one identifier (email/phone) and at least one trait.',
       'NO_VALID_PROFILES',
       400
     )
