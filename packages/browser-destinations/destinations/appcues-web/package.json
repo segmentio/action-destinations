@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-appcues-web-actions",
-  "version": "1.2.0",
+  "version": "1.2.1-staging-a56ed4161.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
