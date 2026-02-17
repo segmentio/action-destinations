@@ -6,6 +6,14 @@ export interface Settings {
    */
   apiKey: string
   /**
+   * Your Appcues API secret.
+   */
+  apiSecret: string
+  /**
+   * Your Appcues account ID.
+   */
+  accountId: number
+  /**
    * Select the region for your Appcues account.
    */
   region: string
