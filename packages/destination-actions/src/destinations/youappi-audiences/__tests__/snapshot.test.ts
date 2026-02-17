@@ -4,7 +4,7 @@ import destination from '../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const destinationSlug = 'actions-vibe-audience'
+const destinationSlug = 'actions-youappi-audience'
 
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
