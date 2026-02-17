@@ -83,7 +83,8 @@
     "ansi-regex": "5.0.1",
     "@babel/core/semver": "6.3.1",
     "@babel/helper-compilation-targets/semver": "6.3.1",
-    "istanbul-lib-instrument/semver": "6.3.1"
+    "istanbul-lib-instrument/semver": "6.3.1",
+    "ts-jest": "^29.0.0"
   },
   "husky": {
     "hooks": {
