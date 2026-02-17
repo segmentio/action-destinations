@@ -32,8 +32,13 @@ Object {
       "traitGroup": "Contact",
       "traitName": "email",
     },
+    Object {
+      "columnName": "firstName",
+      "traitGroup": "Contact",
+      "traitName": "firstName",
+    },
   ],
-  "fileSize": 22,
+  "fileSize": 37,
   "filename": "memora-segment-import-test-store-id-1700000000000.csv",
 }
 `;
