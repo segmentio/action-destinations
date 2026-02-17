@@ -1,8 +1,7 @@
 import { RequestClient } from '@segment/actions-core'
 import type { AttributionEvent, BaseEvent, Page, Screen, Track, Group, Alias, Identify } from './types'
 import { Payload } from './generated-types'
-
-export const ATTRIBUTION_ENDPOINT = 'https://track.attributionapp.com'
+import { ATTRIBUTION_ENDPOINT } from '../constants'
 
 export function send(request: RequestClient, payload: Payload) {
   const {

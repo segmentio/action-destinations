@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
-import { ATTRIBUTION_ENDPOINT } from '../send/functions'
+import { ATTRIBUTION_ENDPOINT } from '../constants'
 
 const testDestination = createTestIntegration(Definition)
 const authData = {

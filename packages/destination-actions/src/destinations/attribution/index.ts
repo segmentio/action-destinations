@@ -1,9 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { defaultValues } from '@segment/actions-core'
-
+import { ATTRIBUTION_ENDPOINT } from './constants'
 import send from './send'
-import { ATTRIBUTION_ENDPOINT } from './send/functions'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Attribution',
@@ -20,8 +19,7 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: async (request, { settings }) => {
-      const { projectID } = settings
+    testAuthentication: async (request) => {
       return request(`${ATTRIBUTION_ENDPOINT}/check_auth`, {
         method: 'POST'
       })

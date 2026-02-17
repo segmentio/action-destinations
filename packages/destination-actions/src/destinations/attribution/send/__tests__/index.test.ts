@@ -1,9 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-
 const testDestination = createTestIntegration(Destination)
-const ATTRIBUTION_ENDPOINT = 'https://track.attributionapp.com'
+import {ATTRIBUTION_ENDPOINT } from '../../constants'
 
 describe('Attribution.send', () => {
   beforeEach(() => {
