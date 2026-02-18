@@ -2,15 +2,15 @@
 
 export interface Settings {
   /**
-   * Your Twilio API Key. You can find this in your [Twilio Console](https://console.twilio.com/) under Account > API Keys & Tokens.
+   * API Key for Basic Authentication
    */
   username: string
   /**
-   * Your Twilio API Secret. This is provided when you create an API Key in your [Twilio Console](https://console.twilio.com/) under Account > API Keys & Tokens.
+   * API Secret for Basic Authentication
    */
   password: string
   /**
-   * Your Twilio Account ID. This can be found at the top of your [Twilio Console Dashboard](https://console.twilio.com/).
+   * Twilio Account ID for X-Pre-Auth-Context header (optional)
    */
   twilioAccount?: string
 }

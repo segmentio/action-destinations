@@ -1,9 +1,15 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, createRequestClient } from '@segment/actions-core'
 import type { Logger } from '@segment/actions-core/destination-kit'
-import { API_VERSION, BASE_URL } from '../versioning-info'
+import { API_VERSION } from '../versioning-info'
+import { BASE_URL_PRODUCTION, BASE_URL_STAGING } from '../constants'
+
+// Helper function to determine base URL based on environment variable
+function getBaseUrl(): string {
+  return process.env.ACTIONS_MEMORA_USE_PRODUCTION_URL ? BASE_URL_PRODUCTION : BASE_URL_STAGING
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -58,11 +64,11 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     contact_traits: {
-      label: 'Contact Traits',
+      label: 'Other Contact Traits',
       description:
-        'Contact traits for the profile. At least one trait is required. These fields are dynamically loaded from the selected Memora Store.',
+        'Additional contact traits for the profile. These fields are dynamically loaded from the selected Memora Store.',
       type: 'object',
-      required: true,
+      required: false,
       additionalProperties: true,
       dynamic: true
     }
@@ -89,55 +95,41 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-// Filter and validate profiles, collecting all unique field names from valid payloads
-function validateAndCollectFields(
-  payloads: Payload[],
-  logger?: Logger
-): { validPayloads: Payload[]; allFields: Set<string> } {
+// Validate profiles and collect all unique field names from payloads
+function validateAndCollectFields(payloads: Payload[]): Set<string> {
   const allFields = new Set<string>()
-  const validPayloads: Payload[] = []
 
   payloads.forEach((payload, index) => {
-    // Check that at least one identifier is present
+    // Validate that at least one identifier is present
     const identifiers = payload.contact_identifiers || {}
-    const hasIdentifier = !!(identifiers.email || identifiers.phone)
-
-    // Check that at least one trait is present
-    const traits = (
-      payload.contact_traits && typeof payload.contact_traits === 'object' ? payload.contact_traits : {}
-    ) as Record<string, unknown>
-    const hasTraits = Object.keys(traits).some((key) => traits[key] !== undefined)
-
-    // Filter out profiles that don't have both identifier and trait
-    if (!hasIdentifier || !hasTraits) {
-      logger?.warn?.(`Skipping profile at index ${index}: ${!hasIdentifier ? 'missing identifier' : 'missing trait'}`)
-      return
+    if (!identifiers.email && !identifiers.phone) {
+      throw new IntegrationError(
+        `Profile at index ${index} must contain at least one identifier (email or phone)`,
+        'MISSING_IDENTIFIER',
+        400
+      )
     }
-
-    // Profile is valid, collect it and its fields
-    validPayloads.push(payload)
 
     // Collect identifier field names
     if (identifiers.email) allFields.add('email')
     if (identifiers.phone) allFields.add('phone')
 
     // Collect trait field names
-    Object.keys(traits).forEach((key) => {
-      if (traits[key] !== undefined) {
-        allFields.add(key)
-      }
-    })
+    if (payload.contact_traits && typeof payload.contact_traits === 'object') {
+      const traits = payload.contact_traits as Record<string, unknown>
+      Object.keys(traits).forEach((key) => {
+        if (traits[key] !== undefined) {
+          allFields.add(key)
+        }
+      })
+    }
   })
 
-  if (validPayloads.length === 0) {
-    throw new IntegrationError(
-      'No valid profiles found for import. All profiles must contain at least one identifier (email/phone) and at least one trait.',
-      'NO_VALID_PROFILES',
-      400
-    )
+  if (allFields.size === 0) {
+    throw new IntegrationError('No profile fields found for import', 'EMPTY_PROFILE', 400)
   }
 
-  return { validPayloads, allFields }
+  return allFields
 }
 
 // Request pre-signed upload URL from Memora API
@@ -151,10 +143,11 @@ async function requestImportUrl(
 ): Promise<{ importId: string; uploadUrl: string }> {
   const timestamp = Date.now()
   const filename = `memora-segment-import-${storeId}-${timestamp}.csv`
+  const baseUrl = getBaseUrl()
 
   try {
     const importResponse = await request<{ importId: string; url: string }>(
-      `${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Imports`,
+      `${baseUrl}/${API_VERSION}/Stores/${storeId}/Profiles/Imports`,
       {
         method: 'POST',
         headers: {
@@ -230,13 +223,11 @@ async function upsertProfiles(
 
   const storeId = payloads[0]?.memora_store
 
-  // Filter and validate profiles, collecting all unique field names
-  const { validPayloads, allFields } = validateAndCollectFields(payloads, logger)
-
-  logger?.info?.(`Processing ${validPayloads.length} valid profiles out of ${payloads.length} total`)
+  // Validate profiles and collect all unique field names
+  const allFields = validateAndCollectFields(payloads)
 
   // Convert profiles to CSV format
-  const { csv, columnMappings } = convertToCSV(validPayloads, Array.from(allFields))
+  const { csv, columnMappings } = convertToCSV(payloads, Array.from(allFields))
   const csvBuffer = Buffer.from(csv, 'utf-8')
 
   // Request pre-signed upload URL from Memora
@@ -250,7 +241,7 @@ async function upsertProfiles(
   )
 
   // Upload CSV to pre-signed URL
-  return uploadCSVToMemora(request, uploadUrl, csvBuffer, importId, validPayloads.length, logger)
+  return uploadCSVToMemora(request, uploadUrl, csvBuffer, importId, payloads.length, logger)
 }
 
 // Convert profiles to CSV format with column mappings
@@ -321,11 +312,6 @@ interface MemoraStoresResponse {
   }
 }
 
-interface MemoraStoreDetails {
-  displayName: string
-  id: string
-}
-
 interface TraitDefinition {
   dataType: string
   description?: string
@@ -340,10 +326,16 @@ interface TraitGroupResponse {
 }
 
 // Fetch contact trait definitions for dynamic fields
-async function fetchContactTraits(request: RequestClient, settings: Settings, storeId: string) {
+async function fetchContactTraits(
+  request: ReturnType<typeof createRequestClient>,
+  settings: Settings,
+  storeId: string
+) {
+  const baseUrl = getBaseUrl()
+
   try {
     const response = await request<TraitGroupResponse>(
-      `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/Contact?includeTraits=true&pageSize=100`,
+      `${baseUrl}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/Contact?includeTraits=true&pageSize=100`,
       {
         method: 'GET',
         headers: {
@@ -381,11 +373,13 @@ async function fetchContactTraits(request: RequestClient, settings: Settings, st
 }
 
 // Fetch available memora stores from Control Plane
-async function fetchMemoraStores(request: RequestClient, settings: Settings) {
+async function fetchMemoraStores(request: ReturnType<typeof createRequestClient>, settings: Settings) {
+  const baseUrl = getBaseUrl()
+
   try {
     // Call the Control Plane API to list memora stores
     const response = await request<MemoraStoresResponse>(
-      `${BASE_URL}/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`,
+      `${baseUrl}/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`,
       {
         method: 'GET',
         headers: {
@@ -396,29 +390,10 @@ async function fetchMemoraStores(request: RequestClient, settings: Settings) {
         skipResponseCloning: true
       }
     )
-
     const stores = response?.data?.stores || []
-
-    // This is not the most efficient way to get store details, but the Control Plane API does not currently provide an endpoint to list stores with their details in a single call.
-    // We need to make individual calls to get store details in order to display more information in the dropdown (e.g. store name).
-    // Fortunately, most accounts will have a small number of stores (max 5), so this should not be a major performance issue. If we find that this is causing performance problems, we can consider caching store details or adding an endpoint to the Control Plane API to list stores with their details.
-    const memoraStores = await Promise.all(
-      stores.map((storeId: string) => {
-        return request<MemoraStoreDetails>(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}`, {
-          method: 'GET',
-          headers: {
-            ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
-          },
-          username: settings.username,
-          password: settings.password,
-          skipResponseCloning: true
-        })
-      })
-    )
-
-    const choices = memoraStores.map((store) => ({
-      label: store.data?.displayName || store.data?.id,
-      value: store.data?.id
+    const choices = stores.map((storeId: string) => ({
+      label: storeId,
+      value: storeId
     }))
 
     return {
@@ -429,7 +404,7 @@ async function fetchMemoraStores(request: RequestClient, settings: Settings) {
     return {
       choices: [],
       error: {
-        message: 'Unable to fetch memora stores. Enter the memora store ID manually.',
+        message: 'Unable to fetch memora stores. You can still manually enter a memora store ID.',
         code: 'FETCH_ERROR'
       }
     }
