@@ -10,7 +10,7 @@ export function extractSchema(
     return []
   }
 
-  const hasEncryptionKey = publicEncryptionKey != null && publicEncryptionKey !== ''
+  const hasEncryptionKey = typeof publicEncryptionKey === 'string' && publicEncryptionKey.length > 0
   const isDevOrStaging = env === 'dev' || env === 'staging'
   const canSendEncryptedValues = hasEncryptionKey && isDevOrStaging
 
