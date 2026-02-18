@@ -2,7 +2,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import upsertProfile from './upsertProfile'
-import { API_VERSION, BASE_URL } from './versioning-info'
+import { API_VERSION } from './versioning-info'
+import { BASE_URL_PRODUCTION, BASE_URL_STAGING } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Memora',
@@ -35,7 +36,8 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores?pageSize=1`, {
+      const baseUrl = process.env.ACTIONS_MEMORA_USE_PRODUCTION_URL ? BASE_URL_PRODUCTION : BASE_URL_STAGING
+      return request(`${baseUrl}/${API_VERSION}/ControlPlane/Stores?pageSize=1`, {
         method: 'GET',
         username: settings.username,
         password: settings.password,
