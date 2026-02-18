@@ -173,7 +173,8 @@ export const commonFields: Record<string, InputField> = {
   },
   list_details: {
     label: 'List Details (BETA)',
-    description: 'Details of the list to add or remove the record from. This feature is currently in Beta and should not be used with production data.',
+    description:
+      'Details of the list to add or remove the record from. This feature is currently in Beta and should not be used with production data.',
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue:only',
@@ -220,8 +221,7 @@ export const commonFields: Record<string, InputField> = {
     type: 'boolean',
     label: 'Batch Data to Hubspot by default',
     description: 'By default Segment batches events to Hubspot.',
-    default: true,
-    unsafe_hidden: true
+    default: true
   },
   batch_size: {
     label: 'Batch Size',
