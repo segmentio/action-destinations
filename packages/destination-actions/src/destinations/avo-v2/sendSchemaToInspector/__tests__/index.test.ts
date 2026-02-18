@@ -8,7 +8,12 @@ describe('Avo.sendSchemaToInspector', () => {
   it('should validate action fields', async () => {
     const event = createTestEvent({ previousId: 'test-prev-id' })
 
-    nock('https://api.avo.app').post('/inspector/segment/v1/track').reply(200, {})
+    nock('https://api.avo.app')
+      .post('/inspector/segment/v1/track', (body) => {
+        const events = Array.isArray(body) ? body : typeof body === 'string' ? JSON.parse(body) : body
+        return Array.isArray(events) && events.length === 1 && typeof events[0].streamId === 'string'
+      })
+      .reply(200, {})
 
     const responses = await testDestination.testAction('sendSchemaToInspector', {
       event,

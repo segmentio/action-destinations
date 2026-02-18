@@ -270,4 +270,94 @@ describe('send', () => {
     expect(amountProp).toBeDefined()
     expect(amountProp?.propertyType).toBe('int')
   })
+
+  it('should validate regex constraints from object-map rx format', async () => {
+    const eventWithRegexProperty: Payload = {
+      ...mockEvent,
+      properties: {
+        'Shutterfly Id': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+      }
+    }
+
+    const eventSpecResponseWithRegexObject: EventSpecResponseWire = {
+      events: [
+        {
+          b: 'main',
+          id: 'test-event-id',
+          vids: [],
+          p: {
+            'Shutterfly Id': {
+              t: 'string',
+              r: true,
+              rx: {
+                '^(a+)+$': ['test-event-id']
+              }
+            }
+          }
+        }
+      ],
+      metadata: {
+        schemaId: 'test-schema-id',
+        branchId: 'main',
+        latestActionId: 'test-action-id',
+        sourceId: 'test-source-id'
+      }
+    }
+
+    const { request, getPostedEvent } = createRequestMock(eventSpecResponseWithRegexObject)
+    await send(request, { ...baseSettings, env: 'dev' }, [eventWithRegexProperty])
+
+    const result = getPostedEvent()
+    if (!result) {
+      throw new Error('No event was posted')
+    }
+
+    const regexProp = result.eventProperties.find((p) => p.propertyName === 'Shutterfly Id')
+    expect(regexProp).toBeDefined()
+    expect(regexProp?.failedEventIds).toBeUndefined()
+  })
+
+  it('should validate regex constraints from legacy string rx format', async () => {
+    const eventWithRegexProperty: Payload = {
+      ...mockEvent,
+      properties: {
+        'Shutterfly Id': 'aaaa'
+      }
+    }
+
+    const eventSpecResponseWithRegexString: EventSpecResponseWire = {
+      events: [
+        {
+          b: 'main',
+          id: 'test-event-id',
+          vids: [],
+          p: {
+            'Shutterfly Id': {
+              t: 'string',
+              r: true,
+              rx: '^a+$'
+            }
+          }
+        }
+      ],
+      metadata: {
+        schemaId: 'test-schema-id',
+        branchId: 'main',
+        latestActionId: 'test-action-id',
+        sourceId: 'test-source-id'
+      }
+    }
+
+    const { request, getPostedEvent } = createRequestMock(eventSpecResponseWithRegexString)
+    await send(request, { ...baseSettings, env: 'dev' }, [eventWithRegexProperty])
+
+    const result = getPostedEvent()
+    if (!result) {
+      throw new Error('No event was posted')
+    }
+
+    const regexProp = result.eventProperties.find((p) => p.propertyName === 'Shutterfly Id')
+    expect(regexProp).toBeDefined()
+    expect(regexProp?.failedEventIds).toBeUndefined()
+  })
 })

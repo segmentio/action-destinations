@@ -53,6 +53,7 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
       sessionId: '',
       ...(publicEncryptionKey ? { publicEncryptionKey } : {}),
       type: 'event',
+      streamId,
       eventName: event,
       eventProperties,
       eventId: null,
@@ -184,7 +185,16 @@ function convertWirePropToConstraints(wire: PropertyConstraintWire, eventIds: st
 
   // Regex patterns
   if (wire.rx) {
-    result.regexPatterns = { [wire.rx]: [...eventIds] }
+    if (typeof wire.rx === 'string') {
+      // Legacy format: rx is a single regex pattern string
+      result.regexPatterns = { [wire.rx]: [...eventIds] }
+    } else if (typeof wire.rx === 'object') {
+      // New format: rx is an object mapping regex patterns to event IDs
+      result.regexPatterns = {}
+      for (const [pattern, rxEventIds] of Object.entries(wire.rx)) {
+        result.regexPatterns[pattern] = [...rxEventIds]
+      }
+    }
   }
 
   // Handle nested properties

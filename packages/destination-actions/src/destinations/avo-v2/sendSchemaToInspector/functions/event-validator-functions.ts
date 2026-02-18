@@ -20,6 +20,7 @@ import type {
   RuntimePropertyValue,
   RuntimeProperties
 } from '../types'
+import { RE2 } from 're2-wasm'
 
 // =============================================================================
 // HELPER FUNCTIONS FOR NESTED PROPERTIES
@@ -179,29 +180,31 @@ function mergeConstraintMappings(target: PropertyConstraint, source: PropertyCon
 // =============================================================================
 
 /**
- * Cache for compiled regex objects to avoid recompilation on every event.
- * Patterns are expected to be stable per session.
+ * Per-invocation cache for compiled RE2 patterns.
  */
-const regexCache = new Map<string, RegExp>()
+type RegexCache = Map<string, RE2>
 
 /**
- * Cache for parsed allowed values to avoid JSON.parse on every event.
- * Maps stringified JSON -> Set of allowed strings.
+ * Per-invocation cache for parsed allowed values.
+ * Maps stringified JSON -> set of allowed strings.
  */
-const allowedValuesCache = new Map<string, Set<string>>()
+type AllowedValuesCache = Map<string, Set<string>>
+
+interface ValidationCaches {
+  regexCache: RegexCache
+  allowedValuesCache: AllowedValuesCache
+}
 
 /**
  * Gets a compiled regex from cache or compiles and caches it.
  * @throws Error if pattern is invalid
  */
-function getOrCompileRegex(pattern: string): RegExp {
+function getOrCompileRegex(pattern: string, regexCache: RegexCache): RE2 {
   let regex = regexCache.get(pattern)
   if (!regex) {
-    // SECURITY: We trust regex patterns from the Avo backend (EventSpecResponse).
-    // While a malicious pattern could cause ReDoS, we assume the backend is secure
-    // and only delivers valid, non-malicious regexes derived from the Tracking Plan.
-    // A complete fix would require a safe-regex validator or timeout-based execution.
-    regex = new RegExp(pattern)
+    // Use RE2 to avoid catastrophic backtracking in regex evaluation.
+    // RE2 always requires unicode mode.
+    regex = new RE2(pattern, 'u')
     regexCache.set(pattern, regex)
   }
   return regex
@@ -224,6 +227,12 @@ function getOrCompileRegex(pattern: string): RegExp {
  * @returns ValidationResult with baseEventId, metadata, and per-property results
  */
 export function validateEvent(properties: RuntimeProperties, specResponse: EventSpec): ValidationResult {
+  // Keep caches local to a single invocation to avoid cross-request state sharing.
+  const caches: ValidationCaches = {
+    regexCache: new Map(),
+    allowedValuesCache: new Map()
+  }
+
   // Collect all eventIds from all events
   const allEventIds = collectAllEventIds(specResponse.events)
 
@@ -241,7 +250,7 @@ export function validateEvent(properties: RuntimeProperties, specResponse: Event
       // Property not in spec - no constraints to fail
       propertyResults[propName] = {}
     } else {
-      const result = validatePropertyConstraints(value, constraints, allEventIds)
+      const result = validatePropertyConstraints(value, constraints, allEventIds, caches)
       propertyResults[propName] = result
     }
   }
@@ -348,6 +357,7 @@ function validatePropertyConstraints(
   value: RuntimePropertyValue,
   constraints: PropertyConstraint,
   allEventIds: string[],
+  caches: ValidationCaches,
   depth = 0
 ): PropertyValidationResult {
   const result: PropertyValidationResult = {}
@@ -362,20 +372,21 @@ function validatePropertyConstraints(
   }
 
   if (constraints.isList) {
-    return validateListProperty(value, constraints, allEventIds, depth)
+    return validateListProperty(value, constraints, allEventIds, caches, depth)
   }
 
   if (constraints.children) {
-    return validateObjectProperty(value, constraints, allEventIds, depth)
+    return validateObjectProperty(value, constraints, allEventIds, caches, depth)
   }
 
-  return validatePrimitiveProperty(value, constraints, allEventIds)
+  return validatePrimitiveProperty(value, constraints, allEventIds, caches)
 }
 
 function validateListProperty(
   value: RuntimePropertyValue,
   constraints: PropertyConstraint,
   allEventIds: string[],
+  caches: ValidationCaches,
   depth: number
 ): PropertyValidationResult {
   if (!Array.isArray(value)) {
@@ -391,7 +402,7 @@ function validateListProperty(
 
     for (const item of listValue) {
       // Validate each item as an object
-      const itemResult = validateObjectProperty(item as RuntimePropertyValue, constraints, allEventIds, depth) // depth is same because list is property itself?
+      const itemResult = validateObjectProperty(item as RuntimePropertyValue, constraints, allEventIds, caches, depth) // depth is same because list is property itself?
       // Actually, if we treat list items as "children" of list, maybe depth should increase?
       // But typically list wrapper doesn't count as schema depth in Avo?
       // Let's assume depth doesn't increase for list items wrapper, but does for object structure.
@@ -439,10 +450,15 @@ function validateListProperty(
       checkPinnedValues(item as RuntimePropertyValue, constraints.pinnedValues, itemFailedIds)
     }
     if (constraints.allowedValues) {
-      checkAllowedValues(item as RuntimePropertyValue, constraints.allowedValues, itemFailedIds)
+      checkAllowedValues(
+        item as RuntimePropertyValue,
+        constraints.allowedValues,
+        itemFailedIds,
+        caches.allowedValuesCache
+      )
     }
     if (constraints.regexPatterns) {
-      checkRegexPatterns(item as RuntimePropertyValue, constraints.regexPatterns, itemFailedIds)
+      checkRegexPatterns(item as RuntimePropertyValue, constraints.regexPatterns, itemFailedIds, caches.regexCache)
     }
     if (constraints.minMaxRanges) {
       checkMinMaxRanges(item as RuntimePropertyValue, constraints.minMaxRanges, itemFailedIds)
@@ -458,6 +474,7 @@ function validateObjectProperty(
   value: RuntimePropertyValue,
   constraints: PropertyConstraint,
   allEventIds: string[],
+  caches: ValidationCaches,
   depth: number
 ): PropertyValidationResult {
   const result: PropertyValidationResult = {}
@@ -476,7 +493,7 @@ function validateObjectProperty(
         continue
       }
       const childValue = valueObj[childName]
-      const childResult = validatePropertyConstraints(childValue, childConstraints, allEventIds, depth + 1)
+      const childResult = validatePropertyConstraints(childValue, childConstraints, allEventIds, caches, depth + 1)
       // Only include non-empty results
       if (childResult.failedEventIds || childResult.passedEventIds || childResult.children) {
         childrenResults[childName] = childResult
@@ -494,7 +511,8 @@ function validateObjectProperty(
 function validatePrimitiveProperty(
   value: RuntimePropertyValue,
   constraints: PropertyConstraint,
-  allEventIds: string[]
+  allEventIds: string[],
+  caches: ValidationCaches
 ): PropertyValidationResult {
   const failedIds = new Set<string>()
 
@@ -505,12 +523,12 @@ function validatePrimitiveProperty(
 
   // Check allowed values
   if (constraints.allowedValues) {
-    checkAllowedValues(value, constraints.allowedValues, failedIds)
+    checkAllowedValues(value, constraints.allowedValues, failedIds, caches.allowedValuesCache)
   }
 
   // Check regex patterns
   if (constraints.regexPatterns) {
-    checkRegexPatterns(value, constraints.regexPatterns, failedIds)
+    checkRegexPatterns(value, constraints.regexPatterns, failedIds, caches.regexCache)
   }
 
   // Check min/max ranges
@@ -605,7 +623,8 @@ function checkPinnedValues(
 function checkAllowedValues(
   value: RuntimePropertyValue,
   allowedValues: Record<string, string[]>,
-  failedIds: Set<string>
+  failedIds: Set<string>,
+  allowedValuesCache: AllowedValuesCache
 ): void {
   const stringValue = convertValueToString(value)
 
@@ -636,7 +655,8 @@ function checkAllowedValues(
 function checkRegexPatterns(
   value: RuntimePropertyValue,
   regexPatterns: Record<string, string[]>,
-  failedIds: Set<string>
+  failedIds: Set<string>,
+  regexCache: RegexCache
 ): void {
   // Only check regex for string values
   if (typeof value !== 'string') {
@@ -649,7 +669,7 @@ function checkRegexPatterns(
 
   for (const [pattern, eventIds] of Object.entries(regexPatterns)) {
     try {
-      const regex = getOrCompileRegex(pattern)
+      const regex = getOrCompileRegex(pattern, regexCache)
       if (!regex.test(value)) {
         // Value doesn't match pattern, so these eventIds fail
         addIdsToSet(eventIds, failedIds)

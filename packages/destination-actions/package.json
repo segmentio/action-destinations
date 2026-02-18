@@ -60,6 +60,7 @@
     "liquidjs": "^10.8.4",
     "lodash": "^4.17.21",
     "lru-cache": "10.4.3",
+    "re2-wasm": "^1.0.2",
     "ssh2-sftp-client": "^12.0.1"
   },
   "jest": {
