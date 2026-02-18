@@ -34,6 +34,14 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.timestamp'
       },
       required: false
+    },
+    ip_address: {
+      label: 'IP Address',
+      description: 'The IP address of the user',
+      type: 'string',
+      format: 'ipv4',
+      default: { '@path': '$.context.ip' },
+      allowNull: true
     }
   },
   perform: (request, { payload, settings }) => {
@@ -47,7 +55,8 @@ const action: ActionDefinition<Settings, Payload> = {
       distinct_id: payload.distinct_id,
       properties: {
         $set: payload.properties,
-        $geoip_disable: settings.geoip_disable || undefined
+        $geoip_disable: settings.geoip_disable || undefined,
+        $ip: payload.ip_address || undefined
       },
       timestamp: payload.timestamp
     }
