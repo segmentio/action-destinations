@@ -1,7 +1,22 @@
 import { FACEBOOK_CONVERSIONS_API_VERSION, FACEBOOK_CONVERSIONS_CANARY_API_VERSION } from './versioning-info'
 
+export const FLAGON_NAME = 'facebook-capi-actions-canary-version'
+
 export const API_VERSION = FACEBOOK_CONVERSIONS_API_VERSION
+
 export const CANARY_API_VERSION = FACEBOOK_CONVERSIONS_CANARY_API_VERSION
+
+export const EventType = {
+  AddToCart: 'AddToCart',
+  Custom: 'Custom',
+  InitiateCheckout: 'InitiateCheckout',
+  PageView: 'PageView',
+  Purchase: 'Purchase',
+  AppendValue: 'AppendValue',
+  Search: 'Search',
+  ViewContent: 'ViewContent'
+} as const
+
 export const CURRENCY_ISO_CODES = new Set([
   'AED',
   'AFN',

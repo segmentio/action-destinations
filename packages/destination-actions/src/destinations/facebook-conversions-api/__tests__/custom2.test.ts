@@ -325,55 +325,55 @@ describe('FacebookConversionsApi', () => {
         `"{\\"data\\":[{\\"event_name\\":\\"identify\\",\\"event_time\\":\\"2015-02-23T22:28:55.111Z\\",\\"action_source\\":\\"website\\",\\"event_id\\":\\"022bb90c-bbac-11e4-8dfc-aa07a5b093db\\",\\"user_data\\":{\\"external_id\\":[\\"df73b86ff613b9d7008c175ae3c3aa3f2c1ea1674a80cac85274d58048e44127\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36\\"},\\"custom_data\\":{\\"action_source\\":\\"website\\",\\"timestamp\\":\\"1633473963\\",\\"test_event_code\\":\\"2345678901\\"}}],\\"test_event_code\\":\\"2345678901\\"}"`
       )
     })
+  })
 
-    it('should include ctwa_clid in user_data', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+  it('should include ctwa_clid in user_data', async () => {
+    nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
-      const event = createTestEvent({
-        event: 'custom_event',
-        userId: 'abc123',
-        timestamp: '1631210000',
-        properties: {
-          action_source: 'email',
-          ctwa_clid: 'test_ctwa_click_id_12345'
-        },
-        context: {
-          traits: {
-            email: 'test@example.com'
-          }
+    const event = createTestEvent({
+      event: 'custom_event',
+      userId: 'abc123',
+      timestamp: '1631210000',
+      properties: {
+        action_source: 'email',
+        ctwa_clid: 'test_ctwa_click_id_12345'
+      },
+      context: {
+        traits: {
+          email: 'test@example.com'
         }
-      })
-
-      const responses = await testDestination.testAction('custom2', {
-        event,
-        settings,
-        mapping: {
-          __segment_internal_sync_mode: 'add',
-          event_name: {
-            '@path': '$.event'
-          },
-          action_source: {
-            '@path': '$.properties.action_source'
-          },
-          event_time: {
-            '@path': '$.timestamp'
-          },
-          user_data: {
-            email: {
-              '@path': '$.context.traits.email'
-            },
-            ctwa_clid: {
-              '@path': '$.properties.ctwa_clid'
-            }
-          }
-        }
-      })
-
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(201)
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"custom_event\\",\\"event_time\\":\\"1631210000\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b\\",\\"ctwa_clid\\":\\"test_ctwa_click_id_12345\\"}}]}"`
-      )
+      }
     })
+
+    const responses = await testDestination.testAction('custom2', {
+      event,
+      settings,
+      mapping: {
+        __segment_internal_sync_mode: 'add',
+        event_name: {
+          '@path': '$.event'
+        },
+        action_source: {
+          '@path': '$.properties.action_source'
+        },
+        event_time: {
+          '@path': '$.timestamp'
+        },
+        user_data: {
+          email: {
+            '@path': '$.context.traits.email'
+          },
+          ctwa_clid: {
+            '@path': '$.properties.ctwa_clid'
+          }
+        }
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(201)
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"data\\":[{\\"event_name\\":\\"custom_event\\",\\"event_time\\":\\"1631210000\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b\\",\\"ctwa_clid\\":\\"test_ctwa_click_id_12345\\"},\\"custom_data\\":{}}]}"`
+    )
   })
 })
