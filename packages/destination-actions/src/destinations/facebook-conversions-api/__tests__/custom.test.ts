@@ -459,7 +459,6 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should fail validation for custom event when is_append_event is true but no identifiers', async () => {
-
       const event = createTestEvent({
         event: 'LTV Update',
         userId: 'abc123',
@@ -509,7 +508,6 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should fail validation for custom event when is_append_event is true but no append values', async () => {
-
       const event = createTestEvent({
         event: 'Empty Append',
         userId: 'abc123',
@@ -557,5 +555,54 @@ describe('FacebookConversionsApi', () => {
         'If append event is true, at least one of "Append Event Details > Net Revenue" or "Append Event Details > Predicted Lifetime Value" must be provided as a number'
       )
     })
+  })
+
+  it('should include ctwa_clid in user_data', async () => {
+    nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+    const event = createTestEvent({
+      event: 'custom_event',
+      userId: 'abc123',
+      timestamp: '1631210000',
+      properties: {
+        action_source: 'email',
+        ctwa_clid: 'test_ctwa_click_id_12345'
+      },
+      context: {
+        traits: {
+          email: 'test@example.com'
+        }
+      }
+    })
+
+    const responses = await testDestination.testAction('custom', {
+      event,
+      settings,
+      mapping: {
+        event_name: {
+          '@path': '$.event'
+        },
+        action_source: {
+          '@path': '$.properties.action_source'
+        },
+        event_time: {
+          '@path': '$.timestamp'
+        },
+        user_data: {
+          email: {
+            '@path': '$.context.traits.email'
+          },
+          ctwa_clid: {
+            '@path': '$.properties.ctwa_clid'
+          }
+        }
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(201)
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"data\\":[{\\"event_name\\":\\"custom_event\\",\\"event_time\\":\\"1631210000\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b\\",\\"ctwa_clid\\":\\"test_ctwa_click_id_12345\\"},\\"custom_data\\":{}}]}"`
+    )
   })
 })
