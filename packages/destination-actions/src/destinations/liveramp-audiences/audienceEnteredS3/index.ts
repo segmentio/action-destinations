@@ -1,6 +1,6 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import { isValidS3Path, isValidS3BucketName, normalizeS3Path, uploadS3 } from './s3'
-import { generateFile } from '../operations'
+import { generateFile, enrichStatsContextWithMetadata } from '../operations'
 import { sendEventToAWS } from '../awsClient'
 import {
   LIVERAMP_MIN_RECORD_COUNT,
@@ -133,6 +133,8 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 async function processData(input: ProcessDataInput<Payload>, subscriptionMetadata?: SubscriptionMetadata) {
+  enrichStatsContextWithMetadata(input.statsContext, subscriptionMetadata)
+
   if (input.payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
       `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${input.payloads.length}`

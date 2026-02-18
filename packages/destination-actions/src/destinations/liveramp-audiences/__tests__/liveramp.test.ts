@@ -242,8 +242,10 @@ describe('Liveramp Audiences', () => {
           }
         },
         subscriptionMetadata: {
-          destinationConfigId: 'destinationConfigId',
-          actionConfigId: 'actionConfigId'
+          destinationConfigId: 'test-destination-config-id',
+          actionConfigId: 'test-action-config-id',
+          sourceId: 'test-source-id',
+          actionId: 'test-action-id'
         },
         settings: {
           __segment_internal_engage_force_full_sync: true,
@@ -255,7 +257,13 @@ describe('Liveramp Audiences', () => {
       expect(mockStatsClient.incr).toHaveBeenCalledWith(
         'liveramp_audiences.incoming_header_order',
         1,
-        expect.arrayContaining(['test-tag'])
+        expect.arrayContaining([
+          'test-tag',
+          'actionConfigId:test-action-config-id',
+          'destinationConfigId:test-destination-config-id',
+          'sourceId:test-source-id',
+          'actionId:test-action-id'
+        ])
       )
     })
 
@@ -283,8 +291,10 @@ describe('Liveramp Audiences', () => {
           enable_batching: true
         },
         subscriptionMetadata: {
-          destinationConfigId: 'destinationConfigId',
-          actionConfigId: 'actionConfigId'
+          destinationConfigId: 'test-destination-config-id',
+          actionConfigId: 'test-action-config-id',
+          sourceId: 'test-source-id',
+          actionId: 'test-action-id'
         },
         settings: {
           __segment_internal_engage_force_full_sync: true,
@@ -299,7 +309,13 @@ describe('Liveramp Audiences', () => {
       expect(mockStatsClient.incr).toHaveBeenCalledWith(
         'liveramp_audiences.incoming_header_order',
         1,
-        expect.arrayContaining(['test-tag'])
+        expect.arrayContaining([
+          'test-tag',
+          'actionConfigId:test-action-config-id',
+          'destinationConfigId:test-destination-config-id',
+          'sourceId:test-source-id',
+          'actionId:test-action-id'
+        ])
       )
     })
   })
@@ -424,8 +440,10 @@ describe('Liveramp Audiences', () => {
           }
         },
         subscriptionMetadata: {
-          destinationConfigId: 'destinationConfigId',
-          actionConfigId: 'actionConfigId'
+          destinationConfigId: 'test-destination-config-id',
+          actionConfigId: 'test-action-config-id',
+          sourceId: 'test-source-id',
+          actionId: 'test-action-id'
         },
         settings: {
           __segment_internal_engage_force_full_sync: true,
@@ -437,7 +455,13 @@ describe('Liveramp Audiences', () => {
       expect(mockStatsClient.incr).toHaveBeenCalledWith(
         'liveramp_audiences.incoming_header_order',
         1,
-        expect.arrayContaining(['test-tag'])
+        expect.arrayContaining([
+          'test-tag',
+          'actionConfigId:test-action-config-id',
+          'destinationConfigId:test-destination-config-id',
+          'sourceId:test-source-id',
+          'actionId:test-action-id'
+        ])
       )
     })
 
@@ -465,8 +489,10 @@ describe('Liveramp Audiences', () => {
           enable_batching: true
         },
         subscriptionMetadata: {
-          destinationConfigId: 'destinationConfigId',
-          actionConfigId: 'actionConfigId'
+          destinationConfigId: 'test-destination-config-id',
+          actionConfigId: 'test-action-config-id',
+          sourceId: 'test-source-id',
+          actionId: 'test-action-id'
         },
         settings: {
           __segment_internal_engage_force_full_sync: true,
@@ -481,7 +507,13 @@ describe('Liveramp Audiences', () => {
       expect(mockStatsClient.incr).toHaveBeenCalledWith(
         'liveramp_audiences.incoming_header_order',
         1,
-        expect.arrayContaining(['test-tag'])
+        expect.arrayContaining([
+          'test-tag',
+          'actionConfigId:test-action-config-id',
+          'destinationConfigId:test-destination-config-id',
+          'sourceId:test-source-id',
+          'actionId:test-action-id'
+        ])
       )
     })
   })

@@ -1,7 +1,8 @@
-import { RequestClient, ExecuteInput, StatsContext } from '@segment/actions-core'
+import { ExecuteInput, RequestClient, StatsContext } from '@segment/actions-core'
 import type { Payload as s3Payload } from './audienceEnteredS3/generated-types'
 import type { Payload as sftpPayload } from './audienceEnteredSftp/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 
 // Type definitions
 export type RawData = {
@@ -156,4 +157,21 @@ const normalize = (key: string, value: string): string => {
   return value
 }
 
-export { generateFile, enquoteIdentifier, normalize }
+/**
+ * Enriches the stats context with subscription metadata tags for tracking and analytics.
+ * @param statsContext - The stats context to enrich with tags
+ * @param subscriptionMetadata - Subscription metadata containing IDs to add as tags
+ */
+function enrichStatsContextWithMetadata(statsContext?: StatsContext, subscriptionMetadata?: SubscriptionMetadata) {
+  if (statsContext && subscriptionMetadata) {
+    statsContext.tags = [
+      ...(statsContext.tags || []),
+      `actionConfigId:${subscriptionMetadata.actionConfigId}`,
+      `destinationConfigId:${subscriptionMetadata.destinationConfigId}`,
+      `sourceId:${subscriptionMetadata.sourceId}`,
+      `actionId:${subscriptionMetadata.actionId}`
+    ]
+  }
+}
+
+export { generateFile, enquoteIdentifier, normalize, enrichStatsContextWithMetadata }
