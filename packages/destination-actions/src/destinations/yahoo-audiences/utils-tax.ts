@@ -79,7 +79,6 @@ export async function update_taxonomy(
   const tx_client_key = tx_creds.tx_client_key
   const url = `https://datax.yahooapis.com/v1/taxonomy/append${engage_space_id.length > 0 ? '/' + engage_space_id : ''}`
   const oauth1_auth_string = gen_oauth1_signature(tx_client_key, tx_client_secret, 'PUT', url)
-  console.log('Generated OAuth1.0 signature for taxonomy update', oauth1_auth_string)
   try {
     const add_segment_node = await request(url, {
       method: 'PUT',
