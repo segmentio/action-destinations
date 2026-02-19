@@ -877,6 +877,10 @@ describe('Memora.upsertProfile', () => {
   })
 
   describe('environment-based URL selection', () => {
+    beforeEach(() => {
+      nock.cleanAll()
+    })
+
     it('should use staging base URL when ACTIONS_MEMORA_ENV is not set to production', async () => {
       const originalEnv = process.env.ACTIONS_MEMORA_ENV
       delete process.env.ACTIONS_MEMORA_ENV
@@ -889,14 +893,16 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      nock(BASE_URL_STAGING).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
-        importId: 'mem_import_12345',
-        url: 'https://example.com/presigned-url'
-      })
+      const importMock = nock(BASE_URL_STAGING)
+        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
+        .reply(201, {
+          importId: 'mem_import_12345',
+          url: 'https://example.com/presigned-url'
+        })
 
-      nock('https://example.com').put('/presigned-url').reply(200)
+      const uploadMock = nock('https://example.com').put('/presigned-url').reply(200)
 
-      const responses = await testDestination.testAction('upsertProfile', {
+      await testDestination.testAction('upsertProfile', {
         event,
         settings: defaultSettings,
         mapping: {
@@ -908,8 +914,8 @@ describe('Memora.upsertProfile', () => {
         useDefaultMappings: false
       })
 
-      expect(responses.length).toBe(2)
-      expect(responses[0].status).toBe(201)
+      expect(importMock.isDone()).toBe(true)
+      expect(uploadMock.isDone()).toBe(true)
 
       if (originalEnv !== undefined) {
         process.env.ACTIONS_MEMORA_ENV = originalEnv
@@ -928,14 +934,16 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      nock(BASE_URL_PRODUCTION).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
-        importId: 'mem_import_12345',
-        url: 'https://example.com/presigned-url'
-      })
+      const importMock = nock(BASE_URL_PRODUCTION)
+        .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
+        .reply(201, {
+          importId: 'mem_import_12345',
+          url: 'https://example.com/presigned-url'
+        })
 
-      nock('https://example.com').put('/presigned-url').reply(200)
+      const uploadMock = nock('https://example.com').put('/presigned-url').reply(200)
 
-      const responses = await testDestination.testAction('upsertProfile', {
+      await testDestination.testAction('upsertProfile', {
         event,
         settings: defaultSettings,
         mapping: {
@@ -947,8 +955,8 @@ describe('Memora.upsertProfile', () => {
         useDefaultMappings: false
       })
 
-      expect(responses.length).toBe(2)
-      expect(responses[0].status).toBe(201)
+      expect(importMock.isDone()).toBe(true)
+      expect(uploadMock.isDone()).toBe(true)
 
       if (originalEnv !== undefined) {
         process.env.ACTIONS_MEMORA_ENV = originalEnv
