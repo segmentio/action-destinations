@@ -1,7 +1,7 @@
 import type { Settings } from './generated-types'
 import { createHmac } from 'crypto'
 import { CredsObj, YahooSubTaxonomy } from './types'
-import { RequestClient, IntegrationError } from '@segment/actions-core'
+import { RequestClient, IntegrationError, ModifiedResponse } from '@segment/actions-core'
 import { StatsClient } from '@segment/actions-core/destination-kit'
 
 export function gen_customer_taxonomy_payload(settings: Settings) {
@@ -45,6 +45,64 @@ export function gen_random_id(length: number): string {
   return random_id.join('')
 }
 
+export function generate_taxonomy_jwt(client_id: string, client_secret: string): string {
+  const random_id = gen_random_id(24)
+  const current_time = Math.floor(new Date().getTime() / 1000)
+  const url = 'https://id.b2b.yahooincapis.com/zts/v1'
+  const jwt_payload = {
+    iss: client_id,
+    sub: client_id,
+    aud: url,
+    jti: random_id,
+    exp: current_time + 3600,
+    iat: current_time
+  }
+  const jwt_header = {
+    alg: 'HS256',
+    typ: 'JWT'
+  }
+
+  const jwt_header_encoded = Buffer.from(JSON.stringify(jwt_header)).toString('base64')
+  const jwt_payload_encoded = Buffer.from(JSON.stringify(jwt_payload)).toString('base64')
+  const jwt_head_payload = jwt_header_encoded + '.' + jwt_payload_encoded
+
+  const hash = createHmac('sha256', client_secret)
+  const signature = hash.update(jwt_head_payload).digest('base64')
+  const jwt = jwt_head_payload + '.' + signature
+
+  return jwt
+}
+
+export async function get_taxonomy_access_token(
+  client_id: string,
+  client_secret: string,
+  request: RequestClient
+): Promise<string> {
+  const jwt = generate_taxonomy_jwt(client_id, client_secret)
+
+  const tokenResponse: ModifiedResponse<{
+    access_token: string
+    token_type: string
+    expires_in: number
+  }> = await request('https://id.b2b.yahooincapis.com/zts/v1/oauth2/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Accept: 'application/json'
+    },
+    body: new URLSearchParams({
+      grant_type: 'client_credentials',
+      client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      client_assertion: jwt,
+      scope: 'idb2b.dsp.datax:role.batch.writer'
+    })
+  })
+
+  const access_token = tokenResponse.data.access_token
+
+  return access_token
+}
+
 export function gen_oauth1_signature(client_key: string, client_secret: string, method: string, url: string) {
   // Following logic in #9 https://oauth.net/core/1.0a/#sig_norm_param
   const timestamp = Math.floor(new Date().getTime() / 1000)
@@ -78,13 +136,14 @@ export async function update_taxonomy(
   const tx_client_secret = tx_creds.tx_client_secret
   const tx_client_key = tx_creds.tx_client_key
   const url = `https://datax.yahooapis.com/v1/taxonomy/append${engage_space_id.length > 0 ? '/' + engage_space_id : ''}`
-  const oauth1_auth_string = gen_oauth1_signature(tx_client_key, tx_client_secret, 'PUT', url)
+
   try {
+    const access_token = await get_taxonomy_access_token(tx_client_key, tx_client_secret, request)
     const add_segment_node = await request(url, {
       method: 'PUT',
       body: body_form_data,
       headers: {
-        Authorization: oauth1_auth_string,
+        Authorization: `Bearer ${access_token}`,
         'Content-Type': 'multipart/form-data; boundary=SEGMENT-DATA'
       }
     })

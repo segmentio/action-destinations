@@ -44,6 +44,13 @@ describe('Yahoo Audiences', () => {
 
     describe('Success cases', () => {
       it('It should create the audience successfully', async () => {
+        // Mock OAuth 2.0 token endpoint for Taxonomy API
+        nock('https://id.b2b.yahooincapis.com').post('/zts/v1/oauth2/token').reply(200, {
+          access_token: 'mock_token',
+          token_type: 'Bearer',
+          expires_in: 21600
+        })
+
         nock('https://datax.yahooapis.com').put(`/v1/taxonomy/append/${ENGAGE_SPACE_ID}`).reply(202, {
           anything: '123'
         })
