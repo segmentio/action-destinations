@@ -106,20 +106,22 @@ const action: ActionDefinition<Settings, Payload, unknown, unknown, unknown, Pol
     const pollResult = await pollAsyncOperation(request, settings.subdomain, operationId)
 
     // Map SFMC status to framework status
+    // Check both requestStatus (Complete/InProcess/etc) and resultStatus (OK/Error)
     let status: 'pending' | 'completed' | 'failed'
-    switch (pollResult.status) {
-      case 'Complete':
-        status = 'completed'
-        break
-      case 'Failed':
-      case 'Error':
+    const sfmcStatus = pollResult.results as any
+
+    if (pollResult.status === 'Complete') {
+      // Request finished - check if it succeeded or had errors
+      if (sfmcStatus?.hasErrors || sfmcStatus?.resultStatus === 'Error') {
         status = 'failed'
-        break
-      case 'InProcess':
-      case 'Queued':
-      default:
-        status = 'pending'
-        break
+      } else {
+        status = 'completed'
+      }
+    } else if (pollResult.status === 'Failed' || pollResult.status === 'Error') {
+      status = 'failed'
+    } else {
+      // InProcess, Queued, etc.
+      status = 'pending'
     }
 
     const results = pollResult.results || {}
