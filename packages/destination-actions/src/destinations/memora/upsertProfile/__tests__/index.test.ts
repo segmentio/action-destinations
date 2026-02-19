@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { API_VERSION } from '../../versioning-info'
-import { BASE_URL_STAGING } from '../../constants'
+import { BASE_URL_STAGING, BASE_URL_PRODUCTION } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -873,6 +873,88 @@ describe('Memora.upsertProfile', () => {
         expect(result?.error?.message).toContain('Unable to fetch contact traits')
         expect(result?.error?.code).toBe('FETCH_ERROR')
       })
+    })
+  })
+
+  describe('environment-based URL selection', () => {
+    it('should use staging base URL when ACTIONS_MEMORA_ENV is not set to production', async () => {
+      const originalEnv = process.env.ACTIONS_MEMORA_ENV
+      delete process.env.ACTIONS_MEMORA_ENV
+
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-123',
+        properties: {
+          email: 'test@example.com'
+        }
+      })
+
+      nock(BASE_URL_STAGING).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+        importId: 'mem_import_12345',
+        url: 'https://example.com/presigned-url'
+      })
+
+      nock('https://example.com').put('/presigned-url').reply(200)
+
+      const responses = await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          contact_identifiers: {
+            email: { '@path': '$.properties.email' }
+          }
+        },
+        useDefaultMappings: false
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
+
+      if (originalEnv !== undefined) {
+        process.env.ACTIONS_MEMORA_ENV = originalEnv
+      }
+    })
+
+    it('should use production base URL when ACTIONS_MEMORA_ENV is set to production', async () => {
+      const originalEnv = process.env.ACTIONS_MEMORA_ENV
+      process.env.ACTIONS_MEMORA_ENV = 'production'
+
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-123',
+        properties: {
+          email: 'test@example.com'
+        }
+      })
+
+      nock(BASE_URL_PRODUCTION).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+        importId: 'mem_import_12345',
+        url: 'https://example.com/presigned-url'
+      })
+
+      nock('https://example.com').put('/presigned-url').reply(200)
+
+      const responses = await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          contact_identifiers: {
+            email: { '@path': '$.properties.email' }
+          }
+        },
+        useDefaultMappings: false
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
+
+      if (originalEnv !== undefined) {
+        process.env.ACTIONS_MEMORA_ENV = originalEnv
+      } else {
+        delete process.env.ACTIONS_MEMORA_ENV
+      }
     })
   })
 })
