@@ -87,6 +87,7 @@ function formatFBEvent(payload: Payload): FBEvent {
     } = payload
 
     const fbEvent: FBEvent = {
+        partner_agent: 'segment',
         ...(content_category ? { content_category } : {}),
         ...(content_ids && Array.isArray(content_ids) && content_ids.length > 0 ? { content_ids } : {}),
         ...(content_name ? { content_name } : {}),

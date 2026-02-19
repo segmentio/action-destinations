@@ -125,7 +125,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
       send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
-      expect(mockFbq).toHaveBeenCalledWith('trackSingle', 'test-pixel-123', 'PageView', {}, undefined)
+      expect(mockFbq).toHaveBeenCalledWith('trackSingle', 'test-pixel-123', 'PageView', { partner_agent: 'segment' }, undefined)
     })
   })
 
@@ -863,7 +863,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       const eventData = (mockFbq).mock.calls[0][3]
-      expect(eventData).toEqual({})
+      expect(eventData).toEqual({ partner_agent: 'segment' })
     })
 
     it('should handle numeric values correctly including zero', () => {
