@@ -6,7 +6,7 @@ import {US_STATE_CODES, COUNTRY_CODES, MAX_INIT_COUNT, INIT_COUNT_KEY, USER_DATA
 import { storageFallback, setStorageInitCount } from '../functions'
 import { getNotVisibleForEvent } from './depends-on'
 
-export function send(client: FBClient, clientParamBuilder: FBClientParamBuilder | undefined, payload: Payload, settings: Settings, analytics: Analytics) {
+export async function send(client: FBClient, clientParamBuilder: FBClientParamBuilder | undefined, payload: Payload, settings: Settings, analytics: Analytics) {
     const { pixelId } = settings
     const { 
         event_config: { 
@@ -26,7 +26,7 @@ export function send(client: FBClient, clientParamBuilder: FBClientParamBuilder 
     
     const fbEvent = formatFBEvent(payload)
 
-    maybeSendUserData(client, clientParamBuilder, payload, settings, analytics)
+    await maybeSendUserData(client, clientParamBuilder, payload, settings, analytics)
 
     const options = formatOptions(payload)
 
@@ -124,14 +124,14 @@ function formatOptions(payload: Payload): EventOptions | undefined {
     return Object.values(options).some(Boolean) ? options : undefined
 }
 
-function maybeSendUserData(client: FBClient, clientParamBuilder: FBClientParamBuilder | undefined, payload: Payload, settings: Settings, analytics: Analytics) {
+async function maybeSendUserData(client: FBClient, clientParamBuilder: FBClientParamBuilder | undefined, payload: Payload, settings: Settings, analytics: Analytics) {
     const { 
         pixelId 
     } = settings
     const { 
         userData 
     } = payload
-    const userDataFormatted = formatUserData(userData, clientParamBuilder)
+    const userDataFormatted = await formatUserData(userData, clientParamBuilder)
 
     if(userDataFormatted) {
         /* 
@@ -154,7 +154,7 @@ function maybeSendUserData(client: FBClient, clientParamBuilder: FBClientParamBu
     }
 } 
 
-function formatUserData(userData: Payload['userData'], clientParamBuilder: FBClientParamBuilder | undefined): UserData | undefined {
+async function formatUserData(userData: Payload['userData'], clientParamBuilder: FBClientParamBuilder | undefined): Promise<UserData | undefined> {
     if(!userData){
         return undefined 
     }
@@ -183,19 +183,45 @@ function formatUserData(userData: Payload['userData'], clientParamBuilder: FBCli
         fbcValue = clientParamBuilder.getFbc() || fbcValue 
         fbpValue = clientParamBuilder.getFbp() || fbpValue
     }
-    
+
+    const [
+        emData,
+        phData,
+        fnData,
+        lnData,
+        geData,
+        dbData,
+        ctData,
+        stData,
+        zpData,
+        countryData,
+        externalIdData
+    ] = await Promise.all([
+        formatPII(em, 'email', 'em', clientParamBuilder, (s) => s.toLowerCase().trim()),
+        formatPII(ph, 'phone', 'ph', clientParamBuilder, (s) => s.replace(/\D/g, '')),
+        formatPII(fn, 'first_name', 'fn', clientParamBuilder, (s) => s.toLowerCase().trim()),
+        formatPII(ln, 'last_name', 'ln', clientParamBuilder, (s) => s.toLowerCase().trim()),
+        formatPII(ge, 'gender', 'ge', clientParamBuilder, (s) => (['m', 'f'].includes(s) ? s : undefined)),
+        formatPII(db, 'date_of_birth', 'db', clientParamBuilder, (s) => formatDate(s)),
+        formatPII(ct, 'city', 'ct', clientParamBuilder, (s) => s.toLowerCase().replace(/\s+/g, '')),
+        formatPII(st, 'state', 'st', clientParamBuilder, (s) => fromMap(US_STATE_CODES, s)),
+        formatPII(zp, 'zip_code', 'zp', clientParamBuilder, (s) => s.trim()),
+        formatPII(country, 'country', 'country', clientParamBuilder, (s) => fromMap(COUNTRY_CODES, s)),
+        formatPII(external_id, 'external_id', 'external_id', clientParamBuilder, (s) => s.trim())
+    ])
+
     const ud: UserData = {
-        ...(formatPII(em, 'email', 'em', clientParamBuilder, (s) => s.toLowerCase().trim())),
-        ...(formatPII(ph, 'phone', 'ph', clientParamBuilder, (s) => s.replace(/\D/g, ''))),
-        ...(formatPII(fn, 'first_name', 'fn', clientParamBuilder, (s) => s.toLowerCase().trim())),
-        ...(formatPII(ln, 'last_name', 'ln', clientParamBuilder, (s) => s.toLowerCase().trim())),
-        ...(formatPII(ge, 'gender', 'ge', clientParamBuilder, (s) => (['m', 'f'].includes(s) ? s as 'm' | 'f' : undefined) ) as {ge: 'm'|'f'} || {}),
-        ...(formatPII(db, 'date_of_birth', 'db', clientParamBuilder, (s) => formatDate(s))),
-        ...(formatPII(ct, 'city', 'ct', clientParamBuilder, (s) => s.toLowerCase().replace(/\s+/g, ''))),
-        ...(formatPII(st, 'state', 'st', clientParamBuilder, (s) => fromMap(US_STATE_CODES, s))),
-        ...(formatPII(zp, 'zip_code', 'zp', clientParamBuilder, (s) => s.trim())),
-        ...(formatPII(country, 'country', 'country', clientParamBuilder, (s) => fromMap(COUNTRY_CODES, s))),
-        ...(formatPII(external_id, 'external_id', 'external_id', clientParamBuilder, (s) => s.trim())),
+        ...emData,
+        ...phData,
+        ...fnData,
+        ...lnData,
+        ...(geData as { ge?: 'm' | 'f' }),
+        ...dbData,
+        ...ctData,
+        ...stData,
+        ...zpData,
+        ...countryData,
+        ...externalIdData,
         ...(fbcValue ? { fbc: fbcValue } : {}),
         ...(fbpValue ? { fbp: fbpValue } : {})
     }
@@ -206,18 +232,30 @@ function formatUserData(userData: Payload['userData'], clientParamBuilder: FBCli
     return ud
 }
 
-function formatPII<K extends PIIParamName, V extends string>(
+async function formatPII<K extends PIIParamName, V extends string>(
     value: string | undefined, 
     piiType: PIIType, 
     piiParamType: K, 
     clientParamBuilder: FBClientParamBuilder | undefined, 
     formatter: (s: string) => string | undefined
-): Partial<Record<K, V>> {    
+): Promise<Partial<Record<K, V>>> {    
     if(!value) {
         return {}
     }
-    const val = clientParamBuilder?.getNormalizedAndHashedPII(value, piiType) ?? formatter(value)
-    return val ? ({ [piiParamType]: val as V } as Partial<Record<K, V>>) : {}
+    if(clientParamBuilder){
+        const val = clientParamBuilder.getNormalizedAndHashedPII(value, piiType)
+        return val ? ({ [piiParamType]: val as V } as Partial<Record<K, V>>) : {}
+    } 
+    else {
+        const val = formatter(value)
+        if(!val) {
+            return {}
+        } 
+        else {
+            const hashValue = await sha256Hash(val)
+            return ({ [piiParamType]: hashValue as V }) as Partial<Record<K, V>>
+        }
+    }    
 }
 
 function formatDate(isoDate?: string): string | undefined {
@@ -243,4 +281,12 @@ function fromMap(map: Map<string, string>, value?: string): string | undefined {
         return cleaned
     }
     return map.get(cleaned) || undefined
+}
+
+export async function sha256Hash(value: string): Promise<string> {
+    const encoder = new TextEncoder()
+    const data = encoder.encode(value)
+    const hashBuffer = await window.crypto.subtle.digest('SHA-256', data)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
 }
