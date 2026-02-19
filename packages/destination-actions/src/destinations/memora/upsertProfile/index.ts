@@ -8,7 +8,7 @@ import { BASE_URL_PRODUCTION, BASE_URL_STAGING } from '../constants'
 
 // Helper function to determine base URL based on environment variable
 function getBaseUrl(): string {
-  return process.env.ACTIONS_MEMORA_USE_PRODUCTION_URL ? BASE_URL_PRODUCTION : BASE_URL_STAGING
+  return process.env.ACTIONS_MEMORA_ENV === 'production' ? BASE_URL_PRODUCTION : BASE_URL_STAGING
 }
 
 const action: ActionDefinition<Settings, Payload> = {

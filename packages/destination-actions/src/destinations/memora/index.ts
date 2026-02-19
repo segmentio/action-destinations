@@ -36,7 +36,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      const baseUrl = process.env.ACTIONS_MEMORA_USE_PRODUCTION_URL ? BASE_URL_PRODUCTION : BASE_URL_STAGING
+      const baseUrl = process.env.ACTIONS_MEMORA_ENV === 'production' ? BASE_URL_PRODUCTION : BASE_URL_STAGING
       return request(`${baseUrl}/${API_VERSION}/ControlPlane/Stores?pageSize=1`, {
         method: 'GET',
         username: settings.username,
