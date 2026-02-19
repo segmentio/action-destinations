@@ -3,7 +3,13 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, createRequestClient } from '@segment/actions-core'
 import type { Logger } from '@segment/actions-core/destination-kit'
-import { API_VERSION, BASE_URL } from '../versioning-info'
+import { API_VERSION } from '../versioning-info'
+import { BASE_URL_PRODUCTION, BASE_URL_STAGING } from '../constants'
+
+// Helper function to determine base URL based on environment variable
+function getBaseUrl(): string {
+  return process.env.ACTIONS_MEMORA_ENV === 'production' ? BASE_URL_PRODUCTION : BASE_URL_STAGING
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -137,10 +143,11 @@ async function requestImportUrl(
 ): Promise<{ importId: string; uploadUrl: string }> {
   const timestamp = Date.now()
   const filename = `memora-segment-import-${storeId}-${timestamp}.csv`
+  const baseUrl = getBaseUrl()
 
   try {
     const importResponse = await request<{ importId: string; url: string }>(
-      `${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Imports`,
+      `${baseUrl}/${API_VERSION}/Stores/${storeId}/Profiles/Imports`,
       {
         method: 'POST',
         headers: {
@@ -324,9 +331,11 @@ async function fetchContactTraits(
   settings: Settings,
   storeId: string
 ) {
+  const baseUrl = getBaseUrl()
+
   try {
     const response = await request<TraitGroupResponse>(
-      `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/Contact?includeTraits=true&pageSize=100`,
+      `${baseUrl}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/Contact?includeTraits=true&pageSize=100`,
       {
         method: 'GET',
         headers: {
@@ -365,10 +374,12 @@ async function fetchContactTraits(
 
 // Fetch available memora stores from Control Plane
 async function fetchMemoraStores(request: ReturnType<typeof createRequestClient>, settings: Settings) {
+  const baseUrl = getBaseUrl()
+
   try {
     // Call the Control Plane API to list memora stores
     const response = await request<MemoraStoresResponse>(
-      `${BASE_URL}/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`,
+      `${baseUrl}/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`,
       {
         method: 'GET',
         headers: {
