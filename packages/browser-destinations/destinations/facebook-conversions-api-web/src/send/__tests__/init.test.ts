@@ -4,7 +4,6 @@ describe('Facebook Conversions API Web - Init with User Data', () => {
   let mockFbq
   let mockAnalytics
   let mockClientParamBuilder
-  let consoleWarnSpy
 
   beforeEach(() => {
     mockFbq = jest.fn()
@@ -16,7 +15,6 @@ describe('Facebook Conversions API Web - Init with User Data', () => {
     }
 
     mockClientParamBuilder = undefined
-    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation()
   })
 
   afterEach(() => {

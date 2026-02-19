@@ -103,7 +103,7 @@ export function formatFBEvent(payload: Payload): FBEvent {
     }
 
     if(show_fields === false){
-        // If show_fields is false we delete values for fields which are hidden in the UI. 
+        // If show_fields is false we delete values for fields which are hidden in the UI.
         const fieldsToDelete = getNotVisibleForEvent(event_name as FBStandardEventType | FBNonStandardEventType)
         fieldsToDelete.forEach(field => {
             if (field in fbEvent) {
@@ -112,7 +112,7 @@ export function formatFBEvent(payload: Payload): FBEvent {
         })
     }
 
-    return Object.keys(fbEvent).length > 0 ? fbEvent : {}
+    return fbEvent
 }
 
 function formatOptions(payload: Payload): EventOptions | undefined {

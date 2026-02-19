@@ -167,7 +167,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
   })
 
   describe('send - Validation', () => {
-    it('should warn if AddToCart is missing both content_ids and contents', () => {
+    it('should warn if AddToCart is missing both content_ids and contents', async () => {
       const payload = {
         event_config: {
           event_name: 'AddToCart',
@@ -176,7 +176,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         value: 99.99
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('At least one of content_ids or contents is required for the AddToCart event')
@@ -184,7 +184,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(mockFbq).not.toHaveBeenCalled()
     })
 
-    it('should warn if Purchase is missing both content_ids and contents', () => {
+    it('should warn if Purchase is missing both content_ids and contents', async () => {
       const payload = {
         event_config: {
           event_name: 'Purchase',
@@ -194,7 +194,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         currency: 'USD'
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('At least one of content_ids or contents is required for the Purchase event')
@@ -202,7 +202,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(mockFbq).not.toHaveBeenCalled()
     })
 
-    it('should warn if ViewContent is missing both content_ids and contents', () => {
+    it('should warn if ViewContent is missing both content_ids and contents', async () => {
       const payload = {
         event_config: {
           event_name: 'ViewContent',
@@ -210,7 +210,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         }
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('At least one of content_ids or contents is required for the ViewContent event')
