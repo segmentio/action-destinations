@@ -40,6 +40,14 @@ interface SFMCAsyncStatus {
 }
 
 /**
+ * Interface for async upsert response
+ */
+interface AsyncUpsertResponse {
+  requestId: string
+  resultMessages: string[]
+}
+
+/**
  * Interface for poll response
  */
 interface PollResponse {
@@ -145,7 +153,7 @@ export async function asyncUpsertRowsV2(
   subdomain: String,
   payloads: payload_dataExtension[] | payload_contactDataExtension[],
   dataExtensionId?: string
-) {
+): Promise<MultiStatusResponse> {
   if (!dataExtensionId) {
     throw new IntegrationError(
       `In order to send an event to a data extension Data Extension ID must be defined.`,
@@ -155,15 +163,25 @@ export async function asyncUpsertRowsV2(
   }
   // Use flattened rows for async API
   const rows = generateFlattenedRows(payloads)
-  const response = await request(
+  const response = await request<AsyncUpsertResponse>(
     `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/dataextensions/${dataExtensionId}/rows`,
     {
       method: 'PUT',
       json: { items: rows }
     }
   )
-
-  return response
+  const multiStatusResponse = new MultiStatusResponse()
+  for (let i = 0; i < payloads.length; i++) {
+    multiStatusResponse.setSuccessResponseAtIndex(i, {
+      status: 202,
+      sent: rows[i] as Object as JSONLikeObject,
+      body: {
+        requestId: response.data.requestId,
+        resultMessages: response.data.resultMessages
+      }
+    })
+  }
+  return multiStatusResponse
 }
 
 export function upsertRows(
