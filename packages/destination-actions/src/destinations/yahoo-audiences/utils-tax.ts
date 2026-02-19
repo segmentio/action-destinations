@@ -100,6 +100,8 @@ export async function get_taxonomy_access_token(
 
   const access_token = tokenResponse.data.access_token
 
+  console.log('Received access token for Taxonomy API')
+
   return access_token
 }
 
