@@ -66,7 +66,7 @@ function validate(payload: Payload): string | undefined {
     return undefined
 }
 
-function formatFBEvent(payload: Payload): FBEvent {
+export function formatFBEvent(payload: Payload): FBEvent {
     const {
         content_category,
         content_ids,
@@ -154,7 +154,7 @@ async function maybeSendUserData(client: FBClient, clientParamBuilder: FBClientP
     }
 } 
 
-async function formatUserData(userData: Payload['userData'], clientParamBuilder: FBClientParamBuilder | undefined): Promise<UserData | undefined> {
+export async function formatUserData(userData: Payload['userData'], clientParamBuilder: FBClientParamBuilder | undefined): Promise<UserData | undefined> {
     if(!userData){
         return undefined 
     }
