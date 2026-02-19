@@ -535,5 +535,46 @@ describe('Facebook Conversions API Web - Init with User Data', () => {
       const userDataSetCalls = (mockAnalytics.storage.set).mock.calls.filter((call) => call[0] === 'fb_user_data')
       expect(userDataSetCalls.length).toBe(4) // User data stored on all 4 track events
     })
+
+    it('should allow init to fire when count is reset to 0 (simulating new page load)', async () => {
+      const payload = {
+        event_config: {
+          event_name: 'Purchase',
+          show_fields: false
+        },
+        content_ids: ['product-123'],
+        value: 99.99,
+        userData: {
+          em: 'test@example.com'
+        }
+      }
+
+      // === Previous Page Load Scenario ===
+      // Init count at max from previous events
+      mockAnalytics.storage.get.mockReturnValue('2')
+
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+
+      let initCalls = (mockFbq).mock.calls.filter((call) => call[0] === 'init')
+      expect(initCalls.length).toBe(0) // Init blocked when count at max
+
+      // === New Page Load Scenario ===
+      // On a new page load, the application would reset the init count to 0
+      // (In production, this happens when the page reloads and the pixel script re-initializes)
+      mockAnalytics.storage.get.mockReturnValue('0')
+      mockFbq.mockClear() // Simulate fresh page context
+
+      // First track event on new page
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+
+      initCalls = (mockFbq).mock.calls.filter((call) => call[0] === 'init')
+      expect(initCalls.length).toBe(1) // Init fires when count is reset
+      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({
+        em: expect.any(String)
+      }))
+
+      // Verify init count was incremented in storage
+      expect(mockAnalytics.storage.set).toHaveBeenCalledWith('fb_pixel_init_count', '1')
+    })
   })
 })
