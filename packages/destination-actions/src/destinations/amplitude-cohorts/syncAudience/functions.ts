@@ -11,12 +11,9 @@ export async function send(
   _audienceSettings?: AudienceSettings
 ) {
 
-
   const json: UpsertToCohortJSON[] = payload.map((p) => {
     const { 
-      user_id, 
-      time,
-      user_properties 
+      user_id 
     } = p
 
     const upsertToCohortJSON = {

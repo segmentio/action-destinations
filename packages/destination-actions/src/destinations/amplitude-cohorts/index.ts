@@ -19,9 +19,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },
       secretKey: {
         label: 'Secret Key',
-        description:
-          'Amplitude project secret key. You can find this key in the "General" tab of your Amplitude project.',
+        description: 'Amplitude project secret key. You can find this key in the "General" tab of your Amplitude project.',
         type: 'password',
+        required: true
+      },
+      app_id: {
+        label: 'Amplitude App ID',
+        description: 'The Amplitude App ID for the cohort you want to sync to. You can find this in the "General" tab of your Amplitude project.',
+        type: 'string',
         required: true
       },
       endpoint: {
@@ -29,6 +34,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         description: 'The region to send your data.',
         type: 'string',
         format: 'text',
+        required: true,
         choices: [
           {
             label: 'North America',
@@ -56,25 +62,30 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       })
     }
   },
-  audienceFields: {
-    cohortName: {
-      label: 'Cohort Name',
-      description: 'The name of the Amplitude Cohort to sync the Engage audience to.',
-      type: 'string',
-      required: true
+  extendRequest({ settings }) {
+    const { apiKey, secretKey } = settings
+    return {
+      headers: { 
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${Buffer.from(`${apiKey}:${secretKey}`).toString('base64')}` 
+      }
     }
   },
+  audienceFields: {},
   audienceConfig: {
     mode: {
       type: 'synced',
       full_audience_sync: false
     },
-    async createAudience(_request) {
-     
+    async createAudience(request, createAudienceInput) {
+      const { 
+        audienceName 
+      } = createAudienceInput
+
       return {  externalId: '' }
     },
-    async getAudience(_request) {
-     
+    async getAudience(request, createAudienceInput) {
+      const { externalId } = createAudienceInput
       return { externalId: '' }
     }
   },

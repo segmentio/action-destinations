@@ -4,16 +4,9 @@ export interface Payload {
   /**
    * User ID
    */
-  user_id: string
-  /**
-   * The time the event occurred, in milliseconds since epoch.
-   */
-  time: string | number
-  /**
-   * Additional data tied to the user in Amplitude. Each distinct value will show up as a user segment on the Amplitude dashboard. Object depth may not exceed 40 layers.
-   */
-  user_properties?: {
-    [k: string]: unknown
+  user_identifier: {
+    user_id?: string
+    amplitude_id?: string
   }
   /**
    * Traits or Properties object from the identify() or track() call emitted by Engage

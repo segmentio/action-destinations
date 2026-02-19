@@ -9,16 +9,14 @@ export interface Settings {
    * Amplitude project secret key. You can find this key in the "General" tab of your Amplitude project.
    */
   secretKey: string
+  
+  app_id: string 
   /**
    * The region to send your data.
    */
-  endpoint?: string
+  endpoint: string
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
 export interface AudienceSettings {
-  /**
-   * The name of the Amplitude Cohort to sync the Engage audience to.
-   */
-  cohortName: string
 }

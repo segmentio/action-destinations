@@ -1,30 +1,28 @@
 import { InputField } from '@segment/actions-core'
 
 export const fields: Record<string, InputField> = {
-    user_id: {
-        label: 'User ID',
-        description: 'User ID',
+    user_identifier: {
+        label: 'User Identifier',
+        description: 'The identifier for the user. This can be either the user_id or device_id in Amplitude. If both are present, user_id will be used.',
         type: 'string',
         required: true,
+        defaultObjectUI: 'keyvalue',
+        additionalProperties: false,
+        properties: {
+            user_id: {
+                label: 'User ID',
+                description: 'User ID',
+                type: 'string'
+            },
+            amplitude_id: {
+                label: 'Amplitude ID',
+                description: 'Amplitude ID',
+                type: 'string'
+            }
+        },
         default: {
-            '@path': '$.userId'
+            user_id: { '@path': '$.userId' }
         }
-    },
-    time: {
-        label: 'Timestamp',
-        description: 'The time the event occurred, in milliseconds since epoch.',
-        type: 'datetime',
-        required: true,
-        default: {
-            '@path': '$.timestamp'
-        }
-    },  
-    user_properties: {
-        label: 'User Properties',
-        description: 'Additional data tied to the user in Amplitude. Each distinct value will show up as a user segment on the Amplitude dashboard. Object depth may not exceed 40 layers.',
-        type: 'object',
-        additionalProperties: true,
-        defaultObjectUI: 'keyvalue'
     },
     traits_or_properties: {
         label: 'Traits or Properties',
@@ -80,7 +78,7 @@ export const fields: Record<string, InputField> = {
         type: 'number',
         required: true,
         default: 100,
-        maximum: 100,
+        maximum: 500,
         minimum: 1
     }
 }
