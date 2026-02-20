@@ -401,6 +401,10 @@ export const convertToAppendValueEventData =(data: PurchaseEventData | CustomEve
     } = {}
   } = payload
 
+  if(!original_event_time) {
+    throw new PayloadValidationError('AppendValue events must include "Append Event Details > Original Event Time"')
+  }
+
   const appendValueEventData: AppendValueEventData = {
       ...data,
       event_name: 'AppendValue',
@@ -411,7 +415,7 @@ export const convertToAppendValueEventData =(data: PurchaseEventData | CustomEve
       },
       original_event_data: {
           event_name,
-          ...(original_event_time ? {event_time: original_event_time} : {}),
+          event_time: original_event_time,
           ...(original_event_order_id ? {order_id: original_event_order_id} : {}),
           ...(original_event_id ? {event_id: original_event_id} : {})                 
       }

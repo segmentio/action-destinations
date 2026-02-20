@@ -10,7 +10,7 @@ export interface Payload {
    */
   append_event_details?: {
     /**
-     * A timestamp indicating when the actual original event occurred in ISO 8601 format.
+     * A timestamp indicating when the actual original event occurred in ISO 8601 format. Required to match to the original event.
      */
     original_event_time?: string
     /**

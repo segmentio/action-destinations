@@ -400,7 +400,8 @@ describe('FacebookConversionsApi', () => {
               },
               original_event_data: {
                 event_name: 'Revenue Update',
-                event_id: 'original_event_456'
+                event_id: 'original_event_456',
+                event_time: '2021-09-09T19:14:23Z'
               }
             }
           ]
@@ -417,7 +418,8 @@ describe('FacebookConversionsApi', () => {
           is_append_event: true,
           append_event_details: {
             original_event_id: 'original_event_456',
-            net_revenue_to_append: 25.75
+            net_revenue_to_append: 25.75, 
+            original_event_time: '2021-09-09T19:14:23Z'
           }
         }
       })
@@ -438,6 +440,9 @@ describe('FacebookConversionsApi', () => {
             },
             net_revenue_to_append: {
               '@path': '$.properties.append_event_details.net_revenue_to_append'
+            }, 
+            original_event_time: {
+              '@path': '$.properties.append_event_details.original_event_time'
             }
           },
           user_data: {
@@ -469,6 +474,7 @@ describe('FacebookConversionsApi', () => {
           email: 'test@example.com',
           is_append_event: true,
           append_event_details: {
+            original_event_time: '2021-09-09T19:14:23Z',
             predicted_ltv_to_append: 200.0
           }
         }
@@ -488,6 +494,9 @@ describe('FacebookConversionsApi', () => {
             append_event_details: {
               predicted_ltv_to_append: {
                 '@path': '$.properties.append_event_details.predicted_ltv_to_append'
+              },
+              original_event_time: {
+                '@path': '$.properties.append_event_details.original_event_time'
               }
             },
             user_data: {
@@ -519,6 +528,7 @@ describe('FacebookConversionsApi', () => {
           email: 'test@example.com',
           is_append_event: true,
           append_event_details: {
+            original_event_time: '2021-09-09T19:14:23Z',
             original_event_order_id: 'order_789'
           }
         }
@@ -536,6 +546,9 @@ describe('FacebookConversionsApi', () => {
               '@path': '$.properties.is_append_event'
             },
             append_event_details: {
+              original_event_time: {
+                '@path': '$.properties.append_event_details.original_event_time'
+              },
               original_event_order_id: {
                 '@path': '$.properties.append_event_details.original_event_order_id'
               }
@@ -556,6 +569,113 @@ describe('FacebookConversionsApi', () => {
       ).rejects.toThrowError(
         'If append event is true, at least one of "Append Event Details > Net Revenue" or "Append Event Details > Predicted Lifetime Value" must be provided as a number'
       )
+    })
+
+    it('should throw an error when is_append_event is true but original_event_time is missing', async () => {
+      const event = createTestEvent({
+        event: 'Custom LTV Update',
+        userId: 'abc123',
+        timestamp: '2021-09-09T19:14:23Z',
+        properties: {
+          action_source: 'email',
+          email: 'test@example.com',
+          is_append_event: true,
+          append_event_details: {
+            original_event_order_id: 'original_order_123',
+            net_revenue_to_append: 10.5
+          }
+        }
+      })
+
+      await expect(
+        testDestination.testAction('custom', {
+          event,
+          settings,
+          mapping: {
+            event_name: {
+              '@path': '$.event'
+            },
+            is_append_event: {
+              '@path': '$.properties.is_append_event'
+            },
+            append_event_details: {
+              original_event_order_id: {
+                '@path': '$.properties.append_event_details.original_event_order_id'
+              },
+              net_revenue_to_append: {
+                '@path': '$.properties.append_event_details.net_revenue_to_append'
+              }
+            },
+            user_data: {
+              email: {
+                '@path': '$.properties.email'
+              }
+            },
+            action_source: {
+              '@path': '$.properties.action_source'
+            },
+            event_time: {
+              '@path': '$.timestamp'
+            }
+          }
+        })
+      ).rejects.toThrowError(
+        'AppendValue events must include "Append Event Details > Original Event Time"'
+      )
+    })
+
+    it('should not throw an error when is_append_event is false and append_event_details contains some data but not the original_event_time value', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Custom Event',
+        userId: 'abc123',
+        timestamp: '2021-09-09T19:14:23Z',
+        properties: {
+          action_source: 'email',
+          email: 'test@example.com',
+          is_append_event: false, 
+          append_event_details: {
+            original_event_order_id: 'original_order_123',
+            net_revenue_to_append: 10.5
+          }
+        }
+      })
+
+      const responses = await testDestination.testAction('custom', {
+        event,
+        settings,
+        mapping: {
+          event_name: {
+            '@path': '$.event'
+          },
+          is_append_event: {
+            '@path': '$.properties.is_append_event'
+          },
+          append_event_details: {
+            original_event_order_id: {
+              '@path': '$.properties.append_event_details.original_event_order_id'
+            },
+            net_revenue_to_append: {
+              '@path': '$.properties.append_event_details.net_revenue_to_append'
+            }
+          },
+          user_data: {
+            email: {
+              '@path': '$.properties.email'
+            }
+          },
+          action_source: {
+            '@path': '$.properties.action_source'
+          },
+          event_time: {
+            '@path': '$.timestamp'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
     })
   })
 })

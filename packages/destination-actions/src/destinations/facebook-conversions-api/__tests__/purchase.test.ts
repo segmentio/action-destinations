@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
 import { API_VERSION } from '../constants'
+import { event_time } from '../fields'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -788,6 +789,7 @@ describe('purchase', () => {
               net_revenue: 10.5
             },
             original_event_data: {
+              event_time: '2021-09-09T16:26:40Z',
               event_name: 'Purchase',
               order_id: 'original_order_123'
             }
@@ -807,6 +809,7 @@ describe('purchase', () => {
         email: 'nicholas.aguilar@segment.com',
         is_append_event: true,
         append_event_details: {
+          original_event_time: '2021-09-09T16:26:40Z',
           original_event_order_id: 'original_order_123',
           net_revenue_to_append: 10.5
         }
@@ -827,6 +830,9 @@ describe('purchase', () => {
           '@path': '$.properties.is_append_event'
         },
         append_event_details: {
+          original_event_time: {
+            '@path': '$.properties.append_event_details.original_event_time'
+          },
           original_event_order_id: {
             '@path': '$.properties.append_event_details.original_event_order_id'
           },
@@ -869,6 +875,7 @@ describe('purchase', () => {
               predicted_ltv: 150.0
             },
             original_event_data: {
+              event_time: '2021-09-09T16:26:40Z',
               event_name: 'Purchase',
               event_id: 'original_event_123'
             }
@@ -888,6 +895,7 @@ describe('purchase', () => {
         email: 'nicholas.aguilar@segment.com',
         is_append_event: true,
         append_event_details: {
+          original_event_time: '2021-09-09T16:26:40Z',
           original_event_id: 'original_event_123',
           predicted_ltv_to_append: 150.0
         }
@@ -908,6 +916,9 @@ describe('purchase', () => {
           '@path': '$.properties.is_append_event'
         },
         append_event_details: {
+          original_event_time: {
+            '@path': '$.properties.append_event_details.original_event_time'
+          },
           original_event_id: {
             '@path': '$.properties.append_event_details.original_event_id'
           },
@@ -946,6 +957,7 @@ describe('purchase', () => {
         email: 'nicholas.aguilar@segment.com',
         is_append_event: true,
         append_event_details: {
+          event_time: '2021-09-09T16:26:40Z',
           net_revenue_to_append: 10.5
         }
       }
@@ -966,6 +978,9 @@ describe('purchase', () => {
             '@path': '$.properties.is_append_event'
           },
           append_event_details: {
+            original_event_time: {
+              '@path': '$.properties.append_event_details.event_time'
+            },
             net_revenue_to_append: {
               '@path': '$.properties.append_event_details.net_revenue_to_append'
             }
@@ -1002,6 +1017,7 @@ describe('purchase', () => {
         email: 'nicholas.aguilar@segment.com',
         is_append_event: true,
         append_event_details: {
+          event_time: '2021-09-09T16:26:40Z',
           original_event_id: 'original_event_123'
         }
       }
@@ -1022,6 +1038,9 @@ describe('purchase', () => {
             '@path': '$.properties.is_append_event'
           },
           append_event_details: {
+            original_event_time: {
+              '@path': '$.properties.append_event_details.event_time'
+            },
             original_event_id: {
               '@path': '$.properties.append_event_details.original_event_id'
             }
@@ -1063,6 +1082,7 @@ describe('purchase', () => {
               net_revenue: 10.5
             },
             original_event_data: {
+              event_time: '2021-09-09T16:26:40Z',
               event_name: 'Purchase',
               order_id: 'original_order_123'
             }
@@ -1084,6 +1104,7 @@ describe('purchase', () => {
         content_name: 'Shoes',
         is_append_event: true,
         append_event_details: {
+          original_event_time: '2021-09-09T16:26:40Z',
           original_event_order_id: 'original_order_123',
           net_revenue_to_append: 10.5
         }
@@ -1110,12 +1131,124 @@ describe('purchase', () => {
           '@path': '$.properties.is_append_event'
         },
         append_event_details: {
+          original_event_time: {
+            '@path': '$.properties.append_event_details.original_event_time'
+          },
           original_event_order_id: {
             '@path': '$.properties.append_event_details.original_event_order_id'
           },
           net_revenue_to_append: {
             '@path': '$.properties.append_event_details.net_revenue_to_append'
           }
+        },
+        user_data: {
+          email: {
+            '@path': '$.properties.email'
+          }
+        },
+        action_source: {
+          '@path': '$.properties.action_source'
+        },
+        event_time: {
+          '@path': '$.timestamp'
+        }
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(201)
+  })
+
+  it('should throw an error when is_append_event is true but original_event_time is missing', async () => {
+    const event = createTestEvent({
+      event: 'Order Completed',
+      userId: 'abc123',
+      timestamp: '2021-09-09T19:14:23Z',
+      properties: {
+        action_source: 'email',
+        currency: 'USD',
+        value: 12.12,
+        email: 'nicholas.aguilar@segment.com',
+        is_append_event: true,
+        append_event_details: {
+          original_event_order_id: 'original_order_123',
+          net_revenue_to_append: 10.5
+        }
+      }
+    })
+
+    await expect(
+      testDestination.testAction('purchase', {
+        event,
+        settings,
+        mapping: {
+          currency: {
+            '@path': '$.properties.currency'
+          },
+          value: {
+            '@path': '$.properties.value'
+          },
+          is_append_event: {
+            '@path': '$.properties.is_append_event'
+          },
+          append_event_details: {
+            original_event_order_id: {
+              '@path': '$.properties.append_event_details.original_event_order_id'
+            },
+            net_revenue_to_append: {
+              '@path': '$.properties.append_event_details.net_revenue_to_append'
+            }
+          },
+          user_data: {
+            email: {
+              '@path': '$.properties.email'
+            }
+          },
+          action_source: {
+            '@path': '$.properties.action_source'
+          },
+          event_time: {
+            '@path': '$.timestamp'
+          }
+        }
+      })
+    ).rejects.toThrowError(
+      'AppendValue events must include "Append Event Details > Original Event Time"'
+    )
+  })
+
+  it('should not throw an error when is_append_event is false and append_event_details is not provided', async () => {
+    nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+    const event = createTestEvent({
+      event: 'Order Completed',
+      userId: 'abc123',
+      timestamp: '2021-09-09T19:14:23Z',
+      properties: {
+        action_source: 'email',
+        currency: 'USD',
+        value: 12.12,
+        email: 'nicholas.aguilar@segment.com',
+        is_append_event: false, 
+        append_event_details: {
+          original_event_order_id: 'original_order_123',
+          net_revenue_to_append: 10.5
+        }
+      }
+    })
+
+    const responses = await testDestination.testAction('purchase', {
+      event,
+      settings,
+      mapping: {
+        currency: {
+          '@path': '$.properties.currency'
+        },
+        value: {
+          '@path': '$.properties.value'
+        },
+        is_append_event: {
+          '@path': '$.properties.is_append_event'
         },
         user_data: {
           email: {
