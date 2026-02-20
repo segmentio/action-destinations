@@ -9,11 +9,11 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   description: 'Sync Segment Audience to Amplitude Cohort',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields,
-  perform: (request, { payload, settings, audienceSettings }) => {
-    return send(request, [payload], settings, false, audienceSettings)
+  perform: (request, { payload, settings }) => {
+    return send(request, [payload], settings, false)
   },
-  performBatch: (request, { payload, settings, audienceSettings }) => {
-    return send(request, payload, settings, true, audienceSettings)
+  performBatch: (request, { payload, settings }) => {
+    return send(request, payload, settings, true)
   }
 }
 

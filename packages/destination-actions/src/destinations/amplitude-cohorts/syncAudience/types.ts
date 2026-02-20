@@ -1,13 +1,15 @@
+import { ID_TYPES, OPERATIONS } from '../constants'
+
 // 'https://amplitude.com/api/3/cohorts/membership' 
 // partner advises to send add and removes in separate requests. 
 export type UploadToCohortJSON = {
-    cohort_id: string,
-    memberships: Array<{
-        ids: Array<string>,
-        id_type: 'BY_AMP_ID' | 'BY_USER_ID',
-        operation: 'ADD' | 'REMOVE'
-    }>
+    cohort_id: string
     skip_invalid_ids: true
+    memberships: Array<{
+        ids: Array<string>
+        id_type: keyof typeof ID_TYPES
+        operation: keyof typeof OPERATIONS
+    }>
 }
 
 // {

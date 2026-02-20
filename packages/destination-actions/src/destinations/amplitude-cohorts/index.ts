@@ -1,7 +1,8 @@
-import { AudienceDestinationDefinition, defaultValues } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 import syncAudience from './syncAudience'
-import { getEndpointByRegion } from './functions'
+import { getEndpointByRegion, createAudience, getAudience } from './functions'
+import { ID_TYPES } from './constants'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Amplitude Cohorts',
@@ -11,13 +12,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      apiKey: {
+      api_key: {
         label: 'API Key',
         description: 'Amplitude project API key. You can find this key in the "General" tab of your Amplitude project.',
         type: 'password',
         required: true
       },
-      secretKey: {
+      secret_key: {
         label: 'Secret Key',
         description: 'Amplitude project secret key. You can find this key in the "General" tab of your Amplitude project.',
         type: 'password',
@@ -27,6 +28,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         label: 'Amplitude App ID',
         description: 'The Amplitude App ID for the cohort you want to sync to. You can find this in the "General" tab of your Amplitude project.',
         type: 'string',
+        required: true
+      },
+      owner_email: {
+        label: 'Cohort Owner Email',
+        description: 'The email of the user who will own the cohorts in Amplitude. This can be overriden per Audience, but if left blank, all cohorts will be owned by this user.',
+        type: 'string',
+        format: 'email',
         required: true
       },
       endpoint: {
@@ -50,28 +58,36 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     testAuthentication: (request, { settings }) => {
       const { 
-        apiKey, 
-        secretKey, 
         endpoint 
       } = settings
-
       const baseUrl = getEndpointByRegion('usersearch', endpoint)
-      return request(`${baseUrl}?user=testUser@example.com`, {
-        username: apiKey,
-        password: secretKey
-      })
+      return request(`${baseUrl}?user=testUser@example.com`)
     }
   },
   extendRequest({ settings }) {
-    const { apiKey, secretKey } = settings
+    const { api_key, secret_key } = settings
     return {
       headers: { 
         'Content-Type': 'application/json',
-        Authorization: `Basic ${Buffer.from(`${apiKey}:${secretKey}`).toString('base64')}` 
+        Authorization: `Basic ${Buffer.from(`${api_key}:${secret_key}`).toString('base64')}` 
       }
     }
   },
-  audienceFields: {},
+  audienceFields: {
+    owner_email: {
+      label: 'Cohort Owner Email',
+      description: 'The email of the user who will own the cohort in Amplitude. This will override the default owner email set in the authentication settings for this specific cohort.',
+      type: 'string',
+      format: 'email',
+      required: false
+    },
+    audience_name: {
+      label: 'Cohort Name',
+      description: 'The name of the cohort in Amplitude. This will override the default cohort name which is the snake_case version of the Segment Audience name.',
+      type: 'string',
+      required: false
+    }
+  },
   audienceConfig: {
     mode: {
       type: 'synced',
@@ -79,14 +95,26 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const { 
-        audienceName 
+        audienceName, 
+        settings, 
+        audienceSettings: { 
+          owner_email,
+          audience_name
+        } = {}
       } = createAudienceInput
 
-      return {  externalId: '' }
+      const externalId = await createAudience(request, settings, audience_name ?? audienceName, owner_email)
+      return { externalId }
     },
     async getAudience(request, createAudienceInput) {
-      const { externalId } = createAudienceInput
-      return { externalId: '' }
+      const { 
+        externalId,
+        settings
+      } = createAudienceInput
+
+      await getAudience(request, settings, externalId)
+      
+      return { externalId }
     }
   },
   actions: {
