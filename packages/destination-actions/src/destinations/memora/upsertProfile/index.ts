@@ -1,15 +1,10 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, createRequestClient } from '@segment/actions-core'
 import type { Logger } from '@segment/actions-core/destination-kit'
 import { API_VERSION } from '../versioning-info'
-import { BASE_URL_PRODUCTION, BASE_URL_STAGING } from '../constants'
-
-// Helper function to determine base URL based on environment variable
-function getBaseUrl(): string {
-  return process.env.ACTIONS_MEMORA_ENV === 'production' ? BASE_URL_PRODUCTION : BASE_URL_STAGING
-}
+import { getBaseUrl } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -331,11 +326,7 @@ interface TraitGroupResponse {
 }
 
 // Fetch contact trait definitions for dynamic fields
-async function fetchContactTraits(
-  request: ReturnType<typeof createRequestClient>,
-  settings: Settings,
-  storeId: string
-) {
+async function fetchContactTraits(request: RequestClient, settings: Settings, storeId: string) {
   const baseUrl = getBaseUrl()
 
   try {
@@ -378,7 +369,7 @@ async function fetchContactTraits(
 }
 
 // Fetch available memora stores from Control Plane
-async function fetchMemoraStores(request: ReturnType<typeof createRequestClient>, settings: Settings) {
+async function fetchMemoraStores(request: RequestClient, settings: Settings) {
   const baseUrl = getBaseUrl()
 
   try {
