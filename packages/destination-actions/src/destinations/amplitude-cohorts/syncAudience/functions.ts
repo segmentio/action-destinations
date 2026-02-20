@@ -1,7 +1,7 @@
 import { RequestClient, MultiStatusResponse, JSONLikeObject, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { UploadToCohortJSON } from './types'
+import { UploadToCohortJSON, UploadToCohortResponse } from './types'
 import { ID_TYPES, OPERATIONS } from '../constants'
 import { getEndpointByRegion } from '../functions'
 
@@ -133,10 +133,13 @@ export async function sendRequest(
   const url = getEndpointByRegion('cohorts_membership', endpoint)
 
   try {
-    await request(url, {
+    const response = await request<UploadToCohortResponse>(url, {
       method: 'POST',
       json
     })
+
+    const skippedIds = response.data.memberships_result[0].skipped_ids || []
+    // need to mark skipped ids as errors in the batch response.
 
   } 
   catch (error) {
