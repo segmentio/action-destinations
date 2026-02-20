@@ -48,3 +48,16 @@ export type UploadToCohortResponseError = {
     message: string
 }
 
+
+
+export type ResponseError = {
+    response: {
+        data: {
+            error: {
+                error: string
+                message: string
+            }
+        }
+    }
+}
+

@@ -17,15 +17,3 @@ export type CreateAudienceResponse = {
 export type GetAudienceResponse = {
     cohortId: string
 }
-
-export type ResponseError = {
-    response: {
-        data: {
-            error: {
-                error: string
-                message: string
-            }
-        }
-    }
-}
-

@@ -1,7 +1,7 @@
-import { RequestClient, MultiStatusResponse, JSONLikeObject, PayloadValidationError } from '@segment/actions-core'
+import { RequestClient, MultiStatusResponse, JSONLikeObject, PayloadValidationError, ErrorCodes } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { UploadToCohortJSON, UploadToCohortResponse } from './types'
+import { UploadToCohortJSON, UploadToCohortResponse, ResponseError } from './types'
 import { ID_TYPES, OPERATIONS } from '../constants'
 import { getEndpointByRegion } from '../functions'
 
@@ -51,11 +51,11 @@ export async function send(
   const requests: Promise<void>[] = []
 
   if (addMap.size > 0) {
-    requests.push(sendRequest(request, endpoint, id_type, audienceId, addMap, msResponse, 'ADD', isBatch))
+    requests.push(sendRequest(request, endpoint, id_type as keyof typeof ID_TYPES, audienceId, addMap, msResponse, 'ADD', isBatch))
   }
 
   if (deleteMap.size > 0) {
-    requests.push(sendRequest(request, endpoint, id_type, audienceId, deleteMap, msResponse, 'REMOVE', isBatch))
+    requests.push(sendRequest(request, endpoint, id_type as keyof typeof ID_TYPES, audienceId, deleteMap, msResponse, 'REMOVE', isBatch))
   }
 
   await Promise.all(requests)
@@ -68,7 +68,7 @@ export async function send(
 export async function sendRequest(
   request: RequestClient,
   endpoint: string,
-  id_type: string,
+  id_type: keyof typeof ID_TYPES,
   audienceId: string,
   map: Map<number, Payload>,
   msResponse: MultiStatusResponse,
@@ -89,15 +89,16 @@ export async function sendRequest(
         ids.push(user_id)
       }
       else {
+        const errormessage = 'User ID is required for ID Type fields set to "User ID"'
         if(isBatch){
           msResponse.setErrorResponseAtIndex(index, {
             status: 400,
             errortype: 'PAYLOAD_VALIDATION_FAILED',
-            errormessage: 'User ID is required for ID Type fields set to "User ID"',
+            errormessage,
             body: p as unknown as JSONLikeObject
           })
         } else {
-          throw new PayloadValidationError('User ID is required for ID Type fields set to "User ID"')
+          throw new PayloadValidationError(errormessage)
         }
       }
     }
@@ -125,7 +126,7 @@ export async function sendRequest(
     skip_invalid_ids: true,
     memberships: [{
       ids,
-      id_type: id_type as keyof typeof ID_TYPES,
+      id_type,
       operation
     }]
   }
@@ -139,14 +140,69 @@ export async function sendRequest(
     })
 
     const skippedIds = response.data.memberships_result[0].skipped_ids || []
-    // need to mark skipped ids as errors in the batch response.
-
+    skippedIds.forEach(skippedId => {
+      for (const [key, payload] of map.entries()) {
+        const matchFound = id_type === ID_TYPES.BY_USER_ID ? payload.user_id === skippedId : payload.amplitude_id === skippedId
+        if (matchFound) {
+          const errormessage = `The user with ${id_type === ID_TYPES.BY_USER_ID ? 'User ID' : 'Amplitude ID'} ${skippedId} was invalid and was not processed in the cohort update.`
+          if(isBatch){
+            msResponse.setErrorResponseAtIndex(key, {
+              status: 400,
+              errortype: 'UNKNOWN_ERROR',
+              errormessage,
+              body: map.get(key) as unknown as JSONLikeObject,
+              sent: { ...json, memberships: [{ ...json.memberships[0], ids: [skippedId] }] } as unknown as JSONLikeObject
+            })
+          } 
+          else {
+            throw new PayloadValidationError(errormessage)
+          }
+        }
+      }
+    })
   } 
-  catch (error) {
-   
+  catch (err) {
+    const { 
+      response: {
+        data: {
+          error: { 
+            error, 
+            message 
+          } = {}
+        }
+      }
+    } = err as ResponseError
+
+    for (const [index, p] of map) {
+      const id = getId(p, id_type)
+      const errormessage = `Request failed for payload with ID ${id} of type ${id_type} with error: ${error || 'UNKNOWN_ERROR'} and message: ${message || 'No message returned from Amplitude'}`
+      if(isBatch){
+        if(!msResponse.getResponseAtIndex(index)){
+          msResponse.setErrorResponseAtIndex(index, {
+            status: 400,
+            errortype: error as keyof typeof ErrorCodes || 'UNKNOWN_ERROR',
+            errormessage,
+            body: p as unknown as JSONLikeObject,
+            sent: { ...json, memberships: [{ ...json.memberships[0], ids: [id] }] } as unknown as JSONLikeObject
+          })
+        }
+      } 
+      else {
+        throw new PayloadValidationError(errormessage)
+      }
+    }
   }
 }
 
+export function getId(payload: Payload, id_type: keyof typeof ID_TYPES): string | undefined {
+  if (id_type === ID_TYPES.BY_USER_ID) {
+    return payload.user_id
+  }
+  else if (id_type === ID_TYPES.BY_AMP_ID) {
+    return payload.amplitude_id
+  }
+  return undefined
+}
 
 export function returnErrorResponse(
   msResponse: MultiStatusResponse,
