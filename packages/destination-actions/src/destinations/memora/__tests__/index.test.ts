@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
 import { API_VERSION } from '../versioning-info'
-import { BASE_URL, BASE_URL_STAGING, BASE_URL_PRODUCTION } from '../constants'
+import { BASE_URL } from '../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -83,50 +83,6 @@ describe('Memora Destination', () => {
       }
 
       await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()
-    })
-
-    it('should use staging base URL when ACTIONS_MEMORA_ENV is not set to production', async () => {
-      const originalEnv = process.env.ACTIONS_MEMORA_ENV
-      delete process.env.ACTIONS_MEMORA_ENV
-
-      nock(BASE_URL_STAGING)
-        .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=1`)
-        .basicAuth({ user: 'test-api-key', pass: 'test-api-secret' })
-        .reply(200, { stores: [] })
-
-      const settings = {
-        username: 'test-api-key',
-        password: 'test-api-secret'
-      }
-
-      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
-
-      if (originalEnv !== undefined) {
-        process.env.ACTIONS_MEMORA_ENV = originalEnv
-      }
-    })
-
-    it('should use production base URL when ACTIONS_MEMORA_ENV is set to production', async () => {
-      const originalEnv = process.env.ACTIONS_MEMORA_ENV
-      process.env.ACTIONS_MEMORA_ENV = 'production'
-
-      nock(BASE_URL_PRODUCTION)
-        .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=1`)
-        .basicAuth({ user: 'test-api-key', pass: 'test-api-secret' })
-        .reply(200, { stores: [] })
-
-      const settings = {
-        username: 'test-api-key',
-        password: 'test-api-secret'
-      }
-
-      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
-
-      if (originalEnv !== undefined) {
-        process.env.ACTIONS_MEMORA_ENV = originalEnv
-      } else {
-        delete process.env.ACTIONS_MEMORA_ENV
-      }
     })
   })
 
