@@ -137,8 +137,10 @@ export async function update_taxonomy(
   const tx_client_key = tx_creds.tx_client_key
   const url = `https://datax.yahooapis.com/v1/taxonomy/append${engage_space_id.length > 0 ? '/' + engage_space_id : ''}`
 
+  const prefixed_client_id = `idb2b.dsp.datax.${tx_client_key}`
+
   try {
-    const access_token = await get_taxonomy_access_token(tx_client_key, tx_client_secret, request)
+    const access_token = await get_taxonomy_access_token(prefixed_client_id, tx_client_secret, request)
     const add_segment_node = await request(url, {
       method: 'PUT',
       body: body_form_data,
