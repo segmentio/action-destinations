@@ -1,54 +1,32 @@
 import { ID_TYPES, OPERATIONS } from '../constants'
+import { Payload } from './generated-types'
+import { ErrorCodes } from '@segment/actions-core'
 
-// 'https://amplitude.com/api/3/cohorts/membership' 
-// partner advises to send add and removes in separate requests. 
 export type UploadToCohortJSON = {
     cohort_id: string
     skip_invalid_ids: true
     memberships: Array<{
         ids: Array<string>
-        id_type: keyof typeof ID_TYPES
-        operation: keyof typeof OPERATIONS
+        id_type: IDType
+        operation: Operation
     }>
 }
 
-// {
-//     cohort_id: '1234',
-//     memberships: [
-//         {ids: ['user1', 'user2', 'user3'], id_type: 'BY_USER_ID', operation: 'ADD'},
-//         {ids: ['user4', 'user5'], id_type: 'BY_USER_ID', operation: 'REMOVE'}
-//     ]
-// }
+export type IDType = keyof typeof ID_TYPES
 
+export type PayloadMap = Map<number, Payload>
 
+export type Operation = keyof typeof OPERATIONS
 
-// example. list of 10 users. 2 are bad. skip_invalid_ids = false. => whole batch fails because 2 users are invalid. 
-// example. list of 10 users. 2 are bad. skip_invalid_ids = true. => batch succeeds but 2 users are not added to the cohort
+export type PossibleErrorCodes = keyof typeof ErrorCodes | 'PAYLOAD_VALIDATION_FAILED' | 'UNKNOWN_ERROR'
 
-// 2XX
 export type UploadToCohortResponse = {
-    cohort_id: string // the Cohort which was updated. 
+    cohort_id: string  
     memberships_result: Array<{
-        skipped_ids: Array<string> // list of user ids that were skipped because they were invalid. 
+        skipped_ids: Array<string> 
         operation: 'ADD' | 'REMOVE'
     }>
 }
-
-// {
-//      cohort_id: '1234',
-//      memberships_result: [
-//         { skipped_ids: [], operation: 'ADD' },
-//         { skipped_ids: ['user4'], operation: 'REMOVE' }
-//      ]
-// }
-
-// returns non 2XX
-export type UploadToCohortResponseError = {
-    error: string
-    message: string
-}
-
-
 
 export type ResponseError = {
     response: {
@@ -60,4 +38,3 @@ export type ResponseError = {
         }
     }
 }
-
