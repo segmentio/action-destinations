@@ -1,7 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { API_VERSION, BASE_URL } from '../../versioning-info'
+import { API_VERSION } from '../../versioning-info'
+import { BASE_URL } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -653,7 +654,7 @@ describe('Memora.upsertProfile', () => {
 
   describe('dynamicFields', () => {
     describe('memora_store', () => {
-      it('should fetch and return memory stores with details from Control Plane', async () => {
+      it('should fetch and return memory stores from Control Plane', async () => {
         nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')

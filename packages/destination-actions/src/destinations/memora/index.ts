@@ -2,7 +2,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import upsertProfile from './upsertProfile'
-import { API_VERSION, BASE_URL } from './versioning-info'
+import { API_VERSION } from './versioning-info'
+import { BASE_URL } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Memora',
