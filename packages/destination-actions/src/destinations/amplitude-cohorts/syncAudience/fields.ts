@@ -1,62 +1,16 @@
 import { InputField } from '@segment/actions-core'
-import { ID_TYPES } from '../constants'
 
 export const fields: Record<string, InputField> = {
-    id_type: {
-        label: 'ID Type',
-        description: 'The type of user identifier you want to use when syncing the Engage Audience to the Amplitude Cohort.',
-        type: 'string',
-        required: true,
-        choices: [
-          {
-            label: 'Amplitude ID',
-            value: ID_TYPES.BY_AMP_ID
-          },
-          {
-            label: 'User ID',
-            value: ID_TYPES.BY_USER_ID
-          }
-        ],
-        default: ID_TYPES.BY_USER_ID
-    },
     user_id: {
         label: 'User ID',
         description: 'Required if "ID Type" is set to "User ID".',
         type: 'string',
-        depends_on: {
-            conditions: [{
-                fieldKey: 'id_type',
-                operator: 'is',
-                value: ID_TYPES.BY_USER_ID
-            }]
-        },
-        required: {
-            conditions: [{
-                fieldKey: 'id_type',
-                operator: 'is',
-                value: ID_TYPES.BY_USER_ID
-            }]
-        },
         default: { '@path': '$.userId' }
     },
     amplitude_id: {
         label: 'Amplitude ID',
         description: 'Required if "ID Type" is set to "Amplitude ID".',
-        type: 'string',
-        depends_on: {
-            conditions: [{
-                fieldKey: 'id_type',
-                operator: 'is',
-                value: ID_TYPES.BY_AMP_ID
-            }]
-        },
-        required: {
-            conditions: [{
-                fieldKey: 'id_type',
-                operator: 'is',
-                value: ID_TYPES.BY_AMP_ID
-            }]
-        },
+        type: 'string'
     },
     engage_fields: {
         label: 'Engage Fields',
@@ -107,7 +61,7 @@ export const fields: Record<string, InputField> = {
                 }
             },
             segment_audience_key: { '@path': '$.context.personas.computation_key' }, 
-            cohort_id: {'@path': '$.context.personas.external_audience_id' }
+            segment_external_audience_id: {'@path': '$.context.personas.external_audience_id' }
         }
     },
     batch_size: {

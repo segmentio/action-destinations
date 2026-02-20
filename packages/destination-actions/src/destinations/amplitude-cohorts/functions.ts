@@ -2,12 +2,13 @@ import { Region, CreateAudienceJSON, CreateAudienceResponse } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { endpoints } from './constants'
+import { IDType } from './types'
 
 export function getEndpointByRegion(endpoint: keyof typeof endpoints, region?: string): string {
   return endpoints[endpoint][region as Region] ?? endpoints[endpoint]['north_america']
 }
 
-export async function createAudience(request: RequestClient, settings: Settings, name: string, owner_email?: string): Promise<string> {
+export async function createAudience(request: RequestClient, settings: Settings, name: string, id_type: IDType, owner_email?: string): Promise<string> {
   const { 
     endpoint,
     app_id,
@@ -23,7 +24,7 @@ export async function createAudience(request: RequestClient, settings: Settings,
   const json: CreateAudienceJSON = {
     name,
     app_id,
-    id_type: 'BY_USER_ID',
+    id_type,
     ids: [],
     owner: owner_email ?? default_owner_email,
     published: true
@@ -34,8 +35,7 @@ export async function createAudience(request: RequestClient, settings: Settings,
     json
   })
 
-  const r = await response.json()
-  const id = r.cohortId
+  const id = response?.data?.cohortId
 
   if (!id) {
     throw new IntegrationError('Invalid response from Amplitude Cohorts API when attempting to create new Cohort: Missing cohortId', 'INVALID_RESPONSE', 500)

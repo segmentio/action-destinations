@@ -33,4 +33,6 @@ export interface AudienceSettings {
    * The name of the cohort in Amplitude. This will override the default cohort name which is the snake_case version of the Segment Audience name.
    */
   audience_name?: string
+
+  id_type: string
 }

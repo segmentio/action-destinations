@@ -1,8 +1,9 @@
-import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 import syncAudience from './syncAudience'
 import { getEndpointByRegion, createAudience, getAudience } from './functions'
 import { ID_TYPES } from './constants'
+import { IDType } from './types'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Amplitude Cohorts',
@@ -81,6 +82,23 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       format: 'email',
       required: false
     },
+    id_type: {
+      label: 'ID Type',
+      description: 'The type of ID that will be used to sync users to the Amplitude Cohort.',
+      type: 'string',
+      required: true,
+      choices: [
+        {
+          label: 'User ID',
+          value: ID_TYPES.BY_USER_ID
+        },
+        {
+          label: 'Amplitude ID',
+          value: ID_TYPES.BY_AMP_ID 
+        }
+      ],
+      default: ID_TYPES.BY_USER_ID
+    },
     audience_name: {
       label: 'Cohort Name',
       description: 'The name of the cohort in Amplitude. This will override the default cohort name which is the snake_case version of the Segment Audience name.',
@@ -99,11 +117,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         settings, 
         audienceSettings: { 
           owner_email,
-          audience_name
+          audience_name, 
+          id_type
         } = {}
       } = createAudienceInput
 
-      const externalId = await createAudience(request, settings, audience_name ?? audienceName, owner_email)
+      const externalId = await createAudience(request, settings, audience_name ?? audienceName, id_type as IDType, owner_email)
       return { externalId }
     },
     async getAudience(request, createAudienceInput) {

@@ -1,3 +1,5 @@
+import { ID_TYPES } from './constants'
+
 export type Region = 'north_america' | 'europe'
 
 export type CreateAudienceJSON = {
@@ -17,3 +19,5 @@ export type CreateAudienceResponse = {
 export type GetAudienceResponse = {
     cohortId: string
 }
+
+export type IDType = keyof typeof ID_TYPES

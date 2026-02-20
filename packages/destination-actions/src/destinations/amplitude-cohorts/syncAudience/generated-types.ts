@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * The type of user identifier you want to use when syncing the Engage Audience to the Amplitude Cohort.
-   */
-  id_type: string
-  /**
    * Required if "ID Type" is set to "User ID".
    */
   user_id?: string

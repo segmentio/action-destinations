@@ -1,6 +1,7 @@
-import { ID_TYPES, OPERATIONS } from '../constants'
+import { OPERATIONS } from '../constants'
 import { Payload } from './generated-types'
 import { ErrorCodes } from '@segment/actions-core'
+import { IDType } from '../types'
 
 export type UploadToCohortJSON = {
     cohort_id: string
@@ -11,8 +12,6 @@ export type UploadToCohortJSON = {
         operation: Operation
     }>
 }
-
-export type IDType = keyof typeof ID_TYPES
 
 export type PayloadMap = Map<number, Payload>
 
