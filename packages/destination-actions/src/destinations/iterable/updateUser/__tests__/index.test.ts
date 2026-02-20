@@ -215,5 +215,88 @@ describe('Iterable.updateUser', () => {
         ]
       })
     })
+
+    it('includes updateOnly in request when enabled', async () => {
+      const events = [
+        createTestEvent({
+          type: 'identify',
+          userId: 'user1234',
+          traits: {
+            phone: '+14158675309'
+          }
+        }),
+        createTestEvent({
+          type: 'identify',
+          userId: 'user5678',
+          traits: {
+            phone: '+24158675309'
+          }
+        })
+      ]
+
+      nock('https://api.iterable.com/api').post('/users/bulkUpdate').reply(200, {})
+
+      const responses = await testDestination.testBatchAction('updateUser', {
+        events,
+        mapping: {
+          updateOnly: true
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].options.json).toMatchObject({
+        updateOnly: true,
+        users: [
+          {
+            userId: 'user1234',
+            dataFields: {
+              phoneNumber: '+14158675309'
+            }
+          },
+          {
+            userId: 'user5678',
+            dataFields: {
+              phoneNumber: '+24158675309'
+            }
+          }
+        ]
+      })
+    })
+
+    it('does not include updateOnly in request when disabled', async () => {
+      const events = [
+        createTestEvent({
+          type: 'identify',
+          userId: 'user1234',
+          traits: {
+            phone: '+14158675309'
+          }
+        })
+      ]
+
+      nock('https://api.iterable.com/api').post('/users/bulkUpdate').reply(200, {})
+
+      const responses = await testDestination.testBatchAction('updateUser', {
+        events,
+        mapping: {
+          updateOnly: false
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].options.json).toMatchObject({
+        users: [
+          {
+            userId: 'user1234',
+            dataFields: {
+              phoneNumber: '+14158675309'
+            }
+          }
+        ]
+      })
+      expect(responses[0].options.json).not.toHaveProperty('updateOnly')
+    })
   })
 })
