@@ -6,7 +6,7 @@ import { ID_TYPES } from '../constants'
 import { getEndpointByRegion } from '../functions'
 import { IDType } from '../types'
 
-export async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean, audienceSettings: AudienceSettings) {
+export async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean, audienceSettings?: AudienceSettings) {
   const { 
     engage_fields: { 
       segment_external_audience_id: audienceId,
@@ -20,9 +20,14 @@ export async function send(request: RequestClient, payloads: Payload[], settings
 
   const {
     id_type
-  } = audienceSettings as { id_type: IDType }
+  } = audienceSettings as { id_type: IDType | undefined}
 
   const msResponse = new MultiStatusResponse()
+
+  if(!id_type) {
+    return failAllPayloads(payloads, msResponse, isBatch)
+  }
+
   const addMap: PayloadMap = new Map()
   const deleteMap: PayloadMap = new Map()
 
@@ -46,12 +51,12 @@ export async function send(request: RequestClient, payloads: Payload[], settings
 
   if (addMap.size > 0) {
     const json = getJSON(addMap, id_type, audienceId, msResponse, 'ADD', isBatch)
-    requests.push(sendRequest(request, json, addMap, id_type, endpoint, msResponse, isBatch))
+    requests.push(sendRequest(request, addMap, msResponse, json, id_type, endpoint, isBatch))
   }
 
   if (deleteMap.size > 0) {
     const json = getJSON(deleteMap, id_type, audienceId, msResponse, 'REMOVE', isBatch)
-    requests.push(sendRequest(request, json, deleteMap, id_type, endpoint, msResponse, isBatch))
+    requests.push(sendRequest(request, deleteMap, msResponse, json, id_type, endpoint, isBatch))
   }
 
   await Promise.all(requests)
@@ -61,8 +66,26 @@ export async function send(request: RequestClient, payloads: Payload[], settings
   }
 }
 
+export function failAllPayloads(payloads: Payload[], msResponse: MultiStatusResponse, isBatch: boolean): MultiStatusResponse {
+  const message = 'ID Type must be specified in Audience Settings.'
+  payloads.forEach((payload, index) => {
+    handleError(
+      payload,
+      msResponse,
+      index,
+      isBatch,
+      message,
+      'PAYLOAD_VALIDATION_FAILED'
+    )
+  })
+  if(isBatch) {
+    return msResponse
+  }
+  throw new PayloadValidationError(message)
+}
+
 export function getJSON(map: PayloadMap, id_type: IDType, audienceId: string, msResponse: MultiStatusResponse, operation: Operation, isBatch: boolean): UploadToCohortJSON {
-  validate(map, id_type, msResponse, isBatch)
+  validateMap(map, id_type, msResponse, isBatch)
   const ids: string[] = getIds(map, id_type)
   const json: UploadToCohortJSON = {
     cohort_id: audienceId,
@@ -76,7 +99,7 @@ export function getJSON(map: PayloadMap, id_type: IDType, audienceId: string, ms
   return json
 }
 
-export function getIds( map: PayloadMap, id_type: IDType): string[] {
+export function getIds(map: PayloadMap, id_type: IDType): string[] {
   const ids: string[] = []
   for (const payload of map.values()) {
     const id = getId(payload, id_type)
@@ -97,7 +120,7 @@ export function getId(payload: Payload, id_type: IDType): string | undefined {
   return undefined
 }
 
-export function handleError(msResponse: MultiStatusResponse, index: number, payload: Payload, isBatch: boolean, errormessage: string, errortype: PossibleErrorCodes, sent?: JSONLikeObject): void {
+export function handleError(payload: Payload, msResponse: MultiStatusResponse, index: number, isBatch: boolean, errormessage: string, errortype: PossibleErrorCodes, sent?: JSONLikeObject): void {
   if (isBatch) {
     msResponse.setErrorResponseAtIndex(index, {
       status: 400,
@@ -112,7 +135,7 @@ export function handleError(msResponse: MultiStatusResponse, index: number, payl
   }
 }
 
-export async function sendRequest(request: RequestClient, json: UploadToCohortJSON, map: PayloadMap, id_type:IDType, endpoint: string, msResponse: MultiStatusResponse, isBatch: boolean) {
+export async function sendRequest(request: RequestClient, map: PayloadMap, msResponse: MultiStatusResponse, json: UploadToCohortJSON, id_type: IDType, endpoint: string, isBatch: boolean) {
   const url = getEndpointByRegion('cohorts_membership', endpoint)
   const idTypeName = getIdTypeName(id_type)
 
@@ -127,9 +150,9 @@ export async function sendRequest(request: RequestClient, json: UploadToCohortJS
       for (const [index, payload] of map.entries()) {
         if (getId(payload, id_type) === skippedId) {
           handleError(
+            payload,
             msResponse,
             index,
-            payload,
             isBatch,
             `The user with ${idTypeName} ${skippedId} was invalid and was not processed in the cohort update.`,
             'UNKNOWN_ERROR',
@@ -158,9 +181,9 @@ export async function sendRequest(request: RequestClient, json: UploadToCohortJS
       }
 
       handleError(
+        payload,
         msResponse,
         index,
-        payload,
         isBatch,
         `Request failed for payload with ID ${id} of type ${id_type} with error: ${error || 'UNKNOWN_ERROR'} and message: ${message || 'No message returned from Amplitude'}`,
         error as keyof typeof ErrorCodes || 'UNKNOWN_ERROR',
@@ -174,7 +197,7 @@ export function getIdTypeName(id_type: IDType): string {
   return id_type === ID_TYPES.BY_USER_ID ? 'User ID' : 'Amplitude ID'
 }
 
-export function validate(map: Map<number, Payload>, id_type: IDType, msResponse: MultiStatusResponse, isBatch: boolean) {
+export function validateMap(map: PayloadMap, id_type: IDType, msResponse: MultiStatusResponse, isBatch: boolean) {
   const idSet = new Set<string>()
   for (const [index, payload] of map.entries()) {
     const id = getId(payload, id_type)
@@ -182,9 +205,9 @@ export function validate(map: Map<number, Payload>, id_type: IDType, msResponse:
       if (idSet.has(id)) {
         // handle error if any duplicate ids are found in map
         handleError(
+          payload,
           msResponse,
           index,
-          payload,
           isBatch,
           `Duplicate ID ${id} of type ${getIdTypeName(id_type)} found in payload batch. The duplicate payload has been rejected. Each payload must have a unique ID for the specified ID Type.`,
           'PAYLOAD_VALIDATION_FAILED'
@@ -194,9 +217,9 @@ export function validate(map: Map<number, Payload>, id_type: IDType, msResponse:
     } 
     else {
       handleError(
+        payload,
         msResponse,
         index,
-        payload,
         isBatch,
         `No User Identifier of type ${getIdTypeName(id_type)} found in payload. Each payload must have a unique ID for the specified ID Type.`,
         'PAYLOAD_VALIDATION_FAILED'
