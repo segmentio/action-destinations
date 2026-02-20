@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, createRequestClient } from '@segment/actions-core'
@@ -305,6 +305,11 @@ interface MemoraStoresResponse {
   }
 }
 
+interface MemoraStoreDetails {
+  displayName: string
+  id: string
+}
+
 interface TraitDefinition {
   dataType: string
   description?: string
@@ -319,11 +324,7 @@ interface TraitGroupResponse {
 }
 
 // Fetch contact trait definitions for dynamic fields
-async function fetchContactTraits(
-  request: ReturnType<typeof createRequestClient>,
-  settings: Settings,
-  storeId: string
-) {
+async function fetchContactTraits(request: RequestClient, settings: Settings, storeId: string) {
   try {
     const response = await request<TraitGroupResponse>(
       `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/Contact?includeTraits=true&pageSize=100`,
@@ -364,7 +365,7 @@ async function fetchContactTraits(
 }
 
 // Fetch available memora stores from Control Plane
-async function fetchMemoraStores(request: ReturnType<typeof createRequestClient>, settings: Settings) {
+async function fetchMemoraStores(request: RequestClient, settings: Settings) {
   try {
     // Call the Control Plane API to list memora stores
     const response = await request<MemoraStoresResponse>(
@@ -379,10 +380,29 @@ async function fetchMemoraStores(request: ReturnType<typeof createRequestClient>
         skipResponseCloning: true
       }
     )
+
     const stores = response?.data?.stores || []
-    const choices = stores.map((storeId: string) => ({
-      label: storeId,
-      value: storeId
+
+    // This is not the most efficient way to get store details, but the Control Plane API does not currently provide an endpoint to list stores with their details in a single call.
+    // We need to make individual calls to get store details in order to display more information in the dropdown (e.g. store name).
+    // Fortunately, most accounts will have a small number of stores (max 5), so this should not be a major performance issue. If we find that this is causing performance problems, we can consider caching store details or adding an endpoint to the Control Plane API to list stores with their details.
+    const memoraStores = await Promise.all(
+      stores.map((storeId: string) => {
+        return request<MemoraStoreDetails>(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}`, {
+          method: 'GET',
+          headers: {
+            ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
+          },
+          username: settings.username,
+          password: settings.password,
+          skipResponseCloning: true
+        })
+      })
+    )
+
+    const choices = memoraStores.map((store) => ({
+      label: store.data?.displayName || store.data?.id,
+      value: store.data?.id
     }))
 
     return {
@@ -393,7 +413,7 @@ async function fetchMemoraStores(request: ReturnType<typeof createRequestClient>
     return {
       choices: [],
       error: {
-        message: 'Unable to fetch memora stores. You can still manually enter a memora store ID.',
+        message: 'Unable to fetch memora stores. Enter the memora store ID manually.',
         code: 'FETCH_ERROR'
       }
     }

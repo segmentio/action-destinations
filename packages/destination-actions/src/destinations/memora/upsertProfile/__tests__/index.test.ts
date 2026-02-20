@@ -653,7 +653,7 @@ describe('Memora.upsertProfile', () => {
 
   describe('dynamicFields', () => {
     describe('memora_store', () => {
-      it('should fetch and return memory stores from Control Plane', async () => {
+      it('should fetch and return memory stores with details from Control Plane', async () => {
         nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
@@ -665,16 +665,69 @@ describe('Memora.upsertProfile', () => {
             }
           })
 
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/store-1`)
+          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
+          .reply(200, { id: 'store-1', displayName: 'Store One' })
+
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/store-2`)
+          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
+          .reply(200, { id: 'store-2', displayName: 'Store Two' })
+
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/store-3`)
+          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
+          .reply(200, { id: 'store-3', displayName: 'Store Three' })
+
         const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
           settings: defaultSettings,
           payload: {}
         })) as any
 
         expect(result?.choices).toEqual([
-          { label: 'store-1', value: 'store-1' },
-          { label: 'store-2', value: 'store-2' },
-          { label: 'store-3', value: 'store-3' }
+          { label: 'Store One', value: 'store-1' },
+          { label: 'Store Two', value: 'store-2' },
+          { label: 'Store Three', value: 'store-3' }
         ])
+      })
+
+      it('should fall back to store id when displayName is empty', async () => {
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
+          .reply(200, { stores: ['store-no-name'] })
+
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/store-no-name`)
+          .reply(200, { id: 'store-no-name', displayName: '' })
+
+        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+          settings: defaultSettings,
+          payload: {}
+        })) as any
+
+        expect(result?.choices).toEqual([{ label: 'store-no-name', value: 'store-no-name' }])
+      })
+
+      it('should not include X-Pre-Auth-Context header in store detail requests when twilioAccount is not set', async () => {
+        const settingsNoTwilio = { username: 'test-api-key', password: 'test-api-secret' }
+
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
+          .matchHeader('X-Pre-Auth-Context', (val) => val === undefined)
+          .reply(200, { stores: ['store-1'] })
+
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/store-1`)
+          .matchHeader('X-Pre-Auth-Context', (val) => val === undefined)
+          .reply(200, { id: 'store-1', displayName: 'Store One' })
+
+        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+          settings: settingsNoTwilio,
+          payload: {}
+        })) as any
+
+        expect(result?.choices).toEqual([{ label: 'Store One', value: 'store-1' }])
       })
 
       it('should handle empty stores list', async () => {
@@ -693,6 +746,26 @@ describe('Memora.upsertProfile', () => {
         expect(result?.choices).toEqual([])
       })
 
+      it('should return error when a store detail request fails', async () => {
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
+          .reply(200, { stores: ['store-1'] })
+
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/store-1`)
+          .reply(500, { message: 'Internal server error' })
+
+        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+          settings: defaultSettings,
+          payload: {}
+        })) as any
+
+        expect(result?.choices).toEqual([])
+        expect(result?.error).toBeDefined()
+        expect(result?.error?.message).toContain('Unable to fetch memora stores')
+        expect(result?.error?.code).toBe('FETCH_ERROR')
+      })
+
       it('should return error message when API call fails', async () => {
         nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
@@ -706,6 +779,7 @@ describe('Memora.upsertProfile', () => {
         expect(result?.choices).toEqual([])
         expect(result?.error).toBeDefined()
         expect(result?.error?.message).toContain('Unable to fetch memora stores')
+        expect(result?.error?.message).toContain('Enter the memora store ID manually.')
         expect(result?.error?.code).toBe('FETCH_ERROR')
       })
     })
