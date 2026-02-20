@@ -32,6 +32,7 @@ export function send<T extends EventTypeKey>(request: RequestClient, payload: An
   const data = getEventData(payload, eventType)
 
   const json: RequestJSON = {
+    partner_agent: "segment",
     data: [data],
     ...(test_event_code || testEventCode ? { test_event_code: test_event_code || testEventCode } : {} )
   }
