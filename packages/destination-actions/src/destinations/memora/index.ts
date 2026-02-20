@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 
 import upsertProfile from './upsertProfile'
 import { API_VERSION } from './versioning-info'
-import { getBaseUrl } from './constants'
+import { BASE_URL } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Memora',
@@ -36,8 +36,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      const baseUrl = getBaseUrl()
-      return request(`${baseUrl}/${API_VERSION}/ControlPlane/Stores?pageSize=1`, {
+      return request(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores?pageSize=1`, {
         method: 'GET',
         username: settings.username,
         password: settings.password,

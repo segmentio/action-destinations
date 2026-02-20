@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { IntegrationError, createRequestClient } from '@segment/actions-core'
 import type { Logger } from '@segment/actions-core/destination-kit'
 import { API_VERSION } from '../versioning-info'
-import { getBaseUrl } from '../constants'
+import { BASE_URL } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -138,11 +138,10 @@ async function requestImportUrl(
 ): Promise<{ importId: string; uploadUrl: string }> {
   const timestamp = Date.now()
   const filename = `memora-segment-import-${storeId}-${timestamp}.csv`
-  const baseUrl = getBaseUrl()
 
   try {
     const importResponse = await request<{ importId: string; url: string }>(
-      `${baseUrl}/${API_VERSION}/Stores/${storeId}/Profiles/Imports`,
+      `${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Imports`,
       {
         method: 'POST',
         headers: {
@@ -327,11 +326,9 @@ interface TraitGroupResponse {
 
 // Fetch contact trait definitions for dynamic fields
 async function fetchContactTraits(request: RequestClient, settings: Settings, storeId: string) {
-  const baseUrl = getBaseUrl()
-
   try {
     const response = await request<TraitGroupResponse>(
-      `${baseUrl}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/Contact?includeTraits=true&pageSize=100`,
+      `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/Contact?includeTraits=true&pageSize=100`,
       {
         method: 'GET',
         headers: {
@@ -370,12 +367,10 @@ async function fetchContactTraits(request: RequestClient, settings: Settings, st
 
 // Fetch available memora stores from Control Plane
 async function fetchMemoraStores(request: RequestClient, settings: Settings) {
-  const baseUrl = getBaseUrl()
-
   try {
     // Call the Control Plane API to list memora stores
     const response = await request<MemoraStoresResponse>(
-      `${baseUrl}/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`,
+      `${BASE_URL}/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`,
       {
         method: 'GET',
         headers: {
@@ -394,7 +389,7 @@ async function fetchMemoraStores(request: RequestClient, settings: Settings) {
     // Fortunately, most accounts will have a small number of stores (max 5), so this should not be a major performance issue. If we find that this is causing performance problems, we can consider caching store details or adding an endpoint to the Control Plane API to list stores with their details.
     const memoraStores = await Promise.all(
       stores.map((storeId: string) => {
-        return request<MemoraStoreDetails>(`${baseUrl}/${API_VERSION}/ControlPlane/Stores/${storeId}`, {
+        return request<MemoraStoreDetails>(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}`, {
           method: 'GET',
           headers: {
             ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
