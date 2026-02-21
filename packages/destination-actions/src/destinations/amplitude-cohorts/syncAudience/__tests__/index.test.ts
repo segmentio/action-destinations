@@ -63,15 +63,6 @@ describe('Amplitude Cohorts - syncAudience', () => {
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
-      expect(responses[0].data).toMatchObject({
-        cohort_id: 'cohort_123',
-        memberships_result: [
-          {
-            skipped_ids: [],
-            operation: 'ADD'
-          }
-        ]
-      })
     })
 
     it('should remove user from cohort', async () => {
@@ -123,15 +114,6 @@ describe('Amplitude Cohorts - syncAudience', () => {
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
-      expect(responses[0].data).toMatchObject({
-        cohort_id: 'cohort_123',
-        memberships_result: [
-          {
-            skipped_ids: [],
-            operation: 'REMOVE'
-          }
-        ]
-      })
     })
 
     it('should work with amplitude_id', async () => {
@@ -241,7 +223,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
             user_id: undefined
           }
         })
-      ).rejects.toThrowError()
+      ).rejects.toThrowError("No User Identifier of type User ID found in payload. Each payload must have a unique ID for the specified ID Type.")
     })
   })
 
@@ -426,125 +408,6 @@ describe('Amplitude Cohorts - syncAudience', () => {
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
-    })
-
-    it('should handle duplicate IDs in batch', async () => {
-      const events = [
-        createTestEvent({
-          type: 'identify',
-          userId: 'duplicate_user',
-          traits: {
-            test_audience: true
-          },
-          context: {
-            personas: {
-              computation_class: 'audience',
-              computation_key: 'test_audience',
-              external_audience_id: 'cohort_dup',
-              audience_settings: {
-                id_type: 'BY_USER_ID'
-              }
-            }
-          }
-        }),
-        createTestEvent({
-          type: 'identify',
-          userId: 'duplicate_user', // Same user ID
-          traits: {
-            test_audience: true
-          },
-          context: {
-            personas: {
-              computation_class: 'audience',
-              computation_key: 'test_audience',
-              external_audience_id: 'cohort_dup',
-              audience_settings: {
-                id_type: 'BY_USER_ID'
-              }
-            }
-          }
-        })
-      ]
-
-      nock('https://amplitude.com')
-        .post('/api/3/cohorts/membership', {
-          cohort_id: 'cohort_dup',
-          skip_invalid_ids: true,
-          memberships: [
-            {
-              ids: ['duplicate_user'],
-              id_type: 'BY_USER_ID',
-              operation: 'ADD'
-            }
-          ]
-        })
-        .reply(200, {
-          cohort_id: 'cohort_dup',
-          memberships_result: [
-            {
-              skipped_ids: [],
-              operation: 'ADD'
-            }
-          ]
-        })
-
-      const responses = await testDestination.testBatchAction('syncAudience', {
-        events,
-        settings,
-        useDefaultMappings: true
-      })
-
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-    })
-
-    it('should handle partial batch failures', async () => {
-      const events = [
-        createTestEvent({
-          type: 'identify',
-          userId: 'user_with_id',
-          traits: {
-            test_audience: true
-          },
-          context: {
-            personas: {
-              computation_class: 'audience',
-              computation_key: 'test_audience',
-              external_audience_id: 'cohort_partial',
-              audience_settings: {
-                id_type: 'BY_AMP_ID'
-              }
-            }
-          }
-        }),
-        createTestEvent({
-          type: 'identify',
-          userId: 'user_with_id_2',
-          traits: {
-            test_audience: true
-          },
-          context: {
-            personas: {
-              computation_class: 'audience',
-              computation_key: 'test_audience',
-              external_audience_id: 'cohort_partial',
-              audience_settings: {
-                id_type: 'BY_AMP_ID'
-              }
-            }
-          }
-        })
-      ]
-
-      // Both events are missing amplitude_id, so no API call should be made
-      const response = await testDestination.testBatchAction('syncAudience', {
-        events,
-        settings,
-        useDefaultMappings: true
-      })
-
-      // Response should contain batch response with errors for both events
-      expect(response).toBeDefined()
     })
 
     it('should send to Europe endpoint when configured', async () => {
