@@ -19,6 +19,10 @@ export async function createAudience(request: RequestClient, settings: Settings,
     throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
   }
   
+  if(!id_type){
+    throw new IntegrationError('Missing id_type value', 'MISSING_REQUIRED_FIELD', 400)
+  }
+
   const url = getEndpointByRegion('cohorts_upload', endpoint)
   
   const json: CreateAudienceJSON = {
@@ -50,8 +54,7 @@ export async function getAudience(request: RequestClient, settings: Settings, ex
 
   const url = `${getEndpointByRegion('cohorts_get_one', endpoint)}/${externalId}`
   const response = await request<CreateAudienceResponse>(url)
-  const r = await response.json()
-  const id = r.cohortId
+  const id = response?.data?.cohortId
   
   if(!id) {
     throw new IntegrationError('Invalid response from Amplitude Cohorts API when attempting to get Cohort: Missing cohortId', 'INVALID_RESPONSE', 500)

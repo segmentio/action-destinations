@@ -77,7 +77,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceFields: {
     owner_email: {
       label: 'Cohort Owner Email',
-      description: 'The email of the user who will own the cohort in Amplitude. This will override the default owner email set in the authentication settings for this specific cohort.',
+      description: 'The email of the user who will own the cohort in Amplitude. Overrides the default Cohort Owner Email value from Settings.',
       type: 'string',
       format: 'email',
       required: false
@@ -122,7 +122,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         } = {}
       } = createAudienceInput
 
-      const externalId = await createAudience(request, settings, audience_name ?? audienceName, id_type as IDType, owner_email)
+      const name = typeof audience_name === 'string' && audience_name.length > 0 ? audience_name : audienceName
+
+      const externalId = await createAudience(request, settings, name, id_type as IDType, owner_email)
       return { externalId }
     },
     async getAudience(request, createAudienceInput) {

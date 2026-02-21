@@ -72,14 +72,5 @@ export const fields: Record<string, InputField> = {
         default: 100,
         maximum: 500,
         minimum: 1
-    },
-    batch_keys: {
-        label: 'Batch Keys',
-        description: 'The keys to use for batching the events.',
-        type: 'string',
-        unsafe_hidden: true,
-        required: false,
-        multiple: true,
-        default: ['id_type']
     }
 }
