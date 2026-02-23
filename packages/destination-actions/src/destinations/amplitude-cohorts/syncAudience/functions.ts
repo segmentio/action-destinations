@@ -183,22 +183,28 @@ export async function sendRequest(request: RequestClient, map: PayloadMap, msRes
       json
     })
 
-    const skippedIds = response?.data?.memberships_result[0]?.skipped_ids || []
-    skippedIds.forEach(skippedId => {
-      for (const [index, payload] of map.entries()) {
-        if (getId(payload, id_type) === skippedId) {
-          handleError(
-            payload,
-            msResponse,
-            index,
-            isBatch,
-            `The user with ${idTypeName} ${skippedId} was invalid and was not processed in the cohort update.`,
-            'UNKNOWN_ERROR',
-            { ...json, memberships: [{ ...json.memberships[0], ids: [skippedId] }] } as unknown as JSONLikeObject
-          )
-        }
+    const skippedIds = new Set(response?.data?.memberships_result[0]?.skipped_ids || [])
+
+    for (const [index, payload] of map.entries()) {
+      const id = getId(payload, id_type)
+      if (id && skippedIds.has(id)) {
+        handleError(
+          payload,
+          msResponse,
+          index,
+          isBatch,
+          `The user with ${idTypeName} ${id} was invalid and was not processed in the cohort update.`,
+          'UNKNOWN_ERROR'
+        )
+      } 
+      else if (isBatch && !msResponse.getResponseAtIndex(index)) {
+        msResponse.setSuccessResponseAtIndex(index, {
+          status: 200,
+          body: payload as unknown as JSONLikeObject,
+          sent: { ...json, memberships: [{ ...json.memberships[0], ids: [id] }] } as unknown as JSONLikeObject
+        })
       }
-    })
+    }
   }
   catch (err) {
     const {
