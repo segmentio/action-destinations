@@ -2,6 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { getEndpointByRegion } from '../regional-endpoints'
 import type { Payload } from './generated-types'
+import { MOENGAGE_API_VERSION } from '../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -105,7 +106,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const endpoint = getEndpointByRegion(settings.region)
 
-    return request(`${endpoint}/v1/integrations/segment?appId=${settings.api_id}`, {
+    return request(`${endpoint}/${MOENGAGE_API_VERSION}/integrations/segment?appId=${settings.api_id}`, {
       method: 'post',
       json: event,
       headers: {
