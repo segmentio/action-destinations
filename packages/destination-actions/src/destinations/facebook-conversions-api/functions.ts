@@ -66,6 +66,7 @@ export function send<T extends EventTypeKey>(
   const data = getEventData(payload, eventType)
 
   const json: RequestJSON = {
+    partner_agent: "segment",
     data: [data],
     ...(test_event_code || testEventCode ? { test_event_code: test_event_code || testEventCode } : {})
   }
@@ -407,20 +408,24 @@ export const convertToAppendValueEventData = (
     } = {}
   } = payload
 
+  if(!original_event_time) {
+    throw new PayloadValidationError('AppendValue events must include "Append Event Details > Original Event Time"')
+  }
+
   const appendValueEventData: AppendValueEventData = {
-    ...data,
-    event_name: 'AppendValue',
-    custom_data: {
-      ...restCustomData,
-      ...(typeof net_revenue_to_append === 'number' ? { net_revenue: net_revenue_to_append } : {}),
-      ...(typeof predicted_ltv_to_append === 'number' ? { predicted_ltv: predicted_ltv_to_append } : {})
-    },
-    original_event_data: {
-      event_name,
-      ...(original_event_time ? { event_time: original_event_time } : {}),
-      ...(original_event_order_id ? { order_id: original_event_order_id } : {}),
-      ...(original_event_id ? { event_id: original_event_id } : {})
-    }
+      ...data,
+      event_name: 'AppendValue',
+      custom_data: {
+          ...restCustomData,
+          ...(typeof net_revenue_to_append ==='number' ? { net_revenue: net_revenue_to_append } : {}),
+          ...(typeof predicted_ltv_to_append ==='number' ? { predicted_ltv: predicted_ltv_to_append } : {})
+      },
+      original_event_data: {
+          event_name,
+          event_time: original_event_time,
+          ...(original_event_order_id ? {order_id: original_event_order_id} : {}),
+          ...(original_event_id ? {event_id: original_event_id} : {})                 
+      }
   }
 
   return appendValueEventData

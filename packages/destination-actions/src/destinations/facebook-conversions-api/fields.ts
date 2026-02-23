@@ -363,7 +363,7 @@ export const append_event_details: InputField = {
   properties: {
     original_event_time: {
       label: 'Original Event Time',
-      description: 'A timestamp indicating when the actual original event occurred in ISO 8601 format.',
+      description: 'A timestamp indicating when the actual original event occurred in ISO 8601 format. Required to match to the original event.',
       type: 'string',
       format: 'date-time'
     },
