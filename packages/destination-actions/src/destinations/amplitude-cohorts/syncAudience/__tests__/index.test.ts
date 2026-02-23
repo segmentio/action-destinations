@@ -996,12 +996,6 @@ describe('Amplitude Cohorts - syncAudience', () => {
 
       const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping })
 
-      const expectedSkippedSent = {
-        cohort_id: 'cohort_123',
-        skip_invalid_ids: true,
-        memberships: [{ ids: ['skipped_user'], id_type: 'BY_USER_ID', operation: 'ADD' }]
-      }
-
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
         status: 200,
@@ -1021,7 +1015,16 @@ describe('Amplitude Cohorts - syncAudience', () => {
         status: 400,
         errortype: 'UNKNOWN_ERROR',
         errormessage: 'The user with User ID skipped_user was invalid and was not processed in the cohort update.',
-        sent: expectedSkippedSent
+        body: {
+          user_id: 'skipped_user',
+          engage_fields: {
+            segment_computation_class: 'audience',
+            traits_or_properties: { test_audience: true },
+            segment_audience_key: 'test_audience',
+            segment_external_audience_id: 'cohort_123'
+          },
+          batch_size: 100
+        }
       })
     })
 
@@ -1229,17 +1232,39 @@ describe('Amplitude Cohorts - syncAudience', () => {
         })
       ]
 
-      const expectedError = {
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'ID Type must be specified in Audience Settings.'
-      }
-
       const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping })
 
       expect(responses.length).toBe(2)
-      expect(responses[0]).toMatchObject(expectedError)
-      expect(responses[1]).toMatchObject(expectedError)
+      expect(responses[0]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'ID Type must be specified in Audience Settings.',
+        body: {
+          user_id: 'user1',
+          engage_fields: {
+            segment_computation_class: 'audience',
+            traits_or_properties: { test_audience: true },
+            segment_audience_key: 'test_audience',
+            segment_external_audience_id: 'cohort_123'
+          },
+          batch_size: 100
+        }
+      })
+      expect(responses[1]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'ID Type must be specified in Audience Settings.',
+        body: {
+          user_id: 'user2',
+          engage_fields: {
+            segment_computation_class: 'audience',
+            traits_or_properties: { test_audience: true },
+            segment_audience_key: 'test_audience',
+            segment_external_audience_id: 'cohort_123'
+          },
+          batch_size: 100
+        }
+      })
     })
 
     it('should mark all payloads as errors when the Amplitude API returns an error', async () => {
