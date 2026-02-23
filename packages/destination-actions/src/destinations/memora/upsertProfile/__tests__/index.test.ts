@@ -402,6 +402,53 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.Contact['first,name']).toBe('value')
       expect(profile.traits.Contact['last"name']).toBe('value')
     })
+
+    it('should prevent contact_traits from overriding identifier values', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-789',
+        properties: {
+          email: 'correct@example.com',
+          phone: '+1-555-1234',
+          first_name: 'John'
+        }
+      })
+
+      let capturedBody: Record<string, unknown> = {}
+
+      nock(BASE_URL)
+        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
+          capturedBody = body as Record<string, unknown>
+          return true
+        })
+        .reply(202)
+
+      // Mapping that tries to override identifiers in contact_traits
+      await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          contact_identifiers: {
+            email: { '@path': '$.properties.email' },
+            phone: { '@path': '$.properties.phone' }
+          },
+          contact_traits: {
+            firstName: { '@path': '$.properties.first_name' },
+            // Attempting to override identifiers (should be ignored)
+            email: { '@literal': 'wrong@example.com' },
+            phone: { '@literal': '+1-555-9999' }
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      // Verify identifiers remain authoritative
+      const profile = (capturedBody.profiles as any[])[0]
+      expect(profile.traits.Contact.email).toBe('correct@example.com')
+      expect(profile.traits.Contact.phone).toBe('+1-555-1234')
+      expect(profile.traits.Contact.firstName).toBe('John')
+    })
   })
 
   describe('performBatch (multiple profiles)', () => {
