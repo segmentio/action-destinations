@@ -92,12 +92,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
 // Process single or batch profile upserts using bulk API
 async function upsertProfiles(request: RequestClient, payloads: Payload[], settings: Settings, logger?: Logger) {
-  const storeId = payloads[0]?.memora_store
-
   if (!payloads || payloads.length === 0) {
     throw new IntegrationError('No profiles provided for batch sync', 'EMPTY_BATCH', 400)
   }
 
+  const storeId = payloads[0].memora_store
   // Build profiles array with trait groups, filtering out invalid profiles
   const validProfiles: { traits: Record<string, Record<string, unknown>> }[] = []
   let skippedCount = 0
