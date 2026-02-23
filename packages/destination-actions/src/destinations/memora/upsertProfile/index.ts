@@ -1,7 +1,7 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError, MultiStatusResponse } from '@segment/actions-core'
 import type { Logger } from '@segment/actions-core/destination-kit'
 import { API_VERSION } from '../versioning-info'
 import { BASE_URL } from '../constants'
@@ -91,17 +91,24 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 // Process single or batch profile upserts using bulk API
-async function upsertProfiles(request: RequestClient, payloads: Payload[], settings: Settings, logger?: Logger) {
+async function upsertProfiles(
+  request: RequestClient,
+  payloads: Payload[],
+  settings: Settings,
+  logger?: Logger
+): Promise<MultiStatusResponse> {
   if (!payloads || payloads.length === 0) {
     throw new IntegrationError('No profiles provided', 'EMPTY_BATCH', 400)
   }
 
   const storeId = payloads[0].memora_store
-  // Build profiles array with trait groups, filtering out invalid profiles
-  const validProfiles: { traits: Record<string, Record<string, unknown>> }[] = []
-  let skippedCount = 0
 
-  payloads.forEach((payload) => {
+  // Track valid profiles and their original indices
+  const validProfiles: { traits: Record<string, Record<string, unknown>> }[] = []
+  const validIndices: number[] = []
+  const invalidIndices: number[] = []
+
+  payloads.forEach((payload, index) => {
     // Validate that profile has at least one identifier AND at least one trait
     const identifiers = payload.contact_identifiers || {}
     const hasIdentifier = !!(identifiers.email || identifiers.phone)
@@ -112,17 +119,20 @@ async function upsertProfiles(request: RequestClient, payloads: Payload[], setti
     const hasTraits = Object.keys(traits).some((key) => traits[key] !== undefined && traits[key] !== null)
 
     if (!hasIdentifier || !hasTraits) {
-      skippedCount++
+      invalidIndices.push(index)
       return
     }
 
     // Build trait groups for valid profile
     const traitGroups = buildTraitGroups(payload)
     validProfiles.push({ traits: traitGroups })
+    validIndices.push(index)
   })
 
-  if (skippedCount > 0) {
-    logger?.warn?.(`Skipped ${skippedCount} invalid profile(s). Processing ${validProfiles.length} valid profile(s).`)
+  if (invalidIndices.length > 0) {
+    logger?.warn?.(
+      `Skipped ${invalidIndices.length} invalid profile(s). Processing ${validProfiles.length} valid profile(s).`
+    )
   }
 
   if (validProfiles.length === 0) {
@@ -147,7 +157,29 @@ async function upsertProfiles(request: RequestClient, payloads: Payload[], setti
 
     logger?.info?.(`Bulk upsert completed successfully for ${validProfiles.length} profile(s)`)
 
-    return response
+    // Build multi-status response
+    const multiStatusResponse = new MultiStatusResponse()
+
+    // Mark valid profiles as successful
+    validIndices.forEach((index) => {
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
+        status: response.status,
+        sent: {},
+        body: 'accepted'
+      })
+    })
+
+    // Mark invalid profiles with validation error
+    invalidIndices.forEach((index) => {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errormessage: 'Profile must contain at least one identifier (email or phone) and at least one trait',
+        sent: {},
+        body: 'skipped'
+      })
+    })
+
+    return multiStatusResponse
   } catch (error) {
     logger?.error?.(`Error in bulk upsert: ${error instanceof Error ? error.message : String(error)}`)
     throw error
