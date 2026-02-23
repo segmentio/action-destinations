@@ -559,6 +559,71 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.Contact.email).toBe('user2@example.com')
     })
 
+    it('should return MultiStatusResponse with per-payload status', async () => {
+      const mockRequestFn = jest.fn().mockResolvedValue({
+        status: 202,
+        data: {}
+      })
+      const mockRequest = mockRequestFn as unknown as RequestClient
+
+      const action = Destination.actions.upsertProfile
+
+      const payloads: Payload[] = [
+        {
+          memora_store: 'test-store-id',
+          contact_identifiers: {},
+          contact_traits: { firstName: 'Missing identifier' }
+        },
+        {
+          memora_store: 'test-store-id',
+          contact_identifiers: { email: 'valid@example.com' },
+          contact_traits: { firstName: 'Valid' }
+        },
+        {
+          memora_store: 'test-store-id',
+          contact_identifiers: { email: 'another@example.com' },
+          contact_traits: {}
+        }
+      ]
+
+      const executeInput: ExecuteInput<Settings, Payload[]> = {
+        payload: payloads,
+        settings: defaultSettings
+      }
+
+      if (!action.performBatch) {
+        throw new Error('performBatch is not defined')
+      }
+
+      const result = (await action.performBatch(mockRequest, executeInput)) as any
+
+      // Verify MultiStatusResponse structure
+      expect(result.length()).toBe(3)
+
+      // Index 0: invalid (no identifier)
+      expect(result.isErrorResponseAtIndex(0)).toBe(true)
+      const error0 = result.getResponseAtIndex(0).value()
+      expect(error0.status).toBe(400)
+      expect(error0.body).toBe('skipped')
+
+      // Index 1: valid
+      expect(result.isSuccessResponseAtIndex(1)).toBe(true)
+      const success1 = result.getResponseAtIndex(1).value()
+      expect(success1.status).toBe(202)
+      expect(success1.body).toBe('accepted')
+
+      // Index 2: invalid (no traits)
+      expect(result.isErrorResponseAtIndex(2)).toBe(true)
+      const error2 = result.getResponseAtIndex(2).value()
+      expect(error2.status).toBe(400)
+      expect(error2.body).toBe('skipped')
+
+      // Verify only 1 profile was sent in bulk request
+      expect(mockRequestFn).toHaveBeenCalledTimes(1)
+      const callArgs = mockRequestFn.mock.calls[0]
+      expect(callArgs[1].json.profiles).toHaveLength(1)
+    })
+
     it('should throw error when all profiles in batch are invalid and log skipped count', async () => {
       const mockLogger: Logger = {
         level: 'info',
