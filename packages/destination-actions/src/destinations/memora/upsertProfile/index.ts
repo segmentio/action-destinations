@@ -93,11 +93,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
 // Process single or batch profile upserts using bulk API
 async function upsertProfiles(request: RequestClient, payloads: Payload[], settings: Settings, logger?: Logger) {
-  const storeId = payloads[0]?.memora_store
-
   if (!payloads || payloads.length === 0) {
     throw new IntegrationError('No profiles provided for batch sync', 'EMPTY_BATCH', 400)
   }
+
+  const storeId = payloads[0].memora_store
 
   if (process.env.STUB_MEMORA_API === 'true') {
     nock(BASE_URL).put(`/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`).reply(200, {
