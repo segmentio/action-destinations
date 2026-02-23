@@ -5,6 +5,7 @@ import { IntegrationError } from '@segment/actions-core'
 import type { Logger } from '@segment/actions-core/destination-kit'
 import { API_VERSION } from '../versioning-info'
 import { BASE_URL } from '../constants'
+import nock from 'nock'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -96,6 +97,17 @@ async function upsertProfiles(request: RequestClient, payloads: Payload[], setti
 
   if (!payloads || payloads.length === 0) {
     throw new IntegrationError('No profiles provided for batch sync', 'EMPTY_BATCH', 400)
+  }
+
+  if (process.env.STUB_MEMORA_API === 'true') {
+    nock(BASE_URL).put(`/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`).reply(200, {
+      success: true,
+      message: 'Profile batch accepted for processing. (request stubbed)'
+    })
+
+    return request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
+      method: 'PUT'
+    })
   }
 
   // Build profiles array with trait groups, filtering out invalid profiles
