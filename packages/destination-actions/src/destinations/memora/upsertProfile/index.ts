@@ -1,7 +1,7 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import type { Logger } from '@segment/actions-core/destination-kit'
 import { API_VERSION } from '../versioning-info'
 import { BASE_URL } from '../constants'
@@ -93,7 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
 // Process single or batch profile upserts using bulk API
 async function upsertProfiles(request: RequestClient, payloads: Payload[], settings: Settings, logger?: Logger) {
   if (!payloads || payloads.length === 0) {
-    throw new IntegrationError('No profiles provided for batch sync', 'EMPTY_BATCH', 400)
+    throw new IntegrationError('No profiles provided', 'EMPTY_BATCH', 400)
   }
 
   const storeId = payloads[0].memora_store
@@ -126,10 +126,8 @@ async function upsertProfiles(request: RequestClient, payloads: Payload[], setti
   }
 
   if (validProfiles.length === 0) {
-    throw new IntegrationError(
-      'No valid profiles found for import. All profiles must contain at least one identifier (email or phone) and at least one trait.',
-      'NO_VALID_PROFILES',
-      400
+    throw new PayloadValidationError(
+      'No valid profiles found for import. All profiles must contain at least one identifier (email or phone) and at least one trait.'
     )
   }
 
