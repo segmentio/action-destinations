@@ -221,6 +221,12 @@ async function upsertProfiles(
     throw new IntegrationError('No profiles provided for import', 'EMPTY_BATCH', 400)
   }
 
+  if (process.env.STUB_MEMORA_API === 'true') {
+    return {
+      message: 'Profile batch accepted for processing.'
+    }
+  }
+
   const storeId = payloads[0]?.memora_store
 
   // Validate profiles and collect all unique field names
