@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { API_VERSION } from '../../versioning-info'
-import { BASE_URL_STAGING } from '../../constants'
+import { BASE_URL } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -46,7 +46,7 @@ describe('Memora.upsertProfile', () => {
       let capturedCSV = ''
 
       // Step 1: Mock the import initiation request
-      nock(BASE_URL_STAGING)
+      nock(BASE_URL)
         .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`, (body) => {
           capturedImportBody = body as Record<string, unknown>
           return true
@@ -104,7 +104,7 @@ describe('Memora.upsertProfile', () => {
 
       let capturedCSV = ''
 
-      nock(BASE_URL_STAGING).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
         importId: 'mem_import_12345',
         url: 'https://example.com/presigned-url'
       })
@@ -182,7 +182,7 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      nock(BASE_URL_STAGING).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
         importId: 'mem_import_12345',
         url: 'https://example.com/presigned-url'
       })
@@ -214,7 +214,7 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      nock(BASE_URL_STAGING).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
         importId: 'mem_import_12345',
         url: 'https://example.com/presigned-url'
       })
@@ -247,7 +247,7 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      nock(BASE_URL_STAGING).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
         importId: 'mem_import_12345',
         url: 'https://example.com/presigned-url'
       })
@@ -280,7 +280,7 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      nock(BASE_URL_STAGING)
+      nock(BASE_URL)
         .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
         .matchHeader('X-Pre-Auth-Context', (val) => val === undefined)
         .reply(201, {
@@ -313,7 +313,7 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      nock(BASE_URL_STAGING)
+      nock(BASE_URL)
         .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
         .reply(400, { message: 'Invalid request' })
 
@@ -336,7 +336,7 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      nock(BASE_URL_STAGING).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
         importId: 'mem_import_12345',
         url: 'https://example.com/presigned-url'
       })
@@ -366,7 +366,7 @@ describe('Memora.upsertProfile', () => {
 
       let capturedCSV = ''
 
-      nock(BASE_URL_STAGING).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
         importId: 'mem_import_12345',
         url: 'https://example.com/presigned-url'
       })
@@ -401,7 +401,7 @@ describe('Memora.upsertProfile', () => {
 
       let capturedCSV = ''
 
-      nock(BASE_URL_STAGING).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
         importId: 'mem_import_12345',
         url: 'https://example.com/presigned-url'
       })
@@ -462,7 +462,7 @@ describe('Memora.upsertProfile', () => {
 
       let capturedCSV = ''
 
-      nock(BASE_URL_STAGING).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
         importId: 'mem_import_12345',
         url: 'https://example.com/presigned-url'
       })
@@ -561,7 +561,7 @@ describe('Memora.upsertProfile', () => {
 
       let capturedCSV = ''
 
-      nock(BASE_URL_STAGING).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
+      nock(BASE_URL).post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`).reply(201, {
         importId: 'mem_import_12345',
         url: 'https://example.com/presigned-url'
       })
@@ -612,7 +612,7 @@ describe('Memora.upsertProfile', () => {
         })
       ]
 
-      nock(BASE_URL_STAGING)
+      nock(BASE_URL)
         .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
         .reply(400, { message: 'Invalid column mapping' })
 
@@ -637,7 +637,7 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
-      nock(BASE_URL_STAGING)
+      nock(BASE_URL)
         .post(`/${API_VERSION}/Stores/test-store-id/Profiles/Imports`)
         .reply(400, { message: 'Invalid profile data' })
 
@@ -655,7 +655,7 @@ describe('Memora.upsertProfile', () => {
   describe('dynamicFields', () => {
     describe('memora_store', () => {
       it('should fetch and return memory stores from Control Plane', async () => {
-        nock(BASE_URL_STAGING)
+        nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
           .reply(200, {
@@ -666,20 +666,73 @@ describe('Memora.upsertProfile', () => {
             }
           })
 
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/store-1`)
+          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
+          .reply(200, { id: 'store-1', displayName: 'Store One' })
+
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/store-2`)
+          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
+          .reply(200, { id: 'store-2', displayName: 'Store Two' })
+
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/store-3`)
+          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
+          .reply(200, { id: 'store-3', displayName: 'Store Three' })
+
         const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
           settings: defaultSettings,
           payload: {}
         })) as any
 
         expect(result?.choices).toEqual([
-          { label: 'store-1', value: 'store-1' },
-          { label: 'store-2', value: 'store-2' },
-          { label: 'store-3', value: 'store-3' }
+          { label: 'Store One', value: 'store-1' },
+          { label: 'Store Two', value: 'store-2' },
+          { label: 'Store Three', value: 'store-3' }
         ])
       })
 
+      it('should fall back to store id when displayName is empty', async () => {
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
+          .reply(200, { stores: ['store-no-name'] })
+
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/store-no-name`)
+          .reply(200, { id: 'store-no-name', displayName: '' })
+
+        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+          settings: defaultSettings,
+          payload: {}
+        })) as any
+
+        expect(result?.choices).toEqual([{ label: 'store-no-name', value: 'store-no-name' }])
+      })
+
+      it('should not include X-Pre-Auth-Context header in store detail requests when twilioAccount is not set', async () => {
+        const settingsNoTwilio = { username: 'test-api-key', password: 'test-api-secret' }
+
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
+          .matchHeader('X-Pre-Auth-Context', (val) => val === undefined)
+          .reply(200, { stores: ['store-1'] })
+
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/store-1`)
+          .matchHeader('X-Pre-Auth-Context', (val) => val === undefined)
+          .reply(200, { id: 'store-1', displayName: 'Store One' })
+
+        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+          settings: settingsNoTwilio,
+          payload: {}
+        })) as any
+
+        expect(result?.choices).toEqual([{ label: 'Store One', value: 'store-1' }])
+      })
+
       it('should handle empty stores list', async () => {
-        nock(BASE_URL_STAGING)
+        nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
           .reply(200, {
             stores: [],
@@ -694,9 +747,13 @@ describe('Memora.upsertProfile', () => {
         expect(result?.choices).toEqual([])
       })
 
-      it('should return error message when API call fails', async () => {
-        nock(BASE_URL_STAGING)
+      it('should return error when a store detail request fails', async () => {
+        nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
+          .reply(200, { stores: ['store-1'] })
+
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/store-1`)
           .reply(500, { message: 'Internal server error' })
 
         const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
@@ -709,11 +766,28 @@ describe('Memora.upsertProfile', () => {
         expect(result?.error?.message).toContain('Unable to fetch memora stores')
         expect(result?.error?.code).toBe('FETCH_ERROR')
       })
+
+      it('should return error message when API call fails', async () => {
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
+          .reply(500, { message: 'Internal server error' })
+
+        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+          settings: defaultSettings,
+          payload: {}
+        })) as any
+
+        expect(result?.choices).toEqual([])
+        expect(result?.error).toBeDefined()
+        expect(result?.error?.message).toContain('Unable to fetch memora stores')
+        expect(result?.error?.message).toContain('Enter the memora store ID manually.')
+        expect(result?.error?.code).toBe('FETCH_ERROR')
+      })
     })
 
     describe('contact_traits (dynamic contact traits)', () => {
       it('should fetch and return contact traits from Control Plane', async () => {
-        nock(BASE_URL_STAGING)
+        nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/Contact?includeTraits=true&pageSize=100`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
           .reply(200, {
@@ -785,7 +859,7 @@ describe('Memora.upsertProfile', () => {
       })
 
       it('should return error message when API call fails', async () => {
-        nock(BASE_URL_STAGING)
+        nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/Contact?includeTraits=true&pageSize=100`)
           .reply(500, { message: 'Internal server error' })
 
