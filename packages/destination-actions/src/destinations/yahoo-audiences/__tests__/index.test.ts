@@ -6,6 +6,16 @@ import Destination from '../index'
 import { gen_update_segment_payload, generate_jwt } from '../utils-rt'
 import { Payload } from '../updateSegment/generated-types'
 
+function decodeBase64Url(input: string): string {
+  const base64 = input.replace(/-/g, '+').replace(/_/g, '/')
+  const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=')
+  return Buffer.from(padded, 'base64').toString()
+}
+
+function toBase64Url(input: string): string {
+  return input.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+
 const AUDIENCE_ID = 'aud_123456789012345678901234567' // References audienceSettings.audience_id
 const AUDIENCE_KEY = 'sneakers_buyers' // References audienceSettings.audience_key
 const ENGAGE_SPACE_ID = 'acme_corp_engage_space' // References settings.engage_space_id
@@ -142,7 +152,7 @@ describe('Yahoo Audiences', () => {
         expect(scope.isDone()).toBe(true)
       })
 
-      it('should use new audience claim https://id.b2b.yahooincapis.com/zts/v1', async () => {
+      it('should not send aud as a token form parameter', async () => {
         const mockResponse = {
           access_token: 'token_with_new_aud'
         }
@@ -163,7 +173,7 @@ describe('Yahoo Audiences', () => {
           clientSecret: 'test_secret'
         })
 
-        expect(requestBody?.get('aud')).toBe('https://id.b2b.yahooincapis.com/zts/v1')
+        expect(requestBody?.get('aud')).toBeNull()
         expect(scope.isDone()).toBe(true)
       })
 
@@ -263,12 +273,12 @@ describe('Yahoo Audiences', () => {
       expect(parts.length).toBe(3)
 
       // Decode and validate header
-      const header = JSON.parse(Buffer.from(parts[0], 'base64').toString())
+      const header = JSON.parse(decodeBase64Url(parts[0]))
       expect(header.alg).toBe('HS256')
-      expect(header.typ).toBe('JWT')
+      expect(header.typ).toBe('jwt')
 
       // Decode and validate payload
-      const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString())
+      const payload = JSON.parse(decodeBase64Url(parts[1]))
       expect(payload.iss).toBe(clientId)
       expect(payload.sub).toBe(clientId)
       expect(payload.aud).toBe('https://id.b2b.yahooincapis.com/zts/v1')
@@ -285,7 +295,7 @@ describe('Yahoo Audiences', () => {
 
       const jwt = generate_jwt(clientId, clientSecret)
       const parts = jwt.split('.')
-      const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString())
+      const payload = JSON.parse(decodeBase64Url(parts[1]))
 
       expect(payload.aud).toBe('https://id.b2b.yahooincapis.com/zts/v1')
     })
@@ -299,7 +309,7 @@ describe('Yahoo Audiences', () => {
 
       // Verify signature
       const headerPayload = parts[0] + '.' + parts[1]
-      const expectedSignature = createHmac('sha256', clientSecret).update(headerPayload).digest('base64')
+      const expectedSignature = toBase64Url(createHmac('sha256', clientSecret).update(headerPayload).digest('base64'))
 
       expect(parts[2]).toBe(expectedSignature)
     })
@@ -310,7 +320,7 @@ describe('Yahoo Audiences', () => {
 
       const jwt = generate_jwt(clientId, clientSecret)
       const parts = jwt.split('.')
-      const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString())
+      const payload = JSON.parse(decodeBase64Url(parts[1]))
 
       expect(payload.iss).toBe(clientId)
       expect(payload.sub).toBe(clientId)
@@ -324,8 +334,8 @@ describe('Yahoo Audiences', () => {
       const jwt1 = generate_jwt(clientId, clientSecret)
       const jwt2 = generate_jwt(clientId, clientSecret)
 
-      const payload1 = JSON.parse(Buffer.from(jwt1.split('.')[1], 'base64').toString())
-      const payload2 = JSON.parse(Buffer.from(jwt2.split('.')[1], 'base64').toString())
+      const payload1 = JSON.parse(decodeBase64Url(jwt1.split('.')[1]))
+      const payload2 = JSON.parse(decodeBase64Url(jwt2.split('.')[1]))
 
       expect(payload1.jti).not.toBe(payload2.jti)
     })
@@ -339,7 +349,7 @@ describe('Yahoo Audiences', () => {
       const afterGeneration = Math.floor(Date.now() / 1000)
 
       const parts = jwt.split('.')
-      const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString())
+      const payload = JSON.parse(decodeBase64Url(parts[1]))
 
       // iat should be close to current time
       expect(payload.iat).toBeGreaterThanOrEqual(beforeGeneration)

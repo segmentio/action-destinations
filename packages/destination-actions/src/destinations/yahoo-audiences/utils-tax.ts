@@ -1,8 +1,26 @@
 import type { Settings } from './generated-types'
-import { createHmac } from 'crypto'
+import { createHmac, randomBytes } from 'crypto'
 import { CredsObj, YahooSubTaxonomy } from './types'
 import { RequestClient, IntegrationError, ModifiedResponse } from '@segment/actions-core'
 import { StatsClient } from '@segment/actions-core/destination-kit'
+
+const TAXONOMY_TOKEN_BUFFER_SECONDS = 30
+
+type TaxonomyTokenCache = {
+  clientId: string
+  accessToken: string
+  expiresAtEpochSeconds: number
+}
+
+let taxonomyTokenCache: TaxonomyTokenCache | undefined
+
+function base64UrlEncode(value: string): string {
+  return Buffer.from(value).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+
+function base64UrlFromBase64(base64Value: string): string {
+  return base64Value.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
 
 export function gen_customer_taxonomy_payload(settings: Settings) {
   const data = {
@@ -37,10 +55,14 @@ export function gen_segment_subtaxonomy_payload(payload: YahooSubTaxonomy) {
 }
 
 export function gen_random_id(length: number): string {
-  const pattern = 'abcdefghijklmnopqrstuvwxyz123456789'
+  const pattern = 'abcdefghijklmnopqrstuvwxyz1234567890'
   const random_id: string[] = []
-  for (let i = 0; i < length; i++) {
-    random_id.push(pattern[Math.floor(Math.random() * pattern.length)])
+  const random = randomBytes(length)
+  for (const byte of random) {
+    if (random_id.length === length) {
+      break
+    }
+    random_id.push(pattern[byte % pattern.length])
   }
   return random_id.join('')
 }
@@ -59,15 +81,15 @@ export function generate_taxonomy_jwt(client_id: string, client_secret: string):
   }
   const jwt_header = {
     alg: 'HS256',
-    typ: 'JWT'
+    typ: 'jwt'
   }
 
-  const jwt_header_encoded = Buffer.from(JSON.stringify(jwt_header)).toString('base64')
-  const jwt_payload_encoded = Buffer.from(JSON.stringify(jwt_payload)).toString('base64')
+  const jwt_header_encoded = base64UrlEncode(JSON.stringify(jwt_header))
+  const jwt_payload_encoded = base64UrlEncode(JSON.stringify(jwt_payload))
   const jwt_head_payload = jwt_header_encoded + '.' + jwt_payload_encoded
 
   const hash = createHmac('sha256', client_secret)
-  const signature = hash.update(jwt_head_payload).digest('base64')
+  const signature = base64UrlFromBase64(hash.update(jwt_head_payload).digest('base64'))
   const jwt = jwt_head_payload + '.' + signature
 
   return jwt
@@ -78,6 +100,15 @@ export async function get_taxonomy_access_token(
   client_secret: string,
   request: RequestClient
 ): Promise<string> {
+  const now = Math.floor(Date.now() / 1000)
+  if (
+    taxonomyTokenCache &&
+    taxonomyTokenCache.clientId === client_id &&
+    taxonomyTokenCache.expiresAtEpochSeconds > now + TAXONOMY_TOKEN_BUFFER_SECONDS
+  ) {
+    return taxonomyTokenCache.accessToken
+  }
+
   const jwt = generate_taxonomy_jwt(client_id, client_secret)
 
   const tokenResponse: ModifiedResponse<{
@@ -99,6 +130,12 @@ export async function get_taxonomy_access_token(
   })
 
   const access_token = tokenResponse.data.access_token
+  const expires_in = tokenResponse.data.expires_in
+  taxonomyTokenCache = {
+    clientId: client_id,
+    accessToken: access_token,
+    expiresAtEpochSeconds: now + expires_in
+  }
 
   return access_token
 }
