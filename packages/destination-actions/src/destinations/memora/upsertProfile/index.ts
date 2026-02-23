@@ -5,6 +5,7 @@ import { IntegrationError, createRequestClient } from '@segment/actions-core'
 import type { Logger } from '@segment/actions-core/destination-kit'
 import { API_VERSION } from '../versioning-info'
 import { BASE_URL } from '../constants'
+import nock from 'nock'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -216,9 +217,12 @@ async function upsertProfiles(
   }
 
   if (process.env.STUB_MEMORA_API === 'true') {
-    return {
-      message: 'Profile batch accepted for processing.'
-    }
+    nock('https://stubmemora')
+      .post(/.*/)
+      .reply(200, { success: true, message: 'Profile batch accepted for processing. (Request Stubbed)' })
+    return request('https://stubmemora/upload', {
+      method: 'POST'
+    })
   }
 
   const storeId = payloads[0]?.memora_store
