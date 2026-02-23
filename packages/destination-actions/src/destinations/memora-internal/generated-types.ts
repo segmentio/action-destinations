@@ -12,5 +12,5 @@ export interface Settings {
   /**
    * Your Twilio Account ID. This can be found at the top of your [Twilio Console Dashboard](https://console.twilio.com/).
    */
-  twilioAccount?: string
+  twilioAccount: string
 }

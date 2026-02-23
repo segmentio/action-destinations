@@ -32,7 +32,7 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'Your Twilio Account ID. This can be found at the top of your [Twilio Console Dashboard](https://console.twilio.com/).',
         type: 'string',
-        required: false
+        required: true
       }
     },
     testAuthentication: (request, { settings }) => {
@@ -41,7 +41,7 @@ const destination: DestinationDefinition<Settings> = {
         username: settings.username,
         password: settings.password,
         headers: {
-          ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
+          'X-Pre-Auth-Context': settings.twilioAccount
         }
       })
     }
