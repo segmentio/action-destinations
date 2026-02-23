@@ -36,8 +36,4 @@ export interface Payload {
    * The maximum number of users to process in a single batch request.
    */
   batch_size: number
-  /**
-   * The keys to use for batching the events.
-   */
-  batch_keys?: string[]
 }

@@ -26,13 +26,15 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * The email of the user who will own the cohort in Amplitude. This will override the default owner email set in the authentication settings for this specific cohort.
+   * The email of the user who will own the cohort in Amplitude. Overrides the default Cohort Owner Email value from Settings.
    */
   owner_email?: string
+  /**
+   * The type of ID that will be used to sync users to the Amplitude Cohort.
+   */
+  id_type: string
   /**
    * The name of the cohort in Amplitude. This will override the default cohort name which is the snake_case version of the Segment Audience name.
    */
   audience_name?: string
-
-  id_type: string
 }
