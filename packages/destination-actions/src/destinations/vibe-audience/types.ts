@@ -1,4 +1,5 @@
 export interface RequestJSON {
+  advertiserId: string
   audienceId: string
   audienceName: string
   addProfiles: Profile[]

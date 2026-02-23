@@ -23,13 +23,14 @@ export async function syncAudience(request: RequestClient, payloads: Payload[], 
   })
 
   const json: RequestJSON = {
+    advertiserId,
     audienceId: audience_id,
     audienceName: audience_name,
     addProfiles: addEmails,
     removeProfiles: removeEmails
   }
 
-  return await request(`${BASE_URL}/${API_VERSION}/webhooks/twilio/${advertiserId}/audience/sync`, {
+  return await request(`${BASE_URL}/${API_VERSION}/webhooks/twilio/audience/sync`, {
     method: 'post',
     json
   })

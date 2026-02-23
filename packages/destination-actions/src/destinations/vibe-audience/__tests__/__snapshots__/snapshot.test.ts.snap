@@ -3,6 +3,7 @@
 exports[`Testing snapshot for actions-vibe-audience destination: sync action - all fields 1`] = `
 Object {
   "addProfiles": Array [],
+  "advertiserId": "$pW1NOveGf$",
   "audienceId": "$pW1NOveGf$",
   "audienceName": "$pW1NOveGf$",
   "removeProfiles": Array [
@@ -21,6 +22,7 @@ Object {
 exports[`Testing snapshot for actions-vibe-audience destination: sync action - required fields 1`] = `
 Object {
   "addProfiles": Array [],
+  "advertiserId": "$pW1NOveGf$",
   "audienceId": "$pW1NOveGf$",
   "audienceName": "$pW1NOveGf$",
   "removeProfiles": Array [

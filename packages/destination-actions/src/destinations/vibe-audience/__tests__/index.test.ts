@@ -9,9 +9,11 @@ describe('Vibe Audience', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
       const baseUrlParts = new URL(BASE_URL)
-      nock(baseUrlParts.origin).get(`/${API_VERSION}/webhooks/twilio/test-advertiser-id`).reply(200, { success: true })
+      nock(baseUrlParts.origin)
+        .post(`/${API_VERSION}/webhooks/twilio/audience/sync`, (body) => body.advertiserId === 'test-advertiser-id')
+        .matchHeader('X-Auth-Test', 'true')
+        .reply(200, { success: true })
 
-      // This should match your authentication.fields
       const authData = {
         advertiserId: 'test-advertiser-id',
         authToken: 'test-auth-token'
@@ -24,9 +26,7 @@ describe('Vibe Audience', () => {
   describe('sync action', () => {
     it('should sync audience data with add and remove emails', async () => {
       const baseUrlParts = new URL(BASE_URL)
-      nock(baseUrlParts.origin)
-        .post(`/${API_VERSION}/webhooks/twilio/test-advertiser-id/audience/sync`)
-        .reply(200, { success: true })
+      nock(baseUrlParts.origin).post(`/${API_VERSION}/webhooks/twilio/audience/sync`).reply(200, { success: true })
 
       const settings = {
         advertiserId: 'test-advertiser-id',
@@ -60,13 +60,14 @@ describe('Vibe Audience', () => {
 
       expect(responses).toHaveLength(1)
       expect(responses[0].status).toBe(200)
+
+      const requestBody = JSON.parse(responses[0].options.body as string)
+      expect(requestBody.advertiserId).toBe('test-advertiser-id')
     })
 
     it('should sync audience data with personal information (first name, last name, phone)', async () => {
       const baseUrlParts = new URL(BASE_URL)
-      nock(baseUrlParts.origin)
-        .post(`/${API_VERSION}/webhooks/twilio/test-advertiser-id/audience/sync`)
-        .reply(200, { success: true })
+      nock(baseUrlParts.origin).post(`/${API_VERSION}/webhooks/twilio/audience/sync`).reply(200, { success: true })
 
       const settings = {
         advertiserId: 'test-advertiser-id',
@@ -109,8 +110,9 @@ describe('Vibe Audience', () => {
       expect(responses).toHaveLength(1)
       expect(responses[0].status).toBe(200)
 
-      // Verify the request body contains personal information
+      // Verify the request body contains personal information and advertiserId
       const requestBody = JSON.parse(responses[0].options.body as string)
+      expect(requestBody.advertiserId).toBe('test-advertiser-id')
       expect(requestBody.addProfiles).toHaveLength(1)
       expect(requestBody.addProfiles[0]).toEqual({
         email: 'john.doe@example.com',
@@ -124,9 +126,7 @@ describe('Vibe Audience', () => {
 
     it('should sync audience data with partial personal information (first name only)', async () => {
       const baseUrlParts = new URL(BASE_URL)
-      nock(baseUrlParts.origin)
-        .post(`/${API_VERSION}/webhooks/twilio/test-advertiser-id/audience/sync`)
-        .reply(200, { success: true })
+      nock(baseUrlParts.origin).post(`/${API_VERSION}/webhooks/twilio/audience/sync`).reply(200, { success: true })
 
       const settings = {
         advertiserId: 'test-advertiser-id',
@@ -167,6 +167,7 @@ describe('Vibe Audience', () => {
 
       // Verify the request body contains only first name
       const requestBody = JSON.parse(responses[0].options.body as string)
+      expect(requestBody.advertiserId).toBe('test-advertiser-id')
       expect(requestBody.addProfiles).toHaveLength(1)
       expect(requestBody.addProfiles[0]).toEqual({
         email: 'jane@example.com',
@@ -178,9 +179,7 @@ describe('Vibe Audience', () => {
 
     it('should sync audience data with phone number only', async () => {
       const baseUrlParts = new URL(BASE_URL)
-      nock(baseUrlParts.origin)
-        .post(`/${API_VERSION}/webhooks/twilio/test-advertiser-id/audience/sync`)
-        .reply(200, { success: true })
+      nock(baseUrlParts.origin).post(`/${API_VERSION}/webhooks/twilio/audience/sync`).reply(200, { success: true })
 
       const settings = {
         advertiserId: 'test-advertiser-id',
@@ -221,6 +220,7 @@ describe('Vibe Audience', () => {
 
       // Verify the request body contains only phone
       const requestBody = JSON.parse(responses[0].options.body as string)
+      expect(requestBody.advertiserId).toBe('test-advertiser-id')
       expect(requestBody.addProfiles).toHaveLength(1)
       expect(requestBody.addProfiles[0]).toEqual({
         email: 'phone.user@example.com',
@@ -232,9 +232,7 @@ describe('Vibe Audience', () => {
 
     it('should handle batch sync with multiple payloads', async () => {
       const baseUrlParts = new URL(BASE_URL)
-      nock(baseUrlParts.origin)
-        .post(`/${API_VERSION}/webhooks/twilio/test-advertiser-id/audience/sync`)
-        .reply(200, { success: true })
+      nock(baseUrlParts.origin).post(`/${API_VERSION}/webhooks/twilio/audience/sync`).reply(200, { success: true })
 
       const settings = {
         advertiserId: 'test-advertiser-id',
@@ -286,13 +284,14 @@ describe('Vibe Audience', () => {
 
       expect(responses).toHaveLength(1)
       expect(responses[0].status).toBe(200)
+
+      const requestBody = JSON.parse(responses[0].options.body as string)
+      expect(requestBody.advertiserId).toBe('test-advertiser-id')
     })
 
     it('should handle batch sync with personal information', async () => {
       const baseUrlParts = new URL(BASE_URL)
-      nock(baseUrlParts.origin)
-        .post(`/${API_VERSION}/webhooks/twilio/test-advertiser-id/audience/sync`)
-        .reply(200, { success: true })
+      nock(baseUrlParts.origin).post(`/${API_VERSION}/webhooks/twilio/audience/sync`).reply(200, { success: true })
 
       const settings = {
         advertiserId: 'test-advertiser-id',
@@ -362,6 +361,7 @@ describe('Vibe Audience', () => {
 
       // Verify the request body contains proper profile details
       const requestBody = JSON.parse(responses[0].options.body as string)
+      expect(requestBody.advertiserId).toBe('test-advertiser-id')
 
       // Check add profiles (users with audience = true)
       expect(requestBody.addProfiles).toHaveLength(2)
