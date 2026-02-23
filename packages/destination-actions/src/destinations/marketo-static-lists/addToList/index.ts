@@ -1,7 +1,7 @@
 import type { IntegrationError, ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { external_id, lookup_field, data, enable_batching, batch_size, event_name } from '../properties'
+import { external_id, lookup_field, data, enable_batching, batch_size, event_name, batch_bytes } from '../properties'
 import { addToList, addToListBatch, createList, getList } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -14,6 +14,7 @@ const action: ActionDefinition<Settings, Payload> = {
     data: { ...data },
     enable_batching: { ...enable_batching },
     batch_size: { ...batch_size },
+    batch_bytes: { ...batch_bytes },
     event_name: { ...event_name }
   },
   hooks: {
