@@ -14,11 +14,12 @@ export async function syncAudience(request: RequestClient, payloads: Payload[], 
   payloads.forEach((payload) => {
     const action = payload.traits_or_props[payload.audience_name] as boolean
     const profileDetails = payload.personal_information ?? undefined
+    const ip_address = payload.ip_address ?? undefined
 
     if (action) {
-      addEmails.push({ email: payload.email, profileDetails })
+      addEmails.push({ email: payload.email, ip_address, profileDetails })
     } else {
-      removeEmails.push({ email: payload.email, profileDetails })
+      removeEmails.push({ email: payload.email, ip_address, profileDetails })
     }
   })
 

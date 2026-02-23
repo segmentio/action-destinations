@@ -6,6 +6,10 @@ export interface Payload {
    */
   email: string
   /**
+   * The IP address of the user.
+   */
+  ip_address?: string
+  /**
    * The name of the audience to which you want to add users.
    */
   audience_name: string

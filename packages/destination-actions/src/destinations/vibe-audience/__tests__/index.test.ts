@@ -230,6 +230,53 @@ describe('Vibe Audience', () => {
       })
     })
 
+    it('should sync audience data with ip_address', async () => {
+      const baseUrlParts = new URL(BASE_URL)
+      nock(baseUrlParts.origin).post(`/${API_VERSION}/webhooks/twilio/audience/sync`).reply(200, { success: true })
+
+      const settings = {
+        advertiserId: 'test-advertiser-id',
+        authToken: 'test-auth-token'
+      }
+
+      const event = createTestEvent({
+        context: { ip: '192.168.1.1' },
+        traits: {
+          email: 'ip-test@example.com',
+          'Test Audience': true
+        }
+      })
+
+      const mapping = {
+        email: 'ip-test@example.com',
+        ip_address: '192.168.1.1',
+        audience_name: 'Test Audience',
+        audience_id: 'test-audience-id',
+        traits_or_props: {
+          'Test Audience': true
+        },
+        enable_batching: true,
+        batch_size: 1000,
+        batch_keys: ['audience_id', 'audience_name']
+      }
+
+      const responses = await testDestination.testAction('sync', {
+        event,
+        mapping,
+        settings
+      })
+
+      expect(responses).toHaveLength(1)
+      expect(responses[0].status).toBe(200)
+
+      const requestBody = JSON.parse(responses[0].options.body as string)
+      expect(requestBody.addProfiles).toHaveLength(1)
+      expect(requestBody.addProfiles[0]).toEqual({
+        email: 'ip-test@example.com',
+        ip_address: '192.168.1.1'
+      })
+    })
+
     it('should handle batch sync with multiple payloads', async () => {
       const baseUrlParts = new URL(BASE_URL)
       nock(baseUrlParts.origin).post(`/${API_VERSION}/webhooks/twilio/audience/sync`).reply(200, { success: true })
@@ -393,6 +440,82 @@ describe('Vibe Audience', () => {
           }
         }
       ])
+    })
+
+    it('should handle batch sync with ip_address', async () => {
+      const baseUrlParts = new URL(BASE_URL)
+      nock(baseUrlParts.origin).post(`/${API_VERSION}/webhooks/twilio/audience/sync`).reply(200, { success: true })
+
+      const settings = {
+        advertiserId: 'test-advertiser-id',
+        authToken: 'test-auth-token'
+      }
+
+      const events = [
+        createTestEvent({
+          context: { ip: '10.0.0.1' },
+          traits: {
+            email: 'user1@example.com',
+            'Test Audience': true
+          }
+        }),
+        createTestEvent({
+          context: { ip: '10.0.0.2' },
+          traits: {
+            email: 'user2@example.com',
+            'Test Audience': false
+          }
+        }),
+        createTestEvent({
+          traits: {
+            email: 'user3@example.com',
+            'Test Audience': true
+          }
+        })
+      ]
+
+      const mapping = {
+        email: {
+          '@path': '$.traits.email'
+        },
+        ip_address: {
+          '@path': '$.context.ip'
+        },
+        audience_name: 'Test Audience',
+        audience_id: 'test-audience-id',
+        traits_or_props: {
+          '@path': '$.traits'
+        },
+        enable_batching: true,
+        batch_size: 1000,
+        batch_keys: ['audience_id', 'audience_name']
+      }
+
+      const responses = await testDestination.testBatchAction('sync', {
+        events,
+        mapping,
+        settings
+      })
+
+      expect(responses).toHaveLength(1)
+      expect(responses[0].status).toBe(200)
+
+      const requestBody = JSON.parse(responses[0].options.body as string)
+
+      // user1 and user3 are add profiles; user1 has explicit IP, user3 gets default from createTestEvent
+      expect(requestBody.addProfiles).toHaveLength(2)
+      expect(requestBody.addProfiles[0]).toEqual({
+        email: 'user1@example.com',
+        ip_address: '10.0.0.1'
+      })
+      expect(requestBody.addProfiles[1].email).toBe('user3@example.com')
+
+      // user2 (remove) has IP
+      expect(requestBody.removeProfiles).toHaveLength(1)
+      expect(requestBody.removeProfiles[0]).toEqual({
+        email: 'user2@example.com',
+        ip_address: '10.0.0.2'
+      })
     })
   })
 })

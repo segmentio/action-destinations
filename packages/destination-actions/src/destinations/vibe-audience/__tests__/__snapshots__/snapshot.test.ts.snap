@@ -9,6 +9,7 @@ Object {
   "removeProfiles": Array [
     Object {
       "email": "wawe@diuvla.ug",
+      "ip_address": "$pW1NOveGf$",
       "profileDetails": Object {
         "first_name": "$pW1NOveGf$",
         "last_name": "$pW1NOveGf$",
