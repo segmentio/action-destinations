@@ -1,6 +1,37 @@
-import {  ErrorCodes, IntegrationError, PayloadValidationError, RequestClient, Features, StatsContext } from '@segment/actions-core'
-import { BaseEventData, EventDataType, AnyPayload, SearchEventData, EventTypeKey, RequestJSON, CustomEventData, AddToCartEventData, ViewContentEventData, InitiateCheckoutEventData, PageEventData, PurchaseEventData, AppendValueEventData, GeneratedAppData, UserData, Content } from './types'
-import { API_VERSION, CANARY_API_VERSION, FLAGON_NAME, US_STATE_CODES, COUNTRY_CODES, CURRENCY_ISO_CODES } from './constants'
+import {
+  ErrorCodes,
+  IntegrationError,
+  PayloadValidationError,
+  RequestClient,
+  Features,
+  StatsContext
+} from '@segment/actions-core'
+import {
+  BaseEventData,
+  EventDataType,
+  AnyPayload,
+  SearchEventData,
+  EventTypeKey,
+  RequestJSON,
+  CustomEventData,
+  AddToCartEventData,
+  ViewContentEventData,
+  InitiateCheckoutEventData,
+  PageEventData,
+  PurchaseEventData,
+  AppendValueEventData,
+  GeneratedAppData,
+  UserData,
+  Content
+} from './types'
+import {
+  API_VERSION,
+  CANARY_API_VERSION,
+  FLAGON_NAME,
+  US_STATE_CODES,
+  COUNTRY_CODES,
+  CURRENCY_ISO_CODES
+} from './constants'
 import { processHashing } from '../../lib/hashing-utils'
 import type { Settings } from './generated-types'
 import type { Payload as AddToCartPayload } from './addToCart/generated-types'
@@ -18,77 +49,71 @@ import type { Payload as Search2Payload } from './search2/generated-types'
 import type { Payload as ViewContentPayload } from './viewContent/generated-types'
 import type { Payload as ViewContent2Payload } from './viewContent2/generated-types'
 
-export function send<T extends EventTypeKey>(request: RequestClient, payload: AnyPayload, settings: Settings, eventType: T, features?: Features, statsContext?: StatsContext) {
+export function send<T extends EventTypeKey>(
+  request: RequestClient,
+  payload: AnyPayload,
+  settings: Settings,
+  eventType: T,
+  features?: Features,
+  statsContext?: StatsContext
+) {
   validate(payload, eventType)
-  
-  const { 
-    test_event_code,
-  } = payload
 
-  const {
-    testEventCode
-  } = settings
+  const { test_event_code } = payload
+
+  const { testEventCode } = settings
 
   const data = getEventData(payload, eventType)
 
   const json: RequestJSON = {
     partner_agent: "segment",
     data: [data],
-    ...(test_event_code || testEventCode ? { test_event_code: test_event_code || testEventCode } : {} )
+    ...(test_event_code || testEventCode ? { test_event_code: test_event_code || testEventCode } : {})
   }
 
-  return request(
-    `https://graph.facebook.com/v${getApiVersion(features, statsContext)}/${settings.pixelId}/events`,
-    {
-        method: 'POST',
-        json
-    }
-  )
+  return request(`https://graph.facebook.com/v${getApiVersion(features, statsContext)}/${settings.pixelId}/events`, {
+    method: 'POST',
+    json
+  })
 }
 
 export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
-  const { 
-    action_source,
-    user_data
-  } = payload
+  const { action_source, user_data } = payload
 
-  if(isPurchaseMatch(payload, eventType) || isCustomMatch(payload, eventType)) {
-    const { 
+  if (isPurchaseMatch(payload, eventType) || isCustomMatch(payload, eventType)) {
+    const {
       is_append_event,
-      append_event_details: { 
-          original_event_order_id,
-          original_event_id,
-          net_revenue_to_append,
-          predicted_ltv_to_append
+      append_event_details: {
+        original_event_order_id,
+        original_event_id,
+        net_revenue_to_append,
+        predicted_ltv_to_append
       } = {}
     } = payload
 
-    if(is_append_event) {
-      if(!original_event_order_id && !original_event_id) {
-        throw new PayloadValidationError('If append event is true, one of "Append Event Details > Original Event ID" or "Append Event Details > Original Order ID" must be provided.')
+    if (is_append_event) {
+      if (!original_event_order_id && !original_event_id) {
+        throw new PayloadValidationError(
+          'If append event is true, one of "Append Event Details > Original Event ID" or "Append Event Details > Original Order ID" must be provided.'
+        )
       }
-      if(typeof net_revenue_to_append !== 'number' && typeof predicted_ltv_to_append !== 'number'){
-        throw new PayloadValidationError('If append event is true, at least one of "Append Event Details > Net Revenue" or "Append Event Details > Predicted Lifetime Value" must be provided as a number')
+      if (typeof net_revenue_to_append !== 'number' && typeof predicted_ltv_to_append !== 'number') {
+        throw new PayloadValidationError(
+          'If append event is true, at least one of "Append Event Details > Net Revenue" or "Append Event Details > Predicted Lifetime Value" must be provided as a number'
+        )
       }
     }
   }
 
-  if(!isPageViewMatch(payload, eventType) && !isCustomMatch(payload, eventType)) {
-    const { 
-      currency,
-      contents
-    } = payload
+  if (!isPageViewMatch(payload, eventType) && !isCustomMatch(payload, eventType)) {
+    const { currency, contents } = payload
 
     if (currency && typeof currency === 'string' && !CURRENCY_ISO_CODES.has(currency)) {
-      throw new IntegrationError(
-        `${currency} is not a valid currency code.`,
-        ErrorCodes.INVALID_CURRENCY_CODE,
-        400
-      )
+      throw new IntegrationError(`${currency} is not a valid currency code.`, ErrorCodes.INVALID_CURRENCY_CODE, 400)
     }
 
     if (contents) {
-      validateContents(contents) 
+      validateContents(contents)
     }
   }
 
@@ -96,9 +121,9 @@ export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
     throw new PayloadValidationError('Must include at least one user data property')
   }
 
-  if(!isCustomMatch(payload, eventType)){
+  if (!isCustomMatch(payload, eventType)) {
     if (action_source === 'website' && user_data.client_user_agent === undefined) {
-        throw new PayloadValidationError('If action source is "Website" then client_user_agent must be defined')
+      throw new PayloadValidationError('If action source is "Website" then client_user_agent must be defined')
     }
   }
 }
@@ -121,7 +146,10 @@ export const validateContents = (contents: Content[]) => {
   }
 }
 
-export const isAddToCartMatch = (_payload: AnyPayload, type: EventTypeKey): _payload is AddToCartPayload | AddToCart2Payload => {
+export const isAddToCartMatch = (
+  _payload: AnyPayload,
+  type: EventTypeKey
+): _payload is AddToCartPayload | AddToCart2Payload => {
   return type === 'AddToCart'
 }
 
@@ -129,15 +157,24 @@ export const isCustomMatch = (_payload: AnyPayload, type: EventTypeKey): _payloa
   return type === 'Custom'
 }
 
-export const isInitiateCheckoutMatch = (_payload: AnyPayload, type: EventTypeKey): _payload is InitiateCheckoutPayload | InitiateCheckout2Payload => {
+export const isInitiateCheckoutMatch = (
+  _payload: AnyPayload,
+  type: EventTypeKey
+): _payload is InitiateCheckoutPayload | InitiateCheckout2Payload => {
   return type === 'InitiateCheckout'
 }
 
-export const isPageViewMatch = (_payload: AnyPayload, type: EventTypeKey): _payload is PageViewPayload | PageView2Payload => {
+export const isPageViewMatch = (
+  _payload: AnyPayload,
+  type: EventTypeKey
+): _payload is PageViewPayload | PageView2Payload => {
   return type === 'PageView'
 }
 
-export const isPurchaseMatch = (_payload: AnyPayload, type: EventTypeKey): _payload is PurchasePayload | Purchase2Payload => {
+export const isPurchaseMatch = (
+  _payload: AnyPayload,
+  type: EventTypeKey
+): _payload is PurchasePayload | Purchase2Payload => {
   return type === 'Purchase'
 }
 
@@ -145,24 +182,27 @@ export const isSearchMatch = (_payload: AnyPayload, type: EventTypeKey): _payloa
   return type === 'Search'
 }
 
-export const isViewContentMatch = (_payload: AnyPayload, type: EventTypeKey): _payload is ViewContentPayload | ViewContent2Payload => {
+export const isViewContentMatch = (
+  _payload: AnyPayload,
+  type: EventTypeKey
+): _payload is ViewContentPayload | ViewContent2Payload => {
   return type === 'ViewContent'
 }
 
 export function getEventData(payload: AnyPayload, type: EventTypeKey): EventDataType {
-  const { 
+  const {
     event_time,
     action_source,
     event_source_url,
     event_id,
     user_data,
-    custom_data, 
+    custom_data,
     app_data_field,
     data_processing_options,
     data_processing_options_country,
     data_processing_options_state
   } = payload
-  
+
   const common: BaseEventData = {
     event_time,
     action_source,
@@ -170,27 +210,20 @@ export function getEventData(payload: AnyPayload, type: EventTypeKey): EventData
     ...(event_id && { event_id }),
     user_data: getUserData(user_data),
     ...(() => {
-        const app_data = generateAppData(app_data_field)
-        return app_data ? { app_data }: {}
+      const app_data = generateAppData(app_data_field)
+      return app_data ? { app_data } : {}
     })(),
     ...(data_processing_options ? { data_processing_options: ['LDU'] } : {}),
-    ...(data_processing_options ? { data_processing_options_country: data_processing_options_country || 0 } : {}  ),
-    ...(data_processing_options ? { data_processing_options_state: data_processing_options_state || 0 } : {}  )
+    ...(data_processing_options ? { data_processing_options_country: data_processing_options_country || 0 } : {}),
+    ...(data_processing_options ? { data_processing_options_state: data_processing_options_state || 0 } : {})
   }
 
-  switch(type) {
+  switch (type) {
     case 'AddToCart': {
       if (!isAddToCartMatch(payload, type)) {
         throw new PayloadValidationError('Invalid AddToCart payload')
       }
-      const {
-        content_name,
-        currency,
-        value,
-        content_ids,
-        content_type,
-        contents
-      } = payload
+      const { content_name, currency, value, content_ids, content_type, contents } = payload
 
       const data: AddToCartEventData = {
         event_name: 'AddToCart',
@@ -198,7 +231,7 @@ export function getEventData(payload: AnyPayload, type: EventTypeKey): EventData
         custom_data: {
           ...custom_data,
           currency: currency as string,
-          ...(typeof value ==='number'? { value }: {}),
+          ...(typeof value === 'number' ? { value } : {}),
           ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
           ...(content_name && { content_name }),
           ...(content_type && { content_type }),
@@ -211,10 +244,7 @@ export function getEventData(payload: AnyPayload, type: EventTypeKey): EventData
       if (!isCustomMatch(payload, type)) {
         throw new PayloadValidationError('Invalid Custom payload')
       }
-      const { 
-        event_name,
-        is_append_event
-      } = payload
+      const { event_name, is_append_event } = payload
 
       let data: CustomEventData | AppendValueEventData = {
         event_name,
@@ -222,23 +252,16 @@ export function getEventData(payload: AnyPayload, type: EventTypeKey): EventData
         custom_data: { ...custom_data }
       }
 
-      if(is_append_event) {
+      if (is_append_event) {
         data = convertToAppendValueEventData(data, payload, type)
-      } 
+      }
       return data
     }
     case 'InitiateCheckout': {
       if (!isInitiateCheckoutMatch(payload, type)) {
         throw new PayloadValidationError('Invalid InitiateCheckout payload')
       }
-      const {
-        currency,
-        value,
-        content_ids,
-        content_category,
-        num_items,
-        contents
-      } = payload
+      const { currency, value, content_ids, content_category, num_items, contents } = payload
 
       const data: InitiateCheckoutEventData = {
         event_name: 'InitiateCheckout',
@@ -246,7 +269,7 @@ export function getEventData(payload: AnyPayload, type: EventTypeKey): EventData
         custom_data: {
           ...custom_data,
           currency: currency as string,
-          ...(typeof value ==='number'? { value }: {}),
+          ...(typeof value === 'number' ? { value } : {}),
           ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
           ...(contents && { contents }),
           ...(typeof num_items === 'number' && { num_items }),
@@ -255,17 +278,17 @@ export function getEventData(payload: AnyPayload, type: EventTypeKey): EventData
       }
       return data
     }
-    case "PageView": {
+    case 'PageView': {
       if (!isPageViewMatch(payload, type)) {
         throw new PayloadValidationError('Invalid PageView payload')
       }
       const data: PageEventData = {
-          event_name: 'PageView',
-          ...common
+        event_name: 'PageView',
+        ...common
       }
       return data
     }
-    case "Purchase": {
+    case 'Purchase': {
       if (!isPurchaseMatch(payload, type)) {
         throw new PayloadValidationError('Invalid Purchase payload')
       }
@@ -301,24 +324,17 @@ export function getEventData(payload: AnyPayload, type: EventTypeKey): EventData
         }
       }
 
-      if(is_append_event) {
+      if (is_append_event) {
         data = convertToAppendValueEventData(data, payload, type)
-      } 
+      }
       return data
     }
-    case "Search": {
+    case 'Search': {
       if (!isSearchMatch(payload, type)) {
         throw new PayloadValidationError('Invalid Search payload')
       }
-      const {
-        currency,
-        value,
-        content_ids,
-        search_string,
-        content_category,
-        contents
-      } = payload
-      
+      const { currency, value, content_ids, search_string, content_category, contents } = payload
+
       const data: SearchEventData = {
         event_name: 'Search',
         ...common,
@@ -334,32 +350,24 @@ export function getEventData(payload: AnyPayload, type: EventTypeKey): EventData
       }
       return data
     }
-    case "ViewContent": {
+    case 'ViewContent': {
       if (!isViewContentMatch(payload, type)) {
         throw new PayloadValidationError('Invalid ViewContent payload')
       }
-      const {
-        currency,
-        value,
-        content_ids,
-        content_category,
-        content_name,
-        content_type,
-        contents
-      } = payload
+      const { currency, value, content_ids, content_category, content_name, content_type, contents } = payload
 
       const data: ViewContentEventData = {
         event_name: 'ViewContent',
         ...common,
         custom_data: {
-            ...custom_data,
-            currency: currency as string,
-            value,
-            ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
-            ...(content_name && { content_name }),
-            ...(content_type && { content_type }),
-            ...(contents && { contents }),
-            ...(content_category && { content_category })
+          ...custom_data,
+          currency: currency as string,
+          value,
+          ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
+          ...(content_name && { content_name }),
+          ...(content_type && { content_type }),
+          ...(contents && { contents }),
+          ...(content_category && { content_category })
         }
       }
       return data
@@ -370,26 +378,24 @@ export function getEventData(payload: AnyPayload, type: EventTypeKey): EventData
   }
 }
 
-export const convertToAppendValueEventData =(data: PurchaseEventData | CustomEventData, payload: AnyPayload, type: EventTypeKey): AppendValueEventData => {
-    
-  if(!isPurchaseMatch(payload, type) && !isCustomMatch(payload, type)) {
+export const convertToAppendValueEventData = (
+  data: PurchaseEventData | CustomEventData,
+  payload: AnyPayload,
+  type: EventTypeKey
+): AppendValueEventData => {
+  if (!isPurchaseMatch(payload, type) && !isCustomMatch(payload, type)) {
     throw new PayloadValidationError('Invalid payload for AppendValue event conversion')
   }
 
-  const {
-    is_append_event
-  } = payload
+  const { is_append_event } = payload
 
-  if(!is_append_event) {
+  if (!is_append_event) {
     throw new PayloadValidationError('AppendValue details should not be processed')
   }
 
-  const { 
-    event_name, 
-    custom_data: { 
-      order_id, 
-      ...restCustomData
-    } 
+  const {
+    event_name,
+    custom_data: { order_id, ...restCustomData }
   } = data
 
   const {
@@ -448,7 +454,7 @@ export const generateAppData = (app_data: AnyPayload['app_data_field']): Generat
     freeStorage,
     deviceTimezone
   } = app_data || {}
-  
+
   if (!app_data || !use_app_data) {
     return undefined
   }
@@ -499,8 +505,8 @@ export const hashArray = (values: string[] | undefined): string[] | undefined =>
   if (!values?.length) {
     return undefined
   }
-  const cleaned = (Array.isArray(values) ? values : [values]).map(item => clean(item)).filter(Boolean)
-  const hashed = cleaned.map(item => hash(item)).filter(Boolean) as string[]
+  const cleaned = (Array.isArray(values) ? values : [values]).map((item) => clean(item)).filter(Boolean)
+  const hashed = cleaned.map((item) => hash(item)).filter(Boolean) as string[]
   return hashed.length ? hashed : undefined
 }
 
@@ -509,14 +515,14 @@ export const cleanAndHash = (value: string | undefined): string | undefined => {
 }
 
 export const hash = (value: string | undefined): string | undefined => {
-  if (value === undefined || !value.length){
+  if (value === undefined || !value.length) {
     return undefined
   }
   return processHashing(value, 'sha256', 'hex')
 }
 
 export const clean = (value: string | undefined): string | undefined => {
-  if (value === undefined || !value.length){
+  if (value === undefined || !value.length) {
     return undefined
   }
   return value.replace(/\s/g, '').toLowerCase() || undefined
@@ -528,8 +534,8 @@ export const clean = (value: string | undefined): string | undefined => {
  * @see https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#hash
  */
 export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData => {
-  const { 
-    email, 
+  const {
+    email,
     phone,
     gender,
     dateOfBirth,
@@ -550,28 +556,29 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
     madId,
     fbLoginID,
     partner_id,
-    partner_name
+    partner_name,
+    ctwa_clid
   } = payloadUserData ?? {}
 
   const em = cleanAndHash(email)
 
   const ph = (() => {
-    if(!phone) {
+    if (!phone) {
       return undefined
     }
-    if(!isHashedInformation(phone)){
+    if (!isHashedInformation(phone)) {
       // Remove all characters except numbers
       const digits = phone.replace(/\D/g, '')
       return hash(digits)
-    } 
+    }
     return phone
   })()
 
   const ge = (() => {
-    if(isHashedInformation(gender ?? '')) {
+    if (isHashedInformation(gender ?? '')) {
       return gender
     }
-    switch (gender?.replace(/\s/g, '').toLowerCase() ?? "") {
+    switch (gender?.replace(/\s/g, '').toLowerCase() ?? '') {
       case 'male':
       case 'm':
         return cleanAndHash('m')
@@ -584,27 +591,27 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
   })()
 
   const db = cleanAndHash(dateOfBirth)
-  
+
   const ln = cleanAndHash(lastName)
-  
+
   const fn = cleanAndHash(firstName)
 
   const ct = cleanAndHash(city)
-  
-  const st = (()=> {
+
+  const st = (() => {
     const stateCleaned = cleanAndHash(state)
-    return US_STATE_CODES.get(stateCleaned ?? "") ?? (stateCleaned || undefined)
+    return US_STATE_CODES.get(stateCleaned ?? '') ?? (stateCleaned || undefined)
   })()
-  
+
   const zp = cleanAndHash(zip)
-  
+
   const countryValue = (() => {
     const cleaned = clean(country)
-    return COUNTRY_CODES.get(cleaned ?? "") ?? cleaned
+    return COUNTRY_CODES.get(cleaned ?? '') ?? cleaned
   })()
 
   const external_id = hashArray(externalId)
-  
+
   const userData: UserData = {
     // Hashing this is recommended but not required
     ...(em ? { em } : {}),
@@ -617,7 +624,7 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
     ...(st ? { st } : {}),
     ...(zp ? { zp } : {}),
     ...(countryValue ? { country: countryValue } : {}),
-    ...(external_id ? { external_id } : {}), 
+    ...(external_id ? { external_id } : {}),
     ...(client_ip_address ? { client_ip_address } : {}),
     ...(client_user_agent ? { client_user_agent } : {}),
     ...(fbc ? { fbc } : {}),
@@ -628,7 +635,8 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
     ...(madId ? { madid: madId } : {}),
     ...(typeof fbLoginID === 'number' ? { fb_login_id: fbLoginID } : {}),
     ...(partner_id ? { partner_id } : {}),
-    ...(partner_name ? { partner_name } : {})
+    ...(partner_name ? { partner_name } : {}),
+    ...(ctwa_clid ? { ctwa_clid } : {})
   }
   return userData
 }
