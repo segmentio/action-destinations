@@ -162,20 +162,20 @@ function buildTraitGroups(payload: Payload): Record<string, Record<string, unkno
   const traitGroups: Record<string, Record<string, unknown>> = {}
   const contactTraits: Record<string, unknown> = {}
 
-  // Merge identifiers
-  if (payload.contact_identifiers && typeof payload.contact_identifiers === 'object') {
-    const identifiers = payload.contact_identifiers as Record<string, unknown>
-    Object.entries(identifiers).forEach(([key, value]) => {
+  // Merge contact traits first
+  if (payload.contact_traits && typeof payload.contact_traits === 'object') {
+    const traits = payload.contact_traits as Record<string, unknown>
+    Object.entries(traits).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         contactTraits[key] = value
       }
     })
   }
 
-  // Merge contact traits
-  if (payload.contact_traits && typeof payload.contact_traits === 'object') {
-    const traits = payload.contact_traits as Record<string, unknown>
-    Object.entries(traits).forEach(([key, value]) => {
+  // Merge identifiers last (these are authoritative and will override any conflicting keys)
+  if (payload.contact_identifiers && typeof payload.contact_identifiers === 'object') {
+    const identifiers = payload.contact_identifiers as Record<string, unknown>
+    Object.entries(identifiers).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         contactTraits[key] = value
       }
