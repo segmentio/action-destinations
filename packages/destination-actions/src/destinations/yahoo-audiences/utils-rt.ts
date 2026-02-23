@@ -4,14 +4,6 @@ import { YahooPayload } from './types'
 import { gen_random_id } from './utils-tax'
 import { processHashing } from '../../lib/hashing-utils'
 
-function base64UrlEncode(value: string): string {
-  return Buffer.from(value).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-}
-
-function base64UrlFromBase64(base64Value: string): string {
-  return base64Value.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-}
-
 /**
  * Creates a SHA256 hash from the input
  * @param input The input string
@@ -42,15 +34,15 @@ export function generate_jwt(client_id: string, client_secret: string): string {
   }
   const jwt_header = {
     alg: 'HS256',
-    typ: 'jwt'
+    typ: 'JWT'
   }
 
-  const jwt_header_encoded = base64UrlEncode(JSON.stringify(jwt_header))
-  const jwt_payload_encoded = base64UrlEncode(JSON.stringify(jwt_payload))
+  const jwt_header_encoded = Buffer.from(JSON.stringify(jwt_header)).toString('base64')
+  const jwt_payload_encoded = Buffer.from(JSON.stringify(jwt_payload)).toString('base64')
   const jwt_head_payload = jwt_header_encoded + '.' + jwt_payload_encoded
 
   const hash = createHmac('sha256', client_secret)
-  const signature = base64UrlFromBase64(hash.update(jwt_head_payload).digest('base64'))
+  const signature = hash.update(jwt_head_payload).digest('base64')
   const jwt = jwt_head_payload + '.' + signature
 
   return jwt
