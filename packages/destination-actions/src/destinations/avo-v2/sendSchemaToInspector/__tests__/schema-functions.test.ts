@@ -591,30 +591,6 @@ describe('validateEvent edge cases', () => {
     expect(result.propertyResults.numProp.failedEventIds).toEqual(['evt_1'])
   })
 
-  it('handles non-string values with regex patterns', () => {
-    const spec: EventSpec = {
-      metadata: { schemaId: 'schema_1', branchId: 'main', latestActionId: 'action_1' },
-      events: [
-        {
-          branchId: 'main',
-          baseEventId: 'evt_1',
-          variantIds: [],
-          props: {
-            regexProp: {
-              type: 'string',
-              required: true,
-              regexPatterns: { '^test': ['evt_1'] }
-            }
-          }
-        }
-      ]
-    }
-
-    // Number value should fail regex validation
-    const result = validateEvent({ regexProp: 123 }, spec)
-    expect(result.propertyResults.regexProp.failedEventIds).toEqual(['evt_1'])
-  })
-
   it('handles object values in pinned value comparison', () => {
     const spec: EventSpec = {
       metadata: { schemaId: 'schema_1', branchId: 'main', latestActionId: 'action_1' },
@@ -693,37 +669,6 @@ describe('validateEvent edge cases', () => {
 
     const resultFail = validateEvent({ boolProp: false }, spec)
     expect(resultFail.propertyResults.boolProp.failedEventIds).toEqual(['evt_1'])
-  })
-
-  it('handles invalid regex patterns gracefully', () => {
-    const spec: EventSpec = {
-      metadata: { schemaId: 'schema_1', branchId: 'main', latestActionId: 'action_1' },
-      events: [
-        {
-          branchId: 'main',
-          baseEventId: 'evt_1',
-          variantIds: [],
-          props: {
-            regexProp: {
-              type: 'string',
-              required: true,
-              regexPatterns: {
-                '[invalid(regex': ['evt_1'], // Invalid regex - unclosed bracket
-                '^valid$': ['evt_1'] // Valid regex
-              }
-            }
-          }
-        }
-      ]
-    }
-
-    // Should not throw - invalid regex is skipped, valid regex is still checked
-    const resultPass = validateEvent({ regexProp: 'valid' }, spec)
-    expect(resultPass.propertyResults.regexProp).toEqual({})
-
-    // Fails the valid regex
-    const resultFail = validateEvent({ regexProp: 'invalid' }, spec)
-    expect(resultFail.propertyResults.regexProp.failedEventIds).toEqual(['evt_1'])
   })
 
   it('handles malformed min/max range strings gracefully', () => {

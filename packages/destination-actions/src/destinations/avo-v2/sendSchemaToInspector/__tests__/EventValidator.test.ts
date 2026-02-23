@@ -40,7 +40,7 @@ describe('EventValidator', () => {
               id: {
                 type: 'string',
                 required: true,
-                regexPatterns: { '^id_': ['evt_1'] }
+                pinnedValues: { id_1: ['evt_1'] }
               }
             }
           }
@@ -74,7 +74,7 @@ describe('EventValidator', () => {
   })
 
   it('validates list of objects', () => {
-    const result = validateEvent({ listObjProp: [{ id: 'id_1' }, { id: 'id_2' }] }, mockSpec)
+    const result = validateEvent({ listObjProp: [{ id: 'id_1' }, { id: 'id_1' }] }, mockSpec)
     expect(result.propertyResults.listObjProp).toEqual({}) // Pass
 
     const resultFail = validateEvent({ listObjProp: [{ id: 'id_1' }, { id: 'wrong' }] }, mockSpec)
@@ -186,62 +186,5 @@ describe('EventValidator', () => {
     // Should fail validation when value is invalid (and not null/undefined)
     const resultInvalid = validateEvent({ optionalProp: 'invalid' }, optionalSpec)
     expect(resultInvalid.propertyResults.optionalProp.failedEventIds).toEqual(['evt_1'])
-  })
-
-  it('handles unsupported RE2 patterns gracefully across invocations', () => {
-    const spec: EventSpec = {
-      metadata: { schemaId: 'schema_1', branchId: 'main', latestActionId: 'action_1' },
-      events: [
-        {
-          branchId: 'main',
-          baseEventId: 'evt_1',
-          variantIds: [],
-          props: {
-            regexProp: {
-              type: 'string',
-              required: true,
-              regexPatterns: {
-                '^(?=a)a$': ['evt_1'], // Lookahead is unsupported by RE2 and should be skipped
-                '^a$': ['evt_1'] // Supported pattern should still be evaluated
-              }
-            }
-          }
-        }
-      ]
-    }
-
-    const resultPass = validateEvent({ regexProp: 'a' }, spec)
-    expect(resultPass.propertyResults.regexProp).toEqual({})
-
-    const resultFail = validateEvent({ regexProp: 'b' }, spec)
-    expect(resultFail.propertyResults.regexProp.failedEventIds).toEqual(['evt_1'])
-  })
-
-  it('handles ReDoS-shaped regex/input safely with RE2', () => {
-    const spec: EventSpec = {
-      metadata: { schemaId: 'schema_1', branchId: 'main', latestActionId: 'action_1' },
-      events: [
-        {
-          branchId: 'main',
-          baseEventId: 'evt_1',
-          variantIds: [],
-          props: {
-            regexProp: {
-              type: 'string',
-              required: true,
-              regexPatterns: {
-                // This is a classic catastrophic-backtracking pattern in JS RegExp.
-                // With RE2, evaluation remains safe/linear.
-                '^(a+)+$': ['evt_1']
-              }
-            }
-          }
-        }
-      ]
-    }
-
-    const evilInput = `${'a'.repeat(20000)}!`
-    const result = validateEvent({ regexProp: evilInput }, spec)
-    expect(result.propertyResults.regexProp.failedEventIds).toEqual(['evt_1'])
   })
 })

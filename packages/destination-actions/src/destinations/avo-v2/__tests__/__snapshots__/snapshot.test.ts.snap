@@ -20,6 +20,7 @@ Array [
     "messageId": "o5omS$Qs",
     "publicEncryptionKey": "o5omS$Qs",
     "sessionId": "",
+    "streamId": "o5omS$Qs",
     "type": "event",
   },
 ]
@@ -45,6 +46,7 @@ Array [
     "messageId": "o5omS$Qs",
     "publicEncryptionKey": "o5omS$Qs",
     "sessionId": "",
+    "streamId": "unknown",
     "type": "event",
   },
 ]

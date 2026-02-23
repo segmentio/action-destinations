@@ -4,7 +4,6 @@
  * This module validates property values against constraints:
  * - Pinned values (exact match required)
  * - Allowed values (must be in list)
- * - Regex patterns (must match pattern)
  * - Min/max ranges (numeric values must be in range)
  *
  * No schema validation (types/required) is performed - only value constraints.
@@ -20,7 +19,6 @@ import type {
   RuntimePropertyValue,
   RuntimeProperties
 } from '../types'
-import { RE2 } from 're2-wasm'
 
 // =============================================================================
 // HELPER FUNCTIONS FOR NESTED PROPERTIES
@@ -51,7 +49,6 @@ function deepCopyChildren(children: Record<string, PropertyConstraint>): Record<
       isList: constraints.isList,
       pinnedValues: constraints.pinnedValues ? deepCopyConstraintMapping(constraints.pinnedValues) : undefined,
       allowedValues: constraints.allowedValues ? deepCopyConstraintMapping(constraints.allowedValues) : undefined,
-      regexPatterns: constraints.regexPatterns ? deepCopyConstraintMapping(constraints.regexPatterns) : undefined,
       minMaxRanges: constraints.minMaxRanges ? deepCopyConstraintMapping(constraints.minMaxRanges) : undefined,
       children: constraints.children ? deepCopyChildren(constraints.children) : undefined
     }
@@ -76,9 +73,6 @@ function mergeChildren(target: Record<string, PropertyConstraint>, source: Recor
           : undefined,
         allowedValues: sourceConstraints.allowedValues
           ? deepCopyConstraintMapping(sourceConstraints.allowedValues)
-          : undefined,
-        regexPatterns: sourceConstraints.regexPatterns
-          ? deepCopyConstraintMapping(sourceConstraints.regexPatterns)
           : undefined,
         minMaxRanges: sourceConstraints.minMaxRanges
           ? deepCopyConstraintMapping(sourceConstraints.minMaxRanges)
@@ -141,22 +135,6 @@ function mergeConstraintMappings(target: PropertyConstraint, source: PropertyCon
       }
     }
   }
-  if (source.regexPatterns) {
-    if (!target.regexPatterns) {
-      target.regexPatterns = {}
-    }
-    for (const key of Object.keys(source.regexPatterns)) {
-      if (target.regexPatterns[key]) {
-        const merged = new Set(target.regexPatterns[key])
-        for (const id of source.regexPatterns[key]) {
-          merged.add(id)
-        }
-        target.regexPatterns[key] = Array.from(merged)
-      } else {
-        target.regexPatterns[key] = [...source.regexPatterns[key]]
-      }
-    }
-  }
   if (source.minMaxRanges) {
     if (!target.minMaxRanges) {
       target.minMaxRanges = {}
@@ -180,34 +158,13 @@ function mergeConstraintMappings(target: PropertyConstraint, source: PropertyCon
 // =============================================================================
 
 /**
- * Per-invocation cache for compiled RE2 patterns.
- */
-type RegexCache = Map<string, RE2>
-
-/**
  * Per-invocation cache for parsed allowed values.
  * Maps stringified JSON -> set of allowed strings.
  */
 type AllowedValuesCache = Map<string, Set<string>>
 
 interface ValidationCaches {
-  regexCache: RegexCache
   allowedValuesCache: AllowedValuesCache
-}
-
-/**
- * Gets a compiled regex from cache or compiles and caches it.
- * @throws Error if pattern is invalid
- */
-function getOrCompileRegex(pattern: string, regexCache: RegexCache): RE2 {
-  let regex = regexCache.get(pattern)
-  if (!regex) {
-    // Use RE2 to avoid catastrophic backtracking in regex evaluation.
-    // RE2 always requires unicode mode.
-    regex = new RE2(pattern, 'u')
-    regexCache.set(pattern, regex)
-  }
-  return regex
 }
 
 // =============================================================================
@@ -229,7 +186,6 @@ function getOrCompileRegex(pattern: string, regexCache: RegexCache): RE2 {
 export function validateEvent(properties: RuntimeProperties, specResponse: EventSpec): ValidationResult {
   // Keep caches local to a single invocation to avoid cross-request state sharing.
   const caches: ValidationCaches = {
-    regexCache: new Map(),
     allowedValuesCache: new Map()
   }
 
@@ -316,7 +272,6 @@ function collectConstraintsByPropertyName(events: Event[]): Record<string, Prope
           isList: constraints.isList,
           pinnedValues: constraints.pinnedValues ? { ...constraints.pinnedValues } : undefined,
           allowedValues: constraints.allowedValues ? { ...constraints.allowedValues } : undefined,
-          regexPatterns: constraints.regexPatterns ? { ...constraints.regexPatterns } : undefined,
           minMaxRanges: constraints.minMaxRanges ? { ...constraints.minMaxRanges } : undefined,
           children: constraints.children ? deepCopyChildren(constraints.children) : undefined
         }
@@ -457,9 +412,6 @@ function validateListProperty(
         caches.allowedValuesCache
       )
     }
-    if (constraints.regexPatterns) {
-      checkRegexPatterns(item as RuntimePropertyValue, constraints.regexPatterns, itemFailedIds, caches.regexCache)
-    }
     if (constraints.minMaxRanges) {
       checkMinMaxRanges(item as RuntimePropertyValue, constraints.minMaxRanges, itemFailedIds)
     }
@@ -524,11 +476,6 @@ function validatePrimitiveProperty(
   // Check allowed values
   if (constraints.allowedValues) {
     checkAllowedValues(value, constraints.allowedValues, failedIds, caches.allowedValuesCache)
-  }
-
-  // Check regex patterns
-  if (constraints.regexPatterns) {
-    checkRegexPatterns(value, constraints.regexPatterns, failedIds, caches.regexCache)
   }
 
   // Check min/max ranges
@@ -644,38 +591,6 @@ function checkAllowedValues(
     if (!allowedSet.has(stringValue)) {
       // Value not in allowed list, so these eventIds fail
       addIdsToSet(eventIds, failedIds)
-    }
-  }
-}
-
-/**
- * Checks regex pattern constraint.
- * For each pattern -> eventIds entry, if runtime value doesn't match pattern, those eventIds FAIL.
- */
-function checkRegexPatterns(
-  value: RuntimePropertyValue,
-  regexPatterns: Record<string, string[]>,
-  failedIds: Set<string>,
-  regexCache: RegexCache
-): void {
-  // Only check regex for string values
-  if (typeof value !== 'string') {
-    // Non-string values fail all regex constraints
-    for (const eventIds of Object.values(regexPatterns)) {
-      addIdsToSet(eventIds, failedIds)
-    }
-    return
-  }
-
-  for (const [pattern, eventIds] of Object.entries(regexPatterns)) {
-    try {
-      const regex = getOrCompileRegex(pattern, regexCache)
-      if (!regex.test(value)) {
-        // Value doesn't match pattern, so these eventIds fail
-        addIdsToSet(eventIds, failedIds)
-      }
-    } catch (e) {
-      // Invalid regex - skip this constraint
     }
   }
 }

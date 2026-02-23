@@ -20,6 +20,7 @@ Array [
     "messageId": "NU$O%!ms2wKE]8XsN5@)",
     "publicEncryptionKey": "NU$O%!ms2wKE]8XsN5@)",
     "sessionId": "",
+    "streamId": "test-stream-id",
     "type": "event",
   },
 ]
@@ -45,6 +46,7 @@ Array [
     "messageId": "NU$O%!ms2wKE]8XsN5@)",
     "publicEncryptionKey": "NU$O%!ms2wKE]8XsN5@)",
     "sessionId": "",
+    "streamId": "test-stream-id",
     "type": "event",
   },
 ]
@@ -70,6 +72,7 @@ Array [
     "messageId": "NU$O%!ms2wKE]8XsN5@)",
     "publicEncryptionKey": "NU$O%!ms2wKE]8XsN5@)",
     "sessionId": "",
+    "streamId": "test-stream-id",
     "type": "event",
   },
 ]

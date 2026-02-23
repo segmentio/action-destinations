@@ -39,7 +39,6 @@ export interface PropertyConstraintWire {
   v?: string[] | Record<string, string[]> // allowed values: either array (legacy) or object mapping JSON-stringified arrays to event IDs
   min?: number // min value
   max?: number // max value
-  rx?: string | Record<string, string[]> // regex patterns: legacy string or object mapping pattern to event IDs
 }
 
 /** Metadata returned with the event spec response. */
@@ -84,7 +83,6 @@ export interface PropertyConstraint {
   isList?: boolean
   pinnedValues?: Record<string, string[]>
   allowedValues?: Record<string, string[]>
-  regexPatterns?: Record<string, string[]>
   minMaxRanges?: Record<string, string[]>
   children?: Record<string, PropertyConstraint>
 }

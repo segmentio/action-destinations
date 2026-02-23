@@ -6,7 +6,7 @@ export interface Settings {
    */
   apiKey: string
   /**
-   * Optional. Enables verification of the property values against your Tracking Plan (e.g. allowed values, regex patterns, min/max constraints). Values are end-to-end encrypted and Avo can not decrypt them. Read more: https://www.avo.app/docs/inspector/connect-inspector-to-segment#property-value-validation-optional
+   * Optional. Enables verification of the property values against your Tracking Plan (e.g. allowed values, min/max constraints). Values are end-to-end encrypted and Avo can not decrypt them. Read more: https://www.avo.app/docs/inspector/connect-inspector-to-segment#property-value-validation-optional
    */
   publicEncryptionKey?: string
   /**
