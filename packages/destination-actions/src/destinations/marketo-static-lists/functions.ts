@@ -255,7 +255,7 @@ export async function removeFromListBatch(
 
   if (!deleteLeadsResponse.data.success) {
     statsContext?.statsClient?.incr('removeFromAudience.error', payloads.length, statsContext?.tags)
-    return parseErrorResponse(deleteLeadsResponse.data)
+    return parseErrorResponseBatch(deleteLeadsResponse.data, payloads.length)
   }
   statsContext?.statsClient?.incr('removeFromAudience.success', payloads.length, statsContext?.tags)
 
@@ -309,32 +309,51 @@ function extractLeadIds(leads: MarketoLeads[] = []) {
   return ids
 }
 
+// Marketo error codes that indicate transient/temporary failures which should be retried.
+// Reference: https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/rest/error-codes
+const MARKETO_RETRYABLE_CODES = new Set([
+  '502', // Bad gateway / timeout
+  '604', // Request timeout
+  '606', // Rate limit exceeded (>100 calls per 20 seconds)
+  '607', // Daily quota exhausted
+  '608', // API temporarily unavailable
+  '611', // Unhandled system exception
+  '614', // Unreachable subscription
+  '615', // Concurrent access limit exceeded
+  '713', // Transient error – system resource temporarily unavailable
+  '719', // Lock wait timeout
+  '1019', // Batch import in progress on list
+  '1029' // Queue/export limit exceeded
+])
+
 function parseErrorResponse(response: MarketoResponse) {
-  if (response.errors[0].code === '601' || response.errors[0].code === '602') {
+  const code = response.errors[0].code
+
+  if (code === '601' || code === '602') {
     throw new IntegrationError(response.errors[0].message, 'INVALID_AUTHENTICATION', 401)
   }
 
-  if (response.errors[0].code === '1019') {
-    throw new RetryableError(
-      'Error while attempting to upload users to the list in Marketo. This batch will be retried.'
-    )
+  if (MARKETO_RETRYABLE_CODES.has(code)) {
+    throw new RetryableError(response.errors[0].message)
   }
 
   throw new IntegrationError(response.errors[0].message, 'NOT_ACCEPTABLE', 400)
 }
 
 function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number) {
-  if (response.errors[0].code === '601' || response.errors[0].code === '602') {
+  const code = response.errors[0].code
+
+  if (code === '601' || code === '602') {
     // An INVALID_AUTHENTICATION error is thrown instead of returning a MultiStatusResponse
     // Refreshing the access token in Client Credentials flow is triggered by this error
     throw new IntegrationError(response.errors[0].message, 'INVALID_AUTHENTICATION', 401)
   }
 
-  if (response.errors[0].code === '1019') {
+  if (MARKETO_RETRYABLE_CODES.has(code)) {
     return buildMultiStatusErrorResponse(payloadSize, {
       status: 500,
       errortype: ErrorCodes.RETRYABLE_ERROR,
-      errormessage: 'Error while attempting to upload users to the list in Marketo. This batch will be retried.'
+      errormessage: response.errors[0].message
     })
   }
 
