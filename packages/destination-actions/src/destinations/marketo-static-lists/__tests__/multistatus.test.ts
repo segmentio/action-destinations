@@ -126,13 +126,13 @@ describe('MultiStatus', () => {
 
       expect(response).toMatchObject([
         {
-          status: 400,
+          status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'INTEGRATIONS'
         },
         {
-          status: 400,
+          status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'INTEGRATIONS'
@@ -317,13 +317,13 @@ describe('MultiStatus', () => {
 
       expect(response).toMatchObject([
         {
-          status: 400,
+          status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'INTEGRATIONS'
         },
         {
-          status: 400,
+          status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'INTEGRATIONS'
@@ -359,13 +359,13 @@ describe('MultiStatus', () => {
 
       expect(response).toMatchObject([
         {
-          status: 400,
+          status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'INTEGRATIONS'
         },
         {
-          status: 400,
+          status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'INTEGRATIONS'
