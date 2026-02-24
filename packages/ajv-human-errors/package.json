@@ -24,7 +24,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "ajv": "^8.6.3",
+    "ajv": "^8.18.0",
     "ajv-formats": "^2.1.1",
     "jest": "^27.3.1"
   },
