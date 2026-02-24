@@ -1,6 +1,6 @@
 # Standard Analysis Format
 
-This document defines the standard analysis format that both `openapi-analyze` and `web-analyze` skills produce, and that `openapi-implement` consumes.
+This document defines the standard analysis format that both `openapi-analyze` and `web-analyze` skills produce, and that `implement-destination` consumes.
 
 ## Purpose
 
@@ -137,7 +137,7 @@ Recommendation: Add a region selector field in authentication.
 
 1. Review the recommended actions above
 2. Shortlist 3-5 actions for initial implementation
-3. Run `/openapi-implement` skill with your selections to generate the destination code
+3. Run `/implement-destination` skill with your selections to generate the destination code
 4. The generated code will be ~70-80% complete with clear TODOs for remaining work
 
 ````
@@ -203,7 +203,7 @@ Common patterns:
 
 ## Validation Checklist
 
-Before using an analysis document with `openapi-implement`:
+Before using an analysis document with `implement-destination`:
 
 - [ ] API Name is present
 - [ ] Base URL is present

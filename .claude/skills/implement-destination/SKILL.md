@@ -1,5 +1,5 @@
 ---
-name: openapi-implement
+name: implement-destination
 description: Generate destination code from analysis documents (OpenAPI or web-based) and user-selected actions
 version: 1.0.0
 allowed-tools:
@@ -23,7 +23,7 @@ This skill generates complete Segment action-destination code from analysis docu
 - Website documentation (via `/web-analyze`)
 - Any analysis document following the Standard Analysis Format
 
-All analysis documents must follow the format defined in `.claude/skills/openapi-implement/analysis-format.md`.
+All analysis documents must follow the format defined in `.claude/skills/implement-destination/analysis-format.md`.
 
 ## Instructions
 
@@ -75,7 +75,7 @@ packages/destination-actions/src/destinations/[slug]/
 
 ### Step 4: Generate Destination index.ts
 
-Read the template at `.claude/skills/openapi-implement/templates/destination-index.md` and customize it with:
+Read the template at `.claude/skills/implement-destination/templates/destination-index.md` and customize it with:
 
 - Destination name and slug
 - Description from OpenAPI
@@ -166,7 +166,7 @@ For each selected action, generate three files:
 
 #### 5.1: Action index.ts
 
-Read the template at `.claude/skills/openapi-implement/templates/action-index.md` and customize with:
+Read the template at `.claude/skills/implement-destination/templates/action-index.md` and customize with:
 
 - Action title and description
 - Default subscription from analysis
@@ -296,7 +296,7 @@ export interface Payload {
 
 #### 5.3: Action Test File
 
-Read the template at `.claude/skills/openapi-implement/templates/test-template.md` and customize with:
+Read the template at `.claude/skills/implement-destination/templates/test-template.md` and customize with:
 
 - Action name
 - Event type (track/identify/group)

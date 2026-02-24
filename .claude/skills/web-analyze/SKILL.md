@@ -13,7 +13,7 @@ disable-model-invocation: false
 
 # Web Documentation Analyzer
 
-This skill analyzes API documentation from websites and generates comprehensive implementation plans for Segment action-destinations. It produces the same standardized output format as `openapi-analyze`, making it compatible with `openapi-implement`.
+This skill analyzes API documentation from websites and generates comprehensive implementation plans for Segment action-destinations. It produces the same standardized output format as `openapi-analyze`, making it compatible with `implement-destination`.
 
 ## When to Use This Skill
 
@@ -154,11 +154,11 @@ For each high/medium priority endpoint, determine:
 
 ### Step 5: Generate Analysis Document
 
-Generate a markdown document following the **Standard Analysis Format** (see `.claude/skills/openapi-implement/analysis-format.md`).
+Generate a markdown document following the **Standard Analysis Format** (see `.claude/skills/implement-destination/analysis-format.md`).
 
 **File location:** `packages/destination-actions/.claude/openapi-analyses/[api-slug]-analysis.md`
 
-**Important:** Use the exact format specified in `analysis-format.md` so that `openapi-implement` can consume it.
+**Important:** Use the exact format specified in `analysis-format.md` so that `implement-destination` can consume it.
 
 **Document Template:**
 
@@ -260,7 +260,7 @@ Generate a markdown document following the **Standard Analysis Format** (see `.c
 
 1. Review the recommended actions above
 2. Shortlist 3-5 actions for initial implementation
-3. Run `/openapi-implement` skill with your selections to generate the destination code
+3. Run `/implement-destination` skill with your selections to generate the destination code
 4. The generated code will be ~70-80% complete with clear TODOs for remaining work
 
 ```
@@ -315,7 +315,7 @@ Show the user:
    - Review the analysis document
    - Verify extracted information against docs
    - Shortlist actions to implement
-   - Run `/openapi-implement` to generate code
+   - Run `/implement-destination` to generate code
 
 ## Tips for Effective Analysis
 
@@ -448,7 +448,7 @@ Before saving the analysis document, verify:
 ## Notes
 
 - This skill produces the **same format** as `openapi-analyze`
-- Output is **compatible** with `openapi-implement`
+- Output is **compatible** with `implement-destination`
 - Analysis may require **more manual review** than OpenAPI-based analysis
 - User should **verify** extracted information against actual API behavior
 ```

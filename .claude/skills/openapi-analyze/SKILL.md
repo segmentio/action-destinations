@@ -137,7 +137,7 @@ Create a markdown document at: `packages/destination-actions/.claude/openapi-ana
 
 The API slug should be derived from the API name (lowercase, hyphens instead of spaces).
 
-**IMPORTANT:** Follow the **Standard Analysis Format** defined in `.claude/skills/openapi-implement/analysis-format.md` to ensure compatibility with `openapi-implement`. The format below is the OpenAPI-specific implementation of that standard.
+**IMPORTANT:** Follow the **Standard Analysis Format** defined in `.claude/skills/implement-destination/analysis-format.md` to ensure compatibility with `implement-destination`. The format below is the OpenAPI-specific implementation of that standard.
 
 **Document Structure:**
 
@@ -255,7 +255,7 @@ Recommendation: Add a region selector field in authentication.
 
 1. Review the recommended actions above
 2. Shortlist 3-5 actions for initial implementation
-3. Run `/openapi-implement` skill with your selections to generate the destination code
+3. Run `/implement-destination` skill with your selections to generate the destination code
 4. The generated code will be ~70-80% complete with clear TODOs for remaining work
 
 ```
@@ -274,7 +274,7 @@ After generating the analysis document, show the user:
 3. Next steps:
    - Review the analysis document
    - Shortlist actions to implement
-   - Run `/openapi-implement` to generate code
+   - Run `/implement-destination` to generate code
 
 ## Tips
 

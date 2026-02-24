@@ -82,7 +82,7 @@ These skills automate 70-80% of this process by:
 
 ---
 
-### 3. `/openapi-implement` - Generate Destination Code
+### 3. `/implement-destination` - Generate Destination Code
 
 **Purpose:** Generate complete destination code from any analysis document (OpenAPI or web-based) and user-selected actions.
 
@@ -91,7 +91,7 @@ These skills automate 70-80% of this process by:
 **Usage:**
 
 ```
-/openapi-implement
+/implement-destination
 ```
 
 **What it does:**
@@ -167,7 +167,7 @@ Shortlist 3-5 actions you want to implement.
 
 ```bash
 # Run the implement skill
-/openapi-implement
+/implement-destination
 ```
 
 When prompted:
@@ -330,7 +330,7 @@ Output: `packages/destination-actions/.claude/openapi-analyses/example-api-analy
 ### Example 3: Implementing from Analysis
 
 ```bash
-/openapi-implement
+/implement-destination
 ```
 
 Inputs:

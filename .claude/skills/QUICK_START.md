@@ -8,7 +8,7 @@
 /openapi-analyze
 # Provide OpenAPI spec URL or file path
 # Review analysis document
-/openapi-implement
+/implement-destination
 # Select actions and generate code
 ```
 
@@ -18,7 +18,7 @@
 /web-analyze
 # Provide documentation URL
 # Review and verify analysis document
-/openapi-implement
+/implement-destination
 # Select actions and generate code
 ```
 
@@ -44,7 +44,7 @@
 │             Implementation Phase                     │
 ├─────────────────────────────────────────────────────┤
 │                                                      │
-│           /openapi-implement                         │
+│           /implement-destination                         │
 │   (Works with both analysis sources)                │
 │                  │                                   │
 │                  ▼                                   │
@@ -95,7 +95,7 @@ Shortlist 3-5 actions you want to implement.
 ### 3. Implement (1 min)
 
 ```
-/openapi-implement
+/implement-destination
 → Enter analysis path: packages/destination-actions/.claude/openapi-analyses/your-service-analysis.md
 → Enter destination name: Your Service
 → Confirm slug: your-service
@@ -140,7 +140,7 @@ Do you have API documentation?
 /web-analyze
 
 # Generate code
-/openapi-implement
+/implement-destination
 
 # After generation - type generation
 ./bin/run generate:types --path packages/destination-actions/src/destinations/[slug]/index.ts
@@ -210,22 +210,22 @@ your-destination/
 
 ## File Locations
 
-| File                                                     | Purpose                          |
-| -------------------------------------------------------- | -------------------------------- |
-| `.claude/skills/README.md`                               | Full documentation               |
-| `.claude/skills/QUICK_START.md`                          | This file                        |
-| `.claude/skills/openapi-analyze/SKILL.md`                | OpenAPI analysis skill           |
-| `.claude/skills/web-analyze/SKILL.md`                    | Web documentation analysis skill |
-| `.claude/skills/openapi-implement/SKILL.md`              | Implementation skill             |
-| `.claude/skills/openapi-implement/analysis-format.md`    | Standard format specification    |
-| `.claude/skills/openapi-implement/templates/`            | Code generation templates        |
-| `packages/destination-actions/.claude/openapi-analyses/` | Generated analysis documents     |
+| File                                                      | Purpose                          |
+| --------------------------------------------------------- | -------------------------------- |
+| `.claude/skills/README.md`                                | Full documentation               |
+| `.claude/skills/QUICK_START.md`                           | This file                        |
+| `.claude/skills/openapi-analyze/SKILL.md`                 | OpenAPI analysis skill           |
+| `.claude/skills/web-analyze/SKILL.md`                     | Web documentation analysis skill |
+| `.claude/skills/implement-destination/SKILL.md`           | Implementation skill             |
+| `.claude/skills/implement-destination/analysis-format.md` | Standard format specification    |
+| `.claude/skills/implement-destination/templates/`         | Code generation templates        |
+| `packages/destination-actions/.claude/openapi-analyses/`  | Generated analysis documents     |
 
 ## Support
 
 - Full docs: [.claude/skills/README.md](.claude/skills/README.md)
 - Analysis
-  format: [.claude/skills/openapi-implement/analysis-format.md](.claude/skills/openapi-implement/analysis-format.md)
+  format: [.claude/skills/implement-destination/analysis-format.md](.claude/skills/implement-destination/analysis-format.md)
 - Implementation notes: Check generated `IMPLEMENTATION_NOTES.md` in your destination folder
 
 ---
