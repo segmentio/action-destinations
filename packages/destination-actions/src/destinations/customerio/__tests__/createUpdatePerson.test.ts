@@ -48,7 +48,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -93,7 +93,7 @@ describe('CustomerIO', () => {
           identifiers: {
             email: userId
           },
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -139,7 +139,7 @@ describe('CustomerIO', () => {
           identifiers: {
             email: traits.email
           },
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -186,7 +186,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -251,7 +251,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -282,7 +282,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -313,7 +313,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -344,7 +344,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          _timestamp: timestamp,
+          timestamp,
           type: 'person'
         })
       })
@@ -390,7 +390,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -428,7 +428,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -482,7 +482,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -534,7 +534,7 @@ describe('CustomerIO', () => {
               identifiers: { object_type_id: '2', object_id: groupId }
             }
           ],
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -563,7 +563,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -610,7 +610,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -672,7 +672,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })
@@ -733,7 +733,7 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          _timestamp: dayjs.utc(timestamp).unix(),
+          timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
       })

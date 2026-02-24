@@ -1,7 +1,7 @@
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { ActionDefinition } from '@segment/actions-core'
-import { sendBatch, sendSingle, convertValidTimestamp } from '../utils'
+import { sendBatch, sendSingle } from '../utils'
 import { eventProperties } from '../customerio-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -122,7 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function mapPayload(payload: Payload) {
-  const { id, custom_attributes = {}, relationship_attributes, created_at, group_id, object_type_id, timestamp, ...rest } = payload
+  const { id, custom_attributes = {}, relationship_attributes, created_at, group_id, object_type_id, ...rest } = payload
 
   // This is mapped to a field below.
   delete custom_attributes.createdAt
@@ -143,12 +143,6 @@ function mapPayload(payload: Payload) {
     ...rest,
     person_id: id,
     attributes: custom_attributes
-  }
-
-  // Customer.io's Track API v2 expects `_timestamp` for ordering attribute updates.
-  // This must always be converted to unix format regardless of the `convert_timestamp` setting.
-  if (timestamp) {
-    body._timestamp = convertValidTimestamp(timestamp)
   }
 
   // Adding Object Person relationship if group_id exists in the call. If the object_type_id is not given, default it to "1"
