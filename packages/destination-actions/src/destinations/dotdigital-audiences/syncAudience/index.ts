@@ -73,6 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'A computed object for track and identify events. This field should not need to be edited.',
       type: 'object',
       required: true,
+      unsafe_hidden: true,
       default: {
         '@if': {
           exists: { '@path': '$.properties' },
