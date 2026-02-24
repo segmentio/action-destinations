@@ -12,11 +12,6 @@ const settings = {
   endpoint: 'north_america'
 }
 
-const auth = {
-  headerKey: 'Authorization',
-  headerValue: `Basic ${Buffer.from(`${settings.api_key}:${settings.secret_key}`).toString('base64')}`
-}
-
 describe('Amplitude Cohorts', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
