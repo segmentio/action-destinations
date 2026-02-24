@@ -441,34 +441,43 @@ This destination was generated from an OpenAPI specification analysis. The gener
 - **API Docs:** [link if available]
 - **Support:** [support contact if available]
 
-```
+````
 
-### Step 9: Present Results
+### Step 9: Serve the Destination Locally
+
+After generating the code, run the destination locally so the user can test it immediately:
+
+```bash
+./bin/run serve packages/destination-actions/src/destinations/[slug]
+````
+
+This starts a local HTTP server that exposes the destination's actions as endpoints. The user can send test requests directly to verify the destination behaves as expected before completing the TODO items.
+
+If the serve command fails (e.g., due to TypeScript errors), inform the user and suggest running `yarn build` first to surface compilation errors.
+
+### Step 10: Present Results
 
 Show the user a summary:
 
 ```
-
 ✓ Created destination: [Destination Name]
 ✓ Location: packages/destination-actions/src/destinations/[slug]/
 ✓ Generated [N] actions:
+  - [action-1]: [one-line description]
+  - [action-2]: [one-line description]
+✓ Generated TypeScript type definitions
+✓ Created test files
+✓ Created IMPLEMENTATION_NOTES.md
+✓ Destination server started
 
-- [action-1]: [one-line description]
-- [action-2]: [one-line description]
-  ...
-  ✓ Generated TypeScript type definitions
-  ✓ Created test files
-  ✓ Created IMPLEMENTATION_NOTES.md
+The destination is now running locally. Send test requests to verify behavior.
 
 Next steps:
-
 1. Review generated code in packages/destination-actions/src/destinations/[slug]/
-2. Run: yarn build
-3. Fix any TypeScript errors
-4. Complete TODOs in IMPLEMENTATION_NOTES.md
-5. Run: yarn test packages/destination-actions/src/destinations/[slug]
-6. Test with real API credentials
-
+2. Complete TODOs in IMPLEMENTATION_NOTES.md
+3. Run: yarn test packages/destination-actions/src/destinations/[slug]
+4. Test with real API credentials
+5. To restart the server: ./bin/run serve packages/destination-actions/src/destinations/[slug]
 ```
 
 ## Tips
@@ -480,4 +489,7 @@ Next steps:
 - Ensure all files have proper error handling imports even if not fully implemented
 - Keep perform functions simple - map payload to API request
 - For complex transformations, add TODO comments explaining what's needed
+
+```
+
 ```
