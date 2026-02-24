@@ -1,17 +1,13 @@
 import nock from 'nock'
 import { createTestIntegration, IntegrationError } from '@segment/actions-core'
 import Destination from '../index'
-import { Features } from '@segment/actions-core/mapping-kit'
-import { API_VERSION, CANARY_API_VERSION } from '../constants'
-
-const features: Features = { 'facebook-custom-audience-actions-canary-version': true }
+import { API_VERSION, BASE_URL } from '../constants'
 
 const adAccountId = '1500000000000000'
 const audienceId = '1506489116128966'
 const testDestination = createTestIntegration(Destination)
-const BASE_URL = 'https://graph.facebook.com'
 
-const getAudienceUrl = `https://graph.facebook.com/${API_VERSION}/`
+const getAudienceUrl = `${BASE_URL}/${API_VERSION}/`
 
 const createAudienceInput = {
   settings: {
@@ -44,14 +40,14 @@ describe('Facebook Custom Audiences', () => {
     })
 
     it('should create a new Facebook Audience', async () => {
-      nock(`${BASE_URL}/${CANARY_API_VERSION}/act_${adAccountId}`)
+      nock(`${BASE_URL}/${API_VERSION}/act_${adAccountId}`)
         .post('/customaudiences')
         .reply(200, { id: '88888888888888888' })
 
       createAudienceInput.audienceName = 'The Super Mario Brothers Fans'
       createAudienceInput.audienceSettings.engageAdAccountId = adAccountId
 
-      const r = await testDestination.createAudience({ ...createAudienceInput, features })
+      const r = await testDestination.createAudience(createAudienceInput)
       expect(r).toEqual({ externalId: '88888888888888888' })
     })
   })
@@ -68,10 +64,10 @@ describe('Facebook Custom Audiences', () => {
     })
 
     it('should succeed when Segment Audience ID matches FB audience ID', async () => {
-      nock(`${BASE_URL}/${CANARY_API_VERSION}/`)
+      nock(getAudienceUrl)
         .get(`/${audienceId}`)
         .reply(200, { id: `${audienceId}` })
-      const r = await testDestination.getAudience({ ...getAudienceInput, features })
+      const r = await testDestination.getAudience(getAudienceInput)
       expect(r).toEqual({ externalId: audienceId })
     })
   })
