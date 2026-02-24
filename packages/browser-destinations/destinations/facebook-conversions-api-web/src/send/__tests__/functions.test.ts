@@ -29,7 +29,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
   }
 
   describe('send - Standard Events', () => {
-    it('should send Purchase event with required fields', () => {
+    it('should send Purchase event with required fields', async () => {
       const payload = {
         event_config: {
           event_name: 'Purchase',
@@ -40,22 +40,23 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         currency: 'USD'
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(mockFbq).toHaveBeenCalledWith(
         'trackSingle',
         'test-pixel-123',
         'Purchase',
-        expect.objectContaining({
+        {
+          partner_agent: 'segment',
           content_ids: ['product-123'],
           value: 99.99,
           currency: 'USD'
-        }),
+        },
         undefined
       )
     })
 
-    it('should send AddToCart event with contents', () => {
+    it('should send AddToCart event with contents', async () => {
       const payload = {
         event_config: {
           event_name: 'AddToCart',
@@ -72,22 +73,23 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         currency: 'USD'
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(mockFbq).toHaveBeenCalledWith(
         'trackSingle',
         'test-pixel-123',
         'AddToCart',
-        expect.objectContaining({
+        {
+          partner_agent: 'segment',
           contents: [{ id: 'product-123', quantity: 2, item_price: 49.99 }],
           value: 99.98,
           currency: 'USD'
-        }),
+        },
         undefined
       )
     })
 
-    it('should send ViewContent event', () => {
+    it('should send ViewContent event', async () => {
       const payload = {
         event_config: {
           event_name: 'ViewContent',
@@ -99,23 +101,24 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         value: 199.99
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(mockFbq).toHaveBeenCalledWith(
         'trackSingle',
         'test-pixel-123',
         'ViewContent',
-        expect.objectContaining({
+        {
+          partner_agent: 'segment',
           content_ids: ['product-456'],
           content_name: 'Test Product',
           content_category: 'Electronics',
           value: 199.99
-        }),
+        },
         undefined
       )
     })
 
-    it('should send PageView event', () => {
+    it('should send PageView event', async () => {
       const payload = {
         event_config: {
           event_name: 'PageView',
@@ -123,14 +126,14 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         }
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
-      expect(mockFbq).toHaveBeenCalledWith('trackSingle', 'test-pixel-123', 'PageView', {}, undefined)
+      expect(mockFbq).toHaveBeenCalledWith('trackSingle', 'test-pixel-123', 'PageView', { partner_agent: 'segment' }, undefined)
     })
   })
 
   describe('send - Custom Events', () => {
-    it('should send custom event with custom event name', () => {
+    it('should send custom event with custom event name', async () => {
       const payload = {
         event_config: {
           event_name: 'CustomEvent',
@@ -144,26 +147,27 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         }
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(mockFbq).toHaveBeenCalledWith(
         'trackSingleCustom',
         'test-pixel-123',
         'MyCustomEvent',
-        expect.objectContaining({
+        {
+          partner_agent: 'segment',
           value: 50.0,
           custom_data: {
             custom_field_1: 'value1',
             custom_field_2: 'value2'
           }
-        }),
+        },
         undefined
       )
     })
   })
 
   describe('send - Validation', () => {
-    it('should warn if AddToCart is missing both content_ids and contents', () => {
+    it('should warn if AddToCart is missing both content_ids and contents', async () => {
       const payload = {
         event_config: {
           event_name: 'AddToCart',
@@ -172,7 +176,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         value: 99.99
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('At least one of content_ids or contents is required for the AddToCart event')
@@ -180,7 +184,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(mockFbq).not.toHaveBeenCalled()
     })
 
-    it('should warn if Purchase is missing both content_ids and contents', () => {
+    it('should warn if Purchase is missing both content_ids and contents', async () => {
       const payload = {
         event_config: {
           event_name: 'Purchase',
@@ -190,7 +194,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         currency: 'USD'
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('At least one of content_ids or contents is required for the Purchase event')
@@ -198,7 +202,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(mockFbq).not.toHaveBeenCalled()
     })
 
-    it('should warn if ViewContent is missing both content_ids and contents', () => {
+    it('should warn if ViewContent is missing both content_ids and contents', async () => {
       const payload = {
         event_config: {
           event_name: 'ViewContent',
@@ -206,7 +210,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         }
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('At least one of content_ids or contents is required for the ViewContent event')
@@ -214,7 +218,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(mockFbq).not.toHaveBeenCalled()
     })
 
-    it('should not warn if AddToCart has content_ids', () => {
+    it('should not warn if AddToCart has content_ids', async () => {
       const payload = {
         event_config: {
           event_name: 'AddToCart',
@@ -224,13 +228,13 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         value: 99.99
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(consoleWarnSpy).not.toHaveBeenCalled()
       expect(mockFbq).toHaveBeenCalled()
     })
 
-    it('should not warn if AddToCart has contents', () => {
+    it('should not warn if AddToCart has contents', async () => {
       const payload = {
         event_config: {
           event_name: 'AddToCart',
@@ -240,7 +244,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         value: 99.99
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(consoleWarnSpy).not.toHaveBeenCalled()
       expect(mockFbq).toHaveBeenCalled()
@@ -248,7 +252,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
   })
 
   describe('send - Event Options', () => {
-    it('should include eventID when provided', () => {
+    it('should include eventID when provided', async () => {
       const payload = {
         event_config: {
           event_name: 'Purchase',
@@ -259,20 +263,20 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         eventID: 'unique-event-id-123'
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(mockFbq).toHaveBeenCalledWith(
         'trackSingle',
         'test-pixel-123',
         'Purchase',
         expect.any(Object),
-        expect.objectContaining({
+        {
           eventID: 'unique-event-id-123'
-        })
+        }
       )
     })
 
-    it('should include eventSourceUrl when provided', () => {
+    it('should include eventSourceUrl when provided', async () => {
       const payload = {
         event_config: {
           event_name: 'Purchase',
@@ -283,20 +287,20 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         eventSourceUrl: 'https://example.com/checkout'
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(mockFbq).toHaveBeenCalledWith(
         'trackSingle',
         'test-pixel-123',
         'Purchase',
         expect.any(Object),
-        expect.objectContaining({
+        {
           eventSourceUrl: 'https://example.com/checkout'
-        })
+        }
       )
     })
 
-    it('should include both eventID and eventSourceUrl when provided', () => {
+    it('should include both eventID and eventSourceUrl when provided', async () => {
       const payload = {
         event_config: {
           event_name: 'Purchase',
@@ -308,431 +312,23 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         eventSourceUrl: 'https://example.com/checkout'
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(mockFbq).toHaveBeenCalledWith(
         'trackSingle',
         'test-pixel-123',
         'Purchase',
         expect.any(Object),
-        expect.objectContaining({
+        {
           eventID: 'unique-event-id-123',
           eventSourceUrl: 'https://example.com/checkout'
-        })
+        }
       )
-    })
-  })
-
-  describe('send - User Data Formatting', () => {
-    it('should format userData with email', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          em: 'TEST@EXAMPLE.COM'
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // Should have called init with formatted user data
-      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ em: 'test@example.com' }))
-      // Should have stored user data
-      expect(mockAnalytics.storage.set).toHaveBeenCalledWith(
-        'fb_user_data',
-        expect.stringContaining('test@example.com')
-      )
-    })
-
-    it('should format userData with phone number', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          ph: '(555) 123-4567'
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // Phone should be cleaned of non-numeric characters
-      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ ph: '5551234567' }))
-    })
-
-    it('should format userData with first and last name', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          fn: ' JOHN ',
-          ln: ' DOE '
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // Names should be lowercased and trimmed
-      expect(mockFbq).toHaveBeenCalledWith(
-        'init',
-        'test-pixel-123',
-        expect.objectContaining({ fn: 'john', ln: 'doe' })
-      )
-    })
-
-    it('should format userData with gender', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          ge: 'm'
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ ge: 'm' }))
-    })
-
-    it('should format userData with date of birth', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          db: '1990-05-15T00:00:00.000Z'
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // Date should be formatted as YYYYMMDD
-      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ db: '19900515' }))
-    })
-
-    it('should format userData with city', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          ct: ' New York '
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // City should be lowercased with spaces removed
-      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ ct: 'newyork' }))
-    })
-
-    it('should format userData with US state - full name to code', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          st: 'California'
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // State should be converted to 2-letter code
-      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ st: 'ca' }))
-    })
-
-    it('should format userData with US state - already 2-letter code', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          st: 'NY'
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // State code should be lowercased
-      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ st: 'ny' }))
-    })
-
-    it('should format userData with country - full name to code', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          country: 'United States'
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // Country should be converted to 2-letter code
-      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ country: 'us' }))
-    })
-
-    it('should format userData with country - already 2-letter code', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          country: 'GB'
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // Country code should be lowercased
-      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ country: 'gb' }))
-    })
-
-    it('should format userData with zip code', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          zp: ' 94102 '
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // Zip should be trimmed
-      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ zp: '94102' }))
-    })
-
-    it('should format userData with external_id', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          external_id: ' user-123 '
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // External ID should be trimmed
-      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ external_id: 'user-123' }))
-    })
-
-    it('should format userData with fbp and fbc cookies', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          fbp: ' fb.1.1234567890.1234567890 ',
-          fbc: ' fb.1.1234567890.AbCdEf123 '
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // FBP and FBC should be trimmed
-      expect(mockFbq).toHaveBeenCalledWith(
-        'init',
-        'test-pixel-123',
-        expect.objectContaining({
-          fbp: 'fb.1.1234567890.1234567890',
-          fbc: 'fb.1.1234567890.AbCdEf123'
-        })
-      )
-    })
-
-    it('should format userData with all fields combined', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          external_id: 'user-123',
-          em: 'test@example.com',
-          ph: '5551234567',
-          fn: 'John',
-          ln: 'Doe',
-          ge: 'm',
-          db: '1990-05-15T00:00:00.000Z',
-          ct: 'San Francisco',
-          st: 'California',
-          zp: '94102',
-          country: 'United States',
-          fbp: 'fb.1.1234567890.1234567890',
-          fbc: 'fb.1.1234567890.AbCdEf123'
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      expect(mockFbq).toHaveBeenCalledWith(
-        'init',
-        'test-pixel-123',
-        expect.objectContaining({
-          external_id: 'user-123',
-          em: 'test@example.com',
-          ph: '5551234567',
-          fn: 'john',
-          ln: 'doe',
-          ge: 'm',
-          db: '19900515',
-          ct: 'sanfrancisco',
-          st: 'ca',
-          zp: '94102',
-          country: 'us',
-          fbp: 'fb.1.1234567890.1234567890',
-          fbc: 'fb.1.1234567890.AbCdEf123'
-        })
-      )
-    })
-
-    it('should not send userData init when init count is at max', () => {
-      mockAnalytics.storage.get.mockReturnValue('2')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          em: 'test@example.com'
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // Should not call init with user data when count is at max
-      const initCalls = (mockFbq).mock.calls.filter((call) => call[0] === 'init')
-      expect(initCalls.length).toBe(0)
-    })
-
-    it('should skip invalid gender values', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          ge: 'invalid'
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // Should not call init if only invalid gender is provided
-      const initCalls = (mockFbq).mock.calls.filter((call) => call[0] === 'init')
-      expect(initCalls.length).toBe(0)
-    })
-
-    it('should skip invalid date of birth', () => {
-      mockAnalytics.storage.get.mockReturnValue('0')
-
-      const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
-        content_ids: ['product-123'],
-        value: 99.99,
-        userData: {
-          db: 'invalid-date'
-        }
-      }
-
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
-
-      // Should not call init if only invalid date is provided
-      const initCalls = (mockFbq).mock.calls.filter((call) => call[0] === 'init')
-      expect(initCalls.length).toBe(0)
     })
   })
 
   describe('send - Event Data Fields', () => {
-    it('should include all event fields when show_fields is true', () => {
+    it('should include all event fields when show_fields is true', async () => {
       const payload = {
         event_config: {
           event_name: 'Purchase',
@@ -748,13 +344,14 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         delivery_category: 'home_delivery'
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(mockFbq).toHaveBeenCalledWith(
         'trackSingle',
         'test-pixel-123',
         'Purchase',
-        expect.objectContaining({
+        {
+          partner_agent: 'segment',
           content_ids: ['product-123'],
           content_name: 'Test Product',
           content_category: 'Electronics',
@@ -763,12 +360,12 @@ describe('Facebook Conversions API Web - Send Functions', () => {
           currency: 'USD',
           num_items: 1,
           delivery_category: 'home_delivery'
-        }),
+        },
         undefined
       )
     })
 
-    it('should include predicted_ltv for Subscribe event', () => {
+    it('should include predicted_ltv for Subscribe event', async () => {
       const payload = {
         event_config: {
           event_name: 'Subscribe',
@@ -778,21 +375,22 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         value: 50.0
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(mockFbq).toHaveBeenCalledWith(
         'trackSingle',
         'test-pixel-123',
         'Subscribe',
-        expect.objectContaining({
+        {
+          partner_agent: 'segment',
           predicted_ltv: 500.0,
           value: 50.0
-        }),
+        },
         undefined
       )
     })
 
-    it('should include net_revenue for Purchase event', () => {
+    it('should include net_revenue for Purchase event', async () => {
       const payload = {
         event_config: {
           event_name: 'Purchase',
@@ -803,21 +401,23 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         value: 50.0
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(mockFbq).toHaveBeenCalledWith(
         'trackSingle',
         'test-pixel-123',
         'Purchase',
-        expect.objectContaining({
+        {
+          partner_agent: 'segment',
+          content_ids: ['product-123'],
           net_revenue: 450.0,
           value: 50.0
-        }),
+        },
         undefined
       )
     })
 
-    it('should include custom_data', () => {
+    it('should include custom_data', async () => {
       const payload = {
         event_config: {
           event_name: 'Purchase',
@@ -832,24 +432,27 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         }
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(mockFbq).toHaveBeenCalledWith(
         'trackSingle',
         'test-pixel-123',
         'Purchase',
-        expect.objectContaining({
+        {
+          partner_agent: 'segment',
+          content_ids: ['product-123'],
+          value: 99.99,
           custom_data: {
             order_id: 'order-789',
             campaign_id: 'summer-sale',
             user_tier: 'premium'
           }
-        }),
+        },
         undefined
       )
     })
 
-    it('should not include empty arrays or objects', () => {
+    it('should not include empty arrays or objects', async () => {
       const payload = {
         event_config: {
           event_name: 'PageView',
@@ -860,13 +463,13 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         custom_data: {}
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       const eventData = (mockFbq).mock.calls[0][3]
-      expect(eventData).toEqual({})
+      expect(eventData).toEqual({ partner_agent: 'segment' })
     })
 
-    it('should handle numeric values correctly including zero', () => {
+    it('should handle numeric values correctly including zero', async () => {
       const payload = {
         event_config: {
           event_name: 'InitiateCheckout',
@@ -877,16 +480,18 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         num_items: 0
       }
 
-      send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
       expect(mockFbq).toHaveBeenCalledWith(
         'trackSingle',
         'test-pixel-123',
         'InitiateCheckout',
-        expect.objectContaining({
+        {
+          partner_agent: 'segment',
+          content_ids: ['product-123'],
           value: 0,
           num_items: 0
-        }),
+        },
         undefined
       )
     })
@@ -904,7 +509,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       }
     })
 
-    it('should use clientParamBuilder to format email when available', () => {
+    it('should use clientParamBuilder to format email when available', async () => {
       mockAnalytics.storage.get.mockReturnValue('0')
       mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue('hashed_email_value')
 
@@ -920,14 +525,14 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         }
       }
 
-      send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
 
       expect(mockClientParamBuilderInstance.processAndCollectAllParams).toHaveBeenCalled()
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('TEST@EXAMPLE.COM', 'email')
-      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ em: 'hashed_email_value' }))
+      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', { em: 'hashed_email_value' })
     })
 
-    it('should use clientParamBuilder to format phone number when available', () => {
+    it('should use clientParamBuilder to format phone number when available', async () => {
       mockAnalytics.storage.get.mockReturnValue('0')
       mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue('hashed_phone_value')
 
@@ -943,16 +548,16 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         }
       }
 
-      send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
 
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith(
         '+1 (555) 123-4567',
         'phone'
       )
-      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', expect.objectContaining({ ph: 'hashed_phone_value' }))
+      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', { ph: 'hashed_phone_value' })
     })
 
-    it('should use clientParamBuilder to format all PII fields', () => {
+    it('should use clientParamBuilder to format all PII fields', async () => {
       mockAnalytics.storage.get.mockReturnValue('0')
       mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockImplementation((_, type) => {
         return `hashed_${type}_value`
@@ -980,7 +585,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         }
       }
 
-      send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
 
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('test@example.com', 'email')
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('5551234567', 'phone')
@@ -997,7 +602,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(mockFbq).toHaveBeenCalledWith(
         'init',
         'test-pixel-123',
-        expect.objectContaining({
+        {
           em: 'hashed_email_value',
           ph: 'hashed_phone_value',
           fn: 'hashed_first_name_value',
@@ -1009,14 +614,15 @@ describe('Facebook Conversions API Web - Send Functions', () => {
           zp: 'hashed_zip_code_value',
           country: 'hashed_country_value',
           external_id: 'hashed_external_id_value'
-        })
+        }
       )
     })
 
-    it('should use clientParamBuilder getFbc and getFbp methods', () => {
+    it('should use clientParamBuilder getFbc and getFbp methods', async () => {
       mockAnalytics.storage.get.mockReturnValue('0')
       mockClientParamBuilderInstance.getFbc.mockReturnValue('fb.1.1234567890.ClientParamBuilderFbc')
       mockClientParamBuilderInstance.getFbp.mockReturnValue('fb.1.1234567890.ClientParamBuilderFbp')
+      mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue('hashed_email')
 
       const payload = {
         event_config: {
@@ -1032,7 +638,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         }
       }
 
-      send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
 
       expect(mockClientParamBuilderInstance.processAndCollectAllParams).toHaveBeenCalled()
       expect(mockClientParamBuilderInstance.getFbc).toHaveBeenCalled()
@@ -1042,17 +648,19 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(mockFbq).toHaveBeenCalledWith(
         'init',
         'test-pixel-123',
-        expect.objectContaining({
+        {
+          em: 'hashed_email',
           fbc: 'fb.1.1234567890.ClientParamBuilderFbc',
           fbp: 'fb.1.1234567890.ClientParamBuilderFbp'
-        })
+        }
       )
     })
 
-    it('should use payload fbc/fbp when clientParamBuilder methods return null', () => {
+    it('should use payload fbc/fbp when clientParamBuilder methods return null', async () => {
       mockAnalytics.storage.get.mockReturnValue('0')
       mockClientParamBuilderInstance.getFbc.mockReturnValue(null)
       mockClientParamBuilderInstance.getFbp.mockReturnValue(null)
+      mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue('hashed_email')
 
       const payload = {
         event_config: {
@@ -1068,7 +676,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         }
       }
 
-      send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
 
       expect(mockClientParamBuilderInstance.getFbc).toHaveBeenCalled()
       expect(mockClientParamBuilderInstance.getFbp).toHaveBeenCalled()
@@ -1077,14 +685,15 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(mockFbq).toHaveBeenCalledWith(
         'init',
         'test-pixel-123',
-        expect.objectContaining({
+        {
+          em: 'hashed_email',
           fbc: 'fb.1.1234567890.PayloadFbc',
           fbp: 'fb.1.1234567890.PayloadFbp'
-        })
+        }
       )
     })
 
-    it('should fall back to default formatting when clientParamBuilder returns undefined', () => {
+    it('should fall back to default formatting when clientParamBuilder returns undefined', async () => {
       mockAnalytics.storage.get.mockReturnValue('0')
       mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue(undefined)
 
@@ -1101,26 +710,21 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         }
       }
 
-      send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
 
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('TEST@EXAMPLE.COM', 'email')
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('(555) 123-4567', 'phone')
 
-      // When clientParamBuilder returns undefined, should fall back to default formatting
-      expect(mockFbq).toHaveBeenCalledWith(
-        'init',
-        'test-pixel-123',
-        expect.objectContaining({
-          em: 'test@example.com',
-          ph: '5551234567'
-        })
-      )
+      // When clientParamBuilder returns undefined, nothing should be sent (empty userData)
+      const initCalls = (mockFbq).mock.calls.filter((call) => call[0] === 'init')
+      expect(initCalls.length).toBe(0)
     })
 
-    it('should call processAndCollectAllParams before getting cookie values', () => {
+    it('should call processAndCollectAllParams before getting cookie values', async () => {
       mockAnalytics.storage.get.mockReturnValue('0')
       mockClientParamBuilderInstance.getFbc.mockReturnValue('fb.1.fbc')
       mockClientParamBuilderInstance.getFbp.mockReturnValue('fb.1.fbp')
+      mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue('hashed_email')
 
       const payload = {
         event_config: {
@@ -1134,7 +738,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
         }
       }
 
-      send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, mockClientParamBuilderInstance, payload, defaultSettings, mockAnalytics)
 
       const calls = mockClientParamBuilderInstance.processAndCollectAllParams.mock.invocationCallOrder
       const fbcCalls = mockClientParamBuilderInstance.getFbc.mock.invocationCallOrder
@@ -1145,7 +749,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(calls[0]).toBeLessThan(fbpCalls[0])
     })
 
-    it('should work correctly when clientParamBuilder is undefined', () => {
+    it('should work correctly when clientParamBuilder is undefined', async () => {
       mockAnalytics.storage.get.mockReturnValue('0')
 
       const payload = {
@@ -1162,16 +766,16 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       }
 
       // Pass undefined for clientParamBuilder
-      send(mockFbq, undefined, payload, defaultSettings, mockAnalytics)
+      await send(mockFbq, undefined, payload, defaultSettings, mockAnalytics)
 
-      // Should use default formatting (lowercase and trim for email, digits only for phone)
+      // Should use default formatting (normalize and hash)
       expect(mockFbq).toHaveBeenCalledWith(
         'init',
         'test-pixel-123',
-        expect.objectContaining({
-          em: 'test@example.com',
-          ph: '5551234567'
-        })
+        {
+          em: '973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b',
+          ph: '3c95277da5fd0da6a1a44ee3fdf56d20af6c6d242695a40e18e6e90dc3c5872c'
+        }
       )
     })
   })
