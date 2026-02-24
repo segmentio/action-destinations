@@ -1,12 +1,12 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Testing snapshot for actions-posthog destination: event action - all fields 1`] = `
-{
+Object {
   "api_key": "scGkpY98jhDM)^PXi",
-  "batch": [
-    {
+  "batch": Array [
+    Object {
       "event": "$screen",
-      "properties": {
+      "properties": Object {
         "$ip": "196.63.8.112",
         "$process_person_profile": false,
         "$screen_name": "scGkpY98jhDM)^PXi",
@@ -21,12 +21,12 @@ exports[`Testing snapshot for actions-posthog destination: event action - all fi
 `;
 
 exports[`Testing snapshot for actions-posthog destination: event action - required fields 1`] = `
-{
+Object {
   "api_key": "scGkpY98jhDM)^PXi",
-  "batch": [
-    {
+  "batch": Array [
+    Object {
       "event": "$screen",
-      "properties": {
+      "properties": Object {
         "$process_person_profile": false,
         "$screen_name": "scGkpY98jhDM)^PXi",
         "distinct_id": "scGkpY98jhDM)^PXi",
@@ -38,13 +38,13 @@ exports[`Testing snapshot for actions-posthog destination: event action - requir
 `;
 
 exports[`Testing snapshot for actions-posthog destination: identify action - all fields 1`] = `
-{
+Object {
   "api_key": "Y@^Qn@JBH%2A45seK8B[",
   "distinct_id": "Y@^Qn@JBH%2A45seK8B[",
   "event": "$identify",
-  "properties": {
+  "properties": Object {
     "$ip": "245.175.220.233",
-    "$set": {
+    "$set": Object {
       "testType": "Y@^Qn@JBH%2A45seK8B[",
     },
   },
@@ -53,12 +53,12 @@ exports[`Testing snapshot for actions-posthog destination: identify action - all
 `;
 
 exports[`Testing snapshot for actions-posthog destination: identify action - required fields 1`] = `
-{
+Object {
   "api_key": "Y@^Qn@JBH%2A45seK8B[",
   "distinct_id": "Y@^Qn@JBH%2A45seK8B[",
   "event": "$identify",
-  "properties": {
-    "$set": {
+  "properties": Object {
+    "$set": Object {
       "testType": "Y@^Qn@JBH%2A45seK8B[",
     },
   },
