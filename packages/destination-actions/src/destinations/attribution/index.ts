@@ -5,7 +5,7 @@ import { ATTRIBUTION_ENDPOINT } from './constants'
 import send from './send'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Attribution',
+  name: 'Attribution (Actions)',
   slug: 'actions-attribution',
   mode: 'cloud',
 
