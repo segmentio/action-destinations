@@ -10,9 +10,8 @@ describe('Vibe Audience', () => {
     it('should validate authentication inputs', async () => {
       const baseUrlParts = new URL(BASE_URL)
       nock(baseUrlParts.origin)
-        .post(`/${API_VERSION}/webhooks/twilio/audience/sync`, (body) => body.advertiserId === 'test-advertiser-id')
-        .matchHeader('X-Auth-Test', 'true')
-        .reply(200, { success: true })
+        .post(`/${API_VERSION}/webhooks/twilio/audience/auth`, (body) => body.advertiserId === 'test-advertiser-id')
+        .reply(200, { authenticated: true })
 
       const authData = {
         advertiserId: 'test-advertiser-id',
