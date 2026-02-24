@@ -1,7 +1,7 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { IntegrationError, createRequestClient } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError, MultiStatusResponse } from '@segment/actions-core'
 import type { Logger } from '@segment/actions-core/destination-kit'
 import { API_VERSION } from '../versioning-info'
 import { BASE_URL } from '../constants'
@@ -9,19 +9,19 @@ import { BASE_URL } from '../constants'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
   description:
-    'Create or update Memora profiles by importing a CSV file. Profiles are uploaded via a pre-signed URL and processed asynchronously. If a profile already exists, its traits are merged (new keys added, existing keys overwritten).',
+    'Create or update Memora profiles. If a profile already exists, its traits are merged (new keys added, existing keys overwritten). Supports batching up to 1000 profiles.',
   defaultSubscription: 'type = "identify"',
   fields: {
     enable_batching: {
       label: 'Enable Batching',
-      description: 'Enable batching of requests to Memora. Batches are uploaded as CSV files.',
+      description: 'Enable batching of requests to Memora. Batches can contain up to 1000 profiles.',
       type: 'boolean',
       default: true,
       unsafe_hidden: true
     },
     batch_size: {
       label: 'Batch Size',
-      description: 'Maximum number of profiles to include in each CSV import. Actual batch sizes may be lower.',
+      description: 'Maximum number of profiles to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
       default: 1000,
       unsafe_hidden: true
@@ -59,11 +59,11 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     contact_traits: {
-      label: 'Other Contact Traits',
+      label: 'Contact Traits',
       description:
-        'Additional contact traits for the profile. These fields are dynamically loaded from the selected Memora Store.',
+        'Contact traits for the profile. At least one trait is required. These fields are dynamically loaded from the selected Memora Store.',
       type: 'object',
-      required: false,
+      required: true,
       additionalProperties: true,
       dynamic: true
     }
@@ -90,211 +90,133 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-// Validate profiles and collect all unique field names from payloads
-function validateAndCollectFields(payloads: Payload[]): Set<string> {
-  const allFields = new Set<string>()
-
-  payloads.forEach((payload, index) => {
-    // Validate that at least one identifier is present
-    const identifiers = payload.contact_identifiers || {}
-    if (!identifiers.email && !identifiers.phone) {
-      throw new IntegrationError(
-        `Profile at index ${index} must contain at least one identifier (email or phone)`,
-        'MISSING_IDENTIFIER',
-        400
-      )
-    }
-
-    // Collect identifier field names
-    if (identifiers.email) allFields.add('email')
-    if (identifiers.phone) allFields.add('phone')
-
-    // Collect trait field names
-    if (payload.contact_traits && typeof payload.contact_traits === 'object') {
-      const traits = payload.contact_traits as Record<string, unknown>
-      Object.keys(traits).forEach((key) => {
-        if (traits[key] !== undefined) {
-          allFields.add(key)
-        }
-      })
-    }
-  })
-
-  if (allFields.size === 0) {
-    throw new IntegrationError('No profile fields found for import', 'EMPTY_PROFILE', 400)
-  }
-
-  return allFields
-}
-
-// Request pre-signed upload URL from Memora API
-async function requestImportUrl(
-  request: ReturnType<typeof createRequestClient>,
-  storeId: string,
-  fileSize: number,
-  columnMappings: ColumnMapping[],
-  settings: Settings,
-  logger?: Logger
-): Promise<{ importId: string; uploadUrl: string }> {
-  const timestamp = Date.now()
-  const filename = `memora-segment-import-${storeId}-${timestamp}.csv`
-
-  try {
-    const importResponse = await request<{ importId: string; url: string }>(
-      `${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Imports`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
-        },
-        username: settings.username,
-        password: settings.password,
-        json: {
-          filename,
-          fileSize,
-          columnMappings
-        }
-      }
-    )
-
-    const importId = importResponse.data.importId
-    const uploadUrl = importResponse.data.url
-    logger?.info?.(`Memora import initiated: ${importId}`)
-
-    return { importId, uploadUrl }
-  } catch (error) {
-    logger?.error?.(`Error initiating Memora import: ${error instanceof Error ? error.message : String(error)}`)
-    throw error
-  }
-}
-
-// Upload CSV buffer to pre-signed URL
-async function uploadCSVToMemora(
-  request: ReturnType<typeof createRequestClient>,
-  uploadUrl: string,
-  csvBuffer: Buffer,
-  importId: string,
-  profileCount: number,
-  logger?: Logger
-): Promise<{ data: { importId: string; profileCount: number; success: boolean } }> {
-  try {
-    await request(uploadUrl, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'text/csv'
-      },
-      body: csvBuffer as unknown as BodyInit
-    })
-
-    logger?.info?.(`CSV uploaded successfully to Memora (importId: ${importId}, ${profileCount} profiles)`)
-
-    return {
-      data: {
-        importId,
-        profileCount,
-        success: true
-      }
-    }
-  } catch (error) {
-    logger?.error?.(
-      `Error uploading CSV to Memora (importId: ${importId}): ${error instanceof Error ? error.message : String(error)}`
-    )
-    throw error
-  }
-}
-
-// Process single or batch profile imports via CSV
+// Process single or batch profile upserts using bulk API
 async function upsertProfiles(
-  request: ReturnType<typeof createRequestClient>,
+  request: RequestClient,
   payloads: Payload[],
   settings: Settings,
   logger?: Logger
-) {
+): Promise<MultiStatusResponse> {
   if (!payloads || payloads.length === 0) {
-    throw new IntegrationError('No profiles provided for import', 'EMPTY_BATCH', 400)
+    throw new IntegrationError('No profiles provided', 'EMPTY_BATCH', 400)
   }
 
-  const storeId = payloads[0]?.memora_store
+  const storeId = payloads[0].memora_store
 
-  // Validate profiles and collect all unique field names
-  const allFields = validateAndCollectFields(payloads)
+  // Track valid profiles and their original indices
+  const validProfiles: { traits: Record<string, Record<string, unknown>> }[] = []
+  const validIndices: number[] = []
+  const invalidIndices: number[] = []
 
-  // Convert profiles to CSV format
-  const { csv, columnMappings } = convertToCSV(payloads, Array.from(allFields))
-  const csvBuffer = Buffer.from(csv, 'utf-8')
+  payloads.forEach((payload, index) => {
+    // Validate that profile has at least one identifier AND at least one trait
+    const identifiers = payload.contact_identifiers || {}
+    const hasIdentifier = !!(identifiers.email || identifiers.phone)
 
-  // Request pre-signed upload URL from Memora
-  const { importId, uploadUrl } = await requestImportUrl(
-    request,
-    storeId,
-    csvBuffer.length,
-    columnMappings,
-    settings,
-    logger
-  )
+    const traits = (
+      payload.contact_traits && typeof payload.contact_traits === 'object' ? payload.contact_traits : {}
+    ) as Record<string, unknown>
+    const hasTraits = Object.keys(traits).some((key) => traits[key] !== undefined && traits[key] !== null)
 
-  // Upload CSV to pre-signed URL
-  return uploadCSVToMemora(request, uploadUrl, csvBuffer, importId, payloads.length, logger)
-}
-
-// Convert profiles to CSV format with column mappings
-function convertToCSV(payloads: Payload[], fields: string[]): { csv: string; columnMappings: ColumnMapping[] } {
-  // Helper function to escape CSV values
-  const escapeCSVValue = (value: string): string => {
-    // Escape values that contain comma, quote, or newline
-    if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-      return `"${value.replace(/"/g, '""')}"`
+    if (!hasIdentifier || !hasTraits) {
+      invalidIndices.push(index)
+      return
     }
-    return value
-  }
 
-  // Build CSV header with escaped field names
-  const header = fields.map(escapeCSVValue).join(',')
-
-  // Build CSV rows
-  const rows = payloads.map((payload) => {
-    return fields
-      .map((field) => {
-        let value: unknown
-
-        // Check identifiers first
-        if (field === 'email' || field === 'phone') {
-          const identifiers = payload.contact_identifiers as Record<string, unknown>
-          value = identifiers?.[field]
-        } else {
-          // Check contact traits
-          const traits = payload.contact_traits as Record<string, unknown>
-          value = traits?.[field]
-        }
-
-        // Handle CSV escaping
-        if (value === undefined || value === null) {
-          return ''
-        }
-
-        const stringValue = String(value)
-        return escapeCSVValue(stringValue)
-      })
-      .join(',')
+    // Build trait groups for valid profile
+    const traitGroups = buildTraitGroups(payload)
+    validProfiles.push({ traits: traitGroups })
+    validIndices.push(index)
   })
 
-  const csv = [header, ...rows].join('\n')
+  if (invalidIndices.length > 0) {
+    logger?.warn?.(
+      `Skipped ${invalidIndices.length} invalid profile(s). Processing ${validProfiles.length} valid profile(s).`
+    )
+  }
 
-  // Build column mappings for Memora API
-  const columnMappings: ColumnMapping[] = fields.map((field) => ({
-    columnName: field,
-    traitGroup: 'Contact',
-    traitName: field
-  }))
+  if (validProfiles.length === 0) {
+    throw new PayloadValidationError(
+      'No valid profiles found for import. All profiles must contain at least one identifier (email or phone) and at least one trait.'
+    )
+  }
 
-  return { csv, columnMappings }
+  try {
+    const response = await request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Pre-Auth-Context': settings.twilioAccount
+      },
+      username: settings.username,
+      password: settings.password,
+      json: {
+        profiles: validProfiles
+      }
+    })
+
+    logger?.info?.(`Bulk upsert completed successfully for ${validProfiles.length} profile(s)`)
+
+    // Build multi-status response
+    const multiStatusResponse = new MultiStatusResponse()
+
+    // Mark valid profiles as successful
+    validIndices.forEach((index) => {
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
+        status: response.status,
+        sent: {},
+        body: 'accepted'
+      })
+    })
+
+    // Mark invalid profiles with validation error
+    invalidIndices.forEach((index) => {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errormessage: 'Profile must contain at least one identifier (email or phone) and at least one trait',
+        sent: {},
+        body: 'skipped'
+      })
+    })
+
+    return multiStatusResponse
+  } catch (error) {
+    logger?.error?.(`Error in bulk upsert: ${error instanceof Error ? error.message : String(error)}`)
+    throw error
+  }
 }
 
-interface ColumnMapping {
-  columnName: string
-  traitGroup: string
-  traitName: string
+// Build trait groups payload for Memora API
+function buildTraitGroups(payload: Payload): Record<string, Record<string, unknown>> {
+  const traitGroups: Record<string, Record<string, unknown>> = {}
+  const contactTraits: Record<string, unknown> = {}
+
+  // Merge contact traits first
+  if (payload.contact_traits && typeof payload.contact_traits === 'object') {
+    const traits = payload.contact_traits as Record<string, unknown>
+    Object.entries(traits).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        contactTraits[key] = value
+      }
+    })
+  }
+
+  // Merge identifiers last (these are authoritative and will override any conflicting keys)
+  if (payload.contact_identifiers && typeof payload.contact_identifiers === 'object') {
+    const identifiers = payload.contact_identifiers as Record<string, unknown>
+    Object.entries(identifiers).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        contactTraits[key] = value
+      }
+    })
+  }
+
+  // Only add Contact trait group if it has at least one field
+  if (Object.keys(contactTraits).length > 0) {
+    traitGroups.Contact = contactTraits
+  }
+
+  return traitGroups
 }
 
 interface MemoraStoresResponse {
@@ -332,7 +254,7 @@ async function fetchContactTraits(request: RequestClient, settings: Settings, st
       {
         method: 'GET',
         headers: {
-          ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
+          'X-Pre-Auth-Context': settings.twilioAccount
         },
         username: settings.username,
         password: settings.password,
@@ -374,7 +296,7 @@ async function fetchMemoraStores(request: RequestClient, settings: Settings) {
       {
         method: 'GET',
         headers: {
-          ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
+          'X-Pre-Auth-Context': settings.twilioAccount
         },
         username: settings.username,
         password: settings.password,
@@ -392,7 +314,7 @@ async function fetchMemoraStores(request: RequestClient, settings: Settings) {
         return request<MemoraStoreDetails>(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}`, {
           method: 'GET',
           headers: {
-            ...(settings.twilioAccount && { 'X-Pre-Auth-Context': settings.twilioAccount })
+            'X-Pre-Auth-Context': settings.twilioAccount
           },
           username: settings.username,
           password: settings.password,
