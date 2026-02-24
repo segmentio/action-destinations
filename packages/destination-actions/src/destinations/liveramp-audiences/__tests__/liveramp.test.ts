@@ -38,6 +38,11 @@ jest.mock('@aws-sdk/client-s3', () => ({
   }))
 }))
 
+jest.mock('@aws-sdk/client-sts', () => ({
+  STSClient: jest.fn(),
+  AssumeRoleCommand: jest.fn()
+}))
+
 describe('Liveramp Audiences', () => {
   beforeEach(() => {
     jest.clearAllMocks()
