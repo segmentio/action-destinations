@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { CONSTANTS } from '../../constants'
-import { SegmentEvent } from '@segment/actions-core/*'
+import { SegmentEvent } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
 

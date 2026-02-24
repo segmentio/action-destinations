@@ -9,7 +9,7 @@ import type {
   SubscriberMap,
   UnsubscriberMap
 } from './types'
-import { PayloadValidationError } from '@segment/actions-core/*'
+import { PayloadValidationError } from '@segment/actions-core'
 import { CONSTANTS } from '../constants'
 
 export async function send(
