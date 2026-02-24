@@ -6,11 +6,11 @@ export interface Settings {
    */
   api_host: string
   /**
-   * Your Dotdigital username
+   * Your Dotdigital API username
    */
   username: string
   /**
-   * Your Dotdigital password.
+   * Your Dotdigital API password
    */
   password: string
 }
