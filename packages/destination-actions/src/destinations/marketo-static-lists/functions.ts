@@ -337,7 +337,7 @@ function parseErrorResponse(response: MarketoResponse) {
     throw new RetryableError(response.errors[0].message)
   }
 
-  throw new IntegrationError(response.errors[0].message, 'NOT_ACCEPTABLE', 400)
+  throw new IntegrationError(response.errors[0].message, ErrorCodes.NOT_ACCEPTABLE, 406)
 }
 
 function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number) {
@@ -358,7 +358,7 @@ function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number)
   }
 
   return buildMultiStatusErrorResponse(payloadSize, {
-    status: 400,
+    status: 406,
     errortype: ErrorCodes.NOT_ACCEPTABLE,
     errormessage: response.errors[0].message
   })
