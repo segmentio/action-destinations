@@ -102,20 +102,7 @@ async function upsertProfiles(
   }
 
   const storeId = payloads[0].memora_store
-
-  if (process.env.STUB_MEMORA_API === 'true') {
-    // Return MultiStatusResponse marking all payloads as successful (stubbed)
-    const multiStatusResponse = new MultiStatusResponse()
-    payloads.forEach((_, index) => {
-      multiStatusResponse.setSuccessResponseAtIndex(index, {
-        status: 200,
-        sent: {},
-        body: 'accepted'
-      })
-    })
-    return multiStatusResponse
-  }
-
+  const method = process.env.STUB_MEMORA_API ? 'POST' : 'PUT'
   // Track valid profiles and their original indices
   const validProfiles: { traits: Record<string, Record<string, unknown>> }[] = []
   const validIndices: number[] = []
@@ -156,7 +143,7 @@ async function upsertProfiles(
 
   try {
     const response = await request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
-      method: 'PUT',
+      method: method,
       headers: {
         'Content-Type': 'application/json',
         'X-Pre-Auth-Context': settings.twilioAccount
