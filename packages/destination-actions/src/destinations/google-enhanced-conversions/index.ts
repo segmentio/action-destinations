@@ -44,9 +44,15 @@ const destination: AudienceDestinationDefinition<Settings> = {
         description:
           'ID of your Google Ads Account. This should be 10-digits and in XXX-XXX-XXXX format. **Required if you are using a mapping that sends data to the Google Ads API.**',
         type: 'string'
+      },
+      loginCustomerId: {
+        label: 'Login Customer ID',
+        description:
+          'ID of your Google Ads Manager Account. This should be 10-digits and in XXX-XXX-XXXX format. **Required if you want your Manager Account to handle data for its connected accounts.**',
+        type: 'string'
       }
     },
-    testAuthentication: async (_request) => {
+    testAuthentication: async (_request, { settings }) => {
       /* NOTE: Commenting this out until we surface the OAuth login flow in the Actions configuration wizard
       const res = await request<UserInfoResponse>('https://www.googleapis.com/oauth2/v3/userinfo', {
         method: 'GET'
@@ -54,6 +60,19 @@ const destination: AudienceDestinationDefinition<Settings> = {
 
       return { name: res.data.name || res.data.email }
       */
+
+      // Validate loginCustomerId format if provided
+      if (settings.loginCustomerId) {
+        const cleanedId = settings.loginCustomerId.replace(/-/g, '')
+        if (!/^\d{10}$/.test(cleanedId)) {
+          throw new IntegrationError(
+            'Login Customer ID must be 10 digits in XXX-XXX-XXXX format',
+            'INVALID_LOGIN_CUSTOMER_ID',
+            400
+          )
+        }
+      }
+
       return true
     },
     refreshAccessToken: async (request, { auth }) => {
@@ -70,10 +89,12 @@ const destination: AudienceDestinationDefinition<Settings> = {
       return { accessToken: res.data.access_token }
     }
   },
-  extendRequest({ auth }) {
+  extendRequest({ auth, settings }) {
+    const loginCustomerId = settings?.loginCustomerId?.trim().replace(/-/g, '')
     return {
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`
+        authorization: `Bearer ${auth?.accessToken}`,
+        ...(loginCustomerId && { 'login-customer-id': loginCustomerId })
       }
     }
   },
@@ -193,13 +214,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
     userList
   },
   presets: [
-    // {
-    //   name: 'Session Attributes Encoded Plugin',
-    //   subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
-    //   partnerAction: 'sessionAttributesEncoded',
-    //   mapping: {},
-    //   type: 'automatic'
-    // },
+    {
+      name: 'Session Attributes Encoded Plugin',
+      subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+      partnerAction: 'sessionAttributesEncoded',
+      mapping: {},
+      type: 'automatic'
+    },
     {
       name: 'Entities Audience Membership Changed',
       partnerAction: 'userList',

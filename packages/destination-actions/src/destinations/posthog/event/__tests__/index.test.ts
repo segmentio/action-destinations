@@ -17,6 +17,9 @@ describe('Posthog.event', () => {
       userId: 'test-user-id',
       properties: {
         testProperty: 'test-value'
+      },
+      context: {
+        ip: '192.168.1.1'
       }
     })
 
@@ -45,12 +48,68 @@ describe('Posthog.event', () => {
           properties: {
             ...event.properties,
             distinct_id: event.userId,
-            $process_person_profile: false
+            $process_person_profile: false,
+            $ip: '192.168.1.1'
           },
           timestamp: event.receivedAt
         }
       ]
     })
+  })
+
+  it('should include $geoip_disable in batch event properties when geoip_disable setting is true', async () => {
+    const event = createTestEvent({
+      event: 'Test Event',
+      userId: 'test-user-id',
+      properties: { testProperty: 'test-value' }
+    })
+
+    nock(endpoint).post('/batch/').reply(200, {})
+
+    const responses = await testDestination.testAction('event', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        api_key: apiKey,
+        endpoint: endpoint,
+        project_id: projectId,
+        historical_migration: false,
+        geoip_disable: true
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    const payload = JSON.parse(responses[0].options.body as string)
+    expect(payload.batch[0].properties).toMatchObject({
+      $geoip_disable: true
+    })
+  })
+
+  it('should not include $geoip_disable when geoip_disable setting is false', async () => {
+    const event = createTestEvent({
+      event: 'Test Event',
+      userId: 'test-user-id',
+      properties: { testProperty: 'test-value' }
+    })
+
+    nock(endpoint).post('/batch/').reply(200, {})
+
+    const responses = await testDestination.testAction('event', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        api_key: apiKey,
+        endpoint: endpoint,
+        project_id: projectId,
+        historical_migration: false,
+        geoip_disable: false
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    const payload = JSON.parse(responses[0].options.body as string)
+    expect(payload.batch[0].properties.$geoip_disable).toBeUndefined()
   })
 
   it('should throw error if required fields are missing', async () => {

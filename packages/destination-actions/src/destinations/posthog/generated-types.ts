@@ -17,4 +17,8 @@ export interface Settings {
    * If enabled, this ensures that events are processed in order without triggering our spike detection systems. Affects events sent via the track Action only.
    */
   historical_migration?: boolean
+  /**
+   * If enabled, [GeoIP collection](https://github.com/PostHog/posthog-plugin-geoip) will be disabled. This will prevent the collection of IP addresses and other geolocation data.
+   */
+  geoip_disable?: boolean
 }

@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
-import { API_VERSION } from '../sf-operations'
+import { SALESFORCE_API_VERSION } from '../versioning-info'
 import { DynamicFieldResponse } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
@@ -27,7 +27,9 @@ describe('Salesforce', () => {
         }
       })
 
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).post('/TestCustom__c').reply(201, {})
+      nock(`${settings.instanceUrl}/services/data/${SALESFORCE_API_VERSION}/sobjects`)
+        .post('/TestCustom__c')
+        .reply(201, {})
 
       const responses = await testDestination.testAction('customObject', {
         event,
@@ -148,7 +150,9 @@ describe('Salesforce', () => {
     })
 
     it('should delete a custom record given an Id', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}/sobjects`).delete('/TestCustom__c/123').reply(201, {})
+      nock(`${settings.instanceUrl}/services/data/${SALESFORCE_API_VERSION}/sobjects`)
+        .delete('/TestCustom__c/123')
+        .reply(201, {})
 
       const event = createTestEvent({
         type: 'track',
@@ -174,7 +178,7 @@ describe('Salesforce', () => {
     })
 
     it('should dynamically fetch customObjectName', async () => {
-      nock(`${settings.instanceUrl}/services/data/${API_VERSION}`)
+      nock(`${settings.instanceUrl}/services/data/${SALESFORCE_API_VERSION}`)
         .get('/sobjects')
         .reply(200, {
           sobjects: [

@@ -3,17 +3,18 @@ import type { BrowserDestinationDefinition } from '@segment/browser-destination-
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import send from './send'
 import { initScript } from './functions'
-import { FBClient, LDU } from './types'
+import { FBClient, FBClientParamBuilder, LDU } from './types'
 import { defaultValues } from '@segment/actions-core'
 
 declare global {
   interface Window {
     fbq: FBClient,
     _fbq: FBClient
+    clientParamBuilder: FBClientParamBuilder | undefined
   }
 }
 
-export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
+export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient, clientParamBuilder: FBClientParamBuilder | undefined }> = {
   name: 'Facebook Conversions Api Web',
   slug: 'actions-facebook-conversions-api-web',
   mode: 'device',
@@ -71,14 +72,25 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         { label: 'LDU enabled - Minnesota only', value: LDU.Minnesota.key }
       ],
       default: LDU.Disabled.key
+    }, 
+    formatUserDataWithParamBuilder: {
+      description: 'If enabled, uses Facebook’s Parameter Builder library to help ensure that User Data values are properly formatted before being sent to Facebook.',
+      label: 'Format User Data with Parameter Builder',
+      type: 'boolean',
+      default: true
     }
   },
   initialize: async ({ settings, analytics }, deps) => {
+    const { formatUserDataWithParamBuilder } = settings
     initScript(settings, analytics)
     await deps.resolveWhen(() => typeof window.fbq === 'function', 100)
-    return window.fbq
+    if(formatUserDataWithParamBuilder){
+      const script = `https://capi-automation.s3.us-east-2.amazonaws.com/public/client_js/capiParamBuilder/clientParamBuilder.bundle.js`
+      await deps.loadScript(script)
+      await deps.resolveWhen(() => typeof window.clientParamBuilder === 'object', 100)
+    }
+    return { fbq: window.fbq, clientParamBuilder: window.clientParamBuilder || undefined }
   },
-
   actions: {
     send
   },

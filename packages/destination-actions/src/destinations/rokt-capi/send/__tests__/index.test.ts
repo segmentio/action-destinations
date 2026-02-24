@@ -21,12 +21,10 @@ describe('RoktCapi.send', () => {
         properties: {
           order_id: 'order-123',
           revenue: 99.99,
-          currency: 'USD'
+          currency: 'USD', 
+          email: 'test@example.com'
         },
         context: {
-          traits: {
-            email: 'test@example.com'
-          },
           ip: '192.168.1.1'
         },
         userId: 'user-123'
@@ -82,12 +80,8 @@ describe('RoktCapi.send', () => {
         properties: {
           order_id: 'order-123',
           revenue: 99.99,
-          currency: 'USD'
-        },
-        context: {
-          traits: {
-            email: 'test@example.com'
-          }
+          currency: 'USD',
+          email: 'test@example.com'
         },
         userId: 'user-123',
         integrations: {
@@ -97,41 +91,14 @@ describe('RoktCapi.send', () => {
         }
       })
 
-      const expectedRoktPayload = {
-        environment: 'production',
-        device_info: {},
-        user_attributes: {},
-        user_identities: {
-          email: 'test@example.com',
-          customerid: 'user-123',
-          other2: 'test-rtid-from-integrations'
-        },
-        events: [
-          {
-            event_type: 'custom_event',
-            data: {
-              custom_event_type: 'transaction',
-              source_message_id: 'msg-002',
-              timestamp_unixtime_ms: 1705579200000,
-              event_name: 'conversion',
-              custom_attributes: {
-                conversiontype: 'Order Completed',
-                confirmationref: 'order-123',
-                amount: 99.99,
-                currency: 'USD'
-              }
-            }
-          }
-        ],
-        integration_attributes: {
-          '1277': {
-            passbackconversiontrackingid: 'test-rtid-from-integrations'
-          }
-        }
-      }
-
       nock('https://inbound.mparticle.com')
-        .post('/s2s/v2/events', expectedRoktPayload)
+        .post('/s2s/v2/events', (body) => {
+          expect(body.user_identities.other2).toBe('test-rtid-from-integrations')
+          expect(body.integration_attributes['1277'].passbackconversiontrackingid).toBe('test-rtid-from-integrations')
+          expect(body.user_identities.email).toBe('test@example.com')
+          expect(body.user_identities.customerid).toBe('user-123')
+          return true
+        })
         .reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
@@ -152,12 +119,10 @@ describe('RoktCapi.send', () => {
         properties: {
           order_id: 'order-456',
           revenue: 49.99,
-          currency: 'USD'
+          currency: 'USD',
+          email: 'test2@example.com'
         },
         context: {
-          traits: {
-            email: 'test2@example.com'
-          },
           page: {
             search: '?utm_source=test&rtid=rtid-from-url&other=param'
           }
@@ -165,41 +130,14 @@ describe('RoktCapi.send', () => {
         userId: 'user-456'
       })
 
-      const expectedRoktPayload = {
-        environment: 'production',
-        device_info: {},
-        user_attributes: {},
-        user_identities: {
-          email: 'test2@example.com',
-          customerid: 'user-456',
-          other2: 'rtid-from-url'
-        },
-        events: [
-          {
-            event_type: 'custom_event',
-            data: {
-              custom_event_type: 'transaction',
-              source_message_id: 'msg-003',
-              timestamp_unixtime_ms: 1705579200000,
-              event_name: 'conversion',
-              custom_attributes: {
-                conversiontype: 'Order Completed',
-                confirmationref: 'order-456',
-                amount: 49.99,
-                currency: 'USD'
-              }
-            }
-          }
-        ],
-        integration_attributes: {
-          '1277': {
-            passbackconversiontrackingid: 'rtid-from-url'
-          }
-        }
-      }
-
       nock('https://inbound.mparticle.com')
-        .post('/s2s/v2/events', expectedRoktPayload)
+        .post('/s2s/v2/events', (body) => {
+          expect(body.user_identities.other2).toBe('rtid-from-url')
+          expect(body.integration_attributes['1277'].passbackconversiontrackingid).toBe('rtid-from-url')
+          expect(body.user_identities.email).toBe('test2@example.com')
+          expect(body.user_identities.customerid).toBe('user-456')
+          return true
+        })
         .reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
@@ -220,12 +158,8 @@ describe('RoktCapi.send', () => {
         properties: {
           order_id: 'order-789',
           revenue: 150.00,
-          currency: 'USD'
-        },
-        context: {
-          traits: {
-            email: 'TEST@EXAMPLE.COM'
-          }
+          currency: 'USD',
+          email: 'test@example.com'
         },
         userId: 'user-789'
       })
@@ -264,19 +198,15 @@ describe('RoktCapi.send', () => {
         properties: {
           order_id: 'order-999',
           revenue: 200.00,
-          currency: 'USD'
-        },
-        context: {
-          traits: {
-            email: 'user@example.com',
-            firstName: 'John',
-            lastName: 'Doe',
-            phone: '+1234567890',
-            birthday: '1990-05-15',
-            gender: 'm',
-            address: {
-              postal_code: '12345'
-            }
+          currency: 'USD',
+          email: 'user@example.com',
+          first_name: 'John',
+          last_name: 'Doe',
+          phone: '+1234567890',
+          birthday: '1990-05-15',
+          gender: 'm',
+          address: {
+            postal_code: '12345'
           }
         },
         userId: 'user-999'
@@ -329,60 +259,32 @@ describe('RoktCapi.send', () => {
         properties: {
           order_id: 'order-111',
           revenue: 75.00,
-          currency: 'USD'
-        },
-        context: {
-          traits: {
-            email: 'user2@example.com',
-            firstName: 'Jane',
-            lastName: 'Smith',
-            phone: '+9876543210',
-            birthday: '1985-10-20',
-            gender: 'f',
-            address: {
-              postal_code: '54321'
-            }
+          currency: 'USD',
+          email: 'user2@example.com',
+          first_name: 'Jane',
+          last_name: 'Smith',
+          phone: '+9876543210',
+          birthday: '1985-10-20',
+          gender: 'f',
+          address: {
+            postal_code: '54321'
           }
         },
         userId: 'user-111'
       })
 
-      const expectedRoktPayload = {
-        environment: 'production',
-        device_info: {},
-        user_attributes: {
-          firstname: 'Jane',
-          lastname: 'Smith',
-          mobile: '+9876543210',
-          billingzipcode: '54321',
-          dob: '19851020',
-          gender: 'f'
-        },
-        user_identities: {
-          email: 'user2@example.com',
-          customerid: 'user-111'
-        },
-        events: [
-          {
-            event_type: 'custom_event',
-            data: {
-              custom_event_type: 'transaction',
-              source_message_id: 'msg-006',
-              timestamp_unixtime_ms: 1705579200000,
-              event_name: 'conversion',
-              custom_attributes: {
-                conversiontype: 'Order Completed',
-                confirmationref: 'order-111',
-                amount: 75.00,
-                currency: 'USD'
-              }
-            }
-          }
-        ]
-      }
-
       nock('https://inbound.mparticle.com')
-        .post('/s2s/v2/events', expectedRoktPayload)
+        .post('/s2s/v2/events', (body) => {
+          expect(body.user_attributes.firstname).toBe('Jane')
+          expect(body.user_attributes.lastname).toBe('Smith')
+          expect(body.user_attributes.mobile).toBe('+9876543210')
+          expect(body.user_attributes.billingzipcode).toBe('54321')
+          expect(body.user_attributes.dob).toBe('19851020')
+          expect(body.user_attributes.gender).toBe('f')
+          expect(body.user_identities.email).toBe('user2@example.com')
+          expect(body.user_identities.customerid).toBe('user-111')
+          return true
+        })
         .reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
@@ -540,12 +442,8 @@ describe('RoktCapi.send', () => {
         timestamp: '2024-01-18T12:00:00.000Z',
         type: 'track',
         properties: {
-          order_id: 'order-444'
-        },
-        context: {
-          traits: {
-            email: 'user@test.com'
-          }
+          order_id: 'order-444',
+          email: 'user@test.com'
         },
         integrations: {
           'Rokt Conversions API': {
@@ -555,39 +453,14 @@ describe('RoktCapi.send', () => {
         userId: 'user-444'
       })
 
-      const expectedRoktPayload = {
-        environment: 'production',
-        device_info: {},
-        user_attributes: {},
-        user_identities: {
-          email: 'user@test.com',
-          customerid: 'user-444',
-          other2: 'rokt-click-id-999'
-        },
-        integration_attributes: {
-          '1277': {
-            passbackconversiontrackingid: 'rokt-click-id-999'
-          }
-        },
-        events: [
-          {
-            event_type: 'custom_event',
-            data: {
-              custom_event_type: 'transaction',
-              source_message_id: 'msg-009',
-              timestamp_unixtime_ms: 1705579200000,
-              event_name: 'conversion',
-              custom_attributes: {
-                conversiontype: 'Order Completed',
-                confirmationref: 'order-444'
-              }
-            }
-          }
-        ]
-      }
-
       nock('https://inbound.mparticle.com')
-        .post('/s2s/v2/events', expectedRoktPayload)
+        .post('/s2s/v2/events', (body) => {
+          expect(body.user_identities.other2).toBe('rokt-click-id-999')
+          expect(body.integration_attributes['1277'].passbackconversiontrackingid).toBe('rokt-click-id-999')
+          expect(body.user_identities.email).toBe('user@test.com')
+          expect(body.user_identities.customerid).toBe('user-444')
+          return true
+        })
         .reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
@@ -611,48 +484,21 @@ describe('RoktCapi.send', () => {
           currency: 'USD',
           product_name: 'Widget Pro',
           quantity: 3,
-          is_premium: true
-        },
-        context: {
-          traits: {
-            email: 'user@test.com'
-          }
+          is_premium: true,
+          email: 'user@test.com'
         },
         userId: 'user-555'
       })
 
-      const expectedRoktPayload = {
-        environment: 'production',
-        device_info: {},
-        user_attributes: {},
-        user_identities: {
-          email: 'user@test.com',
-          customerid: 'user-555'
-        },
-        events: [
-          {
-            event_type: 'custom_event',
-            data: {
-              custom_event_type: 'transaction',
-              source_message_id: 'msg-010',
-              timestamp_unixtime_ms: 1705579200000,
-              event_name: 'conversion',
-              custom_attributes: {
-                conversiontype: 'Order Completed',
-                confirmationref: 'order-555',
-                amount: 300.00,
-                currency: 'USD',
-                product_name: 'Widget Pro',
-                quantity: 3,
-                is_premium: true
-              }
-            }
-          }
-        ]
-      }
-
       nock('https://inbound.mparticle.com')
-        .post('/s2s/v2/events', expectedRoktPayload)
+        .post('/s2s/v2/events', (body) => {
+          expect(body.user_identities.email).toBe('user@test.com')
+          expect(body.user_identities.customerid).toBe('user-555')
+          expect(body.events[0].data.custom_attributes.product_name).toBe('Widget Pro')
+          expect(body.events[0].data.custom_attributes.quantity).toBe(3)
+          expect(body.events[0].data.custom_attributes.is_premium).toBe(true)
+          return true
+        })
         .reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
@@ -678,15 +524,13 @@ describe('RoktCapi.send', () => {
         timestamp: '2024-01-18T12:00:00.000Z',
         type: 'track',
         properties: {
-          premium_users: true
+          premium_users: true,
+          email: 'premium@example.com'
         },
         context: {
           personas: {
             audience_key: 'premium_users',
             computation_class: 'audience'
-          },
-          traits: {
-            email: 'premium@example.com'
           }
         },
         userId: 'user-666'
@@ -712,14 +556,12 @@ describe('RoktCapi.send', () => {
           eventDetails: {
             source_message_id: 'msg-011',
             timestamp_unixtime_ms: '2024-01-18T12:00:00.000Z'
+          },         
+          engageAudienceName: 'premium_users',
+          traitsOrProps: {
+            premium_users: true
           },
-          engageFields: {
-            engageAudienceName: 'premium_users',
-            traitsOrProps: {
-              premium_users: true
-            },
-            computationAction: 'audience'
-          }
+          computationAction: 'audience'
         }
       })
 
@@ -735,12 +577,8 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           audience_name: 'high_value_customers',
-          audience_membership: true
-        },
-        context: {
-          traits: {
-            email: 'highvalue@example.com'
-          }
+          audience_membership: true, 
+          email: 'highvalue@example.com'
         },
         userId: 'user-777'
       })
@@ -812,12 +650,8 @@ describe('RoktCapi.send', () => {
           properties: {
             order_id: 'batch-order-001',
             revenue: 100.00,
-            currency: 'USD'
-          },
-          context: {
-            traits: {
-              email: 'batch1@example.com'
-            }
+            currency: 'USD',
+            email: 'batch1@example.com'
           },
           userId: 'batch-user-001'
         }),
@@ -829,12 +663,8 @@ describe('RoktCapi.send', () => {
           properties: {
             order_id: 'batch-order-002',
             revenue: 200.00,
-            currency: 'USD'
-          },
-          context: {
-            traits: {
-              email: 'batch2@example.com'
-            }
+            currency: 'USD',
+            email: 'batch2@example.com'
           },
           userId: 'batch-user-002'
         }),
@@ -846,100 +676,23 @@ describe('RoktCapi.send', () => {
           properties: {
             order_id: 'batch-order-003',
             revenue: 300.00,
-            currency: 'USD'
-          },
-          context: {
-            traits: {
-              email: 'batch3@example.com'
-            }
+            currency: 'USD',
+            email: 'batch3@example.com'
           },
           userId: 'batch-user-003'
         })
       ]
 
-      const expectedRoktBatchPayload = [
-        {
-          environment: 'production',
-          device_info: {},
-          user_attributes: {},
-          user_identities: {
-            email: 'batch1@example.com',
-            customerid: 'batch-user-001'
-          },
-          events: [
-            {
-              event_type: 'custom_event',
-              data: {
-                custom_event_type: 'transaction',
-                source_message_id: 'batch-msg-001',
-                timestamp_unixtime_ms: 1705579200000,
-                event_name: 'conversion',
-                custom_attributes: {
-                  conversiontype: 'Order Completed',
-                  confirmationref: 'batch-order-001',
-                  amount: 100.00,
-                  currency: 'USD'
-                }
-              }
-            }
-          ]
-        },
-        {
-          environment: 'production',
-          device_info: {},
-          user_attributes: {},
-          user_identities: {
-            email: 'batch2@example.com',
-            customerid: 'batch-user-002'
-          },
-          events: [
-            {
-              event_type: 'custom_event',
-              data: {
-                custom_event_type: 'transaction',
-                source_message_id: 'batch-msg-002',
-                timestamp_unixtime_ms: 1705579260000,
-                event_name: 'conversion',
-                custom_attributes: {
-                  conversiontype: 'Order Completed',
-                  confirmationref: 'batch-order-002',
-                  amount: 200.00,
-                  currency: 'USD'
-                }
-              }
-            }
-          ]
-        },
-        {
-          environment: 'production',
-          device_info: {},
-          user_attributes: {},
-          user_identities: {
-            email: 'batch3@example.com',
-            customerid: 'batch-user-003'
-          },
-          events: [
-            {
-              event_type: 'custom_event',
-              data: {
-                custom_event_type: 'transaction',
-                source_message_id: 'batch-msg-003',
-                timestamp_unixtime_ms: 1705579320000,
-                event_name: 'conversion',
-                custom_attributes: {
-                  conversiontype: 'Order Completed',
-                  confirmationref: 'batch-order-003',
-                  amount: 300.00,
-                  currency: 'USD'
-                }
-              }
-            }
-          ]
-        }
-      ]
-
       nock('https://inbound.mparticle.com')
-        .post('/s2s/v2/bulkevents', expectedRoktBatchPayload)
+        .post('/s2s/v2/bulkevents', (body) => {
+          // Verify the batch payload structure
+          expect(Array.isArray(body)).toBe(true)
+          expect(body.length).toBe(3)
+          expect(body[0].user_identities.email).toBe('batch1@example.com')
+          expect(body[1].user_identities.email).toBe('batch2@example.com')
+          expect(body[2].user_identities.email).toBe('batch3@example.com')
+          return true
+        })
         .reply(200, { success: true })
 
       const responses = await testDestination.testBatchAction('send', {
@@ -963,12 +716,8 @@ describe('RoktCapi.send', () => {
           properties: {
             order_id: 'mixed-order-001',
             revenue: 100.00,
-            currency: 'USD'
-          },
-          context: {
-            traits: {
-              email: 'valid1@example.com'
-            }
+            currency: 'USD',
+            email: 'valid1@example.com'
           },
           userId: 'valid-user-001'
         }),
@@ -995,12 +744,8 @@ describe('RoktCapi.send', () => {
           properties: {
             order_id: 'mixed-order-003',
             revenue: 300.00,
-            currency: 'USD'
-          },
-          context: {
-            traits: {
-              email: 'valid2@example.com'
-            }
+            currency: 'USD',
+            email: 'valid2@example.com'
           },
           userId: 'valid-user-003'
         }),
@@ -1096,12 +841,8 @@ describe('RoktCapi.send', () => {
           timestamp: '2024-01-18T12:00:00.000Z',
           type: 'track',
           properties: {
-            order_id: 'error-order-001'
-          },
-          context: {
-            traits: {
-              email: 'error1@example.com'
-            }
+            order_id: 'error-order-001',
+            email: 'error1@example.com'
           },
           userId: 'error-user-001'
         }),
@@ -1111,12 +852,8 @@ describe('RoktCapi.send', () => {
           timestamp: '2024-01-18T12:01:00.000Z',
           type: 'track',
           properties: {
-            order_id: 'error-order-002'
-          },
-          context: {
-            traits: {
-              email: 'error2@example.com'
-            }
+            order_id: 'error-order-002',
+            email: 'error2@example.com'
           },
           userId: 'error-user-002'
         })

@@ -11,7 +11,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     event_type: {
       label: 'Event Type',
-      description: 'For regular analytics events, use `track`. For page views, use `page`. For mobile screens, use `screen`.',
+      description:
+        'For regular analytics events, use `track`. For page views, use `page`. For mobile screens, use `screen`.',
       type: 'string',
       choices: [
         { label: 'track', value: 'track' },
@@ -119,6 +120,14 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number',
       default: 100,
       unsafe_hidden: true
+    },
+    ip_address: {
+      label: 'IP Address',
+      description: 'The IP address of the user',
+      type: 'string',
+      format: 'ipv4',
+      default: { '@path': '$.context.ip' },
+      allowNull: true
     }
   },
   perform: (request, { settings, payload }) => {
@@ -136,21 +145,24 @@ function send(request: RequestClient, settings: Settings, payload: Payload[]) {
   }
 
   const json: BatchJSON = {
-      api_key: settings.api_key,
-      historical_migration: settings.historical_migration,
-      batch: payload.map((payload) => ({
-        event: payload.event_type === 'page' ? '$pageview' : payload.event_type === 'screen' ? '$screen': payload.event_name,
-        timestamp: payload.timestamp,
-        properties: {
-          ...payload.properties,
-          $current_url: payload.event_type === 'page' ? payload.current_url  : undefined,
-          $screen_name: payload.event_type === 'screen' ? payload.screen_name : undefined,
-          distinct_id: payload.distinct_id,
-          $process_person_profile: payload.anonymous_event_capture
-        }
-     }))
+    api_key: settings.api_key,
+    historical_migration: settings.historical_migration,
+    batch: payload.map((payload) => ({
+      event:
+        payload.event_type === 'page' ? '$pageview' : payload.event_type === 'screen' ? '$screen' : payload.event_name,
+      timestamp: payload.timestamp,
+      properties: {
+        ...payload.properties,
+        $current_url: payload.event_type === 'page' ? payload.current_url : undefined,
+        $screen_name: payload.event_type === 'screen' ? payload.screen_name : undefined,
+        distinct_id: payload.distinct_id,
+        $process_person_profile: payload.anonymous_event_capture,
+        $geoip_disable: settings.geoip_disable || undefined,
+        $ip: payload.ip_address || undefined
+      }
+    }))
   }
-  
+
   return request(url, {
     method: 'post',
     headers,

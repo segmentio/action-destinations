@@ -433,4 +433,78 @@ describe('purchase', () => {
       `"{\\"data\\":[{\\"event_name\\":\\"Purchase\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\",\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\",\\"f0a72890897acefdb2c6c8c06134339a73cc6205833ca38dba6f9fdc94b60596\\"],\\"partner_id\\":\\"faf12efasdfasdf1edasdasdfadf=\\",\\"partner_name\\":\\"liveramp\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":12.12,\\"content_ids\\":[\\"ABC123\\",\\"XYZ789\\"],\\"content_name\\":\\"Shoes\\",\\"content_type\\":\\"product\\",\\"contents\\":[{\\"id\\":\\"ABC123\\",\\"quantity\\":2},{\\"id\\":\\"XYZ789\\",\\"quantity\\":3}],\\"num_items\\":2}}]}"`
     )
   })
+
+  it('should handle net_revenue field', async () => {
+    nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+    const event = createTestEvent({
+      event: 'Order Completed',
+      userId: 'abc123',
+      timestamp: '1631210063',
+      properties: {
+        action_source: 'email',
+        currency: 'USD',
+        value: 12.12,
+        net_revenue: 10.5,
+        email: 'nicholas.aguilar@segment.com',
+        content_name: 'Shoes',
+        content_type: 'product',
+        contents: [
+          { id: 'ABC123', quantity: 2 },
+          { id: 'XYZ789', quantity: 3 }
+        ],
+        content_ids: ['ABC123', 'XYZ789'],
+        num_items: 2
+      }
+    })
+
+    const responses = await testDestination.testAction('purchase', {
+      event,
+      settings,
+      mapping: {
+        currency: {
+          '@path': '$.properties.currency'
+        },
+        value: {
+          '@path': '$.properties.value'
+        },
+        net_revenue: {
+          '@path': '$.properties.net_revenue'
+        },
+        user_data: {
+          email: {
+            '@path': '$.properties.email'
+          }
+        },
+        action_source: {
+          '@path': '$.properties.action_source'
+        },
+        event_time: {
+          '@path': '$.timestamp'
+        },
+        contents: {
+          '@path': '$.properties.contents'
+        },
+        num_items: {
+          '@path': '$.properties.num_items'
+        },
+        content_name: {
+          '@path': '$.properties.content_name'
+        },
+        content_type: {
+          '@path': '$.properties.content_type'
+        },
+        content_ids: {
+          '@path': '$.properties.content_ids'
+        }
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(201)
+
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"data\\":[{\\"event_name\\":\\"Purchase\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":12.12,\\"net_revenue\\":10.5,\\"content_ids\\":[\\"ABC123\\",\\"XYZ789\\"],\\"content_name\\":\\"Shoes\\",\\"content_type\\":\\"product\\",\\"contents\\":[{\\"id\\":\\"ABC123\\",\\"quantity\\":2},{\\"id\\":\\"XYZ789\\",\\"quantity\\":3}],\\"num_items\\":2}}]}"`
+    )
+  })
 })
