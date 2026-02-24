@@ -1,5 +1,18 @@
 import { isValidS3BucketName } from '../audienceEnteredS3/s3'
 
+// Mock AWS SDK before any imports to avoid initialization issues
+jest.mock('@aws-sdk/client-s3', () => ({
+  S3Client: jest.fn().mockImplementation(() => ({
+    send: jest.fn()
+  })),
+  PutObjectCommand: jest.fn()
+}))
+
+jest.mock('@aws-sdk/client-sts', () => ({
+  STSClient: jest.fn(),
+  AssumeRoleCommand: jest.fn()
+}))
+
 describe('isValidS3BucketName', () => {
   describe('valid bucket names', () => {
     it('should return true for valid bucket names', () => {
