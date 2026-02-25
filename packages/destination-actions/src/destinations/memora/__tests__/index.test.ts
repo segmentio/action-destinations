@@ -1,7 +1,8 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
-import { API_VERSION, BASE_URL } from '../versioning-info'
+import { API_VERSION } from '../versioning-info'
+import { BASE_URL } from '../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -19,10 +20,23 @@ describe('Memora Destination', () => {
 
       const settings = {
         username: 'test-api-key',
-        password: 'test-api-secret'
+        password: 'test-api-secret',
+        twilioAccount: 'AC1234567890'
       }
 
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
+    })
+
+    it('should reject authentication when twilioAccount is missing', async () => {
+      const settings = {
+        username: 'test-api-key',
+        password: 'test-api-secret'
+        // twilioAccount is missing
+      } as any
+
+      await expect(testDestination.testAuthentication(settings)).rejects.toThrow(
+        "The root value is missing the required field 'twilioAccount'"
+      )
     })
 
     it('should reject invalid credentials with 401', async () => {
@@ -30,7 +44,8 @@ describe('Memora Destination', () => {
 
       const settings = {
         username: 'invalid-key',
-        password: 'invalid-secret'
+        password: 'invalid-secret',
+        twilioAccount: 'AC1234567890'
       }
 
       await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()
@@ -41,7 +56,8 @@ describe('Memora Destination', () => {
 
       const settings = {
         username: 'test-api-key',
-        password: 'wrong-secret'
+        password: 'wrong-secret',
+        twilioAccount: 'AC1234567890'
       }
 
       await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()
@@ -54,7 +70,8 @@ describe('Memora Destination', () => {
 
       const settings = {
         username: 'test-api-key',
-        password: 'test-api-secret'
+        password: 'test-api-secret',
+        twilioAccount: 'AC1234567890'
       }
 
       await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()
@@ -67,7 +84,8 @@ describe('Memora Destination', () => {
 
       const settings = {
         username: 'test-api-key',
-        password: 'test-api-secret'
+        password: 'test-api-secret',
+        twilioAccount: 'AC1234567890'
       }
 
       await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()
@@ -78,7 +96,8 @@ describe('Memora Destination', () => {
 
       const settings = {
         username: 'test-api-key',
-        password: 'test-api-secret'
+        password: 'test-api-secret',
+        twilioAccount: 'AC1234567890'
       }
 
       await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()

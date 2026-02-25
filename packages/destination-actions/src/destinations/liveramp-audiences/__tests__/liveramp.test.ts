@@ -1,8 +1,12 @@
 import nock from 'nock'
-import { createTestIntegration, PayloadValidationError, SegmentEvent } from '@segment/actions-core'
+import { createTestIntegration, PayloadValidationError, SegmentEvent, StatsContext } from '@segment/actions-core'
 import Destination from '../index'
 import fs from 'fs'
-import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME } from '../properties'
+import {
+  LIVERAMP_ALPHABETICAL_FIELD_ORDER_FLAG_NAME,
+  LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME,
+  LIVERAMP_MIN_RECORD_COUNT
+} from '../properties'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -32,6 +36,11 @@ jest.mock('@aws-sdk/client-s3', () => ({
     constructor: { name: 'PutObjectCommand' },
     input
   }))
+}))
+
+jest.mock('@aws-sdk/client-sts', () => ({
+  STSClient: jest.fn(),
+  AssumeRoleCommand: jest.fn()
 }))
 
 describe('Liveramp Audiences', () => {
@@ -210,6 +219,110 @@ describe('Liveramp Audiences', () => {
         expect(e.status).toEqual(400)
       }
     })
+
+    it('should track incoming header order metric when statsContext is provided', async () => {
+      const mockStatsClient = {
+        histogram: jest.fn(),
+        incr: jest.fn(),
+        observe: jest.fn(),
+        _name: '',
+        _tags: [],
+        set: jest.fn()
+      }
+      const statsContext: StatsContext = { statsClient: mockStatsClient as any, tags: ['test-tag'] }
+      await testDestination.executeBatch('audienceEnteredS3', {
+        events: mockedEvents,
+        mapping: {
+          s3_aws_access_key: 's3_aws_access_key',
+          s3_aws_secret_key: 's3_aws_secret_key',
+          s3_aws_bucket_name: 's3-aws-bucket-name',
+          s3_aws_region: 's3_aws_region',
+          audience_key: 'audience_key',
+          delimiter: ',',
+          filename: 'filename.csv',
+          enable_batching: true,
+          identifier_data: {
+            email: { '@path': '$.properties.email' },
+            first_name: { '@path': '$.properties.first_name' }
+          }
+        },
+        subscriptionMetadata: {
+          destinationConfigId: 'test-destination-config-id',
+          actionConfigId: 'test-action-config-id',
+          sourceId: 'test-source-id',
+          actionId: 'test-action-id'
+        },
+        settings: {
+          __segment_internal_engage_force_full_sync: true,
+          __segment_internal_engage_batch_sync: true
+        },
+        statsContext
+      })
+
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'liveramp_audiences.incoming_header_order',
+        1,
+        expect.arrayContaining([
+          'test-tag',
+          'actionConfigId:test-action-config-id',
+          'destinationConfigId:test-destination-config-id',
+          'sourceId:test-source-id',
+          'actionId:test-action-id'
+        ])
+      )
+    })
+
+    it('should track alphabetical order when flag is enabled', async () => {
+      const mockStatsClient = {
+        histogram: jest.fn(),
+        incr: jest.fn(),
+        observe: jest.fn(),
+        _name: '',
+        _tags: [],
+        set: jest.fn()
+      }
+      const statsContext: StatsContext = { statsClient: mockStatsClient as any, tags: ['test-tag'] }
+
+      await testDestination.executeBatch('audienceEnteredS3', {
+        events: mockedEvents,
+        mapping: {
+          s3_aws_access_key: 's3_aws_access_key',
+          s3_aws_secret_key: 's3_aws_secret_key',
+          s3_aws_bucket_name: 's3-aws-bucket-name',
+          s3_aws_region: 's3_aws_region',
+          audience_key: 'audience_key',
+          delimiter: ',',
+          filename: 'filename.csv',
+          enable_batching: true
+        },
+        subscriptionMetadata: {
+          destinationConfigId: 'test-destination-config-id',
+          actionConfigId: 'test-action-config-id',
+          sourceId: 'test-source-id',
+          actionId: 'test-action-id'
+        },
+        settings: {
+          __segment_internal_engage_force_full_sync: true,
+          __segment_internal_engage_batch_sync: true
+        },
+        features: {
+          [LIVERAMP_ALPHABETICAL_FIELD_ORDER_FLAG_NAME]: true
+        },
+        statsContext
+      })
+
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'liveramp_audiences.incoming_header_order',
+        1,
+        expect.arrayContaining([
+          'test-tag',
+          'actionConfigId:test-action-config-id',
+          'destinationConfigId:test-destination-config-id',
+          'sourceId:test-source-id',
+          'actionId:test-action-id'
+        ])
+      )
+    })
   })
   describe('audienceEnteredSFTP', () => {
     it('should send events with valid payload size and events', async () => {
@@ -302,6 +415,111 @@ describe('Liveramp Audiences', () => {
         )
         expect(e.status).toEqual(400)
       }
+    })
+
+    it('should track incoming header order metric when statsContext is provided', async () => {
+      const mockStatsClient = {
+        histogram: jest.fn(),
+        incr: jest.fn(),
+        observe: jest.fn(),
+        _name: '',
+        _tags: [],
+        set: jest.fn()
+      }
+      const statsContext: StatsContext = { statsClient: mockStatsClient as any, tags: ['test-tag'] }
+
+      await testDestination.executeBatch('audienceEnteredSFTP', {
+        events: mockedEvents,
+        mapping: {
+          sftp_username: 'sftp_username',
+          sftp_aws_access_key: 'sftp_aws_access_key',
+          sftp_folder_path: 'sftp_folder_path',
+          sftp_password: 'sftp_password',
+          audience_key: 'audience_key',
+          delimiter: ',',
+          filename: 'filename.csv',
+          enable_batching: true,
+          identifier_data: {
+            email: { '@path': '$.properties.email' },
+            first_name: { '@path': '$.properties.first_name' }
+          }
+        },
+        subscriptionMetadata: {
+          destinationConfigId: 'test-destination-config-id',
+          actionConfigId: 'test-action-config-id',
+          sourceId: 'test-source-id',
+          actionId: 'test-action-id'
+        },
+        settings: {
+          __segment_internal_engage_force_full_sync: true,
+          __segment_internal_engage_batch_sync: true
+        },
+        statsContext
+      })
+
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'liveramp_audiences.incoming_header_order',
+        1,
+        expect.arrayContaining([
+          'test-tag',
+          'actionConfigId:test-action-config-id',
+          'destinationConfigId:test-destination-config-id',
+          'sourceId:test-source-id',
+          'actionId:test-action-id'
+        ])
+      )
+    })
+
+    it('should track alphabetical order when flag is enabled', async () => {
+      const mockStatsClient = {
+        histogram: jest.fn(),
+        incr: jest.fn(),
+        observe: jest.fn(),
+        _name: '',
+        _tags: [],
+        set: jest.fn()
+      }
+      const statsContext: StatsContext = { statsClient: mockStatsClient as any, tags: ['test-tag'] }
+
+      await testDestination.executeBatch('audienceEnteredSFTP', {
+        events: mockedEvents,
+        mapping: {
+          sftp_username: 'sftp_username',
+          sftp_aws_access_key: 'sftp_aws_access_key',
+          sftp_folder_path: 'sftp_folder_path',
+          sftp_password: 'sftp_password',
+          audience_key: 'audience_key',
+          delimiter: ',',
+          filename: 'filename.csv',
+          enable_batching: true
+        },
+        subscriptionMetadata: {
+          destinationConfigId: 'test-destination-config-id',
+          actionConfigId: 'test-action-config-id',
+          sourceId: 'test-source-id',
+          actionId: 'test-action-id'
+        },
+        settings: {
+          __segment_internal_engage_force_full_sync: true,
+          __segment_internal_engage_batch_sync: true
+        },
+        features: {
+          [LIVERAMP_ALPHABETICAL_FIELD_ORDER_FLAG_NAME]: true
+        },
+        statsContext
+      })
+
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'liveramp_audiences.incoming_header_order',
+        1,
+        expect.arrayContaining([
+          'test-tag',
+          'actionConfigId:test-action-config-id',
+          'destinationConfigId:test-destination-config-id',
+          'sourceId:test-source-id',
+          'actionId:test-action-id'
+        ])
+      )
     })
   })
 })

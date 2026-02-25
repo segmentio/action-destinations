@@ -149,9 +149,9 @@ export async function sendEventsRequest<ImportConversionEventsResponse>(
       events: events
     },
     headers: {
-      'Amazon-Ads-AccountId': settings.advertiserId
+      'Amazon-Ads-AccountId': settings.advertiserId,
+      'Amazon-Ads-ClientId': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
     },
-    timeout: 25000,
     throwHttpErrors: false
   })
 }

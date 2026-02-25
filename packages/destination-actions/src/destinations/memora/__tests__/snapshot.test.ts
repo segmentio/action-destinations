@@ -25,11 +25,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
       nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(201, {
-        importId: 'mem_import_test',
-        url: 'https://example.com/presigned-url'
-      })
-      nock(/.*/).persist().put(/.*/).reply(200)
+      nock(/.*/).persist().put(/.*/).reply(202)
 
       const event = createTestEvent({
         properties: eventData
@@ -41,6 +37,9 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         memora_store: 'test-store-id',
         contact_identifiers: {
           email: 'test@example.com'
+        },
+        contact_traits: {
+          firstName: 'Test'
         }
       }
 
@@ -71,11 +70,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
       nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(201, {
-        importId: 'mem_import_test',
-        url: 'https://example.com/presigned-url'
-      })
-      nock(/.*/).persist().put(/.*/).reply(200)
+      nock(/.*/).persist().put(/.*/).reply(202)
 
       const event = createTestEvent({
         properties: eventData
@@ -126,6 +121,9 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         ...event.properties,
         contact_identifiers: {
           email: 'test@example.com'
+        },
+        contact_traits: {
+          firstName: 'Test'
         }
       }
 
@@ -155,7 +153,8 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const mapping = {
         ...event.properties,
         memora_store: 'test-store-id',
-        contact_identifiers: {}
+        contact_identifiers: {},
+        contact_traits: {}
       }
 
       await expect(
@@ -165,7 +164,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
           settings: settingsData,
           auth: undefined
         })
-      ).rejects.toThrow('Profile at index 0 must contain at least one identifier (email or phone)')
+      ).rejects.toThrow('No valid profiles found for import')
     })
   }
 })

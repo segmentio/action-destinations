@@ -94,11 +94,6 @@ export const sendEventToAWS = async (input: SendToAWSRequest) => {
   // Get S3 Client for Outbound Controller
   const s3Client = getS3Client('integrationsOutboundController')
 
-  // Add Row Count to the File Chunk for Observability
-  const urlEncodedTags = new URLSearchParams({
-    row_count: `${input.rowCount}`
-  }).toString()
-
   await Promise.all([
     // Upload user data to the S3 bucket
     s3Client.send(
@@ -107,7 +102,11 @@ export const sendEventToAWS = async (input: SendToAWSRequest) => {
         Key: userdataFilePath,
         Body: input.fileContents,
         ContentType: 'text/csv',
-        Tagging: urlEncodedTags
+
+        // Add Row Count to the File Chunk for Observability
+        Metadata: {
+          'row-count': `${input.rowCount}`
+        }
       })
     ),
 
