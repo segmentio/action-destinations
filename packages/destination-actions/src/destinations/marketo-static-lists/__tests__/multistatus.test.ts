@@ -175,6 +175,39 @@ describe('MultiStatus', () => {
       }
     )
 
+    it.each([{ errors: [] }, {}])(
+      'should return retryable multistatus when response has no error details',
+      async (errorBody) => {
+        nock(settings.api_endpoint)
+          .post('/bulk/v1/leads.json?format=csv&listId=101&lookupField=email')
+          .reply(200, {
+            requestId: '0001#1234f2f3e4',
+            success: false,
+            warnings: [],
+            ...errorBody
+          })
+
+        const response = await testDestination.executeBatch('addToList', {
+          events,
+          settings,
+          mapping
+        })
+
+        expect(response).toMatchObject([
+          {
+            status: 500,
+            errortype: 'UNKNOWN_ERROR',
+            errorreporter: 'INTEGRATIONS'
+          },
+          {
+            status: 500,
+            errortype: 'UNKNOWN_ERROR',
+            errorreporter: 'INTEGRATIONS'
+          }
+        ])
+      }
+    )
+
     it('should return multistatus for success', async () => {
       nock(settings.api_endpoint).post('/bulk/v1/leads.json?format=csv&listId=101&lookupField=email').reply(200, {
         requestId: '0001#1234f2f3e4',
@@ -447,6 +480,82 @@ describe('MultiStatus', () => {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
+            errorreporter: 'INTEGRATIONS'
+          }
+        ])
+      }
+    )
+
+    it.each([{ errors: [] }, {}])(
+      'should return retryable multistatus when getLeads response has no error details',
+      async (errorBody) => {
+        nock(settings.api_endpoint)
+          .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
+          .reply(200, {
+            requestId: '0001#1234f2f3e4',
+            success: false,
+            warnings: [],
+            ...errorBody
+          })
+
+        const response = await testDestination.executeBatch('removeFromList', {
+          events,
+          settings,
+          mapping
+        })
+
+        expect(response).toMatchObject([
+          {
+            status: 500,
+            errortype: 'UNKNOWN_ERROR',
+            errorreporter: 'INTEGRATIONS'
+          },
+          {
+            status: 500,
+            errortype: 'UNKNOWN_ERROR',
+            errorreporter: 'INTEGRATIONS'
+          }
+        ])
+      }
+    )
+
+    it.each([{ errors: [] }, {}])(
+      'should return retryable multistatus when deleteLeads response has no error details',
+      async (errorBody) => {
+        nock(settings.api_endpoint)
+          .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
+          .reply(200, {
+            requestId: '0001#1234f2f3e4',
+            success: true,
+            warnings: [],
+            errors: [],
+            result: [{ id: 1 }, { id: 2 }]
+          })
+
+        nock(settings.api_endpoint)
+          .delete('/rest/v1/lists/101/leads.json?id=1,2')
+          .reply(200, {
+            requestId: '0001#1234f2f3e4',
+            success: false,
+            warnings: [],
+            ...errorBody
+          })
+
+        const response = await testDestination.executeBatch('removeFromList', {
+          events,
+          settings,
+          mapping
+        })
+
+        expect(response).toMatchObject([
+          {
+            status: 500,
+            errortype: 'UNKNOWN_ERROR',
+            errorreporter: 'INTEGRATIONS'
+          },
+          {
+            status: 500,
+            errortype: 'UNKNOWN_ERROR',
             errorreporter: 'INTEGRATIONS'
           }
         ])
