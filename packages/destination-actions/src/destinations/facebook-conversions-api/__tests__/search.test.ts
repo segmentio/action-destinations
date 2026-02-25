@@ -302,5 +302,51 @@ describe('FacebookConversionsApi', () => {
         `"{\\"data\\":[{\\"event_name\\":\\"Search\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"content_ids\\":[\\"ABC123\\",\\"XYZ789\\"],\\"contents\\":[{\\"id\\":\\"ABC123\\",\\"quantity\\":2},{\\"id\\":\\"XYZ789\\",\\"quantity\\":3}],\\"content_category\\":\\"Cookies\\",\\"value\\":12.12,\\"search_string\\":\\"Oreo\`s Quadruple Stack\\"}}],\\"test_event_code\\":\\"2345678901\\"}"`
       )
     })
+
+    it('should include ctwa_clid in user_data', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Products Searched',
+        userId: 'abc123',
+        timestamp: '1631210000',
+        properties: {
+          action_source: 'email',
+          currency: 'USD',
+          email: 'test@example.com',
+          ctwa_clid: 'test_ctwa_click_id_12345'
+        }
+      })
+
+      const responses = await testDestination.testAction('search', {
+        event,
+        settings,
+        mapping: {
+          currency: {
+            '@path': '$.properties.currency'
+          },
+          user_data: {
+            email: {
+              '@path': '$.properties.email'
+            },
+            ctwa_clid: {
+              '@path': '$.properties.ctwa_clid'
+            }
+          },
+          action_source: {
+            '@path': '$.properties.action_source'
+          },
+          event_time: {
+            '@path': '$.timestamp'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"Search\\",\\"event_time\\":\\"1631210000\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b\\",\\"ctwa_clid\\":\\"test_ctwa_click_id_12345\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\"}}]}"`
+      )
+    })
   })
 })
