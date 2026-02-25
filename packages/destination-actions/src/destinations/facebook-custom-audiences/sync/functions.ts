@@ -98,10 +98,11 @@ export async function sendRequest(
         }
       })
     }
-  } catch (error) {
+  } 
+  catch (error) {
     const {
       response: {
-        status = 500,
+        status,
         data: {
           error: {
             message: facebookMessage = undefined,
@@ -114,10 +115,10 @@ export async function sendRequest(
     } = error || {}
 
     const message = facebookMessage || genericMessage || 'Unknown error'
-    const errorMessage: string = errorCode ? `${message} (code: ${errorCode})` : message
+    const errorMessage: string = errorCode ? `${message} (code: ${status || errorCode})` : message
 
     if (!isBatch) {
-      throw new IntegrationError(errorMessage, errorType as string, errorCode as number)
+      throw new IntegrationError(errorMessage, errorType as string, (status || errorCode) as number)
     }
 
     for (let i = 0; i < indices.length; i++) {
