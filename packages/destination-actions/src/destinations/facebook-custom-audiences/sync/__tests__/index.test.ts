@@ -1,8 +1,8 @@
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, IntegrationError } from '@segment/actions-core'
 import Destination from '../../index'
 import nock from 'nock'
 import { SCHEMA_PROPERTIES } from '../constants'
-import { normalizationFunctions } from '../functions'
+import { normalizePhone, normalizeCity, normalizeState, normalizeZip, normalizeCountry } from '../functions'
 import { API_VERSION, BASE_URL } from '../../constants'
 import { processHashing } from '../../../../lib/hashing-utils'
 
@@ -17,6 +17,7 @@ describe('FacebookCustomAudiences.sync', () => {
   beforeEach(() => {
     testDestination = createTestIntegration(Destination)
   })
+
   describe('RETL', () => {
     const retlSettings = {
       retlAdAccountId: '123'
@@ -57,35 +58,35 @@ describe('FacebookCustomAudiences.sync', () => {
                   (event.properties?.phone as string) || '',
                   'sha256',
                   'hex',
-                  normalizationFunctions.get('phone')
+                  normalizePhone
                 ),
-                EMPTY, // gender
-                EMPTY, // year
-                EMPTY, // month
                 EMPTY, // day
+                EMPTY, // month
+                EMPTY, // year
                 EMPTY, // last_name
                 EMPTY, // first_name
                 EMPTY, // first_initial
+                EMPTY, // gender
                 processHashing(
                   (event.properties?.city as string) || '',
                   'sha256',
                   'hex',
-                  normalizationFunctions.get('city')
+                  normalizeCity
                 ),
                 processHashing(
                   (event.properties?.state as string) || '',
                   'sha256',
                   'hex',
-                  normalizationFunctions.get('state')
+                  normalizeState
                 ),
                 processHashing(
                   (event.properties?.zip_code as string) || '',
                   'sha256',
                   'hex',
-                  normalizationFunctions.get('zip')
+                  normalizeZip
                 ),
-                '2024', // mobile_advertiser_id,
-                processHashing('US', 'sha256', 'hex', normalizationFunctions.get('country')) // country
+                processHashing('US', 'sha256', 'hex', normalizeCountry), // country
+                '2024', // mobile_advertiser_id
               ]
             ],
             app_ids: ['2024']
@@ -136,11 +137,9 @@ describe('FacebookCustomAudiences.sync', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"payload\\":{\\"schema\\":[\\"EXTERN_ID\\",\\"EMAIL\\",\\"PHONE\\",\\"GEN\\",\\"DOBY\\",\\"DOBM\\",\\"DOBD\\",\\"LN\\",\\"FN\\",\\"FI\\",\\"CT\\",\\"ST\\",\\"ZIP\\",\\"MADID\\",\\"COUNTRY\\"],\\"data\\":[[\\"1234\\",\\"816341caf0c06dbc4c156d3465323f52b3cb62533241d5f9247c008f657e8343\\",\\"a5ad7e6d5225ad00c5f05ddb6bb3b1597a843cc92f6cf188490ffcb88a1ef4ef\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"1a6bd4d9d79dc0a79b53795c70d3349fa9e38968a3fbefbfe8783efb1d2b6aac\\",\\"6959097001d10501ac7d54c0bdb8db61420f658f2922cc26e46d536119a31126\\",\\"ad16c1a6866c5887c5b59c1803cb1fc09769f1b403b6f1d9d0f10ad6ab4d5d50\\",\\"2024\\",\\"79adb2a2fce5c6ba215fe5f27f532d4e7edbac4b6a5e09e1ef3a08084a904621\\"]],\\"app_ids\\":[\\"2024\\"]}}"`
+        `"{\\"payload\\":{\\"schema\\":[\\"EXTERN_ID\\",\\"EMAIL\\",\\"PHONE\\",\\"DOBY\\",\\"DOBM\\",\\"DOBD\\",\\"LN\\",\\"FN\\",\\"FI\\",\\"GEN\\",\\"CT\\",\\"ST\\",\\"ZIP\\",\\"COUNTRY\\",\\"MADID\\"],\\"data\\":[[\\"1234\\",\\"816341caf0c06dbc4c156d3465323f52b3cb62533241d5f9247c008f657e8343\\",\\"a5ad7e6d5225ad00c5f05ddb6bb3b1597a843cc92f6cf188490ffcb88a1ef4ef\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"1a6bd4d9d79dc0a79b53795c70d3349fa9e38968a3fbefbfe8783efb1d2b6aac\\",\\"6959097001d10501ac7d54c0bdb8db61420f658f2922cc26e46d536119a31126\\",\\"ad16c1a6866c5887c5b59c1803cb1fc09769f1b403b6f1d9d0f10ad6ab4d5d50\\",\\"79adb2a2fce5c6ba215fe5f27f532d4e7edbac4b6a5e09e1ef3a08084a904621\\",\\"2024\\"]],\\"app_ids\\":[\\"2024\\"]}}"`
       )
     })
-
-    it.skip('should delete a single user', async () => {})
   })
 
   describe('Engage', () => {
@@ -172,6 +171,7 @@ describe('FacebookCustomAudiences.sync', () => {
         }
       }
     })
+
     it('should sync with external_id from payload', async () => {
       nock(`${BASE_URL}/${API_VERSION}`)
         .post(`/${event.context?.personas.external_audience_id}/users`, {
@@ -185,35 +185,35 @@ describe('FacebookCustomAudiences.sync', () => {
                   (event.properties?.phone as string) || '',
                   'sha256',
                   'hex',
-                  normalizationFunctions.get('phone')
+                  normalizePhone
                 ),
-                EMPTY, // gender
-                EMPTY, // year
-                EMPTY, // month
                 EMPTY, // day
+                EMPTY, // month
+                EMPTY, // year
                 EMPTY, // last_name
                 EMPTY, // first_name
                 EMPTY, // first_initial
+                EMPTY, // gender
                 processHashing(
                   (event.properties?.city as string) || '',
                   'sha256',
                   'hex',
-                  normalizationFunctions.get('city')
+                  normalizeCity
                 ),
                 processHashing(
                   (event.properties?.state as string) || '',
                   'sha256',
                   'hex',
-                  normalizationFunctions.get('state')
+                  normalizeState
                 ),
                 processHashing(
                   (event.properties?.zip_code as string) || '',
                   'sha256',
                   'hex',
-                  normalizationFunctions.get('zip')
+                  normalizeZip
                 ),
-                '2024', // mobile_advertiser_id,
-                processHashing('US', 'sha256', 'hex', normalizationFunctions.get('country')) // country
+                processHashing('US', 'sha256', 'hex', normalizeCountry), // country
+                '2024' // mobile_advertiser_id,
               ]
             ],
             app_ids: ['2024']
@@ -265,7 +265,7 @@ describe('FacebookCustomAudiences.sync', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"payload\\":{\\"schema\\":[\\"EXTERN_ID\\",\\"EMAIL\\",\\"PHONE\\",\\"GEN\\",\\"DOBY\\",\\"DOBM\\",\\"DOBD\\",\\"LN\\",\\"FN\\",\\"FI\\",\\"CT\\",\\"ST\\",\\"ZIP\\",\\"MADID\\",\\"COUNTRY\\"],\\"data\\":[[\\"1234\\",\\"816341caf0c06dbc4c156d3465323f52b3cb62533241d5f9247c008f657e8343\\",\\"a5ad7e6d5225ad00c5f05ddb6bb3b1597a843cc92f6cf188490ffcb88a1ef4ef\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"1a6bd4d9d79dc0a79b53795c70d3349fa9e38968a3fbefbfe8783efb1d2b6aac\\",\\"6959097001d10501ac7d54c0bdb8db61420f658f2922cc26e46d536119a31126\\",\\"ad16c1a6866c5887c5b59c1803cb1fc09769f1b403b6f1d9d0f10ad6ab4d5d50\\",\\"2024\\",\\"79adb2a2fce5c6ba215fe5f27f532d4e7edbac4b6a5e09e1ef3a08084a904621\\"]],\\"app_ids\\":[\\"2024\\"]}}"`
+        `"{\\"payload\\":{\\"schema\\":[\\"EXTERN_ID\\",\\"EMAIL\\",\\"PHONE\\",\\"DOBY\\",\\"DOBM\\",\\"DOBD\\",\\"LN\\",\\"FN\\",\\"FI\\",\\"GEN\\",\\"CT\\",\\"ST\\",\\"ZIP\\",\\"COUNTRY\\",\\"MADID\\"],\\"data\\":[[\\"1234\\",\\"816341caf0c06dbc4c156d3465323f52b3cb62533241d5f9247c008f657e8343\\",\\"a5ad7e6d5225ad00c5f05ddb6bb3b1597a843cc92f6cf188490ffcb88a1ef4ef\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"1a6bd4d9d79dc0a79b53795c70d3349fa9e38968a3fbefbfe8783efb1d2b6aac\\",\\"6959097001d10501ac7d54c0bdb8db61420f658f2922cc26e46d536119a31126\\",\\"ad16c1a6866c5887c5b59c1803cb1fc09769f1b403b6f1d9d0f10ad6ab4d5d50\\",\\"79adb2a2fce5c6ba215fe5f27f532d4e7edbac4b6a5e09e1ef3a08084a904621\\",\\"2024\\"]],\\"app_ids\\":[\\"2024\\"]}}"`
       )
     })
 
@@ -305,12 +305,7 @@ describe('FacebookCustomAudiences.sync', () => {
             batch_size: 10000
           }
         })
-      ).rejects.toMatchObject({
-        response: {
-          status: 400,
-          data: facebookError
-        }
-      })
+      ).rejects.toThrow(IntegrationError)
     })
   })
 
