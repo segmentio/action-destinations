@@ -30,7 +30,14 @@ import type {
   ResultMultiStatusNode
 } from './types'
 import type { AllRequestOptions } from '../request-client'
-import { ErrorCodes, IntegrationError, InvalidAuthenticationError, MultiStatusErrorReporter } from '../errors'
+import {
+  ErrorCodes,
+  IntegrationError,
+  InvalidAuthenticationError,
+  MultiStatusErrorReporter,
+  RefreshTokenAndRetryError,
+  RetryableError
+} from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
 import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
@@ -1022,6 +1029,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     settings: JSONObject,
     options?: OnEventOptions
   ): Promise<JSONObject> {
+    // Handle RefreshTokenAndRetryError: refresh the token, then throw RetryableError
+    // so Segment infrastructure retries later (after token propagation)
+    if (error instanceof RefreshTokenAndRetryError) {
+      await this.handleAuthError(settings, options)
+      throw new RetryableError(error.message, 503)
+    }
+
     const statusCode = (error as ResponseError).status ?? (error as HTTPError)?.response?.status ?? 500
     const needsReauthentication =
       statusCode === 401 &&
