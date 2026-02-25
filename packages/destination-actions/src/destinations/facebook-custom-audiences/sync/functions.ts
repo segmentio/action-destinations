@@ -3,7 +3,7 @@ import { Payload } from './generated-types'
 import { RequestClient, PayloadValidationError, IntegrationError, MultiStatusResponse } from '@segment/actions-core'
 import type { JSONLikeObject } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
-import { AudienceJSON, FacebookDataRow } from './types'
+import { AudienceJSON, FacebookDataRow, SyncMode } from './types'
 import { API_VERSION, BASE_URL } from '../constants'
 
 export async function send(
@@ -16,8 +16,7 @@ export async function send(
   const msResponse = new MultiStatusResponse()
   const audienceId = getAudienceId(payloads[0], hookOutputs)
   const isEngage = isEngageAudience(payloads[0])
-  const hasSyncMode = hasSyncModevalue(syncMode)
-  const errorMessage = validate(audienceId, isEngage, hasSyncMode)
+  const errorMessage = validate(audienceId, isEngage, syncMode as SyncMode | undefined)
 
   if (errorMessage) {
     return returnErrorResponse(msResponse, payloads, isBatch, errorMessage)
@@ -26,11 +25,19 @@ export async function send(
   const addMap = new Map<number, Payload>()
   const deleteMap = new Map<number, Payload>()
 
-  if (!isEngage) {
-    syncMode === 'delete'
-      ? payloads.forEach((payload, index) => deleteMap.set(index, payload))
-      : payloads.forEach((payload, index) => addMap.set(index, payload))
-  } else {
+  if(syncMode === 'delete') {
+    payloads.forEach((payload, index) => deleteMap.set(index, payload))
+  } 
+  else if (syncMode === 'upsert') {
+    payloads.forEach((payload, index) => addMap.set(index, payload))
+  } 
+  else if (syncMode === 'mirror') {
+    
+    if(!isEngage) {
+      const error = 'Sync mode set to "Mirror", but payload is not from Engage. Please ensure payloads are sent from Engage when using "Mirror" sync mode.'
+      return returnErrorResponse(msResponse, payloads, isBatch, error)
+    }
+
     payloads.forEach((payload, index) => {
       const { engage_fields: { traits_or_properties, audience_key } = {} } = payload
 
@@ -173,10 +180,6 @@ export function isEngageAudience(payload: Payload): boolean {
     : false
 }
 
-export function hasSyncModevalue(syncMode: string | undefined): boolean {
-  return typeof syncMode === 'string' && ['upsert', 'delete'].includes(syncMode) ? true : false
-}
-
 export function getJSON(payloads: Payload[]): AudienceJSON {
   const data = getData(payloads)
   const app_ids: string[] = []
@@ -201,13 +204,18 @@ export function getJSON(payloads: Payload[]): AudienceJSON {
   }
 }
 
-export function validate(audienceId: unknown, isEngageAudience: boolean, hasSyncMode: boolean): string | undefined {
+export function validate(audienceId: unknown, isEngageAudience: boolean, syncMode?: SyncMode): string | undefined {
+ 
   if (!audienceId || typeof audienceId !== 'string') {
     return 'Missing audience ID.'
   }
 
-  if (!isEngageAudience && !hasSyncMode) {
-    return 'Audience payloads should have a Sync mode value, or should be sent from Engage.'
+  if (syncMode === 'mirror' && !isEngageAudience) {
+    return 'Sync Mode set to "Mirror", but payload is not from Engage. Please ensure payloads are sent from Engage when using "Mirror" sync mode.'
+  }
+
+  if (typeof syncMode !== 'string' || !['upsert', 'delete', 'mirror'].includes(syncMode)) {
+    return 'Sync Mode is required and must be one of the following values: "Mirror", "Upsert", or "Delete".'
   }
 }
 

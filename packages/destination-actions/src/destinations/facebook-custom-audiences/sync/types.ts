@@ -1,5 +1,6 @@
 import { SCHEMA_PROPERTIES } from './constants'
 
+export type SyncMode = 'mirror' | 'upsert' | 'delete'
 export interface GetAllAudienceResponse {
   data: {
     id: string
