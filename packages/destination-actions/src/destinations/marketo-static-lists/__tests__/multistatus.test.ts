@@ -408,6 +408,51 @@ describe('MultiStatus', () => {
       }
     )
 
+    it.each(['502', '604', '606', '607', '608', '611', '614', '615', '713', '719', '1019', '1029'])(
+      'should return retryable multistatus for transient error code %s on deleteLeads',
+      async (code) => {
+        nock(settings.api_endpoint)
+          .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
+          .reply(200, {
+            requestId: '0001#1234f2f3e4',
+            success: true,
+            warnings: [],
+            errors: [],
+            result: [{ id: 1 }, { id: 2 }]
+          })
+
+        nock(settings.api_endpoint)
+          .delete('/rest/v1/lists/101/leads.json?id=1,2')
+          .reply(200, {
+            requestId: '0001#1234f2f3e4',
+            success: false,
+            warnings: [],
+            errors: [{ code, message: `Transient error ${code}` }]
+          })
+
+        const response = await testDestination.executeBatch('removeFromList', {
+          events,
+          settings,
+          mapping
+        })
+
+        expect(response).toMatchObject([
+          {
+            status: 500,
+            errortype: 'RETRYABLE_ERROR',
+            errormessage: `Transient error ${code}`,
+            errorreporter: 'INTEGRATIONS'
+          },
+          {
+            status: 500,
+            errortype: 'RETRYABLE_ERROR',
+            errormessage: `Transient error ${code}`,
+            errorreporter: 'INTEGRATIONS'
+          }
+        ])
+      }
+    )
+
     it('should return multistatus for success', async () => {
       nock(settings.api_endpoint)
         .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
