@@ -327,40 +327,56 @@ const MARKETO_RETRYABLE_CODES = new Set([
 ])
 
 function parseErrorResponse(response: MarketoResponse) {
-  const code = response.errors[0].code
+  if (!response.errors || response.errors.length === 0) {
+    throw new IntegrationError(
+      'Unknown error: Marketo returned success=false with no error details',
+      ErrorCodes.UNKNOWN_ERROR,
+      500
+    )
+  }
+
+  const { code, message } = response.errors[0]
 
   if (code === '601' || code === '602') {
-    throw new IntegrationError(response.errors[0].message, 'INVALID_AUTHENTICATION', 401)
+    throw new IntegrationError(message, 'INVALID_AUTHENTICATION', 401)
   }
 
   if (MARKETO_RETRYABLE_CODES.has(code)) {
-    throw new RetryableError(response.errors[0].message)
+    throw new RetryableError(message)
   }
 
-  throw new IntegrationError(response.errors[0].message, ErrorCodes.NOT_ACCEPTABLE, 406)
+  throw new IntegrationError(message, ErrorCodes.NOT_ACCEPTABLE, 406)
 }
 
 function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number) {
-  const code = response.errors[0].code
+  if (!response.errors || response.errors.length === 0) {
+    return buildMultiStatusErrorResponse(payloadSize, {
+      status: 500,
+      errortype: ErrorCodes.UNKNOWN_ERROR,
+      errormessage: 'Unknown error: Marketo returned success=false with no error details'
+    })
+  }
+
+  const { code, message } = response.errors[0]
 
   if (code === '601' || code === '602') {
     // An INVALID_AUTHENTICATION error is thrown instead of returning a MultiStatusResponse
     // Refreshing the access token in Client Credentials flow is triggered by this error
-    throw new IntegrationError(response.errors[0].message, 'INVALID_AUTHENTICATION', 401)
+    throw new IntegrationError(message, ErrorCodes.INVALID_AUTHENTICATION, 401)
   }
 
   if (MARKETO_RETRYABLE_CODES.has(code)) {
     return buildMultiStatusErrorResponse(payloadSize, {
       status: 500,
       errortype: ErrorCodes.RETRYABLE_ERROR,
-      errormessage: response.errors[0].message
+      errormessage: message
     })
   }
 
   return buildMultiStatusErrorResponse(payloadSize, {
     status: 406,
     errortype: ErrorCodes.NOT_ACCEPTABLE,
-    errormessage: response.errors[0].message
+    errormessage: message
   })
 }
 

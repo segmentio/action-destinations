@@ -15,12 +15,10 @@ export interface RefreshTokenResponse {
 export interface MarketoResponse {
   requestId: string
   success: boolean
-  errors: [
-    {
-      code: string
-      message: string
-    }
-  ]
+  errors: {
+    code: string
+    message: string
+  }[]
 }
 
 export interface MarketoListResponse extends MarketoResponse {
