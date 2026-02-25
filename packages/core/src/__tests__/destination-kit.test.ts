@@ -1,4 +1,4 @@
-import { ErrorCodes, IntegrationError } from '../errors'
+import { ErrorCodes, IntegrationError, RefreshTokenAndRetryError, RetryableError } from '../errors'
 import { ActionDefinition, MultiStatusResponse } from '../destination-kit/action'
 import {
   StateContext,
@@ -1451,6 +1451,67 @@ describe('destination kit', () => {
           { data: 'this is a test', output: 'Action Executed' }
         ])
         expect(spy).toHaveBeenCalledTimes(0)
+      })
+
+      test('should refresh token and throw RetryableError when RefreshTokenAndRetryError is thrown', async () => {
+        const destinationWithPropagationError: DestinationDefinition<JSONObject> = {
+          name: 'Test Propagation Error Destination',
+          mode: 'cloud',
+          authentication: authentication,
+          actions: {
+            customEvent: {
+              title: 'Send a Custom Event',
+              description: 'Send events to a custom event in API',
+              defaultSubscription: 'type = "track"',
+              fields: {
+                advertiserId: {
+                  label: 'Advertiser ID',
+                  description: 'Advertiser Id',
+                  type: 'string',
+                  required: true
+                }
+              },
+              perform: () => {
+                throw new RefreshTokenAndRetryError('Token not yet propagated (serviceErrorCode 65601)')
+              }
+            }
+          }
+        }
+
+        const destinationTest = new Destination(destinationWithPropagationError)
+        const testEvent: SegmentEvent = {
+          properties: { a: 'foo' },
+          userId: '3456fff',
+          type: 'track'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "track"',
+            partnerAction: 'customEvent',
+            mapping: {
+              advertiserId: '1231241241'
+            }
+          },
+          oauth: {
+            access_token: 'some-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const eventOptions = {
+          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
+            jest.fn(() => Promise.resolve())
+          }
+        }
+
+        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
+        const onTokenRefreshSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
+
+        // handleError should refresh the token and then throw RetryableError
+        await expect(destinationTest.onEvent(testEvent, testSettings, eventOptions)).rejects.toThrow(RetryableError)
+        // The perform was called once, then handleError refreshed the token and threw RetryableError
+        expect(refreshTokenSpy).toHaveBeenCalledTimes(1)
+        expect(onTokenRefreshSpy).toHaveBeenCalledTimes(1)
       })
     })
     describe('onBatch', () => {

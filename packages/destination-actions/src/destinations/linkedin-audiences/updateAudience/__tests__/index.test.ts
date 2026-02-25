@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, RefreshTokenAndRetryError } from '@segment/actions-core'
 import Destination from '../../index'
 import { BASE_URL, LINKEDIN_SOURCE_PLATFORM } from '../../constants'
 
@@ -863,6 +863,33 @@ describe('LinkedinAudiences.updateAudience', () => {
           }
         })
       ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
+    })
+
+    it('should throw RefreshTokenAndRetryError when LinkedIn returns 401 with token propagation error code', async () => {
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(401, {
+        serviceErrorCode: 65601,
+        message: 'Unable to verify access token'
+      })
+
+      await expect(
+        testDestination.testAction('updateAudience', {
+          event,
+          settings: {
+            ad_account_id: '123',
+            send_email: true,
+            send_google_advertising_id: true
+          },
+          useDefaultMappings: true,
+          auth,
+          mapping: {
+            personas_audience_key: 'personas_test_audience'
+          }
+        })
+      ).rejects.toThrow(RefreshTokenAndRetryError)
     })
   })
 })
