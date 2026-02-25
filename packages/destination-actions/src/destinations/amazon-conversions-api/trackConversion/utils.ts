@@ -152,7 +152,6 @@ export async function sendEventsRequest<ImportConversionEventsResponse>(
       'Amazon-Ads-AccountId': settings.advertiserId,
       'Amazon-Ads-ClientId': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
     },
-    timeout: 25000,
     throwHttpErrors: false
   })
 }
