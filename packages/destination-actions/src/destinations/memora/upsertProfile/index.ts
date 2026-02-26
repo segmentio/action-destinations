@@ -54,8 +54,8 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        email: { '@path': '$.properties.email' },
-        phone: { '@path': '$.properties.phone' }
+        email: { '@path': '$.traits.email' },
+        phone: { '@path': '$.traits.phone' }
       }
     },
     contact_traits: {
