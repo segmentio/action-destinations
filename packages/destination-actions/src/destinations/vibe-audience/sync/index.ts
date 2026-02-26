@@ -30,6 +30,12 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.personas.computation_key'
       }
     },
+    ip_address: {
+      label: 'IP Address',
+      type: 'string',
+      description: 'The IP address of the user.',
+      default: { '@path': '$.context.ip' }
+    },
     audience_id: {
       label: 'Audience ID',
       description: 'The ID of the audience to which you want to add users.',

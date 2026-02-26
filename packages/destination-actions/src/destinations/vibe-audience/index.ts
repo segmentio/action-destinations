@@ -28,8 +28,11 @@ const destination: DestinationDefinition<Settings> = {
     },
 
     testAuthentication: async (request, { settings }) => {
-      return request(`${BASE_URL}/${API_VERSION}/webhooks/twilio/${settings.advertiserId}`, {
-        method: 'GET'
+      return request(`${BASE_URL}/${API_VERSION}/webhooks/twilio/audience/auth`, {
+        method: 'POST',
+        json: {
+          advertiserId: settings.advertiserId
+        }
       })
     }
   },
