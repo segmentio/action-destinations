@@ -318,7 +318,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
       const expectedError = {
         status: 400,
         errortype: 'OAuthException',
-        errormessage: 'Invalid parameter (code: 400)',
+        errormessage: 'Invalid parameter',
         errorreporter: 'DESTINATION'
       }
 

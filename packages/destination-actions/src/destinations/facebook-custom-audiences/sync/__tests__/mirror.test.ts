@@ -339,7 +339,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       const expectedDeleteError = {
         status: 400,
         errortype: 'OAuthException',
-        errormessage: 'Update Restricted Fields and Rule: This custom audience has integrity restrictions. (code: 400)'
+        errormessage: 'Update Restricted Fields and Rule: This custom audience has integrity restrictions.'
       }
 
       expect(responses[2]).toMatchObject({
@@ -453,7 +453,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       const expectedAddError = {
         status: 400,
         errortype: 'OAuthException',
-        errormessage: 'Failed to update the custom audience (code: 400)',
+        errormessage: 'Failed to update the custom audience',
         errorreporter: 'DESTINATION'
       }
 
