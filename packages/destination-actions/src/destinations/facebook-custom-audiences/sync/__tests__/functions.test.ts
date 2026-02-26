@@ -96,11 +96,11 @@ describe('isEngageAudience', () => {
     expect(isEngageAudience(payload)).toBe(false)
   })
 
-  it('returns false when traits_or_properties is not an object', () => {
+  it('returns false when traits_or_properties is a primitive (not an object)', () => {
     const payload = {
       ...basePayload,
       engage_fields: {
-        traits_or_properties: null as unknown as object,
+        traits_or_properties: 'not-an-object' as unknown as object,
         audience_key: 'myAudience',
         computation_class: 'audience'
       }
