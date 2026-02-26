@@ -78,6 +78,15 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits.relationshipAttributes'
       }
     },
+    timestamp: {
+      label: 'Timestamp',
+      description:
+        'A timestamp of when the person was identified. Default is current date and time. Used for ordering updates to the person.',
+      type: 'string',
+      default: {
+        '@path': '$.timestamp'
+      }
+    },
     convert_timestamp: {
       label: 'Convert Timestamps',
       description: 'Convert dates to Unix timestamps (seconds since Epoch).',
