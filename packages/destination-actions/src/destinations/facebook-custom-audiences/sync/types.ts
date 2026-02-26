@@ -1,6 +1,10 @@
 import { SCHEMA_PROPERTIES } from './constants'
+import { Payload } from './generated-types'
+
+export type PayloadMap = Map<number, Payload> 
 
 export type SyncMode = 'mirror' | 'upsert' | 'delete'
+
 export interface GetAllAudienceResponse {
   data: {
     id: string

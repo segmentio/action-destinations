@@ -1,55 +1,43 @@
 import { US_STATE_CODES, SCHEMA_PROPERTIES } from './constants'
 import { Payload } from './generated-types'
-import { RequestClient, PayloadValidationError, IntegrationError, MultiStatusResponse } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError, IntegrationError, MultiStatusResponse, ErrorCodes } from '@segment/actions-core'
 import type { JSONLikeObject } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
-import { AudienceJSON, FacebookDataRow, SyncMode } from './types'
+import { PayloadMap, AudienceJSON, FacebookDataRow, SyncMode } from './types'
 import { API_VERSION, BASE_URL } from '../constants'
 
-export async function send(
-  request: RequestClient,
-  payloads: Payload[],
-  isBatch: boolean,
-  hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
-  syncMode?: string
-) {
+export async function send(request: RequestClient, payloads: Payload[], isBatch: boolean, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }, syncMode?: SyncMode) {
   const msResponse = new MultiStatusResponse()
   const audienceId = getAudienceId(payloads[0], hookOutputs)
-  const isEngage = isEngageAudience(payloads[0])
-  const errorMessage = validate(audienceId, isEngage, syncMode as SyncMode | undefined)
+  const errorMessage = validate(audienceId, payloads[0], syncMode)
 
   if (errorMessage) {
-    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage)
+    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, 'PAYLOAD_VALIDATION_FAILED')
   }
 
-  const addMap = new Map<number, Payload>()
-  const deleteMap = new Map<number, Payload>()
+  const addMap: PayloadMap = new Map<number, Payload>()
+  const deleteMap: PayloadMap = new Map<number, Payload>()
 
-  if(syncMode === 'delete') {
-    payloads.forEach((payload, index) => deleteMap.set(index, payload))
-  } 
-  else if (syncMode === 'upsert') {
-    payloads.forEach((payload, index) => addMap.set(index, payload))
-  } 
-  else if (syncMode === 'mirror') {
-    
-    if(!isEngage) {
-      const error = 'Sync mode set to "Mirror", but payload is not from Engage. Please ensure payloads are sent from Engage when using "Mirror" sync mode.'
-      return returnErrorResponse(msResponse, payloads, isBatch, error)
-    }
+  switch (syncMode) {
+    case 'delete':
+      payloads.forEach((payload, index) => deleteMap.set(index, payload))
+      break
+    case 'upsert':
+      payloads.forEach((payload, index) => addMap.set(index, payload))
+      break
+    case 'mirror':
+      payloads.forEach((payload, index) => {
+        const { engage_fields: { traits_or_properties, audience_key } = {} } = payload
 
-    payloads.forEach((payload, index) => {
-      const { engage_fields: { traits_or_properties, audience_key } = {} } = payload
+        const isAudienceMember = traits_or_properties && typeof audience_key === 'string' && traits_or_properties[audience_key] === true
 
-      const isAudienceMember =
-        traits_or_properties && typeof audience_key === 'string' && traits_or_properties[audience_key] === true
-
-      if (isAudienceMember) {
-        addMap.set(index, payload)
-      } else {
-        deleteMap.set(index, payload)
-      }
-    })
+        if (isAudienceMember) {
+          addMap.set(index, payload)
+        } else {
+          deleteMap.set(index, payload)
+        }
+      })
+      break
   }
 
   const requests: Promise<void>[] = []
@@ -69,14 +57,7 @@ export async function send(
   }
 }
 
-export async function sendRequest(
-  request: RequestClient,
-  audienceId: string,
-  map: Map<number, Payload>,
-  msResponse: MultiStatusResponse,
-  method: 'POST' | 'DELETE',
-  isBatch: boolean
-): Promise<void> {
+export async function sendRequest(request: RequestClient, audienceId: string, map: PayloadMap, msResponse: MultiStatusResponse, method: 'POST' | 'DELETE', isBatch: boolean): Promise<void> {
   const indices = Array.from(map.keys())
   const payloads = Array.from(map.values())
   const json = getJSON(payloads)
@@ -102,67 +83,59 @@ export async function sendRequest(
   catch (error) {
     const {
       response: {
-        status,
+        status: responseStatus = undefined,
         data: {
           error: {
             message: facebookMessage = undefined,
-            code: errorCode = 400,
-            type: errorType = 'FACEBOOK_API_ERROR'
+            code,
+            type = undefined
           } = {}
         } = {}
       } = {},
       message: genericMessage
     } = error || {}
 
+    const status: number = responseStatus || code || 400
     const message = facebookMessage || genericMessage || 'Unknown error'
-    const errorMessage: string = errorCode ? `${message} (code: ${status || errorCode})` : message
-
-    if (!isBatch) {
-      throw new IntegrationError(errorMessage, errorType as string, (status || errorCode) as number)
-    }
+    const errormessage: string = typeof code === 'number' ? `${message} (code: ${status})` : message
+    const errortype: string = type || 'UNKNOWN_ERROR'
 
     for (let i = 0; i < indices.length; i++) {
-      const originalIndex = indices[i]
-      msResponse.setErrorResponseAtIndex(originalIndex, {
-        status,
-        errortype: errorType,
-        errormessage: errorMessage,
-        body: payloads[i] as unknown as JSONLikeObject,
-        sent: {
-          data: json.payload.data[i],
-          method,
-          audienceId
-        }
-      })
+      const sent: JSONLikeObject = {
+        data: json.payload.data[i],
+        method,
+        audienceId
+      } 
+      setErrorResponse(msResponse, payloads[i], status, indices[i], isBatch, errormessage, errortype as keyof typeof ErrorCodes, sent)
     }
   }
 }
 
-export function returnErrorResponse(
-  msResponse: MultiStatusResponse,
-  payloads: Payload[],
-  isBatch: boolean,
-  errorMessage: string
-): MultiStatusResponse {
-  if (isBatch) {
-    payloads.forEach((payload, i) => {
-      msResponse.setErrorResponseAtIndex(i, {
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: errorMessage,
-        body: payload as unknown as JSONLikeObject
-      })
-    })
-    return msResponse
-  } else {
-    throw new PayloadValidationError(errorMessage)
+export function setErrorResponse(msResponse: MultiStatusResponse, payload: Payload, status: number, index: number, isBatch: boolean, errormessage: string, errortype: keyof typeof ErrorCodes, sent?: JSONLikeObject){
+  if (!isBatch) {
+    if(errortype === 'PAYLOAD_VALIDATION_FAILED') {
+      throw new PayloadValidationError(errormessage)
+    }
+    throw new IntegrationError(errormessage, errortype as string, status)
   }
+  msResponse.setErrorResponseAtIndex(index, {
+    status,
+    errortype,
+    errormessage,
+    body: payload as unknown as JSONLikeObject,
+    ...(sent ? { sent } : {})
+  })
+} 
+
+export function returnErrorResponse(msResponse: MultiStatusResponse, payloads: Payload[], isBatch: boolean, errormessage: string, errortype: keyof typeof ErrorCodes): MultiStatusResponse {
+  payloads.forEach((payload, i) => {
+    setErrorResponse(msResponse, payload, 400, i, isBatch, errormessage, errortype)
+  })
+  return msResponse
 }
 
-export function getAudienceId(
-  payload: Payload,
-  hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }
-): string {
+
+export function getAudienceId(payload: Payload, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }): string {
   const { retlOnMappingSave: { outputs: { audienceId: hookAudienceId = undefined } = {} } = {} } = hookOutputs ?? {}
 
   const { external_audience_id: payloadAudienceId } = payload
@@ -173,12 +146,7 @@ export function getAudienceId(
 export function isEngageAudience(payload: Payload): boolean {
   const { engage_fields: { computation_class, audience_key, traits_or_properties } = {} } = payload
 
-  return typeof traits_or_properties === 'object' &&
-    audience_key &&
-    computation_class &&
-    ['audience', 'journey_step'].includes(computation_class)
-    ? true
-    : false
+  return typeof traits_or_properties === 'object' && audience_key && computation_class && ['audience', 'journey_step'].includes(computation_class) ? true : false
 }
 
 export function getJSON(payloads: Payload[]): AudienceJSON {
@@ -205,18 +173,19 @@ export function getJSON(payloads: Payload[]): AudienceJSON {
   }
 }
 
-export function validate(audienceId: unknown, isEngageAudience: boolean, syncMode?: SyncMode): string | undefined {
- 
+export function validate(audienceId: unknown, payload: Payload, syncMode?: SyncMode): string | undefined {
+  const isEngage = isEngageAudience(payload)
+  
+  if (typeof syncMode !== 'string' || !['upsert', 'delete', 'mirror'].includes(syncMode)) {
+    return 'Sync Mode is required and must be one of the following values: "Mirror", "Upsert", or "Delete".'
+  }
+
   if (!audienceId || typeof audienceId !== 'string') {
     return 'Missing audience ID.'
   }
 
-  if (syncMode === 'mirror' && !isEngageAudience) {
+  if (syncMode === 'mirror' && !isEngage) {
     return 'Sync Mode set to "Mirror", but payload is not from Engage. Please ensure payloads are sent from Engage when using "Mirror" sync mode.'
-  }
-
-  if (typeof syncMode !== 'string' || !['upsert', 'delete', 'mirror'].includes(syncMode)) {
-    return 'Sync Mode is required and must be one of the following values: "Mirror", "Upsert", or "Delete".'
   }
 }
 

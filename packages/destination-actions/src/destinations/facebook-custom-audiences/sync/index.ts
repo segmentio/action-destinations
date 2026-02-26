@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import { fields, retlHookInputFields, retlHookOutputTypes } from './fields'
 import { send } from './functions'
 import { performHook } from './hook-functions'
+import { SyncMode } from './types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -41,10 +42,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   fields,
   perform: async (request, { payload, hookOutputs, syncMode }) => {
-    return await send(request, [payload], false, hookOutputs, syncMode)
+    return await send(request, [payload], false, hookOutputs, syncMode as SyncMode | undefined)
   },
   performBatch: async (request, { payload, hookOutputs, syncMode }) => {
-    return await send(request, payload, true, hookOutputs, syncMode)
+    return await send(request, payload, true, hookOutputs, syncMode as SyncMode | undefined)
   }
 }
 

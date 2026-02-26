@@ -1,11 +1,10 @@
-import { createTestEvent, createTestIntegration, IntegrationError } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import nock from 'nock'
 import { SCHEMA_PROPERTIES } from '../constants'
 import { normalizePhone, normalizeCity, normalizeState, normalizeZip, normalizeCountry } from '../functions'
 import { API_VERSION, BASE_URL } from '../../constants'
 import { processHashing } from '../../../../lib/hashing-utils'
-import { audience } from 'src/destinations/talon-one/t1-properties'
 
 let testDestination = createTestIntegration(Destination)
 const auth = {
