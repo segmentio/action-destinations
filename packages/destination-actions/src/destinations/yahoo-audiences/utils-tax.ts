@@ -101,7 +101,7 @@ export async function get_taxonomy_access_token(
   const signature = hash.update(jwt_head_payload).digest('base64')
   const jwt = jwt_head_payload + '.' + signature
 
-  const res: ModifiedResponse<RefreshTokenResponse> = await request<RefreshTokenResponse>(
+  const res: ModifiedResponse<TokenResponse> = await request<TokenResponse>(
     'https://id.b2b.yahooincapis.com/zts/v1/oauth2/token',
     {
       method: 'POST',
