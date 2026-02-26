@@ -46,28 +46,6 @@ export function gen_random_id(length: number): string {
   return random_id.join('')
 }
 
-export function gen_oauth1_signature(client_key: string, client_secret: string, method: string, url: string) {
-  // Following logic in #9 https://oauth.net/core/1.0a/#sig_norm_param
-  const timestamp = Math.floor(new Date().getTime() / 1000)
-  const nonce = gen_random_id(15)
-
-  const param_string = `oauth_consumer_key=${encodeURIComponent(client_key)}&oauth_nonce=${encodeURIComponent(
-    nonce
-  )}&oauth_signature_method=${encodeURIComponent('HMAC-SHA1')}&oauth_timestamp=${encodeURIComponent(
-    timestamp
-  )}&oauth_version=${encodeURIComponent('1.0')}`
-
-  const base_string = `${method.toUpperCase()}&${encodeURIComponent(url)}&${encodeURIComponent(param_string)}`
-  const encoded_client_secret = encodeURIComponent(client_secret)
-  const signature = encodeURIComponent(
-    createHmac('sha1', encoded_client_secret + '&')
-      .update(base_string)
-      .digest('base64')
-  )
-  const oauth1_auth_string = `OAuth oauth_consumer_key="${client_key}", oauth_nonce="${nonce}", oauth_signature="${signature}", oauth_signature_method="HMAC-SHA1", oauth_timestamp="${timestamp}", oauth_version="1.0"`
-  return oauth1_auth_string
-}
-
 /**
  * Obtains a short-lived OAuth 2.0 Bearer token for the Taxonomy API using the
  * same JWT client-credentials flow used by the Online (Realtime) API.
