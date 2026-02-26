@@ -126,19 +126,87 @@ describe('MultiStatus', () => {
 
       expect(response).toMatchObject([
         {
-          status: 400,
+          status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'INTEGRATIONS'
         },
         {
-          status: 400,
+          status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'INTEGRATIONS'
         }
       ])
     })
+
+    it.each(['502', '604', '606', '607', '608', '611', '614', '615', '713', '719', '1019', '1029'])(
+      'should return retryable multistatus for transient error code %s',
+      async (code) => {
+        nock(settings.api_endpoint)
+          .post('/bulk/v1/leads.json?format=csv&listId=101&lookupField=email')
+          .reply(200, {
+            requestId: '0001#1234f2f3e4',
+            success: false,
+            warnings: [],
+            errors: [{ code, message: `Transient error ${code}` }]
+          })
+
+        const response = await testDestination.executeBatch('addToList', {
+          events,
+          settings,
+          mapping
+        })
+
+        expect(response).toMatchObject([
+          {
+            status: 500,
+            errortype: 'RETRYABLE_ERROR',
+            errormessage: `Transient error ${code}`,
+            errorreporter: 'INTEGRATIONS'
+          },
+          {
+            status: 500,
+            errortype: 'RETRYABLE_ERROR',
+            errormessage: `Transient error ${code}`,
+            errorreporter: 'INTEGRATIONS'
+          }
+        ])
+      }
+    )
+
+    it.each([{ errors: [] }, {}])(
+      'should return retryable multistatus when response has no error details',
+      async (errorBody) => {
+        nock(settings.api_endpoint)
+          .post('/bulk/v1/leads.json?format=csv&listId=101&lookupField=email')
+          .reply(200, {
+            requestId: '0001#1234f2f3e4',
+            success: false,
+            warnings: [],
+            ...errorBody
+          })
+
+        const response = await testDestination.executeBatch('addToList', {
+          events,
+          settings,
+          mapping
+        })
+
+        expect(response).toMatchObject([
+          {
+            status: 500,
+            errortype: 'UNKNOWN_ERROR',
+            errorreporter: 'INTEGRATIONS'
+          },
+          {
+            status: 500,
+            errortype: 'UNKNOWN_ERROR',
+            errorreporter: 'INTEGRATIONS'
+          }
+        ])
+      }
+    )
 
     it('should return multistatus for success', async () => {
       nock(settings.api_endpoint).post('/bulk/v1/leads.json?format=csv&listId=101&lookupField=email').reply(200, {
@@ -259,7 +327,7 @@ describe('MultiStatus', () => {
       await expect(response).rejects.toThrowError('Access token invalid')
     })
 
-    it('should return multistatus for any other error', async () => {
+    it('should return multistatus for any other error on getLeads', async () => {
       nock(settings.api_endpoint)
         .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
         .reply(200, {
@@ -282,19 +350,217 @@ describe('MultiStatus', () => {
 
       expect(response).toMatchObject([
         {
-          status: 400,
+          status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'INTEGRATIONS'
         },
         {
-          status: 400,
+          status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'INTEGRATIONS'
         }
       ])
     })
+
+    it('should return multistatus for any other error on deleteLeads', async () => {
+      nock(settings.api_endpoint)
+        .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
+        .reply(200, {
+          requestId: '0001#1234f2f3e4',
+          success: true,
+          warnings: [],
+          errors: [],
+          result: [{ id: 1 }, { id: 2 }]
+        })
+
+      nock(settings.api_endpoint)
+        .delete('/rest/v1/lists/101/leads.json?id=1,2')
+        .reply(200, {
+          requestId: '0001#1234f2f3e4',
+          success: false,
+          warnings: [],
+          errors: [{ code: '612', message: 'Invalid Content Type' }]
+        })
+
+      const response = await testDestination.executeBatch('removeFromList', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response).toMatchObject([
+        {
+          status: 406,
+          errortype: 'NOT_ACCEPTABLE',
+          errormessage: 'Invalid Content Type',
+          errorreporter: 'INTEGRATIONS'
+        },
+        {
+          status: 406,
+          errortype: 'NOT_ACCEPTABLE',
+          errormessage: 'Invalid Content Type',
+          errorreporter: 'INTEGRATIONS'
+        }
+      ])
+    })
+
+    it.each(['502', '604', '606', '607', '608', '611', '614', '615', '713', '719', '1019', '1029'])(
+      'should return retryable multistatus for transient error code %s on getLeads',
+      async (code) => {
+        nock(settings.api_endpoint)
+          .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
+          .reply(200, {
+            requestId: '0001#1234f2f3e4',
+            success: false,
+            warnings: [],
+            errors: [{ code, message: `Transient error ${code}` }]
+          })
+
+        const response = await testDestination.executeBatch('removeFromList', {
+          events,
+          settings,
+          mapping
+        })
+
+        expect(response).toMatchObject([
+          {
+            status: 500,
+            errortype: 'RETRYABLE_ERROR',
+            errormessage: `Transient error ${code}`,
+            errorreporter: 'INTEGRATIONS'
+          },
+          {
+            status: 500,
+            errortype: 'RETRYABLE_ERROR',
+            errormessage: `Transient error ${code}`,
+            errorreporter: 'INTEGRATIONS'
+          }
+        ])
+      }
+    )
+
+    it.each(['502', '604', '606', '607', '608', '611', '614', '615', '713', '719', '1019', '1029'])(
+      'should return retryable multistatus for transient error code %s on deleteLeads',
+      async (code) => {
+        nock(settings.api_endpoint)
+          .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
+          .reply(200, {
+            requestId: '0001#1234f2f3e4',
+            success: true,
+            warnings: [],
+            errors: [],
+            result: [{ id: 1 }, { id: 2 }]
+          })
+
+        nock(settings.api_endpoint)
+          .delete('/rest/v1/lists/101/leads.json?id=1,2')
+          .reply(200, {
+            requestId: '0001#1234f2f3e4',
+            success: false,
+            warnings: [],
+            errors: [{ code, message: `Transient error ${code}` }]
+          })
+
+        const response = await testDestination.executeBatch('removeFromList', {
+          events,
+          settings,
+          mapping
+        })
+
+        expect(response).toMatchObject([
+          {
+            status: 500,
+            errortype: 'RETRYABLE_ERROR',
+            errormessage: `Transient error ${code}`,
+            errorreporter: 'INTEGRATIONS'
+          },
+          {
+            status: 500,
+            errortype: 'RETRYABLE_ERROR',
+            errormessage: `Transient error ${code}`,
+            errorreporter: 'INTEGRATIONS'
+          }
+        ])
+      }
+    )
+
+    it.each([{ errors: [] }, {}])(
+      'should return retryable multistatus when getLeads response has no error details',
+      async (errorBody) => {
+        nock(settings.api_endpoint)
+          .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
+          .reply(200, {
+            requestId: '0001#1234f2f3e4',
+            success: false,
+            warnings: [],
+            ...errorBody
+          })
+
+        const response = await testDestination.executeBatch('removeFromList', {
+          events,
+          settings,
+          mapping
+        })
+
+        expect(response).toMatchObject([
+          {
+            status: 500,
+            errortype: 'UNKNOWN_ERROR',
+            errorreporter: 'INTEGRATIONS'
+          },
+          {
+            status: 500,
+            errortype: 'UNKNOWN_ERROR',
+            errorreporter: 'INTEGRATIONS'
+          }
+        ])
+      }
+    )
+
+    it.each([{ errors: [] }, {}])(
+      'should return retryable multistatus when deleteLeads response has no error details',
+      async (errorBody) => {
+        nock(settings.api_endpoint)
+          .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
+          .reply(200, {
+            requestId: '0001#1234f2f3e4',
+            success: true,
+            warnings: [],
+            errors: [],
+            result: [{ id: 1 }, { id: 2 }]
+          })
+
+        nock(settings.api_endpoint)
+          .delete('/rest/v1/lists/101/leads.json?id=1,2')
+          .reply(200, {
+            requestId: '0001#1234f2f3e4',
+            success: false,
+            warnings: [],
+            ...errorBody
+          })
+
+        const response = await testDestination.executeBatch('removeFromList', {
+          events,
+          settings,
+          mapping
+        })
+
+        expect(response).toMatchObject([
+          {
+            status: 500,
+            errortype: 'UNKNOWN_ERROR',
+            errorreporter: 'INTEGRATIONS'
+          },
+          {
+            status: 500,
+            errortype: 'UNKNOWN_ERROR',
+            errorreporter: 'INTEGRATIONS'
+          }
+        ])
+      }
+    )
 
     it('should return multistatus for success', async () => {
       nock(settings.api_endpoint)
