@@ -1,6 +1,7 @@
 import type { Settings } from './generated-types'
 import { createHmac } from 'crypto'
-import { CredsObj, YahooSubTaxonomy } from './types'
+import type { ModifiedResponse } from '@segment/actions-core'
+import { CredsObj, YahooSubTaxonomy, TokenResponse } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { StatsClient } from '@segment/actions-core/destination-kit'
 
@@ -45,26 +46,54 @@ export function gen_random_id(length: number): string {
   return random_id.join('')
 }
 
-export function gen_oauth1_signature(client_key: string, client_secret: string, method: string, url: string) {
-  // Following logic in #9 https://oauth.net/core/1.0a/#sig_norm_param
-  const timestamp = Math.floor(new Date().getTime() / 1000)
-  const nonce = gen_random_id(15)
+/**
+ * Obtains a short-lived OAuth 2.0 Bearer token for the Taxonomy API using the
+ * same JWT client-credentials flow used by the Online (Realtime) API.
+ */
+export async function get_taxonomy_access_token(
+  request: RequestClient,
+  tx_client_key: string,
+  tx_client_secret: string
+): Promise<string> {
+  const random_id = gen_random_id(24)
+  const current_time = Math.floor(new Date().getTime() / 1000)
+  const url = 'https://id.b2b.yahooincapis.com/zts/v1'
+  const jwt_payload = {
+    iss: tx_client_key,
+    sub: tx_client_key,
+    aud: url,
+    jti: random_id,
+    exp: current_time + 3600,
+    iat: current_time
+  }
+  const jwt_header = {
+    alg: 'HS256',
+    typ: 'JWT'
+  }
 
-  const param_string = `oauth_consumer_key=${encodeURIComponent(client_key)}&oauth_nonce=${encodeURIComponent(
-    nonce
-  )}&oauth_signature_method=${encodeURIComponent('HMAC-SHA1')}&oauth_timestamp=${encodeURIComponent(
-    timestamp
-  )}&oauth_version=${encodeURIComponent('1.0')}`
+  const jwt_header_encoded = Buffer.from(JSON.stringify(jwt_header)).toString('base64')
+  const jwt_payload_encoded = Buffer.from(JSON.stringify(jwt_payload)).toString('base64')
+  const jwt_head_payload = jwt_header_encoded + '.' + jwt_payload_encoded
 
-  const base_string = `${method.toUpperCase()}&${encodeURIComponent(url)}&${encodeURIComponent(param_string)}`
-  const encoded_client_secret = encodeURIComponent(client_secret)
-  const signature = encodeURIComponent(
-    createHmac('sha1', encoded_client_secret + '&')
-      .update(base_string)
-      .digest('base64')
+  const hash = createHmac('sha256', tx_client_secret)
+  const signature = hash.update(jwt_head_payload).digest('base64')
+  const jwt = jwt_head_payload + '.' + signature
+
+  const res: ModifiedResponse<TokenResponse> = await request<TokenResponse>(
+    'https://id.b2b.yahooincapis.com/zts/v1/oauth2/token',
+    {
+      method: 'POST',
+      body: new URLSearchParams({
+        client_assertion: jwt,
+        client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+        grant_type: 'client_credentials',
+        scope: 'idb2b.dsp.datax:role.online.writer',
+        aud: 'https://id.b2b.yahooincapis.com/zts/v1'
+      })
+    }
   )
-  const oauth1_auth_string = `OAuth oauth_consumer_key="${client_key}", oauth_nonce="${nonce}", oauth_signature="${signature}", oauth_signature_method="HMAC-SHA1", oauth_timestamp="${timestamp}", oauth_version="1.0"`
-  return oauth1_auth_string
+
+  return res.data.access_token
 }
 
 export async function update_taxonomy(
@@ -78,13 +107,18 @@ export async function update_taxonomy(
   const tx_client_secret = tx_creds.tx_client_secret
   const tx_client_key = tx_creds.tx_client_key
   const url = `https://datax.yahooapis.com/v1/taxonomy/append${engage_space_id.length > 0 ? '/' + engage_space_id : ''}`
-  const oauth1_auth_string = gen_oauth1_signature(tx_client_key, tx_client_secret, 'PUT', url)
+
+  const prefixed_tx_client_key = `idb2b.dsp.datax.${tx_client_key}`
+
+  // Get a short-lived Bearer token using the same JWT client-credentials flow as the Online API
+  const access_token = await get_taxonomy_access_token(request, prefixed_tx_client_key, tx_client_secret)
+
   try {
     const add_segment_node = await request(url, {
       method: 'PUT',
       body: body_form_data,
       headers: {
-        Authorization: oauth1_auth_string,
+        Authorization: `Bearer ${access_token}`,
         'Content-Type': 'multipart/form-data; boundary=SEGMENT-DATA'
       }
     })
