@@ -5,6 +5,7 @@ import type { JSONLikeObject } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 import { PayloadMap, AudienceJSON, FacebookDataRow, SyncMode } from './types'
 import { API_VERSION, BASE_URL } from '../constants'
+import { parseFacebookError } from '../functions'
 
 export async function send(request: RequestClient, payloads: Payload[], isBatch: boolean, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }, syncMode?: SyncMode) {
   const msResponse = new MultiStatusResponse()
@@ -81,32 +82,15 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
     }
   } 
   catch (error) {
-    const {
-      response: {
-        status: responseStatus = undefined,
-        data: {
-          error: {
-            message: facebookMessage = undefined,
-            code,
-            type = undefined
-          } = {}
-        } = {}
-      } = {},
-      message: genericMessage
-    } = error || {}
-
-    const status: number = responseStatus || code || 400
-    const message = facebookMessage || genericMessage || 'Unknown error'
-    const errormessage: string = typeof code === 'number' ? `${message} (code: ${status})` : message
-    const errortype: string = type || 'UNKNOWN_ERROR'
+    const { message, type, status } = parseFacebookError(error)
 
     for (let i = 0; i < indices.length; i++) {
       const sent: JSONLikeObject = {
         data: json.payload.data[i],
         method,
         audienceId
-      } 
-      setErrorResponse(msResponse, payloads[i], status, indices[i], isBatch, errormessage, errortype as keyof typeof ErrorCodes, sent)
+      }
+      setErrorResponse(msResponse, payloads[i], status, indices[i], isBatch, message, type as keyof typeof ErrorCodes, sent)
     }
   }
 }

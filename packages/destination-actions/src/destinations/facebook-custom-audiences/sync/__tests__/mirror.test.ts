@@ -339,7 +339,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       const expectedDeleteError = {
         status: 400,
         errortype: 'OAuthException',
-        errormessage: 'Invalid parameter (code: 400)'
+        errormessage: 'Update Restricted Fields and Rule: This custom audience has integrity restrictions. (code: 400)'
       }
 
       expect(responses[2]).toMatchObject({

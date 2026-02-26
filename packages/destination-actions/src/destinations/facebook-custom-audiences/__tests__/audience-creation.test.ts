@@ -50,6 +50,64 @@ describe('Facebook Custom Audiences', () => {
       const r = await testDestination.createAudience(createAudienceInput)
       expect(r).toEqual({ externalId: '88888888888888888' })
     })
+
+    it('should use error_user_title and error_user_msg when both are present', async () => {
+      nock(`${BASE_URL}/${API_VERSION}/act_${adAccountId}`)
+        .post('/customaudiences')
+        .reply(400, {
+          error: {
+            message: 'Invalid parameter',
+            type: 'OAuthException',
+            code: 100,
+            error_user_title: 'Update Restricted Fields and Rule',
+            error_user_msg: 'This custom audience has integrity restrictions.'
+          }
+        })
+
+      createAudienceInput.audienceName = 'Restricted Audience'
+      createAudienceInput.audienceSettings.engageAdAccountId = adAccountId
+
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrow(
+        'Update Restricted Fields and Rule: This custom audience has integrity restrictions.'
+      )
+    })
+
+    it('should use error_user_msg alone when error_user_title is absent', async () => {
+      nock(`${BASE_URL}/${API_VERSION}/act_${adAccountId}`)
+        .post('/customaudiences')
+        .reply(400, {
+          error: {
+            message: 'Invalid parameter',
+            type: 'OAuthException',
+            code: 100,
+            error_user_msg: 'This custom audience has integrity restrictions.'
+          }
+        })
+
+      createAudienceInput.audienceName = 'Restricted Audience'
+      createAudienceInput.audienceSettings.engageAdAccountId = adAccountId
+
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrow(
+        'This custom audience has integrity restrictions.'
+      )
+    })
+
+    it('should fall back to the raw message when no user-facing fields are present', async () => {
+      nock(`${BASE_URL}/${API_VERSION}/act_${adAccountId}`)
+        .post('/customaudiences')
+        .reply(400, {
+          error: {
+            message: 'Invalid parameter',
+            type: 'OAuthException',
+            code: 100
+          }
+        })
+
+      createAudienceInput.audienceName = 'Restricted Audience'
+      createAudienceInput.audienceSettings.engageAdAccountId = adAccountId
+
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrow('Invalid parameter')
+    })
   })
 
   describe('getAudience', () => {

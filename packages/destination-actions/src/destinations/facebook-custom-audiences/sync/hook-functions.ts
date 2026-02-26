@@ -1,10 +1,9 @@
 import { RequestClient } from '@segment/actions-core'
 import type { DynamicFieldItem, DynamicFieldError } from '@segment/actions-core'
 import { GetAllAudienceResponse } from './types'
-import { FacebookResponseError } from '../types'
 import { API_VERSION, BASE_URL } from '../constants'
 import { Settings } from '../generated-types'
-import { createAudience, getAudience } from '../functions'
+import { createAudience, getAudience, parseFacebookError } from '../functions'
 
 export async function performHook(
   request: RequestClient,
@@ -114,26 +113,7 @@ export async function getAllAudiences(
       choices: []
     }
   } catch (error) {
-
-    const {
-      response: {
-        data: {
-          error: {
-            message,
-            type,
-            code,
-            error_subcode,
-            fbtrace_id
-          }
-        }
-      }
-    } = error as FacebookResponseError
-    return {
-      error: {
-        message: `"message": "${message}", "type": "${type}", "code": ${code}, "error_subcode": ${error_subcode}, "fbtrace_id": "${fbtrace_id}"`,
-        code: type
-      },
-      choices: []
-    }
+    const { message, type } = parseFacebookError(error)
+    return { error: { message, code: type }, choices: [] }
   }
 }

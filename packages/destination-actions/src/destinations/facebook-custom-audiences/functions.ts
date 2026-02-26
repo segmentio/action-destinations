@@ -2,6 +2,35 @@ import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { FacebookResponseError, CreateAudienceRequest, CreateAudienceResponse, GetAudienceResponse } from './types'
 import { API_VERSION, BASE_URL } from './constants'
 
+export function parseFacebookError(error: unknown): { message: string, type: string, code: number, status: number } {
+  const {
+    response: {
+      status: responseStatus,
+      data: {
+        error: {
+          message: rawMessage,
+          type,
+          code,
+          error_user_title,
+          error_user_msg
+        } = {}
+      } = {}
+    } = {},
+    message: genericMessage
+  } = (error ?? {}) as FacebookResponseError
+
+  const userMessage = `${error_user_title ? error_user_title + ': ' : ''}${error_user_msg || ''}`.trim()
+  const message = userMessage || rawMessage || genericMessage || 'Unknown error'
+  const resolvedCode = code ?? 400
+
+  return {
+    message,
+    type: type || 'UNKNOWN_ERROR',
+    code: resolvedCode,
+    status: responseStatus || resolvedCode
+  }
+}
+
 export async function createAudience(request: RequestClient, name: string, adAccountId: string, description?: string): Promise<{ data?: { externalId: string }; error?: { message: string; code: string } }> {
   if (!name) {
     throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
@@ -39,26 +68,9 @@ export async function createAudience(request: RequestClient, name: string, adAcc
       }
     }
     return { data: { externalId: id } }
-  } catch (error) {    
-    const {
-      response: {
-        data: {
-          error: {
-            message,
-            type,
-            code,
-            error_subcode,
-            fbtrace_id
-          }
-        }
-      }
-    } = error as FacebookResponseError
-    return {
-      error: {
-        message: `"message": "${message}", "type": "${type}", "code": ${code}, "error_subcode": ${error_subcode}, "fbtrace_id": "${fbtrace_id}"`,
-        code: type
-      }
-    }
+  } catch (error) {
+    const { message, type } = parseFacebookError(error)
+    return { error: { message, code: type } }
   }
 }
 
@@ -93,24 +105,7 @@ export async function getAudience(request: RequestClient, externalId: string): P
       }
     }
   } catch (error) {
-    const {
-      response: {
-        data: {
-          error: {
-            message,
-            type,
-            code,
-            error_subcode,
-            fbtrace_id
-          }
-        }
-      }
-    } = error as FacebookResponseError
-    return {
-      error: {
-        message: `"message": "${message}", "type": "${type}", "code": ${code}, "error_subcode": ${error_subcode}, "fbtrace_id": "${fbtrace_id}"`,
-        code: type
-      }
-    }
+    const { message, type } = parseFacebookError(error)
+    return { error: { message, code: type } }
   }
 }
