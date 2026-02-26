@@ -1,7 +1,7 @@
 import type { Settings } from './generated-types'
 import { createHmac } from 'crypto'
 import type { ModifiedResponse } from '@segment/actions-core'
-import { CredsObj, YahooSubTaxonomy } from './types'
+import { CredsObj, YahooSubTaxonomy, TokenResponse } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { StatsClient } from '@segment/actions-core/destination-kit'
 
