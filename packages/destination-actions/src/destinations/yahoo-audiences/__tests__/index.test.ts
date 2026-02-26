@@ -44,6 +44,11 @@ describe('Yahoo Audiences', () => {
 
     describe('Success cases', () => {
       it('It should create the audience successfully', async () => {
+        // Mock the token endpoint called by get_taxonomy_access_token inside update_taxonomy
+        nock('https://id.b2b.yahooincapis.com').post('/zts/v1/oauth2/token').reply(200, {
+          access_token: 'fake-taxonomy-access-token'
+        })
+
         nock('https://datax.yahooapis.com').put(`/v1/taxonomy/append/${ENGAGE_SPACE_ID}`).reply(202, {
           anything: '123'
         })
