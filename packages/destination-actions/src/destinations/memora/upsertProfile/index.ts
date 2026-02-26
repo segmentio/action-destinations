@@ -32,7 +32,8 @@ const action: ActionDefinition<Settings, Payload> = {
         'The Memora Store ID to use for this profile. This should be a valid Memora Store associated with your Twilio account.',
       type: 'string',
       required: true,
-      dynamic: true
+      dynamic: true,
+      disabledInputMethods: ['literal', 'variable', 'function', 'enrichment', 'freeform']
     },
     contact_identifiers: {
       label: 'Contact Identifiers',
@@ -54,8 +55,8 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        email: { '@path': '$.properties.email' },
-        phone: { '@path': '$.properties.phone' }
+        email: { '@path': '$.traits.email' },
+        phone: { '@path': '$.traits.phone' }
       }
     },
     contact_traits: {
@@ -65,7 +66,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: true,
       additionalProperties: true,
-      dynamic: true
+      dynamic: true,
+      defaultObjectUI: 'keyvalue'
     }
   },
   dynamicFields: {
@@ -264,7 +266,10 @@ async function fetchContactTraits(request: RequestClient, settings: Settings, st
 
     const traitsObj = response?.data?.traitGroup?.traits || {}
     const choices = Object.entries(traitsObj)
-      .filter(([_, trait]) => trait.idTypePromotion !== 'email' && trait.idTypePromotion !== 'phone') // Exclude identifiers
+      .filter(
+        ([_, trait]) =>
+          trait.idTypePromotion !== 'email' && trait.idTypePromotion !== 'phone' && trait.dataType === 'STRING'
+      ) // Exclude identifiers and non-string traits
       .map(([traitName, trait]) => ({
         label: trait.displayName || traitName,
         value: traitName,
@@ -336,7 +341,7 @@ async function fetchMemoraStores(request: RequestClient, settings: Settings) {
     return {
       choices: [],
       error: {
-        message: 'Unable to fetch memora stores. Enter the memora store ID manually.',
+        message: 'Unable to fetch memora stores. Please check your authentication credentials.',
         code: 'FETCH_ERROR'
       }
     }
