@@ -1,5 +1,4 @@
 import { ModifiedResponse, RequestClient, DynamicFieldResponse } from '@segment/actions-core'
-import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
 import { Contact, Program, ProgramStatus, ProgramEnrolment, ProgramEnrolementJSON } from '../types'
 
@@ -8,8 +7,8 @@ import { Contact, Program, ProgramStatus, ProgramEnrolment, ProgramEnrolementJSO
  * Extends the base Dotdigital API class.
  */
 class DDEnrolmentApi extends DDApi {
-  constructor(settings: Settings, client: RequestClient) {
-    super(settings, client)
+  constructor(api_host: string, client: RequestClient) {
+    super(api_host, client)
   }
 
   /**

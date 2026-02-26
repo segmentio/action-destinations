@@ -1,12 +1,10 @@
 import { ModifiedResponse, RequestClient } from '@segment/actions-core'
-import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
 import { Contact, ChannelIdentifier, Identifiers, ChannelProperties, UpsertContactJSON, DataFields } from '../types'
-import type { Payload } from '../../addContactToList/generated-types'
 
 class DDContactApi extends DDApi {
-  constructor(settings: Settings, client: RequestClient) {
-    super(settings, client)
+  constructor(api_host: string, client: RequestClient) {
+    super(api_host, client)
   }
 
   /**
@@ -41,7 +39,13 @@ class DDContactApi extends DDApi {
    * @param {Payload} payload - The event payload.
    * @returns {Promise<Contact>} A promise resolving to the contact data.
    */
-  public async upsertContact(payload: Payload): Promise<Contact> {
+  public async upsertContact(payload: { 
+    channelIdentifier: string, 
+    emailIdentifier?: string, 
+    mobileNumberIdentifier?: string, 
+    listId: number, 
+    dataFields?: {[k: string]: unknown} 
+  }): Promise<Contact> {
     const { channelIdentifier, emailIdentifier, mobileNumberIdentifier, listId, dataFields } = payload
 
     const idValue = channelIdentifier === 'email' ? emailIdentifier : mobileNumberIdentifier

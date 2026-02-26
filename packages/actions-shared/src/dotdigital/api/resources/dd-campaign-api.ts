@@ -1,5 +1,4 @@
 import { DynamicFieldResponse, ModifiedResponse, RequestClient } from '@segment/actions-core'
-import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
 import { Campaign, sendCampaignPayload } from '../types'
 
@@ -8,8 +7,8 @@ import { Campaign, sendCampaignPayload } from '../types'
  * Extends the base Dotdigital API class.
  */
 class DDCampaignApi extends DDApi {
-  constructor(settings: Settings, client: RequestClient) {
-    super(settings, client)
+  constructor(api_host: string, client: RequestClient) {
+    super(api_host, client)
   }
 
   /**

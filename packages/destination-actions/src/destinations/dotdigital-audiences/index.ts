@@ -1,6 +1,8 @@
-import { AudienceDestinationDefinition } from '@segment/actions-core'
+import { defaultValues, AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
+import { VisibilityOption, CreateListJSON , CreateListResp} from './types'
+import { DDListsApi } from '@segment/actions-shared'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Dotdigital Audiences',
@@ -23,13 +25,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },    
       username: {
         label: 'Username',
-        description: 'Your Dotdigital username',
+        description: 'Your Dotdigital API username',
         type: 'string',
         required: true
       },
       password: {
         label: 'Password',
-        description: 'Your Dotdigital password.',
+        description: 'Your Dotdigital API password',
         type: 'password',
         required: true
       }
@@ -47,9 +49,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceFields: {
     audienceName: {
       label: 'Dotdigital List Name',
-      description: 'A Dotdigital list name',
+      description: 'A Dotdigital list name. Leave blank to use the audience name from Segment.',
       type: 'string',
-      required: true
+      required: false
+    }, 
+    visibility: {
+      label: 'Visibility',
+      description: 'The visibility of the Dotdigital list',
+      type: 'string',
+      required: true,
+      choices: [
+        { label: 'Public', value: 'Public' },
+        { label: 'Private', value: 'Private' }
+      ],
+      default: 'Private'
     }
   },
   audienceConfig: {
@@ -57,17 +70,90 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'synced',
       full_audience_sync: false
     },
-    async createAudience(_request, _createAudienceInput) {
-      return { externalId: "test" }
+    async createAudience(request, createAudienceInput) {
+      const { 
+        settings: {
+          api_host 
+        }, 
+        audienceName, 
+        audienceSettings: { 
+          audienceName: customAudienceName,
+          visibility 
+        } = {} 
+      } = createAudienceInput
+
+      const lists = await new DDListsApi(api_host, request).getLists()
+
+      const exists = lists.choices.find((list: { value: string; label: string }) => list.label === (customAudienceName ?? audienceName))
+
+      if(exists) {
+        return { externalId: exists.value }
+      }
+
+      const url = `${api_host}/v2/address-books`
+      const json: CreateListJSON = {
+        name: customAudienceName ??audienceName,
+        visibility: visibility as VisibilityOption
+      }
+
+      const response = await request<CreateListResp>(
+        url,
+        {
+          method: 'POST',
+          json
+        }
+      )
+      const jsonOutput = await response.json()
+      return { externalId: String(jsonOutput.id) }
     },
-    async getAudience(_request, _getAudienceInput) {
-      
-      return { externalId: "test" }
+    async getAudience(request, getAudienceInput) {
+      const { 
+        settings: { 
+          api_host 
+        }, 
+        externalId 
+      } = getAudienceInput
+      const lists = await new DDListsApi(api_host, request).getLists()
+      const exists = lists.choices.find((list: { value: string; label: string }) => list.value === externalId.toString())
+      if(!exists) {
+        throw new IntegrationError(`Audience with id ${externalId} not found`, 'Not Found', 404)
+      }
+      return { externalId }
     }
   },
   actions: {
     syncAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    }
+  ]
 }
 
 export default destination
