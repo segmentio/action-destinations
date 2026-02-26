@@ -32,7 +32,8 @@ const action: ActionDefinition<Settings, Payload> = {
         'The Memora Store ID to use for this profile. This should be a valid Memora Store associated with your Twilio account.',
       type: 'string',
       required: true,
-      dynamic: true
+      dynamic: true,
+      disabledInputMethods: ['literal', 'variable', 'function', 'enrichment', 'freeform']
     },
     contact_identifiers: {
       label: 'Contact Identifiers',
