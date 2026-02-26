@@ -18,12 +18,12 @@ const defaultSettings = {
 const defaultMapping = {
   memora_store: 'test-store-id',
   contact_identifiers: {
-    email: { '@path': '$.properties.email' },
-    phone: { '@path': '$.properties.phone' }
+    email: { '@path': '$.traits.email' },
+    phone: { '@path': '$.traits.phone' }
   },
   contact_traits: {
-    firstName: { '@path': '$.properties.first_name' },
-    lastName: { '@path': '$.properties.last_name' }
+    firstName: { '@path': '$.traits.first_name' },
+    lastName: { '@path': '$.traits.last_name' }
   }
 }
 
@@ -37,7 +37,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        properties: {
+        traits: {
           email: 'john@example.com',
           first_name: 'John',
           last_name: 'Doe',
@@ -79,7 +79,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-456',
-        properties: {
+        traits: {
           email: 'jane@example.com',
           first_name: 'Jane'
         }
@@ -278,7 +278,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        properties: {
+        traits: {
           email: 'test@example.com',
           first_name: 'Test',
           last_name: 'User'
@@ -309,7 +309,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        properties: {
+        traits: {
           email: 'test@example.com',
           first_name: 'Test'
         }
@@ -333,7 +333,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        properties: {
+        traits: {
           email: 'test@example.com',
           first_name: 'John, Jr.',
           last_name: 'O"Brien'
@@ -407,7 +407,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-789',
-        properties: {
+        traits: {
           email: 'correct@example.com',
           phone: '+1-555-1234',
           first_name: 'John'
@@ -430,11 +430,11 @@ describe('Memora.upsertProfile', () => {
         mapping: {
           memora_store: 'test-store-id',
           contact_identifiers: {
-            email: { '@path': '$.properties.email' },
-            phone: { '@path': '$.properties.phone' }
+            email: { '@path': '$.traits.email' },
+            phone: { '@path': '$.traits.phone' }
           },
           contact_traits: {
-            firstName: { '@path': '$.properties.first_name' },
+            firstName: { '@path': '$.traits.first_name' },
             // Attempting to override identifiers (should be ignored)
             email: { '@literal': 'wrong@example.com' },
             phone: { '@literal': '+1-555-9999' }
@@ -457,7 +457,7 @@ describe('Memora.upsertProfile', () => {
         createTestEvent({
           type: 'identify',
           userId: 'user-1',
-          properties: {
+          traits: {
             email: 'user1@example.com',
             first_name: 'User',
             last_name: 'One'
@@ -466,7 +466,7 @@ describe('Memora.upsertProfile', () => {
         createTestEvent({
           type: 'identify',
           userId: 'user-2',
-          properties: {
+          traits: {
             email: 'user2@example.com',
             first_name: 'User',
             last_name: 'Two'
@@ -747,7 +747,7 @@ describe('Memora.upsertProfile', () => {
         createTestEvent({
           type: 'identify',
           userId: 'user-1',
-          properties: {
+          traits: {
             email: 'user1@example.com',
             first_name: 'User'
           }
@@ -774,7 +774,7 @@ describe('Memora.upsertProfile', () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-123',
-        properties: {
+        traits: {
           email: 'test@example.com',
           first_name: 'Test'
         }
@@ -927,7 +927,7 @@ describe('Memora.upsertProfile', () => {
         expect(result?.choices).toEqual([])
         expect(result?.error).toBeDefined()
         expect(result?.error?.message).toContain('Unable to fetch memora stores')
-        expect(result?.error?.message).toContain('Enter the memora store ID manually.')
+        expect(result?.error?.message).toContain('Please check your authentication credentials.')
         expect(result?.error?.code).toBe('FETCH_ERROR')
       })
     })
@@ -986,11 +986,10 @@ describe('Memora.upsertProfile', () => {
           payload: { memora_store: 'test-store-id' }
         })) as any
 
-        // Should exclude email and phone since they're identifiers (idTypePromotion = 'email' or 'phone')
+        // Should exclude email and phone (identifiers) and age (non-String type)
         expect(result?.choices).toEqual([
           { label: 'firstName', value: 'firstName', description: 'firstName (STRING)' },
-          { label: 'lastName', value: 'lastName', description: 'lastName (STRING)' },
-          { label: 'age', value: 'age', description: 'User age' }
+          { label: 'lastName', value: 'lastName', description: 'lastName (STRING)' }
         ])
       })
 
