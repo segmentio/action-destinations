@@ -1,8 +1,9 @@
-import { generate_app_data, AppData, GeneratedAppData } from '../fb-capi-app-data'
+import { generateAppData } from '../functions'
+import { AnyPayload, GeneratedAppData } from '../types'
 
 describe('FacebookConversionsApi', () => {
   describe('AppData', () => {
-    const sampleAppDataComplete: AppData = {
+    const sampleAppDataComplete: AnyPayload['app_data_field'] = {
       use_app_data: true,
       advertiser_tracking_enabled: true,
       application_tracking_enabled: true,
@@ -23,7 +24,7 @@ describe('FacebookConversionsApi', () => {
       freeStorage: '64',
       deviceTimezone: 'America/Los_Angeles'
     }
-    const sampleAppDataIncomplete: AppData = {
+    const sampleAppDataIncomplete: AnyPayload['app_data_field'] = {
       ...sampleAppDataComplete
     }
     delete sampleAppDataIncomplete.timezone
@@ -33,13 +34,13 @@ describe('FacebookConversionsApi', () => {
     // app data should always have a length 16 array. Do not change this without first verifying something has changed with facebook.
     // A previous issue arose where we sent length 18 arrays and event delivery silently failed.
     it('generated app data should always have a length 16 exinfo array', () => {
-      let appData: GeneratedAppData | undefined = generate_app_data(sampleAppDataComplete)
+      let appData: GeneratedAppData | undefined = generateAppData(sampleAppDataComplete)
       if (appData) {
         expect(appData.extinfo.length).toBe(16)
       }
       expect(appData).toBeDefined()
 
-      appData = generate_app_data(sampleAppDataIncomplete)
+      appData = generateAppData(sampleAppDataIncomplete)
       if (appData) {
         expect(appData.extinfo.length).toBe(16)
       }
@@ -47,14 +48,14 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('generated app data should be undefined if use_app_data is false', () => {
-      const appData = generate_app_data({
+      const appData = generateAppData({
         use_app_data: false
       })
       expect(appData).toBeUndefined()
     })
 
     it('generated app data should include empty strings if fields are missing from extinfo', () => {
-      const appData = generate_app_data(sampleAppDataIncomplete)
+      const appData = generateAppData(sampleAppDataIncomplete)
       if (appData) {
         expect(appData.advertiser_tracking_enabled).toBe(1)
         expect(appData.application_tracking_enabled).toBe(1)

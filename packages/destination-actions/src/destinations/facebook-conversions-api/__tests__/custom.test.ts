@@ -168,7 +168,7 @@ describe('FacebookConversionsApi', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"identify\\",\\"event_time\\":\\"2015-02-23T22:28:55.111Z\\",\\"action_source\\":\\"website\\",\\"event_id\\":\\"022bb90c-bbac-11e4-8dfc-aa07a5b093db\\",\\"user_data\\":{\\"partner_id\\":\\"faf12efasdfasdf1edasdasdfadf=\\",\\"partner_name\\":\\"liveramp\\"},\\"custom_data\\":{\\"action_source\\":\\"website\\",\\"timestamp\\":\\"1633473963\\"}}]}"`
+        `"{\\"partner_agent\\":\\"segment\\",\\"data\\":[{\\"event_name\\":\\"identify\\",\\"event_time\\":\\"2015-02-23T22:28:55.111Z\\",\\"action_source\\":\\"website\\",\\"event_id\\":\\"022bb90c-bbac-11e4-8dfc-aa07a5b093db\\",\\"user_data\\":{\\"partner_id\\":\\"faf12efasdfasdf1edasdasdfadf=\\",\\"partner_name\\":\\"liveramp\\"},\\"custom_data\\":{\\"action_source\\":\\"website\\",\\"timestamp\\":\\"1633473963\\"}}]}"`
       )
     })
 
@@ -224,7 +224,7 @@ describe('FacebookConversionsApi', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"identify\\",\\"event_time\\":\\"2015-02-23T22:28:55.111Z\\",\\"action_source\\":\\"website\\",\\"event_id\\":\\"022bb90c-bbac-11e4-8dfc-aa07a5b093db\\",\\"user_data\\":{\\"external_id\\":[\\"df73b86ff613b9d7008c175ae3c3aa3f2c1ea1674a80cac85274d58048e44127\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36\\"},\\"custom_data\\":{\\"action_source\\":\\"website\\",\\"timestamp\\":\\"1633473963\\"}}],\\"test_event_code\\":\\"1234567890\\"}"`
+        `"{\\"partner_agent\\":\\"segment\\",\\"data\\":[{\\"event_name\\":\\"identify\\",\\"event_time\\":\\"2015-02-23T22:28:55.111Z\\",\\"action_source\\":\\"website\\",\\"event_id\\":\\"022bb90c-bbac-11e4-8dfc-aa07a5b093db\\",\\"user_data\\":{\\"external_id\\":[\\"df73b86ff613b9d7008c175ae3c3aa3f2c1ea1674a80cac85274d58048e44127\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36\\"},\\"custom_data\\":{\\"action_source\\":\\"website\\",\\"timestamp\\":\\"1633473963\\"}}],\\"test_event_code\\":\\"1234567890\\"}"`
       )
     })
 
@@ -282,8 +282,447 @@ describe('FacebookConversionsApi', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"identify\\",\\"event_time\\":\\"2015-02-23T22:28:55.111Z\\",\\"action_source\\":\\"website\\",\\"event_id\\":\\"022bb90c-bbac-11e4-8dfc-aa07a5b093db\\",\\"user_data\\":{\\"external_id\\":[\\"df73b86ff613b9d7008c175ae3c3aa3f2c1ea1674a80cac85274d58048e44127\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36\\"},\\"custom_data\\":{\\"action_source\\":\\"website\\",\\"timestamp\\":\\"1633473963\\",\\"test_event_code\\":\\"2345678901\\"}}],\\"test_event_code\\":\\"2345678901\\"}"`
+        `"{\\"partner_agent\\":\\"segment\\",\\"data\\":[{\\"event_name\\":\\"identify\\",\\"event_time\\":\\"2015-02-23T22:28:55.111Z\\",\\"action_source\\":\\"website\\",\\"event_id\\":\\"022bb90c-bbac-11e4-8dfc-aa07a5b093db\\",\\"user_data\\":{\\"external_id\\":[\\"df73b86ff613b9d7008c175ae3c3aa3f2c1ea1674a80cac85274d58048e44127\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36\\"},\\"custom_data\\":{\\"action_source\\":\\"website\\",\\"timestamp\\":\\"1633473963\\",\\"test_event_code\\":\\"2345678901\\"}}],\\"test_event_code\\":\\"2345678901\\"}"`
       )
     })
+
+    it('should convert custom event to AppendValue when is_append_event is true', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`)
+        .post(`/events`, {
+          partner_agent: 'segment',
+          data: [
+            {
+              event_name: 'AppendValue',
+              event_time: '2021-09-09T19:14:23Z',
+              action_source: 'email',
+              user_data: {
+                em: '973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b'
+              },
+              custom_data: {
+                custom_property: 'custom_value',
+                another_custom_property: 12345,
+                net_revenue: 10.5,
+                predicted_ltv: 150.0
+              },
+              original_event_data: {
+                event_name: 'Custom LTV Update',
+                event_time: '2021-09-09T16:26:40Z',
+                order_id: 'original_order_123',
+                event_id: 'original_event_123'
+              }
+            }
+          ]
+        })
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Custom LTV Update',
+        userId: 'abc123',
+        timestamp: '2021-09-09T19:14:23Z',
+        properties: {
+          action_source: 'email',
+          email: 'test@example.com',
+          is_append_event: true,
+          append_event_details: {
+            original_event_time: '2021-09-09T16:26:40Z',
+            original_event_order_id: 'original_order_123',
+            original_event_id: 'original_event_123',
+            net_revenue_to_append: 10.5,
+            predicted_ltv_to_append: 150.0
+          },
+          custom_data: {
+            custom_property: 'custom_value',
+            another_custom_property: 12345
+          }
+        }
+      })
+
+      const responses = await testDestination.testAction('custom', {
+        event,
+        settings,
+        mapping: {
+          event_name: {
+            '@path': '$.event'
+          },
+          is_append_event: {
+            '@path': '$.properties.is_append_event'
+          },
+          append_event_details: {
+            original_event_time: {
+              '@path': '$.properties.append_event_details.original_event_time'
+            },
+            original_event_order_id: {
+              '@path': '$.properties.append_event_details.original_event_order_id'
+            },
+            original_event_id: {
+              '@path': '$.properties.append_event_details.original_event_id'
+            },
+            net_revenue_to_append: {
+              '@path': '$.properties.append_event_details.net_revenue_to_append'
+            },
+            predicted_ltv_to_append: {
+              '@path': '$.properties.append_event_details.predicted_ltv_to_append'
+            }
+          },
+          custom_data: {
+            '@path': '$.properties.custom_data'
+          },
+          user_data: {
+            email: {
+              '@path': '$.properties.email'
+            }
+          },
+          action_source: {
+            '@path': '$.properties.action_source'
+          },
+          event_time: {
+            '@path': '$.timestamp'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
+
+    it('should convert custom event to AppendValue with minimal fields', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`)
+        .post(`/events`, {
+          partner_agent: 'segment',
+          data: [
+            {
+              event_name: 'AppendValue',
+              event_time: '2021-09-09T19:14:23Z',
+              action_source: 'email',
+              user_data: {
+                em: '973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b'
+              },
+              custom_data: {
+                net_revenue: 25.75
+              },
+              original_event_data: {
+                event_name: 'Revenue Update',
+                event_id: 'original_event_456',
+                event_time: '2021-09-09T19:14:23Z'
+              }
+            }
+          ]
+        })
+        .reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Revenue Update',
+        userId: 'abc123',
+        timestamp: '2021-09-09T19:14:23Z',
+        properties: {
+          action_source: 'email',
+          email: 'test@example.com',
+          is_append_event: true,
+          append_event_details: {
+            original_event_id: 'original_event_456',
+            net_revenue_to_append: 25.75,
+            original_event_time: '2021-09-09T19:14:23Z'
+          }
+        }
+      })
+
+      const responses = await testDestination.testAction('custom', {
+        event,
+        settings,
+        mapping: {
+          event_name: {
+            '@path': '$.event'
+          },
+          is_append_event: {
+            '@path': '$.properties.is_append_event'
+          },
+          append_event_details: {
+            original_event_id: {
+              '@path': '$.properties.append_event_details.original_event_id'
+            },
+            net_revenue_to_append: {
+              '@path': '$.properties.append_event_details.net_revenue_to_append'
+            },
+            original_event_time: {
+              '@path': '$.properties.append_event_details.original_event_time'
+            }
+          },
+          user_data: {
+            email: {
+              '@path': '$.properties.email'
+            }
+          },
+          action_source: {
+            '@path': '$.properties.action_source'
+          },
+          event_time: {
+            '@path': '$.timestamp'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
+
+    it('should fail validation for custom event when is_append_event is true but no identifiers', async () => {
+      const event = createTestEvent({
+        event: 'LTV Update',
+        userId: 'abc123',
+        timestamp: '2021-09-09T19:14:23Z',
+        properties: {
+          action_source: 'email',
+          email: 'test@example.com',
+          is_append_event: true,
+          append_event_details: {
+            original_event_time: '2021-09-09T19:14:23Z',
+            predicted_ltv_to_append: 200.0
+          }
+        }
+      })
+
+      await expect(
+        testDestination.testAction('custom', {
+          event,
+          settings,
+          mapping: {
+            event_name: {
+              '@path': '$.event'
+            },
+            is_append_event: {
+              '@path': '$.properties.is_append_event'
+            },
+            append_event_details: {
+              predicted_ltv_to_append: {
+                '@path': '$.properties.append_event_details.predicted_ltv_to_append'
+              },
+              original_event_time: {
+                '@path': '$.properties.append_event_details.original_event_time'
+              }
+            },
+            user_data: {
+              email: {
+                '@path': '$.properties.email'
+              }
+            },
+            action_source: {
+              '@path': '$.properties.action_source'
+            },
+            event_time: {
+              '@path': '$.timestamp'
+            }
+          }
+        })
+      ).rejects.toThrowError(
+        'If append event is true, one of "Append Event Details > Original Event ID" or "Append Event Details > Original Order ID" must be provided.'
+      )
+    })
+
+    it('should fail validation for custom event when is_append_event is true but no append values', async () => {
+      const event = createTestEvent({
+        event: 'Empty Append',
+        userId: 'abc123',
+        timestamp: '2021-09-09T19:14:23Z',
+        properties: {
+          action_source: 'email',
+          email: 'test@example.com',
+          is_append_event: true,
+          append_event_details: {
+            original_event_time: '2021-09-09T19:14:23Z',
+            original_event_order_id: 'order_789'
+          }
+        }
+      })
+
+      await expect(
+        testDestination.testAction('custom', {
+          event,
+          settings,
+          mapping: {
+            event_name: {
+              '@path': '$.event'
+            },
+            is_append_event: {
+              '@path': '$.properties.is_append_event'
+            },
+            append_event_details: {
+              original_event_time: {
+                '@path': '$.properties.append_event_details.original_event_time'
+              },
+              original_event_order_id: {
+                '@path': '$.properties.append_event_details.original_event_order_id'
+              }
+            },
+            user_data: {
+              email: {
+                '@path': '$.properties.email'
+              }
+            },
+            action_source: {
+              '@path': '$.properties.action_source'
+            },
+            event_time: {
+              '@path': '$.timestamp'
+            }
+          }
+        })
+      ).rejects.toThrowError(
+        'If append event is true, at least one of "Append Event Details > Net Revenue" or "Append Event Details > Predicted Lifetime Value" must be provided as a number'
+      )
+    })
+
+    it('should throw an error when is_append_event is true but original_event_time is missing', async () => {
+      const event = createTestEvent({
+        event: 'Custom LTV Update',
+        userId: 'abc123',
+        timestamp: '2021-09-09T19:14:23Z',
+        properties: {
+          action_source: 'email',
+          email: 'test@example.com',
+          is_append_event: true,
+          append_event_details: {
+            original_event_order_id: 'original_order_123',
+            net_revenue_to_append: 10.5
+          }
+        }
+      })
+
+      await expect(
+        testDestination.testAction('custom', {
+          event,
+          settings,
+          mapping: {
+            event_name: {
+              '@path': '$.event'
+            },
+            is_append_event: {
+              '@path': '$.properties.is_append_event'
+            },
+            append_event_details: {
+              original_event_order_id: {
+                '@path': '$.properties.append_event_details.original_event_order_id'
+              },
+              net_revenue_to_append: {
+                '@path': '$.properties.append_event_details.net_revenue_to_append'
+              }
+            },
+            user_data: {
+              email: {
+                '@path': '$.properties.email'
+              }
+            },
+            action_source: {
+              '@path': '$.properties.action_source'
+            },
+            event_time: {
+              '@path': '$.timestamp'
+            }
+          }
+        })
+      ).rejects.toThrowError('AppendValue events must include "Append Event Details > Original Event Time"')
+    })
+
+    it('should not throw an error when is_append_event is false and append_event_details contains some data but not the original_event_time value', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Custom Event',
+        userId: 'abc123',
+        timestamp: '2021-09-09T19:14:23Z',
+        properties: {
+          action_source: 'email',
+          email: 'test@example.com',
+          is_append_event: false,
+          append_event_details: {
+            original_event_order_id: 'original_order_123',
+            net_revenue_to_append: 10.5
+          }
+        }
+      })
+
+      const responses = await testDestination.testAction('custom', {
+        event,
+        settings,
+        mapping: {
+          event_name: {
+            '@path': '$.event'
+          },
+          is_append_event: {
+            '@path': '$.properties.is_append_event'
+          },
+          append_event_details: {
+            original_event_order_id: {
+              '@path': '$.properties.append_event_details.original_event_order_id'
+            },
+            net_revenue_to_append: {
+              '@path': '$.properties.append_event_details.net_revenue_to_append'
+            }
+          },
+          user_data: {
+            email: {
+              '@path': '$.properties.email'
+            }
+          },
+          action_source: {
+            '@path': '$.properties.action_source'
+          },
+          event_time: {
+            '@path': '$.timestamp'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
+  })
+
+  it('should include ctwa_clid in user_data', async () => {
+    nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+    const event = createTestEvent({
+      event: 'custom_event',
+      userId: 'abc123',
+      timestamp: '1631210000',
+      properties: {
+        action_source: 'email',
+        ctwa_clid: 'test_ctwa_click_id_12345'
+      },
+      context: {
+        traits: {
+          email: 'test@example.com'
+        }
+      }
+    })
+
+    const responses = await testDestination.testAction('custom', {
+      event,
+      settings,
+      mapping: {
+        event_name: {
+          '@path': '$.event'
+        },
+        action_source: {
+          '@path': '$.properties.action_source'
+        },
+        event_time: {
+          '@path': '$.timestamp'
+        },
+        user_data: {
+          email: {
+            '@path': '$.context.traits.email'
+          },
+          ctwa_clid: {
+            '@path': '$.properties.ctwa_clid'
+          }
+        }
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(201)
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"partner_agent\\":\\"segment\\",\\"data\\":[{\\"event_name\\":\\"custom_event\\",\\"event_time\\":\\"1631210000\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b\\",\\"ctwa_clid\\":\\"test_ctwa_click_id_12345\\"},\\"custom_data\\":{}}]}"`
+    )
   })
 })
