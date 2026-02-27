@@ -45,9 +45,7 @@ export async function createAudience(request: RequestClient, name: string, adAcc
     return { error: { message: 'Missing ad account ID value', code: ErrorCodes.CREATE_AUDIENCE_FAILED } }
   }
 
-  const url = `${BASE_URL}/${getApiVersion(features, statsContext)}/act_${
-    adAccountId.startsWith('act_') ? adAccountId.slice(4) : adAccountId
-  }/customaudiences`
+  const url = `${BASE_URL}/${getApiVersion(features, statsContext)}/${normalizeAccountId(adAccountId)}/customaudiences`
 
   const json: CreateAudienceRequest = {
     name,
@@ -111,4 +109,8 @@ export function getApiVersion(features?: Features, statsContext?: StatsContext):
   tags?.push(`version:${version}`)
   statsClient?.incr(`actions_facebook_custom_audience`, 1, tags)
   return version
+}
+
+export function normalizeAccountId(adAccountId: string): string {
+  return `act_${adAccountId.replace(/^act_/, '')}`
 }

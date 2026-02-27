@@ -23,19 +23,19 @@ export interface AudienceJSON {
 }
 
 export type FacebookDataRow = [
-  string, // EXTERN_ID (externalId)
-  string, // EMAIL
-  string, // PHONE
-  string, // DOBY (year)
-  string, // DOBM (month)
-  string, // DOBD (day)
-  string, // LN (last)
-  string, // FN (first)
-  string, // FI (firstInitial)
-  string, // GEN (gender) 
-  string, // CT (city)
-  string, // ST (state)
-  string, // ZIP
-  string,  // COUNTRY
-  string // MADID (mobileAdId)
+  EXTERN_ID: string,
+  EMAIL: string,
+  PHONE: string,
+  DOBY: string,
+  DOBM: string,
+  DOBD: string,
+  LN: string,
+  FN: string,
+  FI: string,
+  GEN: string,
+  CT: string,
+  ST: string,
+  ZIP: string,
+  COUNTRY: string,
+  MADID: string
 ]

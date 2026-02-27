@@ -4,7 +4,7 @@ import { StatsContext } from '@segment/actions-core/destination-kit'
 import { GetAllAudienceResponse } from './types'
 import { BASE_URL } from '../constants'
 import { Settings } from '../generated-types'
-import { createAudience, getAudience, parseFacebookError, getApiVersion } from '../functions'
+import { createAudience, getAudience, parseFacebookError, getApiVersion, normalizeAccountId } from '../functions'
 import { FacebookResponseError, NonFacebookError } from '../types'
 
 export async function performHook(request: RequestClient, adAccountId: string, operation?: string, audienceName?: string, existingAudienceId?: string) {
@@ -81,9 +81,7 @@ export async function getExistingAudienceIdChoices(request: RequestClient, { set
 
 export async function getAllAudiences(request: RequestClient, adAccountId: string, features?: Features, statsContext?: StatsContext): Promise<{choices: DynamicFieldItem[], error?: NonFacebookError}> {
   
-  const url = `${BASE_URL}/${getApiVersion(features, statsContext)}/act_${
-    adAccountId.startsWith('act_') ? adAccountId.slice(4) : adAccountId
-  }/customaudiences?fields=id,name&limit=200`
+  const url = `${BASE_URL}/${getApiVersion(features, statsContext)}/${normalizeAccountId(adAccountId)}/customaudiences?fields=id,name&limit=200`
 
   try {
     const { data } = await request<GetAllAudienceResponse>(url)

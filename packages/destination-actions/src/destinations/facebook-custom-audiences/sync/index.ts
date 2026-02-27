@@ -41,11 +41,11 @@ const action: ActionDefinition<Settings, Payload> = {
     ]
   },
   fields,
-  perform: async (request, { payload, hookOutputs, syncMode }) => {
-    return await send(request, [payload], false, hookOutputs, syncMode as SyncMode | undefined)
+  perform: async (request, { payload, hookOutputs, syncMode, features, statsContext }) => {
+    return await send(request, [payload], false, hookOutputs, syncMode as SyncMode | undefined, features, statsContext)
   },
-  performBatch: async (request, { payload, hookOutputs, syncMode }) => {
-    return await send(request, payload, true, hookOutputs, syncMode as SyncMode | undefined)
+  performBatch: async (request, { payload, hookOutputs, syncMode, features, statsContext }) => {
+    return await send(request, payload, true, hookOutputs, syncMode as SyncMode | undefined, features, statsContext)
   }
 }
 
