@@ -16,21 +16,35 @@ const action: ActionDefinition<Settings, Payload> = {
     event_name: { ...event_name },
     batch_size: { ...batch_size }
   },
-  perform: async (request, { settings, payload, features }: ExecuteInputRaw<Settings, Payload, RawData>) => {
-    return processPayload({
-      request,
-      settings,
-      payloads: [payload],
-      features
-    })
+  perform: async (
+    request,
+    { settings, payload, features, rawData, subscriptionMetadata }: ExecuteInputRaw<Settings, Payload, RawData>
+  ) => {
+    return processPayload(
+      {
+        request,
+        settings,
+        payloads: [payload],
+        features,
+        rawData: rawData ? [rawData] : []
+      },
+      subscriptionMetadata
+    )
   },
-  performBatch: async (request, { settings, payload, features }: ExecuteInputRaw<Settings, Payload[], RawData>) => {
-    return processPayload({
-      request,
-      settings,
-      payloads: payload,
-      features
-    })
+  performBatch: async (
+    request,
+    { settings, payload, features, rawData, subscriptionMetadata }: ExecuteInputRaw<Settings, Payload[], RawData[]>
+  ) => {
+    return processPayload(
+      {
+        request,
+        settings,
+        payloads: payload,
+        features,
+        rawData
+      },
+      subscriptionMetadata
+    )
   }
 }
 
