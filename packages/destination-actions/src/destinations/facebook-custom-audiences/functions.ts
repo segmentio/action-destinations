@@ -1,6 +1,7 @@
-import { RequestClient, ErrorCodes } from '@segment/actions-core'
+import { RequestClient, ErrorCodes, Features } from '@segment/actions-core'
+import { StatsContext } from '@segment/actions-core/destination-kit'
 import { ParsedFacebookError, NonFacebookError, FacebookResponseError, CreateAudienceRequest, CreateAudienceResponse, GetAudienceResponse } from './types'
-import { API_VERSION, BASE_URL } from './constants'
+import { API_VERSION, BASE_URL, FACEBOOK_CUSTOM_AUDIENCE_FLAGON, CANARY_API_VERSION } from './constants'
 
 export function parseFacebookError(error: FacebookResponseError): ParsedFacebookError {
   const {
@@ -36,7 +37,7 @@ export function parseFacebookError(error: FacebookResponseError): ParsedFacebook
   }
 }
 
-export async function createAudience(request: RequestClient, name: string, adAccountId: string, description?: string): Promise<{ data?: { externalId: string }, error?: NonFacebookError }> {
+export async function createAudience(request: RequestClient, name: string, adAccountId: string, description?: string, features?: Features, statsContext?: StatsContext): Promise<{ data?: { externalId: string }, error?: NonFacebookError }> {
   if (!name) {
     return { error: { message: 'Missing audience name value', code: ErrorCodes.CREATE_AUDIENCE_FAILED } }
   }
@@ -44,7 +45,7 @@ export async function createAudience(request: RequestClient, name: string, adAcc
     return { error: { message: 'Missing ad account ID value', code: ErrorCodes.CREATE_AUDIENCE_FAILED } }
   }
 
-  const url = `${BASE_URL}/${API_VERSION}/act_${
+  const url = `${BASE_URL}/${getApiVersion(features, statsContext)}/act_${
     adAccountId.startsWith('act_') ? adAccountId.slice(4) : adAccountId
   }/customaudiences`
 
@@ -61,8 +62,7 @@ export async function createAudience(request: RequestClient, name: string, adAcc
       json
     })
 
-    const r = await response.json()
-    const id = r.id
+    const { id } = response.data
 
     if (!id) {
       return {
@@ -80,13 +80,12 @@ export async function createAudience(request: RequestClient, name: string, adAcc
   }
 }
 
-export async function getAudience(request: RequestClient, externalId: string): Promise<{ data?: { externalId?: string; name: string }, error?: NonFacebookError }> {
-  const url = `${BASE_URL}/${API_VERSION}/${externalId}`
+export async function getAudience(request: RequestClient, externalId: string, features?: Features, statsContext?: StatsContext): Promise<{ data?: { externalId?: string; name: string}, error?: NonFacebookError }> {
+  const url = `${BASE_URL}/${getApiVersion(features, statsContext)}/${externalId}`
 
   try {
     const response = await request<GetAudienceResponse>(url, { method: 'GET' })
-    const r = await response.json()
-    const { id, name } = r
+    const { id, name } = response.data
 
     if (!id) {
       return { error: { message: 'Invalid response from get audience request', code: ErrorCodes.GET_AUDIENCE_FAILED }}
@@ -104,4 +103,12 @@ export async function getAudience(request: RequestClient, externalId: string): P
     const { message } = parseFacebookError(error as FacebookResponseError)
     return { error: { message, code: ErrorCodes.GET_AUDIENCE_FAILED } }
   }
+}
+
+export function getApiVersion(features?: Features, statsContext?: StatsContext): string {
+  const { statsClient, tags } = statsContext || {}
+  const version = features && features[FACEBOOK_CUSTOM_AUDIENCE_FLAGON] ? CANARY_API_VERSION : API_VERSION
+  tags?.push(`version:${version}`)
+  statsClient?.incr(`actions_facebook_custom_audience`, 1, tags)
+  return version
 }

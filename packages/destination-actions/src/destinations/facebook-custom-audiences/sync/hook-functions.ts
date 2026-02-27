@@ -1,9 +1,10 @@
-import { RequestClient, ErrorCodes } from '@segment/actions-core'
+import { RequestClient, ErrorCodes, Features } from '@segment/actions-core'
 import type { DynamicFieldItem } from '@segment/actions-core'
+import { StatsContext } from '@segment/actions-core/destination-kit'
 import { GetAllAudienceResponse } from './types'
-import { API_VERSION, BASE_URL } from '../constants'
+import { BASE_URL } from '../constants'
 import { Settings } from '../generated-types'
-import { createAudience, getAudience, parseFacebookError } from '../functions'
+import { createAudience, getAudience, parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError, NonFacebookError } from '../types'
 
 export async function performHook(request: RequestClient, adAccountId: string, operation?: string, audienceName?: string, existingAudienceId?: string) {
@@ -78,9 +79,9 @@ export async function getExistingAudienceIdChoices(request: RequestClient, { set
   }
 }
 
-export async function getAllAudiences(request: RequestClient, adAccountId: string): Promise<{choices: DynamicFieldItem[], error?: NonFacebookError}> {
+export async function getAllAudiences(request: RequestClient, adAccountId: string, features?: Features, statsContext?: StatsContext): Promise<{choices: DynamicFieldItem[], error?: NonFacebookError}> {
   
-  const url = `${BASE_URL}/${API_VERSION}/act_${
+  const url = `${BASE_URL}/${getApiVersion(features, statsContext)}/act_${
     adAccountId.startsWith('act_') ? adAccountId.slice(4) : adAccountId
   }/customaudiences?fields=id,name&limit=200`
 

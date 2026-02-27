@@ -36,7 +36,7 @@ export interface FacebookResponseError {
 
 export interface NonFacebookError { 
   message: string 
-  code: keyof typeof ErrorCodes
+  code: keyof typeof ErrorCodes | string
 }
 
 export interface ParsedFacebookError {

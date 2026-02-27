@@ -1,14 +1,15 @@
 import { US_STATE_CODES, SCHEMA_PROPERTIES } from './constants'
 import { Payload } from './generated-types'
-import { RequestClient, PayloadValidationError, IntegrationError, MultiStatusResponse, ErrorCodes } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError, IntegrationError, MultiStatusResponse, ErrorCodes, Features } from '@segment/actions-core'
 import type { JSONLikeObject } from '@segment/actions-core'
+import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
 import { PayloadMap, AudienceJSON, FacebookDataRow, SyncMode } from './types'
-import { API_VERSION, BASE_URL } from '../constants'
-import { parseFacebookError } from '../functions'
+import { BASE_URL } from '../constants'
+import { parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError } from '../types'
 
-export async function send(request: RequestClient, payloads: Payload[], isBatch: boolean, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }, syncMode?: SyncMode) {
+export async function send(request: RequestClient, payloads: Payload[], isBatch: boolean, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }, syncMode?: SyncMode, features?: Features, statsContext?: StatsContext): Promise<MultiStatusResponse> {
   const msResponse = new MultiStatusResponse()
   const audienceId = getAudienceId(payloads[0], hookOutputs)
   const errorMessage = validate(audienceId, payloads[0], syncMode)
@@ -45,11 +46,11 @@ export async function send(request: RequestClient, payloads: Payload[], isBatch:
   const requests: Promise<void>[] = []
 
   if (addMap.size > 0) {
-    requests.push(sendRequest(request, audienceId, addMap, msResponse, 'POST', isBatch))
+    requests.push(sendRequest(request, audienceId, addMap, msResponse, 'POST', isBatch, features, statsContext))
   }
 
   if (deleteMap.size > 0) {
-    requests.push(sendRequest(request, audienceId, deleteMap, msResponse, 'DELETE', isBatch))
+    requests.push(sendRequest(request, audienceId, deleteMap, msResponse, 'DELETE', isBatch, features, statsContext))
   }
 
   await Promise.all(requests)
@@ -59,13 +60,13 @@ export async function send(request: RequestClient, payloads: Payload[], isBatch:
   }
 }
 
-export async function sendRequest(request: RequestClient, audienceId: string, map: PayloadMap, msResponse: MultiStatusResponse, method: 'POST' | 'DELETE', isBatch: boolean): Promise<void> {
+export async function sendRequest(request: RequestClient, audienceId: string, map: PayloadMap, msResponse: MultiStatusResponse, method: 'POST' | 'DELETE', isBatch: boolean, features?: Features, statsContext?: StatsContext): Promise<void> {
   const indices = Array.from(map.keys())
   const payloads = Array.from(map.values())
   const json = getJSON(payloads)
 
   try {
-    await request(`${BASE_URL}/${API_VERSION}/${audienceId}/users`, {
+    await request(`${BASE_URL}/${getApiVersion(features, statsContext)}/${audienceId}/users`, {
       method,
       json
     })

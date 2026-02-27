@@ -41,26 +41,32 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'synced',
       full_audience_sync: false
     },
-    async createAudience(request, createAudienceInput) {
+    async createAudience(request, createAudienceInput ) {
       const { 
-        audienceName, 
+        audienceName,
         audienceSettings: { 
           engageAdAccountId, 
           audienceDescription 
         } = {},
-        settings: { retlAdAccountId } = {} 
+        settings: { retlAdAccountId } = {}, 
+        features,
+        statsContext
       } = createAudienceInput
 
       const addAccountId = (engageAdAccountId ?? retlAdAccountId) as string
-      const { data: { externalId: id } = {}, error } = await createAudience(request, audienceName, addAccountId, audienceDescription)
+      const { data: { externalId: id } = {}, error } = await createAudience(request, audienceName, addAccountId, audienceDescription, features, statsContext)
       if (error) {
         throw new IntegrationError(error.message, ErrorCodes.CREATE_AUDIENCE_FAILED, 400)
       }
       return { externalId: id as string }
     },
     async getAudience(request, getAudienceInput) {
-      const { externalId } = getAudienceInput
-      const { data: { externalId: id } = {}, error } = await getAudience(request, externalId)
+      const { 
+        externalId,
+        features, 
+        statsContext 
+      } = getAudienceInput
+      const { data: { externalId: id } = {}, error } = await getAudience(request, externalId, features, statsContext)
       if (error) {
         throw new IntegrationError(error.message, ErrorCodes.GET_AUDIENCE_FAILED, 400)
       }
