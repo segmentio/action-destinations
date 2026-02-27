@@ -1,15 +1,14 @@
-import { RequestClient, IntegrationError } from '@segment/actions-core'
-import { FacebookResponseError, CreateAudienceRequest, CreateAudienceResponse, GetAudienceResponse } from './types'
+import { RequestClient, ErrorCodes } from '@segment/actions-core'
+import { ParsedFacebookError, NonFacebookError, FacebookResponseError, CreateAudienceRequest, CreateAudienceResponse, GetAudienceResponse } from './types'
 import { API_VERSION, BASE_URL } from './constants'
 
-export function parseFacebookError(error: unknown): { message: string, type: string, code: number, status: number } {
+export function parseFacebookError(error: FacebookResponseError): ParsedFacebookError {
   const {
     response: {
       status: responseStatus,
       data: {
         error: {
           message: rawMessage,
-          type,
           code,
           error_user_title,
           error_user_msg
@@ -17,7 +16,7 @@ export function parseFacebookError(error: unknown): { message: string, type: str
       } = {}
     } = {},
     message: genericMessage
-  } = (error ?? {}) as FacebookResponseError
+  } = (error ?? {})
 
   const userMessage = `${error_user_title ? error_user_title + ': ' : ''}${error_user_msg || ''}`.trim()
   const message = userMessage || rawMessage || genericMessage || 'Unknown error'
@@ -25,18 +24,17 @@ export function parseFacebookError(error: unknown): { message: string, type: str
 
   return {
     message,
-    type: type || 'UNKNOWN_ERROR',
     code: resolvedCode,
     status: responseStatus || resolvedCode
   }
 }
 
-export async function createAudience(request: RequestClient, name: string, adAccountId: string, description?: string): Promise<{ data?: { externalId: string }; error?: { message: string; code: string } }> {
+export async function createAudience(request: RequestClient, name: string, adAccountId: string, description?: string): Promise<{ data?: { externalId: string }, error?: NonFacebookError }> {
   if (!name) {
-    throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
+    return { error: { message: 'Missing audience name value', code: ErrorCodes.CREATE_AUDIENCE_FAILED } }
   }
   if (!adAccountId) {
-    throw new IntegrationError('Missing ad account ID value', 'MISSING_REQUIRED_FIELD', 400)
+    return { error: { message: 'Missing ad account ID value', code: ErrorCodes.CREATE_AUDIENCE_FAILED } }
   }
 
   const url = `${BASE_URL}/${API_VERSION}/act_${
@@ -63,18 +61,19 @@ export async function createAudience(request: RequestClient, name: string, adAcc
       return {
         error: {
           message: 'Invalid response from create audience request',
-          code: 'INVALID_RESPONSE'
+          code: ErrorCodes.CREATE_AUDIENCE_FAILED 
         }
       }
     }
     return { data: { externalId: id } }
-  } catch (error) {
-    const { message, type } = parseFacebookError(error)
-    return { error: { message, code: type } }
+  } 
+  catch (error) {
+    const { message } = parseFacebookError(error as FacebookResponseError)
+    return { error: { message, code: ErrorCodes.CREATE_AUDIENCE_FAILED } }
   }
 }
 
-export async function getAudience(request: RequestClient, externalId: string): Promise<{ data?: { externalId?: string; name: string }; error?: { message: string; code: string } }> {
+export async function getAudience(request: RequestClient, externalId: string): Promise<{ data?: { externalId?: string; name: string }, error?: NonFacebookError }> {
   const url = `${BASE_URL}/${API_VERSION}/${externalId}`
 
   try {
@@ -83,20 +82,10 @@ export async function getAudience(request: RequestClient, externalId: string): P
     const { id, name } = r
 
     if (!id) {
-      return {
-        error: {
-          message: 'Invalid response from get audience request',
-          code: 'INVALID_RESPONSE'
-        }
-      }
+      return { error: { message: 'Invalid response from get audience request', code: ErrorCodes.GET_AUDIENCE_FAILED }}
     }
     if (externalId !== id) {
-      return {
-        error: {
-          message: `Audience not found. Audience ID mismatch. Expected: ${externalId}, Received: ${id}`,
-          code: 'ID_MISMATCH'
-        }
-      }
+      return { error: { message: `Audience not found. Audience ID mismatch. Expected: ${externalId}, Received: ${id}`, code: ErrorCodes.GET_AUDIENCE_FAILED } }
     }
     return {
       data: {
@@ -105,7 +94,7 @@ export async function getAudience(request: RequestClient, externalId: string): P
       }
     }
   } catch (error) {
-    const { message, type } = parseFacebookError(error)
-    return { error: { message, code: type } }
+    const { message } = parseFacebookError(error as FacebookResponseError)
+    return { error: { message, code: ErrorCodes.GET_AUDIENCE_FAILED } }
   }
 }

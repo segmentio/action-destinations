@@ -195,13 +195,7 @@ export const fields: Record<string, InputField> = {
   }
 }
 
-export const retlHookInputFields: ActionHookDefinition<
-  Settings,
-  Payload,
-  AudienceSettings,
-  RetlOnMappingSaveInputs,
-  RetlOnMappingSaveOutputs
->['inputFields'] = {
+export const retlHookInputFields: ActionHookDefinition<Settings, Payload, AudienceSettings, RetlOnMappingSaveInputs, RetlOnMappingSaveOutputs>['inputFields'] = {
   operation: {
     type: 'string',
     label: 'Create a new custom audience or connect to an existing one?',
@@ -244,13 +238,7 @@ export const retlHookInputFields: ActionHookDefinition<
   }
 }
 
-export const retlHookOutputTypes: ActionHookDefinition<
-  Settings,
-  Payload,
-  AudienceSettings,
-  RetlOnMappingSaveInputs,
-  RetlOnMappingSaveOutputs
->['outputTypes'] = {
+export const retlHookOutputTypes: ActionHookDefinition<Settings, Payload, AudienceSettings, RetlOnMappingSaveInputs, RetlOnMappingSaveOutputs>['outputTypes'] = {
   audienceName: {
     type: 'string',
     label: 'Audience Name',

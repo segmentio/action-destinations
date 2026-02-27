@@ -294,7 +294,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
       const facebookErrorResponse = {
         error: {
           message: 'Invalid parameter',
-          type: 'OAuthException',
+          type: 'UNKNOWN_ERROR',
           code: 100,
           fbtrace_id: 'AbcDeFgHiJk'
         }
@@ -317,7 +317,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
 
       const expectedError = {
         status: 400,
-        errortype: 'OAuthException',
+        errortype: 'UNKNOWN_ERROR',
         errormessage: 'Invalid parameter',
         errorreporter: 'DESTINATION'
       }

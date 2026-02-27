@@ -6,6 +6,7 @@ import { processHashing } from '../../../lib/hashing-utils'
 import { PayloadMap, AudienceJSON, FacebookDataRow, SyncMode } from './types'
 import { API_VERSION, BASE_URL } from '../constants'
 import { parseFacebookError } from '../functions'
+import { FacebookResponseError } from '../types'
 
 export async function send(request: RequestClient, payloads: Payload[], isBatch: boolean, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }, syncMode?: SyncMode) {
   const msResponse = new MultiStatusResponse()
@@ -13,7 +14,7 @@ export async function send(request: RequestClient, payloads: Payload[], isBatch:
   const errorMessage = validate(audienceId, payloads[0], syncMode)
 
   if (errorMessage) {
-    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, 'PAYLOAD_VALIDATION_FAILED')
+    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
   }
 
   const addMap: PayloadMap = new Map<number, Payload>()
@@ -82,7 +83,7 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
     }
   } 
   catch (error) {
-    const { message, type, status } = parseFacebookError(error)
+    const { message, status } = parseFacebookError(error as FacebookResponseError)
 
     for (let i = 0; i < indices.length; i++) {
       const sent: JSONLikeObject = {
@@ -90,17 +91,17 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
         method,
         audienceId
       }
-      setErrorResponse(msResponse, payloads[i], status, indices[i], isBatch, message, type as keyof typeof ErrorCodes, sent)
+      setErrorResponse(msResponse, payloads[i], status, indices[i], isBatch, message, ErrorCodes.UNKNOWN_ERROR, sent)
     }
   }
 }
 
 export function setErrorResponse(msResponse: MultiStatusResponse, payload: Payload, status: number, index: number, isBatch: boolean, errormessage: string, errortype: keyof typeof ErrorCodes, sent?: JSONLikeObject){
   if (!isBatch) {
-    if(errortype === 'PAYLOAD_VALIDATION_FAILED') {
+    if(errortype === ErrorCodes.PAYLOAD_VALIDATION_FAILED) {
       throw new PayloadValidationError(errormessage)
     }
-    throw new IntegrationError(errormessage, errortype as string, status)
+    throw new IntegrationError(errormessage, errortype, status)
   }
   msResponse.setErrorResponseAtIndex(index, {
     status,
@@ -121,15 +122,12 @@ export function returnErrorResponse(msResponse: MultiStatusResponse, payloads: P
 
 export function getAudienceId(payload: Payload, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }): string {
   const { retlOnMappingSave: { outputs: { audienceId: hookAudienceId = undefined } = {} } = {} } = hookOutputs ?? {}
-
   const { external_audience_id: payloadAudienceId } = payload
-
   return (hookAudienceId ?? payloadAudienceId) as string
 }
 
 export function isEngageAudience(payload: Payload): boolean {
   const { engage_fields: { computation_class, audience_key, traits_or_properties } = {} } = payload
-
   return typeof traits_or_properties === 'object' && audience_key && computation_class && ['audience', 'journey_step'].includes(computation_class) ? true : false
 }
 

@@ -269,7 +269,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       const facebookDeleteErrorResponse = {
         error: {
           message: 'Invalid parameter',
-          type: 'OAuthException',
+          type: 'UNKNOWN_ERROR',
           code: 100,
           error_subcode: 1713231,
           error_user_title: 'Update Restricted Fields and Rule',
@@ -338,7 +338,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       // Removes failed (index 2, 3)
       const expectedDeleteError = {
         status: 400,
-        errortype: 'OAuthException',
+        errortype: 'UNKNOWN_ERROR',
         errormessage: 'Update Restricted Fields and Rule: This custom audience has integrity restrictions.'
       }
 
@@ -416,7 +416,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       const facebookAddErrorResponse = {
         error: {
           message: 'Failed to update the custom audience',
-          type: 'OAuthException',
+          type: 'UNKNOWN_ERROR',
           code: 2650,
           fbtrace_id: 'XyzAbCdEfGh'
         }
@@ -452,7 +452,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       // Adds failed (index 0, 1)
       const expectedAddError = {
         status: 400,
-        errortype: 'OAuthException',
+        errortype: 'UNKNOWN_ERROR',
         errormessage: 'Failed to update the custom audience',
         errorreporter: 'DESTINATION'
       }

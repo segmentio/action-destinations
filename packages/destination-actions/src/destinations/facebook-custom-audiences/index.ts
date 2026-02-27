@@ -1,5 +1,5 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, ErrorCodes } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import { adAccountId, audienceDescription } from './fields'
 import sync from './sync'
@@ -54,7 +54,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const addAccountId = (engageAdAccountId ?? retlAdAccountId) as string
       const { data: { externalId: id } = {}, error } = await createAudience(request, audienceName, addAccountId, audienceDescription)
       if (error) {
-        throw new IntegrationError(error.message || 'Failed to create audience', error.code || 'CREATE_AUDIENCE_FAILED', 400)
+        throw new IntegrationError(error.message, ErrorCodes.CREATE_AUDIENCE_FAILED, 400)
       }
       return { externalId: id as string }
     },
@@ -62,7 +62,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { externalId } = getAudienceInput
       const { data: { externalId: id } = {}, error } = await getAudience(request, externalId)
       if (error) {
-        throw new IntegrationError(error.message || 'Failed to get audience', error.code || 'GET_AUDIENCE_FAILED', 400)
+        throw new IntegrationError(error.message, ErrorCodes.GET_AUDIENCE_FAILED, 400)
       }
       return { externalId: id as string }
     }

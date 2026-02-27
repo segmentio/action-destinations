@@ -1,3 +1,5 @@
+import { ErrorCodes } from '@segment/actions-core'
+
 export interface CreateAudienceRequest {
   name: string
   subtype: 'CUSTOM'
@@ -30,4 +32,15 @@ export interface FacebookResponseError {
     }
   },
   message?: string
+}
+
+export interface NonFacebookError { 
+  message: string 
+  code: keyof typeof ErrorCodes
+}
+
+export interface ParsedFacebookError {
+  message: string
+  code: number
+  status: number
 }

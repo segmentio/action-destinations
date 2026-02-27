@@ -181,7 +181,7 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
 
       const expectedError = {
         status: 400,
-        errortype: 'OAuthException',
+        errortype: 'UNKNOWN_ERROR',
         errormessage: 'Invalid parameter',
         errorreporter: 'DESTINATION'
       }
