@@ -1,4 +1,5 @@
 import { RequestClient, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import { Settings } from './generated-types'
 import { Payload } from './syncAudience/generated-types'
 // eslint-disable-next-line no-restricted-syntax
@@ -6,6 +7,7 @@ import { createHash } from 'crypto'
 import { IntegrationError } from '@segment/actions-core'
 
 import { sendEventToAWS } from './awsClient'
+import { ExecuteInput } from '@segment/actions-core'
 
 export interface DROP_ENDPOINT_API_RESPONSE {
   ReferenceId: string
@@ -40,7 +42,24 @@ interface ProcessPayloadInput {
   settings: Settings
   payloads: Payload[]
   features?: Record<string, boolean>
+  rawData?: RawData[]
 }
+
+export type RawData = {
+  context?: {
+    personas?: {
+      computation_key?: string
+      computation_class?: string
+      computation_id?: string
+    }
+  }
+}
+
+export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unknown> = ExecuteInput<
+  Settings,
+  Payload,
+  AudienceSettings
+> & { rawData?: RawData }
 
 // Define constants
 const API_VERSION = 'v3'
@@ -54,7 +73,7 @@ const sha256HashedRegex = /^[a-f0-9]{64}$/i
 const base64HashedRegex = /^[A-Za-z0-9+/]*={1,2}$/i
 const validEmailRegex = /^\S+@\S+\.\S+$/i
 
-export async function processPayload(input: ProcessPayloadInput) {
+export async function processPayload(input: ProcessPayloadInput, subscriptionMetadata?: SubscriptionMetadata) {
   let crmID
   if (!input.payloads[0].external_id) {
     throw new PayloadValidationError(`No external_id found in payload.`)
@@ -89,7 +108,7 @@ export async function processPayload(input: ProcessPayloadInput) {
 
     // Send request to AWS to be processed
     return sendEventToAWS({
-      TDDAuthToken: input.settings.auth_token,
+      TTDAuthToken: input.settings.auth_token,
       AdvertiserId: input.settings.advertiser_id,
       CrmDataId: crmID,
       UsersFormatted: usersFormatted,
@@ -98,6 +117,11 @@ export async function processPayload(input: ProcessPayloadInput) {
         PiiType: input.payloads[0].pii_type,
         MergeMode: 'Replace',
         RetentionEnabled: true
+      },
+      segmentInternal: {
+        audienceId: input.rawData?.[0].context?.personas?.computation_id,
+        destinationConfigId: subscriptionMetadata?.destinationConfigId,
+        subscriptionId: subscriptionMetadata?.actionConfigId
       }
     })
   }
