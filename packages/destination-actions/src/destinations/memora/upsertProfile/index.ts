@@ -62,12 +62,38 @@ const action: ActionDefinition<Settings, Payload> = {
     contact_traits: {
       label: 'Contact Traits',
       description:
-        'Contact traits for the profile. At least one trait is required. These fields are dynamically loaded from the selected Memora Store.',
+        'Contact traits for the profile. At least one trait is required. Map Segment event fields to Memora traits with their types.',
       type: 'object',
       required: true,
-      additionalProperties: true,
-      dynamic: true,
-      defaultObjectUI: 'keyvalue'
+      multiple: true,
+      additionalProperties: false,
+      properties: {
+        trait_name: {
+          label: 'Trait Name',
+          description: 'The name of the trait in Memora',
+          type: 'string',
+          required: true,
+          dynamic: true
+        },
+        trait_type: {
+          label: 'Trait Type',
+          description: 'The data type of the trait in Memora',
+          type: 'string',
+          required: true,
+          choices: [
+            { label: 'String', value: 'STRING' },
+            { label: 'Number', value: 'NUMBER' },
+            { label: 'Boolean', value: 'BOOLEAN' },
+            { label: 'Date', value: 'DATE' }
+          ]
+        },
+        value: {
+          label: 'Value',
+          description: 'The value to map from the Segment event',
+          type: 'string',
+          required: true
+        }
+      }
     }
   },
   dynamicFields: {
@@ -75,7 +101,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return fetchMemoraStores(request, settings)
     },
     contact_traits: {
-      __keys__: async (request, { settings, payload }) => {
+      trait_name: async (request, { settings, payload }) => {
         if (!payload.memora_store) {
           return { choices: [], error: { message: 'Please select a Memora Store first', code: 'STORE_REQUIRED' } }
         }
@@ -115,10 +141,8 @@ async function upsertProfiles(
     const identifiers = payload.contact_identifiers || {}
     const hasIdentifier = !!(identifiers.email || identifiers.phone)
 
-    const traits = (
-      payload.contact_traits && typeof payload.contact_traits === 'object' ? payload.contact_traits : {}
-    ) as Record<string, unknown>
-    const hasTraits = Object.keys(traits).some((key) => traits[key] !== undefined && traits[key] !== null)
+    const traits = Array.isArray(payload.contact_traits) ? payload.contact_traits : []
+    const hasTraits = traits.some((t) => t.trait_name && t.value !== undefined && t.value !== null)
 
     if (!hasIdentifier || !hasTraits) {
       invalidIndices.push(index)
@@ -193,13 +217,37 @@ function buildTraitGroups(payload: Payload): Record<string, Record<string, unkno
   const traitGroups: Record<string, Record<string, unknown>> = {}
   const contactTraits: Record<string, unknown> = {}
 
-  // Merge contact traits first
-  if (payload.contact_traits && typeof payload.contact_traits === 'object') {
-    const traits = payload.contact_traits as Record<string, unknown>
-    Object.entries(traits).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        contactTraits[key] = value
+  // Process contact traits array with type conversion
+  if (Array.isArray(payload.contact_traits)) {
+    payload.contact_traits.forEach((trait) => {
+      if (!trait.trait_name || trait.value === undefined || trait.value === null) {
+        return
       }
+
+      // Convert value based on trait type
+      let convertedValue: unknown = trait.value
+
+      if (trait.trait_type === 'NUMBER') {
+        convertedValue = typeof trait.value === 'number' ? trait.value : parseFloat(String(trait.value))
+        if (isNaN(convertedValue as number)) {
+          convertedValue = trait.value // Keep original if conversion fails
+        }
+      } else if (trait.trait_type === 'BOOLEAN') {
+        if (typeof trait.value === 'boolean') {
+          convertedValue = trait.value
+        } else {
+          const strValue = String(trait.value).toLowerCase()
+          convertedValue = strValue === 'true' || strValue === '1' || strValue === 'yes'
+        }
+      } else if (trait.trait_type === 'DATE') {
+        // Keep as-is, assuming it's already in correct format
+        convertedValue = trait.value
+      } else {
+        // STRING or default - convert to string
+        convertedValue = String(trait.value)
+      }
+
+      contactTraits[trait.trait_name] = convertedValue
     })
   }
 
