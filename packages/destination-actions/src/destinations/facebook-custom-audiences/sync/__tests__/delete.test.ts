@@ -157,7 +157,7 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
       // --- Facebook Error Response ---
       const facebookErrorResponse = {
         error: {
-          message: 'Invalid parameter',
+          message: "fbmessage: \"Invalid parameter\". message: \"Bad Request\". code: \"100\"",
           type: 'OAuthException',
           code: 100,
           fbtrace_id: 'AbcDeFgHiJk'
@@ -181,8 +181,8 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
 
       const expectedError = {
         status: 400,
-        errortype: 'UNKNOWN_ERROR',
-        errormessage: 'Invalid parameter',
+        errortype: 'OAuthException',
+        errormessage: "fbmessage: \"fbmessage: \"Invalid parameter\". message: \"Bad Request\". code: \"100\"\". message: \"Bad Request\". code: \"100\"",
         errorreporter: 'DESTINATION'
       }
 

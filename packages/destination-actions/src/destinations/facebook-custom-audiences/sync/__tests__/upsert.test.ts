@@ -318,7 +318,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
       const expectedError = {
         status: 400,
         errortype: 'UNKNOWN_ERROR',
-        errormessage: 'Invalid parameter',
+        errormessage: "fbmessage: \"Invalid parameter\". message: \"Bad Request\". code: \"100\"",
         errorreporter: 'DESTINATION'
       }
 

@@ -5,27 +5,34 @@ import { API_VERSION, BASE_URL } from './constants'
 export function parseFacebookError(error: FacebookResponseError): ParsedFacebookError {
   const {
     response: {
-      status: responseStatus,
+      status,
       data: {
         error: {
-          message: rawMessage,
+          message: fbMessage,
+          type,
           code,
           error_user_title,
           error_user_msg
         } = {}
       } = {}
     } = {},
-    message: genericMessage
+    message: outerMessage
   } = (error ?? {})
 
-  const userMessage = `${error_user_title ? error_user_title + ': ' : ''}${error_user_msg || ''}`.trim()
-  const message = userMessage || rawMessage || genericMessage || 'Unknown error'
-  const resolvedCode = code ?? 400
+  const parts = [
+    error_user_title && `error_user_title: "${error_user_title}"`,
+    error_user_msg && `error_user_msg: "${error_user_msg}"`,
+    fbMessage && `fbmessage: "${fbMessage}"`,
+    outerMessage && `message: "${outerMessage}"`,
+    code && `code: "${code}"`
+  ]
+
+  const message = parts.filter(Boolean).join('. ').trim() || 'An unknown error occurred while communicating with Facebook API.'
 
   return {
     message,
-    code: resolvedCode,
-    status: responseStatus || resolvedCode
+    code: type || ErrorCodes.UNKNOWN_ERROR,
+    status: status ?? 400
   }
 }
 

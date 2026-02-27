@@ -22,7 +22,7 @@ export interface FacebookResponseError {
     data: {
       error: {
         message: string
-        type: string
+        type: keyof typeof ErrorCodes | string
         code: number
         error_subcode?: number
         fbtrace_id?: string
@@ -41,6 +41,6 @@ export interface NonFacebookError {
 
 export interface ParsedFacebookError {
   message: string
-  code: number
+  code: keyof typeof ErrorCodes | string
   status: number
 }

@@ -104,7 +104,7 @@ export async function getAllAudiences(request: RequestClient, adAccountId: strin
     }
   } 
   catch (error) {
-    const { message } = parseFacebookError(error as FacebookResponseError)
-    return { error: { message, code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED }, choices: [] }
+    const { message, code } = parseFacebookError(error as FacebookResponseError)
+    return { error: { message, code }, choices: [] }
   }
 }

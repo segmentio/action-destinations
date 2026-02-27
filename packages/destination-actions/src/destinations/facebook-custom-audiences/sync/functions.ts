@@ -83,7 +83,7 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
     }
   } 
   catch (error) {
-    const { message, status } = parseFacebookError(error as FacebookResponseError)
+    const { message, code, status } = parseFacebookError(error as FacebookResponseError)
 
     for (let i = 0; i < indices.length; i++) {
       const sent: JSONLikeObject = {
@@ -91,12 +91,12 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
         method,
         audienceId
       }
-      setErrorResponse(msResponse, payloads[i], status, indices[i], isBatch, message, ErrorCodes.UNKNOWN_ERROR, sent)
+      setErrorResponse(msResponse, payloads[i], status, indices[i], isBatch, message, code, sent)
     }
   }
 }
 
-export function setErrorResponse(msResponse: MultiStatusResponse, payload: Payload, status: number, index: number, isBatch: boolean, errormessage: string, errortype: keyof typeof ErrorCodes, sent?: JSONLikeObject){
+export function setErrorResponse(msResponse: MultiStatusResponse, payload: Payload, status: number, index: number, isBatch: boolean, errormessage: string, errortype: keyof typeof ErrorCodes | string, sent?: JSONLikeObject){
   if (!isBatch) {
     if(errortype === ErrorCodes.PAYLOAD_VALIDATION_FAILED) {
       throw new PayloadValidationError(errormessage)
@@ -105,7 +105,7 @@ export function setErrorResponse(msResponse: MultiStatusResponse, payload: Paylo
   }
   msResponse.setErrorResponseAtIndex(index, {
     status,
-    errortype,
+    errortype: errortype as keyof typeof ErrorCodes,
     errormessage,
     body: payload as unknown as JSONLikeObject,
     ...(sent ? { sent } : {})

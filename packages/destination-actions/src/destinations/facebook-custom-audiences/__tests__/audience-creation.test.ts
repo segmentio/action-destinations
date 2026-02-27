@@ -68,7 +68,7 @@ describe('Facebook Custom Audiences', () => {
       createAudienceInput.audienceSettings.engageAdAccountId = adAccountId
 
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrow(
-        'Update Restricted Fields and Rule: This custom audience has integrity restrictions.'
+        "error_user_title: \"Update Restricted Fields and Rule\". error_user_msg: \"This custom audience has integrity restrictions.\". fbmessage: \"Invalid parameter\". message: \"Bad Request\". code: \"100\""
       )
     })
 
