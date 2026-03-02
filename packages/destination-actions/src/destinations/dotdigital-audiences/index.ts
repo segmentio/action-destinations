@@ -41,8 +41,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   extendRequest({ settings }) {
+    const partnerToken = process.env.DOTDIGITAL_AUDIENCES_PARTNER_SECRET
+    if(!partnerToken) {
+      throw new IntegrationError('Dotdigital Audiences partner token is not set', 'Configuration Error', 400)
+    }
+
     return {
-      headers: { Authorization: `Basic ${btoa(settings.username + ':' + settings.password)}`, 'x-ddg-integration-token': '7d1e8cff-4856-4f45-93d3-dac7377a53c2'},
+      headers: { 
+        Authorization: `Basic ${Buffer.from(`${settings.username}:${settings.password}`).toString('base64')}`,
+        'x-ddg-integration-token': partnerToken
+      },
       responseType: 'json'
     }
   },

@@ -16,7 +16,12 @@ export async function send(request: RequestClient, payload: Payload, settings: S
 
   const { api_host } = settings
 
-  const action = traits_or_props[computation_key] as boolean
+  const action: boolean | undefined = typeof traits_or_props[computation_key] == 'boolean' ? traits_or_props[computation_key] : undefined  
+
+  if (action === undefined) {
+    throw new PayloadValidationError(`Audience with computation_key = ${computation_key} is missing information about whether to add or remove the contact from the Audience.`)
+  }
+
   const identifier = emailIdentifier ? 'email' : mobileNumberIdentifier ? 'mobileNumber' : null
   const value = emailIdentifier ?? mobileNumberIdentifier ?? null
 

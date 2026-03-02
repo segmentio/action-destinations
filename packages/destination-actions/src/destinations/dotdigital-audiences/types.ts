@@ -17,5 +17,4 @@ export type DataFieldResponseItem = {
     name: string
     type: string
     visibility: VisibilityOption    
-    defaultvalue: unknown
 }

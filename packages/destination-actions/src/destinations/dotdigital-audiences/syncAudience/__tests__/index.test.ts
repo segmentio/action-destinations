@@ -4,6 +4,14 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
+beforeAll(() => {
+  process.env.DOTDIGITAL_AUDIENCES_PARTNER_SECRET = 'test-partner-token'
+})
+
+afterAll(() => {
+  delete process.env.DOTDIGITAL_AUDIENCES_PARTNER_SECRET
+})
+
 export const settings = {
   api_host: 'https://r1-api.dotdigital.com',
   username: 'api_username',
