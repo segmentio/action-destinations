@@ -17,7 +17,7 @@ describe('Pendo Audiences - createAudience', () => {
   it('should create a segment and return the segmentId', async () => {
     nock(CONSTANTS.API_BASE_URL)
       .post(`${CONSTANTS.SEGMENT_ENDPOINT}/upload`, { name: 'My Audience', visitors: [] })
-      .reply(200, { segmentId: 'seg-abc123')
+      .reply(200, { segmentId: 'seg-abc123' })
 
     const result = await testDestination.createAudience({
       settings,
