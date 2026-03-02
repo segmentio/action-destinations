@@ -4,11 +4,9 @@ export interface PatchOperation {
   value: string[]
 }
 
-export interface BatchPatchBody {
+export interface PatchBodyJSON {
   patch: PatchOperation[]
 }
-
-// ---- Batch PATCH response types ----
 
 export interface BatchMultistatusItem {
   status: number
@@ -20,13 +18,9 @@ export interface BatchPatchResponse {
   multistatus: BatchMultistatusItem[]
 }
 
-// ---- Single visitor action response ----
-
 export interface VisitorActionResponse {
   message: string
 }
-
-// ---- Internal maps for tracking payload indices ----
 
 export type AddMap = Map<number, string>
 export type RemoveMap = Map<number, string>

@@ -21,7 +21,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     testAuthentication: async (request) => {
-      // Verify the integration key by fetching a known lightweight endpoint
       return await request(`${CONSTANTS.API_BASE_URL}/api/v1/feature`, {
         method: 'GET',
         skipResponseCloning: true

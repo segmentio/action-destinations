@@ -1,6 +1,6 @@
 import { RequestClient, MultiStatusResponse, JSONLikeObject, PayloadValidationError, IntegrationError, getErrorCodeFromHttpStatus } from '@segment/actions-core'
 import type { Payload } from './generated-types'
-import type { AddMap, RemoveMap, BatchPatchBody, BatchPatchResponse, BatchMultistatusItem, VisitorActionResponse } from './types'
+import type { AddMap, RemoveMap, PatchBodyJSON, BatchPatchResponse, BatchMultistatusItem, VisitorActionResponse } from './types'
 import { CONSTANTS } from '../constants'
 
 export async function send(request: RequestClient, payload: Payload[], isBatch: boolean): Promise<MultiStatusResponse | void> {
@@ -43,7 +43,7 @@ async function sendBatch(request: RequestClient, payload: Payload[], segmentId: 
     return msResponse
   }
 
-  const patchBody: BatchPatchBody = { patch: [] }
+  const patchBody: PatchBodyJSON = { patch: [] }
 
   if (adds.size > 0) {
     patchBody.patch.push({
@@ -83,10 +83,10 @@ async function sendBatch(request: RequestClient, payload: Payload[], segmentId: 
           msResponse.setSuccessResponseAtIndex(index, {
             status: item.status,
             body: p as unknown as JSONLikeObject,
-            sent: { patch: [{ op: item.operation, path: '/visitors', value: [visitorId] }] } as unknown as JSONLikeObject
+            sent: buildSent(item.operation, visitorId)
           })
         } else {
-          handleError(item.message, true, msResponse, index, p, item.status)
+          handleError(item.message, true, msResponse, index, p, item.status, buildSent(item.operation, visitorId))
         }
       })
     })
@@ -97,7 +97,9 @@ async function sendBatch(request: RequestClient, payload: Payload[], segmentId: 
 
     const allIndices = [...adds.keys(), ...removes.keys()]
     allIndices.forEach((index) => {
-      handleError(message, true, msResponse, index, payload[index], status)
+      const visitorId = adds.get(index) ?? removes.get(index)
+      const op = adds.has(index) ? 'add' : 'remove'
+      handleError(message, true, msResponse, index, payload[index], status, buildSent(op, visitorId as string))
     })
   }
 
@@ -128,13 +130,18 @@ async function sendSingle(request: RequestClient, p: Payload, segmentId: string,
   }
 }
 
-function handleError(message: string, isBatch: boolean, msResponse: MultiStatusResponse, index: number, payload: Payload, status = 400): void {
+function buildSent(op: 'add' | 'remove', visitorId: string): JSONLikeObject {
+  return { patch: [{ op, path: '/visitors', value: [visitorId] }] } as unknown as JSONLikeObject
+}
+
+function handleError(message: string, isBatch: boolean, msResponse: MultiStatusResponse, index: number, payload: Payload, status = 400, sent?: JSONLikeObject): void {
   if (!isBatch) {
     throw new PayloadValidationError(message)
   }
   msResponse.setErrorResponseAtIndex(index, {
     status,
     body: payload as unknown as JSONLikeObject,
-    errormessage: message
+    errormessage: message,
+    ...(sent && { sent })
   })
 }

@@ -1,4 +1,4 @@
-export interface CreateSegmentRequest {
+export interface CreateSegmentJSON {
   name: string
   visitors: string[]
 }
@@ -8,10 +8,8 @@ export interface CreateSegmentResponse {
   statusUrl: string
 }
 
-export interface SegmentStatusResponse {
-  entityTagId?: string
-  status?: number
-  message?: string
+export interface GetSegmentResponse {
+  id?: string
 }
 
 export interface PendoErrorResponse {
