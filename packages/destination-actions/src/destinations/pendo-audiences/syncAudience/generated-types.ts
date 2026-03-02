@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The Pendo Visitor ID for the user. Maps to the userId in Segment.
+   * The Pendo Visitor ID for the user. Maps to the userId in Segment by default.
    */
   visitorId: string
   /**

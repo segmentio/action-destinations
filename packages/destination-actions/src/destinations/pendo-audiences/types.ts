@@ -5,7 +5,6 @@ export interface CreateSegmentJSON {
 
 export interface CreateSegmentResponse {
   segmentId: string
-  statusUrl: string
 }
 
 export interface GetSegmentResponse {

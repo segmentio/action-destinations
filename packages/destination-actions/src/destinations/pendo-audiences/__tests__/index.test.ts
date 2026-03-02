@@ -17,7 +17,7 @@ describe('Pendo Audiences - createAudience', () => {
   it('should create a segment and return the segmentId', async () => {
     nock(CONSTANTS.API_BASE_URL)
       .post(`${CONSTANTS.SEGMENT_ENDPOINT}/upload`, { name: 'My Audience', visitors: [] })
-      .reply(200, { segmentId: 'seg-abc123', statusUrl: '/api/v1/segment/seg-abc123/status' })
+      .reply(200, { segmentId: 'seg-abc123')
 
     const result = await testDestination.createAudience({
       settings,
@@ -31,7 +31,7 @@ describe('Pendo Audiences - createAudience', () => {
   it('should use audienceSettings.audienceName over audienceName when provided', async () => {
     nock(CONSTANTS.API_BASE_URL)
       .post(`${CONSTANTS.SEGMENT_ENDPOINT}/upload`, { name: 'Custom Name', visitors: [] })
-      .reply(200, { segmentId: 'seg-custom', statusUrl: '/api/v1/segment/seg-custom/status' })
+      .reply(200, { segmentId: 'seg-custom' })
 
     const result = await testDestination.createAudience({
       settings,
