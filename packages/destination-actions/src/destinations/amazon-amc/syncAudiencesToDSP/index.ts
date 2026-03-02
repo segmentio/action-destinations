@@ -105,6 +105,92 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.personas.external_audience_id'
       }
     },
+    consent: {
+      label: 'Consent',
+      description:
+        'Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.',
+      type: 'object',
+      required: false,
+      additionalProperties: false,
+      properties: {
+        ipAddress: {
+          label: 'Geographic Consent: IP Address',
+          description: "Captures the user's geographic information (IP address) for consent checking.",
+          type: 'string',
+          required: false
+        },
+        amznAdStorage: {
+          label: 'Ad Storage Consent',
+          description: 'Amazon Consent Format: Captures whether the user has consented to cookie based tracking.',
+          type: 'string',
+          required: false,
+          choices: [
+            { label: 'Granted', value: 'GRANTED' },
+            { label: 'Denied', value: 'DENIED' }
+          ]
+        },
+        amznUserData: {
+          label: 'User Data Consent',
+          description:
+            'Amazon Consent Format: Captures whether the user has consented to use personal data for advertising.',
+          type: 'string',
+          required: false,
+          choices: [
+            { label: 'Granted', value: 'GRANTED' },
+            { label: 'Denied', value: 'DENIED' }
+          ]
+        },
+        tcf: {
+          label: 'TCF String',
+          description: 'An encoded Transparency and Consent Framework (TCF) string describing user consent choices.',
+          type: 'string',
+          required: false
+        },
+        gpp: {
+          label: 'GPP String',
+          description: 'An encoded Global Privacy Platform (GPP) string describing user privacy preferences.',
+          type: 'string',
+          required: false
+        }
+      },
+      default: {
+        ipAddress: { 
+          '@if': {
+            exists: { '@path': '$.properties.ip' },
+            then: { '@path': '$.properties.ip' },
+            else: { '@path': '$.traits.ip' }
+          }
+        },
+        amznAdStorage: { 
+          '@if': {
+            exists: { '@path': '$.properties.amznAdStorage' },
+            then: { '@path': '$.properties.amznAdStorage' },
+            else: { '@path': '$.traits.amznAdStorage' }
+          }
+        },
+        amznUserData: { 
+          '@if': {
+            exists: { '@path': '$.properties.amznUserData' },
+            then: { '@path': '$.properties.amznUserData' },
+            else: { '@path': '$.traits.amznUserData' }
+          }
+        },
+        tcf: { 
+          '@if': {
+            exists: { '@path': '$.properties.tcf' },
+            then: { '@path': '$.properties.tcf' },
+            else: { '@path': '$.traits.tcf' }
+          }
+        },
+        gpp: { 
+          '@if': {
+            exists: { '@path': '$.properties.gpp' },
+            then: { '@path': '$.properties.gpp' },
+            else: { '@path': '$.traits.gpp' }
+          }
+        }
+      }
+    },
     enable_batching: {
       label: 'Enable Batching',
       description: 'When enabled,segment will send data in batching',

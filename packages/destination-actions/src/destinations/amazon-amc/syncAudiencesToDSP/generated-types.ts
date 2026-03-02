@@ -46,6 +46,16 @@ export interface Payload {
    */
   audienceId: string
   /**
+   * Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.
+   */
+  consent?: {
+    ipAddress?: string
+    amznAdStorage?: string
+    amznUserData?: string
+    tcf?: string
+    gpp?: string
+  }
+  /**
    * When enabled,segment will send data in batching
    */
   enable_batching: boolean

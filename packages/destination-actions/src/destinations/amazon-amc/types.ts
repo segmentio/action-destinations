@@ -1,10 +1,28 @@
 import { HTTPError } from '@segment/actions-core'
 
+
+export type MaybeString = string | undefined | null
 export interface RefreshTokenResponse {
   access_token: string
   scope: string
   expires_in: number
   token_type: string
+}
+
+export interface GeographicConsentData {
+  ipAddress?: string
+}
+
+export interface AmazonConsentFormat {
+  amznAdStorage?: 'GRANTED' | 'DENIED'
+  amznUserData?: 'GRANTED' | 'DENIED'
+}
+
+export interface ConsentData {
+  geo?: GeographicConsentData
+  amazonConsent?: AmazonConsentFormat
+  tcf?: string
+  gpp?: string
 }
 
 export class AmazonTestAuthenticationError extends HTTPError {
@@ -39,6 +57,7 @@ export interface AudienceRecord {
   externalUserId: string
   countryCode: string
   action: string
+  consent?: ConsentData
 }
 export interface TargetResourceRecords {
   connectionId: string
