@@ -27,8 +27,7 @@ export interface EncryptionSession {
  * so that encryptValueWithSession can be called cheaply for every property value.
  */
 export function createEncryptionSession(publicKey: string): EncryptionSession {
-  const publicKeyStr = typeof publicKey === 'string' ? publicKey : String(publicKey)
-  const recipientPublicKey = Buffer.from(publicKeyStr, 'hex')
+  const recipientPublicKey = Buffer.from(publicKey, 'hex')
 
   const ecdh = createECDH('prime256v1')
   ecdh.generateKeys()

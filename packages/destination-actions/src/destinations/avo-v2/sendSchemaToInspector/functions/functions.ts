@@ -30,9 +30,17 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
 
   // Create one encryption session for the entire batch — EC key generation happens
   // once here rather than once per event or once per property value.
+  // Wrapped in try/catch so an invalid public key skips encryption for the batch
+  // rather than aborting it entirely (matches the per-value graceful degradation of the original design).
   const isDevOrStaging = env === 'dev' || env === 'staging'
-  const encryptionSession: EncryptionSession | undefined =
-    publicEncryptionKey && isDevOrStaging ? createEncryptionSession(publicEncryptionKey) : undefined
+  let encryptionSession: EncryptionSession | undefined
+  if (publicEncryptionKey && isDevOrStaging) {
+    try {
+      encryptionSession = createEncryptionSession(publicEncryptionKey)
+    } catch {
+      // Invalid key — proceed without encryption rather than dropping the whole batch
+    }
+  }
 
   const json = payloads.map((payload) => {
     const { event, pageUrl, appName, properties, messageId, createdAt } = payload
