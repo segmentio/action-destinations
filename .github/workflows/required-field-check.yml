@@ -94,34 +94,29 @@ jobs:
               const requiredFieldsOnMain = JSON.parse(process.env.REQUIRED_FIELDS_MAIN_BRANCH)
 
               Object.keys(requiredFieldsOnBranch).forEach(key => {
-                // Check if key is present in requiredFieldsOnMain
-                if(requiredFieldsOnMain[key]) {
-                  const getActionKeys = Object.keys(requiredFieldsOnBranch[key])
-                  for(const actionKey of getActionKeys) {
-                    const branchRequiredFields = requiredFieldsOnBranch[key][actionKey]
-                    const mainRequiredFields = requiredFieldsOnMain[key][actionKey]
-                    const diff = branchRequiredFields.filter(field => !mainRequiredFields?.includes(field))
-                    if(diff.length > 0) {
-                      const isSettingsKey = actionKey === 'settings'
-                      if (isSettingsKey) {
-                        fieldsAdded.push(`- **Destination**: ${key}, **Settings**:${diff.join(',')}`)
-                      } else {
-                        fieldsAdded.push(`- **Destination**: ${key}, Action **Field(s)**:${diff.join(',')}`)
-                      }
+                // Skip new destinations — no existing customers to break
+                if(!requiredFieldsOnMain[key]) {
+                  return
+                }
+
+                const getActionKeys = Object.keys(requiredFieldsOnBranch[key])
+                for(const actionKey of getActionKeys) {
+                  // Skip new actions — no existing configurations to break
+                  if(!requiredFieldsOnMain[key][actionKey]) {
+                    continue
+                  }
+
+                  const branchRequiredFields = requiredFieldsOnBranch[key][actionKey]
+                  const mainRequiredFields = requiredFieldsOnMain[key][actionKey]
+                  const diff = branchRequiredFields.filter(field => !mainRequiredFields.includes(field))
+                  if(diff.length > 0) {
+                    const isSettingsKey = actionKey === 'settings'
+                    if (isSettingsKey) {
+                      fieldsAdded.push(`- **Destination**: ${key}, **Settings**:${diff.join(',')}`)
+                    } else {
+                      fieldsAdded.push(`- **Destination**: ${key}, Action **Field(s)**:${diff.join(',')}`)
                     }
                   }
-                } else {
-
-                  // If key is not present in requiredFieldsOnMain, then all fields are added recently
-                  const getActionKeys = Object.keys(requiredFieldsOnBranch[key])
-                  for(const actionKey of getActionKeys) {
-                    const branchRequiredFields = requiredFieldsOnBranch[key][actionKey]
-                    if(actionKey === 'settings') {
-                      fieldsAdded.push(`- **Destination**: ${key}, **Settings**:${branchRequiredFields.join(',')}`)
-                    } else {
-                      fieldsAdded.push(`- **Destination**: ${key}, **Action**:${actionKey}, **Fields**:${branchRequiredFields.join(',')}`)
-                    }
-                }
                 }
               })
             }
