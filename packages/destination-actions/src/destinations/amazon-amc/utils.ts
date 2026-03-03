@@ -43,7 +43,6 @@ export const AUTHORIZATION_URL: any = {
   'https://advertising-api-fe.amazon.com': 'https://api.amazon.co.jp'
 }
 
-export const EU_REGION = 'https://advertising-api-eu.amazon.com'
 export const CONSTANTS = {
   CREATE: 'CREATE',
   DELETE: 'DELETE'
