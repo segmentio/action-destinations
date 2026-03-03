@@ -1,25 +1,13 @@
 import { EventProperty, SchemaChild } from '../types'
-import { createEncryptionSession, encryptValueWithSession, EncryptionSession } from './encryption-functions'
+import { encryptValueWithSession, EncryptionSession } from './encryption-functions'
 
 export function extractSchema(
   eventProperties: { [propName: string]: unknown },
-  publicEncryptionKey?: string,
-  env?: string
+  encryptionSession?: EncryptionSession
 ): Array<EventProperty> {
   if (!eventProperties) {
     return []
   }
-
-  const hasEncryptionKey = typeof publicEncryptionKey === 'string' && publicEncryptionKey.length > 0
-  const isDevOrStaging = env === 'dev' || env === 'staging'
-  const canSendEncryptedValues = hasEncryptionKey && isDevOrStaging
-
-  // Create one ECDH session for the entire extractSchema call.
-  // Reusing a single ephemeral key pair across all property values is safe because
-  // each encryptValueWithSession call generates a fresh random IV.
-  const encryptionSession: EncryptionSession | undefined = canSendEncryptedValues
-    ? createEncryptionSession(publicEncryptionKey)
-    : undefined
 
   // Track visited objects to detect circular references
   const visited = new WeakSet<object>()
@@ -57,7 +45,7 @@ export function extractSchema(
         } else if (val !== undefined && val !== null) {
           // Primitive properties: encrypt the value if encryption is enabled
           // Skip undefined and null values - they can't be encrypted and shouldn't be sent (will default to null)
-          const encryptedValue = getEncryptedPropertyValueIfEnabled(val, canSendEncryptedValues, encryptionSession)
+          const encryptedValue = getEncryptedPropertyValueIfEnabled(val, encryptionSession)
           if (encryptedValue !== undefined) {
             mappedEntry.encryptedPropertyValue = encryptedValue
           }
@@ -79,16 +67,15 @@ export function extractSchema(
 }
 
 /**
- * Returns the encrypted property value if encryption is enabled, otherwise undefined.
+ * Returns the encrypted property value if a session is available, otherwise undefined.
  * Never returns unencrypted values - only encrypted or nothing.
  */
 function getEncryptedPropertyValueIfEnabled(
   propertyValue: unknown,
-  canEncrypt: boolean,
   session: EncryptionSession | undefined
 ): string | undefined {
-  if (!canEncrypt || !session) {
-    return undefined // No encryption key: do not send any property values
+  if (!session) {
+    return undefined // No encryption session: do not send any property values
   }
   try {
     return encryptValueWithSession(propertyValue, session) // Only send encrypted values
