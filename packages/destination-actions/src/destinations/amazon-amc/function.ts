@@ -11,7 +11,7 @@ function hasStringValue(value: MaybeString): boolean {
   return typeof value === 'string' && value.trim().length > 0
 }
 
-function validateConsent(consent: Payload['consent'], countryCode: string): UserConsent {
+function getUserConsent(consent: Payload['consent'], countryCode: string): UserConsent {
   const { ipAddress, amznAdStorage, amznUserData, tcf, gpp } = consent || {}
 
   if(!COUNTRY_CODES.includes(countryCode)){
@@ -89,7 +89,7 @@ export function createPayloadToUploadRecords(
     if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
       return // Skip to the next iteration
     }
-    const userConsent = validateConsent(payload.consent, audienceSettings.countryCode)
+    const userConsent = getUserConsent(payload.consent, audienceSettings.countryCode)
     const hashedPII = hashedPayload(payload)
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
@@ -134,7 +134,7 @@ function validateAndPreparePayload(
     let userConsent: UserConsent | undefined
 
     try {
-      userConsent = validateConsent(payload.consent, audienceSettings.countryCode)
+      userConsent = getUserConsent(payload.consent, audienceSettings.countryCode)
     } 
     catch (error) {
       multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {

@@ -64,7 +64,7 @@ export interface UserConsent {
     tcf?: string
     gpp?: string
   } 
-  geo?: {
+  geo: {
     ipAddress?: string
     countryCode: string
   }
