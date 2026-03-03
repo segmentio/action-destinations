@@ -1,5 +1,5 @@
 import { EventProperty, SchemaChild } from '../types'
-import { encryptValue } from './encryption-functions'
+import { createEncryptionSession, encryptValueWithSession, EncryptionSession } from './encryption-functions'
 
 export function extractSchema(
   eventProperties: { [propName: string]: unknown },
@@ -13,6 +13,13 @@ export function extractSchema(
   const hasEncryptionKey = typeof publicEncryptionKey === 'string' && publicEncryptionKey.length > 0
   const isDevOrStaging = env === 'dev' || env === 'staging'
   const canSendEncryptedValues = hasEncryptionKey && isDevOrStaging
+
+  // Create one ECDH session for the entire extractSchema call.
+  // Reusing a single ephemeral key pair across all property values is safe because
+  // each encryptValueWithSession call generates a fresh random IV.
+  const encryptionSession: EncryptionSession | undefined = canSendEncryptedValues
+    ? createEncryptionSession(publicEncryptionKey)
+    : undefined
 
   // Track visited objects to detect circular references
   const visited = new WeakSet<object>()
@@ -50,7 +57,7 @@ export function extractSchema(
         } else if (val !== undefined && val !== null) {
           // Primitive properties: encrypt the value if encryption is enabled
           // Skip undefined and null values - they can't be encrypted and shouldn't be sent (will default to null)
-          const encryptedValue = getEncryptedPropertyValueIfEnabled(val, canSendEncryptedValues, publicEncryptionKey)
+          const encryptedValue = getEncryptedPropertyValueIfEnabled(val, canSendEncryptedValues, encryptionSession)
           if (encryptedValue !== undefined) {
             mappedEntry.encryptedPropertyValue = encryptedValue
           }
@@ -78,13 +85,13 @@ export function extractSchema(
 function getEncryptedPropertyValueIfEnabled(
   propertyValue: unknown,
   canEncrypt: boolean,
-  publicEncryptionKey: string | undefined
+  session: EncryptionSession | undefined
 ): string | undefined {
-  if (!canEncrypt || !publicEncryptionKey) {
+  if (!canEncrypt || !session) {
     return undefined // No encryption key: do not send any property values
   }
   try {
-    return encryptValue(propertyValue, publicEncryptionKey) // Only send encrypted values
+    return encryptValueWithSession(propertyValue, session) // Only send encrypted values
   } catch (error) {
     // If encryption fails, don't fail the entire schema extraction
     return undefined
