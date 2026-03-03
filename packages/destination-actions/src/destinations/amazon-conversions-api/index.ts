@@ -46,7 +46,8 @@ const destination: DestinationDefinition<Settings> = {
         {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
           },
           timeout: 2500
         }
@@ -60,8 +61,7 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ auth }) {
     return {
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`,
-        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
+        authorization: `Bearer ${auth?.accessToken}`
       }
     }
   },

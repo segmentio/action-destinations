@@ -815,4 +815,393 @@ describe('Hubspot.customEvent', () => {
       )
     })
   })
+
+  describe('numeric string handling', () => {
+    const numericStringPayload = {
+      timestamp: timestamp,
+      event: 'Custom Event 2',
+      messageId: 'aaa-bbb-ccc',
+      type: 'track',
+      userId: 'user_id_1',
+      properties: {
+        custom_prop_str: 'Hello String!',
+        custom_prop_numeric_string: '123' // will be inferred as number but should be string
+      }
+    } as Partial<SegmentEvent>
+
+    const expectedNumericStringPayload = {
+      eventName: 'pe23132826_custom_event_2',
+      objectId: undefined,
+      email: 'bibitybobity@example.com',
+      utk: undefined,
+      occurredAt: timestamp,
+      properties: {
+        custom_prop_str: 'Hello String!',
+        custom_prop_numeric_string: '123' // converted to string
+      }
+    }
+
+    const multipleNumericStringsPayload = {
+      timestamp: timestamp,
+      event: 'Custom Event 3',
+      messageId: 'aaa-bbb-ccc',
+      type: 'track',
+      userId: 'user_id_1',
+      properties: {
+        prop1: 123,
+        prop2: 456.78,
+        prop3: 0,
+        prop4: 'regular string'
+      }
+    } as Partial<SegmentEvent>
+
+    const expectedMultipleNumericStringsPayload = {
+      eventName: 'pe23132826_custom_event_3',
+      objectId: undefined,
+      email: 'bibitybobity@example.com',
+      utk: undefined,
+      occurredAt: timestamp,
+      properties: {
+        prop1: '123',
+        prop2: '456.78',
+        prop3: '0',
+        prop4: 'regular string'
+      }
+    }
+
+    const numericTypePayload = {
+      timestamp: timestamp,
+      event: 'Custom Event 6',
+      messageId: 'aaa-bbb-ccc',
+      type: 'track',
+      userId: 'user_id_1',
+      properties: {
+        numeric_prop: 123,
+        string_prop: 'test'
+      }
+    } as Partial<SegmentEvent>
+
+    const expectedNumericTypePayload = {
+      eventName: 'pe23132826_custom_event_6',
+      objectId: undefined,
+      email: 'bibitybobity@example.com',
+      utk: undefined,
+      occurredAt: timestamp,
+      properties: {
+        numeric_prop: 123, // should stay as number
+        string_prop: 'test'
+      }
+    }
+
+    it('should convert numeric string from cache and send event without hitting HubSpot', async () => {
+      const event = createTestEvent(numericStringPayload)
+
+      // fetches the event definition from Hubspot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_2/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_2',
+          fullyQualifiedName: 'pe23132826_custom_event_2',
+          properties: [
+            {
+              name: 'custom_prop_str',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'custom_prop_numeric_string',
+              type: 'string', // HubSpot has this as string, not number
+              archived: false
+            }
+          ]
+        })
+
+      // sends an event completion to Hubspot
+      nock('https://api.hubapi.com').post('/events/v3/send', expectedNumericStringPayload).reply(200, {})
+
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[1].status).toBe(200)
+
+      // sends an event completion to Hubspot without first fetching the event definition
+      nock('https://api.hubapi.com').post('/events/v3/send', expectedNumericStringPayload).reply(200, {})
+
+      const responses2 = await testDestination.testAction('customEvent', {
+        event: createTestEvent(numericStringPayload),
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses2.length).toBe(1)
+      expect(responses2[0].status).toBe(200)
+    })
+
+    it('should handle multiple numeric strings in a single event', async () => {
+      const event = createTestEvent(multipleNumericStringsPayload)
+
+      // fetches the event definition from Hubspot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_3/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_3',
+          fullyQualifiedName: 'pe23132826_custom_event_3',
+          properties: [
+            {
+              name: 'prop1',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'prop2',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'prop3',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'prop4',
+              type: 'string',
+              archived: false
+            }
+          ]
+        })
+
+      // sends an event completion to Hubspot
+      nock('https://api.hubapi.com').post('/events/v3/send', expectedMultipleNumericStringsPayload).reply(200, {})
+
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[1].status).toBe(200)
+    })
+
+    it('should handle numeric strings with partial property match', async () => {
+      const event = createTestEvent({
+        timestamp: timestamp,
+        event: 'Custom Event 5',
+        messageId: 'aaa-bbb-ccc',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: {
+          existing_prop: 123,
+          new_prop: 'new value'
+        }
+      } as Partial<SegmentEvent>)
+
+      // fetches the event definition from Hubspot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_5/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_5',
+          fullyQualifiedName: 'pe23132826_custom_event_5',
+          properties: [
+            {
+              name: 'existing_prop',
+              type: 'string', // numeric string
+              archived: false
+            }
+            // new_prop doesn't exist yet
+          ]
+        })
+
+      const expectedHubspotCreatePropertyPayload = {
+        name: 'new_prop',
+        label: 'new_prop',
+        type: 'string',
+        description: 'new_prop - (created by Segment)'
+      }
+
+      // creates property on Hubspot
+      nock('https://api.hubapi.com')
+        .post('/events/v3/event-definitions/pe23132826_custom_event_5/property', expectedHubspotCreatePropertyPayload)
+        .reply(200, {})
+
+      // sends an event completion to Hubspot
+      nock('https://api.hubapi.com')
+        .post('/events/v3/send', {
+          eventName: 'pe23132826_custom_event_5',
+          objectId: undefined,
+          email: 'bibitybobity@example.com',
+          utk: undefined,
+          occurredAt: timestamp,
+          properties: {
+            existing_prop: '123',
+            new_prop: 'new value'
+          }
+        })
+        .reply(200, {})
+
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses.length).toBe(3)
+      expect(responses[2].status).toBe(200)
+    })
+
+    it('should not convert numeric values when HubSpot schema expects number type', async () => {
+      const event = createTestEvent(numericTypePayload)
+
+      // fetches the event definition from Hubspot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_6/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_6',
+          fullyQualifiedName: 'pe23132826_custom_event_6',
+          properties: [
+            {
+              name: 'numeric_prop',
+              type: 'number', // HubSpot expects number, not string
+              archived: false
+            },
+            {
+              name: 'string_prop',
+              type: 'string',
+              archived: false
+            }
+          ]
+        })
+
+      // sends an event completion to Hubspot
+      nock('https://api.hubapi.com').post('/events/v3/send', expectedNumericTypePayload).reply(200, {})
+
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[1].status).toBe(200)
+    })
+
+    it('should convert numeric strings on subsequent cache hits after PropertiesMissing case', async () => {
+      const event1 = createTestEvent({
+        timestamp: timestamp,
+        event: 'Custom Event 7',
+        messageId: 'aaa-bbb-ccc',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: {
+          numeric_string_prop: '123', // Will be inferred as number, but HubSpot has it as string
+          new_prop: 'new value' // Triggers PropertiesMissing
+        }
+      } as Partial<SegmentEvent>)
+
+      // fetches the event definition from Hubspot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_7/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_7',
+          fullyQualifiedName: 'pe23132826_custom_event_7',
+          properties: [
+            {
+              name: 'numeric_string_prop',
+              type: 'string', // HubSpot has this as string
+              archived: false
+            }
+            // new_prop doesn't exist yet - this triggers PropertiesMissing
+          ]
+        })
+
+      // creates property on Hubspot
+      nock('https://api.hubapi.com')
+        .post('/events/v3/event-definitions/pe23132826_custom_event_7/property', {
+          name: 'new_prop',
+          label: 'new_prop',
+          type: 'string',
+          description: 'new_prop - (created by Segment)'
+        })
+        .reply(200, {})
+
+      // sends first event completion to Hubspot
+      nock('https://api.hubapi.com')
+        .post('/events/v3/send', {
+          eventName: 'pe23132826_custom_event_7',
+          objectId: undefined,
+          email: 'bibitybobity@example.com',
+          utk: undefined,
+          occurredAt: timestamp,
+          properties: {
+            numeric_string_prop: '123', // Should be converted to string
+            new_prop: 'new value'
+          }
+        })
+        .reply(200, {})
+
+      const responses1 = await testDestination.testAction('customEvent', {
+        event: event1,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses1.length).toBe(3)
+      expect(responses1[2].status).toBe(200)
+
+      // Event 2: Same schema, should hit cache
+      const event2 = createTestEvent({
+        timestamp: timestamp,
+        event: 'Custom Event 7',
+        messageId: 'ddd-eee-fff',
+        type: 'track',
+        userId: 'user_id_2',
+        properties: {
+          numeric_string_prop: '456', // Different numeric string value
+          new_prop: 'another value'
+        }
+      } as Partial<SegmentEvent>)
+
+      // sends second event completion to Hubspot - should NOT fetch schema (cache hit)
+      nock('https://api.hubapi.com')
+        .post('/events/v3/send', {
+          eventName: 'pe23132826_custom_event_7',
+          objectId: undefined,
+          email: 'bibitybobity@example.com',
+          utk: undefined,
+          occurredAt: timestamp,
+          properties: {
+            numeric_string_prop: '456', // SHOULD be converted to string
+            new_prop: 'another value'
+          }
+        })
+        .reply(200, {})
+
+      const responses2 = await testDestination.testAction('customEvent', {
+        event: event2,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses2.length).toBe(1) // Cache hit, no HubSpot schema fetch
+      expect(responses2[0].status).toBe(200)
+    })
+  })
 })

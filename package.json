@@ -80,7 +80,10 @@
   "resolutions": {
     "**/@size-limit/preset-small-lib/**/glob-parent": "^6.0.1",
     "**/analytics-next/**/dot-prop": "^4.2.1",
-    "ansi-regex": "5.0.1"
+    "ansi-regex": "5.0.1",
+    "@babel/core/semver": "6.3.1",
+    "@babel/helper-compilation-targets/semver": "6.3.1",
+    "istanbul-lib-instrument/semver": "6.3.1"
   },
   "husky": {
     "hooks": {

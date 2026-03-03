@@ -49,6 +49,62 @@ describe('Posthog.identify', () => {
     expect(payload.timestamp).toBe(event.timestamp)
   })
 
+  it('should include $geoip_disable in properties when geoip_disable setting is true', async () => {
+    const event = createTestEvent({
+      userId: 'test-user-id',
+      traits: { name: 'Test User', email: 'test@example.com' },
+      timestamp: '2024-01-01T00:00:00.000Z'
+    })
+
+    nock(endpoint).post('/i/v0/e/').reply(200, {})
+
+    const responses = await testDestination.testAction('identify', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        api_key: apiKey,
+        endpoint: endpoint,
+        project_id: projectId,
+        historical_migration: false,
+        geoip_disable: true
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    const payload = JSON.parse(responses[0].options.body as string)
+    expect(payload.properties).toMatchObject({
+      $set: event.traits,
+      $geoip_disable: true
+    })
+  })
+
+  it('should not include $geoip_disable when geoip_disable setting is false', async () => {
+    const event = createTestEvent({
+      userId: 'test-user-id',
+      traits: { name: 'Test User' },
+      timestamp: '2024-01-01T00:00:00.000Z'
+    })
+
+    nock(endpoint).post('/i/v0/e/').reply(200, {})
+
+    const responses = await testDestination.testAction('identify', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        api_key: apiKey,
+        endpoint: endpoint,
+        project_id: projectId,
+        historical_migration: false,
+        geoip_disable: false
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    const payload = JSON.parse(responses[0].options.body as string)
+    expect(payload.properties.$geoip_disable).toBeUndefined()
+  })
+
   it('should throw error if required fields are missing', async () => {
     const event = createTestEvent({
       traits: {

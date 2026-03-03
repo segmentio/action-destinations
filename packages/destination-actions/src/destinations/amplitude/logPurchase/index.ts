@@ -52,7 +52,8 @@ function getRevenueProperties(payload: EventRevenue): EventRevenue {
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Log Purchase',
-  description: 'Send an event to Amplitude.',
+  description:
+    'Send purchase/revenue events to Amplitude. Sends one main event with the original event type and total revenue, plus additional "Product Purchased" events for each product in the order.',
   defaultSubscription: 'type = "track"',
   fields: {
     trackRevenuePerProduct: {
@@ -277,7 +278,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ...removeUndefined(properties),
         // Conditionally track revenue with main event
         ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
-         library: library2?.behavior === 'use_mapping' ? library2.mapping : 'segment'
+        library: library2?.behavior === 'use_mapping' ? library2.mapping : 'segment'
       }
     ]
 

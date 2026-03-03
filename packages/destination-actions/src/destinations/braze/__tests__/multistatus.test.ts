@@ -326,7 +326,7 @@ describe('MultiStatus', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'This event was not sent to Braze because it did not contain any products.',
-        errorreporter: 'INTEGRATIONS'
+        errorreporter: 'DESTINATION'
       })
 
       // The forth event fails as pre-request validation fails for not having a valid user identifier
@@ -441,7 +441,7 @@ describe('MultiStatus', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'This event was not sent to Braze because it did not contain any products.',
-        errorreporter: 'INTEGRATIONS'
+        errorreporter: 'DESTINATION'
       })
     })
 
@@ -547,7 +547,7 @@ describe('MultiStatus', () => {
           status: 400,
           errormessage: 'This event was not sent to Braze because it did not contain any products.',
           errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errorreporter: 'INTEGRATIONS'
+          errorreporter: 'DESTINATION'
         }
       ])
     })
@@ -570,6 +570,9 @@ describe('MultiStatus', () => {
       },
       braze_id: {
         '@path': '$.traits.brazeId'
+      },
+      subscription_groups: {
+        '@path': '$.traits.subscription_groups'
       }
     }
 
@@ -756,6 +759,407 @@ describe('MultiStatus', () => {
           errorreporter: 'DESTINATION'
         }
       ])
+    })
+
+    it('should successfully handle a batch of events with subscription details, even if one fails validation', async () => {
+      nock(settings.endpoint).post('/users/track').reply(201, {})
+
+      const events: SegmentEvent[] = [
+        // Valid Event
+        createTestEvent({
+          type: 'identify',
+          receivedAt,
+          traits: {
+            firstName: 'Example',
+            lastName: 'User',
+            externalId: 'test-external-id',
+            subscription_groups: [
+              {
+                subscription_group_id: 'newsletter_123',
+                subscription_state: 'subscribed'
+              },
+              {
+                subscription_group_id: 'promotional_456',
+                subscription_state: 'unsubscribed'
+              }
+            ]
+          }
+        }),
+        createTestEvent({
+          type: 'identify',
+          receivedAt,
+          traits: {
+            firstName: 'Example',
+            lastName: 'User',
+            email: 'user@example.com',
+            subscription_groups: [
+              {
+                subscription_group_id: 'newsletter_9898'
+              }
+            ]
+          }
+        }),
+        // Event without any user identifier
+        createTestEvent({
+          type: 'identify',
+          receivedAt,
+          traits: {
+            firstName: 'Example',
+            lastName: 'User',
+            email: 'user@example.com',
+            subscription_groups: [
+              {
+                subscription_group_id: 'newsletter_9898',
+                subscription_state: 'unsubscribed'
+              }
+            ]
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('updateUserProfile', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response[0]).toMatchObject({
+        status: 200,
+        body: 'success'
+      })
+
+      expect(response[1]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: "The value at /subscription_groups/0 is missing the required field 'subscription_state'.",
+        errorreporter: 'INTEGRATIONS'
+      })
+
+      expect(response[2]).toMatchObject({
+        status: 200,
+        body: 'success'
+      })
+    })
+  })
+
+  describe('trackPurchase - batch size limits', () => {
+    const mapping = {
+      time: receivedAt,
+      email: {
+        '@path': '$.properties.email'
+      },
+      external_id: {
+        '@path': '$.properties.externalId'
+      },
+      products: {
+        '@path': '$.properties.products'
+      }
+    }
+
+    it('should accept exactly 75 products across multiple payloads', async () => {
+      nock(settings.endpoint).post('/users/track').reply(201, {})
+
+      // Create 3 payloads with 25 products each (total 75)
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          event: 'Order Completed',
+          type: 'track',
+          receivedAt,
+          properties: {
+            externalId: 'test-external-id-1',
+            products: Array.from({ length: 25 }, (_, i) => ({
+              product_id: `product-${i}`,
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }))
+          }
+        }),
+        createTestEvent({
+          event: 'Order Completed',
+          type: 'track',
+          receivedAt,
+          properties: {
+            externalId: 'test-external-id-2',
+            products: Array.from({ length: 25 }, (_, i) => ({
+              product_id: `product-${i + 25}`,
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }))
+          }
+        }),
+        createTestEvent({
+          event: 'Order Completed',
+          type: 'track',
+          receivedAt,
+          properties: {
+            externalId: 'test-external-id-3',
+            products: Array.from({ length: 25 }, (_, i) => ({
+              product_id: `product-${i + 50}`,
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }))
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('trackPurchase', {
+        events,
+        settings,
+        mapping
+      })
+
+      // All three events should succeed
+      expect(response[0]).toMatchObject({
+        status: 200,
+        body: 'success'
+      })
+      expect(response[1]).toMatchObject({
+        status: 200,
+        body: 'success'
+      })
+      expect(response[2]).toMatchObject({
+        status: 200,
+        body: 'success'
+      })
+    })
+
+    it('should reject a single payload with 76 products', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          event: 'Order Completed',
+          type: 'track',
+          receivedAt,
+          properties: {
+            externalId: 'test-external-id',
+            products: Array.from({ length: 76 }, (_, i) => ({
+              product_id: `product-${i}`,
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }))
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('trackPurchase', {
+        events,
+        settings,
+        mapping
+      })
+
+      // The event should be rejected with a 413 (permanent rejection)
+      expect(response[0]).toMatchObject({
+        status: 413,
+        errortype: 'PAYLOAD_TOO_LARGE',
+        errormessage:
+          "Max batch size exceeded. This payload contains 76 products, which is more than Braze's maximum batch size of 75 objects per batch.",
+        errorreporter: 'DESTINATION'
+      })
+    })
+
+    it('should reject payloads that exceed the 75 product limit', async () => {
+      nock(settings.endpoint).post('/users/track').reply(201, {})
+
+      // Create payloads: 50 products, then 26 products (would exceed 75)
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          event: 'Order Completed',
+          type: 'track',
+          receivedAt,
+          properties: {
+            externalId: 'test-external-id-1',
+            products: Array.from({ length: 50 }, (_, i) => ({
+              product_id: `product-${i}`,
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }))
+          }
+        }),
+        createTestEvent({
+          event: 'Order Completed',
+          type: 'track',
+          receivedAt,
+          properties: {
+            externalId: 'test-external-id-2',
+            products: Array.from({ length: 26 }, (_, i) => ({
+              product_id: `product-${i + 50}`,
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }))
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('trackPurchase', {
+        events,
+        settings,
+        mapping
+      })
+
+      // First event should succeed (50 products)
+      expect(response[0]).toMatchObject({
+        status: 200,
+        body: 'success'
+      })
+
+      // Second event should be rejected (would make total 76)
+      expect(response[1]).toMatchObject({
+        status: 429,
+        errortype: 'RETRYABLE_ERROR',
+        errormessage: `Max batch size exceeded. This event was included in a batch which then exceeded Braze's maximum batch size of 75 objects per batch. This payload will be retried in another batch.`,
+        errorreporter: 'DESTINATION'
+      })
+    })
+
+    it('should handle edge case where exactly 75th product is in last payload', async () => {
+      nock(settings.endpoint).post('/users/track').reply(201, {})
+
+      // Create payloads: 50, 24, 1 product (exactly 75 total)
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          event: 'Order Completed',
+          type: 'track',
+          receivedAt,
+          properties: {
+            externalId: 'test-external-id-1',
+            products: Array.from({ length: 50 }, (_, i) => ({
+              product_id: `product-${i}`,
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }))
+          }
+        }),
+        createTestEvent({
+          event: 'Order Completed',
+          type: 'track',
+          receivedAt,
+          properties: {
+            externalId: 'test-external-id-2',
+            products: Array.from({ length: 24 }, (_, i) => ({
+              product_id: `product-${i + 50}`,
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }))
+          }
+        }),
+        createTestEvent({
+          event: 'Order Completed',
+          type: 'track',
+          receivedAt,
+          properties: {
+            externalId: 'test-external-id-3',
+            products: [
+              {
+                product_id: 'product-74',
+                currency: 'USD',
+                price: 99.99,
+                quantity: 1
+              }
+            ]
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('trackPurchase', {
+        events,
+        settings,
+        mapping
+      })
+
+      // All events should succeed
+      expect(response[0]).toMatchObject({
+        status: 200,
+        body: 'success'
+      })
+      expect(response[1]).toMatchObject({
+        status: 200,
+        body: 'success'
+      })
+      expect(response[2]).toMatchObject({
+        status: 200,
+        body: 'success'
+      })
+    })
+
+    it('should reject remaining payloads after hitting limit', async () => {
+      nock(settings.endpoint).post('/users/track').reply(201, {})
+
+      // Create payloads: 50, 20, 10 products (first two succeed, third rejected)
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          event: 'Order Completed',
+          type: 'track',
+          receivedAt,
+          properties: {
+            externalId: 'test-external-id-1',
+            products: Array.from({ length: 50 }, (_, i) => ({
+              product_id: `product-${i}`,
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }))
+          }
+        }),
+        createTestEvent({
+          event: 'Order Completed',
+          type: 'track',
+          receivedAt,
+          properties: {
+            externalId: 'test-external-id-2',
+            products: Array.from({ length: 20 }, (_, i) => ({
+              product_id: `product-${i + 50}`,
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }))
+          }
+        }),
+        createTestEvent({
+          event: 'Order Completed',
+          type: 'track',
+          receivedAt,
+          properties: {
+            externalId: 'test-external-id-3',
+            products: Array.from({ length: 10 }, (_, i) => ({
+              product_id: `product-${i + 70}`,
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }))
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('trackPurchase', {
+        events,
+        settings,
+        mapping
+      })
+
+      // First two events should succeed
+      expect(response[0]).toMatchObject({
+        status: 200,
+        body: 'success'
+      })
+      expect(response[1]).toMatchObject({
+        status: 200,
+        body: 'success'
+      })
+
+      // Third event should be rejected (would make total 80)
+      expect(response[2]).toMatchObject({
+        status: 429,
+        errortype: 'RETRYABLE_ERROR',
+        errormessage: `Max batch size exceeded. This event was included in a batch which then exceeded Braze's maximum batch size of 75 objects per batch. This payload will be retried in another batch.`,
+        errorreporter: 'DESTINATION'
+      })
     })
   })
 

@@ -5,6 +5,20 @@ import Destination from '../../index'
 import { TTD_LEGACY_FLOW_FLAG_NAME } from '../../functions'
 
 import { getAWSCredentialsFromEKS, AWSCredentials } from '../../../../lib/AWS/sts'
+
+// Mock AWS SDK before any imports to avoid initialization issues
+jest.mock('@aws-sdk/client-s3', () => ({
+  S3Client: jest.fn().mockImplementation(() => ({
+    send: jest.fn()
+  })),
+  PutObjectCommand: jest.fn()
+}))
+
+jest.mock('@aws-sdk/client-sts', () => ({
+  STSClient: jest.fn(),
+  AssumeRoleCommand: jest.fn()
+}))
+
 jest.mock('../../../../lib/AWS/sts')
 
 let testDestination = createTestIntegration(Destination)

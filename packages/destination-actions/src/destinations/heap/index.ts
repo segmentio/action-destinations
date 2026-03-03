@@ -34,6 +34,17 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The app_id corresponding to one of your projects.',
         type: 'string',
         required: true
+      },
+      region: {
+        label: 'Data Residency Region',
+        description: 'Select the region for your Heap environment.',
+        type: 'string',
+        choices: [
+          { label: 'US (Default)', value: 'US' },
+          { label: 'EU', value: 'EU' }
+        ],
+        default: 'US',
+        required: false
       }
     }
   },
