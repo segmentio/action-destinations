@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.152.0",
+  "version": "1.153.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -25,7 +25,7 @@
     "@segment/analytics-browser-actions-contentstack-web": "^1.38.0",
     "@segment/analytics-browser-actions-devrev": "^1.82.0",
     "@segment/analytics-browser-actions-facebook-conversions-api-web": "^1.12.0",
-    "@segment/analytics-browser-actions-friendbuy": "^1.98.0",
+    "@segment/analytics-browser-actions-friendbuy": "^1.99.0",
     "@segment/analytics-browser-actions-fullsession": "^1.7.0",
     "@segment/analytics-browser-actions-fullstory": "^1.97.0",
     "@segment/analytics-browser-actions-google-analytics-4": "^1.106.0",
@@ -33,7 +33,7 @@
     "@segment/analytics-browser-actions-google-ec-plugins": "^1.4.0",
     "@segment/analytics-browser-actions-heap": "^1.95.0",
     "@segment/analytics-browser-actions-hubspot": "^1.95.0",
-    "@segment/analytics-browser-actions-intercom": "^1.103.0",
+    "@segment/analytics-browser-actions-intercom": "^1.104.0",
     "@segment/analytics-browser-actions-iterate": "^1.96.0",
     "@segment/analytics-browser-actions-jimo": "^1.86.0",
     "@segment/analytics-browser-actions-koala": "^1.97.0",
