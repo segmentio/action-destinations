@@ -3,9 +3,8 @@ import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestCli
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
 import { MaybeString, AudienceRecord, UserConsent, HashedPIIObject } from './types'
-import { CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID } from './utils'
+import { CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID, COUNTRY_CODES } from './utils'
 import { processHashing } from '../../lib/hashing-utils'
-import { COUNTRY_CODES } from './constants'
 
 function hasStringValue(value: MaybeString): boolean {
   return typeof value === 'string' && value.trim().length > 0
