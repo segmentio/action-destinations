@@ -49,10 +49,25 @@ export interface Payload {
    * Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.
    */
   consent?: {
+    /**
+     * Captures the user's geographic information (IP address) for consent checking.
+     */
     ipAddress?: string
+    /**
+     * Amazon Consent Format: Captures whether the user has consented to cookie based tracking.
+     */
     amznAdStorage?: string
+    /**
+     * Amazon Consent Format: Captures whether the user has consented to use personal data for advertising.
+     */
     amznUserData?: string
+    /**
+     * An encoded Transparency and Consent Framework (TCF) string describing user consent choices.
+     */
     tcf?: string
+    /**
+     * An encoded Global Privacy Platform (GPP) string describing user privacy preferences.
+     */
     gpp?: string
   }
   /**

@@ -1,39 +1,42 @@
-import { InvalidAuthenticationError, IntegrationError } from '@segment/actions-core'
+import { InvalidAuthenticationError } from '@segment/actions-core'
 import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
-import { MaybeString, AudienceRecord, AmazonConsentFormat, ConsentData, HashedPIIObject } from './types'
-import { CONSTANTS, EU_REGION, RecordsResponseType, REGEX_EXTERNALUSERID } from './utils'
+import { MaybeString, AudienceRecord, UserConsent, HashedPIIObject } from './types'
+import { CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID } from './utils'
 import { processHashing } from '../../lib/hashing-utils'
+import { COUNTRY_CODES } from './constants'
 
 function hasStringValue(value: MaybeString): boolean {
   return typeof value === 'string' && value.trim().length > 0
 }
 
-function validateConsent(consent: Payload['consent'], region: string): ConsentData | undefined {
+function validateConsent(consent: Payload['consent'], countryCode: string): UserConsent {
   const { ipAddress, amznAdStorage, amznUserData, tcf, gpp } = consent || {}
 
-  const consentData: Partial<ConsentData> = {
-    ...(hasStringValue(ipAddress as MaybeString) && { geo: { ipAddress } }),
-    ...(hasStringValue(amznUserData as MaybeString) && {
-      amazonConsent: {
-        amznUserData,
-        ...(hasStringValue(amznAdStorage as MaybeString) && { amznAdStorage })
-      } as AmazonConsentFormat
-    }),
+  if(!COUNTRY_CODES.includes(countryCode)){
+    throw new PayloadValidationError(`Invalid country code: ${countryCode}. Country code must be a valid ISO 3166-1 alpha-2 code.`)
+  }
+
+  const amzn: NonNullable<UserConsent['consent']>['amzn'] | undefined = hasStringValue(amznAdStorage) && hasStringValue(amznUserData) ? { amznAdStorage: amznAdStorage === 'GRANTED' ? 'GRANTED' : 'DENIED', amznUserData: amznUserData === 'GRANTED' ? 'GRANTED' : 'DENIED' } : undefined
+  
+  if(!amzn && !hasStringValue(tcf) && !hasStringValue(gpp) && countryCode != 'US'){
+    throw new PayloadValidationError(`Non US country codes must provide valid consent data.`)
+  }
+
+  const geo: UserConsent['geo'] = {
+    ...(hasStringValue(ipAddress as MaybeString) && { ipAddress }),
+    countryCode
+  }
+
+  const consentData: UserConsent = {
+    geo,
+    ...(amzn ? { amzn } : {} ),
     ...(hasStringValue(tcf as MaybeString) && { tcf }),
     ...(hasStringValue(gpp as MaybeString) && { gpp })
   }
-
-  const hasAnyConsent = Object.keys(consentData).length > 0
-  if (region === EU_REGION && !hasAnyConsent) {
-    throw new IntegrationError(
-      'At least one type of consent (Geographic info, Amazon consent, Transparency and Consent Framework (TCF), Global Privacy Platform (GPP)) is required for the EU region.',
-      'MISSING_CONSENT',
-      400
-    )
-  }
-  return hasAnyConsent ? (consentData as ConsentData) : undefined
+  
+  return consentData
 }
 
 export async function processPayload(
@@ -42,7 +45,7 @@ export async function processPayload(
   payload: Payload[],
   audienceSettings: AudienceSettings
 ) {
-  const payloadRecord = createPayloadToUploadRecords(payload, settings, audienceSettings)
+  const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
   // Regular expression to find a audienceId numeric string and replace the quoted audienceId string with an unquoted number
   const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
 
@@ -77,7 +80,6 @@ export async function processPayload(
  */
 export function createPayloadToUploadRecords(
   payloads: Payload[],
-  settings: Settings,
   audienceSettings: AudienceSettings
 ) {
   const records: AudienceRecord[] = []
@@ -87,14 +89,14 @@ export function createPayloadToUploadRecords(
     if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
       return // Skip to the next iteration
     }
-    const consent = validateConsent(payload.consent, settings.region)
+    const userConsent = validateConsent(payload.consent, audienceSettings.countryCode)
     const hashedPII = hashedPayload(payload)
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
       action: payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
       hashedPII: [hashedPII],
-      ...(consent && { consent })
+      userConsent
     }
     records.push(payloadRecord)
   })
@@ -114,7 +116,6 @@ export function createPayloadToUploadRecords(
 function validateAndPreparePayload(
   payloads: Payload[],
   multiStatusResponse: MultiStatusResponse,
-  settings: Settings,
   audienceSettings: AudienceSettings
 ) {
   const validPayloadIndicesBitmap: number[] = []
@@ -130,10 +131,10 @@ function validateAndPreparePayload(
       return
     }
 
-    let consent: ConsentData | undefined
+    let userConsent: UserConsent | undefined
 
     try {
-      consent = validateConsent(payload.consent, settings.region)
+      userConsent = validateConsent(payload.consent, audienceSettings.countryCode)
     } 
     catch (error) {
       multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
@@ -151,7 +152,7 @@ function validateAndPreparePayload(
       countryCode: audienceSettings.countryCode,
       action: payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
       hashedPII: [hashedPII],
-      ...(consent && { consent })
+      userConsent
     }
     filteredPayloads.push(payloadRecord)
     validPayloadIndicesBitmap.push(originalBatchIndex)
@@ -183,7 +184,6 @@ export async function processBatchPayload(
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPreparePayload(
     payloads,
     multiStatusResponse,
-    settings,
     audienceSettings
   )
 

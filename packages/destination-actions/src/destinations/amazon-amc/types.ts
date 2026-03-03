@@ -9,22 +9,6 @@ export interface RefreshTokenResponse {
   token_type: string
 }
 
-export interface GeographicConsentData {
-  ipAddress?: string
-}
-
-export interface AmazonConsentFormat {
-  amznAdStorage?: 'GRANTED' | 'DENIED'
-  amznUserData?: 'GRANTED' | 'DENIED'
-}
-
-export interface ConsentData {
-  geo?: GeographicConsentData
-  amazonConsent?: AmazonConsentFormat
-  tcf?: string
-  gpp?: string
-}
-
 export class AmazonTestAuthenticationError extends HTTPError {
   response: Response & {
     data: {
@@ -52,20 +36,36 @@ export interface HashedPIIObject {
   email?: string
   address?: string
 }
-export interface AudienceRecord {
-  hashedPII: HashedPIIObject[]
-  externalUserId: string
-  countryCode: string
-  action: string
-  consent?: ConsentData
-}
-export interface TargetResourceRecords {
-  connectionId: string
-  targetTypes: string[]
-}
 
 export interface AudienceRecordPayload {
   records: AudienceRecord[]
   targetResource: TargetResourceRecords
   audienceId: number
+}
+
+export interface TargetResourceRecords {
+  connectionId: string
+  targetTypes: string[]
+}
+export interface AudienceRecord {
+  hashedPII: HashedPIIObject[]
+  externalUserId: string
+  countryCode: string
+  action: string
+  userConsent: UserConsent
+}
+
+export interface UserConsent {
+  consent?: {
+    amzn?: {
+      amznAdStorage: 'GRANTED' | 'DENIED'
+      amznUserData: 'GRANTED' | 'DENIED'
+    }
+    tcf?: string
+    gpp?: string
+  } 
+  geo?: {
+    ipAddress?: string
+    countryCode: string
+  }
 }
