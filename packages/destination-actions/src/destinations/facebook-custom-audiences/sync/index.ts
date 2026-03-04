@@ -9,6 +9,7 @@ import { SyncMode } from './types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
   description: 'Sync data to Facebook Custom Audiences.',
+  defaultSubscription: 'type = "track" or type = "identify"',
   hooks: {
     retlOnMappingSave: {
       label: 'Select or create an audience in Facebook',
