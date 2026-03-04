@@ -6,11 +6,11 @@ export interface Settings {
    */
   api_host: string
   /**
-   * Your Dotdigital username
+   * Your Dotdigital API username
    */
   username: string
   /**
-   * Your Dotdigital password.
+   * Your Dotdigital API password
    */
   password: string
 }
@@ -18,7 +18,11 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * A Dotdigital list name
+   * A Dotdigital list name. Leave blank to use the audience name from Segment.
    */
-  audienceName: string
+  audienceName?: string
+  /**
+   * The visibility of the Dotdigital list
+   */
+  visibility: string
 }

@@ -1,5 +1,4 @@
 import { ModifiedResponse, RequestClient } from '@segment/actions-core'
-import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
 import { checkAndCleanMobileNumber } from '../../helpers/functions'
 
@@ -8,8 +7,8 @@ import { checkAndCleanMobileNumber } from '../../helpers/functions'
  * Extends the base Dotdigital API class.
  */
 class DDSmsApi extends DDApi {
-  constructor(settings: Settings, client: RequestClient) {
-    super(settings, client)
+  constructor(api_host: string, client: RequestClient) {
+    super(api_host, client)
   }
 
   /**

@@ -1,10 +1,10 @@
 export interface DynamicFieldResponse {
-  choices: Array<{ value: number; label: string }>;
-  nextPage?: string;
+  choices: Array<{ value: number; label: string }>
+  nextPage?: string
   error?: {
-    message: string;
-    code: string;
-  };
+    message: string
+    code: string
+  }
 }
 
 export interface List {
@@ -14,14 +14,14 @@ export interface List {
 }
 
 export interface Campaign {
-  id: number;
-  name: string;
+  id: number
+  name: string
 }
 
 export interface sendCampaignPayload {
-  campaignID: number;
-  contactIDs: [number];
-  sendDate?: string | number | undefined;
+  campaignID: number
+  contactIDs: [number]
+  sendDate?: string | number | undefined
 }
 
 export interface DataField {
@@ -98,7 +98,7 @@ export interface ProgramEnrolementJSON {
   programId: string
 }
 
-export type ChannelIdentifier = { email: string; 'mobileNumber'?: never } | { 'mobileNumber': string; email?: never }
+export type ChannelIdentifier = { email: string; mobileNumber?: never } | { mobileNumber: string; email?: never }
 
 export interface UpsertContactJSON {
   identifiers: Identifiers
@@ -109,15 +109,15 @@ export interface UpsertContactJSON {
 
 export interface CpaasMessageBody {
   to: {
-    phoneNumber: string;
-  };
-  body: string;
-  rules: string[];
+    phoneNumber: string
+  }
+  body: string
+  rules: string[]
   channelOptions?: {
     sms: {
-      from?: string;
-      allowUnicode?: boolean;
-    };
-  };
-  shortenLinks?: string;
+      from?: string
+      allowUnicode?: boolean
+    }
+  }
+  shortenLinks?: string
 }
