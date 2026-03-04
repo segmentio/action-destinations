@@ -209,11 +209,11 @@ const action: ActionDefinition<Settings, Payload> = {
       minimum: 1500
     }
   },
-  perform: (request, { settings, payload, audienceSettings }) => {
-    return processPayload(request, settings, [payload], audienceSettings as AudienceSettings)
+  perform: (request, { settings, payload, audienceSettings, features }) => {
+    return processPayload(request, settings, [payload], audienceSettings as AudienceSettings, features)
   },
-  performBatch: async (request, { settings, payload: payloads, audienceSettings }) => {
-    return await processBatchPayload(request, settings, payloads, audienceSettings as AudienceSettings)
+  performBatch: async (request, { settings, payload: payloads, audienceSettings, features }) => {
+    return await processBatchPayload(request, settings, payloads, audienceSettings as AudienceSettings, features)
   }
 }
 

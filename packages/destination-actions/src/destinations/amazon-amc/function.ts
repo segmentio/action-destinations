@@ -3,7 +3,7 @@ import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestCli
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
 import { MaybeString, AudienceRecord, UserConsent, HashedPIIObject } from './types'
-import { CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID, COUNTRY_CODES } from './utils'
+import { FLAG_CONSENT_REQUIRED, CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID, COUNTRY_CODES } from './utils'
 import { processHashing } from '../../lib/hashing-utils'
 
 function hasStringValue(value: MaybeString): boolean {
@@ -42,9 +42,10 @@ export async function processPayload(
   request: RequestClient,
   settings: Settings,
   payload: Payload[],
-  audienceSettings: AudienceSettings
+  audienceSettings: AudienceSettings,
+  features?: Record<string, boolean>
 ) {
-  const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
+  const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings, features)
   // Regular expression to find a audienceId numeric string and replace the quoted audienceId string with an unquoted number
   const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
 
@@ -79,7 +80,8 @@ export async function processPayload(
  */
 export function createPayloadToUploadRecords(
   payloads: Payload[],
-  audienceSettings: AudienceSettings
+  audienceSettings: AudienceSettings, 
+  features?: Record<string, boolean>
 ) {
   const records: AudienceRecord[] = []
   const { audienceId } = payloads[0]
@@ -88,14 +90,14 @@ export function createPayloadToUploadRecords(
     if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
       return // Skip to the next iteration
     }
-    const userConsent = getUserConsent(payload.consent, audienceSettings.countryCode)
+    const userConsent = features?.[FLAG_CONSENT_REQUIRED] ? getUserConsent(payload.consent, audienceSettings.countryCode) : undefined
     const hashedPII = hashedPayload(payload)
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
       action: payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
       hashedPII: [hashedPII],
-      userConsent
+      ...(userConsent ? { userConsent } : {})
     }
     records.push(payloadRecord)
   })
@@ -115,7 +117,8 @@ export function createPayloadToUploadRecords(
 function validateAndPreparePayload(
   payloads: Payload[],
   multiStatusResponse: MultiStatusResponse,
-  audienceSettings: AudienceSettings
+  audienceSettings: AudienceSettings,
+  features?: Record<string, boolean>
 ) {
   const validPayloadIndicesBitmap: number[] = []
   const filteredPayloads: AudienceRecord[] = []
@@ -133,7 +136,7 @@ function validateAndPreparePayload(
     let userConsent: UserConsent | undefined
 
     try {
-      userConsent = getUserConsent(payload.consent, audienceSettings.countryCode)
+      userConsent = features?.[FLAG_CONSENT_REQUIRED] ? getUserConsent(payload.consent, audienceSettings.countryCode) : undefined
     } 
     catch (error) {
       multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
@@ -151,7 +154,7 @@ function validateAndPreparePayload(
       countryCode: audienceSettings.countryCode,
       action: payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
       hashedPII: [hashedPII],
-      userConsent
+      ...(userConsent ? { userConsent } : {})
     }
     filteredPayloads.push(payloadRecord)
     validPayloadIndicesBitmap.push(originalBatchIndex)
@@ -177,13 +180,15 @@ export async function processBatchPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
-  audienceSettings: AudienceSettings
+  audienceSettings: AudienceSettings,
+  features?: Features
 ) {
   const multiStatusResponse = new MultiStatusResponse()
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPreparePayload(
     payloads,
     multiStatusResponse,
-    audienceSettings
+    audienceSettings, 
+    features
   )
 
   if (!filteredPayloads.length) {

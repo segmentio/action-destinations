@@ -52,7 +52,7 @@ export interface AudienceRecord {
   externalUserId: string
   countryCode: string
   action: string
-  userConsent: UserConsent
+  userConsent?: UserConsent
 }
 
 export interface UserConsent {
