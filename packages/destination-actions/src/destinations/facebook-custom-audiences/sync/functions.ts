@@ -9,7 +9,15 @@ import { BASE_URL } from '../constants'
 import { parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError } from '../types'
 
-export async function send(request: RequestClient, payloads: Payload[], isBatch: boolean, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }, syncMode?: SyncMode, features?: Features, statsContext?: StatsContext): Promise<MultiStatusResponse> {
+export async function send(
+  request: RequestClient, 
+  payloads: Payload[], 
+  isBatch: boolean, 
+  hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }, 
+  syncMode?: SyncMode, 
+  features?: Features, 
+  statsContext?: StatsContext
+): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
   const audienceId = getAudienceId(payloads[0], hookOutputs)
   const errorMessage = validate(audienceId, payloads[0], syncMode)

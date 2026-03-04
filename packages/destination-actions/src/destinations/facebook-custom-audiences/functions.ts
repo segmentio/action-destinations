@@ -6,14 +6,14 @@ import { API_VERSION, BASE_URL, FACEBOOK_CUSTOM_AUDIENCE_FLAGON, CANARY_API_VERS
 export function parseFacebookError(error: FacebookResponseError): ParsedFacebookError {
   const {
     response: {
-      status,
+      status = undefined,
       data: {
         error: {
-          message: fbMessage,
-          type,
-          code,
-          error_user_title,
-          error_user_msg
+          message: fbMessage = undefined,
+          type = undefined,
+          code = undefined,
+          error_user_title = undefined,
+          error_user_msg = undefined
         } = {}
       } = {}
     } = {},
