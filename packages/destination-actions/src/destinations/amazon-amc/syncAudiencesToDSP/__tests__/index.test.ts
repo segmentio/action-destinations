@@ -3,6 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { SegmentEvent } from '@segment/actions-core/*'
 import { InvalidAuthenticationError } from '@segment/actions-core'
+import { FLAG_CONSENT_REQUIRED } from '../../utils'
 
 const testDestination = createTestIntegration(Destination)
 const event = createTestEvent({
@@ -111,6 +112,8 @@ const settings = {
   region: 'https://advertising-api.amazon.com'
 }
 
+const features = { [FLAG_CONSENT_REQUIRED]: true }
+
 describe('AmazonAds.syncAudiencesToDSP', () => {
   beforeEach(() => {
     nock.cleanAll()
@@ -128,7 +131,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     const response = await testDestination.testAction('syncAudiencesToDSP', {
       event,
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      features
     })
 
     expect(response.length).toBe(1)
@@ -159,7 +163,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         }
       },
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      features
     })
 
     expect(response.length).toBe(1)
@@ -190,7 +195,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         }
       },
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      features
     })
 
     expect(response.length).toBe(1)
@@ -226,7 +232,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         }
       },
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      features
     })
 
     expect(response.length).toBe(1)
@@ -250,7 +257,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         event: 'Audience Exited'
       },
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      features
     })
 
     expect(response.length).toBe(1)
@@ -269,7 +277,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
           userId: 'invalid+1@user.com'
         },
         settings,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        features
       })
     ).rejects.toThrowError('externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}')
   })
@@ -283,7 +292,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     const response = await testDestination.executeBatch('syncAudiencesToDSP', {
       events,
       settings,
-      mapping
+      mapping,
+      features
     })
     expect(response.length).toBe(2)
     expect(response[0]).toEqual({
@@ -327,7 +337,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     const response = await testDestination.executeBatch('syncAudiencesToDSP', {
       events,
       settings,
-      mapping
+      mapping,
+      features
     })
     expect(response.length).toBe(2)
     expect(response[0]).toEqual({
@@ -395,7 +406,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     const response = await testDestination.executeBatch('syncAudiencesToDSP', {
       events,
       settings,
-      mapping
+      mapping,
+      features
     })
 
     expect(response.length).toBe(2)
@@ -422,7 +434,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
       testDestination.executeBatch('syncAudiencesToDSP', {
         events,
         settings,
-        mapping
+        mapping,
+        features
       })
     ).rejects.toThrowError(new InvalidAuthenticationError('Unauthorized'))
   })
@@ -458,7 +471,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
           amznAdStorage: { '@path': '$.properties.amznAdStorage' },
           amznUserData: { '@path': '$.properties.amznUserData' }
         }
-      }
+      },
+      features
     })
 
     expect(response.length).toBe(1)
@@ -487,7 +501,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     const response = await testDestination.executeBatch('syncAudiencesToDSP', {
       events: [{ ...event, userId: 'test_kochar-02' }],
       settings,
-      mapping
+      mapping,
+      features
     })
 
     expect(response.length).toBe(1)
@@ -523,7 +538,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
       testDestination.testAction('syncAudiencesToDSP', {
         event: deEvent,
         settings,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        features
       })
     ).rejects.toThrowError('Non US country codes must provide valid consent data.')
   })
@@ -546,7 +562,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     const response = await testDestination.executeBatch('syncAudiencesToDSP', {
       events: [deEvent],
       settings,
-      mapping
+      mapping,
+      features
     })
 
     expect(response.length).toBe(1)
@@ -589,7 +606,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         consent: {
           ipAddress: { '@path': '$.context.ip' }
         }
-      }
+      },
+      features
     })
 
     expect(response.length).toBe(1)
