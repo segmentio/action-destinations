@@ -124,8 +124,7 @@ export const fields: Record<string, InputField> = {
   igAccountIds: {
     type: 'string',
     label: 'Instagram Account IDs',
-    description: 'The Instagram account ID of the user.',
-    category: 'hashedPII'
+    description: 'The Instagram account ID of the user.'
   },
   external_audience_id: {
     label: 'Facebook List ID',
