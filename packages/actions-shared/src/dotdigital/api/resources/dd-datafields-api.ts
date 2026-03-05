@@ -1,13 +1,11 @@
 import { RequestClient, DynamicFieldResponse, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
-import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
 import { DataField } from '../types'
-import type { Payload } from '../../addContactToList/generated-types'
 import type { FieldTypeName } from '@segment/actions-core/destination-kittypes'
 
 class DDDataFieldsApi extends DDApi {
-  constructor(settings: Settings, client: RequestClient) {
-    super(settings, client)
+  constructor(api_host: string, client: RequestClient) {
+    super(api_host, client)
   }
 
   /**
@@ -51,15 +49,18 @@ class DDDataFieldsApi extends DDApi {
     return (type === 'number' || type === 'string') && !isNaN(Number(value))
   }
 
-  async validateDataFields(payload: Payload) {
-    if (!payload.dataFields) {
+
+  async validateDataFields(payload: { dataFields?: {[k: string]: unknown}}) {
+    const dataFields = payload.dataFields
+
+    if (!dataFields) {
       return
     }
 
     const response: ModifiedResponse<DataField[]> = await this.get<DataField[]>('/v2/data-fields/')
     const ddDataFields = response.data
 
-    for (const [key, value] of Object.entries(payload.dataFields)) {
+    for (const [key, value] of Object.entries(dataFields)) {
       let validatedValue = value
       const ddDataField = ddDataFields.find((obj) => obj.name === key)
 
@@ -104,9 +105,9 @@ class DDDataFieldsApi extends DDApi {
           break
       }
 
-      payload.dataFields[key] = validatedValue
+      dataFields[key] = validatedValue
     }
-    return payload.dataFields
+    return dataFields
   }
 }
 
