@@ -21,9 +21,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     testAuthentication: async (request) => {
+      "https://app.pendo.io/api/v1/token/verify"
       return await request(`${CONSTANTS.API_BASE_URL}/api/v1/feature`, {
-        method: 'GET',
-        skipResponseCloning: true
+        method: 'GET'
       })
     }
   },
