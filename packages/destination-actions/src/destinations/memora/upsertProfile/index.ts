@@ -77,7 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
     contact_traits: {
       __keys__: async (request, { settings, payload }) => {
         if (!payload.memora_store) {
-          return { choices: [], error: { message: 'Please select a Memora Store first', code: 'STORE_REQUIRED' } }
+          return { choices: [], error: { message: 'Please elect a Memora Store first', code: 'STORE_REQUIRED' } }
         }
         return fetchContactTraits(request, settings, payload.memora_store)
       }
