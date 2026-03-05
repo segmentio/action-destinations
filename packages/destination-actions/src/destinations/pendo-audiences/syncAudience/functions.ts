@@ -1,4 +1,4 @@
-import { RequestClient, MultiStatusResponse, JSONLikeObject, PayloadValidationError, IntegrationError, ErrorCodes, getErrorCodeFromHttpStatus } from '@segment/actions-core'
+import { IntegrationError, ErrorCodes, getErrorCodeFromHttpStatus, RequestClient, MultiStatusResponse, JSONLikeObject, PayloadValidationError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import type { AddMap, RemoveMap, PatchBodyJSON, BatchPatchResponse, BatchMultistatusItem } from './types'
 import { CONSTANTS } from '../constants'
