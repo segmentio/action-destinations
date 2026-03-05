@@ -21,9 +21,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     testAuthentication: async (request) => {
-      return await request(`${CONSTANTS.API_BASE_URL}/api/v1/feature`, {
-        method: 'GET',
-        skipResponseCloning: true
+      return await request(`${CONSTANTS.API_BASE_URL}/api/v1/token/verify`, {
+        method: 'GET'
       })
     }
   },

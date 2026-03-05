@@ -3,7 +3,10 @@ import { CONSTANTS } from './constants'
 import type { CreateSegmentJSON, CreateSegmentResponse, GetSegmentResponse } from './types'
 
 export async function createSegment(request: RequestClient, name: string): Promise<string> {
-  const json: CreateSegmentJSON = { name, visitors: [] }
+  const json: CreateSegmentJSON = { 
+    name, 
+    visitors: ["empty-visitor"] // Pendo requires at least one visitor to create a segment, but it can be an empty placeholder since we'll be updating the segment with the actual visitors in the syncAudience function
+  }
   const response = await request<CreateSegmentResponse>(
     `${CONSTANTS.API_BASE_URL}${CONSTANTS.SEGMENT_ENDPOINT}/upload`,
     {
