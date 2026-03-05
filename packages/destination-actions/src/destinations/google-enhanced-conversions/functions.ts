@@ -568,21 +568,47 @@ const extractUserIdentifiers = (
   }
   // Map user data to Google Ads API format
   for (const payload of payloads) {
+
+    const engageAudienceMembership = getEngageAudienceMembership(payload)
+
     if (
       payload.event_name === 'Audience Entered' ||
       syncMode === 'add' ||
-      (syncMode === 'mirror' && payload.event_name === 'new')
+      (syncMode === 'mirror' && payload.event_name === 'new') || 
+      (syncMode === 'mirror' && engageAudienceMembership === true)
     ) {
       addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
     } else if (
       payload.event_name === 'Audience Exited' ||
       syncMode === 'delete' ||
-      (syncMode === 'mirror' && payload.event_name === 'deleted')
+      (syncMode === 'mirror' && payload.event_name === 'deleted') || 
+      (syncMode === 'mirror' && engageAudienceMembership === false)
     ) {
       removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
     }
   }
   return [addUserIdentifiers, removeUserIdentifiers]
+}
+
+const getEngageAudienceMembership = (payload: UserListPayload): boolean | undefined => {
+    const {
+      engage_fields: {
+        traits_or_properties = undefined,
+        audience_key = undefined,
+        computation_class = undefined
+      } = {} 
+    } = payload
+
+    const engageAudienceMembership = 
+      typeof computation_class === 'string' && 
+      ['audience', 'journey_step'].includes(computation_class) &&
+      typeof audience_key === 'string' && 
+      typeof traits_or_properties === 'object' && 
+      typeof traits_or_properties[audience_key] === 'boolean' ? 
+        traits_or_properties[audience_key] : 
+        undefined
+        
+    return engageAudienceMembership
 }
 
 const createOfflineUserJob = async (
@@ -966,16 +992,20 @@ const extractBatchUserIdentifiers = (
 
 // Helper function to determine operation type
 const determineOperationType = (payload: UserListPayload, syncMode?: string) => {
+  const engageAudienceMembership = getEngageAudienceMembership(payload)
+
   if (
     payload.event_name === 'Audience Entered' ||
     syncMode === 'add' ||
-    (syncMode === 'mirror' && payload.event_name === 'new')
+    (syncMode === 'mirror' && payload.event_name === 'new') || 
+    (syncMode === 'mirror' && engageAudienceMembership === true)
   ) {
     return 'add'
   } else if (
     payload.event_name === 'Audience Exited' ||
     syncMode === 'delete' ||
-    (syncMode === 'mirror' && payload.event_name === 'deleted')
+    (syncMode === 'mirror' && payload.event_name === 'deleted') || 
+    (syncMode === 'mirror' && engageAudienceMembership === false)
   ) {
     return 'remove'
   }
