@@ -78,7 +78,7 @@ describe('AmazonAds.syncAudiencesToDSP (flag off)', () => {
     expect(response[0]).not.toHaveProperty('sent.userConsent')
   })
 
-  it('should not throw a consent error for non-US country code when flag is off (single event)', async () => {
+  it('should not throw a consent error for EEA country code when flag is off (single event)', async () => {
     nock('https://advertising-api.amazon.com')
       .post('/amc/audiences/records')
       .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
@@ -107,7 +107,7 @@ describe('AmazonAds.syncAudiencesToDSP (flag off)', () => {
     expect(response[response.length - 1].status).toBe(202)
   })
 
-  it('should not produce a per-record consent error for non-US country code when flag is off (batch)', async () => {
+  it('should not produce a per-record consent error for EEA country code when flag is off (batch)', async () => {
     nock('https://advertising-api.amazon.com')
       .post('/amc/audiences/records')
       .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')

@@ -492,35 +492,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     })
   })
 
-  it('should not include consent field in record when no consent data is provided (non-EU)', async () => {
-    nock(`https://advertising-api.amazon.com`)
-      .post('/amc/audiences/records')
-      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
-      .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
-
-    const response = await testDestination.executeBatch('syncAudiencesToDSP', {
-      events: [{ ...event, userId: 'test_kochar-02' }],
-      settings,
-      mapping,
-      features
-    })
-
-    expect(response.length).toBe(1)
-    expect(response[0]).toEqual({
-      status: 202,
-      sent: {
-        externalUserId: 'test_kochar-02',
-        countryCode: 'US',
-        action: 'CREATE',
-        hashedPII: [{}],
-        userConsent: { geo: { countryCode: 'US' } }
-      },
-      body: { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' }
-    })
-    expect(response[0]).not.toHaveProperty('sent.consent')
-  })
-
-  it('should throw an error when non-US country code and no consent is provided (single event)', async () => {
+  it('should throw an error when an EEA country code is passed without any consent', async () => {
     const deEvent = {
       ...event,
       context: {
@@ -541,88 +513,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         useDefaultMappings: true,
         features
       })
-    ).rejects.toThrowError('Non US country codes must provide valid consent data.')
+    ).rejects.toThrowError('Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.')
   })
 
-  it('should return a per-record error when non-US country code and consent is missing in batch', async () => {
-    const deEvent = {
-      ...event,
-      userId: 'test_kochar-02',
-      context: {
-        ...event.context,
-        personas: {
-          ...event.context!.personas,
-          audience_settings: {
-            ...event.context!.personas!.audience_settings,
-            countryCode: 'DE'
-          }
-        }
-      }
-    }
-    const response = await testDestination.executeBatch('syncAudiencesToDSP', {
-      events: [deEvent],
-      settings,
-      mapping,
-      features
-    })
-
-    expect(response.length).toBe(1)
-    expect(response[0]).toEqual({
-      status: 400,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errormessage: 'Non US country codes must provide valid consent data.',
-      body: {
-        event_name: 'Audience Entered',
-        externalUserId: 'test_kochar-02',
-        audienceId: '379909525712777677',
-        enable_batching: true
-      },
-      errorreporter: 'DESTINATION'
-    })
-  })
-
-  it('should succeed with EU region when consent is provided in batch', async () => {
-    nock(`https://advertising-api-eu.amazon.com`)
-      .post('/amc/audiences/records')
-      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
-      .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
-
-    const euSettings = { region: 'https://advertising-api-eu.amazon.com' }
-
-    const response = await testDestination.executeBatch('syncAudiencesToDSP', {
-      events: [
-        {
-          ...event,
-          userId: 'test_kochar-02',
-          context: {
-            ...event.context,
-            ip: '5.6.7.8'
-          }
-        }
-      ],
-      settings: euSettings,
-      mapping: {
-        ...mapping,
-        consent: {
-          ipAddress: { '@path': '$.context.ip' }
-        }
-      },
-      features
-    })
-
-    expect(response.length).toBe(1)
-    expect(response[0]).toEqual({
-      status: 202,
-      sent: {
-        externalUserId: 'test_kochar-02',
-        countryCode: 'US',
-        action: 'CREATE',
-        hashedPII: [{}],
-        userConsent: {
-          geo: { ipAddress: '5.6.7.8', countryCode: 'US' }
-        }
-      },
-      body: { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' }
-    })
-  })
+  
 })

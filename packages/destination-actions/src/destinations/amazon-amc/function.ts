@@ -3,7 +3,7 @@ import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestCli
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
 import { MaybeString, AudienceRecord, UserConsent, HashedPIIObject } from './types'
-import { FLAG_CONSENT_REQUIRED, CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID, COUNTRY_CODES } from './utils'
+import { FLAG_CONSENT_REQUIRED, CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID, COUNTRY_CODES, UK_EEA_COUNTRY_CODES } from './utils'
 import { processHashing } from '../../lib/hashing-utils'
 
 function hasStringValue(value: MaybeString): boolean {
@@ -19,8 +19,8 @@ function getUserConsent(consent: Payload['consent'], countryCode: string): UserC
 
   const amzn: NonNullable<UserConsent['consent']>['amzn'] | undefined = hasStringValue(amznAdStorage) && hasStringValue(amznUserData) ? { amznAdStorage: amznAdStorage === 'GRANTED' ? 'GRANTED' : 'DENIED', amznUserData: amznUserData === 'GRANTED' ? 'GRANTED' : 'DENIED' } : undefined
   
-  if(!amzn && !hasStringValue(tcf) && !hasStringValue(gpp) && countryCode != 'US'){
-    throw new PayloadValidationError(`Non US country codes must provide valid consent data.`)
+  if(UK_EEA_COUNTRY_CODES.includes(countryCode) && !amzn && !hasStringValue(tcf) && !hasStringValue(gpp)){
+    throw new PayloadValidationError(`Consent required when sending data with UK and EEA country code ${countryCode}. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.`)
   }
 
   const geo: UserConsent['geo'] = {

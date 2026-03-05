@@ -70,6 +70,11 @@ export const COUNTRY_CODES = [
   "VN", "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW"
 ]
 
+export const UK_EEA_COUNTRY_CODES = [
+  "GB", "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "EL", "HU", "IE", "IT", 
+  "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "IS", "LI", "NO", "CH"
+]
+
 export const REGEX_AUDIENCEID = /"audienceId":(\d+)/
 export const REGEX_ADVERTISERID = /"advertiserId":"(\d+)"/
 type AmazonAMCCredentials = { refresh_token: string; access_token: string; client_id: string; client_secret: string }
