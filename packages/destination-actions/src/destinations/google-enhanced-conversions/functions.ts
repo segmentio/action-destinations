@@ -568,7 +568,7 @@ const extractUserIdentifiers = (
   }
   // Map user data to Google Ads API format
   for (const payload of payloads) {
-    const engageAudienceMembership = getEngageAudienceMembership(payload)
+    const engageAudienceMembership = getEngageAudienceMembership(payload, features)
 
     if (
       payload.event_name === 'Audience Entered' ||
@@ -589,7 +589,12 @@ const extractUserIdentifiers = (
   return [addUserIdentifiers, removeUserIdentifiers]
 }
 
-const getEngageAudienceMembership = (payload: UserListPayload): boolean | undefined => {
+const getEngageAudienceMembership = (payload: UserListPayload, features?: Features): boolean | undefined => {
+  
+  if(!features || !features["google-enhanced-conversions-journeysv2"]) {
+    return undefined
+  }
+  
   const {
     engage_fields: { traits_or_properties = undefined, audience_key = undefined, computation_class = undefined } = {}
   } = payload
@@ -964,7 +969,7 @@ const extractBatchUserIdentifiers = (
       })
       return
     }
-    const operationType = determineOperationType(payload, syncMode)
+    const operationType = determineOperationType(payload, syncMode, features)
     if (!operationType) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -986,8 +991,8 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string) => {
-  const engageAudienceMembership = getEngageAudienceMembership(payload)
+const determineOperationType = (payload: UserListPayload, syncMode?: string, features?: Features) => {
+  const engageAudienceMembership = getEngageAudienceMembership(payload, features)
 
   if (
     payload.event_name === 'Audience Entered' ||

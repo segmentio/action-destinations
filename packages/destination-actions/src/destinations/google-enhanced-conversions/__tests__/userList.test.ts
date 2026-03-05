@@ -347,6 +347,126 @@ describe('GoogleEnhancedConversions', () => {
       )
     })
 
+    it('adds user to list based on engage audience membership (true) in payload data, without relying on event name', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Track',
+        properties: {
+          email: 'test@gmail.com',
+          phone: '3234567890',
+          firstName: 'Jane',
+          lastName: 'Doe'
+        },
+        context: {
+          personas: {
+            audience_settings: {
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          __segment_internal_sync_mode: 'mirror',
+          engage_fields: {
+            traits_or_properties: { test_audience: true },
+            audience_key: 'test_audience',
+            computation_class: 'audience'
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        },
+        features: { 'google-enhanced-conversions-journeysv2': true }
+      })
+
+      expect(responses.length).toEqual(3)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
+      )
+      // Operation should be 'create' (add) because engage audience membership is true, not because of event name
+      expect(responses[1].options.body).toContain('"create"')
+      expect(responses[1].options.body).not.toContain('"remove"')
+    })
+
+    it('removes user from list based on engage audience membership (false) in payload data, without relying on event name', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Track',
+        properties: {
+          email: 'test@gmail.com',
+          phone: '3234567890',
+          firstName: 'Jane',
+          lastName: 'Doe'
+        },
+        context: {
+          personas: {
+            audience_settings: {
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          __segment_internal_sync_mode: 'mirror',
+          engage_fields: {
+            traits_or_properties: { test_audience: false },
+            audience_key: 'test_audience',
+            computation_class: 'audience'
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        },
+        features: { 'google-enhanced-conversions-journeysv2': true }
+      })
+
+      expect(responses.length).toEqual(3)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
+      )
+      // Operation should be 'remove' because engage audience membership is false, not because of event name
+      expect(responses[1].options.body).toContain('"remove"')
+      expect(responses[1].options.body).not.toContain('"create"')
+    })
+
     it('sends an event with default mappings - syncMode = delete', async () => {
       const event = createTestEvent({
         timestamp,
