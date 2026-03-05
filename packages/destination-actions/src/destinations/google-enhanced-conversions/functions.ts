@@ -46,6 +46,8 @@ export const API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_API_VERSION
 export const CANARY_API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
+export const FLAGON_NAME_JOURNEY_V2 = 'google-enhanced-conversions-journeysv2'
+
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
@@ -591,7 +593,7 @@ const extractUserIdentifiers = (
 
 const getEngageAudienceMembership = (payload: UserListPayload, features?: Features): boolean | undefined => {
   
-  if(!features || !features["google-enhanced-conversions-journeysv2"]) {
+  if(!features || !features[FLAGON_NAME_JOURNEY_V2]) {
     return undefined
   }
   

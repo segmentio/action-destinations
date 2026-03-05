@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import GoogleEnhancedConversions from '../index'
-import { API_VERSION } from '../functions'
+import { API_VERSION, FLAGON_NAME_JOURNEY_V2 } from '../functions'
 import { SegmentEvent } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 
@@ -395,7 +395,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features: { 'google-enhanced-conversions-journeysv2': true }
+        features: { [FLAGON_NAME_JOURNEY_V2]: true }
       })
 
       expect(responses.length).toEqual(3)
@@ -455,7 +455,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features: { 'google-enhanced-conversions-journeysv2': true }
+        features: { [FLAGON_NAME_JOURNEY_V2]: true }
       })
 
       expect(responses.length).toEqual(3)
