@@ -1,12 +1,11 @@
 import { RequestClient } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
 
 abstract class DDApi {
   private readonly apiUrl: string
   private readonly request: RequestClient
 
-  protected constructor(settings: Settings, request: RequestClient) {
-    this.apiUrl = settings.api_host
+  protected constructor(api_host: string, request: RequestClient) {
+    this.apiUrl = api_host
     this.request = request
   }
 
