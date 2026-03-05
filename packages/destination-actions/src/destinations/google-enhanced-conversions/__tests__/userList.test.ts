@@ -355,10 +355,13 @@ describe('GoogleEnhancedConversions', () => {
           email: 'test@gmail.com',
           phone: '3234567890',
           firstName: 'Jane',
-          lastName: 'Doe'
+          lastName: 'Doe',
+          test_audience: true
         },
         context: {
           personas: {
+            computation_class: 'audience',
+            computation_key: 'test_audience',
             audience_settings: {
               external_id_type: 'CONTACT_INFO'
             }
@@ -386,9 +389,9 @@ describe('GoogleEnhancedConversions', () => {
           external_audience_id: '1234',
           __segment_internal_sync_mode: 'mirror',
           engage_fields: {
-            traits_or_properties: { test_audience: true },
-            audience_key: 'test_audience',
-            computation_class: 'audience'
+            traits_or_properties: { '@path': '$.properties' },
+            audience_key: { '@path': '$.context.personas.computation_key' },
+            computation_class: { '@path': '$.context.personas.computation_class' }
           }
         },
         useDefaultMappings: true,
@@ -415,10 +418,13 @@ describe('GoogleEnhancedConversions', () => {
           email: 'test@gmail.com',
           phone: '3234567890',
           firstName: 'Jane',
-          lastName: 'Doe'
+          lastName: 'Doe',
+          test_audience: false
         },
         context: {
           personas: {
+            computation_class: 'audience',
+            computation_key: 'test_audience',
             audience_settings: {
               external_id_type: 'CONTACT_INFO'
             }
@@ -446,9 +452,9 @@ describe('GoogleEnhancedConversions', () => {
           external_audience_id: '1234',
           __segment_internal_sync_mode: 'mirror',
           engage_fields: {
-            traits_or_properties: { test_audience: false },
-            audience_key: 'test_audience',
-            computation_class: 'audience'
+            traits_or_properties: { '@path': '$.properties' },
+            audience_key: { '@path': '$.context.personas.computation_key' },
+            computation_class: { '@path': '$.context.personas.computation_class' }
           }
         },
         useDefaultMappings: true,
