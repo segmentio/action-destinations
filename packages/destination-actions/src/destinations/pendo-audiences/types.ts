@@ -10,8 +10,3 @@ export interface CreateSegmentResponse {
 export interface GetSegmentResponse {
   id?: string
 }
-
-export interface PendoErrorResponse {
-  status?: number
-  message?: string
-}
