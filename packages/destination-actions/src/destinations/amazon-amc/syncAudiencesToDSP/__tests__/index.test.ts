@@ -485,7 +485,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         hashedPII: [{}],
         userConsent: {
           geo: { ipAddress: '1.2.3.4', countryCode: 'US' },
-          amzn: { amznAdStorage: 'GRANTED', amznUserData: 'GRANTED' }
+          consent: { amzn: { amznAdStorage: 'GRANTED', amznUserData: 'GRANTED' } }
         }
       },
       body: { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' }

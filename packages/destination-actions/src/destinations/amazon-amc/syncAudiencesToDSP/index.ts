@@ -154,41 +154,11 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        ipAddress: { 
-          '@if': {
-            exists: { '@path': '$.properties.ip' },
-            then: { '@path': '$.properties.ip' },
-            else: { '@path': '$.traits.ip' }
-          }
-        },
-        amznAdStorage: { 
-          '@if': {
-            exists: { '@path': '$.properties.amznAdStorage' },
-            then: { '@path': '$.properties.amznAdStorage' },
-            else: { '@path': '$.traits.amznAdStorage' }
-          }
-        },
-        amznUserData: { 
-          '@if': {
-            exists: { '@path': '$.properties.amznUserData' },
-            then: { '@path': '$.properties.amznUserData' },
-            else: { '@path': '$.traits.amznUserData' }
-          }
-        },
-        tcf: { 
-          '@if': {
-            exists: { '@path': '$.properties.tcf' },
-            then: { '@path': '$.properties.tcf' },
-            else: { '@path': '$.traits.tcf' }
-          }
-        },
-        gpp: { 
-          '@if': {
-            exists: { '@path': '$.properties.gpp' },
-            then: { '@path': '$.properties.gpp' },
-            else: { '@path': '$.traits.gpp' }
-          }
-        }
+        ipAddress: { '@path': '$.properties.ip' },
+        amznAdStorage: { '@path': '$.properties.amznAdStorage' },
+        amznUserData: { '@path': '$.properties.amznUserData' },
+        tcf: { '@path': '$.properties.tcf' },
+        gpp: { '@path': '$.properties.gpp' }
       }
     },
     enable_batching: {

@@ -10,16 +10,16 @@ function hasStringValue(value: MaybeString): boolean {
   return typeof value === 'string' && value.trim().length > 0
 }
 
-function getUserConsent(consent: Payload['consent'], countryCode: string): UserConsent {
-  const { ipAddress, amznAdStorage, amznUserData, tcf, gpp } = consent || {}
+function getUserConsent(payloadConsent: Payload['consent'], countryCode: string): UserConsent {
+  const { ipAddress, amznAdStorage, amznUserData, tcf, gpp } = payloadConsent || {}
 
   if(!COUNTRY_CODES.includes(countryCode)){
     throw new PayloadValidationError(`Invalid country code: ${countryCode}. Country code must be a valid ISO 3166-1 alpha-2 code.`)
   }
 
-  const amzn: NonNullable<UserConsent['consent']>['amzn'] | undefined = hasStringValue(amznAdStorage) && hasStringValue(amznUserData) ? { amznAdStorage: amznAdStorage === 'GRANTED' ? 'GRANTED' : 'DENIED', amznUserData: amznUserData === 'GRANTED' ? 'GRANTED' : 'DENIED' } : undefined
+  const amzn: NonNullable<UserConsent['consent']>['amzn'] | undefined = hasStringValue(amznAdStorage as MaybeString) && hasStringValue(amznUserData as MaybeString) ? { amznAdStorage: amznAdStorage === 'GRANTED' ? 'GRANTED' : 'DENIED', amznUserData: amznUserData === 'GRANTED' ? 'GRANTED' : 'DENIED' } : undefined
   
-  if(UK_EEA_COUNTRY_CODES.includes(countryCode) && !amzn && !hasStringValue(tcf) && !hasStringValue(gpp)){
+  if(UK_EEA_COUNTRY_CODES.includes(countryCode) && !amzn && !hasStringValue(tcf as MaybeString) && !hasStringValue(gpp as MaybeString)){
     throw new PayloadValidationError(`Consent required when sending data with UK and EEA country code ${countryCode}. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.`)
   }
 
@@ -28,11 +28,15 @@ function getUserConsent(consent: Payload['consent'], countryCode: string): UserC
     countryCode
   }
 
-  const consentData: UserConsent = {
-    geo,
-    ...(amzn ? { amzn } : {} ),
+  const consent: UserConsent['consent'] = {
+    ...(amzn && { amzn }),
     ...(hasStringValue(tcf as MaybeString) && { tcf }),
     ...(hasStringValue(gpp as MaybeString) && { gpp })
+  }
+
+  const consentData: UserConsent = {
+    geo,
+    ...(Object.keys(consent).length > 0 && { consent })
   }
   
   return consentData
@@ -48,7 +52,7 @@ export async function processPayload(
   const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings, features)
   // Regular expression to find a audienceId numeric string and replace the quoted audienceId string with an unquoted number
   const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
-
+console.log('Payload to be sent to audience service:', payloadString) 
   const response = await request<RecordsResponseType>(`${settings.region}/amc/audiences/records`, {
     method: 'POST',
     body: payloadString,
