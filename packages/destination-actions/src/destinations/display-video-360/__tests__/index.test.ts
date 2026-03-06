@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration, IntegrationError } from '@segment/actions-core'
 import Destination from '../index'
+import { enable_batching } from '../properties'
 import { GET_AUDIENCE_URL, CREATE_AUDIENCE_URL, OAUTH_URL } from '../constants'
 
 const advertiserId = '424242'
@@ -48,6 +49,12 @@ const getAudienceResponse = [
 ]
 
 describe('Display Video 360', () => {
+  describe('field definitions', () => {
+    it('enable_batching description should reference Display & Video 360', () => {
+      expect(enable_batching.description).toContain('Display & Video 360')
+    })
+  })
+
   beforeEach(() => {
     process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_ID = 'Clientz'
     process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_SECRET = 'Scretz'
