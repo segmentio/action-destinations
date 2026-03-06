@@ -48,7 +48,9 @@ export const batch_size: InputField = {
   type: 'number',
   required: false,
   unsafe_hidden: false,
-  default: 10000
+  default: 10000,
+  minimum: 100,
+  maximum: 10000
 }
 
 export const batch_bytes: InputField = {
@@ -58,7 +60,9 @@ export const batch_bytes: InputField = {
   type: 'number',
   required: false,
   unsafe_hidden: true,
-  default: 4000000
+  default: 4000000,
+  minimum: 100000,
+  maximum: 5000000
 }
 
 export const first_name: InputField = {
