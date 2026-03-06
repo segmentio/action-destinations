@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Enable batching of requests to the TikTok Audiences.
+   * Enable batching of requests to the Display & Video 360.
    */
   enable_batching: boolean
   /**
