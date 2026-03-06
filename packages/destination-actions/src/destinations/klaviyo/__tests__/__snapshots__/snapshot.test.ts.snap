@@ -4,6 +4,7 @@ exports[`Testing snapshot for actions-klaviyo destination: addProfileToList acti
 Object {
   "data": Object {
     "attributes": Object {
+      "batch_bytes": -85518739130286.08,
       "email": "odewaclon@fesijeho.hr",
       "external_id": "E3nNk",
       "first_name": "E3nNk",

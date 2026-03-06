@@ -46,8 +46,20 @@ export const batch_size: InputField = {
   description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
   type: 'number',
   required: false,
+  unsafe_hidden: false,
+  default: 10000,
+  minimum: 100,
+  maximum: 10000
+}
+
+export const batch_bytes: InputField = {
+  label: 'Batch Bytes',
+  description:
+    'Maximum payload size in bytes for each batch sent to Klaviyo. Klaviyo API maximum: 5MB (5000000 bytes). Note: This setting has known limitations with RETL sources and may not function as expected.',
+  type: 'number',
+  required: false,
   unsafe_hidden: true,
-  default: 10000
+  default: 4000000
 }
 
 export const first_name: InputField = {

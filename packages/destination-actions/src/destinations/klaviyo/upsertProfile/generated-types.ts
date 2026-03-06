@@ -69,6 +69,10 @@ export interface Payload {
    */
   batch_size?: number
   /**
+   * Maximum payload size in bytes for each batch sent to Klaviyo. Klaviyo API maximum: 5MB (5000000 bytes). Note: This setting has known limitations with RETL sources and may not function as expected.
+   */
+  batch_bytes?: number
+  /**
    * Klaviyo list ID to override the default list ID when provided in an event payload. Added to support backward compatibility with klaviyo(classic) and facilitate a seamless migration.
    */
   override_list_id?: string
