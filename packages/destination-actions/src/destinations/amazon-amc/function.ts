@@ -1,4 +1,4 @@
-import { InvalidAuthenticationError } from '@segment/actions-core'
+import { InvalidAuthenticationError, Features } from '@segment/actions-core'
 import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
@@ -47,7 +47,7 @@ export async function processPayload(
   settings: Settings,
   payload: Payload[],
   audienceSettings: AudienceSettings,
-  features?: Record<string, boolean>
+  features?: Features
 ) {
   const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings, features)
   // Regular expression to find a audienceId numeric string and replace the quoted audienceId string with an unquoted number
@@ -85,7 +85,7 @@ export async function processPayload(
 export function createPayloadToUploadRecords(
   payloads: Payload[],
   audienceSettings: AudienceSettings, 
-  features?: Record<string, boolean>
+  features?: Features
 ) {
   const records: AudienceRecord[] = []
   const { audienceId } = payloads[0]
@@ -122,7 +122,7 @@ function validateAndPreparePayload(
   payloads: Payload[],
   multiStatusResponse: MultiStatusResponse,
   audienceSettings: AudienceSettings,
-  features?: Record<string, boolean>
+  features?: Features
 ) {
   const validPayloadIndicesBitmap: number[] = []
   const filteredPayloads: AudienceRecord[] = []
