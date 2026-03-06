@@ -43,8 +43,7 @@ export const enable_batching: InputField = {
 
 export const batch_size: InputField = {
   label: 'Batch Size',
-  description:
-    'Maximum number of profiles to include in each batch sent to Klaviyo. Lower values reduce payload size but increase API requests. Recommended: 500-1000 for RETL sources, 5000-10000 for event streams. Klaviyo API maximum: 10,000 profiles.',
+  description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
   type: 'number',
   required: false,
   unsafe_hidden: false,
@@ -60,9 +59,7 @@ export const batch_bytes: InputField = {
   type: 'number',
   required: false,
   unsafe_hidden: true,
-  default: 4000000,
-  minimum: 100000,
-  maximum: 5000000
+  default: 4000000
 }
 
 export const first_name: InputField = {
