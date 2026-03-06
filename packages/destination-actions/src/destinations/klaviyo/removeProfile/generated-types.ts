@@ -18,7 +18,7 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
-   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   * Maximum number of profiles to include in each batch sent to Klaviyo. Lower values reduce payload size but increase API requests. Recommended: 500-1000 for RETL sources, 5000-10000 for event streams. Klaviyo API maximum: 10,000 profiles.
    */
   batch_size?: number
   /**
