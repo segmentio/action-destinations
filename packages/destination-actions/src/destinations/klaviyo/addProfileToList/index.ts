@@ -58,7 +58,6 @@ const action: ActionDefinition<Settings, Payload> = {
       external_id,
       enable_batching,
       batch_size,
-      batch_bytes,
       country_code,
       batch_keys,
       ...additionalAttributes
