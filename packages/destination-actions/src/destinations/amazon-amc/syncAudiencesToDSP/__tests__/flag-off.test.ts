@@ -104,7 +104,7 @@ describe('AmazonAds.syncAudiencesToDSP (flag off)', () => {
       useDefaultMappings: true
     })
 
-    expect(response[response.length - 1].status).toBe(202)
+    expect(response[0].status).toBe(202)
   })
 
   it('should not produce a per-record consent error for EEA country code when flag is off (batch)', async () => {
