@@ -59,7 +59,7 @@ export const batch_bytes: InputField = {
     'Maximum payload size in bytes for each batch sent to Klaviyo. Klaviyo API maximum: 5MB (5000000 bytes). Note: This setting has known limitations with RETL sources and may not function as expected.',
   type: 'number',
   required: false,
-  unsafe_hidden: false,
+  unsafe_hidden: true,
   default: 4000000,
   minimum: 100000,
   maximum: 5000000
