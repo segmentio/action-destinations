@@ -59,7 +59,8 @@ function setTestData(
           break
         }
         case 'date-time':
-          val = chance.date().toISOString()
+          // Use a deterministic UTC timestamp to avoid timezone-based test failures
+          val = new Date(chance.integer({ min: 1609459200000, max: 3600000000000 })).toISOString()
           break
         case 'email':
           val = chance.email()
