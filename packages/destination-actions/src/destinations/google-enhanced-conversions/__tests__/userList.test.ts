@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import GoogleEnhancedConversions from '../index'
-import { API_VERSION } from '../functions'
+import { API_VERSION, FLAGON_NAME_JOURNEY_V2 } from '../functions'
 import { SegmentEvent } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 
@@ -345,6 +345,132 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses[1].options.body).toMatchInlineSnapshot(
         `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
+    })
+
+    it('adds user to list based on engage audience membership (true) in payload data, without relying on event name', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Track',
+        properties: {
+          email: 'test@gmail.com',
+          phone: '3234567890',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          test_audience: true
+        },
+        context: {
+          personas: {
+            computation_class: 'audience',
+            computation_key: 'test_audience',
+            audience_settings: {
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          __segment_internal_sync_mode: 'mirror',
+          engage_fields: {
+            traits_or_properties: { '@path': '$.properties' },
+            audience_key: { '@path': '$.context.personas.computation_key' },
+            computation_class: { '@path': '$.context.personas.computation_class' }
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        },
+        features: { [FLAGON_NAME_JOURNEY_V2]: true }
+      })
+
+      expect(responses.length).toEqual(3)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
+      )
+      // Operation should be 'create' (add) because engage audience membership is true, not because of event name
+      expect(responses[1].options.body).toContain('"create"')
+      expect(responses[1].options.body).not.toContain('"remove"')
+    })
+
+    it('removes user from list based on engage audience membership (false) in payload data, without relying on event name', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Track',
+        properties: {
+          email: 'test@gmail.com',
+          phone: '3234567890',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          test_audience: false
+        },
+        context: {
+          personas: {
+            computation_class: 'audience',
+            computation_key: 'test_audience',
+            audience_settings: {
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          __segment_internal_sync_mode: 'mirror',
+          engage_fields: {
+            traits_or_properties: { '@path': '$.properties' },
+            audience_key: { '@path': '$.context.personas.computation_key' },
+            computation_class: { '@path': '$.context.personas.computation_class' }
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        },
+        features: { [FLAGON_NAME_JOURNEY_V2]: true }
+      })
+
+      expect(responses.length).toEqual(3)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
+      )
+      // Operation should be 'remove' because engage audience membership is false, not because of event name
+      expect(responses[1].options.body).toContain('"remove"')
+      expect(responses[1].options.body).not.toContain('"create"')
     })
 
     it('sends an event with default mappings - syncMode = delete', async () => {
