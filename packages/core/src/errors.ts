@@ -201,6 +201,12 @@ export enum CustomErrorCodes {
   OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED',
   // Destination has spent more than the alloted time and needs to self-terminate
   SELF_TIMEOUT = 'SELF_TIMEOUT',
+  // When createAudience function fails to create an audience
+  CREATE_AUDIENCE_FAILED = 'CREATE_AUDIENCE_FAILED',
+  // When getAudience function fails to retrieve an audience
+  GET_AUDIENCE_FAILED = 'GET_AUDIENCE_FAILED',
+  // When the RETL onMappingSave hook fails
+  RETL_ON_MAPPING_SAVE_FAILED = 'RETL_ON_MAPPING_SAVE_FAILED',
 
   // Fallback error code if no other error code matches
   UNKNOWN_ERROR = 'UNKNOWN_ERROR'
