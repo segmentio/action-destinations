@@ -246,6 +246,7 @@ const action: ActionDefinition<Settings, Payload> = {
       phone_number: initialPhoneNumber,
       enable_batching,
       batch_size,
+      batch_bytes,
       list_id: otherListId,
       override_list_id,
       country_code,
