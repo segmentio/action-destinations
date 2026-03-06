@@ -47,10 +47,10 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ settings }) {
     return {
       headers: {
-        'User-Agent': 'SegmentSyncAudiences/1.0.0',
+        'User-Agent': 'SegmentSyncAudiences/1.1.0',
         'Content-Type': 'application/json',
         Authorization: `${settings.apiKey}`,
-        'LD-API-Version': '20220603'
+        'LD-API-Version': '20240415'
       }
     }
   },

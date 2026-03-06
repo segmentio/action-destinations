@@ -5,6 +5,7 @@ import type { Payload } from './syncAudiencesToDSP/generated-types'
 import { MaybeString, AudienceRecord, UserConsent, HashedPIIObject } from './types'
 import { FLAG_CONSENT_REQUIRED, CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID, COUNTRY_CODES, UK_EEA_COUNTRY_CODES } from './utils'
 import { processHashing } from '../../lib/hashing-utils'
+import { AMAZON_AMC_API_VERSION } from './versioning-info'
 
 function hasStringValue(value: MaybeString): boolean {
   return typeof value === 'string' && value.trim().length > 0
@@ -57,7 +58,7 @@ export async function processPayload(
     method: 'POST',
     body: payloadString,
     headers: {
-      'Content-Type': 'application/vnd.amcaudiences.v1+json'
+      'Content-Type': `application/vnd.amcaudiences.${AMAZON_AMC_API_VERSION}+json`
     },
     timeout: 15000
   })
