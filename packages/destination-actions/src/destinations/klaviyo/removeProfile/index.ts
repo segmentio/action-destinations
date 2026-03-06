@@ -9,7 +9,7 @@ import {
   removeBulkProfilesFromList,
   removeProfileFromList
 } from '../functions'
-import { batch_size, country_code, enable_batching } from '../properties'
+import { batch_size, batch_bytes, country_code, enable_batching } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Profile',
@@ -37,6 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     enable_batching: { ...enable_batching },
     batch_size: { ...batch_size, default: 1000 },
+    batch_bytes: { ...batch_bytes },
     phone_number: {
       label: 'Phone Number',
       description: `Individual's phone number in E.164 format. If SMS is not enabled and if you use Phone Number as identifier, then you have to provide one of Email or External ID.`,

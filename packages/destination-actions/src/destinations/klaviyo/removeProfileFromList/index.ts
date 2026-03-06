@@ -3,7 +3,16 @@ import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 
 import { getProfiles, processPhoneNumber, removeBulkProfilesFromList, removeProfileFromList } from '../functions'
-import { email, list_id, external_id, enable_batching, phone_number, country_code, batch_size } from '../properties'
+import {
+  email,
+  list_id,
+  external_id,
+  enable_batching,
+  phone_number,
+  country_code,
+  batch_size,
+  batch_bytes
+} from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Profile from List (Engage)',
@@ -17,6 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: { ...enable_batching },
     country_code: { ...country_code },
     batch_size: { ...batch_size, default: 1000 },
+    batch_bytes: { ...batch_bytes },
     batch_keys: {
       label: 'Batch Keys',
       description: 'The keys to use for batching the events.',

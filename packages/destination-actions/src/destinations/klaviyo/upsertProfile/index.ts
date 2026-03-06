@@ -17,7 +17,7 @@ import {
   updateMultiStatusWithSuccessData,
   updateMultiStatusWithKlaviyoErrors
 } from '../functions'
-import { batch_size, country_code } from '../properties'
+import { batch_size, batch_bytes, country_code } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -149,6 +149,7 @@ const action: ActionDefinition<Settings, Payload> = {
       dynamic: true
     },
     batch_size: { ...batch_size },
+    batch_bytes: { ...batch_bytes },
     override_list_id: {
       unsafe_hidden: true,
       label: 'List ID Override',

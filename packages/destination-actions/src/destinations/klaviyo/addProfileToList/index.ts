@@ -8,6 +8,7 @@ import {
   list_id,
   enable_batching,
   batch_size,
+  batch_bytes,
   first_name,
   last_name,
   organization,
@@ -30,6 +31,7 @@ const action: ActionDefinition<Settings, Payload> = {
     external_id: { ...external_id },
     enable_batching: { ...enable_batching },
     batch_size: { ...batch_size },
+    batch_bytes: { ...batch_bytes },
     first_name: { ...first_name },
     last_name: { ...last_name },
     image: { ...image },
@@ -56,6 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
       external_id,
       enable_batching,
       batch_size,
+      batch_bytes,
       country_code,
       batch_keys,
       ...additionalAttributes
