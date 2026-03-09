@@ -166,7 +166,7 @@ const action: ActionDefinition<Settings, Payload> = {
     engage_fields: {
       label: 'Engage Audience Fields',
       description:
-        'Field used for processing an Engage Audience. Segment uses these fields to determine if the payload is generated from an Engage Audience and to extract the necessary information for audience syncing. If these fields are empty the "Sync Mode" field will be used to determine if the payload is from an Engage Audience.',
+        'Field used for processing an Engage Audience. Used to determine audience membership when the "Event Name" field value is not "Audience Entered" or "Audience Exited".',
       type: 'object',
       required: false,
       unsafe_hidden: true,

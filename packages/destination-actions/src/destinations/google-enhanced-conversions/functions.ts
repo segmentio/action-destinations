@@ -601,12 +601,11 @@ const getEngageAudienceMembership = (payload: UserListPayload, features?: Featur
     engage_fields: { traits_or_properties = undefined, audience_key = undefined, computation_class = undefined } = {}
   } = payload
 
-  const engageAudienceMembership =
+  const engageAudienceMembership = 
     typeof computation_class === 'string' &&
-    ['audience', 'journey_step'].includes(computation_class) &&
     typeof audience_key === 'string' &&
-    typeof traits_or_properties === 'object' &&
-    typeof traits_or_properties[audience_key] === 'boolean'
+    ['audience', 'journey_step'].includes(computation_class) &&
+    typeof traits_or_properties?.[audience_key] === 'boolean'
       ? traits_or_properties[audience_key]
       : undefined
 

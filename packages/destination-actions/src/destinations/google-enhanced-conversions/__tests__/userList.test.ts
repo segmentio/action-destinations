@@ -473,6 +473,178 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses[1].options.body).not.toContain('"create"')
     })
 
+    it('returns a PAYLOAD_VALIDATION_FAILED error when feature flag is on, syncMode is mirror, and engage_fields contains no data', async () => {
+      // determineOperationType returns null: flag is on but engage_fields has no usable
+      // audience_key / computation_class / traits_or_properties, and event_name is not
+      // one of the recognised values ('Audience Entered', 'Audience Exited', 'new', 'deleted').
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Track',
+          properties: {
+            email: 'test@gmail.com',
+            phone: '3234567890'
+          }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.executeBatch('userList', {
+        events,
+        mapping: {
+          phone: { '@path': '$.properties.phone' },
+          email: { '@path': '$.properties.email' },
+          event_name: { '@path': '$.event' },
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          __segment_internal_sync_mode: 'mirror',
+          engage_fields: {}, // empty — no computation_class, audience_key, or traits_or_properties
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        settings: { customerId },
+        features: { [FLAGON_NAME_JOURNEY_V2]: true }
+      })
+
+      expect(responses[0]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Could not determine Operation Type.'
+      })
+    })
+
+    it('adds user to list via event_name logic when feature flag is off, syncMode is mirror, and event_name is "new" (engage_fields are ignored)', async () => {
+      // Flag is off → getEngageAudienceMembership returns undefined.
+      // determineOperationType falls through to the event_name branch:
+      // syncMode === 'mirror' && event_name === 'new' → returns 'add'.
+      const event = createTestEvent({
+        timestamp,
+        event: 'new',
+        properties: {
+          email: 'test@gmail.com',
+          phone: '3234567890',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          test_audience: true
+        },
+        context: {
+          personas: {
+            computation_class: 'audience',
+            computation_key: 'test_audience'
+          }
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          __segment_internal_sync_mode: 'mirror',
+          engage_fields: {
+            traits_or_properties: { '@path': '$.properties' },
+            audience_key: { '@path': '$.context.personas.computation_key' },
+            computation_class: { '@path': '$.context.personas.computation_class' }
+          },
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: { customerId }
+        // No FLAGON_NAME_JOURNEY_V2 feature — engage_fields are ignored
+      })
+
+      expect(responses.length).toEqual(3)
+      expect(responses[1].options.body).toContain('"create"')
+      expect(responses[1].options.body).not.toContain('"remove"')
+    })
+
+    it('returns a PAYLOAD_VALIDATION_FAILED error when feature flag is off, syncMode is undefined, and engage_fields are defined', async () => {
+      // Flag is off → getEngageAudienceMembership returns undefined.
+      // syncMode is undefined and event_name is not a recognised value → determineOperationType returns null.
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Track',
+          properties: {
+            email: 'test@gmail.com',
+            phone: '3234567890',
+            test_audience: true
+          },
+          context: {
+            personas: {
+              computation_class: 'audience',
+              computation_key: 'test_audience'
+            }
+          }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.executeBatch('userList', {
+        events,
+        mapping: {
+          phone: { '@path': '$.properties.phone' },
+          email: { '@path': '$.properties.email' },
+          event_name: { '@path': '$.event' },
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          // __segment_internal_sync_mode intentionally omitted → syncMode is undefined
+          engage_fields: {
+            traits_or_properties: { '@path': '$.properties' },
+            audience_key: { '@path': '$.context.personas.computation_key' },
+            computation_class: { '@path': '$.context.personas.computation_class' }
+          },
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        settings: { customerId }
+        // No FLAGON_NAME_JOURNEY_V2 feature
+      })
+
+      expect(responses[0]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Could not determine Operation Type.'
+      })
+    })
+
     it('sends an event with default mappings - syncMode = delete', async () => {
       const event = createTestEvent({
         timestamp,
