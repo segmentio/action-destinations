@@ -46,6 +46,8 @@ export const API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_API_VERSION
 export const CANARY_API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
+export const FLAGON_NAME_JOURNEY_V2 = 'google-enhanced-conversions-journeysv2'
+
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
@@ -568,21 +570,46 @@ const extractUserIdentifiers = (
   }
   // Map user data to Google Ads API format
   for (const payload of payloads) {
+    const engageAudienceMembership = getEngageAudienceMembership(payload, features)
+
     if (
       payload.event_name === 'Audience Entered' ||
       syncMode === 'add' ||
-      (syncMode === 'mirror' && payload.event_name === 'new')
+      (syncMode === 'mirror' && payload.event_name === 'new') ||
+      (syncMode === 'mirror' && engageAudienceMembership === true)
     ) {
       addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
     } else if (
       payload.event_name === 'Audience Exited' ||
       syncMode === 'delete' ||
-      (syncMode === 'mirror' && payload.event_name === 'deleted')
+      (syncMode === 'mirror' && payload.event_name === 'deleted') ||
+      (syncMode === 'mirror' && engageAudienceMembership === false)
     ) {
       removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
     }
   }
   return [addUserIdentifiers, removeUserIdentifiers]
+}
+
+const getEngageAudienceMembership = (payload: UserListPayload, features?: Features): boolean | undefined => {
+  
+  if(!features || !features[FLAGON_NAME_JOURNEY_V2]) {
+    return undefined
+  }
+  
+  const {
+    engage_fields: { traits_or_properties = undefined, audience_key = undefined, computation_class = undefined } = {}
+  } = payload
+
+  const engageAudienceMembership = 
+    typeof computation_class === 'string' &&
+    typeof audience_key === 'string' &&
+    ['audience', 'journey_step'].includes(computation_class) &&
+    typeof traits_or_properties?.[audience_key] === 'boolean'
+      ? traits_or_properties[audience_key]
+      : undefined
+
+  return engageAudienceMembership
 }
 
 const createOfflineUserJob = async (
@@ -943,7 +970,7 @@ const extractBatchUserIdentifiers = (
       })
       return
     }
-    const operationType = determineOperationType(payload, syncMode)
+    const operationType = determineOperationType(payload, syncMode, features)
     if (!operationType) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -965,17 +992,21 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string) => {
+const determineOperationType = (payload: UserListPayload, syncMode?: string, features?: Features) => {
+  const engageAudienceMembership = getEngageAudienceMembership(payload, features)
+
   if (
     payload.event_name === 'Audience Entered' ||
     syncMode === 'add' ||
-    (syncMode === 'mirror' && payload.event_name === 'new')
+    (syncMode === 'mirror' && payload.event_name === 'new') ||
+    (syncMode === 'mirror' && engageAudienceMembership === true)
   ) {
     return 'add'
   } else if (
     payload.event_name === 'Audience Exited' ||
     syncMode === 'delete' ||
-    (syncMode === 'mirror' && payload.event_name === 'deleted')
+    (syncMode === 'mirror' && payload.event_name === 'deleted') ||
+    (syncMode === 'mirror' && engageAudienceMembership === false)
   ) {
     return 'remove'
   }
