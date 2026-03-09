@@ -15,7 +15,7 @@ import {
   prepareEventData
 } from '../utils'
 import { RequestClient, MultiStatusResponse, ModifiedResponse } from '@segment/actions-core'
-import { Region, EventData, ConversionTypeV2, ImportConversionEventsResponse } from '../../types'
+import { Region, EventData, ConversionTypeV2, EventMultiStatusResponse } from '../../types'
 import { Payload } from '../generated-types'
 
 describe('trackConversion utils', () => {
@@ -179,11 +179,14 @@ describe('trackConversion utils', () => {
   describe('sendEventsRequest', () => {
     const settings = { region: Region.NA, advertiserId: '123456789' }
     const eventData: EventData = {
-      name: 'test_event',
-      eventType: ConversionTypeV2.PAGE_VIEW,
-      eventActionSource: 'website',
+      eventDescription: {
+        name: 'event1',
+        conversionType: ConversionTypeV2.PAGE_VIEW,
+        eventSource: 'website',
+        eventIngestionMethod: "SERVER_TO_SERVER",
+      },
       countryCode: 'US',
-      timestamp: '2023-01-01T12:00:00Z'
+      eventTime: '2023-01-01T12:00:00Z'
     }
 
     beforeEach(() => {
@@ -191,14 +194,14 @@ describe('trackConversion utils', () => {
     })
 
     it('should send a single event correctly', async () => {
-      nock(settings.region).post('/events/v1').reply(200, { success: true })
+      nock(settings.region).post('/adsApi/v1/create/events').reply(200, { success: true })
 
       const mockRequest = jest.fn().mockResolvedValue({
         status: 200,
         data: { success: true }
       })
 
-      const response = await sendEventsRequest<ImportConversionEventsResponse>(
+      const response = await sendEventsRequest<EventMultiStatusResponse>(
         mockRequest as unknown as RequestClient,
         settings,
         eventData
@@ -207,12 +210,11 @@ describe('trackConversion utils', () => {
       expect(response.status).toBe(200)
       expect(response.data).toEqual({ success: true })
       expect(mockRequest).toHaveBeenCalledWith(
-        `${settings.region}/events/v1`,
+        `${settings.region}/adsApi/v1/create/events`,
         expect.objectContaining({
           method: 'POST',
           json: {
-            eventData: [eventData],
-            ingestionMethod: 'SERVER_TO_SERVER'
+            events: [eventData]
           },
           headers: expect.objectContaining({
             'Amazon-Ads-AccountId': settings.advertiserId
@@ -222,16 +224,16 @@ describe('trackConversion utils', () => {
     })
 
     it('should send multiple events as an array', async () => {
-      nock(settings.region).post('/events/v1').reply(200, { success: true })
+      nock(settings.region).post('/adsApi/v1/create/events').reply(200, { success: true })
 
       const mockRequest = jest.fn().mockResolvedValue({
         status: 200,
         data: { success: true }
       })
 
-      const multipleEvents = [eventData, { ...eventData, name: 'second_event' }]
+      const multipleEvents = [eventData, { ...eventData, eventDescription: { ...eventData.eventDescription, name: 'second_event' } }]
 
-      const response = await sendEventsRequest<ImportConversionEventsResponse>(
+      const response = await sendEventsRequest<EventMultiStatusResponse>(
         mockRequest as unknown as RequestClient,
         settings,
         multipleEvents
@@ -239,18 +241,17 @@ describe('trackConversion utils', () => {
 
       expect(response.status).toBe(200)
       expect(mockRequest).toHaveBeenCalledWith(
-        `${settings.region}/events/v1`,
+        `${settings.region}/adsApi/v1/create/events`,
         expect.objectContaining({
           json: {
-            eventData: multipleEvents,
-            ingestionMethod: 'SERVER_TO_SERVER'
+            events: multipleEvents
           }
         })
       )
     })
 
     it('should respect throwHttpErrors value always being false', async () => {
-      nock(settings.region).post('/events/v1').reply(400, { error: 'Bad Request' })
+      nock(settings.region).post('/adsApi/v1/create/events').reply(400, { error: 'Bad Request' })
 
       const mockRequest = jest.fn().mockResolvedValue({
         status: 400,
@@ -310,9 +311,9 @@ describe('trackConversion utils', () => {
         status: 207,
         data: {
           success: [],
-          error: [{ index: 1, httpStatusCode: '400', subErrors: [{ errorMessage: 'Invalid data' }] }]
+          error: [{ index: 0, errors: [{ code: "BAD_REQUEST", message: 'Invalid data' }] }]
         }
-      } as unknown as ModifiedResponse<ImportConversionEventsResponse>
+      } as unknown as ModifiedResponse<EventMultiStatusResponse>
 
       const result = handleResponse(response)
 
@@ -320,7 +321,7 @@ describe('trackConversion utils', () => {
         status: 400,
         data: {
           success: [],
-          error: [{ index: 1, httpStatusCode: '400', subErrors: [{ errorMessage: 'Invalid data' }] }]
+          error: [{ index: 0, errors: [{ code: "BAD_REQUEST", message: 'Invalid data' }] }]
         }
       })
     })
@@ -329,17 +330,17 @@ describe('trackConversion utils', () => {
       const response = {
         status: 207,
         data: {
-          success: [{ index: 1, message: null }],
+          success: [{ index: 0, event: null }],
           error: []
         }
-      } as unknown as ModifiedResponse<ImportConversionEventsResponse>
+      } as unknown as ModifiedResponse<EventMultiStatusResponse>
 
       const result = handleResponse(response)
 
       expect(result).toMatchObject({
         status: 207,
         data: {
-          success: [{ index: 1, message: null }],
+          success: [{ index: 0, event: null }],
           error: []
         }
       })
@@ -362,30 +363,37 @@ describe('trackConversion utils', () => {
     })
 
     it('should process 207 multistatus responses from a performBatch() correctly', () => {
-      const response = {
-        status: 207,
-        data: {
-          success: [{ index: 1, message: 'Success' }],
-          error: [{ index: 2, httpStatusCode: '400', subErrors: [{ errorMessage: 'Invalid data' }] }]
-        }
-      } as unknown as ModifiedResponse<ImportConversionEventsResponse>
 
       const validPayloads = [
         {
-          name: 'event1',
-          eventType: ConversionTypeV2.PAGE_VIEW,
-          eventActionSource: 'website',
+          eventDescription: {
+            name: 'event1',
+            conversionType: ConversionTypeV2.PAGE_VIEW,
+            eventSource: 'website',
+            eventIngestionMethod: "SERVER_TO_SERVER",
+          },
           countryCode: 'US',
-          timestamp: '2023-01-01T12:00:00Z'
+          eventTime: '2023-01-01T12:00:00Z'
         },
         {
-          name: 'event2',
-          eventType: ConversionTypeV2.PAGE_VIEW,
-          eventActionSource: 'website',
+          eventDescription: {
+            name: 'event2',
+            conversionType: ConversionTypeV2.PAGE_VIEW,
+            eventSource: 'website',
+            eventIngestionMethod: "SERVER_TO_SERVER",
+          },
           countryCode: 'US',
-          timestamp: '2023-01-01T12:00:00Z'
+          eventTime: '2023-01-01T12:00:00Z'
         }
       ]
+
+      const response = {
+        status: 207,
+        data: {
+          success: [{ index: 0, event: validPayloads[0] }],
+          error: [{ index: 1, errors: [{ code: "BAD_REQUEST", message: 'Invalid data' }] }]
+        }
+      } as unknown as ModifiedResponse<EventMultiStatusResponse>
 
       const validPayloadIndicesBitmap = [0, 1]
       const multiStatusResponse = new MultiStatusResponse()
@@ -422,15 +430,18 @@ describe('trackConversion utils', () => {
           success: [],
           error: []
         }
-      } as unknown as ModifiedResponse<ImportConversionEventsResponse>
+      } as unknown as ModifiedResponse<EventMultiStatusResponse>
 
       const validPayloads = [
         {
-          name: 'event1',
-          eventType: ConversionTypeV2.PAGE_VIEW,
-          eventActionSource: 'website',
+          eventDescription: {
+            name: 'event1',
+            conversionType: ConversionTypeV2.PAGE_VIEW,
+            eventSource: 'website',
+            eventIngestionMethod: "SERVER_TO_SERVER",
+          },
           countryCode: 'US',
-          timestamp: '2023-01-01T12:00:00Z'
+          eventTime: '2023-01-01T12:00:00Z'
         }
       ]
 
@@ -462,11 +473,14 @@ describe('trackConversion utils', () => {
       const result = prepareEventData(payload, settings)
 
       expect(result).toMatchObject({
-        name: payload.name,
-        eventType: payload.eventType,
-        eventActionSource: 'WEBSITE',
+        eventDescription: {
+          name: payload.name,
+          conversionType: payload.eventType,
+          eventSource: payload.eventActionSource,
+          eventIngestionMethod: "SERVER_TO_SERVER",
+        },
         countryCode: payload.countryCode,
-        timestamp: payload.timestamp
+        eventTime: payload.timestamp
       })
 
       // Check that matchKeys is prepared correctly
@@ -570,7 +584,7 @@ describe('trackConversion utils', () => {
       expect(() => prepareEventData(payload, settings)).toThrow('At least one valid match key must be provided')
     })
 
-    it('should include currencyCode and unitsSold when eventType is OFF_AMAZON_PURCHASES', () => {
+    it('should include currencyCode and unitsSold when conversionType is OFF_AMAZON_PURCHASES', () => {
       const payload: Payload = {
         name: 'purchase_event',
         eventType: ConversionTypeV2.OFF_AMAZON_PURCHASES,
@@ -592,7 +606,7 @@ describe('trackConversion utils', () => {
       expect(result.unitsSold).toBe(2)
     })
 
-    it('should exclude currencyCode and unitsSold when eventType is not OFF_AMAZON_PURCHASES', () => {
+    it('should exclude currencyCode and unitsSold when conversionType is not OFF_AMAZON_PURCHASES', () => {
       const payload: Payload = {
         name: 'view_event',
         eventType: ConversionTypeV2.PAGE_VIEW,
@@ -625,7 +639,7 @@ describe('trackConversion utils', () => {
         currencyCode: 'USD',
         unitsSold: 2,
         clientDedupeId: 'dedup-123',
-        dataProcessingOptions: ['LIMITED_DATA_USE'],
+        dataProcessingOptions: ["LIMITED_DATA_USE"],
         matchKeys: {
           email: 'test@example.com'
         },
@@ -647,12 +661,7 @@ describe('trackConversion utils', () => {
           attr7: 'false',
           attr8: 'true',
           attr9: '{"newsletter":true,"notifications":false}',
-          attr10: '["premium","loyalty",9099]',
-          someOtherAttr: null, // This should be ignored
-          someOtherAttr2: undefined, // This should also be ignored
-          someOtherAttr3: 'valid', // This should be included
-          someOtherAttr4: 123, // This should be included as a string
-          someOtherAttr5: true // This should be included as a string
+          attr10: '["premium","loyalty",9099]'
         },
         enable_batching: true
       }
@@ -707,18 +716,6 @@ describe('trackConversion utils', () => {
         {
           name: 'attr10',
           value: '["premium","loyalty",9099]'
-        },
-        {
-          name: 'someOtherAttr3',
-          value: 'valid'
-        },
-        {
-          name: 'someOtherAttr4',
-          value: '123'
-        },
-        {
-          name: 'someOtherAttr5',
-          value: 'true'
         }
       ]
 
@@ -726,10 +723,10 @@ describe('trackConversion utils', () => {
       expect(result.value).toBe(99.99)
       expect(result.currencyCode).toBe('USD')
       expect(result.unitsSold).toBe(2)
-      expect(result.clientDedupeId).toBe('dedup-123')
-      expect(result.dataProcessingOptions).toEqual(['LIMITED_DATA_USE'])
+      expect(result.eventId).toBe('dedup-123')
+      expect(result.dataProcessingOptions?.options).toEqual('LIMITED_DATA_USE')
       expect(result.consent).toBeDefined()
-      expect(result.customAttributes).toEqual(customAttributes)
+      expect(result.customData).toEqual(customAttributes)
     })
   })
 })

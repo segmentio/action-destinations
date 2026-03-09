@@ -2,6 +2,19 @@ import nock from 'nock'
 import { createTestIntegration, IntegrationError } from '@segment/actions-core'
 import Destination, { BASE_URL, SEGMENT_TYPE } from '../index'
 
+// Mock AWS SDK before any imports to avoid initialization issues
+jest.mock('@aws-sdk/client-s3', () => ({
+  S3Client: jest.fn().mockImplementation(() => ({
+    send: jest.fn()
+  })),
+  PutObjectCommand: jest.fn()
+}))
+
+jest.mock('@aws-sdk/client-sts', () => ({
+  STSClient: jest.fn(),
+  AssumeRoleCommand: jest.fn()
+}))
+
 const testDestination = createTestIntegration(Destination)
 
 const createAudienceInput = {

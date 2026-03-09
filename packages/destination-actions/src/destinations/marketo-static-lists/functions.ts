@@ -255,7 +255,7 @@ export async function removeFromListBatch(
 
   if (!deleteLeadsResponse.data.success) {
     statsContext?.statsClient?.incr('removeFromAudience.error', payloads.length, statsContext?.tags)
-    return parseErrorResponse(deleteLeadsResponse.data)
+    return parseErrorResponseBatch(deleteLeadsResponse.data, payloads.length)
   }
   statsContext?.statsClient?.incr('removeFromAudience.success', payloads.length, statsContext?.tags)
 
@@ -309,39 +309,74 @@ function extractLeadIds(leads: MarketoLeads[] = []) {
   return ids
 }
 
-function parseErrorResponse(response: MarketoResponse) {
-  if (response.errors[0].code === '601' || response.errors[0].code === '602') {
-    throw new IntegrationError(response.errors[0].message, 'INVALID_AUTHENTICATION', 401)
-  }
+// Marketo error codes that indicate transient/temporary failures which should be retried.
+// Reference: https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/rest/error-codes
+const MARKETO_RETRYABLE_CODES = new Set([
+  '502', // Bad gateway / timeout
+  '604', // Request timeout
+  '606', // Rate limit exceeded (>100 calls per 20 seconds)
+  '607', // Daily quota exhausted
+  '608', // API temporarily unavailable
+  '611', // Unhandled system exception
+  '614', // Unreachable subscription
+  '615', // Concurrent access limit exceeded
+  '713', // Transient error – system resource temporarily unavailable
+  '719', // Lock wait timeout
+  '1019', // Batch import in progress on list
+  '1029' // Queue/export limit exceeded
+])
 
-  if (response.errors[0].code === '1019') {
-    throw new RetryableError(
-      'Error while attempting to upload users to the list in Marketo. This batch will be retried.'
+function parseErrorResponse(response: MarketoResponse) {
+  if (!response.errors || response.errors.length === 0) {
+    throw new IntegrationError(
+      'Unknown error: Marketo returned success=false with no error details',
+      ErrorCodes.UNKNOWN_ERROR,
+      500
     )
   }
 
-  throw new IntegrationError(response.errors[0].message, 'NOT_ACCEPTABLE', 400)
+  const { code, message } = response.errors[0]
+
+  if (code === '601' || code === '602') {
+    throw new IntegrationError(message, 'INVALID_AUTHENTICATION', 401)
+  }
+
+  if (MARKETO_RETRYABLE_CODES.has(code)) {
+    throw new RetryableError(message)
+  }
+
+  throw new IntegrationError(message, ErrorCodes.NOT_ACCEPTABLE, 406)
 }
 
 function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number) {
-  if (response.errors[0].code === '601' || response.errors[0].code === '602') {
-    // An INVALID_AUTHENTICATION error is thrown instead of returning a MultiStatusResponse
-    // Refreshing the access token in Client Credentials flow is triggered by this error
-    throw new IntegrationError(response.errors[0].message, 'INVALID_AUTHENTICATION', 401)
+  if (!response.errors || response.errors.length === 0) {
+    return buildMultiStatusErrorResponse(payloadSize, {
+      status: 500,
+      errortype: ErrorCodes.UNKNOWN_ERROR,
+      errormessage: 'Unknown error: Marketo returned success=false with no error details'
+    })
   }
 
-  if (response.errors[0].code === '1019') {
+  const { code, message } = response.errors[0]
+
+  if (code === '601' || code === '602') {
+    // An INVALID_AUTHENTICATION error is thrown instead of returning a MultiStatusResponse
+    // Refreshing the access token in Client Credentials flow is triggered by this error
+    throw new IntegrationError(message, ErrorCodes.INVALID_AUTHENTICATION, 401)
+  }
+
+  if (MARKETO_RETRYABLE_CODES.has(code)) {
     return buildMultiStatusErrorResponse(payloadSize, {
       status: 500,
       errortype: ErrorCodes.RETRYABLE_ERROR,
-      errormessage: 'Error while attempting to upload users to the list in Marketo. This batch will be retried.'
+      errormessage: message
     })
   }
 
   return buildMultiStatusErrorResponse(payloadSize, {
-    status: 400,
+    status: 406,
     errortype: ErrorCodes.NOT_ACCEPTABLE,
-    errormessage: response.errors[0].message
+    errormessage: message
   })
 }
 

@@ -37,6 +37,7 @@ export interface IdentifyEvent {
       [key: string]: unknown
     }
     $geoip_disable?: boolean
+    $ip?: string
   }
   timestamp?: string | number
 }

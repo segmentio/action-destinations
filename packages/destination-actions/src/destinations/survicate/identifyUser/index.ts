@@ -32,9 +32,10 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The Segment traits to be forwarded to Survicate',
       label: 'Traits',
       default: {
-        '@path': '$.traits',
-        '@fallback': {
-          '@path': '$.context.traits'
+        '@if': {
+          exists: { '@path': '$.traits' },
+          then: { '@path': '$.traits' },
+          else: { '@path': '$.context.traits' }
         }
       }
     },

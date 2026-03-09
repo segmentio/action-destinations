@@ -17,6 +17,9 @@ describe('Posthog.event', () => {
       userId: 'test-user-id',
       properties: {
         testProperty: 'test-value'
+      },
+      context: {
+        ip: '192.168.1.1'
       }
     })
 
@@ -45,7 +48,8 @@ describe('Posthog.event', () => {
           properties: {
             ...event.properties,
             distinct_id: event.userId,
-            $process_person_profile: false
+            $process_person_profile: false,
+            $ip: '192.168.1.1'
           },
           timestamp: event.receivedAt
         }

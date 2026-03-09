@@ -1,7 +1,8 @@
-import { RequestClient, ExecuteInput } from '@segment/actions-core'
+import { ExecuteInput, RequestClient, StatsContext } from '@segment/actions-core'
 import type { Payload as s3Payload } from './audienceEnteredS3/generated-types'
 import type { Payload as sftpPayload } from './audienceEnteredSftp/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 
 // Type definitions
 export type RawData = {
@@ -19,6 +20,7 @@ export type ProcessDataInput<T extends s3Payload | sftpPayload> = {
   payloads: T[]
   features?: Record<string, boolean>
   rawData?: RawData[]
+  statsContext?: StatsContext
 }
 
 export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unknown> = ExecuteInput<
@@ -31,7 +33,7 @@ export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unkno
 Generates the LiveRamp ingestion file. Expected format:
 liveramp_audience_key[1],identifier_data[0..n]
 */
-function generateFile(payloads: s3Payload[] | sftpPayload[]) {
+function generateFile(payloads: s3Payload[] | sftpPayload[], alphabeticalFieldOrder = false) {
   const headers = new Set<string>()
   headers.add('audience_key')
 
@@ -53,6 +55,14 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   // Convert headers to an ordered array for consistent indexing
   const headerArray = Array.from(headers)
 
+  // Check if incoming headers (excluding audience_key) are already in alphabetical order
+  const incomingHeaders = headerArray.filter((h) => h !== 'audience_key')
+  const sortedIncomingHeaders = [...incomingHeaders].sort()
+  const isIncomingAlphabetical = incomingHeaders.every((header, index) => header === sortedIncomingHeaders[index])
+
+  // Sort alphabetically (excluding audience_key which is always first) if feature flag is enabled
+  const sortedHeaderArray = alphabeticalFieldOrder ? ['audience_key', ...sortedIncomingHeaders] : headerArray
+
   // Declare rows as an empty Buffer
   let rows = Buffer.from('')
 
@@ -60,9 +70,9 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   for (let i = 0; i < payloads.length; i++) {
     const payload = payloads[i]
     // Initialize row with empty strings aligned with header count
-    const row: string[] = new Array(headerArray.length).fill('')
+    const row: string[] = new Array(sortedHeaderArray.length).fill('')
 
-    row[headerArray.indexOf('audience_key')] = enquoteIdentifier(payload.audience_key)
+    row[sortedHeaderArray.indexOf('audience_key')] = enquoteIdentifier(payload.audience_key)
 
     // Using a set to keep track of unhashed_identifier_data keys that have already been processed
     // This guarantees that when both hashed and unhashed keys share the same key-value pair the unhashed one
@@ -72,9 +82,9 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
     // Process unhashed_identifier_data first
     if (payload.unhashed_identifier_data) {
       for (const key of Object.keys(payload.unhashed_identifier_data)) {
-        const index = headerArray.indexOf(key)
+        const index = sortedHeaderArray.indexOf(key)
         unhashedKeys.add(key)
-        /*Identifiers need to be hashed according to LiveRamp spec's: https://docs.liveramp.com/connect/en/formatting-identifiers.html 
+        /*Identifiers need to be hashed according to LiveRamp spec's: https://docs.liveramp.com/connect/en/formatting-identifiers.html
         Phone Number requires SHA1 and email uses sha256 */
         if (key === 'phone_number') {
           row[index] = `"${processHashing(String(payload.unhashed_identifier_data[key]), 'sha1', 'hex', (value) =>
@@ -94,7 +104,7 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
         // if a key exists in both identifier_data and unhashed_identifier_data
         // the value from identifier_data will be skipped, prioritizing the unhashed_identifier_data value.
         if (!unhashedKeys.has(key)) {
-          const index = headerArray.indexOf(key)
+          const index = sortedHeaderArray.indexOf(key)
           row[index] = enquoteIdentifier(String(payload.identifier_data[key]))
         }
       }
@@ -106,10 +116,10 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   }
 
   // Add headers to the beginning of the file contents
-  rows = Buffer.concat([Buffer.from(headerArray.join(payloads[0].delimiter) + '\n'), rows])
+  rows = Buffer.concat([Buffer.from(sortedHeaderArray.join(payloads[0].delimiter) + '\n'), rows])
 
   const filename = payloads[0].filename
-  return { filename, fileContents: rows }
+  return { filename, fileContents: rows, isIncomingAlphabetical }
 }
 /*
   To avoid collision with delimeters, we should surround identifiers with quotation marks.
@@ -147,4 +157,21 @@ const normalize = (key: string, value: string): string => {
   return value
 }
 
-export { generateFile, enquoteIdentifier, normalize }
+/**
+ * Enriches the stats context with subscription metadata tags for tracking and analytics.
+ * @param statsContext - The stats context to enrich with tags
+ * @param subscriptionMetadata - Subscription metadata containing IDs to add as tags
+ */
+function enrichStatsContextWithMetadata(statsContext?: StatsContext, subscriptionMetadata?: SubscriptionMetadata) {
+  if (statsContext && subscriptionMetadata) {
+    statsContext.tags = [
+      ...(statsContext.tags || []),
+      `actionConfigId:${subscriptionMetadata.actionConfigId}`,
+      `destinationConfigId:${subscriptionMetadata.destinationConfigId}`,
+      `sourceId:${subscriptionMetadata.sourceId}`,
+      `actionId:${subscriptionMetadata.actionId}`
+    ]
+  }
+}
+
+export { generateFile, enquoteIdentifier, normalize, enrichStatsContextWithMetadata }
