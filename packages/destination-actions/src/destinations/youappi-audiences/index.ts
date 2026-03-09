@@ -11,10 +11,10 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       api_key: {
-        type: 'string',
+        type: 'password',
         label: 'API Key',
         description: 'Your Youappi API key.',
-        required: true
+        required: true 
       }
     }
   },
