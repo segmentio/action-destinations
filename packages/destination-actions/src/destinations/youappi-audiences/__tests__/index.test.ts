@@ -31,7 +31,7 @@ describe('YouAppi Audiences', () => {
       }
 
       nock('https://audiences.youappi.com')
-        .post('/advertiser_name/AudienceMembership', expectedRequestBody)
+        .post('/segment/AudienceMembership', expectedRequestBody)
         .reply(200, { success: true })
 
       const settings = {
@@ -106,7 +106,7 @@ describe('YouAppi Audiences', () => {
       }
 
       nock('https://audiences.youappi.com')
-        .post('/advertiser_name/AudienceMembership', expectedRequestBody)
+        .post('/segment/AudienceMembership', expectedRequestBody)
         .reply(200, { success: true })
 
       const settings = {
@@ -185,7 +185,7 @@ describe('YouAppi Audiences', () => {
       }
 
       nock('https://audiences.youappi.com')
-        .post('/advertiser_name/AudienceMembership', expectedRequestBody)
+        .post('/segment/AudienceMembership', expectedRequestBody)
         .reply(200, { success: true })
 
       const settings = {
@@ -311,11 +311,11 @@ describe('YouAppi Audiences', () => {
       }
 
       nock('https://audiences.youappi.com')
-        .post('/advertiser_name/AudienceMembership', expectedAddRequestBody)
+        .post('/segment/AudienceMembership', expectedAddRequestBody)
         .reply(200, { success: true })
 
       nock('https://audiences.youappi.com')
-        .post('/advertiser_name/AudienceMembership', expectedRemoveRequestBody)
+        .post('/segment/AudienceMembership', expectedRemoveRequestBody)
         .reply(200, { success: true })
 
       const settings = {
@@ -443,7 +443,7 @@ describe('YouAppi Audiences', () => {
       }
 
       nock('https://audiences.youappi.com')
-        .post('/advertiser_name/AudienceMembership', expectedRequestBody)
+        .post('/segment/AudienceMembership', expectedRequestBody)
         .reply(401, { error: 'Unauthorized', message: 'Invalid API key' })
 
       const settings = {
@@ -518,7 +518,7 @@ describe('YouAppi Audiences', () => {
       }
 
       nock('https://audiences.youappi.com')
-        .post('/advertiser_name/AudienceMembership', expectedRequestBody)
+        .post('/segment/AudienceMembership', expectedRequestBody)
         .reply(503, { error: 'Service Unavailable' })
 
       const settings = {

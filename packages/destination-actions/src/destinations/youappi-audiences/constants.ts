@@ -1,1 +1,1 @@
-export const URL = 'https://audiences.youappi.com/advertiser_name/AudienceMembership'
+export const URL = 'https://audiences.youappi.com/segment/AudienceMembership'
