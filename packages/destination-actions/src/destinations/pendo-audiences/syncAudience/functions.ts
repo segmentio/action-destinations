@@ -1,9 +1,10 @@
 import { IntegrationError, ErrorCodes, getErrorCodeFromHttpStatus, RequestClient, MultiStatusResponse, JSONLikeObject, PayloadValidationError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import type { AddMap, RemoveMap, PatchBodyJSON, BatchPatchResponse, BatchMultistatusItem } from './types'
-import { CONSTANTS } from '../constants'
+import { SEGMENT_ENDPOINT } from '../constants'
+import { getDomain } from '../functions'
 
-export async function send(request: RequestClient, payload: Payload[], isBatch: boolean): Promise<MultiStatusResponse | void> {
+export async function send(request: RequestClient, region: string, payload: Payload[], isBatch: boolean): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
   const segmentId = payload[0]?.segmentAudienceId
 
@@ -54,8 +55,9 @@ export async function send(request: RequestClient, payload: Payload[], isBatch: 
   }
 
   try {
+    
     const response = await request<BatchPatchResponse>(
-      `${CONSTANTS.API_BASE_URL}${CONSTANTS.SEGMENT_ENDPOINT}/${segmentId}/visitor`,
+      `${getDomain(region)}/${SEGMENT_ENDPOINT}/${segmentId}/visitor`,
       {
         method: 'PATCH',
         json: patchBody
@@ -99,7 +101,6 @@ export async function send(request: RequestClient, payload: Payload[], isBatch: 
   }
   return
 }
-
 
 function buildSent(op: 'add' | 'remove', visitorId: string): JSONLikeObject {
   return { patch: [{ op, path: '/visitors', value: [visitorId] }] } as unknown as JSONLikeObject

@@ -1,16 +1,17 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { CONSTANTS } from '../../constants'
+import { REGIONS, SEGMENT_ENDPOINT } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
-  integrationKey: 'test-integration-key'
+  integrationKey: 'test-integration-key',
+  region: REGIONS.DEFAULT.name
 }
 
 const SEGMENT_ID = 'seg-abc123'
-const segmentBase = `${CONSTANTS.SEGMENT_ENDPOINT}/${SEGMENT_ID}`
+const segmentBase = `/${SEGMENT_ENDPOINT}/${SEGMENT_ID}`
 
 const baseMapping = {
   visitorId: { '@path': '$.userId' },
@@ -26,7 +27,7 @@ describe('Pendo Audiences - syncAudience perform', () => {
   })
 
   it('should add a visitor to the audience successfully', async () => {
-    nock(CONSTANTS.API_BASE_URL)
+    nock(REGIONS.DEFAULT.domain)
       .patch(`${segmentBase}/visitor`, { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] })
       .reply(200, { multistatus: [{ status: 200, message: 'success', operation: 'add' }] })
 
@@ -46,7 +47,7 @@ describe('Pendo Audiences - syncAudience perform', () => {
   })
 
   it('should remove a visitor from the audience successfully', async () => {
-    nock(CONSTANTS.API_BASE_URL)
+    nock(REGIONS.DEFAULT.domain)
       .patch(`${segmentBase}/visitor`, { patch: [{ op: 'remove', path: '/visitors', value: ['user1'] }] })
       .reply(200, { multistatus: [{ status: 200, message: 'success', operation: 'remove' }] })
 
@@ -82,7 +83,7 @@ describe('Pendo Audiences - syncAudience perform', () => {
   })
 
   it('should throw an IntegrationError when the API returns 500', async () => {
-    nock(CONSTANTS.API_BASE_URL)
+    nock(REGIONS.DEFAULT.domain)
       .patch(`${segmentBase}/visitor`)
       .reply(500, { message: 'Internal Server Error' })
 

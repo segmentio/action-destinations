@@ -2,16 +2,17 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import type { SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
-import { CONSTANTS } from '../../constants'
+import { REGIONS, SEGMENT_ENDPOINT } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
-  integrationKey: 'test-integration-key'
+  integrationKey: 'test-integration-key',
+  region: REGIONS.DEFAULT.name
 }
 
 const SEGMENT_ID = 'seg-abc123'
-const segmentBase = `${CONSTANTS.SEGMENT_ENDPOINT}/${SEGMENT_ID}`
+const segmentBase = `/${SEGMENT_ENDPOINT}/${SEGMENT_ID}`
 
 function makeEvent(userId: string, audienceValue: boolean, type: 'identify' | 'track' = 'identify'): SegmentEvent {
   return createTestEvent({
@@ -50,7 +51,7 @@ describe('Pendo Audiences - syncAudience', () => {
         patch: [{ op: 'add', path: '/visitors', value: ['user1', 'user2', 'user3'] }]
       }
 
-      nock(CONSTANTS.API_BASE_URL)
+      nock(REGIONS.DEFAULT.domain)
         .patch(`${segmentBase}/visitor`, expectedPatchJSON)
         .reply(200, { multistatus: [{ status: 200, message: 'success', operation: 'add' }] })
 
@@ -85,7 +86,7 @@ describe('Pendo Audiences - syncAudience', () => {
         patch: [{ op: 'remove', path: '/visitors', value: ['user1', 'user2'] }]
       }
 
-      nock(CONSTANTS.API_BASE_URL)
+      nock(REGIONS.DEFAULT.domain)
         .patch(`${segmentBase}/visitor`, expectedPatchJSON)
         .reply(200, { multistatus: [{ status: 200, message: 'success', operation: 'remove' }] })
 
@@ -118,7 +119,7 @@ describe('Pendo Audiences - syncAudience', () => {
         ]
       }
 
-      nock(CONSTANTS.API_BASE_URL)
+      nock(REGIONS.DEFAULT.domain)
         .patch(`${segmentBase}/visitor`, expectedPatchJSON)
         .reply(200, {
           multistatus: [
@@ -163,7 +164,7 @@ describe('Pendo Audiences - syncAudience', () => {
         patch: [{ op: 'add', path: '/visitors', value: ['user1'] }]
       }
 
-      nock(CONSTANTS.API_BASE_URL)
+      nock(REGIONS.DEFAULT.domain)
         .patch(`${segmentBase}/visitor`, expectedPatchJSON)
         .reply(200, { multistatus: [{ status: 200, message: 'success', operation: 'add' }] })
 
@@ -252,7 +253,7 @@ describe('Pendo Audiences - syncAudience', () => {
 
   describe('executeBatch - API error handling', () => {
     it('should return a 500 error for all payloads when the API returns 500', async () => {
-      nock(CONSTANTS.API_BASE_URL).patch(`${segmentBase}/visitor`).reply(500, { message: 'Internal Server Error' })
+      nock(REGIONS.DEFAULT.domain).patch(`${segmentBase}/visitor`).reply(500, { message: 'Internal Server Error' })
 
       const responses = await testDestination.executeBatch('syncAudience', {
         events: [makeEvent('user1', true), makeEvent('user2', true)],
@@ -276,7 +277,7 @@ describe('Pendo Audiences - syncAudience', () => {
     })
 
     it('should return a 403 error for all payloads when the API returns 403', async () => {
-      nock(CONSTANTS.API_BASE_URL).patch(`${segmentBase}/visitor`).reply(403, { message: 'Forbidden' })
+      nock(REGIONS.DEFAULT.domain).patch(`${segmentBase}/visitor`).reply(403, { message: 'Forbidden' })
 
       const responses = await testDestination.executeBatch('syncAudience', {
         events: [makeEvent('user1', true), makeEvent('user2', false)],
@@ -300,7 +301,7 @@ describe('Pendo Audiences - syncAudience', () => {
     })
 
     it('should return per-operation errors when Pendo multistatus reports add failure but remove success', async () => {
-      nock(CONSTANTS.API_BASE_URL)
+      nock(REGIONS.DEFAULT.domain)
         .patch(`${segmentBase}/visitor`)
         .reply(200, {
           multistatus: [

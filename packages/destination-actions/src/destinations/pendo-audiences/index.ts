@@ -1,8 +1,8 @@
 import { AudienceDestinationDefinition, IntegrationError, defaultValues } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
-import { createSegment, getSegment } from './functions'
-import { CONSTANTS } from './constants'
+import { getDomain, createSegment, getSegment } from './functions'
+import { REGIONS } from './constants'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Pendo Audiences',
@@ -18,10 +18,22 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           'Your Pendo Integration Key. Found in Pendo under Settings > Integrations > Integration Keys.',
         type: 'password',
         required: true
+      },
+      region: {
+        label: 'Region',
+        description: 'The region your Pendo account is hosted in.',
+        type: 'string',
+        required: true,
+        choices: (Object.keys(REGIONS) as Array<keyof typeof REGIONS>).map((key) => ({
+          label: REGIONS[key].name,
+          value: REGIONS[key].name
+        })),
+        default: 'DEFAULT'
       }
     },
-    testAuthentication: async (request) => {
-      return await request(`${CONSTANTS.API_BASE_URL}/api/v1/token/verify`, {
+    testAuthentication: async (request, { settings }) => {
+      const { region } = settings
+      return await request(`${getDomain(region)}/api/v1/token/verify`, {
         method: 'GET'
       })
     }
@@ -51,7 +63,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async createAudience(request, createAudienceInput) {
       const {
         audienceName,
-        audienceSettings
+        audienceSettings,
+        settings: { region }
       } = createAudienceInput
 
       const segmentName = audienceSettings?.audienceName ?? audienceName
@@ -60,12 +73,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('A Pendo Segment name is required', 'MISSING_REQUIRED_FIELD', 422)
       }
 
-      const segmentId = await createSegment(request, segmentName)
+      const segmentId = await createSegment(request, region, segmentName)
       return { externalId: segmentId }
     },
     async getAudience(request, getAudienceInput) {
-      const { externalId } = getAudienceInput
-      const segmentId = await getSegment(request, externalId)
+      const { externalId, settings: { region } } = getAudienceInput
+      const segmentId = await getSegment(request, region, externalId)
       return { externalId: segmentId }
     }
   },
