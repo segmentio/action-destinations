@@ -418,14 +418,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         for (let i = 0; i < payloads.length; i++) {
           // Validate payload schema
           let payload = removeEmptyValues(payloads[i], schema) as Payload
-
-          if (payload.audience_membership === undefined) {
-            const audience_membership = resolveAudienceMembership(bundle.data[i])
-            if (audience_membership !== undefined) {
-              payload = { ...payload, audience_membership } as Payload
-            }
-          }
-
           try {
             // AJV schema validator only removes fields that are not defined in the schema (Refer ajv docs)
             // Refer https://ajv.js.org/guide/modifying-data.html#removing-additional-properties
@@ -445,6 +437,14 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
             // Add datadog stats for events that are discarded by Actions
             bundle.statsContext?.statsClient?.incr('action.multistatus_discard', 1, bundle.statsContext?.tags)
             continue
+          }
+
+          // Inject audience_membership after validation so AJV does not strip it
+          if (payload.audience_membership === undefined) {
+            const audience_membership = resolveAudienceMembership(bundle.data[i])
+            if (audience_membership !== undefined) {
+              payload = { ...payload, audience_membership } as Payload
+            }
           }
 
           // Event is validated, pass it to the action
