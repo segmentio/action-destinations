@@ -1,7 +1,6 @@
 import * as crypto from 'crypto'
 import {
   getAudienceId,
-  isEngageAudience,
   validate,
   getData,
   normalizeMonth,
@@ -53,97 +52,15 @@ describe('getAudienceId', () => {
 })
 
 // ---------------------------------------------------------------------------
-// isEngageAudience
-// ---------------------------------------------------------------------------
-describe('isEngageAudience', () => {
-  it('returns true when computation_class is "audience"', () => {
-    const payload: Payload = {
-      ...basePayload,
-      engage_fields: {
-        traits_or_properties: { myAudience: true },
-        audience_key: 'myAudience',
-        computation_class: 'audience'
-      }
-    }
-    expect(isEngageAudience(payload)).toBe(true)
-  })
-
-  it('returns true when computation_class is "journey_step"', () => {
-    const payload: Payload = {
-      ...basePayload,
-      engage_fields: {
-        traits_or_properties: { myAudience: true },
-        audience_key: 'myAudience',
-        computation_class: 'journey_step'
-      }
-    }
-    expect(isEngageAudience(payload)).toBe(true)
-  })
-
-  it('returns false when engage_fields is absent', () => {
-    expect(isEngageAudience(basePayload)).toBe(false)
-  })
-
-  it('returns false when computation_class is not "audience" or "journey_step"', () => {
-    const payload: Payload = {
-      ...basePayload,
-      engage_fields: {
-        traits_or_properties: { myTrait: 42 },
-        audience_key: 'myTrait',
-        computation_class: 'computed_trait'
-      }
-    }
-    expect(isEngageAudience(payload)).toBe(false)
-  })
-
-  it('returns false when traits_or_properties is a primitive (not an object)', () => {
-    const payload = {
-      ...basePayload,
-      engage_fields: {
-        traits_or_properties: 'not-an-object' as unknown as object,
-        audience_key: 'myAudience',
-        computation_class: 'audience'
-      }
-    } as Payload
-    expect(isEngageAudience(payload)).toBe(false)
-  })
-
-  it('returns false when audience_key is falsy', () => {
-    const payload = {
-      ...basePayload,
-      engage_fields: {
-        traits_or_properties: { myAudience: true },
-        audience_key: '' as string,
-        computation_class: 'audience'
-      }
-    } as Payload
-    expect(isEngageAudience(payload)).toBe(false)
-  })
-})
-
-// ---------------------------------------------------------------------------
 // validate
 // ---------------------------------------------------------------------------
 describe('validate', () => {
-  const engagePayload: Payload = {
-    ...basePayload,
-    engage_fields: {
-      traits_or_properties: { myAudience: true },
-      audience_key: 'myAudience',
-      computation_class: 'audience'
-    }
-  }
-
   it('returns undefined for a valid upsert', () => {
-    expect(validate('aud-123', basePayload, 'upsert')).toBeUndefined()
+    expect(validate('aud-123', 'upsert')).toBeUndefined()
   })
 
   it('returns undefined for a valid delete', () => {
-    expect(validate('aud-123', basePayload, 'delete')).toBeUndefined()
-  })
-
-  it('returns undefined for a valid mirror with an Engage payload', () => {
-    expect(validate('aud-123', engagePayload, 'mirror')).toBeUndefined()
+    expect(validate('aud-123', 'delete')).toBeUndefined()
   })
 
   it('returns an error message when syncMode is undefined', () => {
@@ -157,21 +74,17 @@ describe('validate', () => {
   })
 
   it('returns an error message when audienceId is undefined', () => {
-    expect(validate(undefined, basePayload, 'upsert')).toBe('Missing audience ID.')
+    expect(validate(undefined, 'upsert')).toBe('Missing audience ID.')
   })
 
   it('returns an error message when audienceId is an empty string', () => {
-    expect(validate('', basePayload, 'upsert')).toBe('Missing audience ID.')
+    expect(validate('', 'upsert')).toBe('Missing audience ID.')
   })
 
   it('returns an error message when audienceId is a non-string value', () => {
-    expect(validate(99, basePayload, 'upsert')).toBe('Missing audience ID.')
+    expect(validate(99, 'upsert')).toBe('Missing audience ID.')
   })
 
-  it('returns an error message when syncMode is "mirror" but payload is not from Engage', () => {
-    const result = validate('aud-123', basePayload, 'mirror')
-    expect(result).toMatch(/Sync Mode set to "Mirror"/)
-  })
 })
 
 // ---------------------------------------------------------------------------
