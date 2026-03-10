@@ -33,7 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   syncMode: {
     label: 'Sync Mode',
-    description: 'Define how the records will be synced to Facebook Custom Audiences. When syncing Engage Audiences this should be set to "Mirror". When syncing from Reverse ETL, choose Upsert or Delete.',
+    description: 'Define how the records will be synced to Facebook Custom Audiences.',
     default: 'mirror',
     choices: [
       { value: 'mirror', label: 'Mirror' },

@@ -1,4 +1,4 @@
-import { US_STATE_CODES, SCHEMA_PROPERTIES } from './constants'
+import { US_STATE_CODES, SCHEMA_PROPERTIES, RETL_MEMBERSHIP } from './constants'
 import { Payload } from './generated-types'
 import { RequestClient, PayloadValidationError, IntegrationError, MultiStatusResponse, ErrorCodes, Features } from '@segment/actions-core'
 import type { JSONLikeObject } from '@segment/actions-core'
@@ -20,7 +20,7 @@ export async function send(
 ): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
   const audienceId = getAudienceId(payloads[0], hookOutputs)
-  const errorMessage = validate(audienceId, payloads[0], syncMode)
+  const errorMessage = validate(audienceId, syncMode)
 
   if (errorMessage) {
     return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
@@ -38,15 +38,24 @@ export async function send(
       break
     case 'mirror':
       payloads.forEach((payload, index) => {
-        const { engage_fields: { traits_or_properties, audience_key } = {} } = payload
-
-        const isAudienceMember = traits_or_properties && typeof audience_key === 'string' && traits_or_properties[audience_key] === true
-
-        if (isAudienceMember) {
-          addMap.set(index, payload)
-        } else {
-          deleteMap.set(index, payload)
+        let membership: boolean | undefined = undefined 
+        if(isRETLAudience(payload)){
+          const { membership_fields: { retl_event_name = '' } = {} } = payload
+          membership = [RETL_MEMBERSHIP.NEW, RETL_MEMBERSHIP.UPDATED].includes(retl_event_name.toLocaleLowerCase())
+        } 
+        else if (isEngageAudience(payload)){
+          const { membership_fields: { traits_or_properties, audience_key } = {} } = payload
+          membership = traits_or_properties && typeof audience_key === 'string' && traits_or_properties[audience_key] === true
         }
+        if(membership === true) {
+          addMap.set(index, payload)
+        } 
+        else if(membership === false){
+          deleteMap.set(index, payload)
+        } 
+        else {
+          setErrorResponse(msResponse, payload, 400, index, isBatch, "Audience membership details missing", ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+        } 
       })
       break
   }
@@ -136,8 +145,13 @@ export function getAudienceId(payload: Payload, hookOutputs?: { retlOnMappingSav
 }
 
 export function isEngageAudience(payload: Payload): boolean {
-  const { engage_fields: { computation_class, audience_key, traits_or_properties } = {} } = payload
+  const { membership_fields: { computation_class, audience_key, traits_or_properties } = {} } = payload
   return typeof traits_or_properties === 'object' && audience_key && computation_class && ['audience', 'journey_step'].includes(computation_class) ? true : false
+}
+
+export function isRETLAudience(payload: Payload): boolean {
+  const { membership_fields: { retl_event_name = '' } = {} } = payload
+  return [RETL_MEMBERSHIP.NEW, RETL_MEMBERSHIP.UPDATED, RETL_MEMBERSHIP.DELETED].includes(retl_event_name.toLowerCase())
 }
 
 export function getJSON(payloads: Payload[]): AudienceJSON {
@@ -164,19 +178,13 @@ export function getJSON(payloads: Payload[]): AudienceJSON {
   }
 }
 
-export function validate(audienceId: unknown, payload: Payload, syncMode?: SyncMode): string | undefined {
-  const isEngage = isEngageAudience(payload)
-  
-  if (typeof syncMode !== 'string' || !['upsert', 'delete', 'mirror'].includes(syncMode)) {
+export function validate(audienceId: unknown, syncMode?: SyncMode): string | undefined {
+  if (!['upsert', 'delete', 'mirror'].includes(syncMode ?? '')) {
     return 'Sync Mode is required and must be one of the following values: "Mirror", "Upsert", or "Delete".'
   }
 
   if (!audienceId || typeof audienceId !== 'string') {
     return 'Missing audience ID.'
-  }
-
-  if (syncMode === 'mirror' && !isEngage) {
-    return 'Sync Mode set to "Mirror", but payload is not from Engage. Please ensure payloads are sent from Engage when using "Mirror" sync mode.'
   }
 }
 
