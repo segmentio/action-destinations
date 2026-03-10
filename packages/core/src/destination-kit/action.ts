@@ -339,6 +339,13 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       results.push({ output: 'Payload validated' })
     }
 
+    if (payload.audience_membership === undefined) {
+      const audience_embership = resolveAudienceMembership(bundle.data)
+      if (audience_embership !== undefined) {
+        payload = { ...payload, audience_embership } as Payload
+      }
+    }
+
     let hookOutputs = {}
     if (this.definition.hooks) {
       for (const hookType in this.definition.hooks) {
@@ -371,7 +378,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       hookOutputs,
       syncMode: isSyncMode(syncMode) ? syncMode : undefined,
       matchingKey: matchingKey ? String(matchingKey) : undefined,
-      audienceMembership: resolveAudienceMembership(bundle.data),
       subscriptionMetadata: bundle.subscriptionMetadata,
       signal: bundle?.signal
     }
@@ -411,7 +417,15 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
         for (let i = 0; i < payloads.length; i++) {
           // Validate payload schema
-          const payload = removeEmptyValues(payloads[i], schema) as Payload
+          let payload = removeEmptyValues(payloads[i], schema) as Payload
+
+          if (payload.audience_membership === undefined) {
+            const audience_membership = resolveAudienceMembership(bundle.data[i])
+            if (audience_membership !== undefined) {
+              payload = { ...payload, audience_membership } as Payload
+            }
+          }
+
           try {
             // AJV schema validator only removes fields that are not defined in the schema (Refer ajv docs)
             // Refer https://ajv.js.org/guide/modifying-data.html#removing-additional-properties

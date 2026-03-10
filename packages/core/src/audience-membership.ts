@@ -22,7 +22,11 @@ export function resolveAudienceMembership(rawData: InputData | undefined): boole
 
   return undefined
 }
-
+/**
+ * Resolves whether a user is being added to or removed from an audience based on Engage data.
+ * Returns `true` if the user is being added, `false` if being removed,
+ * or `undefined` if the payload is not an audience computation or membership cannot be determined.
+ */
 export function engageAudienceMembership(rawData: InputData | undefined): boolean | undefined {
   if (!rawData) return undefined
 
@@ -58,6 +62,11 @@ export function engageAudienceMembership(rawData: InputData | undefined): boolea
   return typeof membershipValue === 'boolean' ? membershipValue : undefined
 }
 
+/**
+ * Resolves whether a user is being added to or removed from an audience based on RETL data.
+ * Returns `true` if the user is being added, `false` if being removed,
+ * or `undefined` if the payload is not an audience computation or membership cannot be determined.
+ */
 export function retlAudienceMembership(rawData: InputData | undefined): boolean | undefined {
   if (!rawData) return undefined
 

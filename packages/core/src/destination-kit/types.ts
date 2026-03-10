@@ -69,11 +69,6 @@ export interface ExecuteInput<
   syncMode?: SyncMode
   /** The key for the action's field used to match data between Segment and the Destination */
   matchingKey?: string
-  /**
-   * Whether the user is being added to (`true`) or removed from (`false`) an audience.
-   * `undefined` when the event is not an audience computation.
-   */
-  audienceMembership?: boolean
   /** The data needed in OAuth requests */
   readonly auth?: AuthTokens
   /**
