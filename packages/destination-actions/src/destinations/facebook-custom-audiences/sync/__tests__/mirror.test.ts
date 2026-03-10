@@ -27,7 +27,7 @@ const engageMapping = {
   externalId: { '@path': '$.userId' },
   email: { '@path': '$.traits.email' },
   external_audience_id: { '@path': '$.context.personas.external_audience_id' },
-  engage_fields: {
+  membership_fields: {
     traits_or_properties: {
       '@if': {
         exists: { '@path': '$.traits' },
@@ -148,7 +148,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           external_audience_id: ENGAGE_AUDIENCE_ID,
           enable_batching: true,
           batch_size: 10000,
-          engage_fields: {
+          membership_fields: {
             traits_or_properties: { email: 'add1@test.com', [AUDIENCE_KEY]: true },
             audience_key: AUDIENCE_KEY,
             computation_class: 'audience'
@@ -169,7 +169,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           external_audience_id: ENGAGE_AUDIENCE_ID,
           enable_batching: true,
           batch_size: 10000,
-          engage_fields: {
+          membership_fields: {
             traits_or_properties: { email: 'add2@test.com', [AUDIENCE_KEY]: true },
             audience_key: AUDIENCE_KEY,
             computation_class: 'audience'
@@ -191,7 +191,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           external_audience_id: ENGAGE_AUDIENCE_ID,
           enable_batching: true,
           batch_size: 10000,
-          engage_fields: {
+          membership_fields: {
             traits_or_properties: { email: 'remove1@test.com', [AUDIENCE_KEY]: false },
             audience_key: AUDIENCE_KEY,
             computation_class: 'audience'
@@ -212,7 +212,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           external_audience_id: ENGAGE_AUDIENCE_ID,
           enable_batching: true,
           batch_size: 10000,
-          engage_fields: {
+          membership_fields: {
             traits_or_properties: { email: 'remove2@test.com', [AUDIENCE_KEY]: false },
             audience_key: AUDIENCE_KEY,
             computation_class: 'audience'
@@ -303,7 +303,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           externalId: 'add-1',
           email: 'add1@test.com',
           external_audience_id: ENGAGE_AUDIENCE_ID,
-          engage_fields: {
+          membership_fields: {
             traits_or_properties: { email: 'add1@test.com', [AUDIENCE_KEY]: true },
             audience_key: AUDIENCE_KEY,
             computation_class: 'audience'
@@ -322,7 +322,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           externalId: 'add-2',
           email: 'add2@test.com',
           external_audience_id: ENGAGE_AUDIENCE_ID,
-          engage_fields: {
+          membership_fields: {
             traits_or_properties: { email: 'add2@test.com', [AUDIENCE_KEY]: true },
             audience_key: AUDIENCE_KEY,
             computation_class: 'audience'
@@ -348,7 +348,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           externalId: 'rm-1',
           email: 'remove1@test.com',
           external_audience_id: ENGAGE_AUDIENCE_ID,
-          engage_fields: {
+          membership_fields: {
             traits_or_properties: { email: 'remove1@test.com', [AUDIENCE_KEY]: false },
             audience_key: AUDIENCE_KEY,
             computation_class: 'audience'
@@ -367,7 +367,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           externalId: 'rm-2',
           email: 'remove2@test.com',
           external_audience_id: ENGAGE_AUDIENCE_ID,
-          engage_fields: {
+          membership_fields: {
             traits_or_properties: { email: 'remove2@test.com', [AUDIENCE_KEY]: false },
             audience_key: AUDIENCE_KEY,
             computation_class: 'audience'
@@ -463,7 +463,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           externalId: 'add-1',
           email: 'add1@test.com',
           external_audience_id: ENGAGE_AUDIENCE_ID,
-          engage_fields: {
+          membership_fields: {
             traits_or_properties: { email: 'add1@test.com', [AUDIENCE_KEY]: true },
             audience_key: AUDIENCE_KEY,
             computation_class: 'audience'
@@ -482,7 +482,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           externalId: 'add-2',
           email: 'add2@test.com',
           external_audience_id: ENGAGE_AUDIENCE_ID,
-          engage_fields: {
+          membership_fields: {
             traits_or_properties: { email: 'add2@test.com', [AUDIENCE_KEY]: true },
             audience_key: AUDIENCE_KEY,
             computation_class: 'audience'
@@ -502,7 +502,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           externalId: 'rm-1',
           email: 'remove1@test.com',
           external_audience_id: ENGAGE_AUDIENCE_ID,
-          engage_fields: {
+          membership_fields: {
             traits_or_properties: { email: 'remove1@test.com', [AUDIENCE_KEY]: false },
             audience_key: AUDIENCE_KEY,
             computation_class: 'audience'
@@ -521,7 +521,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           externalId: 'rm-2',
           email: 'remove2@test.com',
           external_audience_id: ENGAGE_AUDIENCE_ID,
-          engage_fields: {
+          membership_fields: {
             traits_or_properties: { email: 'remove2@test.com', [AUDIENCE_KEY]: false },
             audience_key: AUDIENCE_KEY,
             computation_class: 'audience'
@@ -568,7 +568,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         externalId: { '@path': '$.userId' },
         email: { '@path': '$.traits.email' },
         external_audience_id: { '@path': '$.context.personas.external_audience_id' },
-        engage_fields: {
+        membership_fields: {
           traits_or_properties: {
             '@if': {
               exists: { '@path': '$.traits' },
