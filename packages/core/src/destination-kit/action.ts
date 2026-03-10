@@ -25,6 +25,7 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { ErrorCodes, getErrorCodeFromHttpStatus, IntegrationError, MultiStatusErrorReporter } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
+import { resolveAudienceMembership } from '../audience-membership'
 import {
   Logger,
   StatsContext,
@@ -370,6 +371,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       hookOutputs,
       syncMode: isSyncMode(syncMode) ? syncMode : undefined,
       matchingKey: matchingKey ? String(matchingKey) : undefined,
+      audienceMembership: resolveAudienceMembership(bundle.data),
       subscriptionMetadata: bundle.subscriptionMetadata,
       signal: bundle?.signal
     }

@@ -108,3 +108,4 @@ export {
 } from './destination-kit/action'
 
 export { validateSchema } from './schema-validation'
+export { resolveAudienceMembership } from './audience-membership'
