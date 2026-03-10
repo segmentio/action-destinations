@@ -26,8 +26,10 @@ import type {
   Result,
   Deletion,
   DeletionPayload,
-  DynamicFieldResponse
+  DynamicFieldResponse,
+  ResultMultiStatusNode
 } from './types'
+import { MultiStatusResponse } from './types'
 import type { AllRequestOptions } from '../request-client'
 import { ErrorCodes, IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
@@ -46,7 +48,7 @@ export type {
 }
 export { hookTypeStrings }
 export type { MinimalInputField }
-export { fieldsToJsonSchema }
+export { fieldsToJsonSchema, MultiStatusResponse }
 
 export interface SubscriptionStats {
   duration: number
@@ -383,6 +385,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   readonly responses: DecoratedResponse[]
   readonly settingsSchema?: JSONSchema4
   onDelete?: (event: SegmentEvent, settings: JSONObject, options?: OnEventOptions) => Promise<Result>
+  multiStatusResults?: ResultMultiStatusNode[]
 
   constructor(destination: DestinationDefinition<Settings>) {
     this.definition = destination
@@ -603,7 +606,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       audienceSettings = events[0].context?.personas?.audience_settings as AudienceSettings
     }
 
-    return action.executeBatch({
+    const multiStatusResults = await action.executeBatch({
       mapping,
       data: events as unknown as InputData[],
       settings,
@@ -616,6 +619,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       transactionContext,
       stateContext
     })
+
+    if (!this.multiStatusResults) {
+      this.multiStatusResults = []
+    }
+    this.multiStatusResults.push(...multiStatusResults)
+
+    return [{ output: 'successfully processed batch of events' }]
   }
 
   public async executeDynamicField(

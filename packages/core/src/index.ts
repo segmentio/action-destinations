@@ -1,4 +1,4 @@
-export { Destination, fieldsToJsonSchema } from './destination-kit'
+export { Destination, fieldsToJsonSchema, MultiStatusResponse } from './destination-kit'
 export { getAuthData } from './destination-kit/parse-settings'
 export { transform } from './mapping-kit'
 export {
@@ -38,7 +38,8 @@ export {
   PayloadValidationError,
   SelfTimeoutError,
   APIError,
-  ErrorCodes
+  ErrorCodes,
+  MultiStatusErrorReporter
 } from './errors'
 export { get } from './get'
 export { omit } from './omit'

@@ -132,3 +132,11 @@ export enum ErrorCodes {
   // Destination has spent more than the alloted time and needs to self-terminate
   SELF_TIMEOUT = 'SELF_TIMEOUT'
 }
+
+/**
+ * Indicates which component reported the error in a multi-status response
+ */
+export enum MultiStatusErrorReporter {
+  INTEGRATIONS = 'INTEGRATIONS',
+  DESTINATION = 'DESTINATION'
+}

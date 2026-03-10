@@ -1,10 +1,12 @@
 import { StateContext, Logger, StatsContext, TransactionContext, DataFeedCache, ActionHookType } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONObject } from '../json-object'
+import type { JSONLikeObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
 import type { RequestClient } from '../create-request-client'
 import type { ID } from '../segment-event'
 import { Features } from '../mapping-kit'
+import { ErrorCodes, MultiStatusErrorReporter } from '../errors'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 export type MaybePromise<T> = T | Promise<T>
@@ -292,6 +294,42 @@ export type Deletion<Settings, Return = any> = (
   request: RequestClient,
   data: ExecuteInput<Settings, DeletionPayload>
 ) => MaybePromise<Return>
+
+export type ActionDestinationSuccessResponseType = {
+  status: number
+  sent: JSONLikeObject | string
+  body: JSONLikeObject | string
+}
+
+export type ActionDestinationErrorResponseType = {
+  status: number
+  errortype?: keyof typeof ErrorCodes
+  errormessage: string
+  sent?: JSONLikeObject | string
+  body?: JSONLikeObject | string
+}
+
+export type ResultMultiStatusNode =
+  | ActionDestinationSuccessResponseType
+  | (ActionDestinationErrorResponseType & {
+      errorreporter: MultiStatusErrorReporter
+    })
+
+export class MultiStatusResponse {
+  readonly responses: ResultMultiStatusNode[]
+
+  constructor(responses: ResultMultiStatusNode[]) {
+    this.responses = responses
+  }
+
+  getResponseAtIndex(index: number): ResultMultiStatusNode | undefined {
+    return this.responses[index]
+  }
+
+  get length(): number {
+    return this.responses.length
+  }
+}
 
 /** The supported sync mode values  */
 export const syncModeTypes = ['add', 'update', 'upsert', 'delete'] as const

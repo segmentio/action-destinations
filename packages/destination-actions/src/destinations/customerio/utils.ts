@@ -1,6 +1,9 @@
 import dayjs from '../../lib/dayjs'
 import isPlainObject from 'lodash/isPlainObject'
 import { fullFormats } from 'ajv-formats/dist/formats'
+import type { RequestClient } from '@segment/actions-core/src/create-request-client'
+import type { ResultMultiStatusNode } from '@segment/actions-core/src/destination-kit/types'
+import { ErrorCodes, MultiStatusErrorReporter, MultiStatusResponse } from '@segment/actions-core'
 
 const isEmail = (value: string): boolean => {
   return (fullFormats.email as RegExp).test(value)
@@ -41,7 +44,7 @@ export const convertValidTimestamp = <Value = unknown>(value: Value): Value | nu
   // numbers. If it is, ignore it since it's probably already a unix timestamp.
   // DayJS doesn't parse unix timestamps correctly outside of the `.unix()`
   // initializer.
-  if (typeof value !== 'string' || /^\d+$/.test(value)) {
+  if (typeof value !== 'string' || /^\d+(\.\d+)?$/.test(value)) {
     return value
   }
 
@@ -187,7 +190,10 @@ export const resolveIdentifiers = ({
   }
 }
 
-export const sendBatch = <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>[]) => {
+export const sendBatch = async <Payload extends BasePayload>(
+  request: RequestFunction,
+  options: RequestPayload<Payload>[]
+): Promise<RequestResponse | MultiStatusResponse | void> => {
   if (!options?.length) {
     return
   }
@@ -195,12 +201,140 @@ export const sendBatch = <Payload extends BasePayload>(request: Function, option
   const [{ settings }] = options
   const batch = options.map((opts) => buildPayload(opts))
 
-  return request(`${trackApiEndpoint(settings)}/api/v2/batch`, {
+  const response = await request(`${trackApiEndpoint(settings)}/api/v2/batch`, {
     method: 'post',
     json: {
       batch
     }
   })
+
+  const status = response?.status
+
+  if (status === 207) {
+    const responseBody = getResponseBody(response)
+    if (responseBody) {
+      const parsedResults = parseTrackApiMultiStatusResponse(responseBody, batch.length)
+      if (parsedResults) {
+        return new MultiStatusResponse(parsedResults)
+      }
+    }
+  }
+
+  if (status === 200) {
+    const responseBody = getResponseBody(response)
+    if (responseBody) {
+      const parsedResults = parseTrackApiMultiStatusResponse(responseBody, batch.length)
+      if (parsedResults && parsedResults.some((result) => result.status >= 400)) {
+        return new MultiStatusResponse(parsedResults)
+      }
+    }
+  }
+
+  return response
+}
+
+interface TrackApiError {
+  batch_index?: number
+  reason?: string
+  field?: string
+  message?: string
+}
+
+interface TrackApiResponse {
+  errors?: TrackApiError[]
+}
+
+interface RequestResponse {
+  status?: number
+  data?: unknown
+  content?: unknown
+  body?: unknown
+}
+
+type RequestFunction = RequestClient
+
+function mapTrackApiReasonToErrorCode(reason: string | undefined): keyof typeof ErrorCodes | undefined {
+  if (!reason) {
+    return undefined
+  }
+
+  switch (reason.toLowerCase()) {
+    case 'invalid':
+    case 'required':
+      return ErrorCodes.PAYLOAD_VALIDATION_FAILED
+    default:
+      return undefined
+  }
+}
+
+function getResponseBody(response: unknown): unknown {
+  if (!response || typeof response !== 'object') {
+    return undefined
+  }
+
+  const typed = response as RequestResponse
+  const body = typed.data ?? typed.content ?? typed.body
+
+  if (typeof body === 'string') {
+    try {
+      const decoded = Buffer.from(body, 'base64').toString('utf-8')
+      return JSON.parse(decoded)
+    } catch {
+      return body
+    }
+  }
+
+  return body
+}
+
+export function parseTrackApiErrors(errors: TrackApiError[], totalItems: number): ResultMultiStatusNode[] {
+  const errorMap = new Map<number, TrackApiError>()
+  for (const error of errors) {
+    if (typeof error.batch_index === 'number') {
+      errorMap.set(error.batch_index, error)
+    }
+  }
+
+  const results: ResultMultiStatusNode[] = []
+  for (let i = 0; i < totalItems; i++) {
+    const error = errorMap.get(i)
+    if (error) {
+      const errorNode: ResultMultiStatusNode = {
+        status: 400,
+        errormessage: error.message || `${error.reason || 'ERROR'}: ${error.field || 'unknown field'}`,
+        errorreporter: MultiStatusErrorReporter.DESTINATION
+      }
+      const errortype = mapTrackApiReasonToErrorCode(error.reason)
+      if (errortype) {
+        errorNode.errortype = errortype
+      }
+      results.push(errorNode)
+    } else {
+      results.push({
+        status: 200,
+        body: {},
+        sent: {}
+      })
+    }
+  }
+
+  return results
+}
+
+export function parseTrackApiMultiStatusResponse(
+  responseBody: unknown,
+  totalItems: number
+): ResultMultiStatusNode[] | null {
+  if (!isRecord(responseBody)) {
+    return null
+  }
+
+  const trackApiResponse = responseBody as TrackApiResponse
+  if (!trackApiResponse.errors || !Array.isArray(trackApiResponse.errors)) {
+    return null
+  }
+
+  return parseTrackApiErrors(trackApiResponse.errors, totalItems)
 }
 
 export const sendSingle = <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>) => {

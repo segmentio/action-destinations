@@ -51,9 +51,12 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function mapPayload(payload: Payload) {
+  const { primary, secondary, ...rest } = payload
+
   return {
-    primary: resolveIdentifiers({ person_id: payload.primary }),
-    secondary: resolveIdentifiers({ person_id: payload.secondary })
+    ...rest,
+    primary: resolveIdentifiers({ person_id: primary }),
+    secondary: resolveIdentifiers({ person_id: secondary })
   }
 }
 

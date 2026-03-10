@@ -11,6 +11,7 @@ import type {
   RequestExtension,
   ExecuteInput,
   Result,
+  ResultMultiStatusNode,
   SyncMode,
   SyncModeDefinition
 } from './types'
@@ -19,7 +20,7 @@ import { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
-import { IntegrationError } from '../errors'
+import { ErrorCodes, IntegrationError, MultiStatusErrorReporter } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
 import { Logger, StatsContext, TransactionContext, StateContext, DataFeedCache } from './index'
 import { get } from '../get'
@@ -322,14 +323,15 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     return results
   }
 
-  async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<Result[]> {
-    const results: Result[] = [{ output: 'Action Executed' }]
-
+  async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<ResultMultiStatusNode[]> {
     if (!this.hasBatchSupport) {
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
 
     let payloads = transformBatch(bundle.mapping, bundle.data) as Payload[]
+    const batchPayloadLength = payloads.length
+    const multiStatusResponse: ResultMultiStatusNode[] = []
+    const invalidPayloadIndices = new Set<number>()
 
     // Remove internal hidden field
     if (bundle.mapping && '__segment_internal_sync_mode' in bundle.mapping) {
@@ -345,15 +347,31 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       const schema = this.schema
       const validationOptions = {
         schemaKey: `${this.destinationName}:${this.definition.title}`,
-        throwIfInvalid: false,
+        throwIfInvalid: true,
         statsContext: bundle.statsContext
       }
 
-      payloads = payloads
-        // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
-        .map((payload) => removeEmptyValues(payload, schema) as Payload)
-        // Exclude invalid schemas for now...
-        .filter((payload) => validateSchema(payload, schema, validationOptions))
+      const filteredPayloads: Payload[] = []
+      for (let i = 0; i < payloads.length; i++) {
+        const payload = removeEmptyValues(payloads[i], schema) as Payload
+        try {
+          validateSchema(payload, schema, validationOptions)
+        } catch (error) {
+          multiStatusResponse[i] = {
+            status: 400,
+            errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+            errormessage: (error as Error).message,
+            errorreporter: MultiStatusErrorReporter.INTEGRATIONS
+          }
+          invalidPayloadIndices.add(i)
+          bundle.statsContext?.statsClient?.incr('action.multistatus_discard', 1, bundle.statsContext?.tags)
+          continue
+        }
+
+        filteredPayloads.push(payload)
+      }
+
+      payloads = filteredPayloads
     }
 
     let hookOutputs = {}
@@ -368,7 +386,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     if (payloads.length === 0) {
-      return results
+      return multiStatusResponse
     }
 
     if (this.definition.performBatch) {
@@ -389,13 +407,55 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         hookOutputs,
         syncMode: isSyncMode(syncMode) ? syncMode : undefined
       }
-      const output = await this.performRequest(this.definition.performBatch, data)
-      results[0].data = output as JSONObject
+      const performBatchResponse = await this.performRequest(this.definition.performBatch, data)
 
-      return results
+      const isMultiStatusResponse =
+        performBatchResponse &&
+        typeof performBatchResponse === 'object' &&
+        'responses' in performBatchResponse &&
+        Array.isArray((performBatchResponse as any).responses) &&
+        typeof (performBatchResponse as any).getResponseAtIndex === 'function'
+
+      if (isMultiStatusResponse) {
+        const multiStatusResp = performBatchResponse as any
+        const validPayloadCount = batchPayloadLength - invalidPayloadIndices.size
+
+        if (multiStatusResp.length !== validPayloadCount) {
+          throw new IntegrationError(
+            `Destination returned ${multiStatusResp.length} results but expected ${validPayloadCount} ` +
+              `(total: ${batchPayloadLength}, validation failures: ${invalidPayloadIndices.size})`,
+            'InvalidBatchResponse',
+            500
+          )
+        }
+
+        let parsedResultIndex = 0
+        for (let i = 0; i < batchPayloadLength; i++) {
+          if (invalidPayloadIndices.has(i)) {
+            continue
+          }
+
+          const result = multiStatusResp.getResponseAtIndex(parsedResultIndex)
+          if (result) {
+            multiStatusResponse[i] = result
+          }
+          parsedResultIndex++
+        }
+
+        return multiStatusResponse
+      }
+
+      this.fillMultiStatusResponse({
+        multiStatusResponse,
+        invalidPayloadIndices,
+        batchPayloadLength,
+        body: (performBatchResponse as JSONObject) ?? {},
+        filteredPayloads: payloads,
+        status: 200
+      })
     }
 
-    return results
+    return multiStatusResponse
   }
 
   async executeDynamicField(
@@ -499,5 +559,29 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     // otherwise, we don't really know what this is, so return as-is
     return response
+  }
+
+  private fillMultiStatusResponse(input: {
+    multiStatusResponse: ResultMultiStatusNode[]
+    invalidPayloadIndices: Set<number>
+    batchPayloadLength: number
+    status: number
+    body: JSONLikeObject | string
+    filteredPayloads?: Payload[]
+  }) {
+    const { multiStatusResponse, batchPayloadLength, status, body, filteredPayloads } = input
+
+    let payloadReadIndex = 0
+    for (let i = 0; i < batchPayloadLength; i++) {
+      if (input.invalidPayloadIndices.has(i)) {
+        continue
+      }
+
+      multiStatusResponse[i] = {
+        status,
+        body,
+        sent: filteredPayloads ? filteredPayloads[payloadReadIndex++] : ({} as JSONLikeObject)
+      }
+    }
   }
 }
