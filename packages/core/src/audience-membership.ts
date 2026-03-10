@@ -8,16 +8,22 @@ import { InputData } from './mapping-kit'
 export function resolveAudienceMembership(rawData: InputData | undefined): boolean | undefined {
   if (!rawData) return undefined
 
-  const membership = engageMembership(rawData)
+  const engageMembership = engageAudienceMembership(rawData)
 
-  if (typeof membership === 'boolean') {
-    return membership
+  if (typeof engageMembership === 'boolean') {
+    return engageMembership
+  }
+
+  const retlMembership = retlAudienceMembership(rawData)
+
+  if (typeof retlMembership === 'boolean') {
+    return retlMembership
   }
 
   return undefined
 }
 
-export function engageMembership(rawData: InputData | undefined): boolean | undefined {
+export function engageAudienceMembership(rawData: InputData | undefined): boolean | undefined {
   if (!rawData) return undefined
 
   const {
@@ -40,13 +46,37 @@ export function engageMembership(rawData: InputData | undefined): boolean | unde
   if (!['audience', 'journey_step'].includes(computation_class)) return undefined
   if (!computation_key) return undefined
 
-  let membershipValue: unknown
+  let membershipValue: boolean | undefined
 
-  if (type === 'identify') {
-    membershipValue = traits?.[computation_key]
-  } else if (type === 'track') {
-    membershipValue = properties?.[computation_key]
+  if (type === 'identify' && typeof traits?.[computation_key] === 'boolean') {
+    membershipValue = traits[computation_key]
+  } 
+  else if (type === 'track' && typeof properties?.[computation_key] === 'boolean') {
+    membershipValue = properties[computation_key]
   }
 
   return typeof membershipValue === 'boolean' ? membershipValue : undefined
+}
+
+export function retlAudienceMembership(rawData: InputData | undefined): boolean | undefined {
+  if (!rawData) return undefined
+
+  const {
+    event = '',
+    type = ''
+  } = rawData as {
+    event?: string
+    type?: string
+  }   
+  
+  if (type !== 'track') return undefined
+  
+  if(['new', 'updated'].includes(event)) {
+    return true
+  } 
+  else if (['deleted'].includes(event)) {
+    return false
+  }
+
+  return undefined
 }
