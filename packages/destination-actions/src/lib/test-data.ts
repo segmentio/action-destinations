@@ -32,14 +32,21 @@ function setTestData(
       break
     case 'integer':
       if (minimum !== undefined || maximum !== undefined) {
-        val = chance.integer({ min: minimum, max: maximum })
+        val = chance.integer({
+          ...(minimum !== undefined && { min: minimum }),
+          ...(maximum !== undefined && { max: maximum })
+        })
       } else {
         val = chance.integer()
       }
       break
     case 'number':
       if (minimum !== undefined || maximum !== undefined) {
-        val = chance.floating({ min: minimum, max: maximum, fixed: 2 })
+        val = chance.floating({
+          ...(minimum !== undefined && { min: minimum }),
+          ...(maximum !== undefined && { max: maximum }),
+          fixed: 2
+        })
       } else {
         val = chance.floating({ fixed: 2 })
       }
@@ -59,8 +66,7 @@ function setTestData(
           break
         }
         case 'date-time':
-          // Use a deterministic UTC timestamp to avoid timezone-based test failures
-          val = new Date(chance.integer({ min: 1609459200000, max: 3600000000000 })).toISOString()
+          val = chance.date().toISOString()
           break
         case 'email':
           val = chance.email()

@@ -58,6 +58,8 @@ yarn browser jest --testPathPattern="braze"
 yarn core jest --testPathPattern="mapping-kit"
 ```
 
+> **Note:** Always run tests with `TZ=UTC` (e.g. `TZ=UTC yarn cloud test`) to ensure snapshot tests produce consistent results regardless of local timezone.
+
 ### Lint & Type Checking
 
 ```bash
