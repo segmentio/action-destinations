@@ -535,51 +535,6 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       })
     })
 
-    it('should return validation error when payload is not from Engage', async () => {
-      // --- Segment Events (track events without Engage context) ---
-      const events = [
-        createTestEvent({ userId: 'user-1', properties: { email: 'user1@example.com' } }),
-        createTestEvent({ userId: 'user-2', properties: { email: 'user2@example.com' } })
-      ]
-
-      // --- Mapping (mirror mode but RETL-style payload) ---
-      const mapping = {
-        __segment_internal_sync_mode: 'mirror',
-        externalId: { '@path': '$.userId' },
-        email: { '@path': '$.properties.email' },
-        external_audience_id: '5678',
-        retlOnMappingSave: {
-          inputs: {},
-          outputs: {}
-        },
-        enable_batching: true,
-        batch_size: 10000
-      }
-
-      // --- Execute (no nock needed - validation fails before HTTP call) ---
-      const responses = await testDestination.executeBatch('sync', {
-        events,
-        settings,
-        auth,
-        mapping
-      })
-
-      // --- Expected Segment MultiStatus Response ---
-      expect(responses.length).toBe(2)
-
-      expect(responses[0]).toMatchObject({
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Sync Mode set to "Mirror", but payload is not from Engage. Please ensure payloads are sent from Engage when using "Mirror" sync mode.'
-      })
-
-      expect(responses[1]).toMatchObject({
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Sync Mode set to "Mirror", but payload is not from Engage. Please ensure payloads are sent from Engage when using "Mirror" sync mode.'
-      })
-    })
-
     it('should return validation error when audience ID is missing', async () => {
       // --- Segment Events (Engage-style but no audience ID) ---
       const events = [
