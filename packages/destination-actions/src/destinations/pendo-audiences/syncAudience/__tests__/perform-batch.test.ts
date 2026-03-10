@@ -2,16 +2,17 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import type { SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
-import { CONSTANTS } from '../../constants'
+import { REGIONS, SEGMENT_ENDPOINT } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
-  integrationKey: 'test-integration-key'
+  integrationKey: 'test-integration-key',
+  region: REGIONS.DEFAULT.name
 }
 
 const SEGMENT_ID = 'seg-abc123'
-const segmentBase = `${CONSTANTS.SEGMENT_ENDPOINT}/${SEGMENT_ID}`
+const segmentBase = `/${SEGMENT_ENDPOINT}/${SEGMENT_ID}`
 
 function makeEvent(userId: string, audienceValue: boolean, type: 'identify' | 'track' = 'identify'): SegmentEvent {
   return createTestEvent({
@@ -42,105 +43,6 @@ describe('Pendo Audiences - syncAudience', () => {
     nock.cleanAll()
   })
 
-  // ─── perform (single events) ─────────────────────────────────────────────
-
-  describe('perform - add visitor (PUT)', () => {
-    it('should PUT to add a visitor when audience value is true', async () => {
-      nock(CONSTANTS.API_BASE_URL).put(`${segmentBase}/visitor/user1`).reply(200, { message: 'success' })
-
-      await expect(
-        testDestination.testAction('syncAudience', {
-          event: makeEvent('user1', true),
-          settings,
-          mapping: baseMapping
-        })
-      ).resolves.not.toThrowError()
-    })
-
-    it('should URL-encode special characters in visitorId', async () => {
-      nock(CONSTANTS.API_BASE_URL)
-        .put(`${segmentBase}/visitor/user%40example.com`)
-        .reply(200, { message: 'success' })
-
-      await expect(
-        testDestination.testAction('syncAudience', {
-          event: makeEvent('user@example.com', true),
-          settings,
-          mapping: { ...baseMapping, visitorId: 'user@example.com' }
-        })
-      ).resolves.not.toThrowError()
-    })
-
-    it('should work for track events', async () => {
-      nock(CONSTANTS.API_BASE_URL).put(`${segmentBase}/visitor/user1`).reply(200, { message: 'success' })
-
-      await expect(
-        testDestination.testAction('syncAudience', {
-          event: makeEvent('user1', true, 'track'),
-          settings,
-          mapping: {
-            ...baseMapping,
-            traitsOrProperties: { '@path': '$.properties' }
-          }
-        })
-      ).resolves.not.toThrowError()
-    })
-  })
-
-  describe('perform - remove visitor (DELETE)', () => {
-    it('should DELETE to remove a visitor when audience value is false', async () => {
-      nock(CONSTANTS.API_BASE_URL).delete(`${segmentBase}/visitor/user1`).reply(200, { message: 'success' })
-
-      await expect(
-        testDestination.testAction('syncAudience', {
-          event: makeEvent('user1', false),
-          settings,
-          mapping: baseMapping
-        })
-      ).resolves.not.toThrowError()
-    })
-  })
-
-  describe('perform - validation errors', () => {
-    it('should throw when visitorId is missing', async () => {
-      await expect(
-        testDestination.testAction('syncAudience', {
-          event: makeEvent('user1', true),
-          settings,
-          mapping: { ...baseMapping, visitorId: undefined }
-        })
-      ).rejects.toThrowError()
-    })
-
-    it('should throw when segmentAudienceId is missing', async () => {
-      await expect(
-        testDestination.testAction('syncAudience', {
-          event: makeEvent('user1', true),
-          settings,
-          mapping: { ...baseMapping, segmentAudienceId: undefined }
-        })
-      ).rejects.toThrowError()
-    })
-  })
-
-  describe('perform - API error handling', () => {
-
-    it('should throw IntegrationError on 404 Not Found', async () => {
-      nock(CONSTANTS.API_BASE_URL).put(`${segmentBase}/visitor/user1`).reply(404, { message: 'Not Found' })
-
-      await expect(
-        testDestination.testAction('syncAudience', {
-          event: makeEvent('user1', true),
-          settings,
-          mapping: baseMapping
-        })
-      ).rejects.toThrowError()
-    })
-
-  })
-
-  // ─── executeBatch ─────────────────────────────────────────────────────────
-
   const batchMapping = { ...baseMapping, enable_batching: true }
 
   describe('executeBatch - all adds', () => {
@@ -149,7 +51,7 @@ describe('Pendo Audiences - syncAudience', () => {
         patch: [{ op: 'add', path: '/visitors', value: ['user1', 'user2', 'user3'] }]
       }
 
-      nock(CONSTANTS.API_BASE_URL)
+      nock(REGIONS.DEFAULT.domain)
         .patch(`${segmentBase}/visitor`, expectedPatchJSON)
         .reply(200, { multistatus: [{ status: 200, message: 'success', operation: 'add' }] })
 
@@ -184,7 +86,7 @@ describe('Pendo Audiences - syncAudience', () => {
         patch: [{ op: 'remove', path: '/visitors', value: ['user1', 'user2'] }]
       }
 
-      nock(CONSTANTS.API_BASE_URL)
+      nock(REGIONS.DEFAULT.domain)
         .patch(`${segmentBase}/visitor`, expectedPatchJSON)
         .reply(200, { multistatus: [{ status: 200, message: 'success', operation: 'remove' }] })
 
@@ -217,7 +119,7 @@ describe('Pendo Audiences - syncAudience', () => {
         ]
       }
 
-      nock(CONSTANTS.API_BASE_URL)
+      nock(REGIONS.DEFAULT.domain)
         .patch(`${segmentBase}/visitor`, expectedPatchJSON)
         .reply(200, {
           multistatus: [
@@ -262,7 +164,7 @@ describe('Pendo Audiences - syncAudience', () => {
         patch: [{ op: 'add', path: '/visitors', value: ['user1'] }]
       }
 
-      nock(CONSTANTS.API_BASE_URL)
+      nock(REGIONS.DEFAULT.domain)
         .patch(`${segmentBase}/visitor`, expectedPatchJSON)
         .reply(200, { multistatus: [{ status: 200, message: 'success', operation: 'add' }] })
 
@@ -351,7 +253,7 @@ describe('Pendo Audiences - syncAudience', () => {
 
   describe('executeBatch - API error handling', () => {
     it('should return a 500 error for all payloads when the API returns 500', async () => {
-      nock(CONSTANTS.API_BASE_URL).patch(`${segmentBase}/visitor`).reply(500, { message: 'Internal Server Error' })
+      nock(REGIONS.DEFAULT.domain).patch(`${segmentBase}/visitor`).reply(500, { message: 'Internal Server Error' })
 
       const responses = await testDestination.executeBatch('syncAudience', {
         events: [makeEvent('user1', true), makeEvent('user2', true)],
@@ -375,7 +277,7 @@ describe('Pendo Audiences - syncAudience', () => {
     })
 
     it('should return a 403 error for all payloads when the API returns 403', async () => {
-      nock(CONSTANTS.API_BASE_URL).patch(`${segmentBase}/visitor`).reply(403, { message: 'Forbidden' })
+      nock(REGIONS.DEFAULT.domain).patch(`${segmentBase}/visitor`).reply(403, { message: 'Forbidden' })
 
       const responses = await testDestination.executeBatch('syncAudience', {
         events: [makeEvent('user1', true), makeEvent('user2', false)],
@@ -399,7 +301,7 @@ describe('Pendo Audiences - syncAudience', () => {
     })
 
     it('should return per-operation errors when Pendo multistatus reports add failure but remove success', async () => {
-      nock(CONSTANTS.API_BASE_URL)
+      nock(REGIONS.DEFAULT.domain)
         .patch(`${segmentBase}/visitor`)
         .reply(200, {
           multistatus: [
