@@ -243,7 +243,7 @@ describe('FacebookCustomAudiences.sync', () => {
           appId: { '@path': '$.properties.appleIDFA' },
           mobileAdId: { '@path': '$.properties.appleIDFA' },
           external_audience_id: '1234',
-          engage_fields: {
+          membership_fields: {
             traits_or_properties: {
               '@if': {
                 exists: { '@path': '$.traits' },
