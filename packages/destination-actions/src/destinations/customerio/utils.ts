@@ -1,6 +1,7 @@
 import dayjs from '../../lib/dayjs'
 import isPlainObject from 'lodash/isPlainObject'
 import { fullFormats } from 'ajv-formats/dist/formats'
+import { ErrorCodes, MultiStatusResponse, type RequestClient } from '@segment/actions-core'
 import { CUSTOMERIO_TRACK_API_VERSION } from './versioning-info'
 
 const isEmail = (value: string): boolean => {
@@ -196,7 +197,10 @@ export const resolveIdentifiers = ({
   }
 }
 
-export const sendBatch = <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>[]) => {
+export const sendBatch = async <Payload extends BasePayload>(
+  request: RequestClient,
+  options: RequestPayload<Payload>[]
+) => {
   if (!options?.length) {
     return
   }
@@ -204,15 +208,133 @@ export const sendBatch = <Payload extends BasePayload>(request: Function, option
   const [{ settings }] = options
   const batch = options.map((opts) => buildPayload(opts))
 
-  return request(`${trackApiEndpoint(settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/batch`, {
+  const response = await request(`${trackApiEndpoint(settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/batch`, {
     method: 'post',
     json: {
       batch
     }
   })
+
+  const responseBody = getResponseBody(response)
+
+  if (response?.status === 207 && responseBody) {
+    const parsedResults = parseTrackApiMultiStatusResponse(responseBody, batch.length)
+    if (parsedResults) {
+      return parsedResults
+    }
+  }
+
+  if (response?.status === 200 && responseBody) {
+    const parsedResults = parseTrackApiMultiStatusResponse(responseBody, batch.length)
+    if (parsedResults) {
+      return parsedResults
+    }
+  }
+
+  return response
 }
 
-export const sendSingle = <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>) => {
+interface TrackApiError {
+  batch_index?: number
+  reason?: string
+  field?: string
+  message?: string
+}
+
+interface TrackApiResponse {
+  errors?: TrackApiError[]
+}
+
+interface RequestResponse {
+  status?: number
+  data?: unknown
+  content?: unknown
+  body?: unknown
+}
+
+function mapTrackApiReasonToErrorCode(reason: string | undefined) {
+  if (!reason) {
+    return undefined
+  }
+
+  switch (reason.toLowerCase()) {
+    case 'invalid':
+    case 'required':
+      return ErrorCodes.PAYLOAD_VALIDATION_FAILED
+    default:
+      return undefined
+  }
+}
+
+function getResponseBody(response: RequestResponse): unknown {
+  const body = response.data ?? response.content ?? response.body
+
+  if (typeof body !== 'string') {
+    return body
+  }
+
+  try {
+    return JSON.parse(body)
+  } catch {
+    try {
+      const decoded = Buffer.from(body, 'base64').toString('utf-8')
+      return JSON.parse(decoded)
+    } catch {
+      return body
+    }
+  }
+}
+
+export function parseTrackApiErrors(errors: TrackApiError[], totalItems: number): MultiStatusResponse {
+  const multiStatusResponse = new MultiStatusResponse()
+  const errorMap = new Map<number, TrackApiError>()
+
+  for (const error of errors) {
+    if (typeof error.batch_index === 'number') {
+      errorMap.set(error.batch_index, error)
+    }
+  }
+
+  for (let i = 0; i < totalItems; i++) {
+    const error = errorMap.get(i)
+
+    if (!error) {
+      multiStatusResponse.setSuccessResponseAtIndex(i, {
+        status: 200,
+        body: {},
+        sent: {}
+      })
+      continue
+    }
+
+    multiStatusResponse.setErrorResponseAtIndex(i, {
+      status: 400,
+      errormessage: error.message || `${error.reason || 'ERROR'}: ${error.field || 'unknown field'}`,
+      errortype: mapTrackApiReasonToErrorCode(error.reason),
+      body: error
+    })
+  }
+
+  return multiStatusResponse
+}
+
+export function parseTrackApiMultiStatusResponse(
+  responseBody: unknown,
+  totalItems: number
+): MultiStatusResponse | null {
+  if (!isRecord(responseBody)) {
+    return null
+  }
+
+  const { errors } = responseBody as TrackApiResponse
+  if (!Array.isArray(errors) || errors.length === 0) {
+    return null
+  }
+
+  return parseTrackApiErrors(errors, totalItems)
+}
+
+export const sendSingle = <Payload extends BasePayload>(request: RequestClient, options: RequestPayload<Payload>) => {
   const json = buildPayload(options)
   return request(`${trackApiEndpoint(options.settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/entity`, {
     method: 'post',
