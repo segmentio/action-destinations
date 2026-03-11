@@ -15,6 +15,7 @@ import { PayloadValidationError } from '@segment/actions-core'
 import type { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../../generated-types'
 import { extractSchema } from './schema-functions'
+import { createEncryptionSession, EncryptionSession } from './encryption-functions'
 import { validateEvent } from './event-validator-functions'
 import { Payload } from '../generated-types'
 import { DEFAULT_BASE_URL } from '../../constants'
@@ -27,10 +28,24 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
 
   const { appVersionPropertyName, publicEncryptionKey, env, apiKey } = settings
 
+  // Create one encryption session for the entire batch — EC key generation happens
+  // once here rather than once per event or once per property value.
+  // Wrapped in try/catch so an invalid public key skips encryption for the batch
+  // rather than aborting it entirely (matches the per-value graceful degradation of the original design).
+  const isDevOrStaging = env === 'dev' || env === 'staging'
+  let encryptionSession: EncryptionSession | undefined
+  if (publicEncryptionKey && isDevOrStaging) {
+    try {
+      encryptionSession = createEncryptionSession(publicEncryptionKey)
+    } catch {
+      // Invalid key — proceed without encryption rather than dropping the whole batch
+    }
+  }
+
   const json = payloads.map((payload) => {
     const { event, pageUrl, appName, properties, messageId, createdAt } = payload
 
-    const eventProperties = extractSchema(payload.properties, publicEncryptionKey, env)
+    const eventProperties = extractSchema(payload.properties, encryptionSession)
     const eventSpec = eventSpecMap?.get(event) ?? null
     let eventSpecMetadata: EventSpecMetadata | undefined
 
