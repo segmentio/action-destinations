@@ -690,9 +690,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
    * the given request function
    * and given data bundle
    */
-  private async performRequest<T extends Payload | Payload[]>(
-    requestFn: RequestFn<Settings, T, any, AudienceSettings>,
-    data: ExecuteInput<Settings, T, AudienceSettings>
+  private async performRequest<T extends Payload | Payload[], M extends AudienceMembership | AudienceMembership[]>(
+    requestFn: RequestFn<Settings, T, any, AudienceSettings, any, M>,
+    data: ExecuteInput<Settings, T, AudienceSettings, any, any, M>
   ): Promise<unknown> {
     const requestClient = this.createRequestClient(data)
     const response = await requestFn(requestClient, data)
