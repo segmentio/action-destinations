@@ -86,6 +86,7 @@ export type {
 } from './destination-kit'
 
 export type {
+  AudienceMembership,
   DynamicFieldResponse,
   DynamicFieldError,
   DynamicFieldItem,

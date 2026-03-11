@@ -1,11 +1,12 @@
 import { InputData } from './mapping-kit'
+import { SyncMode, AudienceMembership } from './destination-kit/types'
 
 /**
  * Resolves whether a user is being added to or removed from an audience.
  * Returns `true` if the user is being added, `false` if being removed,
  * or `undefined` if the payload is not an audience computation or membership cannot be determined.
  */
-export function resolveAudienceMembership(rawData: InputData | undefined, syncMode?: string): boolean | undefined {
+export function resolveAudienceMembership(rawData: InputData | undefined, syncMode?: SyncMode): AudienceMembership {
   if (!rawData) return undefined
 
   const engageMembership = engageAudienceMembership(rawData)
@@ -27,7 +28,7 @@ export function resolveAudienceMembership(rawData: InputData | undefined, syncMo
  * Returns `true` if the user is being added, `false` if being removed,
  * or `undefined` if the payload is not an audience computation or membership cannot be determined.
  */
-export function engageAudienceMembership(rawData: InputData | undefined): boolean | undefined {
+export function engageAudienceMembership(rawData: InputData | undefined): AudienceMembership {
   if (!rawData) return undefined
 
   const {
@@ -67,8 +68,8 @@ export function engageAudienceMembership(rawData: InputData | undefined): boolea
  * Returns `true` if the user is being added, `false` if being removed,
  * or `undefined` if the payload is not an audience computation or membership cannot be determined.
  */
-export function retlAudienceMembership(rawData: InputData | undefined, syncMode?: string): boolean | undefined {
-  if (!rawData) return undefined
+export function retlAudienceMembership(rawData: InputData | undefined, syncMode?: SyncMode): AudienceMembership {
+  if (!rawData || !syncMode) return undefined
 
   const {
     event = '',
@@ -76,14 +77,22 @@ export function retlAudienceMembership(rawData: InputData | undefined, syncMode?
   } = rawData as {
     event?: string
     type?: string
-  }   
+  }
   
-  if (type !== 'track' || !syncMode) return undefined
-  
-  if(['new', 'updated'].includes(event)) {
+  if (type !== 'track') return undefined
+
+  if(
+    (syncMode === 'add' && ['new'].includes(event)) || 
+    (syncMode === 'update' && ['updated'].includes(event)) || 
+    (syncMode === 'upsert' && ['new', 'updated'].includes(event)) || 
+    (syncMode === 'mirror' && ['new', 'updated'].includes(event))
+  ){
     return true
   } 
-  else if (['deleted'].includes(event)) {
+  else if (
+    (syncMode === 'delete' && ['deleted'].includes(event)) || 
+    (syncMode === 'mirror' && ['deleted'].includes(event))
+  ){
     return false
   }
 
