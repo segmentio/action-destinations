@@ -91,7 +91,6 @@ describe('send', () => {
     expect(result.messageId).toBe('test-message-id')
     // Should include validation metadata when spec is provided
     expect(result.eventSpecMetadata).toBeDefined()
-    expect(result.validatedBranchId).toBe('main')
     expect(getPostUrl()).toBe('https://api.avo.app/inspector/segment/v1/track')
   })
 
@@ -111,7 +110,6 @@ describe('send', () => {
     expect(result.messageId).toBe('test-message-id')
     // Should not include validation metadata when spec is null
     expect(result.eventSpecMetadata).toBeUndefined()
-    expect(result.validatedBranchId).toBeUndefined()
   })
 
   it('should work with appVersionPropertyName', async () => {

@@ -30,8 +30,6 @@ export interface EventSchemaBody extends BaseBody {
   eventId: string | null
   eventHash: string | null
   eventSpecMetadata?: EventSpecMetadata
-  /** Branch ID from getEventSpec response when value validation was performed */
-  validatedBranchId?: string
 }
 
 export interface PropertyConstraintWire {

@@ -73,8 +73,7 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
       eventProperties,
       eventId: null,
       eventHash: null,
-      ...(typeof eventSpecMetadata !== 'undefined' ? { eventSpecMetadata } : {}),
-      ...(typeof eventSpecMetadata !== 'undefined' ? { validatedBranchId: eventSpecMetadata.branchId } : {})
+      ...(typeof eventSpecMetadata !== 'undefined' ? { eventSpecMetadata } : {})
     }
     return itemJSON
   })
@@ -162,7 +161,10 @@ async function fetchEventSpecsForBatch(
   return eventSpecMap
 }
 
-function convertWirePropToConstraints(wire: PropertyConstraintWire, eventIds: string[]): PropertyConstraint {
+/** Maximum nesting depth for wire constraint conversion — mirrors the validator's limit. */
+const MAX_WIRE_DEPTH = 2
+
+function convertWirePropToConstraints(wire: PropertyConstraintWire, eventIds: string[], depth = 0): PropertyConstraint {
   const type = wire.t === 'string' ? wire.t : 'object'
   const required = wire.r
   const isListType = wire.l === true
@@ -213,12 +215,14 @@ function convertWirePropToConstraints(wire: PropertyConstraintWire, eventIds: st
     }
   }
 
-  // Handle nested properties
-  const nestedSchema = wire && typeof wire.t === 'object' && wire.t !== null ? wire.t : undefined
+  // Handle nested properties — guarded by depth limit to prevent stack overflow
+  // from malformed or malicious wire payloads.
+  const nestedSchema =
+    depth < MAX_WIRE_DEPTH && wire && typeof wire.t === 'object' && wire.t !== null ? wire.t : undefined
   if (nestedSchema) {
     result.children = {}
     for (const [childName, childWire] of Object.entries(nestedSchema)) {
-      result.children[childName] = convertWirePropToConstraints(childWire, eventIds)
+      result.children[childName] = convertWirePropToConstraints(childWire, eventIds, depth + 1)
     }
   }
 
