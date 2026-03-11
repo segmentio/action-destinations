@@ -15,7 +15,6 @@ import { PayloadValidationError } from '@segment/actions-core'
 import type { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../../generated-types'
 import { extractSchema } from './schema-functions'
-import { createEncryptionSession, EncryptionSession } from './encryption-functions'
 import { validateEvent } from './event-validator-functions'
 import { Payload } from '../generated-types'
 import { DEFAULT_BASE_URL } from '../../constants'
@@ -28,24 +27,10 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
 
   const { appVersionPropertyName, publicEncryptionKey, env, apiKey } = settings
 
-  // Create one encryption session for the entire batch — EC key generation happens
-  // once here rather than once per event or once per property value.
-  // Wrapped in try/catch so an invalid public key skips encryption for the batch
-  // rather than aborting it entirely (matches the per-value graceful degradation of the original design).
-  const isDevOrStaging = env === 'dev' || env === 'staging'
-  let encryptionSession: EncryptionSession | undefined
-  if (publicEncryptionKey && isDevOrStaging) {
-    try {
-      encryptionSession = createEncryptionSession(publicEncryptionKey)
-    } catch {
-      // Invalid key — proceed without encryption rather than dropping the whole batch
-    }
-  }
-
   const json = payloads.map((payload) => {
     const { event, pageUrl, appName, properties, messageId, createdAt } = payload
 
-    const eventProperties = extractSchema(payload.properties, encryptionSession)
+    const eventProperties = extractSchema(payload.properties, publicEncryptionKey, env)
     const eventSpec = eventSpecMap?.get(event) ?? null
     let eventSpecMetadata: EventSpecMetadata | undefined
 
@@ -73,7 +58,8 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
       eventProperties,
       eventId: null,
       eventHash: null,
-      ...(typeof eventSpecMetadata !== 'undefined' ? { eventSpecMetadata } : {})
+      ...(typeof eventSpecMetadata !== 'undefined' ? { eventSpecMetadata } : {}),
+      ...(typeof eventSpecMetadata !== 'undefined' ? { validatedBranchId: eventSpecMetadata.branchId } : {})
     }
     return itemJSON
   })
@@ -161,10 +147,7 @@ async function fetchEventSpecsForBatch(
   return eventSpecMap
 }
 
-/** Maximum nesting depth for wire constraint conversion — mirrors the validator's limit. */
-const MAX_WIRE_DEPTH = 2
-
-function convertWirePropToConstraints(wire: PropertyConstraintWire, eventIds: string[], depth = 0): PropertyConstraint {
+function convertWirePropToConstraints(wire: PropertyConstraintWire, eventIds: string[]): PropertyConstraint {
   const type = wire.t === 'string' ? wire.t : 'object'
   const required = wire.r
   const isListType = wire.l === true
@@ -201,14 +184,26 @@ function convertWirePropToConstraints(wire: PropertyConstraintWire, eventIds: st
     result.minMaxRanges = { [key]: [...eventIds] }
   }
 
-  // Handle nested properties — guarded by depth limit to prevent stack overflow
-  // from malformed or malicious wire payloads.
-  const nestedSchema =
-    depth < MAX_WIRE_DEPTH && wire && typeof wire.t === 'object' && wire.t !== null ? wire.t : undefined
+  // Regex patterns
+  if (wire.rx) {
+    if (typeof wire.rx === 'string') {
+      // Legacy format: rx is a single regex pattern string
+      result.regexPatterns = { [wire.rx]: [...eventIds] }
+    } else if (typeof wire.rx === 'object') {
+      // New format: rx is an object mapping regex patterns to event IDs
+      result.regexPatterns = {}
+      for (const [pattern, rxEventIds] of Object.entries(wire.rx)) {
+        result.regexPatterns[pattern] = [...rxEventIds]
+      }
+    }
+  }
+
+  // Handle nested properties
+  const nestedSchema = wire && typeof wire.t === 'object' && wire.t !== null ? wire.t : undefined
   if (nestedSchema) {
     result.children = {}
     for (const [childName, childWire] of Object.entries(nestedSchema)) {
-      result.children[childName] = convertWirePropToConstraints(childWire, eventIds, depth + 1)
+      result.children[childName] = convertWirePropToConstraints(childWire, eventIds)
     }
   }
 
