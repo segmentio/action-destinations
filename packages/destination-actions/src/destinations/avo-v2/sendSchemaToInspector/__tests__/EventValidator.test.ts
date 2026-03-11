@@ -217,7 +217,7 @@ describe('EventValidator', () => {
     expect(resultFail.propertyResults.regexProp.failedEventIds).toEqual(['evt_1'])
   })
 
-  it('handles ReDoS-shaped regex/input safely with RE2', () => {
+  it('handles ReDoS: nested quantifiers (a+)+', () => {
     const spec: EventSpec = {
       metadata: { schemaId: 'schema_1', branchId: 'main', latestActionId: 'action_1' },
       events: [
@@ -230,7 +230,7 @@ describe('EventValidator', () => {
               type: 'string',
               required: true,
               regexPatterns: {
-                // This is a classic catastrophic-backtracking pattern in JS RegExp.
+                // Classic catastrophic-backtracking pattern in JS RegExp.
                 // With RE2, evaluation remains safe/linear.
                 '^(a+)+$': ['evt_1']
               }
@@ -241,6 +241,114 @@ describe('EventValidator', () => {
     }
 
     const evilInput = `${'a'.repeat(20000)}!`
+    const result = validateEvent({ regexProp: evilInput }, spec)
+    expect(result.propertyResults.regexProp.failedEventIds).toEqual(['evt_1'])
+  })
+
+  it('handles ReDoS: overlapping alternation (a|a)*', () => {
+    const spec: EventSpec = {
+      metadata: { schemaId: 'schema_1', branchId: 'main', latestActionId: 'action_1' },
+      events: [
+        {
+          branchId: 'main',
+          baseEventId: 'evt_1',
+          variantIds: [],
+          props: {
+            regexProp: {
+              type: 'string',
+              required: true,
+              regexPatterns: {
+                // Overlapping alternation causes exponential backtracking in JS.
+                '^(a|a)*$': ['evt_1']
+              }
+            }
+          }
+        }
+      ]
+    }
+
+    const evilInput = `${'a'.repeat(20000)}!`
+    const result = validateEvent({ regexProp: evilInput }, spec)
+    expect(result.propertyResults.regexProp.failedEventIds).toEqual(['evt_1'])
+  })
+
+  it('handles ReDoS: nested repetition with wildcard (.*a){x}', () => {
+    const spec: EventSpec = {
+      metadata: { schemaId: 'schema_1', branchId: 'main', latestActionId: 'action_1' },
+      events: [
+        {
+          branchId: 'main',
+          baseEventId: 'evt_1',
+          variantIds: [],
+          props: {
+            regexProp: {
+              type: 'string',
+              required: true,
+              regexPatterns: {
+                // Nested repetition with wildcard — exponential in backtracking engines.
+                '^(.*a){20}$': ['evt_1']
+              }
+            }
+          }
+        }
+      ]
+    }
+
+    const evilInput = `${'a'.repeat(20)}b`
+    const result = validateEvent({ regexProp: evilInput }, spec)
+    expect(result.propertyResults.regexProp.failedEventIds).toEqual(['evt_1'])
+  })
+
+  it('handles ReDoS: polynomial backtracking with character classes ([a-zA-Z]+)*', () => {
+    const spec: EventSpec = {
+      metadata: { schemaId: 'schema_1', branchId: 'main', latestActionId: 'action_1' },
+      events: [
+        {
+          branchId: 'main',
+          baseEventId: 'evt_1',
+          variantIds: [],
+          props: {
+            regexProp: {
+              type: 'string',
+              required: true,
+              regexPatterns: {
+                // Quantified group with overlapping character class.
+                '^([a-zA-Z]+)*$': ['evt_1']
+              }
+            }
+          }
+        }
+      ]
+    }
+
+    const evilInput = `${'a'.repeat(20000)}1`
+    const result = validateEvent({ regexProp: evilInput }, spec)
+    expect(result.propertyResults.regexProp.failedEventIds).toEqual(['evt_1'])
+  })
+
+  it('handles ReDoS: email-like pattern with backtracking', () => {
+    const spec: EventSpec = {
+      metadata: { schemaId: 'schema_1', branchId: 'main', latestActionId: 'action_1' },
+      events: [
+        {
+          branchId: 'main',
+          baseEventId: 'evt_1',
+          variantIds: [],
+          props: {
+            regexProp: {
+              type: 'string',
+              required: true,
+              regexPatterns: {
+                // Naive email regex known for catastrophic backtracking.
+                '^([a-zA-Z0-9._-]+)*@([a-zA-Z0-9._-]+)*\\.([a-zA-Z0-9._-]+)*$': ['evt_1']
+              }
+            }
+          }
+        }
+      ]
+    }
+
+    const evilInput = `${'a'.repeat(50000)}`
     const result = validateEvent({ regexProp: evilInput }, spec)
     expect(result.propertyResults.regexProp.failedEventIds).toEqual(['evt_1'])
   })
