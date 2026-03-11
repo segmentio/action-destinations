@@ -79,7 +79,7 @@ export async function createAudience(request: RequestClient, name: string, adAcc
 }
 
 export async function getAudience(request: RequestClient, externalId: string, features?: Features, statsContext?: StatsContext): Promise<{ data?: { externalId?: string; name: string}, error?: NonFacebookError }> {
-  const url = `${BASE_URL}/${getApiVersion(features, statsContext)}/${externalId}`
+  const url = `${BASE_URL}/${getApiVersion(features, statsContext)}/${externalId}?fields=id,name`
 
   try {
     const response = await request<GetAudienceResponse>(url, { method: 'GET' })

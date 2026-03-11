@@ -145,6 +145,7 @@ describe('Facebook Custom Audiences - canary API version', () => {
     it('sends the get request to the standard API_VERSION URL when the canary flag is off', async () => {
       nock(`${BASE_URL}/${TEST_API_VERSION}`)
         .get(`/${audienceId}`)
+        .query({ fields: 'id,name' })
         .reply(200, { id: audienceId, name: 'Test Audience' })
 
       const result = await testDestination.getAudience({
@@ -159,6 +160,7 @@ describe('Facebook Custom Audiences - canary API version', () => {
     it('sends the get request to the CANARY_API_VERSION URL when the canary flag is on', async () => {
       nock(`${BASE_URL}/${TEST_CANARY_API_VERSION}`)
         .get(`/${audienceId}`)
+        .query({ fields: 'id,name' })
         .reply(200, { id: audienceId, name: 'Test Audience' })
 
       const result = await testDestination.getAudience({

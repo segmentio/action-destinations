@@ -112,18 +112,19 @@ describe('Facebook Custom Audiences', () => {
 
   describe('getAudience', () => {
     it('should fail if FB replies with an error ID', async () => {
-      nock(getAudienceUrl).get(`/${audienceId}`).reply(400, {})
+      nock(getAudienceUrl).get(`/${audienceId}`).query({ fields: 'id,name' }).reply(400, {})
       await expect(testDestination.getAudience(getAudienceInput)).rejects.toThrowError()
     })
 
     it("should fail if Segment Audience ID doesn't match FB Audience ID", async () => {
-      nock(getAudienceUrl).get(`/${audienceId}`).reply(200, { id: '42' })
+      nock(getAudienceUrl).get(`/${audienceId}`).query({ fields: 'id,name' }).reply(200, { id: '42' })
       await expect(testDestination.getAudience(getAudienceInput)).rejects.toThrowError()
     })
 
     it('should succeed when Segment Audience ID matches FB audience ID', async () => {
       nock(getAudienceUrl)
         .get(`/${audienceId}`)
+        .query({ fields: 'id,name' })
         .reply(200, { id: `${audienceId}` })
       const r = await testDestination.getAudience(getAudienceInput)
       expect(r).toEqual({ externalId: audienceId })
