@@ -228,7 +228,7 @@ export const fields: Record<string, InputField> = {
         label: 'Traits or Properties',
         description: 'Field used for processing an Engage Audience.',
         type: 'object', 
-        required: true
+        required: false
       },
       audience_key: {
         label: 'Segment Audience Key',
