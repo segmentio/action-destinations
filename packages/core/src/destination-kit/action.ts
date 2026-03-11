@@ -339,13 +339,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       results.push({ output: 'Payload validated' })
     }
 
-    if (payload.audience_membership === undefined) {
-      const audience_embership = resolveAudienceMembership(bundle.data)
-      if (audience_embership !== undefined) {
-        payload = { ...payload, audience_embership } as Payload
-      }
-    }
-
     let hookOutputs = {}
     if (this.definition.hooks) {
       for (const hookType in this.definition.hooks) {
@@ -357,9 +350,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       }
     }
 
-    const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
-
+    const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+    const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
     const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+    const audienceMembership = resolveAudienceMembership(bundle.data, syncMode)
 
     // Construct the data bundle to send to an action
     const dataBundle = {
@@ -367,6 +361,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       rawMapping: bundle.mapping,
       settings: bundle.settings,
       payload,
+      audienceMembership,
       auth: bundle.auth,
       features: bundle.features,
       statsContext: bundle.statsContext,
@@ -376,7 +371,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       stateContext: bundle.stateContext,
       audienceSettings: bundle.audienceSettings,
       hookOutputs,
-      syncMode: isSyncMode(syncMode) ? syncMode : undefined,
+      syncMode,
       matchingKey: matchingKey ? String(matchingKey) : undefined,
       subscriptionMetadata: bundle.subscriptionMetadata,
       signal: bundle?.signal
@@ -414,10 +409,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       // Filter out invalid payloads before sending them to the action
       {
         const filteredPayload: Payload[] = []
+        const filteredAudienceMemberships: (boolean | undefined)[] = []
 
         for (let i = 0; i < payloads.length; i++) {
           // Validate payload schema
-          let payload = removeEmptyValues(payloads[i], schema) as Payload
+          const payload = removeEmptyValues(payloads[i], schema) as Payload
           try {
             // AJV schema validator only removes fields that are not defined in the schema (Refer ajv docs)
             // Refer https://ajv.js.org/guide/modifying-data.html#removing-additional-properties
@@ -439,20 +435,14 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
             continue
           }
 
-          // Inject audience_membership after validation so AJV does not strip it
-          if (payload.audience_membership === undefined) {
-            const audience_membership = resolveAudienceMembership(bundle.data[i])
-            if (audience_membership !== undefined) {
-              payload = { ...payload, audience_membership } as Payload
-            }
-          }
-
           // Event is validated, pass it to the action
           filteredPayload.push(payload)
+          filteredAudienceMemberships.push(resolveAudienceMembership(bundle.data[i]))
         }
 
         // Update the payloads with the filtered out events
         payloads = filteredPayload
+        audienceMemberships = filteredAudienceMemberships
       }
     }
 
@@ -472,8 +462,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     if (this.definition.performBatch) {
-      const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+      const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+      const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
       const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+      const audienceMembership: (boolean | undefined)[] = bundle.data.map((d) => resolveAudienceMembership(d, syncMode))
 
       const data = {
         rawData: bundle.data,
@@ -481,6 +473,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         settings: bundle.settings,
         audienceSettings: bundle.audienceSettings,
         payload: payloads,
+        audienceMembership,
         auth: bundle.auth,
         features: bundle.features,
         statsContext: bundle.statsContext,
@@ -490,7 +483,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         stateContext: bundle.stateContext,
         subscriptionMetadata: bundle.subscriptionMetadata,
         hookOutputs,
-        syncMode: isSyncMode(syncMode) ? syncMode : undefined,
+        syncMode,
         matchingKey: matchingKey ? String(matchingKey) : undefined,
         signal: bundle?.signal
       }

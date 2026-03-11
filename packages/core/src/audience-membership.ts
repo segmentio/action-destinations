@@ -5,7 +5,7 @@ import { InputData } from './mapping-kit'
  * Returns `true` if the user is being added, `false` if being removed,
  * or `undefined` if the payload is not an audience computation or membership cannot be determined.
  */
-export function resolveAudienceMembership(rawData: InputData | undefined): boolean | undefined {
+export function resolveAudienceMembership(rawData: InputData | undefined, syncMode?: string): boolean | undefined {
   if (!rawData) return undefined
 
   const engageMembership = engageAudienceMembership(rawData)
@@ -14,7 +14,7 @@ export function resolveAudienceMembership(rawData: InputData | undefined): boole
     return engageMembership
   }
 
-  const retlMembership = retlAudienceMembership(rawData)
+  const retlMembership = retlAudienceMembership(rawData, syncMode)
 
   if (typeof retlMembership === 'boolean') {
     return retlMembership
@@ -67,7 +67,7 @@ export function engageAudienceMembership(rawData: InputData | undefined): boolea
  * Returns `true` if the user is being added, `false` if being removed,
  * or `undefined` if the payload is not an audience computation or membership cannot be determined.
  */
-export function retlAudienceMembership(rawData: InputData | undefined): boolean | undefined {
+export function retlAudienceMembership(rawData: InputData | undefined, syncMode?: string): boolean | undefined {
   if (!rawData) return undefined
 
   const {
@@ -78,7 +78,7 @@ export function retlAudienceMembership(rawData: InputData | undefined): boolean 
     type?: string
   }   
   
-  if (type !== 'track') return undefined
+  if (type !== 'track' || !syncMode) return undefined
   
   if(['new', 'updated'].includes(event)) {
     return true
