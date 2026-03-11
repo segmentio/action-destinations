@@ -510,18 +510,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
   describe('executeBatch', () => {
     const mapping = {
       user_id: { '@path': '$.userId' },
-      engage_fields: {
-        segment_computation_class: { '@path': '$.context.personas.computation_class' },
-        traits_or_properties: {
-          '@if': {
-            exists: { '@path': '$.traits' },
-            then: { '@path': '$.traits' },
-            else: { '@path': '$.properties' }
-          }
-        },
-        segment_audience_key: { '@path': '$.context.personas.computation_key' },
-        segment_external_audience_id: { '@path': '$.context.personas.external_audience_id' }
-      },
+      segment_external_audience_id: { '@path': '$.context.personas.external_audience_id' },
       batch_size: 100
     }
 
@@ -580,12 +569,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedRequestJson, memberships: [{ ids: ['user1'], id_type: 'BY_USER_ID', operation: 'ADD' }] },
         body: {
           user_id: 'user1',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: true },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_123'
-          },
+          segment_external_audience_id: 'cohort_123',
           batch_size: 100
         }
       })
@@ -594,12 +578,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedRequestJson, memberships: [{ ids: ['user2'], id_type: 'BY_USER_ID', operation: 'ADD' }] },
         body: {
           user_id: 'user2',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: true },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_123'
-          },
+          segment_external_audience_id: 'cohort_123',
           batch_size: 100
         }
       })
@@ -656,12 +635,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedRequestJson, memberships: [{ ids: ['user1'], id_type: 'BY_USER_ID', operation: 'REMOVE' }] },
         body: {
           user_id: 'user1',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: false },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_123'
-          },
+          segment_external_audience_id: 'cohort_123',
           batch_size: 100
         }
       })
@@ -670,12 +644,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedRequestJson, memberships: [{ ids: ['user2'], id_type: 'BY_USER_ID', operation: 'REMOVE' }] },
         body: {
           user_id: 'user2',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: false },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_123'
-          },
+          segment_external_audience_id: 'cohort_123',
           batch_size: 100
         }
       })
@@ -754,12 +723,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedAddJson, memberships: [{ ids: ['add_user1'], id_type: 'BY_USER_ID', operation: 'ADD' }] },
         body: {
           user_id: 'add_user1',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: true },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_123'
-          },
+          segment_external_audience_id: 'cohort_123',
           batch_size: 100
         }
       })
@@ -768,12 +732,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedAddJson, memberships: [{ ids: ['add_user2'], id_type: 'BY_USER_ID', operation: 'ADD' }] },
         body: {
           user_id: 'add_user2',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: true },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_123'
-          },
+          segment_external_audience_id: 'cohort_123',
           batch_size: 100
         }
       })
@@ -782,12 +741,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedRemoveJson, memberships: [{ ids: ['remove_user1'], id_type: 'BY_USER_ID', operation: 'REMOVE' }] },
         body: {
           user_id: 'remove_user1',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: false },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_123'
-          },
+          segment_external_audience_id: 'cohort_123',
           batch_size: 100
         }
       })
@@ -849,12 +803,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedRequestJson, memberships: [{ ids: ['amp_id_1'], id_type: 'BY_AMP_ID', operation: 'ADD' }] },
         body: {
           amplitude_id: 'amp_id_1',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: true },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_amp'
-          },
+          segment_external_audience_id: 'cohort_amp',
           batch_size: 100
         }
       })
@@ -863,12 +812,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedRequestJson, memberships: [{ ids: ['amp_id_2'], id_type: 'BY_AMP_ID', operation: 'ADD' }] },
         body: {
           amplitude_id: 'amp_id_2',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: true },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_amp'
-          },
+          segment_external_audience_id: 'cohort_amp',
           batch_size: 100
         }
       })
@@ -926,12 +870,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedRequestJson, memberships: [{ ids: ['eu_user1'], id_type: 'BY_USER_ID', operation: 'ADD' }] },
         body: {
           user_id: 'eu_user1',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: true },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_eu'
-          },
+          segment_external_audience_id: 'cohort_eu',
           batch_size: 100
         }
       })
@@ -940,12 +879,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedRequestJson, memberships: [{ ids: ['eu_user2'], id_type: 'BY_USER_ID', operation: 'ADD' }] },
         body: {
           user_id: 'eu_user2',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: true },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_eu'
-          },
+          segment_external_audience_id: 'cohort_eu',
           batch_size: 100
         }
       })
@@ -1002,12 +936,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedRequestJson, memberships: [{ ids: ['valid_user'], id_type: 'BY_USER_ID', operation: 'ADD' }] },
         body: {
           user_id: 'valid_user',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: true },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_123'
-          },
+          segment_external_audience_id: 'cohort_123',
           batch_size: 100
         }
       })
@@ -1017,12 +946,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         errormessage: 'The user with User ID skipped_user was invalid and was not processed in the cohort update.',
         body: {
           user_id: 'skipped_user',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: true },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_123'
-          },
+          segment_external_audience_id: 'cohort_123',
           batch_size: 100
         }
       })
@@ -1093,12 +1017,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedRequestJson, memberships: [{ ids: ['user1'], id_type: 'BY_USER_ID', operation: 'ADD' }] },
         body: {
           user_id: 'user1',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: true },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_123'
-          },
+          segment_external_audience_id: 'cohort_123',
           batch_size: 100
         }
       })
@@ -1113,12 +1032,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedRequestJson, memberships: [{ ids: ['user2'], id_type: 'BY_USER_ID', operation: 'ADD' }] },
         body: {
           user_id: 'user2',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: true },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_123'
-          },
+          segment_external_audience_id: 'cohort_123',
           batch_size: 100
         }
       })
@@ -1181,15 +1095,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         sent: { ...expectedRequestJson, memberships: [{ ids: ['user1'], id_type: 'BY_USER_ID', operation: 'ADD' }] },
         body: {
           batch_size: 100,
-          engage_fields: {
-            segment_audience_key: 'test_audience',
-            segment_computation_class: 'audience',
-            segment_external_audience_id: 'cohort_123',
-            traits_or_properties: {
-              explicit_user_id: 'user1',
-              test_audience: true
-            }
-          },
+          segment_external_audience_id: 'cohort_123',
           user_id: 'user1'
         }
       })
@@ -1241,12 +1147,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         errormessage: 'ID Type must be specified in Audience Settings.',
         body: {
           user_id: 'user1',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: true },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_123'
-          },
+          segment_external_audience_id: 'cohort_123',
           batch_size: 100
         }
       })
@@ -1256,12 +1157,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         errormessage: 'ID Type must be specified in Audience Settings.',
         body: {
           user_id: 'user2',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: { test_audience: true },
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort_123'
-          },
+          segment_external_audience_id: 'cohort_123',
           batch_size: 100
         }
       })

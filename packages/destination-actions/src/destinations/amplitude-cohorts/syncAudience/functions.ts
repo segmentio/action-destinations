@@ -8,9 +8,7 @@ import { IDType } from '../types'
 
 export async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean, audienceSettings?: AudienceSettings, audienceMemberships?: AudienceMembership[]) {
   const { 
-    engage_fields: { 
-      segment_external_audience_id: audienceId
-    },
+    segment_external_audience_id: audienceId
   } = payloads[0] 
 
   const {
