@@ -409,7 +409,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       // Filter out invalid payloads before sending them to the action
       {
         const filteredPayload: Payload[] = []
-        const filteredAudienceMemberships: (boolean | undefined)[] = []
 
         for (let i = 0; i < payloads.length; i++) {
           // Validate payload schema
@@ -437,12 +436,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
           // Event is validated, pass it to the action
           filteredPayload.push(payload)
-          filteredAudienceMemberships.push(resolveAudienceMembership(bundle.data[i]))
         }
 
         // Update the payloads with the filtered out events
         payloads = filteredPayload
-        audienceMemberships = filteredAudienceMemberships
       }
     }
 
