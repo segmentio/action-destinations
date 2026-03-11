@@ -1,16 +1,17 @@
-import type { AudienceDestinationDefinition, ModifiedResponse } from '@segment/actions-core'
+import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
-import { generate_jwt } from './utils-rt'
 import updateSegment from './updateSegment'
-import { gen_customer_taxonomy_payload, gen_segment_subtaxonomy_payload, update_taxonomy } from './utils-tax'
+import {
+  gen_customer_taxonomy_payload,
+  gen_segment_subtaxonomy_payload,
+  update_taxonomy,
+  get_taxonomy_access_token
+} from './utils-tax'
 type PersonasSettings = {
   computation_id: string
   computation_key: string
   parent_id: string
-}
-interface RefreshTokenResponse {
-  access_token: string
 }
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
@@ -80,22 +81,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         rt_client_secret = auth.clientSecret
       }
 
-      const prefixed_client_id = `idb2b.dsp.datax.${rt_client_key}`
-      const jwt = generate_jwt(prefixed_client_id, rt_client_secret)
-      const res: ModifiedResponse<RefreshTokenResponse> = await request<RefreshTokenResponse>(
-        'https://id.b2b.yahooincapis.com/zts/v1/oauth2/token',
-        {
-          method: 'POST',
-          body: new URLSearchParams({
-            client_assertion: jwt,
-            client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-            grant_type: 'client_credentials',
-            scope: 'idb2b.dsp.datax:role.online.writer',
-            aud: 'https://id.b2b.yahooincapis.com/zts/v1'
-          })
-        }
-      )
-      const rt_access_token = res.data.access_token
+      // Use shared token fetching utility (handles prefixing, JWT generation, and token request)
+      const rt_access_token = await get_taxonomy_access_token(request, rt_client_key, rt_client_secret)
       return { accessToken: rt_access_token }
     }
   },

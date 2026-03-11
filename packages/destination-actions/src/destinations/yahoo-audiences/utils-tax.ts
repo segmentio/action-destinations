@@ -1,9 +1,15 @@
 import type { Settings } from './generated-types'
-import { createHmac } from 'crypto'
 import type { ModifiedResponse } from '@segment/actions-core'
 import { CredsObj, YahooSubTaxonomy, TokenResponse } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { StatsClient } from '@segment/actions-core/destination-kit'
+import { generate_jwt } from './utils-rt'
+
+// Constants for Yahoo Taxonomy API
+const TAXONOMY_CLIENT_KEY_PREFIX = 'idb2b.dsp.datax'
+const TAXONOMY_TOKEN_ENDPOINT = 'https://id.b2b.yahooincapis.com/zts/v1/oauth2/token'
+const TAXONOMY_AUDIENCE_URL = 'https://id.b2b.yahooincapis.com/zts/v1'
+const TAXONOMY_SCOPE = 'idb2b.dsp.datax:role.online.writer'
 
 export function gen_customer_taxonomy_payload(settings: Settings) {
   const data = {
@@ -49,49 +55,40 @@ export function gen_random_id(length: number): string {
 /**
  * Obtains a short-lived OAuth 2.0 Bearer token for the Taxonomy API using the
  * same JWT client-credentials flow used by the Online (Realtime) API.
+ * @param request RequestClient for making HTTP requests
+ * @param tx_client_key Taxonomy API client key (will be prefixed with 'idb2b.dsp.datax.')
+ * @param tx_client_secret Taxonomy API client secret
+ * @returns OAuth 2.0 access token
  */
 export async function get_taxonomy_access_token(
   request: RequestClient,
   tx_client_key: string,
   tx_client_secret: string
 ): Promise<string> {
-  const random_id = gen_random_id(24)
-  const current_time = Math.floor(new Date().getTime() / 1000)
-  const url = 'https://id.b2b.yahooincapis.com/zts/v1'
-  const jwt_payload = {
-    iss: tx_client_key,
-    sub: tx_client_key,
-    aud: url,
-    jti: random_id,
-    exp: current_time + 3600,
-    iat: current_time
+  // Prefix the client key as required by Yahoo's Taxonomy API
+  const prefixed_client_key = `${TAXONOMY_CLIENT_KEY_PREFIX}.${tx_client_key}`
+
+  // Generate JWT using the shared utility
+  const jwt = generate_jwt(prefixed_client_key, tx_client_secret)
+
+  const res: ModifiedResponse<TokenResponse> = await request<TokenResponse>(TAXONOMY_TOKEN_ENDPOINT, {
+    method: 'POST',
+    body: new URLSearchParams({
+      client_assertion: jwt,
+      client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      grant_type: 'client_credentials',
+      scope: TAXONOMY_SCOPE,
+      aud: TAXONOMY_AUDIENCE_URL
+    })
+  })
+
+  if (!res?.data?.access_token) {
+    throw new IntegrationError(
+      'Failed to obtain taxonomy access token - missing access_token in response',
+      'YAHOO_TAXONOMY_TOKEN_ERROR',
+      500
+    )
   }
-  const jwt_header = {
-    alg: 'HS256',
-    typ: 'JWT'
-  }
-
-  const jwt_header_encoded = Buffer.from(JSON.stringify(jwt_header)).toString('base64')
-  const jwt_payload_encoded = Buffer.from(JSON.stringify(jwt_payload)).toString('base64')
-  const jwt_head_payload = jwt_header_encoded + '.' + jwt_payload_encoded
-
-  const hash = createHmac('sha256', tx_client_secret)
-  const signature = hash.update(jwt_head_payload).digest('base64')
-  const jwt = jwt_head_payload + '.' + signature
-
-  const res: ModifiedResponse<TokenResponse> = await request<TokenResponse>(
-    'https://id.b2b.yahooincapis.com/zts/v1/oauth2/token',
-    {
-      method: 'POST',
-      body: new URLSearchParams({
-        client_assertion: jwt,
-        client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-        grant_type: 'client_credentials',
-        scope: 'idb2b.dsp.datax:role.online.writer',
-        aud: 'https://id.b2b.yahooincapis.com/zts/v1'
-      })
-    }
-  )
 
   return res.data.access_token
 }
@@ -108,10 +105,8 @@ export async function update_taxonomy(
   const tx_client_key = tx_creds.tx_client_key
   const url = `https://datax.yahooapis.com/v1/taxonomy/append${engage_space_id.length > 0 ? '/' + engage_space_id : ''}`
 
-  const prefixed_tx_client_key = `idb2b.dsp.datax.${tx_client_key}`
-
   // Get a short-lived Bearer token using the same JWT client-credentials flow as the Online API
-  const access_token = await get_taxonomy_access_token(request, prefixed_tx_client_key, tx_client_secret)
+  const access_token = await get_taxonomy_access_token(request, tx_client_key, tx_client_secret)
 
   try {
     const add_segment_node = await request(url, {
