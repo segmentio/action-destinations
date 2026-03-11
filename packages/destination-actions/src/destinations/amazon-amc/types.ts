@@ -1,5 +1,7 @@
 import { HTTPError } from '@segment/actions-core'
 
+
+export type MaybeString = string | undefined | null
 export interface RefreshTokenResponse {
   access_token: string
   scope: string
@@ -34,19 +36,36 @@ export interface HashedPIIObject {
   email?: string
   address?: string
 }
-export interface AudienceRecord {
-  hashedPII: HashedPIIObject[]
-  externalUserId: string
-  countryCode: string
-  action: string
-}
-export interface TargetResourceRecords {
-  connectionId: string
-  targetTypes: string[]
-}
 
 export interface AudienceRecordPayload {
   records: AudienceRecord[]
   targetResource: TargetResourceRecords
   audienceId: number
+}
+
+export interface TargetResourceRecords {
+  connectionId: string
+  targetTypes: string[]
+}
+export interface AudienceRecord {
+  hashedPII: HashedPIIObject[]
+  externalUserId: string
+  countryCode: string
+  action: string
+  userConsent?: UserConsent
+}
+
+export interface UserConsent {
+  consent?: {
+    amzn?: {
+      amznAdStorage: 'GRANTED' | 'DENIED'
+      amznUserData: 'GRANTED' | 'DENIED'
+    }
+    tcf?: string
+    gpp?: string
+  } 
+  geo: {
+    ipAddress?: string
+    countryCode: string
+  }
 }
