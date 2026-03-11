@@ -41,9 +41,9 @@ type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, ActionHookInputs = any> = (
+export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, ActionHookInputs = any, AudienceMembershipType = AudienceMembership | AudienceMembership[]> = (
   request: RequestClient,
-  data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs>
+  data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs, any, AudienceMembershipType>
 ) => MaybePromise<Return>
 
 interface ReservedInputFields {
@@ -136,10 +136,10 @@ export interface ActionDefinition<
   }
 
   /** The operation to perform when this action is triggered */
-  perform: RequestFn<Settings, Payload, any, AudienceSettings>
+  perform: RequestFn<Settings, Payload, any, AudienceSettings, any, AudienceMembership>
 
   /** The operation to perform when this action is triggered for a batch of events */
-  performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings>
+  performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings, any, AudienceMembership[]>
 
   /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
    * destination using the provided inputs and return a response. The response may then optionally be stored
