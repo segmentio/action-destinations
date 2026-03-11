@@ -41,7 +41,7 @@ export async function send(
         let membership: boolean | undefined = undefined 
         if(isRETLAudience(payload)){
           const { membership_fields: { retl_event_name = '' } = {} } = payload
-          membership = [RETL_MEMBERSHIP.NEW, RETL_MEMBERSHIP.UPDATED].includes(retl_event_name.toLocaleLowerCase())
+          membership = [RETL_MEMBERSHIP.NEW, RETL_MEMBERSHIP.UPDATED].includes(retl_event_name.toLowerCase())
         } 
         else if (isEngageAudience(payload)){
           const { membership_fields: { traits_or_properties, audience_key } = {} } = payload
@@ -146,7 +146,7 @@ export function getAudienceId(payload: Payload, hookOutputs?: { retlOnMappingSav
 
 export function isEngageAudience(payload: Payload): boolean {
   const { membership_fields: { computation_class, audience_key, traits_or_properties } = {} } = payload
-  return typeof traits_or_properties === 'object' && audience_key && computation_class && ['audience', 'journey_step'].includes(computation_class) ? true : false
+  return typeof traits_or_properties === 'object' && traits_or_properties != null && audience_key && computation_class && ['audience', 'journey_step'].includes(computation_class) ? true : false
 }
 
 export function isRETLAudience(payload: Payload): boolean {

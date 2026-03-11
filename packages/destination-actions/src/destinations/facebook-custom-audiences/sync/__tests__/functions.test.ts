@@ -64,12 +64,12 @@ describe('validate', () => {
   })
 
   it('returns an error message when syncMode is undefined', () => {
-    const result = validate('aud-123', basePayload, undefined)
+    const result = validate('aud-123', undefined)
     expect(result).toMatch(/Sync Mode is required/)
   })
 
   it('returns an error message when syncMode is an unrecognised value', () => {
-    const result = validate('aud-123', basePayload, 'replace' as any)
+    const result = validate('aud-123', 'replace' as any)
     expect(result).toMatch(/Sync Mode is required/)
   })
 
