@@ -262,15 +262,18 @@ function makeDestination(
 
 async function runAction(
   event: object,
-  mapping: JSONObject = { userId: { '@path': '$.userId' } }
+  mapping: JSONObject = { userId: { '@path': '$.userId' } },
+  features: Record<string, boolean> = {}
 ): Promise<ExecuteInput<JSONObject, JSONObject> | undefined> {
   const captureRef: { data?: ExecuteInput<JSONObject, JSONObject> } = {}
   const testDestination = createTestIntegration(makeDestination(captureRef))
-  await testDestination.testAction('testAction', { mapping, event })
+  await testDestination.testAction('testAction', { mapping, event, features })
   return captureRef.data
 }
 
 describe('audienceMembership on ExecuteInput in perform()', () => {
+  const flag = { 'actions-core-audience-membership': true }
+
   describe('Engage payloads', () => {
     it('is true for identify event with membership in traits', async () => {
       const data = await runAction({
@@ -278,7 +281,7 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
         userId: 'user-1',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         traits: { my_audience: true }
-      })
+      }, undefined, flag)
       expect(data?.audienceMembership).toBe(true)
     })
 
@@ -288,7 +291,7 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
         userId: 'user-1',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         traits: { my_audience: false }
-      })
+      }, undefined, flag)
       expect(data?.audienceMembership).toBe(false)
     })
 
@@ -298,7 +301,7 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
         userId: 'user-1',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         properties: { my_audience: true }
-      })
+      }, undefined, flag)
       expect(data?.audienceMembership).toBe(true)
     })
 
@@ -308,7 +311,7 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
         userId: 'user-1',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         properties: { my_audience: false }
-      })
+      }, undefined, flag)
       expect(data?.audienceMembership).toBe(false)
     })
   })
@@ -317,7 +320,8 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
     it('is true for track event with syncMode add and event name new', async () => {
       const data = await runAction(
         { type: 'track', userId: 'user-1', event: 'new' },
-        { userId: { '@path': '$.userId' }, __segment_internal_sync_mode: 'add' }
+        { userId: { '@path': '$.userId' }, __segment_internal_sync_mode: 'add' },
+        flag
       )
       expect(data?.audienceMembership).toBe(true)
     })
@@ -325,7 +329,8 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
     it('is false for track event with syncMode delete and event name deleted', async () => {
       const data = await runAction(
         { type: 'track', userId: 'user-1', event: 'deleted' },
-        { userId: { '@path': '$.userId' }, __segment_internal_sync_mode: 'delete' }
+        { userId: { '@path': '$.userId' }, __segment_internal_sync_mode: 'delete' },
+        flag
       )
       expect(data?.audienceMembership).toBe(false)
     })
@@ -337,6 +342,18 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
         type: 'track',
         userId: 'user-1',
         properties: { foo: 'bar' }
+      }, undefined, flag)
+      expect(data?.audienceMembership).toBeUndefined()
+    })
+  })
+
+  describe('feature flag', () => {
+    it('is undefined when the actions-core-audience-membership flag is not present', async () => {
+      const data = await runAction({
+        type: 'identify',
+        userId: 'user-1',
+        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+        traits: { my_audience: true }
       })
       expect(data?.audienceMembership).toBeUndefined()
     })
