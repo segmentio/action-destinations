@@ -1,11 +1,16 @@
 import https from 'https'
 
 import type { DestinationDefinition, ModifiedResponse } from '@segment/actions-core'
-import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
+import {
+  InvalidAuthenticationError,
+  IntegrationError,
+  ErrorCodes,
+  RefreshTokenAndRetryError
+} from '@segment/actions-core'
 
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
-import { LINKEDIN_API_VERSION } from './constants'
+import { LINKEDIN_API_VERSION, LINKEDIN_TOKEN_PROPAGATION_ERROR_CODES } from './constants'
 import { LinkedInAudiences } from './api'
 import type {
   RefreshTokenResponse,
@@ -148,7 +153,21 @@ const destination: DestinationDefinition<Settings> = {
         authorization: `Bearer ${auth?.accessToken}`,
         'LinkedIn-Version': LINKEDIN_API_VERSION
       },
-      agent
+      agent,
+      afterResponse: [
+        (_request, _options, response) => {
+          if (response.status === 401) {
+            const body = response.data as Record<string, unknown> | undefined
+            const serviceErrorCode = body?.serviceErrorCode as number | undefined
+            if (serviceErrorCode && LINKEDIN_TOKEN_PROPAGATION_ERROR_CODES.includes(serviceErrorCode)) {
+              throw new RefreshTokenAndRetryError(
+                `LinkedIn eventual consistency: token not yet propagated (serviceErrorCode ${serviceErrorCode})`
+              )
+            }
+          }
+          return response
+        }
+      ]
     }
   },
 

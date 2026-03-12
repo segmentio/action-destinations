@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, RefreshTokenAndRetryError } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { BASE_URL } from '../../constants'
 import Destination from '../../index'
@@ -610,6 +610,34 @@ describe('LinkedinConversions.streamConversion', () => {
         }
       })
     ).rejects.toThrowError("User Info is missing the required field 'lastName'.")
+  })
+
+  it('should throw RefreshTokenAndRetryError when LinkedIn returns 401 with token propagation error code', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(401, {
+      serviceErrorCode: 65601,
+      message: 'Unable to verify access token'
+    })
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: 789123
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrow(RefreshTokenAndRetryError)
   })
 
   it('should detect hashed email if feature flag for smart hashing is passed', async () => {
