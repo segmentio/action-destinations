@@ -59,10 +59,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     testAuthentication: (request, { settings }) => {
       const { 
-        endpoint 
+        endpoint,
+        owner_email
       } = settings
       const baseUrl = getEndpointByRegion('usersearch', endpoint)
-      return request(`${baseUrl}?user=testUser@example.com`)
+      return request(`${baseUrl}?${owner_email}`)
     }
   },
   extendRequest({ settings }) {
