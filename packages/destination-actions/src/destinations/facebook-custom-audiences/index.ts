@@ -14,10 +14,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      retlAdAccountId: {
+      retlAdAccountId: 
+      {
         ...adAccountId,
-        description:
-          'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762). This is required to set up the connection, but can be overriden using the Engage Audience setting named "Advertiser Account ID".'
+        description: 'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762). This is required to set up the connection, but can be overriden using the Engage Audience setting named "Advertiser Account ID".' 
       }
     }
   },
@@ -30,11 +30,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   audienceFields: {
     engageAdAccountId: {
-      ...adAccountId,
-      description:
-        'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762). This overrides the main Destination settings named "Advertiser Account ID".',
-      required: false
-    },
+        ...adAccountId,
+        description: 'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762). This overrides the main Destination settings named "Advertiser Account ID".',
+        required: false
+      },
     audienceDescription
   },
   audienceConfig: {
@@ -42,31 +41,31 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'synced',
       full_audience_sync: false
     },
-    async createAudience(request, createAudienceInput) {
-      const {
+    async createAudience(request, createAudienceInput ) {
+      const { 
         audienceName,
-        audienceSettings: { engageAdAccountId, audienceDescription } = {},
-        settings: { retlAdAccountId } = {},
+        audienceSettings: { 
+          engageAdAccountId, 
+          audienceDescription 
+        } = {},
+        settings: { retlAdAccountId } = {}, 
         features,
         statsContext
       } = createAudienceInput
 
       const addAccountId = (engageAdAccountId ?? retlAdAccountId) as string
-      const { data: { externalId: id } = {}, error } = await createAudience(
-        request,
-        audienceName,
-        addAccountId,
-        audienceDescription,
-        features,
-        statsContext
-      )
+      const { data: { externalId: id } = {}, error } = await createAudience(request, audienceName, addAccountId, audienceDescription, features, statsContext)
       if (error) {
         throw new IntegrationError(error.message, ErrorCodes.CREATE_AUDIENCE_FAILED, 400)
       }
       return { externalId: id as string }
     },
     async getAudience(request, getAudienceInput) {
-      const { externalId, features, statsContext } = getAudienceInput
+      const { 
+        externalId,
+        features, 
+        statsContext 
+      } = getAudienceInput
       const { data: { externalId: id } = {}, error } = await getAudience(request, externalId, features, statsContext)
       if (error) {
         throw new IntegrationError(error.message, ErrorCodes.GET_AUDIENCE_FAILED, 400)

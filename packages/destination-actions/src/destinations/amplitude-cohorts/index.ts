@@ -63,7 +63,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         owner_email
       } = settings
       const baseUrl = getEndpointByRegion('usersearch', endpoint)
-      return request(`${baseUrl}?${owner_email}`)
+      return request(`${baseUrl}?user=${owner_email}`)
     }
   },
   extendRequest({ settings }) {

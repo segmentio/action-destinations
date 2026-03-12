@@ -4,6 +4,7 @@ import { BASE_URL, FACEBOOK_CUSTOM_AUDIENCE_FLAGON } from '../constants'
 import { SCHEMA_PROPERTIES } from '../sync/constants'
 import Destination from '../index'
 
+
 // Override CANARY_API_VERSION with a distinct test value so we can verify
 // that requests are routed to the correct URL. The real constant stays at
 // its production value; only this test module sees the override.
@@ -46,7 +47,7 @@ describe('Facebook Custom Audiences - canary API version', () => {
   })
 
   describe('sync action (upsert)', () => {
-    const events = [createTestEvent({ userId: 'user-1', properties: { email: 'user1@example.com' } })]
+    const events = [createTestEvent({ type: 'track', event: 'new', userId: 'user-1', properties: { email: 'user1@example.com' } })]
 
     const expectedBody = {
       payload: {
@@ -55,22 +56,19 @@ describe('Facebook Custom Audiences - canary API version', () => {
       }
     }
 
-    const facebookResponse = {
-      audience_id: audienceId,
-      num_received: 1,
-      num_invalid_entries: 0,
-      invalid_entry_samples: {}
-    }
+    const facebookResponse = { audience_id: audienceId, num_received: 1, num_invalid_entries: 0, invalid_entry_samples: {} }
 
     it('sends payload to the standard API_VERSION URL when the canary flag is off', async () => {
-      nock(`${BASE_URL}/${TEST_API_VERSION}`).post(`/${audienceId}/users`, expectedBody).reply(200, facebookResponse)
+      nock(`${BASE_URL}/${TEST_API_VERSION}`)
+        .post(`/${audienceId}/users`, expectedBody)
+        .reply(200, facebookResponse)
 
       const responses = await testDestination.executeBatch('sync', {
         events,
         settings,
         auth,
         mapping: baseMapping,
-        features: { [FACEBOOK_CUSTOM_AUDIENCE_FLAGON]: false }
+        features: { [FACEBOOK_CUSTOM_AUDIENCE_FLAGON]: false, 'actions-core-audience-membership': true }
       })
 
       expect(responses[0].status).toBe(200)
@@ -86,7 +84,7 @@ describe('Facebook Custom Audiences - canary API version', () => {
         settings,
         auth,
         mapping: baseMapping,
-        features: { [FACEBOOK_CUSTOM_AUDIENCE_FLAGON]: true }
+        features: { [FACEBOOK_CUSTOM_AUDIENCE_FLAGON]: true, 'actions-core-audience-membership': true }
       })
 
       expect(responses[0].status).toBe(200)
@@ -95,14 +93,16 @@ describe('Facebook Custom Audiences - canary API version', () => {
     it('does NOT send to the canary URL when the flag is off', async () => {
       // Only mock the standard version - if the code incorrectly hits the
       // canary URL, nock will throw a connection error and the test will fail.
-      nock(`${BASE_URL}/${TEST_API_VERSION}`).post(`/${audienceId}/users`, expectedBody).reply(200, facebookResponse)
+      nock(`${BASE_URL}/${TEST_API_VERSION}`)
+        .post(`/${audienceId}/users`, expectedBody)
+        .reply(200, facebookResponse)
 
       const responses = await testDestination.executeBatch('sync', {
         events,
         settings,
         auth,
         mapping: baseMapping,
-        features: {}
+        features: { 'actions-core-audience-membership': true }
       })
 
       expect(responses[0].status).toBe(200)
@@ -145,6 +145,7 @@ describe('Facebook Custom Audiences - canary API version', () => {
     it('sends the get request to the standard API_VERSION URL when the canary flag is off', async () => {
       nock(`${BASE_URL}/${TEST_API_VERSION}`)
         .get(`/${audienceId}`)
+        .query({ fields: 'id,name' })
         .reply(200, { id: audienceId, name: 'Test Audience' })
 
       const result = await testDestination.getAudience({
@@ -159,6 +160,7 @@ describe('Facebook Custom Audiences - canary API version', () => {
     it('sends the get request to the CANARY_API_VERSION URL when the canary flag is on', async () => {
       nock(`${BASE_URL}/${TEST_CANARY_API_VERSION}`)
         .get(`/${audienceId}`)
+        .query({ fields: 'id,name' })
         .reply(200, { id: audienceId, name: 'Test Audience' })
 
       const result = await testDestination.getAudience({

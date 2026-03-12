@@ -1,33 +1,26 @@
 import { US_STATE_CODES, SCHEMA_PROPERTIES } from './constants'
 import { Payload } from './generated-types'
-import {
-  RequestClient,
-  PayloadValidationError,
-  IntegrationError,
-  MultiStatusResponse,
-  ErrorCodes,
-  Features
-} from '@segment/actions-core'
-import type { JSONLikeObject } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError, IntegrationError, MultiStatusResponse, ErrorCodes, Features } from '@segment/actions-core'
+import type { JSONLikeObject, AudienceMembership } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
-import { PayloadMap, AudienceJSON, FacebookDataRow, SyncMode } from './types'
+import { PayloadMap, AudienceJSON, FacebookDataRow } from './types'
 import { BASE_URL } from '../constants'
 import { parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError } from '../types'
 
 export async function send(
-  request: RequestClient,
-  payloads: Payload[],
-  isBatch: boolean,
-  hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
-  syncMode?: SyncMode,
-  features?: Features,
+  request: RequestClient, 
+  payloads: Payload[], 
+  isBatch: boolean, 
+  audienceMemberships?: AudienceMembership[],
+  hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }, 
+  features?: Features, 
   statsContext?: StatsContext
 ): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
   const audienceId = getAudienceId(payloads[0], hookOutputs)
-  const errorMessage = validate(audienceId, payloads[0], syncMode)
+  const errorMessage = validate(payloads, audienceId, audienceMemberships)
 
   if (errorMessage) {
     return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
@@ -36,28 +29,18 @@ export async function send(
   const addMap: PayloadMap = new Map<number, Payload>()
   const deleteMap: PayloadMap = new Map<number, Payload>()
 
-  switch (syncMode) {
-    case 'delete':
-      payloads.forEach((payload, index) => deleteMap.set(index, payload))
-      break
-    case 'upsert':
-      payloads.forEach((payload, index) => addMap.set(index, payload))
-      break
-    case 'mirror':
-      payloads.forEach((payload, index) => {
-        const { engage_fields: { traits_or_properties, audience_key } = {} } = payload
-
-        const isAudienceMember =
-          traits_or_properties && typeof audience_key === 'string' && traits_or_properties[audience_key] === true
-
-        if (isAudienceMember) {
-          addMap.set(index, payload)
-        } else {
-          deleteMap.set(index, payload)
-        }
-      })
-      break
-  }
+  payloads.forEach((payload, index) => {
+    const audienceMembership = audienceMemberships?.[index]
+    if(audienceMembership === false){
+      deleteMap.set(index, payload)
+    } 
+    else if (audienceMembership === true){
+      addMap.set(index, payload)
+    } 
+    else if (audienceMembership === undefined){
+      setErrorResponse(msResponse, payload, 400, index, isBatch, "Audience membership details missing", ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+    }
+  })
 
   const requests: Promise<void>[] = []
 
@@ -76,16 +59,7 @@ export async function send(
   }
 }
 
-export async function sendRequest(
-  request: RequestClient,
-  audienceId: string,
-  map: PayloadMap,
-  msResponse: MultiStatusResponse,
-  method: 'POST' | 'DELETE',
-  isBatch: boolean,
-  features?: Features,
-  statsContext?: StatsContext
-): Promise<void> {
+export async function sendRequest(request: RequestClient, audienceId: string, map: PayloadMap, msResponse: MultiStatusResponse, method: 'POST' | 'DELETE', isBatch: boolean, features?: Features, statsContext?: StatsContext): Promise<void> {
   const indices = Array.from(map.keys())
   const payloads = Array.from(map.values())
   const json = getJSON(payloads)
@@ -107,7 +81,8 @@ export async function sendRequest(
         }
       })
     }
-  } catch (error) {
+  } 
+  catch (error) {
     const { message, code, status } = parseFacebookError(error as FacebookResponseError)
 
     for (let i = 0; i < indices.length; i++) {
@@ -121,18 +96,9 @@ export async function sendRequest(
   }
 }
 
-export function setErrorResponse(
-  msResponse: MultiStatusResponse,
-  payload: Payload,
-  status: number,
-  index: number,
-  isBatch: boolean,
-  errormessage: string,
-  errortype: keyof typeof ErrorCodes | string,
-  sent?: JSONLikeObject
-) {
+export function setErrorResponse(msResponse: MultiStatusResponse, payload: Payload, status: number, index: number, isBatch: boolean, errormessage: string, errortype: keyof typeof ErrorCodes | string, sent?: JSONLikeObject){
   if (!isBatch) {
-    if (errortype === ErrorCodes.PAYLOAD_VALIDATION_FAILED) {
+    if(errortype === ErrorCodes.PAYLOAD_VALIDATION_FAILED) {
       throw new PayloadValidationError(errormessage)
     }
     throw new IntegrationError(errormessage, errortype, status)
@@ -144,38 +110,19 @@ export function setErrorResponse(
     body: payload as unknown as JSONLikeObject,
     ...(sent ? { sent } : {})
   })
-}
+} 
 
-export function returnErrorResponse(
-  msResponse: MultiStatusResponse,
-  payloads: Payload[],
-  isBatch: boolean,
-  errormessage: string,
-  errortype: keyof typeof ErrorCodes
-): MultiStatusResponse {
+export function returnErrorResponse(msResponse: MultiStatusResponse, payloads: Payload[], isBatch: boolean, errormessage: string, errortype: keyof typeof ErrorCodes): MultiStatusResponse {
   payloads.forEach((payload, i) => {
     setErrorResponse(msResponse, payload, 400, i, isBatch, errormessage, errortype)
   })
   return msResponse
 }
 
-export function getAudienceId(
-  payload: Payload,
-  hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }
-): string {
+export function getAudienceId(payload: Payload, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }): string {
   const { retlOnMappingSave: { outputs: { audienceId: hookAudienceId = undefined } = {} } = {} } = hookOutputs ?? {}
   const { external_audience_id: payloadAudienceId } = payload
   return (hookAudienceId ?? payloadAudienceId) as string
-}
-
-export function isEngageAudience(payload: Payload): boolean {
-  const { engage_fields: { computation_class, audience_key, traits_or_properties } = {} } = payload
-  return typeof traits_or_properties === 'object' &&
-    audience_key &&
-    computation_class &&
-    ['audience', 'journey_step'].includes(computation_class)
-    ? true
-    : false
 }
 
 export function getJSON(payloads: Payload[]): AudienceJSON {
@@ -202,19 +149,18 @@ export function getJSON(payloads: Payload[]): AudienceJSON {
   }
 }
 
-export function validate(audienceId: unknown, payload: Payload, syncMode?: SyncMode): string | undefined {
-  const isEngage = isEngageAudience(payload)
+export function validate(payloads: Payload[], audienceId: unknown, audienceMemberships?: AudienceMembership[]): string | undefined {
+  
+  if(!Array.isArray(audienceMemberships)){
+    return 'Audience membership details for batch missing.'
+  }
 
-  if (typeof syncMode !== 'string' || !['upsert', 'delete', 'mirror'].includes(syncMode)) {
-    return 'Sync Mode is required and must be one of the following values: "Mirror", "Upsert", or "Delete".'
+  if(Array.isArray(audienceMemberships) && audienceMemberships.length !== payloads.length){
+    return 'Audience membership details count does not match batch payload count.'
   }
 
   if (!audienceId || typeof audienceId !== 'string') {
     return 'Missing audience ID.'
-  }
-
-  if (syncMode === 'mirror' && !isEngage) {
-    return 'Sync Mode set to "Mirror", but payload is not from Engage. Please ensure payloads are sent from Engage when using "Mirror" sync mode.'
   }
 }
 

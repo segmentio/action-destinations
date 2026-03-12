@@ -7,13 +7,7 @@ import { Settings } from '../generated-types'
 import { createAudience, getAudience, parseFacebookError, getApiVersion, normalizeAccountId } from '../functions'
 import { FacebookResponseError, NonFacebookError } from '../types'
 
-export async function performHook(
-  request: RequestClient,
-  adAccountId: string,
-  operation?: string,
-  audienceName?: string,
-  existingAudienceId?: string
-) {
+export async function performHook(request: RequestClient, adAccountId: string, operation?: string, audienceName?: string, existingAudienceId?: string) {
   if (operation === 'create') {
     if (!audienceName || typeof audienceName !== 'string') {
       return {
@@ -22,7 +16,8 @@ export async function performHook(
           code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
         }
       }
-    } else {
+    } 
+    else {
       const { data: { externalId } = {}, error } = await createAudience(request, audienceName, adAccountId)
 
       if (error) {
@@ -47,7 +42,8 @@ export async function performHook(
           code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
         }
       }
-    } else {
+    } 
+    else {
       const { data: { name } = {}, error } = await getAudience(request, existingAudienceId)
 
       if (error) {
@@ -83,15 +79,9 @@ export async function getExistingAudienceIdChoices(request: RequestClient, { set
   }
 }
 
-export async function getAllAudiences(
-  request: RequestClient,
-  adAccountId: string,
-  features?: Features,
-  statsContext?: StatsContext
-): Promise<{ choices: DynamicFieldItem[]; error?: NonFacebookError }> {
-  const url = `${BASE_URL}/${getApiVersion(features, statsContext)}/${normalizeAccountId(
-    adAccountId
-  )}/customaudiences?fields=id,name&limit=200`
+export async function getAllAudiences(request: RequestClient, adAccountId: string, features?: Features, statsContext?: StatsContext): Promise<{choices: DynamicFieldItem[], error?: NonFacebookError}> {
+  
+  const url = `${BASE_URL}/${getApiVersion(features, statsContext)}/${normalizeAccountId(adAccountId)}/customaudiences?fields=id,name&limit=200`
 
   try {
     const { data } = await request<GetAllAudienceResponse>(url)
@@ -106,13 +96,13 @@ export async function getAllAudiences(
     }
     return {
       error: {
-        message:
-          'No custom audiences found in this ad account. Please create an audience in Facebook before connecting it to Segment.',
+        message: 'No custom audiences found in this ad account. Please create an audience in Facebook before connecting it to Segment.',
         code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
       },
       choices: []
     }
-  } catch (error) {
+  } 
+  catch (error) {
     const { message, code } = parseFacebookError(error as FacebookResponseError)
     return { error: { message, code }, choices: [] }
   }

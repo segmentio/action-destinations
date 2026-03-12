@@ -9,7 +9,14 @@ const testDestination = createTestIntegration(Destination)
 
 const getAudienceUrl = `${BASE_URL}/${API_VERSION}/`
 
-const createAudienceInput = {
+const getAudienceInput = {
+  externalId: audienceId,
+  settings: {
+    retlAdAccountId: '123'
+  }
+}
+
+const baseCreateAudienceInput = () => ({
   settings: {
     retlAdAccountId: '123'
   },
@@ -19,24 +26,19 @@ const createAudienceInput = {
     audienceDescription: 'We are the Mario Brothers and plumbing is our game.'
   },
   features: {}
-}
-const getAudienceInput = {
-  externalId: audienceId,
-  settings: {
-    retlAdAccountId: '123'
-  }
-}
+})
 
 describe('Facebook Custom Audiences', () => {
   describe('createAudience', () => {
     it('should fail if no audience name is set', async () => {
-      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
+      await expect(testDestination.createAudience(baseCreateAudienceInput())).rejects.toThrowError(IntegrationError)
     })
 
     it('should fail if no ad account ID is set', async () => {
-      createAudienceInput.audienceName = 'The Void'
-      createAudienceInput.audienceSettings.engageAdAccountId = ''
-      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
+      const input = baseCreateAudienceInput()
+      input.audienceName = 'The Void'
+      input.audienceSettings.engageAdAccountId = ''
+      await expect(testDestination.createAudience(input)).rejects.toThrowError(IntegrationError)
     })
 
     it('should create a new Facebook Audience', async () => {
@@ -44,10 +46,10 @@ describe('Facebook Custom Audiences', () => {
         .post('/customaudiences')
         .reply(200, { id: '88888888888888888' })
 
-      createAudienceInput.audienceName = 'The Super Mario Brothers Fans'
-      createAudienceInput.audienceSettings.engageAdAccountId = adAccountId
+      const input = baseCreateAudienceInput()
+      input.audienceName = 'The Super Mario Brothers Fans'
 
-      const r = await testDestination.createAudience(createAudienceInput)
+      const r = await testDestination.createAudience(input)
       expect(r).toEqual({ externalId: '88888888888888888' })
     })
 
@@ -64,11 +66,11 @@ describe('Facebook Custom Audiences', () => {
           }
         })
 
-      createAudienceInput.audienceName = 'Restricted Audience'
-      createAudienceInput.audienceSettings.engageAdAccountId = adAccountId
+      const input = baseCreateAudienceInput()
+      input.audienceName = 'Restricted Audience'
 
-      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrow(
-        'error_user_title: "Update Restricted Fields and Rule". error_user_msg: "This custom audience has integrity restrictions.". fbmessage: "Invalid parameter". message: "Bad Request". code: "100"'
+      await expect(testDestination.createAudience(input)).rejects.toThrow(
+        "error_user_title: \"Update Restricted Fields and Rule\". error_user_msg: \"This custom audience has integrity restrictions.\". fbmessage: \"Invalid parameter\". message: \"Bad Request\". code: \"100\""
       )
     })
 
@@ -84,10 +86,10 @@ describe('Facebook Custom Audiences', () => {
           }
         })
 
-      createAudienceInput.audienceName = 'Restricted Audience'
-      createAudienceInput.audienceSettings.engageAdAccountId = adAccountId
+      const input = baseCreateAudienceInput()
+      input.audienceName = 'Restricted Audience'
 
-      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrow(
+      await expect(testDestination.createAudience(input)).rejects.toThrow(
         'This custom audience has integrity restrictions.'
       )
     })
@@ -103,27 +105,28 @@ describe('Facebook Custom Audiences', () => {
           }
         })
 
-      createAudienceInput.audienceName = 'Restricted Audience'
-      createAudienceInput.audienceSettings.engageAdAccountId = adAccountId
+      const input = baseCreateAudienceInput()
+      input.audienceName = 'Restricted Audience'
 
-      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrow('Invalid parameter')
+      await expect(testDestination.createAudience(input)).rejects.toThrow('Invalid parameter')
     })
   })
 
   describe('getAudience', () => {
     it('should fail if FB replies with an error ID', async () => {
-      nock(getAudienceUrl).get(`/${audienceId}`).reply(400, {})
+      nock(getAudienceUrl).get(`/${audienceId}`).query({ fields: 'id,name' }).reply(400, {})
       await expect(testDestination.getAudience(getAudienceInput)).rejects.toThrowError()
     })
 
     it("should fail if Segment Audience ID doesn't match FB Audience ID", async () => {
-      nock(getAudienceUrl).get(`/${audienceId}`).reply(200, { id: '42' })
+      nock(getAudienceUrl).get(`/${audienceId}`).query({ fields: 'id,name' }).reply(200, { id: '42' })
       await expect(testDestination.getAudience(getAudienceInput)).rejects.toThrowError()
     })
 
     it('should succeed when Segment Audience ID matches FB audience ID', async () => {
       nock(getAudienceUrl)
         .get(`/${audienceId}`)
+        .query({ fields: 'id,name' })
         .reply(200, { id: `${audienceId}` })
       const r = await testDestination.getAudience(getAudienceInput)
       expect(r).toEqual({ externalId: audienceId })

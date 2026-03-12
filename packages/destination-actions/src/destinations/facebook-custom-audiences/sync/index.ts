@@ -4,11 +4,11 @@ import type { Payload } from './generated-types'
 import { fields, retlHookInputFields, retlHookOutputTypes } from './fields'
 import { send } from './functions'
 import { performHook } from './hook-functions'
-import { SyncMode } from './types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
   description: 'Sync data to Facebook Custom Audiences.',
+  defaultSubscription: 'type = "track" or type = "identify"',
   hooks: {
     retlOnMappingSave: {
       label: 'Select or create an audience in Facebook',
@@ -32,8 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   syncMode: {
     label: 'Sync Mode',
-    description:
-      'Define how the records will be synced to Facebook Custom Audiences. When syncing Engage Audiences this should be set to "Mirror". When syncing from Reverse ETL, choose Upsert or Delete.',
+    description: 'Define how the records will be synced to Facebook Custom Audiences.',
     default: 'mirror',
     choices: [
       { value: 'mirror', label: 'Mirror' },
@@ -42,11 +41,11 @@ const action: ActionDefinition<Settings, Payload> = {
     ]
   },
   fields,
-  perform: async (request, { payload, hookOutputs, syncMode, features, statsContext }) => {
-    return await send(request, [payload], false, hookOutputs, syncMode as SyncMode | undefined, features, statsContext)
+  perform: async (request, { payload, audienceMembership, hookOutputs, features, statsContext }) => {
+    return await send(request, [payload],false, [audienceMembership], hookOutputs, features, statsContext)
   },
-  performBatch: async (request, { payload, hookOutputs, syncMode, features, statsContext }) => {
-    return await send(request, payload, true, hookOutputs, syncMode as SyncMode | undefined, features, statsContext)
+  performBatch: async (request, { payload, audienceMembership, hookOutputs, features, statsContext }) => {
+    return await send(request, payload, true, audienceMembership, hookOutputs, features, statsContext)
   }
 }
 

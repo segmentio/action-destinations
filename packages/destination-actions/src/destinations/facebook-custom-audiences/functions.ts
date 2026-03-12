@@ -1,13 +1,6 @@
 import { RequestClient, ErrorCodes, Features } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
-import {
-  ParsedFacebookError,
-  NonFacebookError,
-  FacebookResponseError,
-  CreateAudienceRequest,
-  CreateAudienceResponse,
-  GetAudienceResponse
-} from './types'
+import { ParsedFacebookError, NonFacebookError, FacebookResponseError, CreateAudienceRequest, CreateAudienceResponse, GetAudienceResponse } from './types'
 import { API_VERSION, BASE_URL, FACEBOOK_CUSTOM_AUDIENCE_FLAGON, CANARY_API_VERSION } from './constants'
 
 export function parseFacebookError(error: FacebookResponseError): ParsedFacebookError {
@@ -25,7 +18,7 @@ export function parseFacebookError(error: FacebookResponseError): ParsedFacebook
       } = {}
     } = {},
     message: outerMessage
-  } = error ?? {}
+  } = (error ?? {})
 
   const parts = [
     error_user_title && `error_user_title: "${error_user_title}"`,
@@ -35,8 +28,7 @@ export function parseFacebookError(error: FacebookResponseError): ParsedFacebook
     code && `code: "${code}"`
   ]
 
-  const message =
-    parts.filter(Boolean).join('. ').trim() || 'An unknown error occurred while communicating with Facebook API.'
+  const message = parts.filter(Boolean).join('. ').trim() || 'An unknown error occurred while communicating with Facebook API.'
 
   return {
     message,
@@ -45,14 +37,7 @@ export function parseFacebookError(error: FacebookResponseError): ParsedFacebook
   }
 }
 
-export async function createAudience(
-  request: RequestClient,
-  name: string,
-  adAccountId: string,
-  description?: string,
-  features?: Features,
-  statsContext?: StatsContext
-): Promise<{ data?: { externalId: string }; error?: NonFacebookError }> {
+export async function createAudience(request: RequestClient, name: string, adAccountId: string, description?: string, features?: Features, statsContext?: StatsContext): Promise<{ data?: { externalId: string }, error?: NonFacebookError }> {
   if (!name) {
     return { error: { message: 'Missing audience name value', code: ErrorCodes.CREATE_AUDIENCE_FAILED } }
   }
@@ -81,39 +66,30 @@ export async function createAudience(
       return {
         error: {
           message: 'Invalid response from create audience request',
-          code: ErrorCodes.CREATE_AUDIENCE_FAILED
+          code: ErrorCodes.CREATE_AUDIENCE_FAILED 
         }
       }
     }
     return { data: { externalId: id } }
-  } catch (error) {
+  } 
+  catch (error) {
     const { message } = parseFacebookError(error as FacebookResponseError)
     return { error: { message, code: ErrorCodes.CREATE_AUDIENCE_FAILED } }
   }
 }
 
-export async function getAudience(
-  request: RequestClient,
-  externalId: string,
-  features?: Features,
-  statsContext?: StatsContext
-): Promise<{ data?: { externalId?: string; name: string }; error?: NonFacebookError }> {
-  const url = `${BASE_URL}/${getApiVersion(features, statsContext)}/${externalId}`
+export async function getAudience(request: RequestClient, externalId: string, features?: Features, statsContext?: StatsContext): Promise<{ data?: { externalId?: string; name: string}, error?: NonFacebookError }> {
+  const url = `${BASE_URL}/${getApiVersion(features, statsContext)}/${externalId}?fields=id,name`
 
   try {
     const response = await request<GetAudienceResponse>(url, { method: 'GET' })
     const { id, name } = response.data
 
     if (!id) {
-      return { error: { message: 'Invalid response from get audience request', code: ErrorCodes.GET_AUDIENCE_FAILED } }
+      return { error: { message: 'Invalid response from get audience request', code: ErrorCodes.GET_AUDIENCE_FAILED }}
     }
     if (externalId !== id) {
-      return {
-        error: {
-          message: `Audience not found. Audience ID mismatch. Expected: ${externalId}, Received: ${id}`,
-          code: ErrorCodes.GET_AUDIENCE_FAILED
-        }
-      }
+      return { error: { message: `Audience not found. Audience ID mismatch. Expected: ${externalId}, Received: ${id}`, code: ErrorCodes.GET_AUDIENCE_FAILED } }
     }
     return {
       data: {

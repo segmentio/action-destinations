@@ -30,12 +30,12 @@ export interface FacebookResponseError {
         error_user_msg?: string
       }
     }
-  }
+  },
   message?: string
 }
 
-export interface NonFacebookError {
-  message: string
+export interface NonFacebookError { 
+  message: string 
   code: keyof typeof ErrorCodes | string
 }
 
