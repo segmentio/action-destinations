@@ -1,9 +1,3 @@
-export const RETL_MEMBERSHIP = {
-  NEW: 'new',
-  UPDATED: 'updated',
-  DELETED: 'deleted'
-}
-
 export const US_STATE_CODES = new Map<string, string>([
   ['arizona', 'az'],
   ['alabama', 'al'],

@@ -1,10 +1,10 @@
-import { US_STATE_CODES, SCHEMA_PROPERTIES, RETL_MEMBERSHIP } from './constants'
+import { US_STATE_CODES, SCHEMA_PROPERTIES } from './constants'
 import { Payload } from './generated-types'
 import { RequestClient, PayloadValidationError, IntegrationError, MultiStatusResponse, ErrorCodes, Features } from '@segment/actions-core'
-import type { JSONLikeObject } from '@segment/actions-core'
+import type { JSONLikeObject, AudienceMembership } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
-import { PayloadMap, AudienceJSON, FacebookDataRow, SyncMode } from './types'
+import { PayloadMap, AudienceJSON, FacebookDataRow } from './types'
 import { BASE_URL } from '../constants'
 import { parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError } from '../types'
@@ -13,14 +13,14 @@ export async function send(
   request: RequestClient, 
   payloads: Payload[], 
   isBatch: boolean, 
+  audienceMemberships?: AudienceMembership[],
   hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }, 
-  syncMode?: SyncMode, 
   features?: Features, 
   statsContext?: StatsContext
 ): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
   const audienceId = getAudienceId(payloads[0], hookOutputs)
-  const errorMessage = validate(audienceId, syncMode)
+  const errorMessage = validate(payloads, audienceId, audienceMemberships)
 
   if (errorMessage) {
     return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
@@ -29,36 +29,18 @@ export async function send(
   const addMap: PayloadMap = new Map<number, Payload>()
   const deleteMap: PayloadMap = new Map<number, Payload>()
 
-  switch (syncMode) {
-    case 'delete':
-      payloads.forEach((payload, index) => deleteMap.set(index, payload))
-      break
-    case 'upsert':
-      payloads.forEach((payload, index) => addMap.set(index, payload))
-      break
-    case 'mirror':
-      payloads.forEach((payload, index) => {
-        let membership: boolean | undefined = undefined 
-        if(isRETLAudience(payload)){
-          const { membership_fields: { retl_event_name = '' } = {} } = payload
-          membership = [RETL_MEMBERSHIP.NEW, RETL_MEMBERSHIP.UPDATED].includes(retl_event_name.toLowerCase())
-        } 
-        else if (isEngageAudience(payload)){
-          const { membership_fields: { traits_or_properties, audience_key } = {} } = payload
-          membership = traits_or_properties && typeof audience_key === 'string' && traits_or_properties[audience_key] === true
-        }
-        if(membership === true) {
-          addMap.set(index, payload)
-        } 
-        else if(membership === false){
-          deleteMap.set(index, payload)
-        } 
-        else {
-          setErrorResponse(msResponse, payload, 400, index, isBatch, "Audience membership details missing", ErrorCodes.PAYLOAD_VALIDATION_FAILED)
-        } 
-      })
-      break
-  }
+  payloads.forEach((payload, index) => {
+    const audienceMembership = audienceMemberships?.[index]
+    if(audienceMembership === false){
+      deleteMap.set(index, payload)
+    } 
+    else if (audienceMembership === true){
+      addMap.set(index, payload)
+    } 
+    else if (audienceMembership === undefined){
+      setErrorResponse(msResponse, payload, 400, index, isBatch, "Audience membership details missing", ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+    }
+  })
 
   const requests: Promise<void>[] = []
 
@@ -137,21 +119,10 @@ export function returnErrorResponse(msResponse: MultiStatusResponse, payloads: P
   return msResponse
 }
 
-
 export function getAudienceId(payload: Payload, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }): string {
   const { retlOnMappingSave: { outputs: { audienceId: hookAudienceId = undefined } = {} } = {} } = hookOutputs ?? {}
   const { external_audience_id: payloadAudienceId } = payload
   return (hookAudienceId ?? payloadAudienceId) as string
-}
-
-export function isEngageAudience(payload: Payload): boolean {
-  const { membership_fields: { computation_class, audience_key, traits_or_properties } = {} } = payload
-  return typeof traits_or_properties === 'object' && traits_or_properties != null && audience_key && computation_class && ['audience', 'journey_step'].includes(computation_class) ? true : false
-}
-
-export function isRETLAudience(payload: Payload): boolean {
-  const { membership_fields: { retl_event_name = '' } = {} } = payload
-  return [RETL_MEMBERSHIP.NEW, RETL_MEMBERSHIP.UPDATED, RETL_MEMBERSHIP.DELETED].includes(retl_event_name.toLowerCase())
 }
 
 export function getJSON(payloads: Payload[]): AudienceJSON {
@@ -178,9 +149,14 @@ export function getJSON(payloads: Payload[]): AudienceJSON {
   }
 }
 
-export function validate(audienceId: unknown, syncMode?: SyncMode): string | undefined {
-  if (!['upsert', 'delete', 'mirror'].includes(syncMode ?? '')) {
-    return 'Sync Mode is required and must be one of the following values: "Mirror", "Upsert", or "Delete".'
+export function validate(payloads: Payload[], audienceId: unknown, audienceMemberships?: AudienceMembership[]): string | undefined {
+  
+  if(!Array.isArray(audienceMemberships)){
+    return 'Audience membership details for batch missing.'
+  }
+
+  if(Array.isArray(audienceMemberships) && audienceMemberships.length !== payloads.length){
+    return 'Audience membership details count does not match batch payload count.'
   }
 
   if (!audienceId || typeof audienceId !== 'string') {
