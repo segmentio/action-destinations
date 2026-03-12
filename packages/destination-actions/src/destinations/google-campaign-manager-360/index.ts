@@ -1,4 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
+import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core/*'
 import type { Settings } from './generated-types'
 
 import conversionUpload from './conversionUpload'
@@ -57,7 +58,8 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`
-      }
+      },
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     }
   },
 
