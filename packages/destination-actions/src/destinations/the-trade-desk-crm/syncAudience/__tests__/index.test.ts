@@ -1,5 +1,6 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import Destination from '../../index'
 
 import { TTD_LEGACY_FLOW_FLAG_NAME } from '../../functions'
@@ -21,6 +22,9 @@ jest.mock('@aws-sdk/client-sts', () => ({
 
 jest.mock('../../../../lib/AWS/sts')
 
+const MockedS3Client = S3Client as unknown as jest.Mock
+const MockedPutObjectCommand = PutObjectCommand as unknown as jest.Mock
+
 let testDestination = createTestIntegration(Destination)
 
 beforeEach(() => {
@@ -30,9 +34,9 @@ beforeEach(() => {
 
   // Mock function to fetch AWS Credentials from STS
   ;(getAWSCredentialsFromEKS as jest.Mock).mockResolvedValue({
-    accessKeyId: 'TESTACCESSKEY',
-    secretAccessKey: 'mySuperSecretAccessKey',
-    sessionToken: 'This is a super secret session token'
+    accessKeyId: 'exampleAccessKeyId',
+    secretAccessKey: 'exampleSecretAccessKey',
+    sessionToken: 'exampleSessionToken'
   } as AWSCredentials)
 })
 
@@ -399,5 +403,169 @@ describe('TheTradeDeskCrm.syncAudience', () => {
       "yhI0QL7dpdaHFq6DEyKlqKPn2vj7KX91BQeqhniYRvI=
       "
     `)
+  })
+
+  describe('AWS Flow (Non-Legacy)', () => {
+    it('should use AWS flow when legacy flow flag is not enabled', async () => {
+      await testDestination.testBatchAction('syncAudience', {
+        events,
+        settings: {
+          advertiser_id: 'advertiser_id',
+          auth_token: 'test_token',
+          __segment_internal_engage_force_full_sync: true,
+          __segment_internal_engage_batch_sync: true
+        },
+        // No legacy flow flag - should use AWS flow
+        features: {},
+        useDefaultMappings: true,
+        mapping: {
+          name: 'test_audience',
+          region: 'US',
+          pii_type: 'Email'
+        }
+      })
+
+      // Verify S3 client send was called (for user data and metadata)
+      const mockS3Instance = MockedS3Client.mock.results[MockedS3Client.mock.results.length - 1].value
+      expect(mockS3Instance.send).toHaveBeenCalled()
+
+      // Verify PutObjectCommand was used
+      expect(MockedPutObjectCommand).toHaveBeenCalled()
+    })
+
+    it('should upload user data and metadata to S3 in AWS flow', async () => {
+      await testDestination.testBatchAction('syncAudience', {
+        events,
+        settings: {
+          advertiser_id: 'test-advertiser',
+          auth_token: 'test-token',
+          __segment_internal_engage_force_full_sync: true,
+          __segment_internal_engage_batch_sync: true
+        },
+        features: {}, // AWS flow
+        useDefaultMappings: true,
+        mapping: {
+          name: 'test_audience',
+          region: 'US',
+          pii_type: 'Email'
+        }
+      })
+
+      // Verify PutObjectCommand was called for both user data and metadata
+      expect(MockedPutObjectCommand).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ContentType: 'text/csv',
+          Metadata: expect.objectContaining({
+            'row-count': expect.any(String)
+          })
+        })
+      )
+
+      expect(MockedPutObjectCommand).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ContentType: 'application/json'
+        })
+      )
+    })
+
+    it('should include segmentInternal metadata in AWS flow', async () => {
+      await testDestination.testBatchAction('syncAudience', {
+        events,
+        settings: {
+          advertiser_id: 'test-advertiser',
+          auth_token: 'test-token',
+          __segment_internal_engage_force_full_sync: true,
+          __segment_internal_engage_batch_sync: true
+        },
+        features: {}, // AWS flow
+        useDefaultMappings: true,
+        mapping: {
+          name: 'test_audience',
+          region: 'US',
+          pii_type: 'Email'
+        }
+      })
+
+      // Find the metadata upload call
+      const metadataCalls = MockedPutObjectCommand.mock.calls.filter((call) => {
+        return call[0].ContentType === 'application/json'
+      })
+
+      expect(metadataCalls.length).toBeGreaterThan(0)
+
+      // Verify metadata structure
+      const metadataCall = metadataCalls[metadataCalls.length - 1][0]
+      const metadata = JSON.parse(metadataCall.Body)
+
+      expect(metadata).toMatchObject({
+        TTDAuthToken: 'test-token',
+        AdvertiserId: 'test-advertiser',
+        CrmDataId: expect.any(String),
+        DropOptions: {
+          PiiType: 'Email',
+          MergeMode: 'Replace',
+          RetentionEnabled: true
+        },
+        RequeueCount: 0,
+        segmentInternal: expect.objectContaining({
+          audienceId: expect.any(String),
+          destinationConfigId: expect.any(String),
+          subscriptionId: expect.any(String)
+        })
+      })
+    })
+
+    it('should handle EmailHashedUnifiedId2 in AWS flow', async () => {
+      const hashedEvents: SegmentEvent[] = []
+      for (let index = 1; index <= 100; index++) {
+        hashedEvents.push(
+          createTestEvent({
+            event: 'Audience Entered',
+            type: 'track',
+            properties: {
+              audience_key: 'personas_test_audience'
+            },
+            context: {
+              device: {
+                advertisingId: '123'
+              },
+              traits: {
+                email: `test${index}@example.com`
+              },
+              personas: {
+                external_audience_id: 'external_audience_id'
+              }
+            }
+          })
+        )
+      }
+
+      await testDestination.testBatchAction('syncAudience', {
+        events: hashedEvents,
+        settings: {
+          advertiser_id: 'test-advertiser',
+          auth_token: 'test-token',
+          __segment_internal_engage_force_full_sync: true,
+          __segment_internal_engage_batch_sync: true
+        },
+        features: {}, // AWS flow
+        useDefaultMappings: true,
+        mapping: {
+          name: 'test_audience',
+          region: 'US',
+          pii_type: 'EmailHashedUnifiedId2'
+        }
+      })
+
+      // Verify metadata includes correct PII type
+      const metadataCalls = MockedPutObjectCommand.mock.calls.filter((call) => {
+        return call[0].ContentType === 'application/json'
+      })
+
+      const metadataCall = metadataCalls[metadataCalls.length - 1][0]
+      const metadata = JSON.parse(metadataCall.Body)
+
+      expect(metadata.DropOptions.PiiType).toBe('EmailHashedUnifiedId2')
+    })
   })
 })
