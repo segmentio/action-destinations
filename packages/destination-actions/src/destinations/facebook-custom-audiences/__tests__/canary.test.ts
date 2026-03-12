@@ -47,7 +47,7 @@ describe('Facebook Custom Audiences - canary API version', () => {
   })
 
   describe('sync action (upsert)', () => {
-    const events = [createTestEvent({ userId: 'user-1', properties: { email: 'user1@example.com' } })]
+    const events = [createTestEvent({ type: 'track', event: 'new', userId: 'user-1', properties: { email: 'user1@example.com' } })]
 
     const expectedBody = {
       payload: {
@@ -68,7 +68,7 @@ describe('Facebook Custom Audiences - canary API version', () => {
         settings,
         auth,
         mapping: baseMapping,
-        features: { [FACEBOOK_CUSTOM_AUDIENCE_FLAGON]: false }
+        features: { [FACEBOOK_CUSTOM_AUDIENCE_FLAGON]: false, 'actions-core-audience-membership': true }
       })
 
       expect(responses[0].status).toBe(200)
@@ -84,7 +84,7 @@ describe('Facebook Custom Audiences - canary API version', () => {
         settings,
         auth,
         mapping: baseMapping,
-        features: { [FACEBOOK_CUSTOM_AUDIENCE_FLAGON]: true }
+        features: { [FACEBOOK_CUSTOM_AUDIENCE_FLAGON]: true, 'actions-core-audience-membership': true }
       })
 
       expect(responses[0].status).toBe(200)
@@ -102,7 +102,7 @@ describe('Facebook Custom Audiences - canary API version', () => {
         settings,
         auth,
         mapping: baseMapping,
-        features: {}
+        features: { 'actions-core-audience-membership': true }
       })
 
       expect(responses[0].status).toBe(200)

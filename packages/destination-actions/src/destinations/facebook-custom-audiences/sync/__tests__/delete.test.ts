@@ -30,9 +30,9 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
     it('should delete a batch of users successfully', async () => {
       // --- Segment Events ---
       const events = [
-        createTestEvent({ userId: 'user-1', properties: { email: 'user1@example.com' } }),
-        createTestEvent({ userId: 'user-2', properties: { email: 'user2@example.com' } }),
-        createTestEvent({ userId: 'user-3', properties: { email: 'user3@example.com' } })
+        createTestEvent({ type: 'track', event: 'deleted', userId: 'user-1', properties: { email: 'user1@example.com' } }),
+        createTestEvent({ type: 'track', event: 'deleted', userId: 'user-2', properties: { email: 'user2@example.com' } }),
+        createTestEvent({ type: 'track', event: 'deleted', userId: 'user-3', properties: { email: 'user3@example.com' } })
       ]
 
       // --- Mapping ---
@@ -81,7 +81,8 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
         events,
         settings,
         auth,
-        mapping
+        mapping,
+        features: { 'actions-core-audience-membership': true }
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -121,9 +122,9 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
     it('should return error responses for all users when Facebook API returns an error', async () => {
       // --- Segment Events ---
       const events = [
-        createTestEvent({ userId: 'user-1', properties: { email: 'user1@example.com' } }),
-        createTestEvent({ userId: 'user-2', properties: { email: 'user2@example.com' } }),
-        createTestEvent({ userId: 'user-3', properties: { email: 'user3@example.com' } })
+        createTestEvent({ type: 'track', event: 'deleted', userId: 'user-1', properties: { email: 'user1@example.com' } }),
+        createTestEvent({ type: 'track', event: 'deleted', userId: 'user-2', properties: { email: 'user2@example.com' } }),
+        createTestEvent({ type: 'track', event: 'deleted', userId: 'user-3', properties: { email: 'user3@example.com' } })
       ]
 
       // --- Mapping ---
@@ -173,7 +174,8 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
         events,
         settings,
         auth,
-        mapping
+        mapping,
+        features: { 'actions-core-audience-membership': true }
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -220,8 +222,8 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
     it('should return validation error when audience ID is missing', async () => {
       // --- Segment Events ---
       const events = [
-        createTestEvent({ userId: 'user-1', properties: { email: 'user1@example.com' } }),
-        createTestEvent({ userId: 'user-2', properties: { email: 'user2@example.com' } })
+        createTestEvent({ type: 'track', event: 'deleted', userId: 'user-1', properties: { email: 'user1@example.com' } }),
+        createTestEvent({ type: 'track', event: 'deleted', userId: 'user-2', properties: { email: 'user2@example.com' } })
       ]
 
       // --- Mapping (no audience ID - hook outputs are empty) ---
@@ -242,7 +244,8 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
         events,
         settings,
         auth,
-        mapping
+        mapping,
+        features: { 'actions-core-audience-membership': true }
       })
 
       // --- Expected Segment MultiStatus Response ---

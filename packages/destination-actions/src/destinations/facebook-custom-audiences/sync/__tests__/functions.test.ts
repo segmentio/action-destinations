@@ -55,36 +55,39 @@ describe('getAudienceId', () => {
 // validate
 // ---------------------------------------------------------------------------
 describe('validate', () => {
-  it('returns undefined for a valid upsert', () => {
-    expect(validate('aud-123', 'upsert')).toBeUndefined()
+  it('returns undefined when audienceId and audienceMemberships are valid', () => {
+    expect(validate([basePayload], 'aud-123', [true])).toBeUndefined()
   })
 
-  it('returns undefined for a valid delete', () => {
-    expect(validate('aud-123', 'delete')).toBeUndefined()
+  it('returns undefined when audienceMembership is false (delete)', () => {
+    expect(validate([basePayload], 'aud-123', [false])).toBeUndefined()
   })
 
-  it('returns an error message when syncMode is undefined', () => {
-    const result = validate('aud-123', undefined)
-    expect(result).toMatch(/Sync Mode is required/)
+  it('returns undefined when audienceMembership is undefined (per-item error handled separately)', () => {
+    expect(validate([basePayload], 'aud-123', [undefined])).toBeUndefined()
   })
 
-  it('returns an error message when syncMode is an unrecognised value', () => {
-    const result = validate('aud-123', 'replace' as any)
-    expect(result).toMatch(/Sync Mode is required/)
+  it('returns an error message when audienceMemberships is not an array', () => {
+    expect(validate([basePayload], 'aud-123', undefined)).toBe('Audience membership details for batch missing.')
+  })
+
+  it('returns an error message when audienceMemberships length does not match payloads length', () => {
+    expect(validate([basePayload, basePayload], 'aud-123', [true])).toBe(
+      'Audience membership details count does not match batch payload count.'
+    )
   })
 
   it('returns an error message when audienceId is undefined', () => {
-    expect(validate(undefined, 'upsert')).toBe('Missing audience ID.')
+    expect(validate([basePayload], undefined, [true])).toBe('Missing audience ID.')
   })
 
   it('returns an error message when audienceId is an empty string', () => {
-    expect(validate('', 'upsert')).toBe('Missing audience ID.')
+    expect(validate([basePayload], '', [true])).toBe('Missing audience ID.')
   })
 
   it('returns an error message when audienceId is a non-string value', () => {
-    expect(validate(99, 'upsert')).toBe('Missing audience ID.')
+    expect(validate([basePayload], 99, [true])).toBe('Missing audience ID.')
   })
-
 })
 
 // ---------------------------------------------------------------------------

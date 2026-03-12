@@ -172,7 +172,8 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: engageMapping
+        mapping: engageMapping,
+        features: { 'actions-core-audience-membership': true }
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -186,12 +187,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           email: 'add1@test.com',
           external_audience_id: ENGAGE_AUDIENCE_ID,
           enable_batching: true,
-          batch_size: 10000,
-          membership_fields: {
-            traits_or_properties: { email: 'add1@test.com', [AUDIENCE_KEY]: true },
-            audience_key: AUDIENCE_KEY,
-            computation_class: 'audience'
-          }
+          batch_size: 10000
         },
         sent: {
           audienceId: ENGAGE_AUDIENCE_ID,
@@ -207,12 +203,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           email: 'add2@test.com',
           external_audience_id: ENGAGE_AUDIENCE_ID,
           enable_batching: true,
-          batch_size: 10000,
-          membership_fields: {
-            traits_or_properties: { email: 'add2@test.com', [AUDIENCE_KEY]: true },
-            audience_key: AUDIENCE_KEY,
-            computation_class: 'audience'
-          }
+          batch_size: 10000
         },
         sent: {
           audienceId: ENGAGE_AUDIENCE_ID,
@@ -229,12 +220,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           email: 'remove1@test.com',
           external_audience_id: ENGAGE_AUDIENCE_ID,
           enable_batching: true,
-          batch_size: 10000,
-          membership_fields: {
-            traits_or_properties: { email: 'remove1@test.com', [AUDIENCE_KEY]: false },
-            audience_key: AUDIENCE_KEY,
-            computation_class: 'audience'
-          }
+          batch_size: 10000
         },
         sent: {
           audienceId: ENGAGE_AUDIENCE_ID,
@@ -250,12 +236,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
           email: 'remove2@test.com',
           external_audience_id: ENGAGE_AUDIENCE_ID,
           enable_batching: true,
-          batch_size: 10000,
-          membership_fields: {
-            traits_or_properties: { email: 'remove2@test.com', [AUDIENCE_KEY]: false },
-            audience_key: AUDIENCE_KEY,
-            computation_class: 'audience'
-          }
+          batch_size: 10000
         },
         sent: {
           audienceId: ENGAGE_AUDIENCE_ID,
@@ -329,7 +310,8 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: engageMapping
+        mapping: engageMapping,
+        features: { 'actions-core-audience-membership': true }
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -341,12 +323,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         body: {
           externalId: 'add-1',
           email: 'add1@test.com',
-          external_audience_id: ENGAGE_AUDIENCE_ID,
-          membership_fields: {
-            traits_or_properties: { email: 'add1@test.com', [AUDIENCE_KEY]: true },
-            audience_key: AUDIENCE_KEY,
-            computation_class: 'audience'
-          }
+          external_audience_id: ENGAGE_AUDIENCE_ID
         },
         sent: {
           audienceId: ENGAGE_AUDIENCE_ID,
@@ -360,12 +337,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         body: {
           externalId: 'add-2',
           email: 'add2@test.com',
-          external_audience_id: ENGAGE_AUDIENCE_ID,
-          membership_fields: {
-            traits_or_properties: { email: 'add2@test.com', [AUDIENCE_KEY]: true },
-            audience_key: AUDIENCE_KEY,
-            computation_class: 'audience'
-          }
+          external_audience_id: ENGAGE_AUDIENCE_ID
         },
         sent: {
           audienceId: ENGAGE_AUDIENCE_ID,
@@ -386,12 +358,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         body: {
           externalId: 'rm-1',
           email: 'remove1@test.com',
-          external_audience_id: ENGAGE_AUDIENCE_ID,
-          membership_fields: {
-            traits_or_properties: { email: 'remove1@test.com', [AUDIENCE_KEY]: false },
-            audience_key: AUDIENCE_KEY,
-            computation_class: 'audience'
-          }
+          external_audience_id: ENGAGE_AUDIENCE_ID
         },
         sent: {
           audienceId: ENGAGE_AUDIENCE_ID,
@@ -405,12 +372,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         body: {
           externalId: 'rm-2',
           email: 'remove2@test.com',
-          external_audience_id: ENGAGE_AUDIENCE_ID,
-          membership_fields: {
-            traits_or_properties: { email: 'remove2@test.com', [AUDIENCE_KEY]: false },
-            audience_key: AUDIENCE_KEY,
-            computation_class: 'audience'
-          }
+          external_audience_id: ENGAGE_AUDIENCE_ID
         },
         sent: {
           audienceId: ENGAGE_AUDIENCE_ID,
@@ -482,7 +444,8 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: engageMapping
+        mapping: engageMapping,
+        features: { 'actions-core-audience-membership': true }
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -501,12 +464,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         body: {
           externalId: 'add-1',
           email: 'add1@test.com',
-          external_audience_id: ENGAGE_AUDIENCE_ID,
-          membership_fields: {
-            traits_or_properties: { email: 'add1@test.com', [AUDIENCE_KEY]: true },
-            audience_key: AUDIENCE_KEY,
-            computation_class: 'audience'
-          }
+          external_audience_id: ENGAGE_AUDIENCE_ID
         },
         sent: {
           audienceId: ENGAGE_AUDIENCE_ID,
@@ -520,12 +478,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         body: {
           externalId: 'add-2',
           email: 'add2@test.com',
-          external_audience_id: ENGAGE_AUDIENCE_ID,
-          membership_fields: {
-            traits_or_properties: { email: 'add2@test.com', [AUDIENCE_KEY]: true },
-            audience_key: AUDIENCE_KEY,
-            computation_class: 'audience'
-          }
+          external_audience_id: ENGAGE_AUDIENCE_ID
         },
         sent: {
           audienceId: ENGAGE_AUDIENCE_ID,
@@ -540,12 +493,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         body: {
           externalId: 'rm-1',
           email: 'remove1@test.com',
-          external_audience_id: ENGAGE_AUDIENCE_ID,
-          membership_fields: {
-            traits_or_properties: { email: 'remove1@test.com', [AUDIENCE_KEY]: false },
-            audience_key: AUDIENCE_KEY,
-            computation_class: 'audience'
-          }
+          external_audience_id: ENGAGE_AUDIENCE_ID
         },
         sent: {
           audienceId: ENGAGE_AUDIENCE_ID,
@@ -559,12 +507,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         body: {
           externalId: 'rm-2',
           email: 'remove2@test.com',
-          external_audience_id: ENGAGE_AUDIENCE_ID,
-          membership_fields: {
-            traits_or_properties: { email: 'remove2@test.com', [AUDIENCE_KEY]: false },
-            audience_key: AUDIENCE_KEY,
-            computation_class: 'audience'
-          }
+          external_audience_id: ENGAGE_AUDIENCE_ID
         },
         sent: {
           audienceId: ENGAGE_AUDIENCE_ID,
@@ -635,7 +578,8 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: retlMapping
+        mapping: retlMapping,
+        features: { 'actions-core-audience-membership': true }
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -644,11 +588,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       // Add responses (index 0, 1)
       expect(responses[0]).toMatchObject({
         status: 200,
-        body: {
-          externalId: 'add-1',
-          email: 'add1@test.com',
-          membership_fields: { retl_event_name: 'new' }
-        },
+        body: { externalId: 'add-1', email: 'add1@test.com' },
         sent: {
           audienceId: RETL_AUDIENCE_ID,
           method: 'POST',
@@ -658,11 +598,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
 
       expect(responses[1]).toMatchObject({
         status: 200,
-        body: {
-          externalId: 'add-2',
-          email: 'add2@test.com',
-          membership_fields: { retl_event_name: 'updated' }
-        },
+        body: { externalId: 'add-2', email: 'add2@test.com' },
         sent: {
           audienceId: RETL_AUDIENCE_ID,
           method: 'POST',
@@ -673,11 +609,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       // Remove responses (index 2, 3)
       expect(responses[2]).toMatchObject({
         status: 200,
-        body: {
-          externalId: 'rm-1',
-          email: 'remove1@test.com',
-          membership_fields: { retl_event_name: 'deleted' }
-        },
+        body: { externalId: 'rm-1', email: 'remove1@test.com' },
         sent: {
           audienceId: RETL_AUDIENCE_ID,
           method: 'DELETE',
@@ -687,11 +619,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
 
       expect(responses[3]).toMatchObject({
         status: 200,
-        body: {
-          externalId: 'rm-2',
-          email: 'remove2@test.com',
-          membership_fields: { retl_event_name: 'deleted' }
-        },
+        body: { externalId: 'rm-2', email: 'remove2@test.com' },
         sent: {
           audienceId: RETL_AUDIENCE_ID,
           method: 'DELETE',
@@ -764,7 +692,8 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: retlMapping
+        mapping: retlMapping,
+        features: { 'actions-core-audience-membership': true }
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -773,13 +702,13 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       // Adds succeeded (index 0, 1)
       expect(responses[0]).toMatchObject({
         status: 200,
-        body: { externalId: 'add-1', membership_fields: { retl_event_name: 'new' } },
+        body: { externalId: 'add-1' },
         sent: { audienceId: RETL_AUDIENCE_ID, method: 'POST' }
       })
 
       expect(responses[1]).toMatchObject({
         status: 200,
-        body: { externalId: 'add-2', membership_fields: { retl_event_name: 'updated' } },
+        body: { externalId: 'add-2' },
         sent: { audienceId: RETL_AUDIENCE_ID, method: 'POST' }
       })
 
@@ -792,13 +721,13 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
 
       expect(responses[2]).toMatchObject({
         ...expectedDeleteError,
-        body: { externalId: 'rm-1', membership_fields: { retl_event_name: 'deleted' } },
+        body: { externalId: 'rm-1' },
         sent: { audienceId: RETL_AUDIENCE_ID, method: 'DELETE' }
       })
 
       expect(responses[3]).toMatchObject({
         ...expectedDeleteError,
-        body: { externalId: 'rm-2', membership_fields: { retl_event_name: 'deleted' } },
+        body: { externalId: 'rm-2' },
         sent: { audienceId: RETL_AUDIENCE_ID, method: 'DELETE' }
       })
     })
@@ -865,7 +794,8 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: retlMapping
+        mapping: retlMapping,
+        features: { 'actions-core-audience-membership': true }
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -881,26 +811,26 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
 
       expect(responses[0]).toMatchObject({
         ...expectedAddError,
-        body: { externalId: 'add-1', membership_fields: { retl_event_name: 'new' } },
+        body: { externalId: 'add-1' },
         sent: { audienceId: RETL_AUDIENCE_ID, method: 'POST' }
       })
 
       expect(responses[1]).toMatchObject({
         ...expectedAddError,
-        body: { externalId: 'add-2', membership_fields: { retl_event_name: 'updated' } },
+        body: { externalId: 'add-2' },
         sent: { audienceId: RETL_AUDIENCE_ID, method: 'POST' }
       })
 
       // Removes succeeded (index 2, 3)
       expect(responses[2]).toMatchObject({
         status: 200,
-        body: { externalId: 'rm-1', membership_fields: { retl_event_name: 'deleted' } },
+        body: { externalId: 'rm-1' },
         sent: { audienceId: RETL_AUDIENCE_ID, method: 'DELETE' }
       })
 
       expect(responses[3]).toMatchObject({
         status: 200,
-        body: { externalId: 'rm-2', membership_fields: { retl_event_name: 'deleted' } },
+        body: { externalId: 'rm-2' },
         sent: { audienceId: RETL_AUDIENCE_ID, method: 'DELETE' }
       })
     })
@@ -931,7 +861,8 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping
+        mapping,
+        features: { 'actions-core-audience-membership': true }
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -1007,7 +938,8 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping
+        mapping,
+        features: { 'actions-core-audience-membership': true }
       })
 
       // --- Expected Segment MultiStatus Response ---
