@@ -27,7 +27,8 @@ import {
   MultiStatusResponse,
   JSONLikeObject,
   ErrorCodes,
-  AudienceMembership
+  AudienceMembership,
+  FLAGS
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
@@ -49,8 +50,6 @@ export const FLAGON_NAME = 'google-enhanced-canary-version'
 export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
 
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-import { FLAGS } from '@segment/actions-core'
-
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -572,7 +571,7 @@ const extractUserIdentifiers = (
     }
   }
   // Map user data to Google Ads API format
-  if(FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP && FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP){
+  if(features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP] && features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
     for (const payload of payloads) {
       if (
         payload.event_name === 'Audience Entered' ||
@@ -969,7 +968,7 @@ const extractBatchUserIdentifiers = (
       })
       return
     }
-    const operationType = determineOperationType(payload, syncMode, audienceMemberships?.[index])
+    const operationType = determineOperationType(payload, syncMode, audienceMemberships?.[index], features)
     if (operationType === undefined) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -992,8 +991,8 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string, audienceMembership?: AudienceMembership): boolean | undefined => {
-  if(FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP && FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP){
+const determineOperationType = (payload: UserListPayload, syncMode?: string, audienceMembership?: AudienceMembership, features?: Features): boolean | undefined => {
+  if(features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP] && features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
     if (
       payload.event_name === 'Audience Entered' ||
       audienceMembership === true
