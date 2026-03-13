@@ -3,6 +3,7 @@ import { engageAudienceMembership, retlAudienceMembership } from '../audience-me
 import { DestinationDefinition } from '../destination-kit'
 import { ExecuteInput } from '../destination-kit/types'
 import { JSONObject } from '../json-object'
+import { FLAGS } from '../flags'
 
 describe('engageAudienceMembership', () => {
   describe('identify events', () => {
@@ -272,7 +273,7 @@ async function runAction(
 }
 
 describe('audienceMembership on ExecuteInput in perform()', () => {
-  const flag = { 'actions-core-audience-membership': true }
+  const flag = { [FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP]: true }
 
   describe('Engage payloads', () => {
     it('is true for identify event with membership in traits', async () => {

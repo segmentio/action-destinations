@@ -110,3 +110,4 @@ export {
 
 export { validateSchema } from './schema-validation'
 export { resolveAudienceMembership } from './audience-membership'
+export { FLAGS } from './flags'
