@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
+import { API_VERSION } from '../../utils'
 
 const testDestination = createTestIntegration(Destination)
 const timestamp = new Date('Thu Jun 10 2024 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
@@ -42,7 +43,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
 
         delete event.userId
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+        )
           .post('')
           .reply(200, { results: [{}] })
 
@@ -145,7 +148,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         })
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+        )
           .post('')
           .reply(200, { results: [{}] })
 
@@ -223,7 +228,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         })
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+        )
           .post('')
           .reply(200, { results: [{}] })
 
@@ -288,7 +295,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
 
         delete event.userId
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+        )
           .post('')
           .reply(200, { results: [{}] })
 
@@ -423,7 +432,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         ]
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -545,7 +556,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         ]
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -640,7 +653,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         ]
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -996,7 +1011,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         kind: 'dfareporting#conversionsBatchUpdateResponse'
       }
 
-      nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+      )
         .post('')
         .reply(200, resp200WithErrors)
 
@@ -1105,7 +1122,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
 
       delete event.userId
 
-      nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+      )
         .post('')
         .reply(401)
 
