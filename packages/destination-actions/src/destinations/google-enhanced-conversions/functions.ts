@@ -944,7 +944,7 @@ const extractBatchUserIdentifiers = (
       })
       return
     }
-    const operationType = determineOperationType(payload, audienceMemberships)
+    const operationType = determineOperationType(payload, audienceMemberships?.[index])
     if (operationType === undefined) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -967,7 +967,7 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, audienceMembership: AudienceMembership): boolean | undefined => {
+const determineOperationType = (payload: UserListPayload, audienceMembership?: AudienceMembership): boolean | undefined => {
   if (
     payload.event_name === 'Audience Entered' ||
     audienceMembership === true
