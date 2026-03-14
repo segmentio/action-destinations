@@ -172,8 +172,8 @@ function extractUsers(payloads: Payload[], audienceMemberships?: AudienceMembers
   
   let audiencePayloads: AudiencePayload[] = payloads
 
-  const flagTrue = features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP] && features?.[FLAGS.ACTIONS_BRAZE_COHORTS_AUDIENCE_MEMBERSHIP]
-  if(flagTrue) {
+  const flagUseCoreAudienceMembership = features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP] && features?.[FLAGS.ACTIONS_BRAZE_COHORTS_AUDIENCE_MEMBERSHIP]
+  if(flagUseCoreAudienceMembership) {
     if(!Array.isArray(audienceMemberships)){
       throw new PayloadValidationError('Audience Memberships must be an array')
     }
@@ -205,7 +205,7 @@ function extractUsers(payloads: Payload[], audienceMemberships?: AudienceMembers
   audiencePayloads.forEach((payload) => {
     const { event_properties, external_id, device_id, user_alias, personas_audience_key, audienceMembership} = payload
     
-    const userEnteredOrRemoved: boolean = (flagTrue ? audienceMembership : event_properties[`${personas_audience_key}`]) as boolean
+    const userEnteredOrRemoved: boolean = (flagUseCoreAudienceMembership ? audienceMembership : event_properties[`${personas_audience_key}`]) as boolean
     
     const user = userEnteredOrRemoved ? addUsers : removeUsers
 

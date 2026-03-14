@@ -1,5 +1,5 @@
-import type { StatsContext } from '@segment/actions-core'
-import { RequestClient, RetryableError, IntegrationError, InvalidAuthenticationError } from '@segment/actions-core'
+import { StatsContext, Features, AudienceMembership, FLAGS } from '@segment/actions-core'
+import { RequestClient, RetryableError, IntegrationError, PayloadValidationError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { LinkedInAudiences } from '../api'
@@ -12,14 +12,16 @@ export async function processPayload(
   settings: Settings,
   payloads: Payload[],
   statsContext: StatsContext | undefined,
+  audienceMemberships?: AudienceMembership[],
+  features?: Features,
   stateContext?: StateContext
 ) {
-  validate(settings, payloads)
+  validate(settings, payloads, audienceMemberships, features)
 
   const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
 
   const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0], statsContext, stateContext)
-  const elements = extractUsers(settings, payloads)
+  const elements = extractUsers(settings, payloads, audienceMemberships, features)
 
   // We should never hit this condition because at least an email or a
   // google ad id is required in each payload, but if we do, returning early
@@ -66,7 +68,7 @@ export async function processPayload(
   return res
 }
 
-function validate(settings: Settings, payloads: Payload[]): void {
+function validate(settings: Settings, payloads: Payload[], audienceMemberships?: AudienceMembership[],features?: Features): void {
   const isAutoOrUndefined = ['AUTO', undefined].includes(payloads[0]?.dmp_user_action)
   if (isAutoOrUndefined && payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
     throw new IntegrationError(
@@ -82,6 +84,19 @@ function validate(settings: Settings, payloads: Payload[]): void {
       'INVALID_SETTINGS',
       400
     )
+  }
+
+  const flagUseCoreAudienceMembership = features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP] && features?.[FLAGS.ACTIONS_LINKEDIN_AUDIENCES_AUDIENCE_MEMBERSHIP]
+  if(flagUseCoreAudienceMembership) {
+    if(!Array.isArray(audienceMemberships)){
+      throw new PayloadValidationError("Audience Membership must be an array.")
+    }
+    if(audienceMemberships.length !== payloads.length) {
+      throw new PayloadValidationError("Audience Membership array length must match payloads array length.")
+    }
+    if(audienceMemberships.some(membership => typeof membership !== 'boolean')) {
+      throw new PayloadValidationError("Audience Membership values must be boolean.")
+    }
   }
 }
 
@@ -131,16 +146,16 @@ async function createDmpSegment(
   return headers['x-linkedin-id']
 }
 
-function extractUsers(settings: Settings, payloads: Payload[]): LinkedInAudiencePayload[] {
+function extractUsers(settings: Settings, payloads: Payload[], audienceMemberships?: AudienceMembership[] , features?: Features): LinkedInAudiencePayload[] {
   const elements: LinkedInAudiencePayload[] = []
 
-  payloads.forEach((payload: Payload) => {
+  payloads.forEach((payload: Payload, index: number) => {
     if (!payload.email && !payload.google_advertising_id) {
       return
     }
 
     const linkedinAudiencePayload: LinkedInAudiencePayload = {
-      action: getAction(payload),
+      action: getAction(payload, audienceMemberships?.[index], features),
       userIds: getUserIds(settings, payload)
     }
 
@@ -170,7 +185,7 @@ function extractUsers(settings: Settings, payloads: Payload[]): LinkedInAudience
   return elements
 }
 
-function getAction(payload: Payload): 'ADD' | 'REMOVE' {
+function getAction(payload: Payload, audienceMembership?: AudienceMembership, features?: Features): 'ADD' | 'REMOVE' {
   const { dmp_user_action = 'AUTO' } = payload
 
   if (dmp_user_action === 'ADD') {
@@ -182,12 +197,24 @@ function getAction(payload: Payload): 'ADD' | 'REMOVE' {
   }
 
   if (dmp_user_action === 'AUTO' || !dmp_user_action) {
-    if (payload.event_name === 'Audience Entered') {
-      return 'ADD'
-    }
+    const flagUseCoreAudienceMembership = features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP] && features?.[FLAGS.ACTIONS_LINKEDIN_AUDIENCES_AUDIENCE_MEMBERSHIP]
+    if(flagUseCoreAudienceMembership === true) {
+      if (payload.event_name === 'Audience Entered' || audienceMembership === true) {
+        return 'ADD'
+      }
 
-    if (payload.event_name === 'Audience Exited') {
-      return 'REMOVE'
+      if (payload.event_name === 'Audience Exited' || audienceMembership === false) {
+        return 'REMOVE'
+      }
+    }
+    else {
+      if (payload.event_name === 'Audience Entered') {
+        return 'ADD'
+      }
+
+      if (payload.event_name === 'Audience Exited') {
+        return 'REMOVE'
+      }
     }
   }
 
