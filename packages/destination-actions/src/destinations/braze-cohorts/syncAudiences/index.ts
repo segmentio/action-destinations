@@ -5,7 +5,6 @@ import { SyncAudiences } from '../api'
 import { CohortChanges, UserAlias } from '../braze-cohorts-types'
 import { StateContext } from '@segment/actions-core/destination-kit'
 import isEmpty from 'lodash/isEmpty'
-import { some } from 'lodash'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -178,14 +177,13 @@ function extractUsers(payloads: Payload[], audienceMemberships?: AudienceMembers
     if(!Array.isArray(audienceMemberships)){
       throw new PayloadValidationError('Audience Memberships must be an array')
     }
-    if(Array.isArray(audienceMemberships)){
-      if(audienceMemberships.length !== audiencePayloads.length){
-        throw new PayloadValidationError('Audience Memberships length must match payloads length')
-      }
-      if(some(audienceMemberships, (membership) => typeof membership !== 'boolean')){
-        throw new PayloadValidationError('Audience Membership must be a boolean')
-      }
+    if(audienceMemberships.length !== audiencePayloads.length){
+      throw new PayloadValidationError('Audience Memberships length must match payloads length')
     }
+    if (audienceMemberships.some((membership) => typeof membership !== 'boolean')) {
+      throw new PayloadValidationError('Audience Membership must be a boolean');
+    }
+    
     audiencePayloads = audiencePayloads.map((payload, index) => ({
       ...payload,
       audienceMembership: audienceMemberships[index]
