@@ -17,7 +17,7 @@ describe('Amplitude Cohorts', () => {
     it('should validate authentication inputs', async () => {
       nock('https://amplitude.com')
         .get('/api/2/usersearch')
-        .query({ user: 'testUser@example.com' })
+        .query({ user: settings.owner_email })
         .reply(200, {})
 
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()

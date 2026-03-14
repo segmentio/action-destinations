@@ -1,3 +1,4 @@
+// This file to be removed after audienceMembership migration.
 import nock from 'nock'
 import { createTestIntegration, SegmentEvent, createTestEvent } from '@segment/actions-core'
 import Destination from '../../index'
@@ -7,8 +8,7 @@ const event = {
   context: {
     personas: {
       computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-      computation_key: 'j_o_jons__step_1_ns3i7',
-      computation_class: 'audience'
+      computation_key: 'j_o_jons__step_1_ns3i7'
     },
     traits: {
       email: 'test@twilio.com'
@@ -34,85 +34,19 @@ const mapping = {
   }
 }
 
-describe('BrazeCohorts.syncAudiences', () => {
-  it('should throw an error if `personas_audience_key` field does not match the `personas.computation_key` field', async () => {
-    await expect(
-      testDestination.testAction('syncAudiences', {
-        event: {
-          ...event,
-          properties: {
-            audience_key: 'j_o_jons__step_1_ns3i7',
-            j_o_jons__step_1_ns3i7: true
-          }
-        },
-        settings: {
-          endpoint: 'https://rest.iad-01.braze.com',
-          client_secret: 'valid_client_secret_key'
-        },
-        useDefaultMappings: true,
-        mapping: {
-          personas_audience_key: 'some_hardcoded_value'
-        }
-      })
-    ).rejects.toThrowError('The value of `personas computation key` and `personas_audience_key` must match.')
-  })
-
-  it("should not throw an error even if payload doesn't have userId,device_id,user_alias", async () => {
-    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
-
-    const responses = await testDestination.testAction('syncAudiences', {
-      event: {
-        properties: {
-          audience_key: 'j_o_jons__step_1_ns3i7',
-          j_o_jons__step_1_ns3i7: true
-        },
-        context: {
-          personas: {
-            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
-          }
-        },
-        timestamp: timestamp
-      },
-      settings: {
-        endpoint: 'https://rest.iad-01.braze.com',
-        client_secret: 'valid_client_secret_key'
-      },
-      useDefaultMappings: false,
-      mapping: {
-        enable_batching: true,
-        cohort_id: {
-          '@path': '$.context.personas.computation_id'
-        },
-        cohort_name: {
-          '@path': '$.context.personas.computation_key'
-        },
-        time: {
-          '@path': '$.timestamp'
-        },
-        event_properties: {
-          '@if': {
-            exists: { '@path': '$.properties' },
-            then: { '@path': '$.properties' },
-            else: { '@path': '$.traits' }
-          }
-        },
-        personas_audience_key: 'j_o_jons__step_1_ns3i7'
-      }
-    })
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(201)
-    expect(responses[0].options.json).toMatchSnapshot()
-  })
-
-  it('should give priority in a order like userId,deviceId and then UserAlias,if it is provided', async () => {
+describe('BrazeCohorts.syncAudiences - LEGACY TESTS - TO BE REMOVED', () => {
+  // TODO: Remove after audienceMembership migration. This test covers the legacy code path where
+  // add/remove is determined by event_properties[personas_audience_key]. It will be replaced by
+  // an equivalent flag-enabled test once the feature flags are removed.
+  it('should add user to braze when event_properties is set to true', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
 
     const responses = await testDestination.testAction('syncAudiences', {
       event: {
         ...event,
-        traits: {
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
           j_o_jons__step_1_ns3i7: true
         }
       },
@@ -130,199 +64,25 @@ describe('BrazeCohorts.syncAudiences', () => {
       cohort_changes: expect.arrayContaining([
         expect.objectContaining({
           user_ids: ['w8KWCsdTxe1Ydaf3s62UMc'],
-          aliases: [],
-          device_ids: []
-        })
-      ])
-    })
-    expect(responses[0].options.json).toMatchSnapshot()
-    expect(responses[1].options.json).toMatchSnapshot()
-  })
-
-  it('should give second priority to deviceId ,if userId is not provided', async () => {
-    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
-    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
-
-    const responses = await testDestination.testAction('syncAudiences', {
-      event: {
-        context: {
-          personas: {
-            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
-          },
-          traits: {
-            email: 'test@twilio.com'
-          },
-          device: {
-            id: '1234567'
-          }
-        },
-        traits: {
-          j_o_jons__step_1_ns3i7: true
-        },
-        timestamp: timestamp
-      },
-      settings: {
-        endpoint: 'https://rest.iad-01.braze.com',
-        client_secret: 'valid_client_secret_key'
-      },
-      useDefaultMappings: false,
-      mapping: {
-        enable_batching: true,
-        cohort_id: {
-          '@path': '$.context.personas.computation_id'
-        },
-        cohort_name: {
-          '@path': '$.context.personas.computation_key'
-        },
-        time: {
-          '@path': '$.timestamp'
-        },
-        event_properties: {
-          '@if': {
-            exists: { '@path': '$.properties' },
-            then: { '@path': '$.properties' },
-            else: { '@path': '$.traits' }
-          }
-        },
-        ...mapping
-      }
-    })
-    expect(responses.length).toBe(2)
-    expect(responses[0].status).toBe(201)
-    expect(responses[1].status).toBe(201)
-    expect(responses[1].options.json).toMatchObject({
-      cohort_changes: expect.arrayContaining([
-        expect.objectContaining({
-          user_ids: [],
-          aliases: [],
-          device_ids: ['1234567']
-        })
-      ])
-    })
-    expect(responses[0].options.json).toMatchSnapshot()
-    expect(responses[1].options.json).toMatchSnapshot()
-  })
-
-  it('should give priority to userAlias,if userId and deviceId both are not provided', async () => {
-    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
-    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
-
-    const responses = await testDestination.testAction('syncAudiences', {
-      event: {
-        context: {
-          personas: {
-            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
-          },
-          traits: {
-            email: 'test@twilio.com'
-          }
-        },
-        traits: {
-          j_o_jons__step_1_ns3i7: true
-        },
-        timestamp: timestamp
-      },
-      settings: {
-        endpoint: 'https://rest.iad-01.braze.com',
-        client_secret: 'valid_client_secret_key'
-      },
-      useDefaultMappings: false,
-      mapping: {
-        enable_batching: true,
-        cohort_id: {
-          '@path': '$.context.personas.computation_id'
-        },
-        cohort_name: {
-          '@path': '$.context.personas.computation_key'
-        },
-        time: {
-          '@path': '$.timestamp'
-        },
-        event_properties: {
-          '@if': {
-            exists: { '@path': '$.properties' },
-            then: { '@path': '$.properties' },
-            else: { '@path': '$.traits' }
-          }
-        },
-        ...mapping
-      }
-    })
-    expect(responses.length).toBe(2)
-    expect(responses[0].status).toBe(201)
-    expect(responses[1].status).toBe(201)
-    expect(responses[1].options.json).toMatchObject({
-      cohort_changes: expect.arrayContaining([
-        expect.objectContaining({
-          user_ids: [],
-          aliases: [
-            {
-              alias_label: 'test@twilio.com',
-              alias_name: 'email'
-            }
-          ],
-          device_ids: []
-        })
-      ])
-    })
-    expect(responses[0].options.json).toMatchSnapshot()
-    expect(responses[1].options.json).toMatchSnapshot()
-  })
-
-  it('should add user to braze when audienceMembership is true', async () => {
-    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
-    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
-
-    const responses = await testDestination.testAction('syncAudiences', {
-      event: {
-        ...event,
-        type: 'track',
-        properties: {
-          audience_key: 'j_o_jons__step_1_ns3i7',
-          j_o_jons__step_1_ns3i7: true
-        }
-      },
-      settings: {
-        endpoint: 'https://rest.iad-01.braze.com',
-        client_secret: 'valid_client_secret_key'
-      },
-      useDefaultMappings: true,
-      mapping,
-      features: {
-        'actions-core-audience-membership': true,
-        'actions-braze-cohorts-audience-membership': true
-      }
-    })
-    expect(responses.length).toBe(2)
-    expect(responses[0].status).toBe(201)
-    expect(responses[1].status).toBe(201)
-    expect(responses[0].options.json).toMatchObject({
-      client_secret: 'valid_client_secret_key',
-      name: 'j_o_jons__step_1_ns3i7',
-      cohort_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-      created_at: timestamp
-    })
-    expect(responses[1].options.json).toMatchObject({
-      cohort_changes: expect.arrayContaining([
-        expect.objectContaining({
-          user_ids: ['w8KWCsdTxe1Ydaf3s62UMc'],
           device_ids: [],
           aliases: []
         })
       ])
     })
+    expect(responses[0].options.json).toMatchSnapshot()
+    expect(responses[1].options.json).toMatchSnapshot()
   })
 
-  it('should remove user from braze when audienceMembership is false', async () => {
+  // TODO: Remove after audienceMembership migration. This test covers the legacy code path where
+  // add/remove is determined by event_properties[personas_audience_key]. It will be replaced by
+  // an equivalent flag-enabled test once the feature flags are removed.
+  it('should remove user to braze when event_properties set to false', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
 
     const responses = await testDestination.testAction('syncAudiences', {
       event: {
         ...event,
-        type: 'identify',
         traits: {
           j_o_jons__step_1_ns3i7: false
         }
@@ -332,21 +92,11 @@ describe('BrazeCohorts.syncAudiences', () => {
         client_secret: 'valid_client_secret_key'
       },
       useDefaultMappings: true,
-      mapping,
-      features: {
-        'actions-core-audience-membership': true,
-        'actions-braze-cohorts-audience-membership': true
-      }
+      mapping
     })
     expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(201)
     expect(responses[1].status).toBe(201)
-    expect(responses[0].options.json).toMatchObject({
-      client_secret: 'valid_client_secret_key',
-      name: 'j_o_jons__step_1_ns3i7',
-      cohort_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-      created_at: timestamp
-    })
     expect(responses[1].options.json).toMatchObject({
       cohort_changes: expect.arrayContaining([
         expect.objectContaining({
@@ -357,86 +107,13 @@ describe('BrazeCohorts.syncAudiences', () => {
         })
       ])
     })
-  })
-
-  it('should not hit create cohort api when cohort_name is available in state context is matching with computation key', async () => {
-    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
-
-    const responses = await testDestination.testAction('syncAudiences', {
-      event: {
-        ...event,
-        context: {
-          cohort_name: 'j_o_jons__step_1_ns3i7',
-          personas: {
-            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
-          },
-          traits: {
-            email: 'test@twilio.com'
-          }
-        }
-      },
-      stateContext: {
-        getRequestContext: (_key: string): any => 'j_o_jons__step_1_ns3i7',
-        setResponseContext: (
-          _key: string,
-          _value: string,
-          _ttl: { hour?: number; minute?: number; second?: number }
-        ): void => {}
-      },
-      settings: {
-        endpoint: 'https://rest.iad-01.braze.com',
-        client_secret: 'valid_client_secret_key'
-      },
-      useDefaultMappings: true,
-      mapping
-    })
-
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(201)
-    expect(responses[0].options.json).toMatchSnapshot()
-  })
-
-  it('should hit create cohort api when cohort_name available in stateContext is not matching with computation key', async () => {
-    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
-    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
-
-    const responses = await testDestination.testAction('syncAudiences', {
-      event: {
-        ...event,
-        context: {
-          cohort_name: 'j_o_jons__step_1_ns3i7',
-          personas: {
-            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
-          },
-          traits: {
-            email: 'test@twilio.com'
-          }
-        }
-      },
-      stateContext: {
-        getRequestContext: (_key: string): any => 'different_cohort_name',
-        setResponseContext: (
-          _key: string,
-          _value: string,
-          _ttl: { hour?: number; minute?: number; second?: number }
-        ): void => {}
-      },
-      settings: {
-        endpoint: 'https://rest.iad-01.braze.com',
-        client_secret: 'valid_client_secret_key'
-      },
-      useDefaultMappings: true,
-      mapping
-    })
-    expect(responses.length).toBe(2)
-    expect(responses[0].status).toBe(201)
-    expect(responses[1].status).toBe(201)
     expect(responses[0].options.json).toMatchSnapshot()
     expect(responses[1].options.json).toMatchSnapshot()
   })
 
+  // TODO: Remove after audienceMembership migration. This test covers the legacy code path where
+  // add/remove is determined by event_properties[personas_audience_key]. It will be replaced by
+  // an equivalent flag-enabled test once the feature flags are removed.
   it('should work with batch events', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
@@ -452,8 +129,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           }
         },
         properties: {
@@ -473,22 +149,12 @@ describe('BrazeCohorts.syncAudiences', () => {
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
-      },
-      features: {
-        'actions-core-audience-membership': true,
-        'actions-braze-cohorts-audience-membership': true
       }
     })
 
     expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(201)
     expect(responses[1].status).toBe(201)
-    expect(responses[0].options.json).toMatchObject({
-      client_secret: 'valid_client_secret_key',
-      name: 'j_o_jons__step_1_ns3i7',
-      cohort_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-      created_at: timestamp
-    })
     expect(responses[1].options.json).toMatchObject({
       cohort_changes: expect.arrayContaining([
         expect.objectContaining({
@@ -504,8 +170,13 @@ describe('BrazeCohorts.syncAudiences', () => {
         })
       ])
     })
+    expect(responses[0].options.json).toMatchSnapshot()
+    expect(responses[1].options.json).toMatchSnapshot()
   })
 
+  // TODO: Remove after audienceMembership migration. This test covers the legacy code path where
+  // add/remove is determined by event_properties[personas_audience_key]. It will be replaced by
+  // an equivalent flag-enabled test once the feature flags are removed.
   it('should dedupe add users in batch events', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
@@ -526,8 +197,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           }
         },
         properties: {
@@ -549,9 +219,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
       },
       features: {
-        'dedupe-braze-cohorts-v2': true,
-        'actions-core-audience-membership': true,
-        'actions-braze-cohorts-audience-membership': true
+        'dedupe-braze-cohorts-v2': true
       }
     })
 
@@ -569,6 +237,9 @@ describe('BrazeCohorts.syncAudiences', () => {
     })
   })
 
+  // TODO: Remove after audienceMembership migration. This test covers the legacy code path where
+  // add/remove is determined by event_properties[personas_audience_key]. It will be replaced by
+  // an equivalent flag-enabled test once the feature flags are removed.
   it('should dedupe external_id across add and remove user events by timestamp', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
@@ -589,8 +260,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           }
         },
         properties: {
@@ -612,9 +282,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
       },
       features: {
-        'dedupe-braze-cohorts-v2': true,
-        'actions-core-audience-membership': true,
-        'actions-braze-cohorts-audience-membership': true
+        'dedupe-braze-cohorts-v2': true
       }
     })
 
@@ -633,6 +301,9 @@ describe('BrazeCohorts.syncAudiences', () => {
     })
   })
 
+  // TODO: Remove after audienceMembership migration. This test covers the legacy code path where
+  // add/remove is determined by event_properties[personas_audience_key]. It will be replaced by
+  // an equivalent flag-enabled test once the feature flags are removed.
   it('should dedupe device_id across add and remove events by timestamp', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
@@ -644,8 +315,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           },
           device: {
             id: 'test-device-id'
@@ -661,8 +331,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           },
           device: {
             id: 'test-device-id'
@@ -690,10 +359,6 @@ describe('BrazeCohorts.syncAudiences', () => {
         external_id: {
           '@path': '$.notGiven'
         }
-      },
-      features: {
-        'actions-core-audience-membership': true,
-        'actions-braze-cohorts-audience-membership': true
       }
     })
 
@@ -712,6 +377,9 @@ describe('BrazeCohorts.syncAudiences', () => {
     })
   })
 
+  // TODO: Remove after audienceMembership migration. This test covers the legacy code path where
+  // add/remove is determined by event_properties[personas_audience_key]. It will be replaced by
+  // an equivalent flag-enabled test once the feature flags are removed.
   it('should dedupe add and remove users by alias identifiers and timestamp', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
@@ -723,8 +391,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           },
           traits: {
             email: 'test@example.com'
@@ -740,8 +407,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           },
           traits: {
             email: 'test@example.com'
@@ -772,10 +438,6 @@ describe('BrazeCohorts.syncAudiences', () => {
             '@path': '$.context.traits.email'
           }
         }
-      },
-      features: {
-        'actions-core-audience-membership': true,
-        'actions-braze-cohorts-audience-membership': true
       }
     })
 
@@ -799,6 +461,9 @@ describe('BrazeCohorts.syncAudiences', () => {
     })
   })
 
+  // TODO: Remove after audienceMembership migration. This test covers the legacy code path where
+  // add/remove is determined by event_properties[personas_audience_key]. It will be replaced by
+  // an equivalent flag-enabled test once the feature flags are removed.
   it('should dedupe remove users in batch events for external_id', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
@@ -819,8 +484,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           }
         },
         properties: {
@@ -840,10 +504,6 @@ describe('BrazeCohorts.syncAudiences', () => {
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
-      },
-      features: {
-        'actions-core-audience-membership': true,
-        'actions-braze-cohorts-audience-membership': true
       }
     })
 
@@ -862,6 +522,9 @@ describe('BrazeCohorts.syncAudiences', () => {
     })
   })
 
+  // TODO: Remove after audienceMembership migration. This test covers the legacy code path where
+  // add/remove is determined by event_properties[personas_audience_key]. It will be replaced by
+  // an equivalent flag-enabled test once the feature flags are removed.
   it('should dedupe remove users in batch events for device_id', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
@@ -873,8 +536,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           },
           device: {
             id: 'test-device-id'
@@ -890,8 +552,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           },
           device: {
             id: 'test-device-id'
@@ -919,10 +580,6 @@ describe('BrazeCohorts.syncAudiences', () => {
         external_id: {
           '@path': '$.notGiven'
         }
-      },
-      features: {
-        'actions-core-audience-membership': true,
-        'actions-braze-cohorts-audience-membership': true
       }
     })
 
@@ -941,6 +598,9 @@ describe('BrazeCohorts.syncAudiences', () => {
     })
   })
 
+  // TODO: Remove after audienceMembership migration. This test covers the legacy code path where
+  // add/remove is determined by event_properties[personas_audience_key]. It will be replaced by
+  // an equivalent flag-enabled test once the feature flags are removed.
   it('should dedupe remove users in batch events for user_alias', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
@@ -952,8 +612,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           },
           traits: {
             email: 'test@example.com'
@@ -969,8 +628,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           },
           traits: {
             email: 'test@example.com'
@@ -1001,10 +659,6 @@ describe('BrazeCohorts.syncAudiences', () => {
             '@path': '$.context.traits.email'
           }
         }
-      },
-      features: {
-        'actions-core-audience-membership': true,
-        'actions-braze-cohorts-audience-membership': true
       }
     })
 
@@ -1028,6 +682,9 @@ describe('BrazeCohorts.syncAudiences', () => {
     })
   })
 
+  // TODO: Remove after audienceMembership migration. This test covers the legacy code path where
+  // add/remove is determined by event_properties[personas_audience_key]. It will be replaced by
+  // an equivalent flag-enabled test once the feature flags are removed.
   it('should dedupe add users in batch events for device_id', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
@@ -1039,8 +696,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           },
           device: {
             id: 'test-device-id'
@@ -1056,8 +712,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           },
           device: {
             id: 'test-device-id'
@@ -1085,10 +740,6 @@ describe('BrazeCohorts.syncAudiences', () => {
         external_id: {
           '@path': '$.notGiven'
         }
-      },
-      features: {
-        'actions-core-audience-membership': true,
-        'actions-braze-cohorts-audience-membership': true
       }
     })
 
@@ -1106,6 +757,9 @@ describe('BrazeCohorts.syncAudiences', () => {
     })
   })
 
+  // TODO: Remove after audienceMembership migration. This test covers the legacy code path where
+  // add/remove is determined by event_properties[personas_audience_key]. It will be replaced by
+  // an equivalent flag-enabled test once the feature flags are removed.
   it('should dedupe add users in batch events for user_alias', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
@@ -1117,8 +771,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           },
           traits: {
             email: 'test@example.com'
@@ -1134,8 +787,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7',
-            computation_class: 'audience'
+            computation_key: 'j_o_jons__step_1_ns3i7'
           },
           traits: {
             email: 'test@example.com'
@@ -1166,10 +818,6 @@ describe('BrazeCohorts.syncAudiences', () => {
             '@path': '$.context.traits.email'
           }
         }
-      },
-      features: {
-        'actions-core-audience-membership': true,
-        'actions-braze-cohorts-audience-membership': true
       }
     })
 

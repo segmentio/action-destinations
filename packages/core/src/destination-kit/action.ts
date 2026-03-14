@@ -16,7 +16,8 @@ import type {
   DynamicFieldContext,
   ActionDestinationSuccessResponseType,
   ActionDestinationErrorResponseType,
-  ResultMultiStatusNode
+  ResultMultiStatusNode,
+  AudienceMembership
 } from './types'
 import { syncModeTypes } from './types'
 import { HTTPError, NormalizedOptions } from '../request-client'
@@ -25,6 +26,7 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { ErrorCodes, getErrorCodeFromHttpStatus, IntegrationError, MultiStatusErrorReporter } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
+import { resolveAudienceMembership } from '../audience-membership'
 import {
   Logger,
   StatsContext,
@@ -34,14 +36,15 @@ import {
   SubscriptionMetadata
 } from './index'
 import { get } from '../get'
+import { FLAGS } from '../flags'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, ActionHookInputs = any> = (
+export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, ActionHookInputs = any, AudienceMembershipType = AudienceMembership | AudienceMembership[]> = (
   request: RequestClient,
-  data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs>
+  data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs, any, AudienceMembershipType>
 ) => MaybePromise<Return>
 
 interface ReservedInputFields {
@@ -134,10 +137,10 @@ export interface ActionDefinition<
   }
 
   /** The operation to perform when this action is triggered */
-  perform: RequestFn<Settings, Payload, any, AudienceSettings>
+  perform: RequestFn<Settings, Payload, any, AudienceSettings, any, AudienceMembership>
 
   /** The operation to perform when this action is triggered for a batch of events */
-  performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings>
+  performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings, any, AudienceMembership[]>
 
   /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
    * destination using the provided inputs and return a response. The response may then optionally be stored
@@ -349,9 +352,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       }
     }
 
-    const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
-
+    const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+    const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
     const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+    const FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP = bundle?.features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP]
+    const audienceMembership = FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP ? resolveAudienceMembership(bundle.data, syncMode) : undefined
 
     // Construct the data bundle to send to an action
     const dataBundle = {
@@ -359,6 +364,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       rawMapping: bundle.mapping,
       settings: bundle.settings,
       payload,
+      ...(FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP && { audienceMembership }),
       auth: bundle.auth,
       features: bundle.features,
       statsContext: bundle.statsContext,
@@ -368,7 +374,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       stateContext: bundle.stateContext,
       audienceSettings: bundle.audienceSettings,
       hookOutputs,
-      syncMode: isSyncMode(syncMode) ? syncMode : undefined,
+      syncMode,
       matchingKey: matchingKey ? String(matchingKey) : undefined,
       subscriptionMetadata: bundle.subscriptionMetadata,
       signal: bundle?.signal
@@ -456,8 +462,13 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     if (this.definition.performBatch) {
-      const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+      const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+      const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
       const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+      const FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP = bundle?.features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP]
+      const audienceMembership: AudienceMembership[] = FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP
+        ? bundle.data.map((d) => resolveAudienceMembership(d, syncMode))
+        : []
 
       const data = {
         rawData: bundle.data,
@@ -465,6 +476,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         settings: bundle.settings,
         audienceSettings: bundle.audienceSettings,
         payload: payloads,
+        ...(FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP && { audienceMembership }),
         auth: bundle.auth,
         features: bundle.features,
         statsContext: bundle.statsContext,
@@ -474,7 +486,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         stateContext: bundle.stateContext,
         subscriptionMetadata: bundle.subscriptionMetadata,
         hookOutputs,
-        syncMode: isSyncMode(syncMode) ? syncMode : undefined,
+        syncMode,
         matchingKey: matchingKey ? String(matchingKey) : undefined,
         signal: bundle?.signal
       }
@@ -683,9 +695,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
    * the given request function
    * and given data bundle
    */
-  private async performRequest<T extends Payload | Payload[]>(
-    requestFn: RequestFn<Settings, T, any, AudienceSettings>,
-    data: ExecuteInput<Settings, T, AudienceSettings>
+  private async performRequest<T extends Payload | Payload[], M extends AudienceMembership | AudienceMembership[]>(
+    requestFn: RequestFn<Settings, T, any, AudienceSettings, any, M>,
+    data: ExecuteInput<Settings, T, AudienceSettings, any, any, M>
   ): Promise<unknown> {
     const requestClient = this.createRequestClient(data)
     const response = await requestFn(requestClient, data)

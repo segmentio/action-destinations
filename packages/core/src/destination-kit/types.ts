@@ -47,7 +47,8 @@ export interface ExecuteInput<
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expected any. */
   ActionHookInputs = any,
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expected any. */
-  ActionHookOutputs = any
+  ActionHookOutputs = any,
+  AudienceMembershipType = AudienceMembership | AudienceMembership[]
 > {
   /** The subscription mapping definition */
   readonly mapping?: JSONObject
@@ -57,6 +58,8 @@ export interface ExecuteInput<
   readonly audienceSettings?: AudienceSettings
   /** The transformed input data, based on `mapping` + `event` (or `events` if batched) */
   payload: Payload
+  /** Whether the user is being added to (true) or removed from (false) an audience. Undefined for non-audience events. For batch actions, this is an array matching the payload array. */
+  audienceMembership?: AudienceMembershipType
   /** Inputs into an actions hook performHook method */
   hookInputs?: ActionHookInputs
   /** Stored outputs from an invokation of an actions hook */
@@ -85,6 +88,8 @@ export interface ExecuteInput<
   readonly subscriptionMetadata?: SubscriptionMetadata
   readonly signal?: AbortSignal
 }
+
+export type AudienceMembership = boolean | undefined
 
 export interface DynamicFieldResponse {
   choices: DynamicFieldItem[]
