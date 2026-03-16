@@ -334,7 +334,17 @@ async function fetchContactTraits(request: RequestClient, settings: Settings, st
       .map(([traitName, trait]) => ({
         label: trait.displayName || traitName,
         value: traitName,
-        description: trait.description || `${trait.displayName} (${trait.dataType})`
+        description: trait.description || `${trait.displayName} (${trait.dataType})`,
+        type: trait.dataType.toLowerCase() as
+          | 'string'
+          | 'text'
+          | 'number'
+          | 'integer'
+          | 'datetime'
+          | 'boolean'
+          | 'password'
+          | 'object',
+        id: trait.idTypePromotion
       }))
 
     return {
