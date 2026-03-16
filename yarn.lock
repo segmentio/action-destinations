@@ -4219,6 +4219,11 @@
     liquidjs "^10.8.4"
     lodash "^4.17.21"
 
+"@segment/ajv-human-errors@^2.16.0":
+  version "2.16.0"
+  resolved "https://registry.yarnpkg.com/@segment/ajv-human-errors/-/ajv-human-errors-2.16.0.tgz#f0507e9ab99873960961fc6255591b47be290736"
+  integrity sha512-cHNfZcbHrmuYOA7/Sn7HlIDHanamiRTZtngfxcAuFaKQjP7cSqsVHjLz38FI2FQ8JDLz3syGLaz10Gn2ddo7+w==
+
 "@segment/analytics-browser-actions-1flow@^1.78.0":
   version "1.78.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-1flow/-/analytics-browser-actions-1flow-1.78.0.tgz#23d1c0ffc869f84bbd14070611843020e5a5c7e8"
@@ -4619,6 +4624,13 @@
   integrity sha512-GAkytDkmmHxhjPNUjElVSQ+wmJlGm5kYyDsM4ne5JYnIM9FWP1IH8o4TcFvclVa4I1b0Alr+Sd+tTmdImf5PJQ==
   dependencies:
     "@segment/actions-core" "^3.165.0"
+
+"@segment/destination-subscriptions@^3.37.0":
+  version "3.37.0"
+  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.37.0.tgz#99ae16a2fd56469752fc2570465ec1ebb9b32df9"
+  integrity sha512-Al+ABKWlp8LsygKQ0IakmS/4B1MXvTOPDB20mpGA5sMNL+krk2EN4kmaZaA4EfF3ZZjQqmBwTfvQPVGzEJQ3pA==
+  dependencies:
+    "@segment/fql-ts" "^1.10.1"
 
 "@segment/destinations-manifest@^1.71.0":
   version "1.153.0"

@@ -1000,7 +1000,7 @@ describe('Memora.upsertProfile', () => {
         })) as any
 
         expect(result?.choices).toEqual([])
-        expect(result?.error?.message).toBe('Please select a Memora Store first')
+        expect(result?.error?.message).toBe('Please elect a Memora Store first')
         expect(result?.error?.code).toBe('STORE_REQUIRED')
       })
 
