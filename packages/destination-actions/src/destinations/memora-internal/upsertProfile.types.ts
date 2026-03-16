@@ -27,9 +27,15 @@ export interface Payload {
     phone?: string
   }
   /**
-   * Contact traits for the profile. At least one trait is required. These fields are dynamically loaded from the selected Memora Store.
+   * Contact traits for the profile. At least one trait (from contact_traits or other_traits) is required. These fields are dynamically loaded from the selected Memora Store.
    */
-  contact_traits: {
+  contact_traits?: {
+    [k: string]: unknown
+  }
+  /**
+   * Traits from other trait groups (e.g., PurchaseHistory, Loyalty). These fields are dynamically loaded from the selected Memora Store and use the format "TraitGroupName.$.traitName".
+   */
+  other_traits?: {
     [k: string]: unknown
   }
 }

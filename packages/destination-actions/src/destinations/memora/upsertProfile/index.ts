@@ -62,9 +62,19 @@ const action: ActionDefinition<Settings, Payload> = {
     contact_traits: {
       label: 'Contact Traits',
       description:
-        'Contact traits for the profile. At least one trait is required. These fields are dynamically loaded from the selected Memora Store.',
+        'Contact traits for the profile. At least one trait (from contact_traits or other_traits) is required. These fields are dynamically loaded from the selected Memora Store.',
       type: 'object',
-      required: true,
+      required: false,
+      additionalProperties: true,
+      dynamic: true,
+      defaultObjectUI: 'keyvalue'
+    },
+    other_traits: {
+      label: 'Other Traits',
+      description:
+        'Traits from other trait groups (e.g., PurchaseHistory, Loyalty). These fields are dynamically loaded from the selected Memora Store and use the format "TraitGroupName.$.traitName".',
+      type: 'object',
+      required: false,
       additionalProperties: true,
       dynamic: true,
       defaultObjectUI: 'keyvalue'
@@ -80,6 +90,14 @@ const action: ActionDefinition<Settings, Payload> = {
           return { choices: [], error: { message: 'Please select a Memora Store first', code: 'STORE_REQUIRED' } }
         }
         return fetchContactTraits(request, settings, payload.memora_store)
+      }
+    },
+    other_traits: {
+      __keys__: async (request, { settings, payload }) => {
+        if (!payload.memora_store) {
+          return { choices: [], error: { message: 'Please select a Memora Store first', code: 'STORE_REQUIRED' } }
+        }
+        return fetchOtherTraits(request, settings, payload.memora_store)
       }
     }
   },
@@ -115,10 +133,20 @@ async function upsertProfiles(
     const identifiers = payload.contact_identifiers || {}
     const hasIdentifier = !!(identifiers.email || identifiers.phone)
 
-    const traits = (
+    const contactTraits = (
       payload.contact_traits && typeof payload.contact_traits === 'object' ? payload.contact_traits : {}
     ) as Record<string, unknown>
-    const hasTraits = Object.keys(traits).some((key) => traits[key] !== undefined && traits[key] !== null)
+    const otherTraits = (
+      payload.other_traits && typeof payload.other_traits === 'object' ? payload.other_traits : {}
+    ) as Record<string, unknown>
+
+    const hasContactTraits = Object.keys(contactTraits).some(
+      (key) => contactTraits[key] !== undefined && contactTraits[key] !== null
+    )
+    const hasOtherTraits = Object.keys(otherTraits).some(
+      (key) => otherTraits[key] !== undefined && otherTraits[key] !== null
+    )
+    const hasTraits = hasContactTraits || hasOtherTraits
 
     if (!hasIdentifier || !hasTraits) {
       invalidIndices.push(index)
@@ -191,31 +219,51 @@ async function upsertProfiles(
 // Build trait groups payload for Memora API
 function buildTraitGroups(payload: Payload): Record<string, Record<string, unknown>> {
   const traitGroups: Record<string, Record<string, unknown>> = {}
-  const contactTraits: Record<string, unknown> = {}
 
-  // Merge contact traits first
+  // Process contact traits (simple field names like "firstName")
   if (payload.contact_traits && typeof payload.contact_traits === 'object') {
     const traits = payload.contact_traits as Record<string, unknown>
     Object.entries(traits).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        contactTraits[key] = value
+        if (!traitGroups.Contact) {
+          traitGroups.Contact = {}
+        }
+        traitGroups.Contact[key] = value
       }
     })
   }
 
-  // Merge identifiers last (these are authoritative and will override any conflicting keys)
+  // Process other trait groups (format: "TraitGroupName.$.traitName")
+  if (payload.other_traits && typeof payload.other_traits === 'object') {
+    const traits = payload.other_traits as Record<string, unknown>
+    Object.entries(traits).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        // Parse the format traitGroupName.$.traitName
+        const match = key.match(/^([^.]+)\.\$\.(.+)$/)
+        if (match) {
+          const traitGroupName = match[1]
+          const traitName = match[2]
+
+          if (!traitGroups[traitGroupName]) {
+            traitGroups[traitGroupName] = {}
+          }
+          traitGroups[traitGroupName][traitName] = value
+        }
+      }
+    })
+  }
+
+  // Merge identifiers into Contact trait group (these are authoritative and will override any conflicting keys)
   if (payload.contact_identifiers && typeof payload.contact_identifiers === 'object') {
     const identifiers = payload.contact_identifiers as Record<string, unknown>
     Object.entries(identifiers).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        contactTraits[key] = value
+        if (!traitGroups.Contact) {
+          traitGroups.Contact = {}
+        }
+        traitGroups.Contact[key] = value
       }
     })
-  }
-
-  // Only add Contact trait group if it has at least one field
-  if (Object.keys(contactTraits).length > 0) {
-    traitGroups.Contact = contactTraits
   }
 
   return traitGroups
@@ -248,7 +296,16 @@ interface TraitGroupResponse {
   }
 }
 
-// Fetch contact trait definitions for dynamic fields
+interface TraitGroupsListResponse {
+  traitGroups?: string[]
+  meta?: {
+    pageSize?: number
+    nextToken?: string
+    previousToken?: string
+  }
+}
+
+// Fetch Contact trait group definitions for dynamic fields
 async function fetchContactTraits(request: RequestClient, settings: Settings, storeId: string) {
   try {
     const response = await request<TraitGroupResponse>(
@@ -268,8 +325,12 @@ async function fetchContactTraits(request: RequestClient, settings: Settings, st
     const choices = Object.entries(traitsObj)
       .filter(
         ([_, trait]) =>
-          trait.idTypePromotion !== 'email' && trait.idTypePromotion !== 'phone' && trait.dataType === 'STRING'
-      ) // Exclude identifiers and non-string traits
+          // Exclude identifiers (email/phone) as they're handled separately
+          trait.idTypePromotion !== 'email' &&
+          trait.idTypePromotion !== 'phone' &&
+          // Only include STRING type traits
+          trait.dataType === 'STRING'
+      )
       .map(([traitName, trait]) => ({
         label: trait.displayName || traitName,
         value: traitName,
@@ -286,6 +347,92 @@ async function fetchContactTraits(request: RequestClient, settings: Settings, st
       choices: [],
       error: {
         message: `Unable to fetch contact traits (HTTP ${statusCode}: ${errorMsg}). You can still manually enter field names.`,
+        code: 'FETCH_ERROR'
+      }
+    }
+  }
+}
+
+// Fetch other trait group definitions (excluding Contact) for dynamic fields
+async function fetchOtherTraits(request: RequestClient, settings: Settings, storeId: string) {
+  try {
+    // First, fetch list of all trait groups
+    const traitGroupsResponse = await request<TraitGroupsListResponse>(
+      `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups?pageSize=100`,
+      {
+        method: 'GET',
+        headers: {
+          'X-Pre-Auth-Context': settings.twilioAccount
+        },
+        username: settings.username,
+        password: settings.password,
+        skipResponseCloning: true
+      }
+    )
+
+    const traitGroupNames = (traitGroupsResponse?.data?.traitGroups || []).filter((name: string) => name !== 'Contact')
+
+    if (traitGroupNames.length === 0) {
+      return {
+        choices: []
+      }
+    }
+
+    // Fetch traits for each trait group (excluding Contact)
+    const traitGroupPromises = traitGroupNames.map((traitGroupName: string) =>
+      request<TraitGroupResponse>(
+        `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/${traitGroupName}?includeTraits=true&pageSize=100`,
+        {
+          method: 'GET',
+          headers: {
+            'X-Pre-Auth-Context': settings.twilioAccount
+          },
+          username: settings.username,
+          password: settings.password,
+          skipResponseCloning: true
+        }
+      ).then((response) => ({
+        traitGroupName,
+        traits: response?.data?.traitGroup?.traits || {}
+      }))
+    )
+
+    const traitGroups = await Promise.all(traitGroupPromises)
+
+    // Build choices in the format traitGroupName.$.traitName
+    const choices: Array<{ label: string; value: string; description: string }> = []
+
+    for (const { traitGroupName, traits } of traitGroups) {
+      Object.entries(traits).forEach(([traitName, trait]) => {
+        // Only include STRING type traits
+        if (trait.dataType === 'STRING') {
+          const value = `${traitGroupName}.$.${traitName}`
+          const label = `${traitGroupName}.${trait.displayName || traitName}`
+
+          // Use custom description if available, otherwise generate one
+          const description = trait.description
+            ? trait.description
+            : `${traitGroupName} - ${trait.displayName} (${trait.dataType})`
+
+          choices.push({
+            label,
+            value,
+            description
+          })
+        }
+      })
+    }
+
+    return {
+      choices
+    }
+  } catch (error) {
+    const statusCode = error?.response?.status || 'unknown'
+    const errorMsg = error?.response?.data?.message || (error instanceof Error ? error.message : String(error))
+    return {
+      choices: [],
+      error: {
+        message: `Unable to fetch traits (HTTP ${statusCode}: ${errorMsg}). You can still manually enter field names.`,
         code: 'FETCH_ERROR'
       }
     }
