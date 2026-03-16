@@ -37,7 +37,7 @@ import {
   SubscriptionMetadata
 } from './index'
 import { get } from '../get'
-import { FLAGS } from '../flags'
+//import { FLAGS } from '../flags'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -389,10 +389,11 @@ export class Action<
     const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
     const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
     const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
-    const FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP = bundle?.features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP]
-    const audienceMembership = FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP
-      ? resolveAudienceMembership(bundle.data, syncMode)
-      : undefined
+    //const FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP = bundle?.features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP]
+    // const audienceMembership = FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP
+    //   ? resolveAudienceMembership(bundle.data, syncMode)
+    //   : undefined
+    const audienceMembership = resolveAudienceMembership(bundle.data, syncMode)
 
     // Construct the data bundle to send to an action
     const dataBundle = {
@@ -400,7 +401,7 @@ export class Action<
       rawMapping: bundle.mapping,
       settings: bundle.settings,
       payload,
-      ...(FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP && { audienceMembership }),
+      ...(typeof audienceMembership === 'boolean' ? { audienceMembership } : {}),
       auth: bundle.auth,
       features: bundle.features,
       statsContext: bundle.statsContext,
@@ -501,10 +502,11 @@ export class Action<
       const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
       const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
       const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
-      const FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP = bundle?.features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP]
-      const audienceMembership: AudienceMembership[] = FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP
-        ? bundle.data.map((d) => resolveAudienceMembership(d, syncMode))
-        : []
+      //const FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP = bundle?.features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP]
+      // const audienceMembership: AudienceMembership[] = FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP
+      //   ? bundle.data.map((d) => resolveAudienceMembership(d, syncMode))
+      //   : []
+      const audienceMembership: AudienceMembership[] = bundle.data.map((d) => resolveAudienceMembership(d, syncMode))
 
       const data = {
         rawData: bundle.data,
@@ -512,7 +514,7 @@ export class Action<
         settings: bundle.settings,
         audienceSettings: bundle.audienceSettings,
         payload: payloads,
-        ...(FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP && { audienceMembership }),
+        ...( typeof audienceMembership === 'boolean' ? { audienceMembership } : {}),
         auth: bundle.auth,
         features: bundle.features,
         statsContext: bundle.statsContext,

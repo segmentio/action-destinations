@@ -348,15 +348,15 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
     })
   })
 
-  describe('feature flag', () => {
-    it('is undefined when the actions-core-audience-membership flag is not present', async () => {
-      const data = await runAction({
-        type: 'identify',
-        userId: 'user-1',
-        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
-        traits: { my_audience: true }
-      })
-      expect(data?.audienceMembership).toBeUndefined()
-    })
-  })
+  // describe('feature flag', () => {
+  //   it('is undefined when the actions-core-audience-membership flag is not present', async () => {
+  //     const data = await runAction({
+  //       type: 'identify',
+  //       userId: 'user-1',
+  //       context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+  //       traits: { my_audience: true }
+  //     })
+  //     expect(data?.audienceMembership).toBeUndefined()
+  //   })
+  // })
 })
