@@ -449,6 +449,107 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.Contact.phone).toBe('+1-555-1234')
       expect(profile.traits.Contact.firstName).toBe('John')
     })
+
+    it('should support other trait groups with traitGroupName.$.traitName format', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-890',
+        traits: {
+          email: 'test@example.com',
+          first_name: 'Alice',
+          last_purchase: '2024-01-15',
+          favorite_category: 'Electronics'
+        }
+      })
+
+      let capturedBody: Record<string, unknown> = {}
+
+      nock(BASE_URL)
+        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
+          capturedBody = body as Record<string, unknown>
+          return true
+        })
+        .reply(202)
+
+      await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          contact_identifiers: {
+            email: { '@path': '$.traits.email' }
+          },
+          contact_traits: {
+            firstName: { '@path': '$.traits.first_name' }
+          },
+          other_traits: {
+            'PurchaseHistory.$.lastPurchaseDate': { '@path': '$.traits.last_purchase' },
+            'PurchaseHistory.$.favoriteCategory': { '@path': '$.traits.favorite_category' }
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      const profile = (capturedBody.profiles as any[])[0]
+      // Contact traits
+      expect(profile.traits.Contact.email).toBe('test@example.com')
+      expect(profile.traits.Contact.firstName).toBe('Alice')
+      // PurchaseHistory trait group
+      expect(profile.traits.PurchaseHistory).toBeDefined()
+      expect(profile.traits.PurchaseHistory.lastPurchaseDate).toBe('2024-01-15')
+      expect(profile.traits.PurchaseHistory.favoriteCategory).toBe('Electronics')
+    })
+
+    it('should handle multiple trait groups in the same profile', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-891',
+        traits: {
+          email: 'multi@example.com',
+          first_name: 'Bob',
+          last_purchase: '2024-02-20',
+          loyalty_tier: 'Gold',
+          last_login: '2024-03-01'
+        }
+      })
+
+      let capturedBody: Record<string, unknown> = {}
+
+      nock(BASE_URL)
+        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
+          capturedBody = body as Record<string, unknown>
+          return true
+        })
+        .reply(202)
+
+      await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          contact_identifiers: {
+            email: { '@path': '$.traits.email' }
+          },
+          contact_traits: {
+            firstName: { '@path': '$.traits.first_name' }
+          },
+          other_traits: {
+            'PurchaseHistory.$.lastPurchaseDate': { '@path': '$.traits.last_purchase' },
+            'Loyalty.$.tier': { '@path': '$.traits.loyalty_tier' },
+            'Engagement.$.lastLogin': { '@path': '$.traits.last_login' }
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      const profile = (capturedBody.profiles as any[])[0]
+      // Verify all trait groups are present
+      expect(profile.traits.Contact.email).toBe('multi@example.com')
+      expect(profile.traits.Contact.firstName).toBe('Bob')
+      expect(profile.traits.PurchaseHistory.lastPurchaseDate).toBe('2024-02-20')
+      expect(profile.traits.Loyalty.tier).toBe('Gold')
+      expect(profile.traits.Engagement.lastLogin).toBe('2024-03-01')
+    })
   })
 
   describe('performBatch (multiple profiles)', () => {
@@ -932,8 +1033,8 @@ describe('Memora.upsertProfile', () => {
       })
     })
 
-    describe('contact_traits (dynamic contact traits)', () => {
-      it('should fetch and return contact traits from Control Plane', async () => {
+    describe('contact_traits (dynamic Contact traits)', () => {
+      it('should fetch and return Contact traits only', async () => {
         nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/Contact?includeTraits=true&pageSize=100`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
@@ -986,7 +1087,7 @@ describe('Memora.upsertProfile', () => {
           payload: { memora_store: 'test-store-id' }
         })) as any
 
-        // Should exclude email and phone (identifiers) and age (non-String type)
+        // Should exclude email and phone (identifiers) and non-STRING traits
         expect(result?.choices).toEqual([
           { label: 'firstName', value: 'firstName', description: 'firstName (STRING)' },
           { label: 'lastName', value: 'lastName', description: 'lastName (STRING)' }
@@ -1017,6 +1118,149 @@ describe('Memora.upsertProfile', () => {
         expect(result?.choices).toEqual([])
         expect(result?.error).toBeDefined()
         expect(result?.error?.message).toContain('Unable to fetch contact traits')
+        expect(result?.error?.code).toBe('FETCH_ERROR')
+      })
+    })
+
+    describe('other_traits (dynamic traits from other trait groups)', () => {
+      it('should fetch and return traits from non-Contact trait groups', async () => {
+        // Mock listing trait groups
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100`)
+          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
+          .reply(200, {
+            traitGroups: ['Contact', 'PurchaseHistory', 'Loyalty']
+          })
+
+        // Mock PurchaseHistory trait group
+        nock(BASE_URL)
+          .get(
+            `/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/PurchaseHistory?includeTraits=true&pageSize=100`
+          )
+          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
+          .reply(200, {
+            traitGroup: {
+              description: 'Purchase history traits',
+              displayName: 'PurchaseHistory',
+              traits: {
+                lastPurchaseDate: {
+                  dataType: 'STRING',
+                  description: 'Date of last purchase',
+                  displayName: 'Last Purchase Date',
+                  idTypePromotion: null,
+                  validationRule: null
+                },
+                totalSpent: {
+                  dataType: 'NUMBER',
+                  description: 'Total amount spent',
+                  displayName: 'Total Spent',
+                  idTypePromotion: null,
+                  validationRule: null
+                },
+                favoriteCategory: {
+                  dataType: 'STRING',
+                  description: 'Favorite product category',
+                  displayName: 'Favorite Category',
+                  idTypePromotion: null,
+                  validationRule: null
+                }
+              }
+            }
+          })
+
+        // Mock Loyalty trait group
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/Loyalty?includeTraits=true&pageSize=100`)
+          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
+          .reply(200, {
+            traitGroup: {
+              description: 'Loyalty program traits',
+              displayName: 'Loyalty',
+              traits: {
+                tier: {
+                  dataType: 'STRING',
+                  description: 'Loyalty tier level',
+                  displayName: 'Tier',
+                  idTypePromotion: null,
+                  validationRule: null
+                },
+                points: {
+                  dataType: 'NUMBER',
+                  description: 'Current loyalty points',
+                  displayName: 'Points',
+                  idTypePromotion: null,
+                  validationRule: null
+                }
+              }
+            }
+          })
+
+        const result = (await testDestination.testDynamicField('upsertProfile', 'other_traits.__keys__', {
+          settings: defaultSettings,
+          payload: { memora_store: 'test-store-id' }
+        })) as any
+
+        // Should exclude Contact trait group and non-STRING traits
+        // Format: traitGroupName.$.traitName
+        expect(result?.choices).toEqual([
+          {
+            label: 'PurchaseHistory.Last Purchase Date',
+            value: 'PurchaseHistory.$.lastPurchaseDate',
+            description: 'Date of last purchase'
+          },
+          {
+            label: 'PurchaseHistory.Favorite Category',
+            value: 'PurchaseHistory.$.favoriteCategory',
+            description: 'Favorite product category'
+          },
+          {
+            label: 'Loyalty.Tier',
+            value: 'Loyalty.$.tier',
+            description: 'Loyalty tier level'
+          }
+        ])
+      })
+
+      it('should return empty choices when no other trait groups exist', async () => {
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100`)
+          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
+          .reply(200, {
+            traitGroups: ['Contact']
+          })
+
+        const result = (await testDestination.testDynamicField('upsertProfile', 'other_traits.__keys__', {
+          settings: defaultSettings,
+          payload: { memora_store: 'test-store-id' }
+        })) as any
+
+        expect(result?.choices).toEqual([])
+      })
+
+      it('should return error when memora_store is not selected', async () => {
+        const result = (await testDestination.testDynamicField('upsertProfile', 'other_traits.__keys__', {
+          settings: defaultSettings,
+          payload: {}
+        })) as any
+
+        expect(result?.choices).toEqual([])
+        expect(result?.error?.message).toBe('Please select a Memora Store first')
+        expect(result?.error?.code).toBe('STORE_REQUIRED')
+      })
+
+      it('should return error message when API call fails', async () => {
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100`)
+          .reply(500, { message: 'Internal server error' })
+
+        const result = (await testDestination.testDynamicField('upsertProfile', 'other_traits.__keys__', {
+          settings: defaultSettings,
+          payload: { memora_store: 'test-store-id' }
+        })) as any
+
+        expect(result?.choices).toEqual([])
+        expect(result?.error).toBeDefined()
+        expect(result?.error?.message).toContain('Unable to fetch traits')
         expect(result?.error?.code).toBe('FETCH_ERROR')
       })
     })
