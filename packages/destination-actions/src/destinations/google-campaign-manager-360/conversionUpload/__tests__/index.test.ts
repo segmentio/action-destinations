@@ -1314,4 +1314,108 @@ describe('Cm360.conversionUpload', () => {
       ).rejects.toThrowError('Unauthorized')
     })
   })
+
+  describe('API Version Feature Flag', () => {
+    it('should use v4 API by default (stable version)', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          gclid: 'test-gclid',
+          value: 100,
+          quantity: 1,
+          ordinal: '1'
+        }
+      })
+
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+      )
+        .post('')
+        .reply(201, { results: [{}] })
+
+      await expect(
+        testDestination.testAction('conversionUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+      ).resolves.not.toThrowError()
+    })
+
+    it('should use v5 API when canary feature flag is enabled', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          gclid: 'test-gclid',
+          value: 100,
+          quantity: 1,
+          ordinal: '1'
+        }
+      })
+
+      // Should call v5 endpoint when feature flag is enabled
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/v5/userprofiles/${profileId}/conversions/batchinsert`
+      )
+        .post('')
+        .reply(201, { results: [{}] })
+
+      await expect(
+        testDestination.testAction('conversionUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          },
+          features: { 'cm360-canary-api-version': true }
+        })
+      ).resolves.not.toThrowError()
+    })
+  })
 })
