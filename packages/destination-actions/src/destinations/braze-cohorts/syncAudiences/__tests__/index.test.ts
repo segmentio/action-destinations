@@ -7,7 +7,8 @@ const event = {
   context: {
     personas: {
       computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-      computation_key: 'j_o_jons__step_1_ns3i7'
+      computation_key: 'j_o_jons__step_1_ns3i7',
+      computation_class: 'audience'
     },
     traits: {
       email: 'test@twilio.com'
@@ -270,13 +271,14 @@ describe('BrazeCohorts.syncAudiences', () => {
     expect(responses[1].options.json).toMatchSnapshot()
   })
 
-  it('should add user to braze when event_properties is set to true', async () => {
+  it('should add user to braze when audienceMembership is true', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
 
     const responses = await testDestination.testAction('syncAudiences', {
       event: {
         ...event,
+        type: 'track',
         properties: {
           audience_key: 'j_o_jons__step_1_ns3i7',
           j_o_jons__step_1_ns3i7: true
@@ -287,11 +289,21 @@ describe('BrazeCohorts.syncAudiences', () => {
         client_secret: 'valid_client_secret_key'
       },
       useDefaultMappings: true,
-      mapping
+      mapping,
+      features: {
+        'actions-core-audience-membership': true,
+        'actions-braze-cohorts-audience-membership': true
+      }
     })
     expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(201)
     expect(responses[1].status).toBe(201)
+    expect(responses[0].options.json).toMatchObject({
+      client_secret: 'valid_client_secret_key',
+      name: 'j_o_jons__step_1_ns3i7',
+      cohort_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+      created_at: timestamp
+    })
     expect(responses[1].options.json).toMatchObject({
       cohort_changes: expect.arrayContaining([
         expect.objectContaining({
@@ -301,17 +313,16 @@ describe('BrazeCohorts.syncAudiences', () => {
         })
       ])
     })
-    expect(responses[0].options.json).toMatchSnapshot()
-    expect(responses[1].options.json).toMatchSnapshot()
   })
 
-  it('should remove user to braze when event_properties set to false', async () => {
+  it('should remove user from braze when audienceMembership is false', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
 
     const responses = await testDestination.testAction('syncAudiences', {
       event: {
         ...event,
+        type: 'identify',
         traits: {
           j_o_jons__step_1_ns3i7: false
         }
@@ -321,11 +332,21 @@ describe('BrazeCohorts.syncAudiences', () => {
         client_secret: 'valid_client_secret_key'
       },
       useDefaultMappings: true,
-      mapping
+      mapping,
+      features: {
+        'actions-core-audience-membership': true,
+        'actions-braze-cohorts-audience-membership': true
+      }
     })
     expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(201)
     expect(responses[1].status).toBe(201)
+    expect(responses[0].options.json).toMatchObject({
+      client_secret: 'valid_client_secret_key',
+      name: 'j_o_jons__step_1_ns3i7',
+      cohort_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+      created_at: timestamp
+    })
     expect(responses[1].options.json).toMatchObject({
       cohort_changes: expect.arrayContaining([
         expect.objectContaining({
@@ -336,8 +357,6 @@ describe('BrazeCohorts.syncAudiences', () => {
         })
       ])
     })
-    expect(responses[0].options.json).toMatchSnapshot()
-    expect(responses[1].options.json).toMatchSnapshot()
   })
 
   it('should not hit create cohort api when cohort_name is available in state context is matching with computation key', async () => {
@@ -433,7 +452,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           }
         },
         properties: {
@@ -453,12 +473,22 @@ describe('BrazeCohorts.syncAudiences', () => {
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
+      },
+      features: {
+        'actions-core-audience-membership': true,
+        'actions-braze-cohorts-audience-membership': true
       }
     })
 
     expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(201)
     expect(responses[1].status).toBe(201)
+    expect(responses[0].options.json).toMatchObject({
+      client_secret: 'valid_client_secret_key',
+      name: 'j_o_jons__step_1_ns3i7',
+      cohort_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+      created_at: timestamp
+    })
     expect(responses[1].options.json).toMatchObject({
       cohort_changes: expect.arrayContaining([
         expect.objectContaining({
@@ -474,8 +504,6 @@ describe('BrazeCohorts.syncAudiences', () => {
         })
       ])
     })
-    expect(responses[0].options.json).toMatchSnapshot()
-    expect(responses[1].options.json).toMatchSnapshot()
   })
 
   it('should dedupe add users in batch events', async () => {
@@ -498,7 +526,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           }
         },
         properties: {
@@ -520,7 +549,9 @@ describe('BrazeCohorts.syncAudiences', () => {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
       },
       features: {
-        'dedupe-braze-cohorts-v2': true
+        'dedupe-braze-cohorts-v2': true,
+        'actions-core-audience-membership': true,
+        'actions-braze-cohorts-audience-membership': true
       }
     })
 
@@ -558,7 +589,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           }
         },
         properties: {
@@ -580,7 +612,9 @@ describe('BrazeCohorts.syncAudiences', () => {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
       },
       features: {
-        'dedupe-braze-cohorts-v2': true
+        'dedupe-braze-cohorts-v2': true,
+        'actions-core-audience-membership': true,
+        'actions-braze-cohorts-audience-membership': true
       }
     })
 
@@ -610,7 +644,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           },
           device: {
             id: 'test-device-id'
@@ -626,7 +661,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           },
           device: {
             id: 'test-device-id'
@@ -654,6 +690,10 @@ describe('BrazeCohorts.syncAudiences', () => {
         external_id: {
           '@path': '$.notGiven'
         }
+      },
+      features: {
+        'actions-core-audience-membership': true,
+        'actions-braze-cohorts-audience-membership': true
       }
     })
 
@@ -683,7 +723,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           },
           traits: {
             email: 'test@example.com'
@@ -699,7 +740,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           },
           traits: {
             email: 'test@example.com'
@@ -730,6 +772,10 @@ describe('BrazeCohorts.syncAudiences', () => {
             '@path': '$.context.traits.email'
           }
         }
+      },
+      features: {
+        'actions-core-audience-membership': true,
+        'actions-braze-cohorts-audience-membership': true
       }
     })
 
@@ -773,7 +819,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           }
         },
         properties: {
@@ -793,6 +840,10 @@ describe('BrazeCohorts.syncAudiences', () => {
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
+      },
+      features: {
+        'actions-core-audience-membership': true,
+        'actions-braze-cohorts-audience-membership': true
       }
     })
 
@@ -822,7 +873,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           },
           device: {
             id: 'test-device-id'
@@ -838,7 +890,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           },
           device: {
             id: 'test-device-id'
@@ -866,6 +919,10 @@ describe('BrazeCohorts.syncAudiences', () => {
         external_id: {
           '@path': '$.notGiven'
         }
+      },
+      features: {
+        'actions-core-audience-membership': true,
+        'actions-braze-cohorts-audience-membership': true
       }
     })
 
@@ -895,7 +952,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           },
           traits: {
             email: 'test@example.com'
@@ -911,7 +969,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           },
           traits: {
             email: 'test@example.com'
@@ -942,6 +1001,10 @@ describe('BrazeCohorts.syncAudiences', () => {
             '@path': '$.context.traits.email'
           }
         }
+      },
+      features: {
+        'actions-core-audience-membership': true,
+        'actions-braze-cohorts-audience-membership': true
       }
     })
 
@@ -976,7 +1039,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           },
           device: {
             id: 'test-device-id'
@@ -992,7 +1056,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           },
           device: {
             id: 'test-device-id'
@@ -1020,6 +1085,10 @@ describe('BrazeCohorts.syncAudiences', () => {
         external_id: {
           '@path': '$.notGiven'
         }
+      },
+      features: {
+        'actions-core-audience-membership': true,
+        'actions-braze-cohorts-audience-membership': true
       }
     })
 
@@ -1048,7 +1117,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           },
           traits: {
             email: 'test@example.com'
@@ -1064,7 +1134,8 @@ describe('BrazeCohorts.syncAudiences', () => {
         context: {
           personas: {
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-            computation_key: 'j_o_jons__step_1_ns3i7'
+            computation_key: 'j_o_jons__step_1_ns3i7',
+            computation_class: 'audience'
           },
           traits: {
             email: 'test@example.com'
@@ -1095,6 +1166,10 @@ describe('BrazeCohorts.syncAudiences', () => {
             '@path': '$.context.traits.email'
           }
         }
+      },
+      features: {
+        'actions-core-audience-membership': true,
+        'actions-braze-cohorts-audience-membership': true
       }
     })
 

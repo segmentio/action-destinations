@@ -82,9 +82,7 @@ export type {
   StatsContext,
   Logger,
   Preset,
-  Result,
-  AsyncActionResponseType,
-  AsyncPollResponseType
+  Result
 } from './destination-kit'
 
 export type {
@@ -112,3 +110,4 @@ export {
 
 export { validateSchema } from './schema-validation'
 export { resolveAudienceMembership } from './audience-membership'
+export { FLAGS } from './flags'

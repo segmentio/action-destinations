@@ -24,7 +24,7 @@ export interface Payload {
    */
   enable_batching: boolean
   /**
-   * Maximum number of visitors to include in a single batch request. Must be between 2 and 1000.
+   * Maximum number of visitors to include in a single batch request. Must be between 1 and 1000.
    */
   batch_size?: number
 }

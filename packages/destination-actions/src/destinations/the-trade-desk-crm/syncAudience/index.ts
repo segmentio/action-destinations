@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
     request,
     { settings, payload, features, rawData, subscriptionMetadata }: ExecuteInputRaw<Settings, Payload, RawData>
   ) => {
-    return await processPayload(
+    return processPayload(
       {
         request,
         settings,
@@ -35,7 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
     request,
     { settings, payload, features, rawData, subscriptionMetadata }: ExecuteInputRaw<Settings, Payload[], RawData[]>
   ) => {
-    return await processPayload(
+    return processPayload(
       {
         request,
         settings,

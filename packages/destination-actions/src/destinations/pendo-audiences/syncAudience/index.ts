@@ -9,11 +9,11 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   description: 'Sync Segment Engage Audience membership to a Pendo Segment by adding or removing visitors.',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields,
-  perform: (request, { payload }) => {
-    return send(request, [payload], false)
+  perform: (request, { payload, settings }) => {
+    return send(request, settings.region, [payload], false)
   },
-  performBatch: (request, { payload }) => {
-    return send(request, payload, true)
+  performBatch: (request, { payload, settings }) => {
+    return send(request, settings.region, payload, true)
   }
 }
 

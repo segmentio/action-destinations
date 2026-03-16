@@ -55,11 +55,11 @@ export const fields: Record<string, InputField> = {
   },
   batch_size: {
     label: 'Max Batch Size',
-    description: 'Maximum number of visitors to include in a single batch request. Must be between 2 and 1000.',
+    description: 'Maximum number of visitors to include in a single batch request. Must be between 1 and 1000.',
     type: 'integer',
     required: false,
     default: 1000,
-    minimum: 2,
+    minimum: 1,
     maximum: 1000
   }
 }

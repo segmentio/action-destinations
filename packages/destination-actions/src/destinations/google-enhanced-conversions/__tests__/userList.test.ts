@@ -155,6 +155,8 @@ describe('GoogleEnhancedConversions', () => {
       )
     })
 
+    // FLAG_CLEANUP: delete this describe block when actions-core-audience-membership + actions-google-ec-audience-membership are removed
+    describe('syncMode-based routing (legacy — no feature flags)', () => {
     it('sends an event with default mappings - syncMode = add', async () => {
       const event = createTestEvent({
         timestamp,
@@ -708,6 +710,8 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
+
+    }) // end FLAG_CLEANUP describe: syncMode-based routing
 
     it('does not re-hash already hashed values', async () => {
       const event = createTestEvent({
@@ -1829,6 +1833,8 @@ describe('GoogleEnhancedConversions', () => {
       })
     })
 
+    // FLAG_CLEANUP: delete this describe block when actions-core-audience-membership + actions-google-ec-audience-membership are removed
+    describe('syncMode-based routing (legacy — no feature flags)', () => {
     it('Could not deteremine operation type due to invalid event name or syncMode', async () => {
       nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
         .post(/.*/)
@@ -1896,6 +1902,8 @@ describe('GoogleEnhancedConversions', () => {
         errorreporter: 'INTEGRATIONS'
       })
     })
+
+    }) // end FLAG_CLEANUP describe: syncMode-based routing
 
     it('Should successfully handle error other than CONCURRENT_MODIFICATION from run offlineUserDataJobs API', async () => {
       const events: SegmentEvent[] = [

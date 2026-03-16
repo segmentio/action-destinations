@@ -17,7 +17,6 @@ import type {
   ActionDestinationSuccessResponseType,
   ActionDestinationErrorResponseType,
   ResultMultiStatusNode,
-  AsyncPollResponseType,
   AudienceMembership
 } from './types'
 import { syncModeTypes } from './types'
@@ -37,19 +36,13 @@ import {
   SubscriptionMetadata
 } from './index'
 import { get } from '../get'
+import { FLAGS } from '../flags'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type RequestFn<
-  Settings,
-  Payload,
-  Return = any,
-  AudienceSettings = any,
-  ActionHookInputs = any,
-  AudienceMembershipType = AudienceMembership | AudienceMembership[]
-> = (
+export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, ActionHookInputs = any, AudienceMembershipType = AudienceMembership | AudienceMembership[]> = (
   request: RequestClient,
   data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs, any, AudienceMembershipType>
 ) => MaybePromise<Return>
@@ -92,13 +85,6 @@ export interface BaseActionDefinition {
    * The fields used to perform the action. These fields should match what the partner API expects.
    */
   fields: ActionFields
-
-  /**
-   * The fields used specifically for polling async operations. These are typically minimal fields
-   * containing only identifiers needed to check operation status (e.g., operationId).
-   * REQUIRED when defining a poll method - ensures security and performance by validating only essential polling data.
-   */
-  pollFields?: ActionFields
 }
 
 type HookValueTypes = string | boolean | number | Array<string | boolean | number>
@@ -120,9 +106,7 @@ export interface ActionDefinition<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   GeneratedActionHookInputs = any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  GeneratedActionHookOutputs = any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  PollPayload = any
+  GeneratedActionHookOutputs = any
 > extends BaseActionDefinition {
   /**
    * A way to "register" dynamic fields.
@@ -157,9 +141,6 @@ export interface ActionDefinition<
 
   /** The operation to perform when this action is triggered for a batch of events */
   performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings, any, AudienceMembership[]>
-
-  /** The operation to poll the status of asynchronous actions */
-  pollStatus?: RequestFn<Settings, PollPayload, AsyncPollResponseType, AudienceSettings>
 
   /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
    * destination using the provided inputs and return a response. The response may then optionally be stored
@@ -275,27 +256,20 @@ const isSyncMode = (value: unknown): value is SyncMode => {
  * Action is the beginning step for all partner actions. Entrypoints always start with the
  * MapAndValidateInput step.
  */
-export class Action<
-  Settings,
-  Payload extends JSONLikeObject,
-  AudienceSettings = any,
-  PollPayload = unknown
-> extends EventEmitter {
-  readonly definition: ActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown, PollPayload>
+export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings = any> extends EventEmitter {
+  readonly definition: ActionDefinition<Settings, Payload, AudienceSettings>
   readonly destinationName: string
   readonly schema?: JSONSchema4
-  readonly pollSchema?: JSONSchema4
   readonly hookSchemas?: Record<string, JSONSchema4>
   readonly hasBatchSupport: boolean
   readonly hasHookSupport: boolean
-  readonly hasPollSupport: boolean
   // Payloads may be any type so we use `any` explicitly here.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extendRequest: RequestExtension<Settings, any> | undefined
 
   constructor(
     destinationName: string,
-    definition: ActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown, PollPayload>,
+    definition: ActionDefinition<Settings, Payload, AudienceSettings>,
     // Payloads may be any type so we use `any` explicitly here.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extendRequest?: RequestExtension<Settings, any>
@@ -306,17 +280,10 @@ export class Action<
     this.extendRequest = extendRequest
     this.hasBatchSupport = typeof definition.performBatch === 'function'
     this.hasHookSupport = definition.hooks !== undefined
-    this.hasPollSupport = typeof definition.pollStatus === 'function'
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
       this.schema = fieldsToJsonSchema(definition.fields)
     }
-
-    // Generate json schema for poll fields if they are defined
-    if (Object.keys(definition.pollFields ?? {}).length) {
-      this.pollSchema = fieldsToJsonSchema(definition.pollFields)
-    }
-
     // Generate a json schema for each defined hook based on the field definitions
     if (definition.hooks) {
       for (const hookName in definition.hooks) {
@@ -388,8 +355,8 @@ export class Action<
     const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
     const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
     const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
-    const audienceMembershipEnabled = bundle?.features?.['actions-core-audience-membership']
-    const audienceMembership = audienceMembershipEnabled ? resolveAudienceMembership(bundle.data, syncMode) : undefined
+    const FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP = bundle?.features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP]
+    const audienceMembership = FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP ? resolveAudienceMembership(bundle.data, syncMode) : undefined
 
     // Construct the data bundle to send to an action
     const dataBundle = {
@@ -397,7 +364,7 @@ export class Action<
       rawMapping: bundle.mapping,
       settings: bundle.settings,
       payload,
-      ...(audienceMembershipEnabled && { audienceMembership }),
+      ...(FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP && { audienceMembership }),
       auth: bundle.auth,
       features: bundle.features,
       statsContext: bundle.statsContext,
@@ -498,8 +465,8 @@ export class Action<
       const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
       const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
       const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
-      const audienceMembershipEnabled = bundle?.features?.['actions-core-audience-membership']
-      const audienceMembership: AudienceMembership[] = audienceMembershipEnabled
+      const FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP = bundle?.features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP]
+      const audienceMembership: AudienceMembership[] = FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP
         ? bundle.data.map((d) => resolveAudienceMembership(d, syncMode))
         : []
 
@@ -509,7 +476,7 @@ export class Action<
         settings: bundle.settings,
         audienceSettings: bundle.audienceSettings,
         payload: payloads,
-        ...(audienceMembershipEnabled && { audienceMembership }),
+        ...(FLAG_ACTIONS_CORE_AUDIENCE_MEMBERSHIP && { audienceMembership }),
         auth: bundle.auth,
         features: bundle.features,
         statsContext: bundle.statsContext,
@@ -629,58 +596,6 @@ export class Action<
     }
 
     return multiStatusResponse
-  }
-
-  async executePoll(
-    bundle: ExecuteBundle<Settings, InputData | undefined, AudienceSettings>
-  ): Promise<AsyncPollResponseType> {
-    if (!this.hasPollSupport || !this.definition.pollStatus) {
-      throw new IntegrationError('This action does not support polling.', 'NotImplemented', 501)
-    }
-
-    const payload = bundle.data as PollPayload
-    // Remove empty values and validate using poll schema (required for polling operations)
-    if (!this.pollSchema) {
-      throw new IntegrationError('Poll fields must be defined for polling operations.', 'NotImplemented', 501)
-    }
-    const validationSchema = this.pollSchema
-    // Cast to PollPayload as the removeEmptyValues pipeline produces a valid poll payload
-    // This represents the PollPayload type defined in the ActionDefinition (e.g., { operationId: string })
-    const pollPayload = removeEmptyValues(payload, validationSchema, true) as PollPayload
-    // Validate the resolved payload against the poll schema
-    const schemaKey = `${this.destinationName}:${this.definition.title}:poll`
-    validateSchema(pollPayload, validationSchema, {
-      schemaKey,
-      statsContext: bundle.statsContext,
-      exempt: ['dynamicAuthSettings']
-    })
-
-    // Construct the data bundle to send to the poll action
-    const dataBundle = {
-      rawData: bundle.data,
-      rawMapping: bundle.mapping,
-      settings: bundle.settings,
-      payload: pollPayload,
-      auth: bundle.auth,
-      features: bundle.features,
-      statsContext: bundle.statsContext,
-      logger: bundle.logger,
-      engageDestinationCache: bundle.engageDestinationCache,
-      transactionContext: bundle.transactionContext,
-      stateContext: bundle.stateContext,
-      audienceSettings: bundle.audienceSettings,
-      subscriptionMetadata: bundle.subscriptionMetadata,
-      signal: bundle?.signal
-    }
-
-    // Construct the request client and perform the poll operation
-    const requestClient = this.createRequestClient(dataBundle)
-    if (!this.definition.pollStatus) {
-      throw new IntegrationError('Poll method is not defined.', 'NotImplemented', 501)
-    }
-    const pollResponse = await this.definition.pollStatus(requestClient, dataBundle)
-
-    return pollResponse
   }
 
   /*
@@ -817,12 +732,6 @@ export class Action<
      * Try to use the parsed response `.data` or `.content` string
      * @see {@link ../middleware/after-response/prepare-response.ts}
      */
-
-    // Handle async action responses by returning them as it is
-    if (response && typeof response === 'object' && (response as any).isAsync === true) {
-      return response
-    }
-
     if (response instanceof Response) {
       return (response as ModifiedResponse).data ?? (response as ModifiedResponse).content
     }
