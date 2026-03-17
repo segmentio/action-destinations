@@ -1,4 +1,4 @@
-import { ActionDefinition, RequestClient, PayloadValidationError, AudienceMembership, Features, FLAGS } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
@@ -112,20 +112,18 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: async (request, { settings, payload, audienceMembership, stateContext, features }) => {
-    return processPayload(request, settings, [payload], [audienceMembership], stateContext, features)
+  perform: async (request, { settings, payload, stateContext }) => {
+    return processPayload(request, settings, [payload], stateContext)
   },
-  performBatch: async (request, { settings, payload, audienceMembership, stateContext, features }) => {
-    return processPayload(request, settings, payload, audienceMembership, stateContext, features)
+  performBatch: async (request, { settings, payload, stateContext }) => {
+    return processPayload(request, settings, payload, stateContext)
   }
 }
 async function processPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
-  audienceMemberships?: AudienceMembership[],
-  stateContext?: StateContext,
-  features?: Features
+  stateContext?: StateContext
 ) {
   validate(payloads)
   const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request, settings)
@@ -137,7 +135,7 @@ async function processPayload(
     //setting cohort_name in cache context with ttl 0 so that it can keep the value as long as possible.
     stateContext?.setResponseContext?.(`cohort_name`, cohort_name, {})
   }
-  const { addUsers, removeUsers } = extractUsers(payloads, audienceMemberships, features)
+  const { addUsers, removeUsers } = extractUsers(payloads)
 
   const hasAddUsers = hasUsersToAddOrRemove(addUsers)
   const hasRemoveUsers = hasUsersToAddOrRemove(removeUsers)
@@ -166,34 +164,11 @@ function validate(payloads: Payload[]): void {
   }
 }
 
-type AudiencePayload = Payload & { audienceMembership?: boolean }
-
-function extractUsers(payloads: Payload[], audienceMemberships?: AudienceMembership[], features?: Features) {
-  
-  let audiencePayloads: AudiencePayload[] = payloads
-
-  const flagUseCoreAudienceMembership = features?.[FLAGS.ACTIONS_BRAZE_COHORTS_AUDIENCE_MEMBERSHIP]
-  if(flagUseCoreAudienceMembership) {
-    if(!Array.isArray(audienceMemberships)){
-      throw new PayloadValidationError('Audience Memberships must be an array')
-    }
-    if(audienceMemberships.length !== audiencePayloads.length){
-      throw new PayloadValidationError('Audience Memberships length must match payloads length')
-    }
-    if (audienceMemberships.some((membership) => typeof membership !== 'boolean')) {
-      throw new PayloadValidationError('Audience Membership must be a boolean');
-    }
-    
-    audiencePayloads = audiencePayloads.map((payload, index) => ({
-      ...payload,
-      audienceMembership: audienceMemberships[index]
-    }))
-  }
-
+function extractUsers(payloads: Payload[]) {
   // sort by time in descending order
   // This is important because if a user is added and removed in the same batch,
   // we want to ensure that the last action is taken.
-  audiencePayloads = audiencePayloads.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+  payloads = payloads.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
   const addUsers = { user_ids: new Set(), device_ids: new Set(), aliases: new Map() }
   const removeUsers = {
     user_ids: new Set(),
@@ -202,11 +177,9 @@ function extractUsers(payloads: Payload[], audienceMemberships?: AudienceMembers
     should_remove: true
   }
 
-  audiencePayloads.forEach((payload) => {
-    const { event_properties, external_id, device_id, user_alias, personas_audience_key, audienceMembership} = payload
-    
-    const userEnteredOrRemoved: boolean = (flagUseCoreAudienceMembership ? audienceMembership : event_properties[`${personas_audience_key}`]) as boolean
-    
+  payloads.forEach((payload: Payload) => {
+    const { event_properties, external_id, device_id, user_alias, personas_audience_key } = payload
+    const userEnteredOrRemoved: boolean = event_properties[`${personas_audience_key}`] as boolean
     const user = userEnteredOrRemoved ? addUsers : removeUsers
 
     // If the user is already in the cohort, we don't need to add them again.
