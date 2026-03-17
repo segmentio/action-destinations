@@ -249,14 +249,13 @@ interface TraitDefinition {
   idTypePromotion?: string | null
 }
 
-interface TraitGroupResponse {
-  traitGroup?: {
-    traits?: Record<string, TraitDefinition>
-  }
-}
-
 interface TraitGroupsListResponse {
-  traitGroups?: string[]
+  traitGroups?: Array<{
+    displayName: string
+    description?: string
+    traits?: Record<string, TraitDefinition>
+    version?: number
+  }>
   meta?: {
     pageSize?: number
     nextToken?: string
@@ -267,7 +266,7 @@ interface TraitGroupsListResponse {
 // Fetch all trait group definitions for dynamic fields
 async function fetchAllTraits(request: RequestClient, settings: Settings, storeId: string) {
   try {
-    // First, fetch list of all trait groups
+    // Fetch list of all trait groups (includes traits in the response)
     const traitGroupsResponse = await request<TraitGroupsListResponse>(
       `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups?pageSize=100`,
       {
@@ -281,28 +280,13 @@ async function fetchAllTraits(request: RequestClient, settings: Settings, storeI
       }
     )
 
-    const traitGroupNames = traitGroupsResponse?.data?.traitGroups || []
+    const traitGroupObjects = traitGroupsResponse?.data?.traitGroups || []
 
-    // Fetch traits for each trait group
-    const traitGroupPromises = traitGroupNames.map((traitGroupName: string) =>
-      request<TraitGroupResponse>(
-        `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/${traitGroupName}?includeTraits=true&pageSize=100`,
-        {
-          method: 'GET',
-          headers: {
-            'X-Pre-Auth-Context': settings.twilioAccount
-          },
-          username: settings.username,
-          password: settings.password,
-          skipResponseCloning: true
-        }
-      ).then((response) => ({
-        traitGroupName,
-        traits: response?.data?.traitGroup?.traits || {}
-      }))
-    )
-
-    const traitGroups = await Promise.all(traitGroupPromises)
+    // Map the response to the format we need
+    const traitGroups = traitGroupObjects.map((traitGroup) => ({
+      traitGroupName: traitGroup.displayName,
+      traits: traitGroup.traits || {}
+    }))
 
     // Build choices from all trait groups
     const choices: Array<{ label: string; value: string; description: string }> = []
