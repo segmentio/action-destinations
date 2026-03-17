@@ -59,22 +59,12 @@ const action: ActionDefinition<Settings, Payload> = {
         phone: { '@path': '$.traits.phone' }
       }
     },
-    contact_traits: {
-      label: 'Contact Traits',
+    profile_traits: {
+      label: 'Profile Traits',
       description:
-        'Contact traits for the profile. At least one trait (from contact_traits or other_traits) is required. These fields are dynamically loaded from the selected Memora Store.',
+        'Traits for the profile from all trait groups. At least one trait is required. These fields are dynamically loaded from the selected Memora Store. All traits use the format "TraitGroupName.$.traitName" (e.g., "Contact.$.firstName", "PurchaseHistory.$.lastPurchaseDate").',
       type: 'object',
-      required: false,
-      additionalProperties: true,
-      dynamic: true,
-      defaultObjectUI: 'keyvalue'
-    },
-    other_traits: {
-      label: 'Other Traits',
-      description:
-        'Traits from other trait groups (e.g., PurchaseHistory, Loyalty). These fields are dynamically loaded from the selected Memora Store and use the format "TraitGroupName.$.traitName".',
-      type: 'object',
-      required: false,
+      required: true,
       additionalProperties: true,
       dynamic: true,
       defaultObjectUI: 'keyvalue'
@@ -84,20 +74,12 @@ const action: ActionDefinition<Settings, Payload> = {
     memora_store: async (request, { settings }) => {
       return fetchMemoraStores(request, settings)
     },
-    contact_traits: {
+    profile_traits: {
       __keys__: async (request, { settings, payload }) => {
         if (!payload.memora_store) {
           return { choices: [], error: { message: 'Please select a Memora Store first', code: 'STORE_REQUIRED' } }
         }
-        return fetchContactTraits(request, settings, payload.memora_store)
-      }
-    },
-    other_traits: {
-      __keys__: async (request, { settings, payload }) => {
-        if (!payload.memora_store) {
-          return { choices: [], error: { message: 'Please select a Memora Store first', code: 'STORE_REQUIRED' } }
-        }
-        return fetchOtherTraits(request, settings, payload.memora_store)
+        return fetchAllTraits(request, settings, payload.memora_store)
       }
     }
   },
@@ -133,20 +115,10 @@ async function upsertProfiles(
     const identifiers = payload.contact_identifiers || {}
     const hasIdentifier = !!(identifiers.email || identifiers.phone)
 
-    const contactTraits = (
-      payload.contact_traits && typeof payload.contact_traits === 'object' ? payload.contact_traits : {}
+    const traits = (
+      payload.profile_traits && typeof payload.profile_traits === 'object' ? payload.profile_traits : {}
     ) as Record<string, unknown>
-    const otherTraits = (
-      payload.other_traits && typeof payload.other_traits === 'object' ? payload.other_traits : {}
-    ) as Record<string, unknown>
-
-    const hasContactTraits = Object.keys(contactTraits).some(
-      (key) => contactTraits[key] !== undefined && contactTraits[key] !== null
-    )
-    const hasOtherTraits = Object.keys(otherTraits).some(
-      (key) => otherTraits[key] !== undefined && otherTraits[key] !== null
-    )
-    const hasTraits = hasContactTraits || hasOtherTraits
+    const hasTraits = Object.keys(traits).some((key) => traits[key] !== undefined && traits[key] !== null)
 
     if (!hasIdentifier || !hasTraits) {
       invalidIndices.push(index)
@@ -220,25 +192,12 @@ async function upsertProfiles(
 function buildTraitGroups(payload: Payload): Record<string, Record<string, unknown>> {
   const traitGroups: Record<string, Record<string, unknown>> = {}
 
-  // Process contact traits (simple field names like "firstName")
-  if (payload.contact_traits && typeof payload.contact_traits === 'object') {
-    const traits = payload.contact_traits as Record<string, unknown>
+  // Process all traits from profile_traits field (format: TraitGroupName.$.traitName)
+  if (payload.profile_traits && typeof payload.profile_traits === 'object') {
+    const traits = payload.profile_traits as Record<string, unknown>
     Object.entries(traits).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        if (!traitGroups.Contact) {
-          traitGroups.Contact = {}
-        }
-        traitGroups.Contact[key] = value
-      }
-    })
-  }
-
-  // Process other trait groups (format: "TraitGroupName.$.traitName")
-  if (payload.other_traits && typeof payload.other_traits === 'object') {
-    const traits = payload.other_traits as Record<string, unknown>
-    Object.entries(traits).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        // Parse the format traitGroupName.$.traitName
+        // All traits use the format traitGroupName.$.traitName
         const match = key.match(/^([^.]+)\.\$\.(.+)$/)
         if (match) {
           const traitGroupName = match[1]
@@ -305,66 +264,8 @@ interface TraitGroupsListResponse {
   }
 }
 
-// Fetch Contact trait group definitions for dynamic fields
-async function fetchContactTraits(request: RequestClient, settings: Settings, storeId: string) {
-  try {
-    const response = await request<TraitGroupResponse>(
-      `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/Contact?includeTraits=true&pageSize=100`,
-      {
-        method: 'GET',
-        headers: {
-          'X-Pre-Auth-Context': settings.twilioAccount
-        },
-        username: settings.username,
-        password: settings.password,
-        skipResponseCloning: true
-      }
-    )
-
-    const traitsObj = response?.data?.traitGroup?.traits || {}
-    const choices = Object.entries(traitsObj)
-      .filter(
-        ([_, trait]) =>
-          // Exclude identifiers (email/phone) as they're handled separately
-          trait.idTypePromotion !== 'email' &&
-          trait.idTypePromotion !== 'phone' &&
-          // Only include STRING type traits
-          trait.dataType === 'STRING'
-      )
-      .map(([traitName, trait]) => ({
-        label: trait.displayName || traitName,
-        value: traitName,
-        description: trait.description || `${trait.displayName} (${trait.dataType})`,
-        type: trait.dataType.toLowerCase() as
-          | 'string'
-          | 'text'
-          | 'number'
-          | 'integer'
-          | 'datetime'
-          | 'boolean'
-          | 'password'
-          | 'object',
-        id: trait.idTypePromotion
-      }))
-
-    return {
-      choices
-    }
-  } catch (error) {
-    const statusCode = error?.response?.status || 'unknown'
-    const errorMsg = error?.response?.data?.message || (error instanceof Error ? error.message : String(error))
-    return {
-      choices: [],
-      error: {
-        message: `Unable to fetch contact traits (HTTP ${statusCode}: ${errorMsg}). You can still manually enter field names.`,
-        code: 'FETCH_ERROR'
-      }
-    }
-  }
-}
-
-// Fetch other trait group definitions (excluding Contact) for dynamic fields
-async function fetchOtherTraits(request: RequestClient, settings: Settings, storeId: string) {
+// Fetch all trait group definitions for dynamic fields
+async function fetchAllTraits(request: RequestClient, settings: Settings, storeId: string) {
   try {
     // First, fetch list of all trait groups
     const traitGroupsResponse = await request<TraitGroupsListResponse>(
@@ -380,15 +281,9 @@ async function fetchOtherTraits(request: RequestClient, settings: Settings, stor
       }
     )
 
-    const traitGroupNames = (traitGroupsResponse?.data?.traitGroups || []).filter((name: string) => name !== 'Contact')
+    const traitGroupNames = traitGroupsResponse?.data?.traitGroups || []
 
-    if (traitGroupNames.length === 0) {
-      return {
-        choices: []
-      }
-    }
-
-    // Fetch traits for each trait group (excluding Contact)
+    // Fetch traits for each trait group
     const traitGroupPromises = traitGroupNames.map((traitGroupName: string) =>
       request<TraitGroupResponse>(
         `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/${traitGroupName}?includeTraits=true&pageSize=100`,
@@ -409,13 +304,19 @@ async function fetchOtherTraits(request: RequestClient, settings: Settings, stor
 
     const traitGroups = await Promise.all(traitGroupPromises)
 
-    // Build choices in the format traitGroupName.$.traitName
+    // Build choices from all trait groups
     const choices: Array<{ label: string; value: string; description: string }> = []
 
     for (const { traitGroupName, traits } of traitGroups) {
       Object.entries(traits).forEach(([traitName, trait]) => {
+        // For Contact trait group, exclude identifiers (email/phone) as they're handled separately
+        if (traitGroupName === 'Contact' && (trait.idTypePromotion === 'email' || trait.idTypePromotion === 'phone')) {
+          return
+        }
+
         // Only include STRING type traits
         if (trait.dataType === 'STRING') {
+          // All trait groups use traitGroupName.$.traitName format
           const value = `${traitGroupName}.$.${traitName}`
           const label = `${traitGroupName}.${trait.displayName || traitName}`
 
