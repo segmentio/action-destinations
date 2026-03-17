@@ -86,7 +86,7 @@ function validate(settings: Settings, payloads: Payload[], audienceMemberships?:
     )
   }
 
-  const flagUseCoreAudienceMembership = features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP] && features?.[FLAGS.ACTIONS_LINKEDIN_AUDIENCES_AUDIENCE_MEMBERSHIP]
+  const flagUseCoreAudienceMembership = features?.[FLAGS.ACTIONS_LINKEDIN_AUDIENCES_AUDIENCE_MEMBERSHIP]
   if(flagUseCoreAudienceMembership) {
     if(!Array.isArray(audienceMemberships)){
       throw new PayloadValidationError("Audience Membership must be an array.")
@@ -197,7 +197,7 @@ function getAction(payload: Payload, audienceMembership?: AudienceMembership, fe
   }
 
   if (dmp_user_action === 'AUTO' || !dmp_user_action) {
-    const flagUseCoreAudienceMembership = features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP] && features?.[FLAGS.ACTIONS_LINKEDIN_AUDIENCES_AUDIENCE_MEMBERSHIP]
+    const flagUseCoreAudienceMembership = features?.[FLAGS.ACTIONS_LINKEDIN_AUDIENCES_AUDIENCE_MEMBERSHIP]
     if(flagUseCoreAudienceMembership === true) {
       if (payload.event_name === 'Audience Entered' || audienceMembership === true) {
         return 'ADD'

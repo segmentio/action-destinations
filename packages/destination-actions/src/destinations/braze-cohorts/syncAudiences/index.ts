@@ -172,7 +172,7 @@ function extractUsers(payloads: Payload[], audienceMemberships?: AudienceMembers
   
   let audiencePayloads: AudiencePayload[] = payloads
 
-  const flagUseCoreAudienceMembership = features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP] && features?.[FLAGS.ACTIONS_BRAZE_COHORTS_AUDIENCE_MEMBERSHIP]
+  const flagUseCoreAudienceMembership = features?.[FLAGS.ACTIONS_BRAZE_COHORTS_AUDIENCE_MEMBERSHIP]
   if(flagUseCoreAudienceMembership) {
     if(!Array.isArray(audienceMemberships)){
       throw new PayloadValidationError('Audience Memberships must be an array')

@@ -571,7 +571,7 @@ const extractUserIdentifiers = (
     }
   }
   // Map user data to Google Ads API format
-  if(features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP] && features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
+  if(features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
     for (const payload of payloads) {
       if (
         payload.event_name === 'Audience Entered' ||
@@ -992,7 +992,7 @@ const extractBatchUserIdentifiers = (
 
 // Helper function to determine operation type
 const determineOperationType = (payload: UserListPayload, syncMode?: string, audienceMembership?: AudienceMembership, features?: Features): boolean | undefined => {
-  if(features?.[FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP] && features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
+  if(features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
     if (
       payload.event_name === 'Audience Entered' ||
       audienceMembership === true

@@ -3,7 +3,6 @@ import { engageAudienceMembership, retlAudienceMembership } from '../audience-me
 import { DestinationDefinition } from '../destination-kit'
 import { ExecuteInput } from '../destination-kit/types'
 import { JSONObject } from '../json-object'
-import { FLAGS } from '../flags'
 
 describe('engageAudienceMembership', () => {
   describe('identify events', () => {
@@ -273,7 +272,6 @@ async function runAction(
 }
 
 describe('audienceMembership on ExecuteInput in perform()', () => {
-  const flag = { [FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP]: true }
 
   describe('Engage payloads', () => {
     it('is true for identify event with membership in traits', async () => {
@@ -282,7 +280,7 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
         userId: 'user-1',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         traits: { my_audience: true }
-      }, undefined, flag)
+      }, undefined)
       expect(data?.audienceMembership).toBe(true)
     })
 
@@ -292,7 +290,7 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
         userId: 'user-1',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         traits: { my_audience: false }
-      }, undefined, flag)
+      }, undefined)
       expect(data?.audienceMembership).toBe(false)
     })
 
@@ -302,7 +300,7 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
         userId: 'user-1',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         properties: { my_audience: true }
-      }, undefined, flag)
+      }, undefined)
       expect(data?.audienceMembership).toBe(true)
     })
 
@@ -312,7 +310,7 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
         userId: 'user-1',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         properties: { my_audience: false }
-      }, undefined, flag)
+      }, undefined)
       expect(data?.audienceMembership).toBe(false)
     })
   })
@@ -321,8 +319,7 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
     it('is true for track event with syncMode add and event name new', async () => {
       const data = await runAction(
         { type: 'track', userId: 'user-1', event: 'new' },
-        { userId: { '@path': '$.userId' }, __segment_internal_sync_mode: 'add' },
-        flag
+        { userId: { '@path': '$.userId' }, __segment_internal_sync_mode: 'add' }
       )
       expect(data?.audienceMembership).toBe(true)
     })
@@ -330,8 +327,7 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
     it('is false for track event with syncMode delete and event name deleted', async () => {
       const data = await runAction(
         { type: 'track', userId: 'user-1', event: 'deleted' },
-        { userId: { '@path': '$.userId' }, __segment_internal_sync_mode: 'delete' },
-        flag
+        { userId: { '@path': '$.userId' }, __segment_internal_sync_mode: 'delete' }
       )
       expect(data?.audienceMembership).toBe(false)
     })
@@ -343,19 +339,7 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
         type: 'track',
         userId: 'user-1',
         properties: { foo: 'bar' }
-      }, undefined, flag)
-      expect(data?.audienceMembership).toBeUndefined()
-    })
-  })
-
-  describe('feature flag', () => {
-    it('is undefined when the actions-core-audience-membership flag is not present', async () => {
-      const data = await runAction({
-        type: 'identify',
-        userId: 'user-1',
-        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
-        traits: { my_audience: true }
-      })
+      }, undefined)
       expect(data?.audienceMembership).toBeUndefined()
     })
   })

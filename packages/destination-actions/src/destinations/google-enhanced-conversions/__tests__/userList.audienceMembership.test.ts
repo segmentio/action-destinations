@@ -16,7 +16,6 @@ const timestamp = new Date('Thu Jun 10 2021 11:08:04 GMT-0700 (Pacific Daylight 
 const customerId = '1234'
 
 const features = {
-  [FLAGS.ACTIONS_CORE_AUDIENCE_MEMBERSHIP]: true,
   [FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]: true
 }
 
