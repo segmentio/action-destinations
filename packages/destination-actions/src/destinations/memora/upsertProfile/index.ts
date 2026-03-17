@@ -268,7 +268,7 @@ async function fetchAllTraits(request: RequestClient, settings: Settings, storeI
   try {
     // Fetch list of all trait groups (includes traits in the response)
     const traitGroupsResponse = await request<TraitGroupsListResponse>(
-      `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups?pageSize=100`,
+      `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups?pageSize=100&includeTraits=true`,
       {
         method: 'GET',
         headers: {

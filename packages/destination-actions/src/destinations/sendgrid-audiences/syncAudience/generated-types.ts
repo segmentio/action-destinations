@@ -104,7 +104,7 @@ export interface Payload {
    */
   enable_batching: boolean
   /**
-   * The maximum number of events to batch when sending data to Reddit.
+   * The maximum number of events to batch when sending data to SendGrid.
    */
   batch_size?: number
 }
