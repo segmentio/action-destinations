@@ -1,0 +1,949 @@
+═══════════════════════════════════════════════════════════════════════════════
+MEMORA DESTINATION - UI TEST SCENARIOS
+═══════════════════════════════════════════════════════════════════════════════
+
+This document contains test scenarios that can be executed by QA testers through
+the Segment UI and Memora Console.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+1. SETUP AND AUTHENTICATION
+═══════════════════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────────────────
+Test Scenario 1: Successful Authentication with Valid Credentials
+Test Type: Positive
+Description: Verify destination can be authenticated with valid Twilio credentials
+Test Steps:
+  1. In Segment workspace, navigate to Destinations > Add Destination
+  2. Search for "Memora" and select it
+  3. Enter valid Twilio API Key in "API Key" field
+  4. Enter valid Twilio API Secret in "API Secret" field
+  5. Enter valid Twilio Account ID in "Twilio Account ID" field
+  6. Click "Test Connection" or "Save"
+Expected Results:
+  - Green success message appears: "Connection successful"
+  - Destination is saved and enabled
+  - No error messages displayed
+
+Test Scenario 2: Authentication with Missing API Key
+Test Type: Negative
+Description: Verify validation error when API Key is not provided
+Test Steps:
+  1. Navigate to Add Destination > Memora
+  2. Leave "API Key" field empty
+  3. Enter valid API Secret and Account ID
+  4. Attempt to save
+Expected Results:
+  - Red validation error appears
+  - Error message indicates "API Key is required"
+  - Cannot save destination configuration
+
+Test Scenario 3: Authentication with Missing API Secret
+Test Type: Negative
+Description: Verify validation error when API Secret is not provided
+Test Steps:
+  1. Navigate to Add Destination > Memora
+  2. Enter valid API Key
+  3. Leave "API Secret" field empty
+  4. Enter valid Account ID
+  5. Attempt to save
+Expected Results:
+  - Red validation error appears
+  - Error message indicates "API Secret is required"
+  - Cannot save destination configuration
+
+Test Scenario 4: Authentication with Missing Twilio Account ID
+Test Type: Negative
+Description: Verify validation error when Account ID is not provided
+Test Steps:
+  1. Navigate to Add Destination > Memora
+  2. Enter valid API Key and Secret
+  3. Leave "Twilio Account ID" field empty
+  4. Attempt to save
+Expected Results:
+  - Red validation error appears
+  - Error message: "The root value is missing the required field 'twilioAccount'"
+  - Cannot save destination configuration
+
+Test Scenario 5: Authentication with Invalid Credentials
+Test Type: Negative
+Description: Verify authentication fails with incorrect credentials
+Test Steps:
+  1. Navigate to Add Destination > Memora
+  2. Enter incorrect API Key (e.g., "invalid-key-123")
+  3. Enter incorrect API Secret
+  4. Enter valid Account ID
+  5. Click "Test Connection"
+Expected Results:
+  - Error message appears: "Authentication failed" or "401 Unauthorized"
+  - Destination cannot be saved
+  - User prompted to check credentials
+
+Test Scenario 6: API Secret Field Masking
+Test Type: Security
+Description: Verify API Secret is masked in the UI
+Test Steps:
+  1. Navigate to Memora destination settings
+  2. Enter a value in the "API Secret" field
+  3. Observe the field display
+Expected Results:
+  - Characters in API Secret field are displayed as dots (••••) or asterisks (***)
+  - Value is not visible in plain text
+  - Field type is password
+
+
+
+═══════════════════════════════════════════════════════════════════════════════
+2. ACTION CONFIGURATION - STORE SELECTION
+═══════════════════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────────────────
+Test Scenario 7: View Available Memora Stores
+Test Type: Positive
+Description: Verify dropdown displays all available stores
+Preconditions:
+  - Destination is authenticated
+  - Twilio account has 2+ Memora stores configured
+Test Steps:
+  1. Navigate to Memora destination > Actions
+  2. Create new "Upsert Profile" action or edit existing
+  3. Click on "Memora Store" dropdown
+  4. Observe the dropdown options
+Expected Results:
+  - Dropdown populates with store names
+  - Each option shows store display name
+  - All stores from Twilio account are visible
+  - No duplicate entries
+
+Test Scenario 8: No Stores Available
+Test Type: Edge Case
+Description: Verify behavior when account has no Memora stores
+Preconditions:
+  - Destination is authenticated
+  - Twilio account has zero Memora stores
+Test Steps:
+  1. Navigate to Upsert Profile action configuration
+  2. Click on "Memora Store" dropdown
+Expected Results:
+  - Dropdown is empty or shows "No stores available"
+  - User is not blocked from proceeding
+  - Clear message indicating no stores exist
+
+Test Scenario 9: Store Selection Required Validation
+Test Type: Negative
+Description: Verify error when no store is selected
+Preconditions:
+  - Action is being configured
+Test Steps:
+  1. Configure Upsert Profile action
+  2. Map identifiers and traits
+  3. Leave "Memora Store" dropdown unselected
+  4. Attempt to save action
+Expected Results:
+  - Validation error appears
+  - Error indicates "Memora Store is required"
+  - Action cannot be saved without store selection
+
+
+
+═══════════════════════════════════════════════════════════════════════════════
+3. ACTION CONFIGURATION - CONTACT TRAITS
+═══════════════════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────────────────
+Test Scenario 10: View Contact Traits for Selected Store
+Test Type: Positive
+Description: Verify trait dropdown shows available traits from store
+Preconditions:
+  - Destination authenticated
+  - Store selected in "Memora Store" field
+  - Store has trait definitions configured
+Test Steps:
+  1. Select a Memora Store from dropdown
+  2. Scroll to "Contact Traits" section
+  3. Click on "Add Trait" or trait field dropdown
+  4. Observe available trait options
+Expected Results:
+  - Dropdown shows traits defined in the selected store
+  - Only STRING type traits are displayed
+  - Email and phone identifiers are NOT in the list
+  - Each trait shows display name
+
+Test Scenario 11: Contact Traits Before Store Selection
+Test Type: Negative
+Description: Verify error when trying to configure traits before selecting store
+Preconditions:
+  - No store selected
+Test Steps:
+  1. Navigate to Upsert Profile action configuration
+  2. Try to configure "Contact Traits" field
+  3. Observe behavior
+Expected Results:
+  - Error message: "Please select a Memora Store first"
+  - Trait dropdown is disabled or shows error
+  - User is prompted to select store first
+
+Test Scenario 12: Manually Enter Trait Name
+Test Type: Positive
+Description: Verify users can manually type trait names if needed
+Preconditions:
+  - Store selected
+  - Trait dropdown is available
+Test Steps:
+  1. Configure Upsert Profile action
+  2. In "Contact Traits" section, manually type a trait name (e.g., "customField")
+  3. Map it to an event property
+  4. Save the action
+Expected Results:
+  - Manual entry is accepted
+  - Trait mapping is saved
+  - Works even if trait isn't in dropdown
+
+================================================================================
+
+PROFILE CREATION - BASIC SCENARIOS
+
+Test Scenario 13: Create Profile with Email and Phone
+Test Type: Positive
+Description: Successfully create a profile with complete information
+Preconditions:
+  - Destination configured and authenticated
+  - Action created with store selected
+  - Mapping configured for email, phone, firstName, lastName
+Test Data:
+  - Email: john.doe@example.com
+  - Phone: +14155551234
+  - First Name: John
+  - Last Name: Doe
+Test Steps:
+  1. From a Segment source (e.g., website, test event)
+  2. Send an identify event:
+     analytics.identify('user123', {
+       email: 'john.doe@example.com',
+       phone: '+14155551234',
+       firstName: 'John',
+       lastName: 'Doe'
+     })
+  3. Wait for event to process (check Event Delivery)
+  4. Open Memora Console
+  5. Search for profile by email
+Expected Results:
+  - Event shows "Delivered" status in Segment
+  - Profile exists in Memora with email: john.doe@example.com
+  - Phone is stored: +14155551234
+  - firstName trait: John
+  - lastName trait: Doe
+  - All data correctly saved
+
+Test Scenario 14: Create Profile with Email Only
+Test Type: Positive
+Description: Create profile using only email identifier
+Preconditions:
+  - Action configured with email mapping only (no phone)
+Test Data:
+  - Email: jane.smith@example.com
+  - First Name: Jane
+Test Steps:
+  1. Send identify event:
+     analytics.identify('user456', {
+       email: 'jane.smith@example.com',
+       firstName: 'Jane'
+     })
+  2. Check Event Delivery in Segment
+  3. Verify profile in Memora
+Expected Results:
+  - Event delivered successfully
+  - Profile created in Memora with email
+  - firstName trait saved
+  - Phone field is empty/not set
+
+Test Scenario 15: Create Profile with Phone Only
+Test Type: Positive
+Description: Create profile using only phone identifier
+Preconditions:
+  - Action configured with phone mapping only (no email)
+Test Data:
+  - Phone: +14155559999
+  - First Name: Bob
+Test Steps:
+  1. Send identify event:
+     analytics.identify('user789', {
+       phone: '+14155559999',
+       firstName: 'Bob'
+     })
+  2. Check Event Delivery
+  3. Verify profile in Memora
+Expected Results:
+  - Event delivered successfully
+  - Profile created with phone number
+  - firstName trait saved
+  - Email field is empty/not set
+
+Test Scenario 16: Profile with Special Characters in Values
+Test Type: Edge Case
+Description: Verify special characters are handled correctly
+Preconditions:
+  - Action configured
+Test Data:
+  - Email: test@example.com
+  - First Name: John, Jr.
+  - Last Name: O'Brien
+  - Company: Acme "Solutions" Inc.
+Test Steps:
+  1. Send identify event with special characters
+  2. Verify profile in Memora
+Expected Results:
+  - Profile created successfully
+  - Special characters preserved:
+    - Comma in "John, Jr."
+    - Apostrophe in "O'Brien"
+    - Quotes in company name
+  - No data corruption or truncation
+
+================================================================================
+
+PROFILE CREATION - VALIDATION ERRORS
+
+Test Scenario 17: Event with No Identifiers
+Test Type: Negative
+Description: Verify error when event has no email or phone
+Preconditions:
+  - Action configured requiring identifiers
+Test Data:
+  - firstName: Test
+  - lastName: User
+  - (no email or phone)
+Test Steps:
+  1. Send identify event without email or phone:
+     analytics.identify('user999', {
+       firstName: 'Test',
+       lastName: 'User'
+     })
+  2. Check Event Delivery in Segment
+Expected Results:
+  - Event shows as "Failed" or "Rejected" in Event Delivery
+  - Error message: "No valid profiles found for import"
+  - Profile is NOT created in Memora
+  - Clear error explanation provided
+
+Test Scenario 18: Event with No Traits
+Test Type: Negative
+Description: Verify error when event has identifier but no traits
+Preconditions:
+  - Action configured
+Test Data:
+  - Email: empty@example.com
+  - (no other traits)
+Test Steps:
+  1. Send identify event with only email:
+     analytics.identify('user000', {
+       email: 'empty@example.com'
+     })
+  2. Check Event Delivery
+Expected Results:
+  - Event shows as "Failed" or "Rejected"
+  - Error message: "No valid profiles found for import"
+  - Profile NOT created (requires at least one trait beyond identifier)
+
+Test Scenario 19: Event with Null/Undefined Values
+Test Type: Edge Case
+Description: Verify null values are filtered out gracefully
+Preconditions:
+  - Action configured
+Test Data:
+  - Email: test@example.com
+  - firstName: "Alice"
+  - middleName: null
+  - lastName: undefined
+Test Steps:
+  1. Send event with some null/undefined values
+  2. Verify profile in Memora
+Expected Results:
+  - Profile created successfully
+  - firstName: "Alice" is saved
+  - middleName and lastName are not included (filtered out)
+  - No errors due to null values
+
+================================================================================
+
+PROFILE UPDATES
+
+Test Scenario 20: Update Existing Profile with New Traits
+Test Type: Integration
+Description: Verify existing profile is updated, not duplicated
+Preconditions:
+  - Profile already exists with email test@example.com
+  - Initial traits: { firstName: "John" }
+Test Steps:
+  1. Send first identify event:
+     analytics.identify('user123', {
+       email: 'test@example.com',
+       firstName: 'John'
+     })
+  2. Wait for profile to be created in Memora
+  3. Send second identify event with additional traits:
+     analytics.identify('user123', {
+       email: 'test@example.com',
+       lastName: 'Doe',
+       city: 'San Francisco'
+     })
+  4. Check Memora profile
+Expected Results:
+  - Only ONE profile exists with email test@example.com
+  - Profile contains:
+    - firstName: John (from first event, preserved)
+    - lastName: Doe (added from second event)
+    - city: San Francisco (added from second event)
+  - Profile was updated, not duplicated
+
+Test Scenario 21: Update Profile with Overwriting Values
+Test Type: Integration
+Description: Verify new values overwrite existing trait values
+Preconditions:
+  - Profile exists with email and city: "Boston"
+Test Steps:
+  1. Initial profile has city: "Boston"
+  2. Send identify event:
+     analytics.identify('user456', {
+       email: 'user@example.com',
+       city: 'New York'
+     })
+  3. Check profile in Memora
+Expected Results:
+  - city trait is updated to "New York"
+  - Old value "Boston" is overwritten
+  - Merge behavior updates existing values
+
+================================================================================
+
+BATCH PROCESSING
+
+Test Scenario 22: Multiple Profiles in Batch
+Test Type: Positive
+Description: Send multiple identify events and verify all profiles created
+Preconditions:
+  - Batching enabled (default)
+  - Action configured
+Test Data:
+  - Profile 1: user1@example.com, Alice
+  - Profile 2: user2@example.com, Bob
+  - Profile 3: user3@example.com, Charlie
+Test Steps:
+  1. Send 3 identify events in quick succession:
+     analytics.identify('u1', { email: 'user1@example.com', firstName: 'Alice' })
+     analytics.identify('u2', { email: 'user2@example.com', firstName: 'Bob' })
+     analytics.identify('u3', { email: 'user3@example.com', firstName: 'Charlie' })
+  2. Wait for batch processing
+  3. Check Event Delivery
+  4. Verify profiles in Memora
+Expected Results:
+  - All 3 events show "Delivered" status
+  - All 3 profiles exist in Memora
+  - Each profile has correct email and firstName
+  - Batch processing completed successfully
+
+Test Scenario 23: Mixed Valid and Invalid Events in Batch
+Test Type: Mixed
+Description: Verify only valid profiles are created when batch has errors
+Preconditions:
+  - Batching enabled
+Test Data:
+  - Event 1: No email or phone (invalid)
+  - Event 2: user2@example.com, firstName: "Valid" (valid)
+  - Event 3: Email but no traits (invalid)
+Test Steps:
+  1. Send 3 events with mixed validity
+  2. Check Event Delivery for all 3 events
+  3. Verify profiles in Memora
+Expected Results:
+  - Event 1: Shows "Failed" with error message
+  - Event 2: Shows "Delivered"
+  - Event 3: Shows "Failed" with error message
+  - Only 1 profile created in Memora (Event 2)
+  - Invalid events logged with clear errors
+
+Test Scenario 24: Batch with Sparse Data
+Test Type: Edge Case
+Description: Profiles with different identifier combinations
+Preconditions:
+  - Batching enabled
+Test Data:
+  - Profile 1: Email only
+  - Profile 2: Phone only
+  - Profile 3: Both email and phone
+Test Steps:
+  1. Send 3 events with varying identifiers:
+     Event 1: { email: 'user1@test.com', firstName: 'User1' }
+     Event 2: { phone: '+14155551111', firstName: 'User2' }
+     Event 3: { email: 'user3@test.com', phone: '+14155553333', firstName: 'User3' }
+  2. Verify all profiles in Memora
+Expected Results:
+  - All 3 profiles created successfully
+  - Profile 1: Has email, no phone
+  - Profile 2: Has phone, no email
+  - Profile 3: Has both email and phone
+  - Each profile has correct traits
+
+================================================================================
+
+FIELD MAPPING SCENARIOS
+
+Test Scenario 25: Default Trait Mapping
+Test Type: Positive
+Description: Verify default field mappings work correctly
+Preconditions:
+  - Action uses default mappings ($.traits.email, $.traits.phone, etc.)
+Test Steps:
+  1. Send standard identify event:
+     analytics.identify('user123', {
+       email: 'default@example.com',
+       phone: '+14155550000',
+       firstName: 'Default',
+       lastName: 'User'
+     })
+  2. Check profile in Memora
+Expected Results:
+  - Email mapped from traits.email
+  - Phone mapped from traits.phone
+  - firstName and lastName correctly mapped
+  - All default paths work as expected
+
+Test Scenario 26: Custom Field Mapping
+Test Type: Positive
+Description: Verify custom path mappings work
+Preconditions:
+  - Action configured with custom mappings
+  - Mapping: email from $.properties.email_address
+Test Steps:
+  1. Configure action to map email from properties.email_address instead of traits.email
+  2. Send identify event:
+     analytics.identify('user456', {
+       properties: {
+         email_address: 'custom@example.com',
+         first_name: 'Custom'
+       }
+     })
+  3. Verify profile in Memora
+Expected Results:
+  - Email correctly mapped from properties.email_address
+  - Value "custom@example.com" saved
+  - Custom paths resolve correctly
+
+Test Scenario 27: Static Literal Value Mapping
+Test Type: Positive
+Description: Verify literal values apply to all events
+Preconditions:
+  - Action configured with literal value for a trait
+  - Example: country = "USA" (literal)
+Test Steps:
+  1. Configure action to set country trait to literal "USA"
+  2. Send multiple identify events without country field
+  3. Verify profiles in Memora
+Expected Results:
+  - All profiles have country: "USA"
+  - Literal value applied consistently
+  - Works regardless of event data
+
+================================================================================
+
+SUBSCRIPTION FILTERING
+
+Test Scenario 28: Default Subscription - Identify Events Only
+Test Type: Positive
+Description: Verify action only processes identify events
+Preconditions:
+  - Default subscription: type = "identify"
+Test Steps:
+  1. Send a track event:
+     analytics.track('Button Clicked', { buttonId: 'submit' })
+  2. Send an identify event:
+     analytics.identify('user789', {
+       email: 'identify@example.com',
+       firstName: 'Test'
+     })
+  3. Check Event Delivery and Memora
+Expected Results:
+  - Track event is ignored (not sent to Memora)
+  - Identify event is processed
+  - Only identify events trigger the action
+  - Track events don't create errors, just skipped
+
+Test Scenario 29: Custom Subscription Filter
+Test Type: Positive
+Description: Verify custom FQL filters work correctly
+Preconditions:
+  - Custom subscription configured: type = "identify" AND traits.email EXISTS
+Test Steps:
+  1. Send identify event WITHOUT email:
+     analytics.identify('user1', { firstName: 'NoEmail' })
+  2. Send identify event WITH email:
+     analytics.identify('user2', {
+       email: 'has@example.com',
+       firstName: 'HasEmail'
+     })
+  3. Check Event Delivery and profiles
+Expected Results:
+  - Event 1 (no email): Not processed by action, skipped
+  - Event 2 (has email): Processed and profile created
+  - Subscription filter correctly applied
+
+================================================================================
+
+INTEGRATION SCENARIOS
+
+Test Scenario 30: End-to-End Website Integration
+Test Type: Integration
+Description: Complete flow from website event to Memora profile
+Preconditions:
+  - Segment Analytics.js installed on website
+  - Memora destination configured and enabled
+Test Steps:
+  1. User visits website
+  2. User signs up or logs in
+  3. Analytics.js sends identify event:
+     analytics.identify('website-user-123', {
+       email: 'web@example.com',
+       name: 'Web User',
+       signupDate: '2024-01-15'
+     })
+  4. Wait 30-60 seconds for processing
+  5. Check Segment Event Delivery
+  6. Check Memora Console for profile
+Expected Results:
+  - Event appears in Segment debugger
+  - Event Delivery shows "Delivered"
+  - Profile visible in Memora with all traits
+  - End-to-end flow works seamlessly
+
+Test Scenario 31: Mobile App Integration
+Test Type: Integration
+Description: Verify mobile app events create profiles
+Preconditions:
+  - Segment mobile SDK integrated (iOS/Android)
+  - Memora destination enabled
+Test Steps:
+  1. Mobile app sends identify event
+  2. Event includes mobile-specific traits:
+     - Device ID
+     - App version
+     - Email/phone
+  3. Check Event Delivery
+  4. Verify profile in Memora
+Expected Results:
+  - Mobile events processed correctly
+  - Profile created with all traits
+  - Mobile-specific data properly mapped
+
+Test Scenario 32: Server-Side Integration
+Test Type: Integration
+Description: Verify server-side identify calls work
+Preconditions:
+  - Server-side Segment library installed
+  - Memora destination enabled
+Test Steps:
+  1. Backend service sends identify event via API:
+     POST to segment.com/v1/identify
+  2. Include email and traits in payload
+  3. Check Event Delivery
+  4. Verify profile in Memora
+Expected Results:
+  - Server-side events processed
+  - Profile created correctly
+  - Works same as client-side events
+
+================================================================================
+
+ERROR SCENARIOS AND RECOVERY
+
+Test Scenario 33: Invalid Email Format
+Test Type: Negative
+Description: Test behavior with malformed email
+Preconditions:
+  - Action configured with email validation
+Test Data:
+  - Email: "not-an-email" (invalid format)
+Test Steps:
+  1. Send identify event with invalid email format
+  2. Check Event Delivery
+Expected Results:
+  - May show validation error or warning
+  - Behavior depends on validation rules
+  - Clear error message if rejected
+
+Test Scenario 34: Very Long Trait Values
+Test Type: Edge Case
+Description: Test handling of long string values
+Preconditions:
+  - Action configured
+Test Data:
+  - firstName: (500+ character string)
+Test Steps:
+  1. Send identify event with very long firstName value
+  2. Check if profile is created
+  3. Verify data in Memora
+Expected Results:
+  - Value may be truncated or rejected
+  - Clear error if value too long
+  - No data corruption
+
+Test Scenario 35: Unicode and Emoji in Trait Values
+Test Type: Edge Case
+Description: Verify international characters and emoji work
+Preconditions:
+  - Action configured
+Test Data:
+  - firstName: "José"
+  - lastName: "García"
+  - Company: "🚀 Rocket Corp"
+Test Steps:
+  1. Send identify event with unicode and emoji
+  2. Verify profile in Memora
+Expected Results:
+  - Unicode characters preserved (José, García)
+  - Emoji may be preserved or stripped (depends on Memora)
+  - No encoding errors
+
+Test Scenario 36: Rate Limiting Behavior
+Test Type: Performance
+Description: Test behavior under high event volume
+Preconditions:
+  - Action configured
+Test Steps:
+  1. Send 100+ identify events rapidly
+  2. Monitor Event Delivery
+  3. Check how many profiles are created
+Expected Results:
+  - All events eventually processed
+  - Some events may be queued/delayed
+  - No events lost
+  - Clear status for each event
+
+================================================================================
+
+CONFIGURATION CHANGES
+
+Test Scenario 37: Change Store Selection
+Test Type: Configuration
+Description: Verify behavior when switching stores
+Preconditions:
+  - Action configured with Store A
+  - Some profiles already created
+Test Steps:
+  1. Edit action configuration
+  2. Change from Store A to Store B
+  3. Save changes
+  4. Send new identify event
+  5. Check both stores in Memora
+Expected Results:
+  - New events go to Store B
+  - Old profiles remain in Store A
+  - No data migration between stores
+  - Clean separation
+
+Test Scenario 38: Update Field Mappings
+Test Type: Configuration
+Description: Verify behavior when changing trait mappings
+Preconditions:
+  - Action has existing mappings
+Test Steps:
+  1. Edit action to add new trait mapping (e.g., add "company" field)
+  2. Save changes
+  3. Send identify event with new field
+  4. Verify profile in Memora
+Expected Results:
+  - New mapping takes effect immediately
+  - New trait appears in profiles
+  - Existing profiles don't change retroactively
+
+Test Scenario 39: Disable and Re-enable Action
+Test Type: Configuration
+Description: Test action enable/disable behavior
+Preconditions:
+  - Action is currently enabled
+Test Steps:
+  1. Disable the Upsert Profile action
+  2. Send identify events
+  3. Check Event Delivery
+  4. Re-enable action
+  5. Send more identify events
+Expected Results:
+  - While disabled: Events not sent to Memora
+  - After re-enabling: New events processed normally
+  - No events lost, may be queued
+
+================================================================================
+
+DATA VERIFICATION SCENARIOS
+
+Test Scenario 40: Verify Profile in Memora Console
+Test Type: Verification
+Description: How to verify profiles were created correctly
+Test Steps:
+  1. Log into Memora Console (via Twilio)
+  2. Navigate to the correct Memora Store
+  3. Use search function to find profile by email
+  4. Click on profile to view details
+  5. Verify all traits are present
+Expected Results:
+  - Profile found by email search
+  - All expected traits visible
+  - Values match what was sent in identify event
+  - Timestamps show recent update
+
+Test Scenario 41: Check Event Delivery Status
+Test Type: Verification
+Description: How to check if events were delivered
+Test Steps:
+  1. In Segment, go to Connections > Destinations > Memora
+  2. Click on "Event Delivery" tab
+  3. View recent events
+  4. Click on specific event to see details
+Expected Results:
+  - List of recent events with status
+  - Status: "Delivered" (success) or "Failed" (error)
+  - Error messages visible for failed events
+  - Can filter by status
+
+Test Scenario 42: Verify Batch Processing in Event Delivery
+Test Type: Verification
+Description: Confirm batching is working
+Preconditions:
+  - Multiple events sent in short time
+Test Steps:
+  1. Send 5+ identify events quickly
+  2. Go to Event Delivery
+  3. Look at the delivery details
+Expected Results:
+  - Events may be grouped together
+  - Single API call for multiple events
+  - All events in batch show same delivery time
+  - Batch indicator may be visible
+
+================================================================================
+
+EDGE CASES AND SPECIAL SCENARIOS
+
+Test Scenario 43: Same Email, Different Phone Numbers
+Test Type: Edge Case
+Description: Test identifier conflict resolution
+Preconditions:
+  - Profile exists with email: test@example.com, phone: +1111
+Test Steps:
+  1. Send identify event with same email but different phone:
+     analytics.identify('user', {
+       email: 'test@example.com',
+       phone: '+2222'
+     })
+  2. Check profile in Memora
+Expected Results:
+  - Phone number updated to +2222
+  - Single profile (not duplicated)
+  - Email remains primary identifier
+
+Test Scenario 44: Empty String Values
+Test Type: Edge Case
+Description: Test handling of empty strings
+Test Data:
+  - Email: test@example.com
+  - firstName: ""
+  - lastName: "Smith"
+Test Steps:
+  1. Send identify event with empty string for firstName
+  2. Verify profile in Memora
+Expected Results:
+  - Profile created
+  - firstName may be excluded or saved as empty
+  - No errors from empty strings
+
+Test Scenario 45: Case Sensitivity in Email
+Test Type: Edge Case
+Description: Test if email matching is case-sensitive
+Test Steps:
+  1. Send identify event: email: "Test@Example.com"
+  2. Send another event: email: "test@example.com"
+  3. Check Memora profiles
+Expected Results:
+  - Depends on Memora's email matching rules
+  - Should ideally match as same profile
+  - Document actual behavior
+
+================================================================================
+
+TEST SUMMARY
+
+Total Test Scenarios: 45 (UI-testable only)
+
+By Category:
+- Setup and Authentication: 6 scenarios
+- Store Selection: 3 scenarios
+- Contact Traits Configuration: 3 scenarios
+- Profile Creation: 4 scenarios
+- Validation Errors: 3 scenarios
+- Profile Updates: 2 scenarios
+- Batch Processing: 3 scenarios
+- Field Mapping: 3 scenarios
+- Subscription Filtering: 2 scenarios
+- Integration: 3 scenarios
+- Error & Recovery: 4 scenarios
+- Configuration Changes: 3 scenarios
+- Data Verification: 3 scenarios
+- Edge Cases: 3 scenarios
+
+================================================================================
+
+TESTING CHECKLIST
+
+CRITICAL PATH (Must Test):
+☐ Test 1: Valid Authentication
+☐ Test 13: Create Profile with Email and Phone
+☐ Test 22: Multiple Profiles in Batch
+☐ Test 7: View Available Stores
+☐ Test 10: View Contact Traits
+☐ Test 30: End-to-End Website Integration
+☐ Test 40: Verify Profile in Memora Console
+
+VALIDATION AND ERRORS (Important):
+☐ Test 2-4: Missing authentication fields
+☐ Test 9: Store selection required
+☐ Test 11: Traits before store selection
+☐ Test 17-18: No identifiers or traits
+☐ Test 23: Mixed valid/invalid batch
+
+EDGE CASES (Good to Test):
+☐ Test 16: Special characters in values
+☐ Test 19: Null/undefined values
+☐ Test 24: Batch with sparse data
+☐ Test 35: Unicode and emoji
+☐ Test 43: Identifier conflicts
+
+DATA VERIFICATION (Always):
+☐ Test 40: Verify profiles in Memora
+☐ Test 41: Check Event Delivery status
+☐ Test 20: Profile update behavior
+
+================================================================================
+
+TESTING NOTES
+
+Tools Needed:
+- Segment workspace with test source
+- Twilio account with Memora access
+- Memora Console access
+- Browser developer tools (optional, for viewing analytics.js calls)
+
+Best Practices:
+- Use test data, not production data
+- Document actual vs expected results
+- Take screenshots of errors
+- Note timing (how long for events to appear)
+- Test in different browsers if doing web integration
+- Clear test data between runs if needed
+
+Where to Find Data:
+- Event Delivery: Segment UI > Destinations > Memora > Event Delivery tab
+- Profile Data: Memora Console (via Twilio Console)
+- Event Debugger: Segment UI > Debugger (for live events)
+- Action Config: Segment UI > Destinations > Memora > Actions tab
+
+================================================================================
