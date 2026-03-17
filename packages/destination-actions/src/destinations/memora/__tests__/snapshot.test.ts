@@ -38,8 +38,8 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         contact_identifiers: {
           email: 'test@example.com'
         },
-        contact_traits: {
-          firstName: 'Test'
+        profile_traits: {
+          'Contact.$.firstName': 'Test'
         }
       }
 
@@ -83,9 +83,9 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         contact_identifiers: {
           email: 'test@example.com'
         },
-        contact_traits: {
-          firstName: 'Test',
-          lastName: 'User'
+        profile_traits: {
+          'Contact.$.firstName': 'Test',
+          'Contact.$.lastName': 'User'
         }
       }
 
@@ -122,8 +122,8 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         contact_identifiers: {
           email: 'test@example.com'
         },
-        contact_traits: {
-          firstName: 'Test'
+        profile_traits: {
+          'Contact.$.firstName': 'Test'
         }
       }
 
@@ -154,7 +154,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         ...event.properties,
         memora_store: 'test-store-id',
         contact_identifiers: {},
-        contact_traits: {}
+        profile_traits: {}
       }
 
       await expect(

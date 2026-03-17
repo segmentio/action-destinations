@@ -435,7 +435,7 @@ describe('Memora.upsertProfile', () => {
           },
           profile_traits: {
             'Contact.$.firstName': { '@path': '$.traits.first_name' },
-            // Attempting to override identifiers (should be ignored since they don't use the correct format)
+            // Attempting to override identifiers (will be overridden by contact_identifiers which are authoritative)
             'Contact.$.email': { '@literal': 'wrong@example.com' },
             'Contact.$.phone': { '@literal': '+1-555-9999' }
           }
