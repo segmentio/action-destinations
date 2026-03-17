@@ -1033,7 +1033,7 @@ describe('Memora.upsertProfile', () => {
       it('should fetch and return traits from all trait groups', async () => {
         // Mock listing trait groups (includes traits in response)
         nock(BASE_URL)
-          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100`)
+          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100&includeTraits=true`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
           .reply(200, {
             traitGroups: [
@@ -1146,7 +1146,7 @@ describe('Memora.upsertProfile', () => {
 
       it('should return error message when API call fails', async () => {
         nock(BASE_URL)
-          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100`)
+          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100&includeTraits=true`)
           .reply(500, { message: 'Internal server error' })
 
         const result = (await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
