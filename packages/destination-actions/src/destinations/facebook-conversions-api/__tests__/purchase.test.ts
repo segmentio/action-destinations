@@ -2,7 +2,6 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
 import { API_VERSION } from '../constants'
-import { event_time } from '../fields'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
