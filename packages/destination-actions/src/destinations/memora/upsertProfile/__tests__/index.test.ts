@@ -1031,96 +1031,83 @@ describe('Memora.upsertProfile', () => {
 
     describe('profile_traits (dynamic traits from all trait groups)', () => {
       it('should fetch and return traits from all trait groups', async () => {
-        // Mock listing trait groups
+        // Mock listing trait groups (includes traits in response)
         nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
           .reply(200, {
-            traitGroups: ['Contact', 'PurchaseHistory']
-          })
-
-        // Mock Contact trait group
-        nock(BASE_URL)
-          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/Contact?includeTraits=true&pageSize=100`)
-          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
-          .reply(200, {
-            traitGroup: {
-              description: '',
-              displayName: 'Contact',
-              traits: {
-                email: {
-                  dataType: 'STRING',
-                  description: '',
-                  displayName: 'email',
-                  idTypePromotion: 'email',
-                  validationRule: null
+            traitGroups: [
+              {
+                displayName: 'Contact',
+                description: '',
+                traits: {
+                  email: {
+                    dataType: 'STRING',
+                    description: '',
+                    displayName: 'email',
+                    idTypePromotion: 'email',
+                    validationRule: null
+                  },
+                  phone: {
+                    dataType: 'STRING',
+                    description: '',
+                    displayName: 'phone',
+                    idTypePromotion: 'phone',
+                    validationRule: null
+                  },
+                  firstName: {
+                    dataType: 'STRING',
+                    description: '',
+                    displayName: 'firstName',
+                    idTypePromotion: null,
+                    validationRule: null
+                  },
+                  lastName: {
+                    dataType: 'STRING',
+                    description: '',
+                    displayName: 'lastName',
+                    idTypePromotion: null,
+                    validationRule: null
+                  },
+                  age: {
+                    dataType: 'NUMBER',
+                    description: 'User age',
+                    displayName: 'age',
+                    idTypePromotion: null,
+                    validationRule: null
+                  }
                 },
-                phone: {
-                  dataType: 'STRING',
-                  description: '',
-                  displayName: 'phone',
-                  idTypePromotion: 'phone',
-                  validationRule: null
+                version: 1
+              },
+              {
+                displayName: 'PurchaseHistory',
+                description: 'Purchase history traits',
+                traits: {
+                  lastPurchaseDate: {
+                    dataType: 'STRING',
+                    description: 'Date of last purchase',
+                    displayName: 'Last Purchase Date',
+                    idTypePromotion: null,
+                    validationRule: null
+                  },
+                  totalSpent: {
+                    dataType: 'NUMBER',
+                    description: 'Total amount spent',
+                    displayName: 'Total Spent',
+                    idTypePromotion: null,
+                    validationRule: null
+                  },
+                  favoriteCategory: {
+                    dataType: 'STRING',
+                    description: 'Favorite product category',
+                    displayName: 'Favorite Category',
+                    idTypePromotion: null,
+                    validationRule: null
+                  }
                 },
-                firstName: {
-                  dataType: 'STRING',
-                  description: '',
-                  displayName: 'firstName',
-                  idTypePromotion: null,
-                  validationRule: null
-                },
-                lastName: {
-                  dataType: 'STRING',
-                  description: '',
-                  displayName: 'lastName',
-                  idTypePromotion: null,
-                  validationRule: null
-                },
-                age: {
-                  dataType: 'NUMBER',
-                  description: 'User age',
-                  displayName: 'age',
-                  idTypePromotion: null,
-                  validationRule: null
-                }
+                version: 1
               }
-            }
-          })
-
-        // Mock PurchaseHistory trait group
-        nock(BASE_URL)
-          .get(
-            `/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/PurchaseHistory?includeTraits=true&pageSize=100`
-          )
-          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
-          .reply(200, {
-            traitGroup: {
-              description: 'Purchase history traits',
-              displayName: 'PurchaseHistory',
-              traits: {
-                lastPurchaseDate: {
-                  dataType: 'STRING',
-                  description: 'Date of last purchase',
-                  displayName: 'Last Purchase Date',
-                  idTypePromotion: null,
-                  validationRule: null
-                },
-                totalSpent: {
-                  dataType: 'NUMBER',
-                  description: 'Total amount spent',
-                  displayName: 'Total Spent',
-                  idTypePromotion: null,
-                  validationRule: null
-                },
-                favoriteCategory: {
-                  dataType: 'STRING',
-                  description: 'Favorite product category',
-                  displayName: 'Favorite Category',
-                  idTypePromotion: null,
-                  validationRule: null
-                }
-              }
-            }
+            ]
           })
 
         const result = (await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
