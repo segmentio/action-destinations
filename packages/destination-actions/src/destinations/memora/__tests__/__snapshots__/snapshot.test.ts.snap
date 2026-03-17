@@ -7,8 +7,6 @@ Object {
       "traits": Object {
         "Contact": Object {
           "email": "test@example.com",
-          "firstName": "Test",
-          "lastName": "User",
         },
       },
     },
@@ -23,7 +21,6 @@ Object {
       "traits": Object {
         "Contact": Object {
           "email": "test@example.com",
-          "firstName": "Test",
         },
       },
     },

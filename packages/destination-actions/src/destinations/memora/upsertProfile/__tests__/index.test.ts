@@ -21,9 +21,9 @@ const defaultMapping = {
     email: { '@path': '$.traits.email' },
     phone: { '@path': '$.traits.phone' }
   },
-  contact_traits: {
-    firstName: { '@path': '$.traits.first_name' },
-    lastName: { '@path': '$.traits.last_name' }
+  profile_traits: {
+    'Contact.$.firstName': { '@path': '$.traits.first_name' },
+    'Contact.$.lastName': { '@path': '$.traits.last_name' }
   }
 }
 
@@ -145,8 +145,8 @@ describe('Memora.upsertProfile', () => {
           mapping: {
             memora_store: 'test-store-id',
             contact_identifiers: {},
-            contact_traits: {
-              firstName: { '@path': '$.properties.first_name' }
+            profile_traits: {
+              'Contact.$.firstName': { '@path': '$.properties.first_name' }
             }
           },
           useDefaultMappings: false
@@ -172,7 +172,7 @@ describe('Memora.upsertProfile', () => {
             contact_identifiers: {
               email: { '@path': '$.properties.email' }
             },
-            contact_traits: {}
+            profile_traits: {}
           },
           useDefaultMappings: false
         })
@@ -199,8 +199,8 @@ describe('Memora.upsertProfile', () => {
           contact_identifiers: {
             email: { '@path': '$.properties.email' }
           },
-          contact_traits: {
-            firstName: { '@path': '$.properties.first_name' }
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.properties.first_name' }
           }
         },
         useDefaultMappings: false
@@ -230,8 +230,8 @@ describe('Memora.upsertProfile', () => {
           contact_identifiers: {
             phone: { '@path': '$.properties.phone' }
           },
-          contact_traits: {
-            firstName: { '@path': '$.properties.first_name' }
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.properties.first_name' }
           }
         },
         useDefaultMappings: false
@@ -263,8 +263,8 @@ describe('Memora.upsertProfile', () => {
             email: { '@path': '$.properties.email' },
             phone: { '@path': '$.properties.phone' }
           },
-          contact_traits: {
-            firstName: { '@path': '$.properties.first_name' }
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.properties.first_name' }
           }
         },
         useDefaultMappings: false
@@ -389,9 +389,9 @@ describe('Memora.upsertProfile', () => {
           contact_identifiers: {
             email: { '@path': '$.properties.email' }
           },
-          contact_traits: {
-            'first,name': { '@path': '$.properties.special_field' },
-            'last"name': { '@path': '$.properties.special_field' }
+          profile_traits: {
+            'Contact.$.first,name': { '@path': '$.properties.special_field' },
+            'Contact.$.last"name': { '@path': '$.properties.special_field' }
           }
         },
         useDefaultMappings: true
@@ -403,7 +403,7 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.Contact['last"name']).toBe('value')
     })
 
-    it('should prevent contact_traits from overriding identifier values', async () => {
+    it('should prevent profile_traits from overriding identifier values', async () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-789',
@@ -423,7 +423,7 @@ describe('Memora.upsertProfile', () => {
         })
         .reply(202)
 
-      // Mapping that tries to override identifiers in contact_traits
+      // Mapping that tries to override identifiers in profile_traits
       await testDestination.testAction('upsertProfile', {
         event,
         settings: defaultSettings,
@@ -433,11 +433,11 @@ describe('Memora.upsertProfile', () => {
             email: { '@path': '$.traits.email' },
             phone: { '@path': '$.traits.phone' }
           },
-          contact_traits: {
-            firstName: { '@path': '$.traits.first_name' },
-            // Attempting to override identifiers (should be ignored)
-            email: { '@literal': 'wrong@example.com' },
-            phone: { '@literal': '+1-555-9999' }
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.traits.first_name' },
+            // Attempting to override identifiers (should be ignored since they don't use the correct format)
+            'Contact.$.email': { '@literal': 'wrong@example.com' },
+            'Contact.$.phone': { '@literal': '+1-555-9999' }
           }
         },
         useDefaultMappings: true
@@ -479,10 +479,8 @@ describe('Memora.upsertProfile', () => {
           contact_identifiers: {
             email: { '@path': '$.traits.email' }
           },
-          contact_traits: {
-            firstName: { '@path': '$.traits.first_name' }
-          },
-          other_traits: {
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.traits.first_name' },
             'PurchaseHistory.$.lastPurchaseDate': { '@path': '$.traits.last_purchase' },
             'PurchaseHistory.$.favoriteCategory': { '@path': '$.traits.favorite_category' }
           }
@@ -530,10 +528,8 @@ describe('Memora.upsertProfile', () => {
           contact_identifiers: {
             email: { '@path': '$.traits.email' }
           },
-          contact_traits: {
-            firstName: { '@path': '$.traits.first_name' }
-          },
-          other_traits: {
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.traits.first_name' },
             'PurchaseHistory.$.lastPurchaseDate': { '@path': '$.traits.last_purchase' },
             'Loyalty.$.tier': { '@path': '$.traits.loyalty_tier' },
             'Engagement.$.lastLogin': { '@path': '$.traits.last_login' }
@@ -645,8 +641,8 @@ describe('Memora.upsertProfile', () => {
           contact_identifiers: {
             email: { '@path': '$.properties.email' }
           },
-          contact_traits: {
-            firstName: { '@path': '$.properties.first_name' }
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.properties.first_name' }
           }
         },
         useDefaultMappings: false
@@ -673,17 +669,17 @@ describe('Memora.upsertProfile', () => {
         {
           memora_store: 'test-store-id',
           contact_identifiers: {},
-          contact_traits: { firstName: 'Missing identifier' }
+          profile_traits: { 'Contact.$.firstName': 'Missing identifier' }
         },
         {
           memora_store: 'test-store-id',
           contact_identifiers: { email: 'valid@example.com' },
-          contact_traits: { firstName: 'Valid' }
+          profile_traits: { 'Contact.$.firstName': 'Valid' }
         },
         {
           memora_store: 'test-store-id',
           contact_identifiers: { email: 'another@example.com' },
-          contact_traits: {}
+          profile_traits: {}
         }
       ]
 
@@ -745,12 +741,12 @@ describe('Memora.upsertProfile', () => {
         {
           memora_store: 'test-store-id',
           contact_identifiers: {},
-          contact_traits: { firstName: undefined }
+          profile_traits: { 'Contact.$.firstName': undefined }
         },
         {
           memora_store: 'test-store-id',
           contact_identifiers: { email: 'test@example.com' },
-          contact_traits: {}
+          profile_traits: {}
         }
       ]
 
@@ -817,8 +813,8 @@ describe('Memora.upsertProfile', () => {
             email: { '@path': '$.properties.email' },
             phone: { '@path': '$.properties.phone' }
           },
-          contact_traits: {
-            firstName: { '@path': '$.properties.first_name' }
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.properties.first_name' }
           }
         },
         useDefaultMappings: false
@@ -1033,8 +1029,17 @@ describe('Memora.upsertProfile', () => {
       })
     })
 
-    describe('contact_traits (dynamic Contact traits)', () => {
-      it('should fetch and return Contact traits only', async () => {
+    describe('profile_traits (dynamic traits from all trait groups)', () => {
+      it('should fetch and return traits from all trait groups', async () => {
+        // Mock listing trait groups
+        nock(BASE_URL)
+          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100`)
+          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
+          .reply(200, {
+            traitGroups: ['Contact', 'PurchaseHistory']
+          })
+
+        // Mock Contact trait group
         nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/Contact?includeTraits=true&pageSize=100`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
@@ -1082,56 +1087,6 @@ describe('Memora.upsertProfile', () => {
             }
           })
 
-        const result = (await testDestination.testDynamicField('upsertProfile', 'contact_traits.__keys__', {
-          settings: defaultSettings,
-          payload: { memora_store: 'test-store-id' }
-        })) as any
-
-        // Should exclude email and phone (identifiers) and non-STRING traits
-        expect(result?.choices).toEqual([
-          { label: 'firstName', value: 'firstName', description: 'firstName (STRING)' },
-          { label: 'lastName', value: 'lastName', description: 'lastName (STRING)' }
-        ])
-      })
-
-      it('should return error when memora_store is not selected', async () => {
-        const result = (await testDestination.testDynamicField('upsertProfile', 'contact_traits.__keys__', {
-          settings: defaultSettings,
-          payload: {}
-        })) as any
-
-        expect(result?.choices).toEqual([])
-        expect(result?.error?.message).toBe('Please select a Memora Store first')
-        expect(result?.error?.code).toBe('STORE_REQUIRED')
-      })
-
-      it('should return error message when API call fails', async () => {
-        nock(BASE_URL)
-          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/Contact?includeTraits=true&pageSize=100`)
-          .reply(500, { message: 'Internal server error' })
-
-        const result = (await testDestination.testDynamicField('upsertProfile', 'contact_traits.__keys__', {
-          settings: defaultSettings,
-          payload: { memora_store: 'test-store-id' }
-        })) as any
-
-        expect(result?.choices).toEqual([])
-        expect(result?.error).toBeDefined()
-        expect(result?.error?.message).toContain('Unable to fetch contact traits')
-        expect(result?.error?.code).toBe('FETCH_ERROR')
-      })
-    })
-
-    describe('other_traits (dynamic traits from other trait groups)', () => {
-      it('should fetch and return traits from non-Contact trait groups', async () => {
-        // Mock listing trait groups
-        nock(BASE_URL)
-          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100`)
-          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
-          .reply(200, {
-            traitGroups: ['Contact', 'PurchaseHistory', 'Loyalty']
-          })
-
         // Mock PurchaseHistory trait group
         nock(BASE_URL)
           .get(
@@ -1168,41 +1123,16 @@ describe('Memora.upsertProfile', () => {
             }
           })
 
-        // Mock Loyalty trait group
-        nock(BASE_URL)
-          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/Loyalty?includeTraits=true&pageSize=100`)
-          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
-          .reply(200, {
-            traitGroup: {
-              description: 'Loyalty program traits',
-              displayName: 'Loyalty',
-              traits: {
-                tier: {
-                  dataType: 'STRING',
-                  description: 'Loyalty tier level',
-                  displayName: 'Tier',
-                  idTypePromotion: null,
-                  validationRule: null
-                },
-                points: {
-                  dataType: 'NUMBER',
-                  description: 'Current loyalty points',
-                  displayName: 'Points',
-                  idTypePromotion: null,
-                  validationRule: null
-                }
-              }
-            }
-          })
-
-        const result = (await testDestination.testDynamicField('upsertProfile', 'other_traits.__keys__', {
+        const result = (await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
           settings: defaultSettings,
           payload: { memora_store: 'test-store-id' }
         })) as any
 
-        // Should exclude Contact trait group and non-STRING traits
-        // Format: traitGroupName.$.traitName
+        // Should exclude email and phone (identifiers) and non-STRING traits
+        // All trait groups use traitGroupName.$.traitName format
         expect(result?.choices).toEqual([
+          { label: 'Contact.firstName', value: 'Contact.$.firstName', description: 'Contact - firstName (STRING)' },
+          { label: 'Contact.lastName', value: 'Contact.$.lastName', description: 'Contact - lastName (STRING)' },
           {
             label: 'PurchaseHistory.Last Purchase Date',
             value: 'PurchaseHistory.$.lastPurchaseDate',
@@ -1212,33 +1142,12 @@ describe('Memora.upsertProfile', () => {
             label: 'PurchaseHistory.Favorite Category',
             value: 'PurchaseHistory.$.favoriteCategory',
             description: 'Favorite product category'
-          },
-          {
-            label: 'Loyalty.Tier',
-            value: 'Loyalty.$.tier',
-            description: 'Loyalty tier level'
           }
         ])
       })
 
-      it('should return empty choices when no other trait groups exist', async () => {
-        nock(BASE_URL)
-          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100`)
-          .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
-          .reply(200, {
-            traitGroups: ['Contact']
-          })
-
-        const result = (await testDestination.testDynamicField('upsertProfile', 'other_traits.__keys__', {
-          settings: defaultSettings,
-          payload: { memora_store: 'test-store-id' }
-        })) as any
-
-        expect(result?.choices).toEqual([])
-      })
-
       it('should return error when memora_store is not selected', async () => {
-        const result = (await testDestination.testDynamicField('upsertProfile', 'other_traits.__keys__', {
+        const result = (await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
           settings: defaultSettings,
           payload: {}
         })) as any
@@ -1253,7 +1162,7 @@ describe('Memora.upsertProfile', () => {
           .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100`)
           .reply(500, { message: 'Internal server error' })
 
-        const result = (await testDestination.testDynamicField('upsertProfile', 'other_traits.__keys__', {
+        const result = (await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
           settings: defaultSettings,
           payload: { memora_store: 'test-store-id' }
         })) as any
