@@ -3,6 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { SegmentEvent } from '@segment/actions-core/*'
 import { InvalidAuthenticationError } from '@segment/actions-core'
+import { FLAG_CONSENT_REQUIRED } from '../../utils'
 
 const testDestination = createTestIntegration(Destination)
 const event = createTestEvent({
@@ -111,6 +112,8 @@ const settings = {
   region: 'https://advertising-api.amazon.com'
 }
 
+const features = { [FLAG_CONSENT_REQUIRED]: true }
+
 describe('AmazonAds.syncAudiencesToDSP', () => {
   beforeEach(() => {
     nock.cleanAll()
@@ -128,14 +131,15 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     const response = await testDestination.testAction('syncAudiencesToDSP', {
       event,
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      features
     })
 
     expect(response.length).toBe(1)
     expect(response[0].status).toBe(202)
-    expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+    expect(response[0].data).toEqual({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
     expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}],"userConsent":{"geo":{"countryCode":"US"}}}],"audienceId":379909525712777677}'
     )
     expect(response[0].options.headers).toMatchSnapshot()
   })
@@ -159,14 +163,15 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         }
       },
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      features
     })
 
     expect(response.length).toBe(1)
     expect(response[0].status).toBe(202)
-    expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+    expect(response[0].data).toEqual({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
     expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","phone":"63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","phone":"63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}],"userConsent":{"geo":{"countryCode":"US"}}}],"audienceId":379909525712777677}'
     )
     expect(response[0].options.headers).toMatchSnapshot()
   })
@@ -190,14 +195,15 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         }
       },
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      features
     })
 
     expect(response.length).toBe(1)
     expect(response[0].status).toBe(202)
-    expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+    expect(response[0].data).toEqual({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
     expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","phone":"63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","phone":"63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}],"userConsent":{"geo":{"countryCode":"US"}}}],"audienceId":379909525712777677}'
     )
     expect(response[0].options.headers).toMatchSnapshot()
   })
@@ -226,14 +232,15 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         }
       },
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      features
     })
 
     expect(response.length).toBe(1)
     expect(response[0].status).toBe(202)
-    expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+    expect(response[0].data).toEqual({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
     expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"address":"ebb357a6f604e4d893f034561b06fff712d9dbb7082c4b1808418115c5628017","postal":"516b1543763b8b04f15897aeac07eba66f4e36fdac6945bacb6bdac57e44598a","phone":"e1bfd73a5dc6262163ec42add4ebe0229f929db9b23644c1485dbccd05a36363","city":"61a01e4b10bf579b267bdc16858c932339e8388537363c9c0961bcf5520c8897","state":"7e8eea5cc60980270c9ceb75ce8c087d48d726110fd3d17921f774eefd8e18d8","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"address":"ebb357a6f604e4d893f034561b06fff712d9dbb7082c4b1808418115c5628017","postal":"516b1543763b8b04f15897aeac07eba66f4e36fdac6945bacb6bdac57e44598a","phone":"e1bfd73a5dc6262163ec42add4ebe0229f929db9b23644c1485dbccd05a36363","city":"61a01e4b10bf579b267bdc16858c932339e8388537363c9c0961bcf5520c8897","state":"7e8eea5cc60980270c9ceb75ce8c087d48d726110fd3d17921f774eefd8e18d8","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}],"userConsent":{"geo":{"countryCode":"US"}}}],"audienceId":379909525712777677}'
     )
     expect(response[0].options.body).toMatchSnapshot()
   })
@@ -250,14 +257,15 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         event: 'Audience Exited'
       },
       settings,
-      useDefaultMappings: true
+      useDefaultMappings: true,
+      features
     })
 
     expect(response.length).toBe(1)
     expect(response[0].status).toBe(202)
-    expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+    expect(response[0].data).toEqual({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
     expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"DELETE","hashedPII":[{"email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"DELETE","hashedPII":[{"email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}],"userConsent":{"geo":{"countryCode":"US"}}}],"audienceId":379909525712777677}'
     )
     expect(response[0].options.headers).toMatchSnapshot()
   })
@@ -269,7 +277,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
           userId: 'invalid+1@user.com'
         },
         settings,
-        useDefaultMappings: true
+        useDefaultMappings: true,
+        features
       })
     ).rejects.toThrowError('externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}')
   })
@@ -283,16 +292,17 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     const response = await testDestination.executeBatch('syncAudiencesToDSP', {
       events,
       settings,
-      mapping
+      mapping,
+      features
     })
     expect(response.length).toBe(2)
-    expect(response[0]).toMatchObject({
+    expect(response[0]).toEqual({
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}',
       errorreporter: 'INTEGRATIONS'
     })
-    expect(response[1]).toMatchObject({
+    expect(response[1]).toEqual({
       body: { Message: 'STRING_VALUE can not be converted to a Long' },
       errormessage: 'Bad Request',
       errorreporter: 'DESTINATION',
@@ -312,7 +322,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
             postal: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
             state: '92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'
           }
-        ]
+        ],
+        userConsent: { geo: { countryCode: 'US' } }
       },
       status: 400
     })
@@ -326,16 +337,17 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     const response = await testDestination.executeBatch('syncAudiencesToDSP', {
       events,
       settings,
-      mapping
+      mapping,
+      features
     })
     expect(response.length).toBe(2)
-    expect(response[0]).toMatchObject({
+    expect(response[0]).toEqual({
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}',
       errorreporter: 'INTEGRATIONS'
     })
-    expect(response[1]).toMatchObject({
+    expect(response[1]).toEqual({
       status: 202,
       sent: {
         externalUserId: 'test_kochar-02',
@@ -352,7 +364,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
             postal: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
             state: '92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'
           }
-        ]
+        ],
+        userConsent: { geo: { countryCode: 'US' } }
       },
       body: { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' }
     })
@@ -393,17 +406,18 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     const response = await testDestination.executeBatch('syncAudiencesToDSP', {
       events,
       settings,
-      mapping
+      mapping,
+      features
     })
 
     expect(response.length).toBe(2)
-    expect(response[0]).toMatchObject({
+    expect(response[0]).toEqual({
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}',
       errorreporter: 'INTEGRATIONS'
     })
-    expect(response[1]).toMatchObject({
+    expect(response[1]).toEqual({
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}',
@@ -420,8 +434,219 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
       testDestination.executeBatch('syncAudiencesToDSP', {
         events,
         settings,
-        mapping
+        mapping,
+        features
       })
     ).rejects.toThrowError(new InvalidAuthenticationError('Unauthorized'))
   })
+
+  it('should include consent data in the record when provided', async () => {
+    nock(`https://advertising-api.amazon.com`)
+      .post('/amc/audiences/records')
+      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
+      .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+
+    // Use executeBatch with a valid userId and consent data
+    const response = await testDestination.executeBatch('syncAudiencesToDSP', {
+      events: [
+        {
+          ...event,
+          userId: 'test_kochar-02',
+          context: {
+            ...event.context,
+            ip: '1.2.3.4'
+          },
+          properties: {
+            ...event.properties,
+            amznAdStorage: 'GRANTED',
+            amznUserData: 'GRANTED'
+          }
+        }
+      ],
+      settings,
+      mapping: {
+        ...mapping,
+        consent: {
+          ipAddress: { '@path': '$.context.ip' },
+          amznAdStorage: { '@path': '$.properties.amznAdStorage' },
+          amznUserData: { '@path': '$.properties.amznUserData' }
+        }
+      },
+      features
+    })
+
+    expect(response.length).toBe(1)
+    expect(response[0]).toEqual({
+      status: 202,
+      sent: {
+        externalUserId: 'test_kochar-02',
+        countryCode: 'US',
+        action: 'CREATE',
+        hashedPII: [{}],
+        userConsent: {
+          geo: { ipAddress: '1.2.3.4', countryCode: 'US' },
+          consent: { amzn: { amznAdStorage: 'GRANTED', amznUserData: 'GRANTED' } }
+        }
+      },
+      body: { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' }
+    })
+  })
+
+  it('should return consent validation errors in batch response when EEA country code is provided without consent', async () => {
+    const deEvents: SegmentEvent[] = [
+      {
+        ...event,
+        userId: 'test_user_01',
+        context: {
+          ...event.context,
+          personas: {
+            ...event.context!.personas,
+            audience_settings: {
+              ...event.context!.personas!.audience_settings,
+              countryCode: 'DE'
+            }
+          }
+        },
+        event: 'Audience Entered'
+      },
+      {
+        ...event,
+        userId: 'test_user_02',
+        context: {
+          ...event.context,
+          personas: {
+            ...event.context!.personas,
+            audience_settings: {
+              ...event.context!.personas!.audience_settings,
+              countryCode: 'DE'
+            }
+          }
+        },
+        event: 'Audience Exited'
+      }
+    ]
+
+    const response = await testDestination.executeBatch('syncAudiencesToDSP', {
+      events: deEvents,
+      settings,
+      mapping,
+      features
+    })
+
+    expect(response.length).toBe(2)
+    expect(response[0]).toEqual(
+      expect.objectContaining({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage:
+          'Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.',
+        errorreporter: 'DESTINATION'
+      })
+    )
+    expect(response[1]).toEqual(
+      expect.objectContaining({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage:
+          'Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.',
+        errorreporter: 'DESTINATION'
+      })
+    )
+  })
+
+  it('should return consent validation error only for event missing consent while valid consented event succeeds in batch', async () => {
+    nock(`https://advertising-api.amazon.com`)
+      .post('/amc/audiences/records')
+      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
+      .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+
+    const deEvents: SegmentEvent[] = [
+      {
+        ...event,
+        userId: 'test_user_01',
+        context: {
+          ...event.context,
+          personas: {
+            ...event.context!.personas,
+            audience_settings: {
+              ...event.context!.personas!.audience_settings,
+              countryCode: 'DE'
+            }
+          }
+        },
+        properties: {
+          ...event.properties,
+          amznAdStorage: 'GRANTED',
+          amznUserData: 'GRANTED'
+        },
+        event: 'Audience Entered'
+      },
+      {
+        ...event,
+        userId: 'test_user_02',
+        context: {
+          ...event.context,
+          personas: {
+            ...event.context!.personas,
+            audience_settings: {
+              ...event.context!.personas!.audience_settings,
+              countryCode: 'DE'
+            }
+          }
+        },
+        event: 'Audience Exited'
+      }
+    ]
+
+    const response = await testDestination.executeBatch('syncAudiencesToDSP', {
+      events: deEvents,
+      settings,
+      mapping: {
+        ...mapping,
+        consent: {
+          amznAdStorage: { '@path': '$.properties.amznAdStorage' },
+          amznUserData: { '@path': '$.properties.amznUserData' }
+        }
+      },
+      features
+    })
+
+    expect(response.length).toBe(2)
+    expect(response[0].status).toBe(202)
+    expect(response[1]).toEqual(
+      expect.objectContaining({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage:
+          'Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.',
+        errorreporter: 'DESTINATION'
+      })
+    )
+  })
+
+  it('should throw an error when an EEA country code is passed without any consent', async () => {
+    const deEvent = {
+      ...event,
+      context: {
+        ...event.context,
+        personas: {
+          ...event.context!.personas,
+          audience_settings: {
+            ...event.context!.personas!.audience_settings,
+            countryCode: 'DE'
+          }
+        }
+      }
+    }
+    await expect(
+      testDestination.testAction('syncAudiencesToDSP', {
+        event: deEvent,
+        settings,
+        useDefaultMappings: true,
+        features
+      })
+    ).rejects.toThrowError('Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.')
+  })
+
+
 })
