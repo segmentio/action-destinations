@@ -514,7 +514,7 @@ export class Action<
         settings: bundle.settings,
         audienceSettings: bundle.audienceSettings,
         payload: payloads,
-        ...( typeof audienceMembership === 'boolean' ? { audienceMembership } : {}),
+        ...( Array.isArray(audienceMembership) ? { audienceMembership } : {}),
         auth: bundle.auth,
         features: bundle.features,
         statsContext: bundle.statsContext,
