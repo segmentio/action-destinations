@@ -19,7 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
   syncMode: {
     description: 'Define how the records will be synced to Google',
     label: 'How to sync records',
-    default: 'add',
+    default: 'mirror',
     choices: [
       { label: 'Adds users to the connected Google Customer Match User List', value: 'add' },
       { label: 'Remove users from the connected Google Customer Match User List', value: 'delete' },
@@ -303,7 +303,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }) => {
+  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, audienceMembership, features }) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
     return await handleUpdate(
@@ -314,13 +314,14 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.id,
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
+      audienceMembership,
       features,
       statsContext
     )
   },
   performBatch: async (
     request,
-    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }
+    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, audienceMembership, features }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
     return await processBatchPayload(
@@ -331,6 +332,7 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.id,
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
+      audienceMembership,
       features,
       statsContext
     )
