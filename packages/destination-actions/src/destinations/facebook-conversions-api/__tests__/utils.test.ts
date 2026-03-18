@@ -1,4 +1,4 @@
-import { getApiVersion } from '../functions'
+import { get_api_version } from '../utils'
 import { API_VERSION, CANARY_API_VERSION } from '../constants'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 
@@ -8,13 +8,13 @@ describe('FacebookConversionsApi', () => {
       const features = {
         'facebook-capi-actions-canary-version': true
       }
-      const version = getApiVersion(features, {} as StatsContext)
+      const version = get_api_version(features, {} as StatsContext)
       expect(version).toEqual(CANARY_API_VERSION)
     })
 
     it('should return the regular API version', async () => {
       const features = {}
-      const version = getApiVersion(features, {} as StatsContext)
+      const version = get_api_version(features, {} as StatsContext)
       expect(version).toEqual(API_VERSION)
     })
   })
