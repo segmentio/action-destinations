@@ -692,7 +692,7 @@ describe('Memora.upsertProfile', () => {
         throw new Error('performBatch is not defined')
       }
 
-      const result = (await action.performBatch(mockRequest, executeInput)) as any
+      const result = (await action.performBatch(mockRequest, executeInput as any)) as any
 
       // Verify MultiStatusResponse structure
       expect(result.length()).toBe(3)
@@ -760,7 +760,9 @@ describe('Memora.upsertProfile', () => {
         throw new Error('performBatch is not defined')
       }
 
-      await expect(action.performBatch(mockRequest, executeInput)).rejects.toThrow('No valid profiles found for import')
+      await expect(action.performBatch(mockRequest, executeInput as any)).rejects.toThrow(
+        'No valid profiles found for import'
+      )
 
       // Verify logger.warn was called with skipped count before error was thrown
       expect(mockLogger.warn).toHaveBeenCalledWith('Skipped 2 invalid profile(s). Processing 0 valid profile(s).')
