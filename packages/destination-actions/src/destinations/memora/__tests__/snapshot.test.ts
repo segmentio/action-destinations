@@ -142,10 +142,6 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
-      nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(202)
-      nock(/.*/).persist().put(/.*/).reply(202)
-
       const event = createTestEvent({
         properties: eventData
       })
@@ -164,7 +160,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
           settings: settingsData,
           auth: undefined
         })
-      ).rejects.toThrow('No valid profiles found for import')
+      ).rejects.toThrow('Profile must contain at least one identifier')
     })
   }
 })

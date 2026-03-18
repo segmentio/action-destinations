@@ -63,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     profile_traits: {
       label: 'Profile Traits',
       description:
-        'Traits for the profile from all trait groups. At least one trait is required. These fields are dynamically loaded from the selected Memora Store.',
+        'Traits for the profile from all trait groups. At least one trait is required. These fields are dynamically loaded from the selected Memora Store. When manually entering keys, use the format "TraitGroupName.$.traitName" (e.g., "Contact.$.firstName", "PurchaseHistory.$.lastPurchaseDate").',
       type: 'object',
       required: true,
       additionalProperties: true,
@@ -110,6 +110,7 @@ async function upsertProfiles(
   const validProfiles: { traits: Record<string, Record<string, unknown>> }[] = []
   const validIndices: number[] = []
   const invalidIndices: number[] = []
+  const validationErrors: Map<number, string> = new Map()
 
   payloads.forEach((payload, index) => {
     // Validate that profile has at least one identifier AND at least one trait
@@ -123,13 +124,23 @@ async function upsertProfiles(
 
     if (!hasIdentifier || !hasTraits) {
       invalidIndices.push(index)
+      validationErrors.set(
+        index,
+        'Profile must contain at least one identifier (email or phone) and at least one trait'
+      )
       return
     }
 
     // Build trait groups for valid profile
-    const traitGroups = buildTraitGroups(payload)
-    validProfiles.push({ traits: traitGroups })
-    validIndices.push(index)
+    try {
+      const traitGroups = buildTraitGroups(payload)
+      validProfiles.push({ traits: traitGroups })
+      validIndices.push(index)
+    } catch (error) {
+      // Catch validation errors for invalid trait key formats
+      invalidIndices.push(index)
+      validationErrors.set(index, error instanceof Error ? error.message : String(error))
+    }
   })
 
   if (invalidIndices.length > 0) {
@@ -138,10 +149,24 @@ async function upsertProfiles(
     )
   }
 
+  // If all profiles are invalid, handle based on single vs batch execution
   if (validProfiles.length === 0) {
-    throw new PayloadValidationError(
-      'No valid profiles found for import. All profiles must contain at least one identifier (email or phone) and at least one trait.'
-    )
+    logger?.warn?.('No valid profiles to import. All profiles failed validation.')
+
+    // For single-event execution (perform), throw error so runtime properly handles it
+    if (payloads.length === 1) {
+      throw new PayloadValidationError(validationErrors.get(0) || 'Invalid profile')
+    }
+
+    // For batch execution (performBatch), return MultiStatusResponse with per-profile errors
+    const multiStatusResponse = new MultiStatusResponse()
+    invalidIndices.forEach((index) => {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errormessage: validationErrors.get(index) || 'Invalid profile'
+      })
+    })
+    return multiStatusResponse
   }
 
   try {
@@ -176,9 +201,7 @@ async function upsertProfiles(
     invalidIndices.forEach((index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
-        errormessage: 'Profile must contain at least one identifier (email or phone) and at least one trait',
-        sent: {},
-        body: 'skipped'
+        errormessage: validationErrors.get(index) || 'Invalid profile'
       })
     })
 
@@ -192,6 +215,7 @@ async function upsertProfiles(
 // Build trait groups payload for Memora API
 function buildTraitGroups(payload: Payload): Record<string, Record<string, unknown>> {
   const traitGroups: Record<string, Record<string, unknown>> = {}
+  const invalidKeys: string[] = []
 
   // Process all traits from profile_traits field (format: TraitGroupName.$.traitName)
   if (payload.profile_traits && typeof payload.profile_traits === 'object') {
@@ -208,9 +232,22 @@ function buildTraitGroups(payload: Payload): Record<string, Record<string, unkno
             traitGroups[traitGroupName] = {}
           }
           traitGroups[traitGroupName][traitName] = value
+        } else {
+          // Track invalid keys for error reporting
+          invalidKeys.push(key)
         }
       }
     })
+
+    // Throw error for invalid trait keys to prevent data loss
+    if (invalidKeys.length > 0) {
+      throw new PayloadValidationError(
+        `Invalid trait key format detected. The following keys do not match the expected format: ${invalidKeys.join(
+          ', '
+        )}. ` +
+          `Expected format: "TraitGroupName.$.traitName" (e.g., "Contact.$.firstName", "PurchaseHistory.$.lastPurchaseDate").`
+      )
+    }
   }
 
   // Merge identifiers into Contact trait group (these are authoritative and will override any conflicting keys)

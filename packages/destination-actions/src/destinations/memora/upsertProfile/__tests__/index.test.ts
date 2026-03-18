@@ -132,51 +132,45 @@ describe('Memora.upsertProfile', () => {
     })
 
     it('should throw error when profile has no identifiers', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'user-123',
-        properties: {}
-      })
+      const mockRequest = jest.fn() as unknown as RequestClient
+      const action = Destination.actions.upsertProfile
 
-      await expect(
-        testDestination.testAction('upsertProfile', {
-          event,
-          settings: defaultSettings,
-          mapping: {
-            memora_store: 'test-store-id',
-            profile_identifiers: {},
-            profile_traits: {
-              'Contact.$.firstName': { '@path': '$.properties.first_name' }
-            }
-          },
-          useDefaultMappings: false
-        })
-      ).rejects.toThrow('No valid profiles found for import')
+      const payload: Payload = {
+        memora_store: 'test-store-id',
+        profile_identifiers: {},
+        profile_traits: { 'Contact.$.firstName': 'Test' }
+      }
+
+      const executeInput: ExecuteInput<Settings, Payload> = {
+        payload,
+        settings: defaultSettings
+      }
+
+      await expect(action.perform(mockRequest, executeInput as any)).rejects.toThrow(
+        'Profile must contain at least one identifier'
+      )
+
+      expect(mockRequest).not.toHaveBeenCalled()
     })
 
     it('should throw error when profile has no traits', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'user-123',
-        properties: {
-          email: 'test@example.com'
-        }
-      })
+      const mockRequest = jest.fn() as unknown as RequestClient
+      const action = Destination.actions.upsertProfile
 
-      await expect(
-        testDestination.testAction('upsertProfile', {
-          event,
-          settings: defaultSettings,
-          mapping: {
-            memora_store: 'test-store-id',
-            profile_identifiers: {
-              email: { '@path': '$.properties.email' }
-            },
-            profile_traits: {}
-          },
-          useDefaultMappings: false
-        })
-      ).rejects.toThrow('No valid profiles found for import')
+      const payload: Payload = {
+        memora_store: 'test-store-id',
+        profile_identifiers: { email: 'test@example.com' },
+        profile_traits: {}
+      }
+
+      const executeInput: ExecuteInput<Settings, Payload> = {
+        payload,
+        settings: defaultSettings
+      }
+
+      await expect(action.perform(mockRequest, executeInput as any)).rejects.toThrow('at least one trait')
+
+      expect(mockRequest).not.toHaveBeenCalled()
     })
 
     it('should succeed with only email provided', async () => {
@@ -546,6 +540,86 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.Loyalty.tier).toBe('Gold')
       expect(profile.traits.Engagement.lastLogin).toBe('2024-03-01')
     })
+
+    it('should create Contact trait group when only non-Contact traits are provided', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-892',
+        traits: {
+          email: 'nocontact@example.com',
+          phone: '+1-555-9999',
+          last_purchase: '2024-03-15',
+          favorite_category: 'Books'
+        }
+      })
+
+      let capturedBody: Record<string, unknown> = {}
+
+      nock(BASE_URL)
+        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
+          capturedBody = body as Record<string, unknown>
+          return true
+        })
+        .reply(202)
+
+      await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          profile_identifiers: {
+            email: { '@path': '$.traits.email' },
+            phone: { '@path': '$.traits.phone' }
+          },
+          profile_traits: {
+            // Only non-Contact traits - no Contact.$.* fields
+            'PurchaseHistory.$.lastPurchaseDate': { '@path': '$.traits.last_purchase' },
+            'PurchaseHistory.$.favoriteCategory': { '@path': '$.traits.favorite_category' }
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      const profile = (capturedBody.profiles as any[])[0]
+      // Verify Contact trait group was created for identifiers
+      expect(profile.traits.Contact).toBeDefined()
+      expect(profile.traits.Contact.email).toBe('nocontact@example.com')
+      expect(profile.traits.Contact.phone).toBe('+1-555-9999')
+      // Verify PurchaseHistory trait group
+      expect(profile.traits.PurchaseHistory).toBeDefined()
+      expect(profile.traits.PurchaseHistory.lastPurchaseDate).toBe('2024-03-15')
+      expect(profile.traits.PurchaseHistory.favoriteCategory).toBe('Books')
+    })
+
+    it('should throw error for invalid trait key formats in single profile', async () => {
+      const mockRequest = jest.fn() as unknown as RequestClient
+      const action = Destination.actions.upsertProfile
+
+      const payload: Payload = {
+        memora_store: 'test-store-id',
+        profile_identifiers: { email: 'invalid@example.com' },
+        profile_traits: {
+          'Contact.firstName': 'InvalidFormat1', // Missing ".$."
+          ContactlastName: 'InvalidFormat2' // Missing separators
+        }
+      }
+
+      const executeInput: ExecuteInput<Settings, Payload> = {
+        payload,
+        settings: defaultSettings
+      }
+
+      if (!action.perform) {
+        throw new Error('perform is not defined')
+      }
+
+      await expect(action.perform(mockRequest, executeInput as any)).rejects.toThrow(
+        'Invalid trait key format detected'
+      )
+
+      // Verify no API call was made
+      expect(mockRequest).not.toHaveBeenCalled()
+    })
   })
 
   describe('performBatch (multiple profiles)', () => {
@@ -597,14 +671,20 @@ describe('Memora.upsertProfile', () => {
     })
 
     it('should throw error when batch is empty', async () => {
-      await expect(
-        testDestination.testBatchAction('upsertProfile', {
-          events: [],
-          settings: defaultSettings,
-          mapping: defaultMapping,
-          useDefaultMappings: true
-        })
-      ).rejects.toThrow()
+      const mockRequest = jest.fn() as unknown as RequestClient
+      const action = Destination.actions.upsertProfile
+
+      if (!action.performBatch) {
+        throw new Error('performBatch is not defined')
+      }
+
+      const executeInput: ExecuteInput<Settings, Payload[]> = {
+        payload: [],
+        settings: defaultSettings
+      }
+
+      // Call performBatch directly with empty payloads array
+      await expect(action.performBatch(mockRequest, executeInput as any)).rejects.toThrow('No profiles provided')
     })
 
     it('should filter out invalid profiles and process valid ones', async () => {
@@ -701,7 +781,6 @@ describe('Memora.upsertProfile', () => {
       expect(result.isErrorResponseAtIndex(0)).toBe(true)
       const error0 = result.getResponseAtIndex(0).value()
       expect(error0.status).toBe(400)
-      expect(error0.body).toBe('skipped')
 
       // Index 1: valid
       expect(result.isSuccessResponseAtIndex(1)).toBe(true)
@@ -713,7 +792,6 @@ describe('Memora.upsertProfile', () => {
       expect(result.isErrorResponseAtIndex(2)).toBe(true)
       const error2 = result.getResponseAtIndex(2).value()
       expect(error2.status).toBe(400)
-      expect(error2.body).toBe('skipped')
 
       // Verify only 1 profile was sent in bulk request
       expect(mockRequestFn).toHaveBeenCalledTimes(1)
@@ -721,7 +799,7 @@ describe('Memora.upsertProfile', () => {
       expect(callArgs[1].json.profiles).toHaveLength(1)
     })
 
-    it('should throw error when all profiles in batch are invalid and log skipped count', async () => {
+    it('should return MultiStatusResponse when all profiles in batch are invalid', async () => {
       const mockLogger: Logger = {
         level: 'info',
         name: 'test-logger',
@@ -739,14 +817,24 @@ describe('Memora.upsertProfile', () => {
 
       const payloads: Payload[] = [
         {
+          // Invalid: no identifiers
           memora_store: 'test-store-id',
           profile_identifiers: {},
           profile_traits: { 'Contact.$.firstName': undefined }
         },
         {
+          // Invalid: no traits
           memora_store: 'test-store-id',
           profile_identifiers: { email: 'test@example.com' },
           profile_traits: {}
+        },
+        {
+          // Invalid: bad trait key format
+          memora_store: 'test-store-id',
+          profile_identifiers: { email: 'another@example.com' },
+          profile_traits: {
+            'Contact.firstName': 'InvalidFormat' // Missing ".$."
+          }
         }
       ]
 
@@ -760,12 +848,34 @@ describe('Memora.upsertProfile', () => {
         throw new Error('performBatch is not defined')
       }
 
-      await expect(action.performBatch(mockRequest, executeInput as any)).rejects.toThrow(
-        'No valid profiles found for import'
-      )
+      const result = (await action.performBatch(mockRequest, executeInput as any)) as any
 
-      // Verify logger.warn was called with skipped count before error was thrown
-      expect(mockLogger.warn).toHaveBeenCalledWith('Skipped 2 invalid profile(s). Processing 0 valid profile(s).')
+      // Verify MultiStatusResponse structure - all profiles should have error status
+      expect(result.length()).toBe(3)
+      expect(result.isErrorResponseAtIndex(0)).toBe(true)
+      expect(result.isErrorResponseAtIndex(1)).toBe(true)
+      expect(result.isErrorResponseAtIndex(2)).toBe(true)
+
+      // Verify error messages
+      const error0 = result.getResponseAtIndex(0).value()
+      expect(error0.status).toBe(400)
+      expect(error0.errormessage).toContain('Profile must contain at least one identifier')
+
+      const error1 = result.getResponseAtIndex(1).value()
+      expect(error1.status).toBe(400)
+      expect(error1.errormessage).toContain('at least one trait')
+
+      const error2 = result.getResponseAtIndex(2).value()
+      expect(error2.status).toBe(400)
+      expect(error2.errormessage).toContain('Invalid trait key format detected')
+      expect(error2.errormessage).toContain('Contact.firstName')
+
+      // Verify logger.warn was called
+      expect(mockLogger.warn).toHaveBeenCalledWith('Skipped 3 invalid profile(s). Processing 0 valid profile(s).')
+      expect(mockLogger.warn).toHaveBeenCalledWith('No valid profiles to import. All profiles failed validation.')
+
+      // Verify no API call was made
+      expect(mockRequest).not.toHaveBeenCalled()
     })
 
     it('should handle batch with sparse data correctly', async () => {
@@ -865,6 +975,73 @@ describe('Memora.upsertProfile', () => {
           useDefaultMappings: true
         })
       ).rejects.toThrow()
+    })
+
+    it('should handle invalid trait key formats in batch using MultiStatusResponse', async () => {
+      const mockRequestFn = jest.fn().mockResolvedValue({
+        status: 202,
+        data: {}
+      })
+      const mockRequest = mockRequestFn as unknown as RequestClient
+
+      const action = Destination.actions.upsertProfile
+
+      const payloads: Payload[] = [
+        {
+          // Valid profile
+          memora_store: 'test-store-id',
+          profile_identifiers: { email: 'valid@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'Valid' }
+        },
+        {
+          // Invalid profile - bad trait key format
+          memora_store: 'test-store-id',
+          profile_identifiers: { email: 'invalid@example.com' },
+          profile_traits: {
+            'Contact.firstName': 'Missing$', // Invalid: missing ".$."
+            badKey: 'value' // Invalid: wrong format
+          }
+        },
+        {
+          // Valid profile
+          memora_store: 'test-store-id',
+          profile_identifiers: { phone: '+1-555-1234' },
+          profile_traits: { 'PurchaseHistory.$.lastPurchase': '2024-01-01' }
+        }
+      ]
+
+      const executeInput: ExecuteInput<Settings, Payload[]> = {
+        payload: payloads,
+        settings: defaultSettings
+      }
+
+      if (!action.performBatch) {
+        throw new Error('performBatch is not defined')
+      }
+
+      const result = (await action.performBatch(mockRequest, executeInput as any)) as any
+
+      // Verify MultiStatusResponse structure
+      expect(result.length()).toBe(3)
+
+      // Index 0: valid profile - should succeed
+      expect(result.isSuccessResponseAtIndex(0)).toBe(true)
+
+      // Index 1: invalid profile - should fail with validation error
+      expect(result.isErrorResponseAtIndex(1)).toBe(true)
+      const error1 = result.getResponseAtIndex(1).value()
+      expect(error1.status).toBe(400)
+      expect(error1.errormessage).toContain('Invalid trait key format detected')
+      expect(error1.errormessage).toContain('Contact.firstName')
+      expect(error1.errormessage).toContain('badKey')
+
+      // Index 2: valid profile - should succeed
+      expect(result.isSuccessResponseAtIndex(2)).toBe(true)
+
+      // Verify only valid profiles were sent to API
+      expect(mockRequestFn).toHaveBeenCalledTimes(1)
+      const requestBody = mockRequestFn.mock.calls[0][1].json
+      expect(requestBody.profiles).toHaveLength(2) // Only 2 valid profiles
     })
   })
 
