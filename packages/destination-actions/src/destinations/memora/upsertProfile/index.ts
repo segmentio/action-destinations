@@ -110,6 +110,7 @@ async function upsertProfiles(
   const validProfiles: { traits: Record<string, Record<string, unknown>> }[] = []
   const validIndices: number[] = []
   const invalidIndices: number[] = []
+  const validationErrors: Map<number, string> = new Map()
 
   payloads.forEach((payload, index) => {
     // Validate that profile has at least one identifier AND at least one trait
@@ -123,13 +124,23 @@ async function upsertProfiles(
 
     if (!hasIdentifier || !hasTraits) {
       invalidIndices.push(index)
+      validationErrors.set(
+        index,
+        'Profile must contain at least one identifier (email or phone) and at least one trait'
+      )
       return
     }
 
     // Build trait groups for valid profile
-    const traitGroups = buildTraitGroups(payload)
-    validProfiles.push({ traits: traitGroups })
-    validIndices.push(index)
+    try {
+      const traitGroups = buildTraitGroups(payload)
+      validProfiles.push({ traits: traitGroups })
+      validIndices.push(index)
+    } catch (error) {
+      // Catch validation errors for invalid trait key formats
+      invalidIndices.push(index)
+      validationErrors.set(index, error instanceof Error ? error.message : String(error))
+    }
   })
 
   if (invalidIndices.length > 0) {
@@ -176,7 +187,7 @@ async function upsertProfiles(
     invalidIndices.forEach((index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
-        errormessage: 'Profile must contain at least one identifier (email or phone) and at least one trait',
+        errormessage: validationErrors.get(index) || 'Invalid profile',
         sent: {},
         body: 'skipped'
       })

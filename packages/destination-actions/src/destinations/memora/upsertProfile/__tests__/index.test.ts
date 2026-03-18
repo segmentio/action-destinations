@@ -597,7 +597,7 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.PurchaseHistory.favoriteCategory).toBe('Books')
     })
 
-    it('should throw error for invalid trait key formats', async () => {
+    it('should throw error for invalid trait key formats in single profile', async () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-893',
@@ -607,6 +607,7 @@ describe('Memora.upsertProfile', () => {
         }
       })
 
+      // Single profile with invalid keys should throw error (no valid profiles to process)
       await expect(
         testDestination.testAction('upsertProfile', {
           event,
@@ -617,32 +618,13 @@ describe('Memora.upsertProfile', () => {
               email: { '@path': '$.traits.email' }
             },
             profile_traits: {
-              'Contact.$.firstName': { '@path': '$.traits.first_name' }, // Valid format
               'Contact.firstName': { '@literal': 'InvalidFormat1' }, // Missing ".$."
-              ContactlastName: { '@literal': 'InvalidFormat2' }, // Missing separators
-              'Contact$.age': { '@literal': '25' } // Missing dot before $
+              ContactlastName: { '@literal': 'InvalidFormat2' } // Missing separators
             }
           },
           useDefaultMappings: false
         })
-      ).rejects.toThrow('Invalid trait key format detected')
-
-      await expect(
-        testDestination.testAction('upsertProfile', {
-          event,
-          settings: defaultSettings,
-          mapping: {
-            memora_store: 'test-store-id',
-            profile_identifiers: {
-              email: { '@path': '$.traits.email' }
-            },
-            profile_traits: {
-              'Contact.firstName': { '@literal': 'WrongFormat' }
-            }
-          },
-          useDefaultMappings: false
-        })
-      ).rejects.toThrow('Contact.firstName')
+      ).rejects.toThrow('No valid profiles found for import')
     })
   })
 
@@ -961,6 +943,73 @@ describe('Memora.upsertProfile', () => {
           useDefaultMappings: true
         })
       ).rejects.toThrow()
+    })
+
+    it('should handle invalid trait key formats in batch using MultiStatusResponse', async () => {
+      const mockRequestFn = jest.fn().mockResolvedValue({
+        status: 202,
+        data: {}
+      })
+      const mockRequest = mockRequestFn as unknown as RequestClient
+
+      const action = Destination.actions.upsertProfile
+
+      const payloads: Payload[] = [
+        {
+          // Valid profile
+          memora_store: 'test-store-id',
+          profile_identifiers: { email: 'valid@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'Valid' }
+        },
+        {
+          // Invalid profile - bad trait key format
+          memora_store: 'test-store-id',
+          profile_identifiers: { email: 'invalid@example.com' },
+          profile_traits: {
+            'Contact.firstName': 'Missing$', // Invalid: missing ".$."
+            badKey: 'value' // Invalid: wrong format
+          }
+        },
+        {
+          // Valid profile
+          memora_store: 'test-store-id',
+          profile_identifiers: { phone: '+1-555-1234' },
+          profile_traits: { 'PurchaseHistory.$.lastPurchase': '2024-01-01' }
+        }
+      ]
+
+      const executeInput = {
+        payload: payloads,
+        settings: defaultSettings
+      }
+
+      if (!action.performBatch) {
+        throw new Error('performBatch is not defined')
+      }
+
+      const result = (await action.performBatch(mockRequest, executeInput as any)) as any
+
+      // Verify MultiStatusResponse structure
+      expect(result.length()).toBe(3)
+
+      // Index 0: valid profile - should succeed
+      expect(result.isSuccessResponseAtIndex(0)).toBe(true)
+
+      // Index 1: invalid profile - should fail with validation error
+      expect(result.isErrorResponseAtIndex(1)).toBe(true)
+      const error1 = result.getResponseAtIndex(1).value()
+      expect(error1.status).toBe(400)
+      expect(error1.errormessage).toContain('Invalid trait key format detected')
+      expect(error1.errormessage).toContain('Contact.firstName')
+      expect(error1.errormessage).toContain('badKey')
+
+      // Index 2: valid profile - should succeed
+      expect(result.isSuccessResponseAtIndex(2)).toBe(true)
+
+      // Verify only valid profiles were sent to API
+      expect(mockRequestFn).toHaveBeenCalledTimes(1)
+      const requestBody = mockRequestFn.mock.calls[0][1].json
+      expect(requestBody.profiles).toHaveLength(2) // Only 2 valid profiles
     })
   })
 

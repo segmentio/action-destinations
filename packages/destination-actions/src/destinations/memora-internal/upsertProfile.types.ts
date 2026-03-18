@@ -14,9 +14,9 @@ export interface Payload {
    */
   memora_store: string
   /**
-   * Contact identifiers (email and/or phone). At least one identifier is required.
+   * Profile identifiers (email and/or phone). At least one identifier is required. These identifiers are stored in the Contact trait group.
    */
-  contact_identifiers: {
+  profile_identifiers: {
     /**
      * User email address
      */
