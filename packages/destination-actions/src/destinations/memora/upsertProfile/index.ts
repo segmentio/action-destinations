@@ -63,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     profile_traits: {
       label: 'Profile Traits',
       description:
-        'Traits for the profile from all trait groups. At least one trait is required. These fields are dynamically loaded from the selected Memora Store.',
+        'Traits for the profile from all trait groups. At least one trait is required. These fields are dynamically loaded from the selected Memora Store. When manually entering keys, use the format "TraitGroupName.$.traitName" (e.g., "Contact.$.firstName", "PurchaseHistory.$.lastPurchaseDate").',
       type: 'object',
       required: true,
       additionalProperties: true,
