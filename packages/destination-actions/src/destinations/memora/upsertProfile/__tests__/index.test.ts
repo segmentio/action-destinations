@@ -793,7 +793,6 @@ describe('Memora.upsertProfile', () => {
       expect(result.isErrorResponseAtIndex(0)).toBe(true)
       const error0 = result.getResponseAtIndex(0).value()
       expect(error0.status).toBe(400)
-      expect(error0.body).toBe('skipped')
 
       // Index 1: valid
       expect(result.isSuccessResponseAtIndex(1)).toBe(true)
@@ -805,7 +804,6 @@ describe('Memora.upsertProfile', () => {
       expect(result.isErrorResponseAtIndex(2)).toBe(true)
       const error2 = result.getResponseAtIndex(2).value()
       expect(error2.status).toBe(400)
-      expect(error2.body).toBe('skipped')
 
       // Verify only 1 profile was sent in bulk request
       expect(mockRequestFn).toHaveBeenCalledTimes(1)

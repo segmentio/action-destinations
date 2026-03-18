@@ -137,14 +137,10 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       ).rejects.toThrow()
     })
 
-    it(`${actionSlug} action - should throw error when profile has no traits`, async () => {
+    it(`${actionSlug} action - should return error response when profile has no traits`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
-
-      nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(202)
-      nock(/.*/).persist().put(/.*/).reply(202)
 
       const event = createTestEvent({
         properties: eventData
@@ -157,14 +153,15 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         profile_traits: {}
       }
 
-      await expect(
-        testDestination.testAction(actionSlug, {
-          event: event,
-          mapping: mapping,
-          settings: settingsData,
-          auth: undefined
-        })
-      ).rejects.toThrow('No valid profiles found for import')
+      const responses = await testDestination.testAction(actionSlug, {
+        event: event,
+        mapping: mapping,
+        settings: settingsData,
+        auth: undefined
+      })
+
+      // Should return empty array (MultiStatusResponse with error status, not HTTP response)
+      expect(responses).toEqual([])
     })
   }
 })

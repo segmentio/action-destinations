@@ -157,9 +157,7 @@ async function upsertProfiles(
     invalidIndices.forEach((index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
-        errormessage: validationErrors.get(index) || 'Invalid profile',
-        sent: {},
-        body: 'skipped'
+        errormessage: validationErrors.get(index) || 'Invalid profile'
       })
     })
     return multiStatusResponse
@@ -197,9 +195,7 @@ async function upsertProfiles(
     invalidIndices.forEach((index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
-        errormessage: validationErrors.get(index) || 'Invalid profile',
-        sent: {},
-        body: 'skipped'
+        errormessage: validationErrors.get(index) || 'Invalid profile'
       })
     })
 
