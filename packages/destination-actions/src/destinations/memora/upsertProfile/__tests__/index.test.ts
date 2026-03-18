@@ -546,6 +546,56 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.Loyalty.tier).toBe('Gold')
       expect(profile.traits.Engagement.lastLogin).toBe('2024-03-01')
     })
+
+    it('should create Contact trait group when only non-Contact traits are provided', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-892',
+        traits: {
+          email: 'nocontact@example.com',
+          phone: '+1-555-9999',
+          last_purchase: '2024-03-15',
+          favorite_category: 'Books'
+        }
+      })
+
+      let capturedBody: Record<string, unknown> = {}
+
+      nock(BASE_URL)
+        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
+          capturedBody = body as Record<string, unknown>
+          return true
+        })
+        .reply(202)
+
+      await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          profile_identifiers: {
+            email: { '@path': '$.traits.email' },
+            phone: { '@path': '$.traits.phone' }
+          },
+          profile_traits: {
+            // Only non-Contact traits - no Contact.$.* fields
+            'PurchaseHistory.$.lastPurchaseDate': { '@path': '$.traits.last_purchase' },
+            'PurchaseHistory.$.favoriteCategory': { '@path': '$.traits.favorite_category' }
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      const profile = (capturedBody.profiles as any[])[0]
+      // Verify Contact trait group was created for identifiers
+      expect(profile.traits.Contact).toBeDefined()
+      expect(profile.traits.Contact.email).toBe('nocontact@example.com')
+      expect(profile.traits.Contact.phone).toBe('+1-555-9999')
+      // Verify PurchaseHistory trait group
+      expect(profile.traits.PurchaseHistory).toBeDefined()
+      expect(profile.traits.PurchaseHistory.lastPurchaseDate).toBe('2024-03-15')
+      expect(profile.traits.PurchaseHistory.favoriteCategory).toBe('Books')
+    })
   })
 
   describe('performBatch (multiple profiles)', () => {
