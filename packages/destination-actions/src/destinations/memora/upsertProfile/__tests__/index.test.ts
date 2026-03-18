@@ -131,7 +131,7 @@ describe('Memora.upsertProfile', () => {
       ).rejects.toThrow()
     })
 
-    it('should return error response when profile has no identifiers', async () => {
+    it('should throw error when profile has no identifiers', async () => {
       const mockRequest = jest.fn() as unknown as RequestClient
       const action = Destination.actions.upsertProfile
 
@@ -141,20 +141,19 @@ describe('Memora.upsertProfile', () => {
         profile_traits: { 'Contact.$.firstName': 'Test' }
       }
 
-      const result = await action.perform(mockRequest, {
+      const executeInput: ExecuteInput<Settings, Payload> = {
         payload,
         settings: defaultSettings
-      } as any)
+      }
 
-      expect(result.length()).toBe(1)
-      expect(result.isErrorResponseAtIndex(0)).toBe(true)
-      const error = result.getResponseAtIndex(0).value()
-      expect(error.status).toBe(400)
-      expect(error.errormessage).toContain('Profile must contain at least one identifier')
+      await expect(action.perform(mockRequest, executeInput)).rejects.toThrow(
+        'Profile must contain at least one identifier'
+      )
+
       expect(mockRequest).not.toHaveBeenCalled()
     })
 
-    it('should return error response when profile has no traits', async () => {
+    it('should throw error when profile has no traits', async () => {
       const mockRequest = jest.fn() as unknown as RequestClient
       const action = Destination.actions.upsertProfile
 
@@ -164,16 +163,13 @@ describe('Memora.upsertProfile', () => {
         profile_traits: {}
       }
 
-      const result = await action.perform(mockRequest, {
+      const executeInput: ExecuteInput<Settings, Payload> = {
         payload,
         settings: defaultSettings
-      } as any)
+      }
 
-      expect(result.length()).toBe(1)
-      expect(result.isErrorResponseAtIndex(0)).toBe(true)
-      const error = result.getResponseAtIndex(0).value()
-      expect(error.status).toBe(400)
-      expect(error.errormessage).toContain('at least one trait')
+      await expect(action.perform(mockRequest, executeInput)).rejects.toThrow('at least one trait')
+
       expect(mockRequest).not.toHaveBeenCalled()
     })
 
@@ -595,7 +591,7 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.PurchaseHistory.favoriteCategory).toBe('Books')
     })
 
-    it('should return MultiStatusResponse for invalid trait key formats in single profile', async () => {
+    it('should throw error for invalid trait key formats in single profile', async () => {
       const mockRequest = jest.fn() as unknown as RequestClient
       const action = Destination.actions.upsertProfile
 
@@ -608,7 +604,7 @@ describe('Memora.upsertProfile', () => {
         }
       }
 
-      const executeInput = {
+      const executeInput: ExecuteInput<Settings, Payload> = {
         payload,
         settings: defaultSettings
       }
@@ -617,17 +613,7 @@ describe('Memora.upsertProfile', () => {
         throw new Error('perform is not defined')
       }
 
-      const result = await action.perform(mockRequest, executeInput as any)
-
-      // Should return MultiStatusResponse with error
-      expect(result.length()).toBe(1)
-      expect(result.isErrorResponseAtIndex(0)).toBe(true)
-
-      const error = result.getResponseAtIndex(0).value()
-      expect(error.status).toBe(400)
-      expect(error.errormessage).toContain('Invalid trait key format detected')
-      expect(error.errormessage).toContain('Contact.firstName')
-      expect(error.errormessage).toContain('ContactlastName')
+      await expect(action.perform(mockRequest, executeInput)).rejects.toThrow('Invalid trait key format detected')
 
       // Verify no API call was made
       expect(mockRequest).not.toHaveBeenCalled()
@@ -690,13 +676,13 @@ describe('Memora.upsertProfile', () => {
         throw new Error('performBatch is not defined')
       }
 
+      const executeInput: ExecuteInput<Settings, Payload[]> = {
+        payload: [],
+        settings: defaultSettings
+      }
+
       // Call performBatch directly with empty payloads array
-      await expect(
-        action.performBatch(mockRequest, {
-          payload: [],
-          settings: defaultSettings
-        } as any)
-      ).rejects.toThrow('No profiles provided')
+      await expect(action.performBatch(mockRequest, executeInput)).rejects.toThrow('No profiles provided')
     })
 
     it('should filter out invalid profiles and process valid ones', async () => {
@@ -850,7 +836,7 @@ describe('Memora.upsertProfile', () => {
         }
       ]
 
-      const executeInput = {
+      const executeInput: ExecuteInput<Settings, Payload[], Logger> = {
         payload: payloads,
         settings: defaultSettings,
         logger: mockLogger
@@ -860,7 +846,7 @@ describe('Memora.upsertProfile', () => {
         throw new Error('performBatch is not defined')
       }
 
-      const result = (await action.performBatch(mockRequest, executeInput as any)) as any
+      const result = (await action.performBatch(mockRequest, executeInput)) as any
 
       // Verify MultiStatusResponse structure - all profiles should have error status
       expect(result.length()).toBe(3)
@@ -1022,7 +1008,7 @@ describe('Memora.upsertProfile', () => {
         }
       ]
 
-      const executeInput = {
+      const executeInput: ExecuteInput<Settings, Payload[]> = {
         payload: payloads,
         settings: defaultSettings
       }
@@ -1031,7 +1017,7 @@ describe('Memora.upsertProfile', () => {
         throw new Error('performBatch is not defined')
       }
 
-      const result = (await action.performBatch(mockRequest, executeInput as any)) as any
+      const result = (await action.performBatch(mockRequest, executeInput)) as any
 
       // Verify MultiStatusResponse structure
       expect(result.length()).toBe(3)

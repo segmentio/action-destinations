@@ -137,7 +137,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       ).rejects.toThrow()
     })
 
-    it(`${actionSlug} action - should return error response when profile has no traits`, async () => {
+    it(`${actionSlug} action - should throw error when profile has no traits`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
@@ -153,15 +153,14 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         profile_traits: {}
       }
 
-      const responses = await testDestination.testAction(actionSlug, {
-        event: event,
-        mapping: mapping,
-        settings: settingsData,
-        auth: undefined
-      })
-
-      // Should return empty array (MultiStatusResponse with error status, not HTTP response)
-      expect(responses).toEqual([])
+      await expect(
+        testDestination.testAction(actionSlug, {
+          event: event,
+          mapping: mapping,
+          settings: settingsData,
+          auth: undefined
+        })
+      ).rejects.toThrow('Profile must contain at least one identifier')
     })
   }
 })

@@ -149,10 +149,16 @@ async function upsertProfiles(
     )
   }
 
-  // If all profiles are invalid, return MultiStatusResponse without making API call
+  // If all profiles are invalid, handle based on single vs batch execution
   if (validProfiles.length === 0) {
     logger?.warn?.('No valid profiles to import. All profiles failed validation.')
 
+    // For single-event execution (perform), throw error so runtime properly handles it
+    if (payloads.length === 1) {
+      throw new PayloadValidationError(validationErrors.get(0) || 'Invalid profile')
+    }
+
+    // For batch execution (performBatch), return MultiStatusResponse with per-profile errors
     const multiStatusResponse = new MultiStatusResponse()
     invalidIndices.forEach((index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
