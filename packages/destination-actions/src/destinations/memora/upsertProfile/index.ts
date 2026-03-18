@@ -35,9 +35,10 @@ const action: ActionDefinition<Settings, Payload> = {
       dynamic: true,
       disabledInputMethods: ['literal', 'variable', 'function', 'enrichment', 'freeform']
     },
-    contact_identifiers: {
-      label: 'Contact Identifiers',
-      description: 'Contact identifiers (email and/or phone). At least one identifier is required.',
+    profile_identifiers: {
+      label: 'Profile Identifiers',
+      description:
+        'Profile identifiers (email and/or phone). At least one identifier is required. These identifiers are stored in the Contact trait group.',
       type: 'object',
       required: true,
       additionalProperties: false,
@@ -62,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     profile_traits: {
       label: 'Profile Traits',
       description:
-        'Traits for the profile from all trait groups. At least one trait is required. These fields are dynamically loaded from the selected Memora Store. All traits use the format "TraitGroupName.$.traitName" (e.g., "Contact.$.firstName", "PurchaseHistory.$.lastPurchaseDate").',
+        'Traits for the profile from all trait groups. At least one trait is required. These fields are dynamically loaded from the selected Memora Store.',
       type: 'object',
       required: true,
       additionalProperties: true,
@@ -112,7 +113,7 @@ async function upsertProfiles(
 
   payloads.forEach((payload, index) => {
     // Validate that profile has at least one identifier AND at least one trait
-    const identifiers = payload.contact_identifiers || {}
+    const identifiers = payload.profile_identifiers || {}
     const hasIdentifier = !!(identifiers.email || identifiers.phone)
 
     const traits = (
@@ -213,8 +214,8 @@ function buildTraitGroups(payload: Payload): Record<string, Record<string, unkno
   }
 
   // Merge identifiers into Contact trait group (these are authoritative and will override any conflicting keys)
-  if (payload.contact_identifiers && typeof payload.contact_identifiers === 'object') {
-    const identifiers = payload.contact_identifiers as Record<string, unknown>
+  if (payload.profile_identifiers && typeof payload.profile_identifiers === 'object') {
+    const identifiers = payload.profile_identifiers as Record<string, unknown>
     Object.entries(identifiers).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         if (!traitGroups.Contact) {

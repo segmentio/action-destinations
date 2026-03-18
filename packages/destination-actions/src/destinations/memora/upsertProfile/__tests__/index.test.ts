@@ -17,7 +17,7 @@ const defaultSettings = {
 
 const defaultMapping = {
   memora_store: 'test-store-id',
-  contact_identifiers: {
+  profile_identifiers: {
     email: { '@path': '$.traits.email' },
     phone: { '@path': '$.traits.phone' }
   },
@@ -124,7 +124,7 @@ describe('Memora.upsertProfile', () => {
           event,
           settings: defaultSettings,
           mapping: {
-            contact_identifiers: defaultMapping.contact_identifiers
+            profile_identifiers: defaultMapping.profile_identifiers
           },
           useDefaultMappings: true
         })
@@ -144,7 +144,7 @@ describe('Memora.upsertProfile', () => {
           settings: defaultSettings,
           mapping: {
             memora_store: 'test-store-id',
-            contact_identifiers: {},
+            profile_identifiers: {},
             profile_traits: {
               'Contact.$.firstName': { '@path': '$.properties.first_name' }
             }
@@ -169,7 +169,7 @@ describe('Memora.upsertProfile', () => {
           settings: defaultSettings,
           mapping: {
             memora_store: 'test-store-id',
-            contact_identifiers: {
+            profile_identifiers: {
               email: { '@path': '$.properties.email' }
             },
             profile_traits: {}
@@ -196,7 +196,7 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             email: { '@path': '$.properties.email' }
           },
           profile_traits: {
@@ -227,7 +227,7 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             phone: { '@path': '$.properties.phone' }
           },
           profile_traits: {
@@ -259,7 +259,7 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             email: { '@path': '$.properties.email' },
             phone: { '@path': '$.properties.phone' }
           },
@@ -386,7 +386,7 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             email: { '@path': '$.properties.email' }
           },
           profile_traits: {
@@ -429,13 +429,13 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             email: { '@path': '$.traits.email' },
             phone: { '@path': '$.traits.phone' }
           },
           profile_traits: {
             'Contact.$.firstName': { '@path': '$.traits.first_name' },
-            // Attempting to override identifiers (will be overridden by contact_identifiers which are authoritative)
+            // Attempting to override identifiers (will be overridden by profile_identifiers which are authoritative)
             'Contact.$.email': { '@literal': 'wrong@example.com' },
             'Contact.$.phone': { '@literal': '+1-555-9999' }
           }
@@ -476,7 +476,7 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             email: { '@path': '$.traits.email' }
           },
           profile_traits: {
@@ -525,7 +525,7 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             email: { '@path': '$.traits.email' }
           },
           profile_traits: {
@@ -638,7 +638,7 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             email: { '@path': '$.properties.email' }
           },
           profile_traits: {
@@ -668,17 +668,17 @@ describe('Memora.upsertProfile', () => {
       const payloads: Payload[] = [
         {
           memora_store: 'test-store-id',
-          contact_identifiers: {},
+          profile_identifiers: {},
           profile_traits: { 'Contact.$.firstName': 'Missing identifier' }
         },
         {
           memora_store: 'test-store-id',
-          contact_identifiers: { email: 'valid@example.com' },
+          profile_identifiers: { email: 'valid@example.com' },
           profile_traits: { 'Contact.$.firstName': 'Valid' }
         },
         {
           memora_store: 'test-store-id',
-          contact_identifiers: { email: 'another@example.com' },
+          profile_identifiers: { email: 'another@example.com' },
           profile_traits: {}
         }
       ]
@@ -740,12 +740,12 @@ describe('Memora.upsertProfile', () => {
       const payloads: Payload[] = [
         {
           memora_store: 'test-store-id',
-          contact_identifiers: {},
+          profile_identifiers: {},
           profile_traits: { 'Contact.$.firstName': undefined }
         },
         {
           memora_store: 'test-store-id',
-          contact_identifiers: { email: 'test@example.com' },
+          profile_identifiers: { email: 'test@example.com' },
           profile_traits: {}
         }
       ]
@@ -809,7 +809,7 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             email: { '@path': '$.properties.email' },
             phone: { '@path': '$.properties.phone' }
           },
