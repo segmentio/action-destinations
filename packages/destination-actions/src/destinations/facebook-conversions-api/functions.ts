@@ -599,15 +599,15 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
   const ct = cleanAndHash(city)
 
   const st = (() => {
-    const stateCleaned = cleanAndHash(state)
-    return US_STATE_CODES.get(stateCleaned ?? '') ?? (stateCleaned || undefined)
+    const stateCleaned = clean(state)
+    return hash(US_STATE_CODES.get(stateCleaned ?? '') ?? (stateCleaned || undefined))
   })()
 
   const zp = cleanAndHash(zip)
 
   const countryValue = (() => {
     const cleaned = clean(country)
-    return COUNTRY_CODES.get(cleaned ?? '') ?? cleaned
+    return hash(COUNTRY_CODES.get(cleaned ?? '') ?? cleaned)
   })()
 
   const external_id = hashArray(externalId)

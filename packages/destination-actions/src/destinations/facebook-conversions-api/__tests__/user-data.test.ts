@@ -171,6 +171,74 @@ describe('FacebookConversionsApi', () => {
         const hashed_data = getUserData(userData)
         expect(Object.keys(hashed_data).length).toEqual(0)
       })
+
+      describe('state normalization', () => {
+        it('should normalize a full state name to its 2-letter code before hashing', () => {
+          const userData: Payload['user_data'] = { state: 'California' }
+          const hashed_data = getUserData(userData)
+          // Should hash('ca'), not hash('california')
+          expect(hashed_data.st).toEqual(hash('ca'))
+          expect(hashed_data.st).not.toEqual(hash('california'))
+        })
+
+        it('should normalize a lowercase full state name to its 2-letter code before hashing', () => {
+          const userData: Payload['user_data'] = { state: 'california' }
+          const hashed_data = getUserData(userData)
+          expect(hashed_data.st).toEqual(hash('ca'))
+        })
+
+        it('should hash an already-abbreviated state code directly', () => {
+          const userData: Payload['user_data'] = { state: 'CA' }
+          const hashed_data = getUserData(userData)
+          // 'CA' cleans to 'ca', not found as full name in map, hashed as-is
+          expect(hashed_data.st).toEqual(hash('ca'))
+        })
+
+        it('should produce the same hash for full name and abbreviated state code', () => {
+          const full = getUserData({ state: 'California' })
+          const abbrev = getUserData({ state: 'CA' })
+          expect(full.st).toEqual(abbrev.st)
+        })
+
+        it('should return undefined for undefined state', () => {
+          const hashed_data = getUserData({ state: undefined })
+          expect(hashed_data.st).toBeUndefined()
+        })
+      })
+
+      describe('country normalization', () => {
+        it('should normalize a full country name to its 2-letter code before hashing', () => {
+          const userData: Payload['user_data'] = { country: 'United States' }
+          const hashed_data = getUserData(userData)
+          // Should hash('us'), not hash('unitedstates')
+          expect(hashed_data.country).toEqual(hash('us'))
+          expect(hashed_data.country).not.toEqual(hash('unitedstates'))
+        })
+
+        it('should normalize a lowercase full country name to its 2-letter code before hashing', () => {
+          const userData: Payload['user_data'] = { country: 'united states' }
+          const hashed_data = getUserData(userData)
+          expect(hashed_data.country).toEqual(hash('us'))
+        })
+
+        it('should hash an already-abbreviated country code directly', () => {
+          const userData: Payload['user_data'] = { country: 'US' }
+          const hashed_data = getUserData(userData)
+          // 'US' cleans to 'us', not found as full name in map, hashed as-is
+          expect(hashed_data.country).toEqual(hash('us'))
+        })
+
+        it('should produce the same hash for full name and abbreviated country code', () => {
+          const full = getUserData({ country: 'United States' })
+          const abbrev = getUserData({ country: 'US' })
+          expect(full.country).toEqual(abbrev.country)
+        })
+
+        it('should return undefined for undefined country', () => {
+          const hashed_data = getUserData({ country: undefined })
+          expect(hashed_data.country).toBeUndefined()
+        })
+      })
     })
 
     describe('clean', () => {
