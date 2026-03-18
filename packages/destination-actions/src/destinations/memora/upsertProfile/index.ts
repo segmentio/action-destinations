@@ -149,10 +149,20 @@ async function upsertProfiles(
     )
   }
 
+  // If all profiles are invalid, return MultiStatusResponse without making API call
   if (validProfiles.length === 0) {
-    throw new PayloadValidationError(
-      'No valid profiles found for import. All profiles must contain at least one identifier (email or phone) and at least one trait.'
-    )
+    logger?.warn?.('No valid profiles to import. All profiles failed validation.')
+
+    const multiStatusResponse = new MultiStatusResponse()
+    invalidIndices.forEach((index) => {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errormessage: validationErrors.get(index) || 'Invalid profile',
+        sent: {},
+        body: 'skipped'
+      })
+    })
+    return multiStatusResponse
   }
 
   try {
