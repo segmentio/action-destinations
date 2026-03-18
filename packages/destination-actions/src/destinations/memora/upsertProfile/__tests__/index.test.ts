@@ -596,6 +596,54 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.PurchaseHistory.lastPurchaseDate).toBe('2024-03-15')
       expect(profile.traits.PurchaseHistory.favoriteCategory).toBe('Books')
     })
+
+    it('should throw error for invalid trait key formats', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-893',
+        traits: {
+          email: 'invalid@example.com',
+          first_name: 'Test'
+        }
+      })
+
+      await expect(
+        testDestination.testAction('upsertProfile', {
+          event,
+          settings: defaultSettings,
+          mapping: {
+            memora_store: 'test-store-id',
+            profile_identifiers: {
+              email: { '@path': '$.traits.email' }
+            },
+            profile_traits: {
+              'Contact.$.firstName': { '@path': '$.traits.first_name' }, // Valid format
+              'Contact.firstName': { '@literal': 'InvalidFormat1' }, // Missing ".$."
+              ContactlastName: { '@literal': 'InvalidFormat2' }, // Missing separators
+              'Contact$.age': { '@literal': '25' } // Missing dot before $
+            }
+          },
+          useDefaultMappings: false
+        })
+      ).rejects.toThrow('Invalid trait key format detected')
+
+      await expect(
+        testDestination.testAction('upsertProfile', {
+          event,
+          settings: defaultSettings,
+          mapping: {
+            memora_store: 'test-store-id',
+            profile_identifiers: {
+              email: { '@path': '$.traits.email' }
+            },
+            profile_traits: {
+              'Contact.firstName': { '@literal': 'WrongFormat' }
+            }
+          },
+          useDefaultMappings: false
+        })
+      ).rejects.toThrow('Contact.firstName')
+    })
   })
 
   describe('performBatch (multiple profiles)', () => {

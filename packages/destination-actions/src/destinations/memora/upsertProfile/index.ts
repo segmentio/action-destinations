@@ -192,6 +192,7 @@ async function upsertProfiles(
 // Build trait groups payload for Memora API
 function buildTraitGroups(payload: Payload): Record<string, Record<string, unknown>> {
   const traitGroups: Record<string, Record<string, unknown>> = {}
+  const invalidKeys: string[] = []
 
   // Process all traits from profile_traits field (format: TraitGroupName.$.traitName)
   if (payload.profile_traits && typeof payload.profile_traits === 'object') {
@@ -208,9 +209,22 @@ function buildTraitGroups(payload: Payload): Record<string, Record<string, unkno
             traitGroups[traitGroupName] = {}
           }
           traitGroups[traitGroupName][traitName] = value
+        } else {
+          // Track invalid keys for error reporting
+          invalidKeys.push(key)
         }
       }
     })
+
+    // Throw error for invalid trait keys to prevent data loss
+    if (invalidKeys.length > 0) {
+      throw new PayloadValidationError(
+        `Invalid trait key format detected. The following keys do not match the expected format: ${invalidKeys.join(
+          ', '
+        )}. ` +
+          `Expected format: "TraitGroupName.$.traitName" (e.g., "Contact.$.firstName", "PurchaseHistory.$.lastPurchaseDate").`
+      )
+    }
   }
 
   // Merge identifiers into Contact trait group (these are authoritative and will override any conflicting keys)
