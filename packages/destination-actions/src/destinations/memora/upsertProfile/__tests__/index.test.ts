@@ -836,7 +836,7 @@ describe('Memora.upsertProfile', () => {
         }
       ]
 
-      const executeInput: ExecuteInput<Settings, Payload[], Logger> = {
+      const executeInput: ExecuteInput<Settings, Payload[]> = {
         payload: payloads,
         settings: defaultSettings,
         logger: mockLogger
