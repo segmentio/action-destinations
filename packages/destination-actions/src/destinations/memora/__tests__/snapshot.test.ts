@@ -35,11 +35,11 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const mapping = {
         ...event.properties,
         memora_store: 'test-store-id',
-        contact_identifiers: {
+        profile_identifiers: {
           email: 'test@example.com'
         },
-        contact_traits: {
-          firstName: 'Test'
+        profile_traits: {
+          'Contact.$.firstName': 'Test'
         }
       }
 
@@ -80,12 +80,12 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const mapping = {
         ...event.properties,
         memora_store: 'test-store-id',
-        contact_identifiers: {
+        profile_identifiers: {
           email: 'test@example.com'
         },
-        contact_traits: {
-          firstName: 'Test',
-          lastName: 'User'
+        profile_traits: {
+          'Contact.$.firstName': 'Test',
+          'Contact.$.lastName': 'User'
         }
       }
 
@@ -119,11 +119,11 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const mapping = {
         ...event.properties,
-        contact_identifiers: {
+        profile_identifiers: {
           email: 'test@example.com'
         },
-        contact_traits: {
-          firstName: 'Test'
+        profile_traits: {
+          'Contact.$.firstName': 'Test'
         }
       }
 
@@ -153,8 +153,8 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const mapping = {
         ...event.properties,
         memora_store: 'test-store-id',
-        contact_identifiers: {},
-        contact_traits: {}
+        profile_identifiers: {},
+        profile_traits: {}
       }
 
       await expect(
