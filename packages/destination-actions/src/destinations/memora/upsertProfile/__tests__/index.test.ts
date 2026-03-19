@@ -876,6 +876,41 @@ describe('Memora.upsertProfile', () => {
       expect(mockRequest).not.toHaveBeenCalled()
     })
 
+    it('should return MultiStatusResponse when performBatch called with single invalid payload', async () => {
+      const mockRequest = jest.fn() as unknown as RequestClient
+      const action = Destination.actions.upsertProfile
+
+      // Single invalid payload in a batch
+      const payloads: Payload[] = [
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: {},
+          profile_traits: {}
+        }
+      ]
+
+      const executeInput: ExecuteInput<Settings, Payload[]> = {
+        payload: payloads,
+        settings: defaultSettings
+      }
+
+      if (!action.performBatch) {
+        throw new Error('performBatch is not defined')
+      }
+
+      const result = (await action.performBatch(mockRequest, executeInput)) as any
+
+      // Should return MultiStatusResponse (not throw), even with single payload
+      expect(result.length()).toBe(1)
+      expect(result.isErrorResponseAtIndex(0)).toBe(true)
+      const error = result.getResponseAtIndex(0).value()
+      expect(error.status).toBe(400)
+      expect(error.errormessage).toContain('Profile must contain at least one identifier')
+
+      // Verify no API call was made
+      expect(mockRequest).not.toHaveBeenCalled()
+    })
+
     it('should handle batch with sparse data correctly', async () => {
       const events = [
         createTestEvent({

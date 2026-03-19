@@ -85,7 +85,16 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, settings, logger }) => {
-    return upsertProfiles(request, [payload], settings, logger)
+    const result = await upsertProfiles(request, [payload], settings, logger)
+
+    // For single-event execution, convert validation errors to thrown exceptions
+    if (result.isErrorResponseAtIndex(0)) {
+      const response = result.getResponseAtIndex(0).value()
+      const error = response as { status: number; errormessage?: string }
+      throw new PayloadValidationError(error.errormessage || 'Invalid profile')
+    }
+
+    return result
   },
 
   performBatch: async (request, { payload: payloads, settings, logger }) => {
@@ -149,16 +158,10 @@ async function upsertProfiles(
     )
   }
 
-  // If all profiles are invalid, handle based on single vs batch execution
+  // If all profiles are invalid, return MultiStatusResponse with per-profile errors
   if (validProfiles.length === 0) {
     logger?.warn?.('No valid profiles to import. All profiles failed validation.')
 
-    // For single-event execution (perform), throw error so runtime properly handles it
-    if (payloads.length === 1) {
-      throw new PayloadValidationError(validationErrors.get(0) || 'Invalid profile')
-    }
-
-    // For batch execution (performBatch), return MultiStatusResponse with per-profile errors
     const multiStatusResponse = new MultiStatusResponse()
     invalidIndices.forEach((index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
