@@ -127,7 +127,7 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Assert yarn.lock is up-to-date
+      - name: Assert pnpm-lock.yaml is up-to-date
         run: bash scripts/assert-lockfile-updated.sh
 
       - name: Build # TODO: This monorepo should be refactored so packages can be linted invidually. "affected" will not work ATM.
