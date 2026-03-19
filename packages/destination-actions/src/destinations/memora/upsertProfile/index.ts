@@ -1,4 +1,4 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, PayloadValidationError, MultiStatusResponse } from '@segment/actions-core'
@@ -85,11 +85,26 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, settings, logger }) => {
-    return upsertProfiles(request, [payload], settings, logger)
+    const { rawResponse, multiStatus } = await upsertProfiles(request, [payload], settings, logger)
+
+    // For single-event execution, convert validation errors to thrown exceptions
+    if (multiStatus.isErrorResponseAtIndex(0)) {
+      const response = multiStatus.getResponseAtIndex(0).value()
+      const error = response as { status: number; errormessage?: string }
+      throw new PayloadValidationError(error.errormessage || 'Invalid profile')
+    }
+
+    // rawResponse should always be defined if we reach here (validation passed)
+    if (!rawResponse) {
+      throw new IntegrationError('No response returned from bulk upsert', 'MISSING_RESPONSE', 500)
+    }
+
+    return rawResponse
   },
 
   performBatch: async (request, { payload: payloads, settings, logger }) => {
-    return upsertProfiles(request, payloads, settings, logger)
+    const { multiStatus } = await upsertProfiles(request, payloads, settings, logger)
+    return multiStatus
   }
 }
 
@@ -99,7 +114,7 @@ async function upsertProfiles(
   payloads: Payload[],
   settings: Settings,
   logger?: Logger
-): Promise<MultiStatusResponse> {
+): Promise<{ rawResponse: ModifiedResponse | undefined; multiStatus: MultiStatusResponse }> {
   if (!payloads || payloads.length === 0) {
     throw new IntegrationError('No profiles provided', 'EMPTY_BATCH', 400)
   }
@@ -149,16 +164,10 @@ async function upsertProfiles(
     )
   }
 
-  // If all profiles are invalid, handle based on single vs batch execution
+  // If all profiles are invalid, return MultiStatusResponse with per-profile errors
   if (validProfiles.length === 0) {
     logger?.warn?.('No valid profiles to import. All profiles failed validation.')
 
-    // For single-event execution (perform), throw error so runtime properly handles it
-    if (payloads.length === 1) {
-      throw new PayloadValidationError(validationErrors.get(0) || 'Invalid profile')
-    }
-
-    // For batch execution (performBatch), return MultiStatusResponse with per-profile errors
     const multiStatusResponse = new MultiStatusResponse()
     invalidIndices.forEach((index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
@@ -166,7 +175,7 @@ async function upsertProfiles(
         errormessage: validationErrors.get(index) || 'Invalid profile'
       })
     })
-    return multiStatusResponse
+    return { rawResponse: undefined, multiStatus: multiStatusResponse }
   }
 
   try {
@@ -205,7 +214,7 @@ async function upsertProfiles(
       })
     })
 
-    return multiStatusResponse
+    return { rawResponse: response, multiStatus: multiStatusResponse }
   } catch (error) {
     logger?.error?.(`Error in bulk upsert: ${error instanceof Error ? error.message : String(error)}`)
     throw error

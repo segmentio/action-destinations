@@ -620,6 +620,46 @@ describe('Memora.upsertProfile', () => {
       // Verify no API call was made
       expect(mockRequest).not.toHaveBeenCalled()
     })
+
+    it('should return raw ModifiedResponse when perform succeeds', async () => {
+      const mockRequest = jest.fn().mockResolvedValue({
+        status: 202,
+        data: { success: true },
+        headers: { 'content-type': 'application/json' },
+        content: '{"success":true}'
+      }) as unknown as RequestClient
+      const action = Destination.actions.upsertProfile
+
+      const payload: Payload = {
+        memora_store: 'test-store-id',
+        profile_identifiers: { email: 'success@example.com' },
+        profile_traits: { 'Contact.$.firstName': 'John' }
+      }
+
+      const executeInput: ExecuteInput<Settings, Payload> = {
+        payload,
+        settings: defaultSettings
+      }
+
+      if (!action.perform) {
+        throw new Error('perform is not defined')
+      }
+
+      const result = await action.perform(mockRequest, executeInput)
+
+      // Should return raw ModifiedResponse (not MultiStatusResponse)
+      expect(result).toHaveProperty('status', 202)
+      expect(result).toHaveProperty('data')
+      expect(result).toHaveProperty('headers')
+      expect(result).toHaveProperty('content')
+
+      // Should NOT have MultiStatusResponse methods
+      expect(result).not.toHaveProperty('length')
+      expect(result).not.toHaveProperty('getResponseAtIndex')
+
+      // Verify API call was made
+      expect(mockRequest).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('performBatch (multiple profiles)', () => {
@@ -873,6 +913,41 @@ describe('Memora.upsertProfile', () => {
       // Verify logger.warn was called
       expect(mockLogger.warn).toHaveBeenCalledWith('Skipped 3 invalid profile(s). Processing 0 valid profile(s).')
       expect(mockLogger.warn).toHaveBeenCalledWith('No valid profiles to import. All profiles failed validation.')
+
+      // Verify no API call was made
+      expect(mockRequest).not.toHaveBeenCalled()
+    })
+
+    it('should return MultiStatusResponse when performBatch called with single invalid payload', async () => {
+      const mockRequest = jest.fn() as unknown as RequestClient
+      const action = Destination.actions.upsertProfile
+
+      // Single invalid payload in a batch
+      const payloads: Payload[] = [
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: {},
+          profile_traits: {}
+        }
+      ]
+
+      const executeInput: ExecuteInput<Settings, Payload[]> = {
+        payload: payloads,
+        settings: defaultSettings
+      }
+
+      if (!action.performBatch) {
+        throw new Error('performBatch is not defined')
+      }
+
+      const result = (await action.performBatch(mockRequest, executeInput)) as any
+
+      // Should return MultiStatusResponse (not throw), even with single payload
+      expect(result.length()).toBe(1)
+      expect(result.isErrorResponseAtIndex(0)).toBe(true)
+      const error = result.getResponseAtIndex(0).value()
+      expect(error.status).toBe(400)
+      expect(error.errormessage).toContain('Profile must contain at least one identifier')
 
       // Verify no API call was made
       expect(mockRequest).not.toHaveBeenCalled()
