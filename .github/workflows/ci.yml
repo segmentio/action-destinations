@@ -186,8 +186,8 @@ jobs:
       #   working-directory: packages/browser-destinations-integration-tests
       #   shell: bash
       #   run: |
-      #     yarn start-destination-server &
-      #     yarn test:sauce
+      #     pnpm start-destination-server &
+      #     pnpm test:sauce
 
   browser-tests-core:
     name: 'Browser tests: actions-core'
