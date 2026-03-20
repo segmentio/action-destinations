@@ -369,6 +369,7 @@ function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number)
     return buildMultiStatusErrorResponse(payloadSize, {
       status: 500,
       errortype: ErrorCodes.RETRYABLE_ERROR,
+      body: response.errors[0] as unknown as JSONLikeObject,
       errormessage: message
     })
   }
@@ -376,6 +377,7 @@ function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number)
   return buildMultiStatusErrorResponse(payloadSize, {
     status: 406,
     errortype: ErrorCodes.NOT_ACCEPTABLE,
+    body: response.errors[0] as unknown as JSONLikeObject,
     errormessage: message
   })
 }
