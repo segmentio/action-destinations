@@ -79,15 +79,15 @@ export interface OnMappingSaveInputs {
   /**
    * The name of the conversion rule.
    */
-  name?: string
+  name: string
   /**
    * The type of conversion rule.
    */
-  conversionType?: string
+  conversionType: string
   /**
    * The attribution type for the conversion rule.
    */
-  attribution_type?: string
+  attribution_type: string
   /**
    * Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 30.
    */
