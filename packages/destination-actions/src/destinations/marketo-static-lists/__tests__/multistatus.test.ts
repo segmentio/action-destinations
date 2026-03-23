@@ -129,13 +129,13 @@ describe('MultiStatus', () => {
           status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'INTEGRATIONS'
+          errorreporter: 'DESTINATION'
         },
         {
           status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'INTEGRATIONS'
+          errorreporter: 'DESTINATION'
         }
       ])
     })
@@ -163,13 +163,13 @@ describe('MultiStatus', () => {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'INTEGRATIONS'
+            errorreporter: 'DESTINATION'
           },
           {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'INTEGRATIONS'
+            errorreporter: 'DESTINATION'
           }
         ])
       }
@@ -353,13 +353,13 @@ describe('MultiStatus', () => {
           status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'INTEGRATIONS'
+          errorreporter: 'DESTINATION'
         },
         {
           status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'INTEGRATIONS'
+          errorreporter: 'DESTINATION'
         }
       ])
     })
@@ -395,13 +395,13 @@ describe('MultiStatus', () => {
           status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'INTEGRATIONS'
+          errorreporter: 'DESTINATION'
         },
         {
           status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'INTEGRATIONS'
+          errorreporter: 'DESTINATION'
         }
       ])
     })
@@ -429,13 +429,13 @@ describe('MultiStatus', () => {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'INTEGRATIONS'
+            errorreporter: 'DESTINATION'
           },
           {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'INTEGRATIONS'
+            errorreporter: 'DESTINATION'
           }
         ])
       }
@@ -474,13 +474,13 @@ describe('MultiStatus', () => {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'INTEGRATIONS'
+            errorreporter: 'DESTINATION'
           },
           {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'INTEGRATIONS'
+            errorreporter: 'DESTINATION'
           }
         ])
       }
