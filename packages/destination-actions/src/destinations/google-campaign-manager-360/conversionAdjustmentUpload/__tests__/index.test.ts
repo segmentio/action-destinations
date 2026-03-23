@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
-import { API_VERSION } from '../../utils'
+import { API_VERSION, CANARY_API_VERSION, FLAGON_NAME } from '../../utils'
 
 const testDestination = createTestIntegration(Destination)
 const timestamp = new Date('Thu Jun 10 2024 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
@@ -1267,7 +1267,7 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
 
       // Should call v5 endpoint when feature flag is enabled
       nock(
-        `https://dfareporting.googleapis.com/dfareporting/v5/userprofiles/${profileId}/conversions/batchupdate`
+        `https://dfareporting.googleapis.com/dfareporting/${CANARY_API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
       )
         .post('')
         .reply(200, { results: [{}] })
@@ -1300,7 +1300,7 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
             defaultFloodlightActivityId: floodlightActivityId,
             defaultFloodlightConfigurationId: floodlightConfigurationId
           },
-          features: { 'cm360-canary-api-version': true }
+          features: { [FLAGON_NAME]: true }
         })
       ).resolves.not.toThrowError()
     })
