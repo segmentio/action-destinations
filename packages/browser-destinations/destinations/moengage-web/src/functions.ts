@@ -21,12 +21,13 @@ export function initializeSDK(settings: Settings): Promise<void> {
         }
         // @ts-expect-error - vendor code
         var s = (e[a] = e[a] || []);
+        // @ts-expect-error - vendor code: s is an untyped stub object with invoked/initialised properties
         if (((s.invoked = 0), s.initialised > 0 || s.invoked > 0)){
             return (console.error("MoEngage Web SDK initialised multiple times. Please integrate the Web SDK only once!"),!1);
         }
         e.moengage_object = a;
         var l = {};
-        var g= function n(i) {
+        var g= function n(i: string) {
             return function () {
                 for (var n = arguments.length, t = Array(n), a = 0; a < n; a++)
                 t[a] = arguments[a];
@@ -68,7 +69,7 @@ export function initializeSDK(settings: Settings): Promise<void> {
 
         r = n.createElement(i)
         o = n.getElementsByTagName("head")[0]
-        r.async = 1
+        r.async = true
         r.src = t
         o.appendChild(r)
         e.moe = e.moe ||
