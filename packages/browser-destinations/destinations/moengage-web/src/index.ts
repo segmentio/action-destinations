@@ -170,6 +170,8 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
         floating_bell_icon_mobile
     } = settings
     
+    await initializeSDK(settings)
+
     const initConfig: InitConfig = {
         app_id,
         env,
@@ -191,7 +193,7 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
         } : {})
     }
 
-    await initializeSDK(settings)
+    await deps.resolveWhen(() => typeof window.moe === 'function', 100)
 
     if(window.moe) {
       window.Moengage = window.moe(initConfig)
