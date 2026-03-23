@@ -89,7 +89,23 @@ export interface Payload {
     device_id?: string
   }
   /**
+   * Segment channel (e.g. client, server). When set to "server" and no IP is present, $ip is set to 0 so the backend does not use the request IP.
+   */
+  channel?: string
+  /**
    * The timestamp of the event
    */
   timestamp: string | number
+  /**
+   * When enabled, events are sent in batches to Altertable.
+   */
+  enable_batching: boolean
+  /**
+   * Maximum number of events per batch request.
+   */
+  batch_size?: number
+  /**
+   * Maximum batch payload size in bytes.
+   */
+  batch_bytes?: number
 }

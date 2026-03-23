@@ -2,27 +2,28 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from '../fields'
-import { send, sendIdentifyBatch } from '../utils'
+import { sendAlias, sendAliasBatch } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Identify',
-  description: 'Identify a user in Altertable.',
+  title: 'Alias',
+  description: 'Link a previous anonymous or temporary ID to a user ID in Altertable.',
+  defaultSubscription: 'type = "alias"',
   fields: {
     type: {
       label: 'Segment Event Type',
       description: 'The Segment event type',
       type: 'string',
-      choices: [{ label: 'identify', value: 'identify' }],
+      choices: [{ label: 'alias', value: 'alias' }],
       required: true,
-      default: 'identify'
+      default: 'alias'
     },
-    traits: {
-      label: 'Traits',
-      description: 'The traits of the user',
-      type: 'object',
+    previousId: {
+      label: 'Previous ID',
+      description: 'The previous user identifier (maps to distinct_id in the Altertable API).',
+      type: 'string',
       required: true,
       default: {
-        '@path': '$.traits'
+        '@path': '$.previousId'
       }
     },
     ...commonFields,
@@ -51,11 +52,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Maximum batch payload size in bytes.'
     }
   },
-  perform: (request, { payload, settings }) => {
-    return send(request, settings, payload)
+  perform: (request, { settings, payload }) => {
+    return sendAlias(request, settings, payload)
   },
   performBatch: (request, { settings, payload }) => {
-    return sendIdentifyBatch(request, settings, payload)
+    return sendAliasBatch(request, settings, payload)
   }
 }
 

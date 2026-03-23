@@ -6,11 +6,9 @@ export interface Payload {
    */
   type: string
   /**
-   * The traits of the user
+   * The previous user identifier (maps to distinct_id in the Altertable API).
    */
-  traits: {
-    [k: string]: unknown
-  }
+  previousId: string
   /**
    * The ID of the user
    */
