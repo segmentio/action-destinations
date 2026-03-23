@@ -197,10 +197,7 @@ export async function removeFromList(
   })
 
   if (!deleteLeadsResponse.data.success) {
-    statsContext?.statsClient?.incr('removeFromAudience.error', 1, [
-      ...(statsContext?.tags ?? []),
-      `error_code:${deleteLeadsResponse?.data?.errors?.[0]?.code ?? 'unknown'}`
-    ])
+    statsContext?.statsClient?.incr('removeFromAudience.error', 1, statsContext?.tags)
     parseErrorResponse(deleteLeadsResponse.data)
   }
   statsContext?.statsClient?.incr('removeFromAudience.success', 1, statsContext?.tags)

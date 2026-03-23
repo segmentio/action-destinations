@@ -129,13 +129,15 @@ describe('MultiStatus', () => {
           status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'DESTINATION'
+          errorreporter: 'DESTINATION',
+          body: { code: '612', message: 'Invalid Content Type' }
         },
         {
           status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'DESTINATION'
+          errorreporter: 'DESTINATION',
+          body: { code: '612', message: 'Invalid Content Type' }
         }
       ])
     })
@@ -163,13 +165,15 @@ describe('MultiStatus', () => {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'DESTINATION'
+            errorreporter: 'DESTINATION',
+            body: { code, message: `Transient error ${code}` }
           },
           {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'DESTINATION'
+            errorreporter: 'DESTINATION',
+            body: { code, message: `Transient error ${code}` }
           }
         ])
       }
@@ -353,13 +357,15 @@ describe('MultiStatus', () => {
           status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'DESTINATION'
+          errorreporter: 'DESTINATION',
+          body: { code: '612', message: 'Invalid Content Type' }
         },
         {
           status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'DESTINATION'
+          errorreporter: 'DESTINATION',
+          body: { code: '612', message: 'Invalid Content Type' }
         }
       ])
     })
@@ -395,13 +401,15 @@ describe('MultiStatus', () => {
           status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'DESTINATION'
+          errorreporter: 'DESTINATION',
+          body: { code: '612', message: 'Invalid Content Type' }
         },
         {
           status: 406,
           errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'DESTINATION'
+          errorreporter: 'DESTINATION',
+          body: { code: '612', message: 'Invalid Content Type' }
         }
       ])
     })
@@ -429,13 +437,15 @@ describe('MultiStatus', () => {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'DESTINATION'
+            errorreporter: 'DESTINATION',
+            body: { code, message: `Transient error ${code}` }
           },
           {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'DESTINATION'
+            errorreporter: 'DESTINATION',
+            body: { code, message: `Transient error ${code}` }
           }
         ])
       }
@@ -474,13 +484,15 @@ describe('MultiStatus', () => {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'DESTINATION'
+            errorreporter: 'DESTINATION',
+            body: { code, message: `Transient error ${code}` }
           },
           {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'DESTINATION'
+            errorreporter: 'DESTINATION',
+            body: { code, message: `Transient error ${code}` }
           }
         ])
       }
