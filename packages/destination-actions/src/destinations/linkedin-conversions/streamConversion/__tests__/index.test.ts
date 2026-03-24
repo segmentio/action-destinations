@@ -907,3 +907,167 @@ describe('LinkedinConversions.onMappingSave - Conversion Rule Creation', () => {
     expect(creationRequest.isDone()).toBe(false)
   })
 })
+
+describe('LinkedinConversions.onMappingSave - performHook', () => {
+  it('should return error when creating a new rule without required fields', async () => {
+    const result = await testDestination.actions.streamConversion.executeHook('onMappingSave', {
+      settings,
+      hookInputs: {
+        adAccountId: 'urn:li:sponsoredAccount:12345'
+      },
+      hookOutputs: {},
+      payload: {}
+    })
+
+    expect(result).toMatchObject({
+      error: {
+        message: 'Missing required fields for creating a new conversion rule: Name, Conversion Type, Attribution Type',
+        code: 'MISSING_REQUIRED_FIELD'
+      }
+    })
+  })
+
+  it('should return error when only some required fields are missing', async () => {
+    const result = await testDestination.actions.streamConversion.executeHook('onMappingSave', {
+      settings,
+      hookInputs: {
+        adAccountId: 'urn:li:sponsoredAccount:12345',
+        name: 'My Rule'
+      },
+      hookOutputs: {},
+      payload: {}
+    })
+
+    expect(result).toMatchObject({
+      error: {
+        message: 'Missing required fields for creating a new conversion rule: Conversion Type, Attribution Type',
+        code: 'MISSING_REQUIRED_FIELD'
+      }
+    })
+  })
+
+  it('should skip validation when conversionRuleId is provided', async () => {
+    nock(`${BASE_URL}/conversions/existingRule123`)
+      .get('')
+      .query({ account: 'urn:li:sponsoredAccount:12345' })
+      .reply(200, {
+        name: 'Existing Rule',
+        type: 'PURCHASE',
+        attributionType: 'LAST_TOUCH_BY_CAMPAIGN',
+        postClickAttributionWindowSize: 30,
+        viewThroughAttributionWindowSize: 7
+      })
+
+    const result = await testDestination.actions.streamConversion.executeHook('onMappingSave', {
+      settings,
+      hookInputs: {
+        adAccountId: 'urn:li:sponsoredAccount:12345',
+        conversionRuleId: 'existingRule123'
+      },
+      hookOutputs: {},
+      payload: {}
+    })
+
+    expect(result.savedData).toMatchObject({
+      id: 'existingRule123',
+      name: 'Existing Rule',
+      conversionType: 'PURCHASE',
+      attribution_type: 'LAST_TOUCH_BY_CAMPAIGN'
+    })
+  })
+
+  it('should skip validation when existing hook outputs are present', async () => {
+    nock(`${BASE_URL}/conversions/prevRule456`).post('').query({ account: 'urn:li:sponsoredAccount:12345' }).reply(200)
+
+    const result = await testDestination.actions.streamConversion.executeHook('onMappingSave', {
+      settings,
+      hookInputs: {
+        adAccountId: 'urn:li:sponsoredAccount:12345'
+      },
+      hookOutputs: {
+        onMappingSave: {
+          outputs: {
+            id: 'prevRule456',
+            name: 'Previous Rule',
+            conversionType: 'LEAD',
+            attribution_type: 'LAST_TOUCH_BY_CONVERSION',
+            post_click_attribution_window_size: 30,
+            view_through_attribution_window_size: 7
+          }
+        }
+      },
+      payload: {}
+    })
+
+    expect(result.savedData).toMatchObject({
+      id: 'prevRule456',
+      name: 'Previous Rule'
+    })
+  })
+
+  it('should successfully create a new conversion rule when all required fields are provided', async () => {
+    nock(`${BASE_URL}/conversions`)
+      .post('', {
+        name: 'New Rule',
+        account: 'urn:li:sponsoredAccount:12345',
+        conversionMethod: 'CONVERSIONS_API',
+        postClickAttributionWindowSize: 30,
+        viewThroughAttributionWindowSize: 7,
+        attributionType: 'LAST_TOUCH_BY_CAMPAIGN',
+        type: 'PURCHASE'
+      })
+      .reply(201, {
+        id: 'newRule789',
+        name: 'New Rule',
+        type: 'PURCHASE',
+        attributionType: 'LAST_TOUCH_BY_CAMPAIGN',
+        postClickAttributionWindowSize: 30,
+        viewThroughAttributionWindowSize: 7
+      })
+
+    const result = await testDestination.actions.streamConversion.executeHook('onMappingSave', {
+      settings,
+      hookInputs: {
+        adAccountId: 'urn:li:sponsoredAccount:12345',
+        name: 'New Rule',
+        conversionType: 'PURCHASE',
+        attribution_type: 'LAST_TOUCH_BY_CAMPAIGN',
+        post_click_attribution_window_size: 30,
+        view_through_attribution_window_size: 7
+      },
+      hookOutputs: {},
+      payload: {}
+    })
+
+    expect(result.savedData).toMatchObject({
+      id: 'newRule789',
+      name: 'New Rule',
+      conversionType: 'PURCHASE',
+      attribution_type: 'LAST_TOUCH_BY_CAMPAIGN',
+      post_click_attribution_window_size: 30,
+      view_through_attribution_window_size: 7
+    })
+    expect(result.successMessage).toContain('newRule789')
+  })
+
+  it('should return error when adAccountId is not provided', async () => {
+    const result = await testDestination.actions.streamConversion.executeHook('onMappingSave', {
+      settings,
+      hookInputs: {
+        adAccountId: '',
+        name: 'New Rule',
+        conversionType: 'PURCHASE',
+        attribution_type: 'LAST_TOUCH_BY_CAMPAIGN'
+      },
+      hookOutputs: {},
+      payload: {}
+    })
+
+    expect(result).toMatchObject({
+      error: {
+        message: 'Failed to create conversion rule: No Ad Account selected.',
+        code: 'CONVERSION_RULE_CREATION_FAILURE'
+      }
+    })
+  })
+})
