@@ -36,7 +36,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       dataSetName: {
         label: 'Dataset Name',
-        description: 'Amazon Ads uses Dataset Name to group events from specific sources. When setting up this destination for the first time, Amazon recommends reading [this FAQ](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-amazon-conversions-api#what-is-a-dataset-and-how-does-amazon-use-the-dataset-name).',
+        description: 'Amazon Ads organizes uploaded data into datasets, which are logical groupings used to separate and categorize events from your sources. All events within a dataset will appear in Amazon Ads Data Manager under the name you provide here. New destination? We recommend providing a dataset name during initial setup. Existing destination? We strongly recommend reading the [FAQ](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-amazon-conversions-api#what-is-a-dataset-and-how-does-amazon-use-the-dataset-name) before updating your dataset name, as changes may impact your existing events.',
         type: 'string',
         required: false, 
         placeholder: 'Default_Events'
