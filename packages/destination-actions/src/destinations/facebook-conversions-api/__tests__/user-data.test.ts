@@ -238,6 +238,21 @@ describe('FacebookConversionsApi', () => {
           const hashed_data = getUserData({ country: undefined })
           expect(hashed_data.country).toBeUndefined()
         })
+
+        it('should hash unrecognized country names as-is after cleaning', () => {
+          const testCases = [
+            { input: 'New South Wales', expected: hash('newsouthwales') },
+            { input: 'Ontario', expected: hash('ontario') },
+            { input: 'United States of America', expected: hash('unitedstatesofamerica') },
+            { input: 'Great Britain', expected: hash('greatbritain') },
+            { input: 'South Korea', expected: hash('southkorea') }
+          ]
+
+          testCases.forEach(({ input, expected }) => {
+            const hashed_data = getUserData({ country: input })
+            expect(hashed_data.country).toEqual(expected)
+          })
+        })
       })
     })
 
