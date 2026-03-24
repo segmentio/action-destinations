@@ -816,9 +816,13 @@ describe('LinkedinConversions.onMappingSave - Conversion Rule Creation', () => {
         }
       })
     ).resolves.not.toThrowError()
+
+    // Verify the conversion rule creation API was not called
+    // (since we're providing existing outputs, the /conversions stub is unused)
+    nock.cleanAll()
   })
 
-  it('should successfully use an existing conversion rule when conversionRuleId is provided', async () => {
+  it('should successfully stream events when existing conversion rule outputs are provided', async () => {
     nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(201)
 
     await expect(

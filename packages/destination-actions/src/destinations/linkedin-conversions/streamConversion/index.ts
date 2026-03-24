@@ -59,14 +59,12 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
           type: 'string',
           label: 'Name',
           description: 'The name of the conversion rule.',
-          required: true,
           depends_on: DEPENDS_ON_CONVERSION_RULE_ID
         },
         conversionType: {
           type: 'string',
           label: 'Conversion Type',
           description: 'The type of conversion rule.',
-          required: true,
           choices: CONVERSION_TYPE_OPTIONS,
           depends_on: DEPENDS_ON_CONVERSION_RULE_ID
         },
@@ -74,7 +72,6 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
           label: 'Attribution Type',
           description: 'The attribution type for the conversion rule.',
           type: 'string',
-          required: true,
           choices: [
             { label: 'Each Campaign', value: 'LAST_TOUCH_BY_CAMPAIGN' },
             { label: 'Single Campaign', value: 'LAST_TOUCH_BY_CONVERSION' }
@@ -142,6 +139,23 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
       },
       performHook: async (request, { hookInputs, hookOutputs }) => {
         const linkedIn = new LinkedInConversions(request)
+
+        // Validate required fields when creating a new conversion rule
+        if (!hookInputs?.conversionRuleId && !hookOutputs?.onMappingSave?.outputs) {
+          const missingFields: string[] = []
+          if (!hookInputs?.name) missingFields.push('Name')
+          if (!hookInputs?.conversionType) missingFields.push('Conversion Type')
+          if (!hookInputs?.attribution_type) missingFields.push('Attribution Type')
+
+          if (missingFields.length > 0) {
+            return {
+              error: {
+                message: `Missing required fields for creating a new conversion rule: ${missingFields.join(', ')}`,
+                code: 'MISSING_REQUIRED_FIELD'
+              }
+            }
+          }
+        }
 
         let hookReturn: ActionHookResponse<OnMappingSaveOutputs>
         if (hookOutputs?.onMappingSave?.outputs) {
