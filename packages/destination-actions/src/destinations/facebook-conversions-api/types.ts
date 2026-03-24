@@ -43,8 +43,8 @@ export type EventDataType =
 export type EventTypeKey = keyof typeof EventType
 
 export interface RequestJSON {
-    partner_agent: "segment",
-    data: [EventDataType],
+    partner_agent: "segment"
+    data: [EventDataType]
     test_event_code?: string
 }
 
