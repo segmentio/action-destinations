@@ -345,73 +345,6 @@ export const app_data_field: InputField = {
   }
 }
 
-export const is_append_event: InputField = {
-  label: 'Append Data to Existing Conversion',
-  description:
-    'Turn this on to add new information to a previously sent event. Currently supports late-calculated values for predicted lifetime value (pLTV) or net profit values. Make sure to resubmit all the original data from your conversion event as well as the pLTV or net profit values.',
-  type: 'boolean',
-  default: false,
-  required: false
-}
-
-export const append_event_details: InputField = {
-  label: 'Append Event Details',
-  description:
-    'Details to append to the original event. Order Id, Event Id and Original Timestamp are used to match the original event. Net Revenue and Predicted Lifetime Value are the late-calculated values to append to the original event.',
-  type: 'object',
-  defaultObjectUI: 'keyvalue',
-  properties: {
-    original_event_time: {
-      label: 'Original Event Time',
-      description: 'A timestamp indicating when the actual original event occurred in ISO 8601 format. Required to match to the original event.',
-      type: 'string',
-      format: 'date-time'
-    },
-    original_event_order_id: {
-      label: 'Original Order ID',
-      description:
-        'A unique identifier for the original purchase event, typically the order ID or transaction ID from your ecommerce system. Facebook uses this value to match to the original event.',
-      type: 'string'
-    },
-    original_event_id: {
-      label: 'Original Event ID',
-      description:
-        'This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API. Facebook uses this value to match to the original event.',
-      type: 'string'
-    },
-    net_revenue_to_append: {
-      label: 'Net Revenue',
-      description: 'The late-calculated numeric net revenue value to append to the original event.',
-      type: 'number'
-    },
-    predicted_ltv_to_append: {
-      label: 'Predicted Lifetime Value',
-      description: 'The late-calculated numeric predicted lifetime value (pLTV) to append to the original event.',
-      type: 'number'
-    }
-  },
-  depends_on: {
-    match: 'any',
-    conditions: [
-      {
-        fieldKey: 'is_append_event',
-        operator: 'is',
-        value: true
-      }
-    ]
-  },
-  required: {
-    match: 'any',
-    conditions: [
-      {
-        fieldKey: 'is_append_event',
-        operator: 'is',
-        value: true
-      }
-    ]
-  }
-}
-
 export const custom_data: InputField = {
   label: 'Custom Data',
   description:
@@ -645,8 +578,6 @@ export const test_event_code: InputField = {
 }
 
 export const purchaseFields: Record<string, InputField> = {
-  is_append_event,
-  append_event_details,
   action_source: { ...action_source, required: true },
   currency: { ...currency, required: true },
   event_time: { ...event_time, required: true },
@@ -835,8 +766,6 @@ export const searchFields: Record<string, InputField> = {
 }
 
 export const customFields: Record<string, InputField> = {
-  is_append_event,
-  append_event_details,
   action_source: { ...action_source, required: true },
   event_name: {
     label: 'Event Name',
