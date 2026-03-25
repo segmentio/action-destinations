@@ -398,7 +398,7 @@ export const convertToAppendValueEventData = (
       },
       original_event_data: {
           event_name,
-          event_time: original_event_time,
+          event_time: Math.floor(new Date(original_event_time).getTime() / 1000),
           ...(original_event_order_id ? {order_id: original_event_order_id} : {}),
           ...(original_event_id ? {event_id: original_event_id} : {})                 
       }

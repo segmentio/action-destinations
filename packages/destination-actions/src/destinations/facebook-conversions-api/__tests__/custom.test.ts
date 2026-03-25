@@ -306,7 +306,7 @@ describe('FacebookConversionsApi', () => {
               },
               original_event_data: {
                 event_name: 'Custom LTV Update',
-                event_time: '2021-09-09T16:26:40Z',
+                event_time: 1631204800,
                 order_id: 'original_order_123',
                 event_id: 'original_event_123'
               }
@@ -403,7 +403,7 @@ describe('FacebookConversionsApi', () => {
               original_event_data: {
                 event_name: 'Revenue Update',
                 event_id: 'original_event_456',
-                event_time: '2021-09-09T19:14:23Z'
+                event_time: 1631214863
               }
             }
           ]
