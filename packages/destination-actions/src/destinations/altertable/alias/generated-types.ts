@@ -2,15 +2,9 @@
 
 export interface Payload {
   /**
-   * The name of the event to track.
+   * The previous user identifier (maps to distinct_id in the Altertable API).
    */
-  event: string
-  /**
-   * The properties of the event
-   */
-  properties: {
-    [k: string]: unknown
-  }
+  previousId: string
   /**
    * The ID of the user
    */
