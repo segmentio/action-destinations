@@ -136,9 +136,9 @@ export function getBaseEventData(payload: AnyPayload): BaseEventData {
 
   const baseEventData: BaseEventData = {
     event_time,
-    action_source,
     ...(event_source_url && { event_source_url }),
     ...(event_id && { event_id }),
+    action_source,
     user_data: getUserData(user_data),
     ...(() => {
       const app_data = generateAppData(app_data_field)
