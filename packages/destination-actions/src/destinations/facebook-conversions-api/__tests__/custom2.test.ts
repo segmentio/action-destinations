@@ -14,6 +14,7 @@ const settingsWithTestEventCode = {
   testEventCode: '1234567890',
   token: process.env.TOKEN
 }
+const features = { FB_CAPI_REFACTOR_CUSTOM_EVENT: true }
 
 describe('FacebookConversionsApi', () => {
   describe('Custom2', () => {
@@ -36,6 +37,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('custom2', {
           event,
           settings,
+          features,
           mapping: {
             __segment_internal_sync_mode: 'update',
             event_name: {
@@ -69,6 +71,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('custom2', {
           event,
           settings,
+          features,
           mapping: {
             __segment_internal_sync_mode: 'add',
             event_name: {
@@ -99,6 +102,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('custom2', {
           event,
           settings,
+          features,
           mapping: {
             __segment_internal_sync_mode: 'add',
             event_name: {
@@ -129,6 +133,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('custom2', {
           event,
           settings,
+          features,
           mapping: {
             __segment_internal_sync_mode: 'add',
             event_name: {
@@ -186,6 +191,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('custom2', {
         event,
         settings,
+        features,
         useDefaultMappings: true,
         mapping: {
           __segment_internal_sync_mode: 'add',
@@ -251,6 +257,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('custom2', {
         event,
         settings: settingsWithTestEventCode,
+        features,
         useDefaultMappings: true,
         mapping: {
           __segment_internal_sync_mode: 'add',
@@ -307,6 +314,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('custom2', {
         event,
         settings: settingsWithTestEventCode,
+        features,
         useDefaultMappings: true,
         mapping: {
           __segment_internal_sync_mode: 'add',

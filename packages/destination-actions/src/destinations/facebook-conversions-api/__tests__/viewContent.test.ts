@@ -14,6 +14,7 @@ const settingsWithTestEventCode = {
   testEventCode: '1234567890',
   token: process.env.TOKEN
 }
+const features = { FB_CAPI_REFACTOR_VIEW_CONTENT_EVENT: true }
 
 describe('FacebookConversionsApi', () => {
   describe('ViewContent', () => {
@@ -46,6 +47,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('viewContent', {
         event,
         settings,
+        features,
         mapping: {
           currency: {
             '@path': '$.properties.currency'
@@ -123,6 +125,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('viewContent', {
         event,
         settings,
+        features,
         useDefaultMappings: true,
         mapping: { action_source: { '@path': '$.properties.action_source' } }
       })
@@ -131,7 +134,7 @@ describe('FacebookConversionsApi', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"ViewContent\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"event_id\\":\\"test\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"user_data\\":{\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":120000,\\"content_ids\\":[\\"tsla_s_2021\\"],\\"contents\\":[{\\"id\\":\\"tsla_s_2021\\",\\"quantity\\":1,\\"item_price\\":120000}]}}]}"`
+        `"{\\"data\\":[{\\"event_name\\":\\"ViewContent\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"user_data\\":{\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":120000,\\"content_ids\\":[\\"tsla_s_2021\\"],\\"contents\\":[{\\"id\\":\\"tsla_s_2021\\",\\"quantity\\":1,\\"item_price\\":120000}]}}]}"`
       )
     })
 
@@ -153,6 +156,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('viewContent', {
           event,
           settings,
+          features,
           mapping: {
             currency: {
               '@path': '$.properties.currency'
@@ -200,6 +204,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('viewContent', {
         event,
         settings: settingsWithTestEventCode,
+        features,
         mapping: {
           currency: {
             '@path': '$.properties.currency'
@@ -274,6 +279,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('viewContent', {
         event,
         settings: settingsWithTestEventCode,
+        features,
         mapping: {
           currency: {
             '@path': '$.properties.currency'

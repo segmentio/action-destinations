@@ -14,6 +14,7 @@ const settingsWithTestEventCode = {
   testEventCode: '1234567890',
   token: process.env.TOKEN
 }
+const features = { FB_CAPI_REFACTOR_INITIATE_CHECKOUT_EVENT: true }
 
 describe('FacebookConversionsApi', () => {
   describe('InitiateCheckout', () => {
@@ -37,6 +38,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('initiateCheckout', {
         event,
         settings,
+        features,
         mapping: {
           currency: {
             '@path': '$.properties.currency'
@@ -91,6 +93,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('initiateCheckout', {
           event,
           settings,
+          features,
           mapping: {
             currency: {
               '@path': '$.properties.currency'
@@ -142,6 +145,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('initiateCheckout', {
         event,
         settings,
+        features,
         useDefaultMappings: true,
         mapping: { action_source: { '@path': '$.properties.action_source' } }
       })
@@ -172,6 +176,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('initiateCheckout', {
           event,
           settings,
+          features,
           mapping: {
             currency: {
               '@path': '$.properties.currency'
@@ -215,6 +220,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('initiateCheckout', {
         event,
         settings: settingsWithTestEventCode,
+        features,
         useDefaultMappings: true,
         mapping: { action_source: { '@path': '$.properties.action_source' } }
       })
@@ -250,6 +256,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('initiateCheckout', {
         event,
         settings: settingsWithTestEventCode,
+        features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
@@ -288,6 +295,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('initiateCheckout', {
         event,
         settings,
+        features,
         mapping: {
           currency: {
             '@path': '$.properties.currency'

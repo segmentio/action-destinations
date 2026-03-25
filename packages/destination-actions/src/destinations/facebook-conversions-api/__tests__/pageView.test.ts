@@ -14,6 +14,7 @@ const settingsWithTestEventCode = {
   testEventCode: '1234567890',
   token: process.env.TOKEN
 }
+const features = { FB_CAPI_REFACTOR_PAGE_VIEW_EVENT: true }
 
 describe('FacebookConversionsApi', () => {
   describe('PageView', () => {
@@ -35,6 +36,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView', {
         event,
         settings,
+        features,
         useDefaultMappings: true,
         mapping: { action_source: { '@path': '$.properties.action_source' } }
       })
@@ -64,6 +66,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('pageView', {
           event,
           settings,
+          features,
           mapping: {
             action_source: {
               '@path': '$.properties.action_source'
@@ -100,6 +103,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView', {
         event,
         settings,
+        features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
@@ -141,6 +145,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('pageView', {
           event,
           settings,
+          features,
           mapping: {
             currency: {
               '@path': '$.properties.currency'
@@ -180,6 +185,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView', {
         event,
         settings: settingsWithTestEventCode,
+        features,
         useDefaultMappings: true,
         mapping: { action_source: { '@path': '$.properties.action_source' } }
       })
@@ -211,6 +217,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView', {
         event,
         settings: settingsWithTestEventCode,
+        features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
@@ -247,6 +254,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView', {
         event,
         settings,
+        features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },

@@ -14,6 +14,7 @@ const settingsWithTestEventCode = {
   testEventCode: '1234567890',
   token: process.env.TOKEN
 }
+const features = { FB_CAPI_REFACTOR_PURCHASE_EVENT: true }
 
 describe('purchase', () => {
   it('should handle a basic event', async () => {
@@ -44,6 +45,7 @@ describe('purchase', () => {
     const responses = await testDestination.testAction('purchase', {
       event,
       settings,
+      features,
       mapping: {
         currency: {
           '@path': '$.properties.currency'
@@ -116,6 +118,7 @@ describe('purchase', () => {
     const responses = await testDestination.testAction('purchase', {
       event,
       settings,
+      features,
       useDefaultMappings: true,
       mapping: { action_source: { '@path': '$.properties.action_source' } }
     })
@@ -149,6 +152,7 @@ describe('purchase', () => {
       testDestination.testAction('purchase', {
         event,
         settings,
+        features,
         mapping: {
           action_source: {
             '@path': '$.properties.action_source'
@@ -187,6 +191,7 @@ describe('purchase', () => {
       testDestination.testAction('purchase', {
         event,
         settings,
+        features,
         mapping: {
           currency: {
             '@path': '$.properties.currency'
@@ -234,6 +239,7 @@ describe('purchase', () => {
     const responses = await testDestination.testAction('purchase', {
       event,
       settings: settingsWithTestEventCode,
+      features,
       mapping: {
         currency: {
           '@path': '$.properties.currency'
@@ -305,6 +311,7 @@ describe('purchase', () => {
     const responses = await testDestination.testAction('purchase', {
       event,
       settings: settingsWithTestEventCode,
+      features,
       mapping: {
         currency: {
           '@path': '$.properties.currency'
@@ -381,6 +388,7 @@ describe('purchase', () => {
     const responses = await testDestination.testAction('purchase', {
       event,
       settings,
+      features,
       mapping: {
         currency: {
           '@path': '$.properties.currency'
@@ -461,6 +469,7 @@ describe('purchase', () => {
     const responses = await testDestination.testAction('purchase', {
       event,
       settings,
+      features,
       mapping: {
         currency: {
           '@path': '$.properties.currency'

@@ -14,6 +14,7 @@ const settingsWithTestEventCode = {
   testEventCode: '1234567890',
   token: process.env.TOKEN
 }
+const features = { FB_CAPI_REFACTOR_CUSTOM_EVENT: true }
 
 describe('FacebookConversionsApi', () => {
   describe('Custom', () => {
@@ -35,6 +36,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('custom', {
           event,
           settings,
+          features,
           mapping: {
             event_name: {
               '@path': '$.event'
@@ -64,6 +66,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('custom', {
           event,
           settings,
+          features,
           mapping: {
             event_name: {
               '@path': '$.event'
@@ -93,6 +96,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('custom', {
           event,
           settings,
+          features,
           mapping: {
             event_name: {
               '@path': '$.event'
@@ -149,6 +153,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('custom', {
         event,
         settings,
+        features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
@@ -213,6 +218,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('custom', {
         event,
         settings: settingsWithTestEventCode,
+        features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
@@ -268,6 +274,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('custom', {
         event,
         settings: settingsWithTestEventCode,
+        features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },

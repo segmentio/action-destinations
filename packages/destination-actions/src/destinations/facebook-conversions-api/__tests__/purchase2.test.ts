@@ -14,6 +14,7 @@ const settingsWithTestEventCode = {
   testEventCode: '1234567890',
   token: process.env.TOKEN
 }
+const features = { FB_CAPI_REFACTOR_PURCHASE_EVENT: true }
 
 describe('purchase2', () => {
   it('should handle a basic event', async () => {
@@ -44,6 +45,7 @@ describe('purchase2', () => {
     const responses = await testDestination.testAction('purchase2', {
       event,
       settings,
+      features,
       mapping: {
         __segment_internal_sync_mode: 'add',
         currency: {
@@ -118,6 +120,7 @@ describe('purchase2', () => {
       testDestination.testAction('purchase2', {
         event,
         settings,
+        features,
         useDefaultMappings: true,
         mapping: {
           __segment_internal_sync_mode: 'update',
@@ -165,6 +168,7 @@ describe('purchase2', () => {
     const responses = await testDestination.testAction('purchase2', {
       event,
       settings,
+      features,
       useDefaultMappings: true,
       mapping: { __segment_internal_sync_mode: 'add', action_source: { '@path': '$.properties.action_source' } }
     })
@@ -198,6 +202,7 @@ describe('purchase2', () => {
       testDestination.testAction('purchase2', {
         event,
         settings,
+        features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           action_source: {
@@ -237,6 +242,7 @@ describe('purchase2', () => {
       testDestination.testAction('purchase2', {
         event,
         settings,
+        features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           currency: {
@@ -285,6 +291,7 @@ describe('purchase2', () => {
     const responses = await testDestination.testAction('purchase2', {
       event,
       settings: settingsWithTestEventCode,
+      features,
       mapping: {
         __segment_internal_sync_mode: 'add',
         currency: {
@@ -357,6 +364,7 @@ describe('purchase2', () => {
     const responses = await testDestination.testAction('purchase2', {
       event,
       settings: settingsWithTestEventCode,
+      features,
       mapping: {
         __segment_internal_sync_mode: 'add',
         currency: {
@@ -434,6 +442,7 @@ describe('purchase2', () => {
     const responses = await testDestination.testAction('purchase2', {
       event,
       settings,
+      features,
       mapping: {
         __segment_internal_sync_mode: 'add',
         currency: {
@@ -515,6 +524,7 @@ describe('purchase2', () => {
     const responses = await testDestination.testAction('purchase2', {
       event,
       settings,
+      features,
       mapping: {
         __segment_internal_sync_mode: 'add',
         currency: {

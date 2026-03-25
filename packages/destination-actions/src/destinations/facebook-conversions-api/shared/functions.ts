@@ -67,7 +67,6 @@ export function send<P extends AnyPayload, T extends EventDataType>(
   const data = getDataFunction(payload)
 
   const json: RequestJSON = {
-    partner_agent: "segment",
     data: [data],
     ...(test_event_code || testEventCode ? { test_event_code: test_event_code || testEventCode } : {})
   }
