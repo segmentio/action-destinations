@@ -170,7 +170,7 @@ export interface AppendValueEventData extends BaseEventData {
   event_name: 'AppendValue'
   original_event_data: {
     event_name: string
-    event_time: string
+    event_time: number
     order_id?: string
     event_id?: string
   }

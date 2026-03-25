@@ -1,5 +1,5 @@
-import { getApiVersion } from '../../refactor-files/functions'
-import { API_VERSION, CANARY_API_VERSION } from '../../refactor-files/constants'
+import { getApiVersion } from '../../shared/functions'
+import { API_VERSION, CANARY_API_VERSION } from '../../shared/constants'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 
 describe('FacebookConversionsApi', () => {

@@ -1,5 +1,5 @@
-import { generateAppData } from '../../refactor-files/functions'
-import { AnyPayload, GeneratedAppData } from '../../refactor-files/types'
+import { generateAppData } from '../../shared/functions'
+import { AnyPayload, GeneratedAppData } from '../../shared/types'
 
 describe('FacebookConversionsApi', () => {
   describe('AppData', () => {
