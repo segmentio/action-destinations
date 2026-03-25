@@ -81,15 +81,8 @@ export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
   const { action_source, user_data } = payload
 
   if (isPurchaseMatch(payload, eventType) || isCustomMatch(payload, eventType)) {
-    const {
-      is_append_event,
-      append_event_details: {
-        original_event_order_id,
-        original_event_id,
-        net_revenue_to_append,
-        predicted_ltv_to_append
-      } = {}
-    } = payload
+    // @ts-ignore - ignore this until we migrate the purchase Action to use this code. 
+    const { is_append_event, append_event_details: { original_event_order_id, original_event_id, net_revenue_to_append, predicted_ltv_to_append } = {} } = payload
 
     if (is_append_event) {
       if (!original_event_order_id && !original_event_id) {
@@ -292,19 +285,9 @@ export function getEventData(payload: AnyPayload, type: EventTypeKey): EventData
       if (!isPurchaseMatch(payload, type)) {
         throw new PayloadValidationError('Invalid Purchase payload')
       }
-      const {
-        is_append_event,
-        currency,
-        value,
-        content_ids,
-        order_id,
-        net_revenue,
-        predicted_ltv,
-        content_name,
-        content_type,
-        num_items,
-        contents
-      } = payload
+
+      // @ts-ignore - ignore this until we migrate the purchase Action to use this code. 
+      const { is_append_event, currency, value, content_ids, order_id, net_revenue, predicted_ltv, content_name, content_type, num_items, contents } = payload
 
       let data: PurchaseEventData | AppendValueEventData = {
         event_name: 'Purchase',
@@ -386,7 +369,7 @@ export const convertToAppendValueEventData = (
   if (!isPurchaseMatch(payload, type) && !isCustomMatch(payload, type)) {
     throw new PayloadValidationError('Invalid payload for AppendValue event conversion')
   }
-
+  // @ts-ignore - ignore this until we migrate the purchase Action to use this code. 
   const { is_append_event } = payload
 
   if (!is_append_event) {
@@ -398,15 +381,8 @@ export const convertToAppendValueEventData = (
     custom_data: { order_id, ...restCustomData }
   } = data
 
-  const {
-    append_event_details: {
-      original_event_time,
-      original_event_order_id,
-      original_event_id,
-      net_revenue_to_append,
-      predicted_ltv_to_append
-    } = {}
-  } = payload
+  // @ts-ignore - ignore this until we migrate the purchase Action to use this code. 
+  const { append_event_details: { original_event_time, original_event_order_id, original_event_id, net_revenue_to_append, predicted_ltv_to_append } = {} } = payload
 
   if(!original_event_time) {
     throw new PayloadValidationError('AppendValue events must include "Append Event Details > Original Event Time"')
@@ -557,6 +533,7 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
     fbLoginID,
     partner_id,
     partner_name,
+    // @ts-ignore - ignore this until we migrate the purchase Action to use this code. 
     ctwa_clid
   } = payloadUserData ?? {}
 
