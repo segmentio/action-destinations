@@ -1,68 +1,61 @@
-import destination from '../index'
-import { assumeRole } from '../../../lib/AWS/sts'
-import { validateIamRoleArnFormat } from '../utils'
-import { APP_AWS_REGION } from '../../../lib/AWS/utils'
-import type { Settings } from '../generated-types'
-import { createTestIntegration } from '../../../../../core/src/create-test-integration'
+import { createTestIntegration } from '@segment/actions-core'
+import Destination from '../index'
+import { STSClient } from '@aws-sdk/client-sts'
 
-// --- Mock all dependencies ---
-jest.mock('../../../lib/AWS/sts', () => ({
-  assumeRole: jest.fn()
+jest.mock('@aws-sdk/client-sts', () => ({
+  STSClient: jest.fn(),
+  AssumeRoleCommand: jest.fn()
 }))
 
-jest.mock('../utils', () => ({
-  validateIamRoleArnFormat: jest.fn()
-}))
+const testDestination = createTestIntegration(Destination)
 
-jest.mock('@segment/actions-core', () => ({
-  IntegrationError: jest.fn().mockImplementation((message, code, status) => ({
-    name: 'IntegrationError',
-    message,
-    code,
-    status
-  }))
-}))
+const mockSend = jest.fn()
 
-const testDestination = createTestIntegration(destination)
-
-describe('AWS Kinesis Destination - testAuthentication', () => {
-  const validSettings: Settings = {
-    iamRoleArn: 'arn:aws:iam::123456789012:role/MyRole',
-    iamExternalId: 'external-id'
-  }
-
+describe('AWS Kinesis Destination', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    ;(STSClient as jest.Mock).mockImplementation(() => ({
+      send: mockSend
+    }))
+    process.env.AMAZON_KINESIS_ACTIONS_ROLE_ADDRESS = 'arn:aws:iam::111111111111:role/IntermediaryRole'
+    process.env.AMAZON_KINESIS_ACTIONS_EXTERNAL_ID = 'intermediary-external-id'
   })
 
-  it('should call assumeRole when IAM Role ARN format is valid', async () => {
-    ;(validateIamRoleArnFormat as jest.Mock).mockReturnValue(true)
-    ;(assumeRole as jest.Mock).mockResolvedValue({
-      accessKeyId: 'AKIA...',
-      secretAccessKey: 'SECRET...',
-      sessionToken: 'TOKEN...'
+  describe('testAuthentication', () => {
+    it('should succeed with valid IAM role credentials', async () => {
+      mockSend
+        .mockResolvedValueOnce({
+          Credentials: {
+            AccessKeyId: 'AKIA_INTER',
+            SecretAccessKey: 'SECRET_INTER',
+            SessionToken: 'TOKEN_INTER'
+          }
+        })
+        .mockResolvedValueOnce({
+          Credentials: {
+            AccessKeyId: 'AKIA_FINAL',
+            SecretAccessKey: 'SECRET_FINAL',
+            SessionToken: 'TOKEN_FINAL'
+          }
+        })
+
+      await expect(
+        testDestination.testAuthentication({
+          iam_role_arn: 'arn:aws:iam::123456789012:role/test-role',
+          iam_external_id: 'test-external-id'
+        })
+      ).resolves.not.toThrow()
     })
 
-    await expect(testDestination.testAuthentication(validSettings)).resolves.not.toThrow()
+    it('should fail with invalid IAM role credentials', async () => {
+      mockSend.mockRejectedValueOnce(new Error('Access Denied'))
 
-    expect(validateIamRoleArnFormat).toHaveBeenCalledWith(validSettings.iamRoleArn)
-    expect(assumeRole).toHaveBeenCalledWith(validSettings.iamRoleArn, validSettings.iamExternalId, APP_AWS_REGION)
-  })
-
-  it('should throw IntegrationError if IAM Role ARN format is invalid', async () => {
-    ;(validateIamRoleArnFormat as jest.Mock).mockReturnValue(false)
-
-    const result = testDestination.testAuthentication(validSettings)
-
-    await expect(result).rejects.toThrow('Credentials are invalid:  The provided IAM Role ARN format is not valid')
-
-    expect(assumeRole).not.toHaveBeenCalled()
-  })
-
-  it('should propagate errors from assumeRole', async () => {
-    ;(validateIamRoleArnFormat as jest.Mock).mockReturnValue(true)
-    ;(assumeRole as jest.Mock).mockRejectedValue(new Error('AssumeRole failed'))
-
-    await expect(testDestination.testAuthentication(validSettings)).rejects.toThrow('AssumeRole failed')
+      await expect(
+        testDestination.testAuthentication({
+          iam_role_arn: 'arn:aws:iam::123456789012:role/invalid-role',
+          iam_external_id: 'invalid-external-id'
+        })
+      ).rejects.toThrow()
+    })
   })
 })

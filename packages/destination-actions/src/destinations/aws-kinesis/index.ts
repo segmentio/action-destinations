@@ -1,44 +1,39 @@
 import type { DestinationDefinition } from '@segment/actions-core'
+import { InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
+import send from './send'
 import { assumeRole } from '../../lib/AWS/sts'
-import { validateIamRoleArnFormat } from './utils'
 import { APP_AWS_REGION } from '../../lib/AWS/utils'
 
-import send from './send'
-
 const destination: DestinationDefinition<Settings> = {
-  name: 'Aws Kinesis',
+  name: 'AWS Kinesis',
   slug: 'actions-aws-kinesis',
   mode: 'cloud',
-
+  description: 'Send data to an Amazon Kinesis stream',
   authentication: {
     scheme: 'custom',
     fields: {
-      iamRoleArn: {
+      iam_role_arn: {
         label: 'IAM Role ARN',
-        description: 'The ARN of the IAM Role to assume for sending data to Kinesis.',
+        description:
+          'IAM Role ARN with permissions to write to the Kinesis stream. Format: arn:aws:iam::account-id:role/role-name',
         type: 'string',
         required: true
       },
-      iamExternalId: {
+      iam_external_id: {
         label: 'IAM External ID',
-        description:
-          'The external ID to use when assuming the IAM Role. Generate a secure string and treat it like a password.  This is often used as an additional security measure.',
+        description: 'The External ID for the IAM role. Generate a secure string and treat it like a password.',
         type: 'password',
         required: true
       }
     },
-    testAuthentication: async (_, { settings }) => {
-      const { iamRoleArn, iamExternalId } = settings
-      if (!validateIamRoleArnFormat(iamRoleArn)) {
-        throw new IntegrationError('The provided IAM Role ARN format is not valid', 'INVALID_IAM_ROLE_ARN_FORMAT', 400)
+    testAuthentication: async (_request, { settings }) => {
+      if (!settings.iam_role_arn || !settings.iam_external_id) {
+        throw new InvalidAuthenticationError('IAM Role ARN and External ID are required')
       }
-
-      await assumeRole(iamRoleArn, iamExternalId, APP_AWS_REGION)
+      await assumeRole(settings.iam_role_arn, settings.iam_external_id, APP_AWS_REGION)
     }
   },
-
   actions: {
     send
   }

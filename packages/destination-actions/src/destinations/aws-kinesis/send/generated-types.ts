@@ -2,41 +2,29 @@
 
 export interface Payload {
   /**
-   * The data to send to AWS Kinesis
+   * The data to send to Kinesis. JSON-serialized and base64-encoded before sending. Output depends entirely on the mapping created.
    */
   payload: {
     [k: string]: unknown
   }
   /**
-   * The partition key to use for the record
+   * Determines which shard in the stream the data record is assigned to. Default: messageId. Recommend choosing a partition key with low throughput (e.g. user_id).
    */
-  partitionKey: string
+  partitionKey?: string
   /**
-   * The name of the Kinesis stream to send records to
+   * The name of the destination Kinesis stream.
    */
   streamName: string
   /**
-   * The AWS region where the Kinesis stream is located
+   * The AWS region of the destination Kinesis stream.
    */
-  awsRegion: string
+  region: string
   /**
-   * The maximum number of payloads to include in a batch.
+   * (Hidden field): Enable Batching
+   */
+  enable_batching: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
-  /**
-   * The keys to use for batching the events.
-   */
-  batch_keys?: string[]
-  /**
-   * The maximum number of payloads to include in a batch.
-   */
-  max_batch_size: number
-  /**
-   * If true, Segment will batch events before sending to Kinesis
-   */
-  enable_batching?: boolean
-  /**
-   * The number of bytes to write to the kinesis shard in a single batch. Limit is 1MB.
-   */
-  batch_bytes: number
 }
