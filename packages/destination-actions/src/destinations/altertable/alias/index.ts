@@ -9,14 +9,6 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Link a previous anonymous or temporary ID to a user ID in Altertable.',
   defaultSubscription: 'type = "alias"',
   fields: {
-    type: {
-      label: 'Segment Event Type',
-      description: 'The Segment event type',
-      type: 'string',
-      choices: [{ label: 'alias', value: 'alias' }],
-      required: true,
-      default: 'alias'
-    },
     previousId: {
       label: 'Previous ID',
       description: 'The previous user identifier (maps to distinct_id in the Altertable API).',

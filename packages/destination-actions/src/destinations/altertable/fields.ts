@@ -156,9 +156,6 @@ export const commonFields: Record<string, InputField> = {
     description:
       'Segment channel (e.g. client, server). When set to "server" and no IP is present, $ip is set to 0 so the backend does not use the request IP.',
     type: 'string',
-    default: {
-      '@path': '$.channel'
-    },
     required: false
   },
   timestamp: {

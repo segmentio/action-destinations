@@ -5,10 +5,12 @@ import { Payload as IdentifyPayload } from './identify/generated-types'
 import { Payload as AliasPayload } from './alias/generated-types'
 import { AliasJSON, EventJSON, IdentifyJSON } from './types'
 
-type ContextFields = NonNullable<EventPayload['context']>
+type IdentifyOrEventPayload = EventPayload | IdentifyPayload
+
+type ContextFields = NonNullable<IdentifyOrEventPayload['context']>
 
 function contextFields(
-  context: EventPayload['context'] | IdentifyPayload['context'] | AliasPayload['context'] | undefined
+  context: IdentifyOrEventPayload['context'] | AliasPayload['context'] | undefined
 ): ContextFields | undefined {
   return context as ContextFields | undefined
 }
@@ -89,12 +91,10 @@ export function buildContextProps(context: ContextFields | undefined, channel?: 
 }
 
 function buildTrackJSON(settings: Settings, payload: EventPayload): EventJSON {
-  const { userId, anonymousId, type, properties } = payload
+  const { userId, anonymousId, properties } = payload
   const channel = payload.channel === 'server' ? 'server' : undefined
   const contextProps = buildContextProps(contextFields(payload.context), channel)
   const device_id = payload.context?.device_id
-
-  const event = type === 'page' ? '$pageview' : type === 'screen' ? '$screen' : (payload.event as string)
 
   return {
     environment: settings.environment,
@@ -102,7 +102,7 @@ function buildTrackJSON(settings: Settings, payload: EventPayload): EventJSON {
     distinct_id: userId || anonymousId,
     anonymous_id: userId && anonymousId ? anonymousId : undefined,
     device_id,
-    event,
+    event: payload.event,
     properties: {
       ...contextProps,
       ...properties
@@ -141,23 +141,23 @@ function buildAliasJSON(settings: Settings, payload: AliasPayload): AliasJSON {
   }
 }
 
-export function send(request: RequestClient, settings: Settings, payload: EventPayload | IdentifyPayload) {
-  if (payload.type === 'identify') {
-    const json = buildIdentifyJSON(settings, payload as IdentifyPayload)
-    return request(`${settings.endpoint}/identify`, {
-      method: 'post',
-      json
-    })
-  }
-
-  const json = buildTrackJSON(settings, payload as EventPayload)
+export function sendTrack(request: RequestClient, settings: Settings, payload: EventPayload) {
+  const json = buildTrackJSON(settings, payload)
   return request(`${settings.endpoint}/track`, {
     method: 'post',
     json
   })
 }
 
-export function sendEventBatch(request: RequestClient, settings: Settings, payloads: EventPayload[]) {
+export function sendIdentify(request: RequestClient, settings: Settings, payload: IdentifyPayload) {
+  const json = buildIdentifyJSON(settings, payload)
+  return request(`${settings.endpoint}/identify`, {
+    method: 'post',
+    json
+  })
+}
+
+export function sendTrackBatch(request: RequestClient, settings: Settings, payloads: EventPayload[]) {
   const json = payloads.map((p) => buildTrackJSON(settings, p))
   return request(`${settings.endpoint}/track`, {
     method: 'post',

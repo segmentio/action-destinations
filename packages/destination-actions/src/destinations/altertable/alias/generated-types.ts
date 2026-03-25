@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * The Segment event type
-   */
-  type: string
-  /**
    * The previous user identifier (maps to distinct_id in the Altertable API).
    */
   previousId: string

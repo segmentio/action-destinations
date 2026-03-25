@@ -2,20 +2,12 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from '../fields'
-import { send, sendIdentifyBatch } from '../utils'
+import { sendIdentify, sendIdentifyBatch } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify',
   description: 'Identify a user in Altertable.',
   fields: {
-    type: {
-      label: 'Segment Event Type',
-      description: 'The Segment event type',
-      type: 'string',
-      choices: [{ label: 'identify', value: 'identify' }],
-      required: true,
-      default: 'identify'
-    },
     traits: {
       label: 'Traits',
       description: 'The traits of the user',
@@ -52,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, settings }) => {
-    return send(request, settings, payload)
+    return sendIdentify(request, settings, payload)
   },
   performBatch: (request, { settings, payload }) => {
     return sendIdentifyBatch(request, settings, payload)

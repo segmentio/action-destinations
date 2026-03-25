@@ -2,13 +2,9 @@
 
 export interface Payload {
   /**
-   * The Segment event type
+   * The name of the event to track.
    */
-  type: string
-  /**
-   * The name of the event to track. Only required for `track` event type.
-   */
-  event?: string
+  event: string
   /**
    * The properties of the event
    */

@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * The Segment event type
-   */
-  type: string
-  /**
    * The traits of the user
    */
   traits: {
