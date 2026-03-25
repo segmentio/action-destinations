@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import Destination from '../index'
-import { API_VERSION } from '../constants'
+import Destination from '../../index'
+import { API_VERSION } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -17,7 +17,50 @@ const settingsWithTestEventCode = {
 const features = { FB_CAPI_REFACTOR_VIEW_CONTENT_EVENT: true }
 
 describe('FacebookConversionsApi', () => {
-  describe('ViewContent', () => {
+  describe('ViewContent2', () => {
+    it('should throw an error if no syncMode invalid', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Product Viewed',
+        userId: '7b17fb0bd173f625b58636fb796407c22b3d16fc78302d79f0fd30c2fc2fc068', // Pre -hashed for simplicity
+        timestamp: '1631210063',
+        properties: {
+          action_source: 'email',
+          currency: 'USD',
+          value: 12.12,
+          email: 'test@test.com'
+        }
+      })
+
+      await expect(
+        testDestination.testAction('viewContent2', {
+          event,
+          settings,
+          features,
+          mapping: {
+            __segment_internal_sync_mode: 'update',
+            currency: {
+              '@path': '$.properties.currency'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            action_source: {
+              '@path': '$.properties.action_source'
+            },
+            event_time: {
+              '@path': '$.timestamp'
+            },
+            user_data: {
+              email: {
+                '@path': '$.properties.email'
+              }
+            }
+          }
+        })
+      ).rejects.toThrowError('Sync mode update is not supported')
+    })
     it('should handle a basic event', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
@@ -44,11 +87,12 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('viewContent', {
+      const responses = await testDestination.testAction('viewContent2', {
         event,
         settings,
         features,
         mapping: {
+          __segment_internal_sync_mode: 'add',
           currency: {
             '@path': '$.properties.currency'
           },
@@ -122,12 +166,12 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('viewContent', {
+      const responses = await testDestination.testAction('viewContent2', {
         event,
         settings,
         features,
         useDefaultMappings: true,
-        mapping: { action_source: { '@path': '$.properties.action_source' } }
+        mapping: { __segment_internal_sync_mode: 'add', action_source: { '@path': '$.properties.action_source' } }
       })
 
       expect(responses.length).toBe(1)
@@ -153,11 +197,12 @@ describe('FacebookConversionsApi', () => {
       })
 
       await expect(
-        testDestination.testAction('viewContent', {
+        testDestination.testAction('viewContent2', {
           event,
           settings,
           features,
           mapping: {
+            __segment_internal_sync_mode: 'add',
             currency: {
               '@path': '$.properties.currency'
             },
@@ -201,11 +246,12 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('viewContent', {
+      const responses = await testDestination.testAction('viewContent2', {
         event,
         settings: settingsWithTestEventCode,
         features,
         mapping: {
+          __segment_internal_sync_mode: 'add',
           currency: {
             '@path': '$.properties.currency'
           },
@@ -276,11 +322,12 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('viewContent', {
+      const responses = await testDestination.testAction('viewContent2', {
         event,
         settings: settingsWithTestEventCode,
         features,
         mapping: {
+          __segment_internal_sync_mode: 'add',
           currency: {
             '@path': '$.properties.currency'
           },

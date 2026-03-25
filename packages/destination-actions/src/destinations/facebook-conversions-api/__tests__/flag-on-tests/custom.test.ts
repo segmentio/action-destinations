@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import Destination from '../index'
-import { API_VERSION } from '../constants'
+import Destination from '../../index'
+import { API_VERSION } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -17,42 +17,7 @@ const settingsWithTestEventCode = {
 const features = { FB_CAPI_REFACTOR_CUSTOM_EVENT: true }
 
 describe('FacebookConversionsApi', () => {
-  describe('Custom2', () => {
-    it('should throw an error for an invalid syncMode', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
-
-      const event = createTestEvent({
-        event: 'custom',
-        userId: 'abc123',
-        timestamp: '1631210010',
-        properties: {
-          action_source: 'email',
-          currency: 'USD',
-          value: 12.12,
-          email: 'nicholas.aguilar@segment.com'
-        }
-      })
-
-      await expect(
-        testDestination.testAction('custom2', {
-          event,
-          settings,
-          features,
-          mapping: {
-            __segment_internal_sync_mode: 'update',
-            event_name: {
-              '@path': '$.event'
-            },
-            action_source: {
-              '@path': '$.properties.action_source'
-            },
-            event_time: {
-              '@path': '$.timestamp'
-            }
-          }
-        })
-      ).rejects.toThrowError('a')
-    })
+  describe('Custom', () => {
     it('should fail if no event_name is passed', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
@@ -68,12 +33,11 @@ describe('FacebookConversionsApi', () => {
       })
 
       await expect(
-        testDestination.testAction('custom2', {
+        testDestination.testAction('custom', {
           event,
           settings,
           features,
           mapping: {
-            __segment_internal_sync_mode: 'add',
             event_name: {
               '@path': '$.event'
             },
@@ -99,12 +63,11 @@ describe('FacebookConversionsApi', () => {
       })
 
       await expect(
-        testDestination.testAction('custom2', {
+        testDestination.testAction('custom', {
           event,
           settings,
           features,
           mapping: {
-            __segment_internal_sync_mode: 'add',
             event_name: {
               '@path': '$.event'
             },
@@ -130,12 +93,11 @@ describe('FacebookConversionsApi', () => {
       })
 
       await expect(
-        testDestination.testAction('custom2', {
+        testDestination.testAction('custom', {
           event,
           settings,
           features,
           mapping: {
-            __segment_internal_sync_mode: 'add',
             event_name: {
               '@path': '$.event'
             },
@@ -188,13 +150,12 @@ describe('FacebookConversionsApi', () => {
         event: 'identify'
       })
 
-      const responses = await testDestination.testAction('custom2', {
+      const responses = await testDestination.testAction('custom', {
         event,
         settings,
         features,
         useDefaultMappings: true,
         mapping: {
-          __segment_internal_sync_mode: 'add',
           action_source: { '@path': '$.properties.action_source' },
           custom_data: { '@path': '$.properties' },
           user_data: {
@@ -254,13 +215,12 @@ describe('FacebookConversionsApi', () => {
         event: 'identify'
       })
 
-      const responses = await testDestination.testAction('custom2', {
+      const responses = await testDestination.testAction('custom', {
         event,
         settings: settingsWithTestEventCode,
         features,
         useDefaultMappings: true,
         mapping: {
-          __segment_internal_sync_mode: 'add',
           action_source: { '@path': '$.properties.action_source' },
           custom_data: { '@path': '$.properties' }
         }
@@ -311,13 +271,12 @@ describe('FacebookConversionsApi', () => {
         event: 'identify'
       })
 
-      const responses = await testDestination.testAction('custom2', {
+      const responses = await testDestination.testAction('custom', {
         event,
         settings: settingsWithTestEventCode,
         features,
         useDefaultMappings: true,
         mapping: {
-          __segment_internal_sync_mode: 'add',
           action_source: { '@path': '$.properties.action_source' },
           custom_data: { '@path': '$.properties' },
           test_event_code: {

@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import Destination from '../index'
-import { API_VERSION } from '../constants'
+import Destination from '../../index'
+import { API_VERSION } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -17,51 +17,7 @@ const settingsWithTestEventCode = {
 const features = { FB_CAPI_REFACTOR_ADD_TO_CART_EVENT: true }
 
 describe('FacebookConversionsApi', () => {
-  describe('AddToCart2', () => {
-    it('should throw an error for invalid syncMode', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
-
-      const event = createTestEvent({
-        event: 'Product Added',
-        userId: 'abc123',
-        timestamp: '1631210010',
-        properties: {
-          action_source: 'email',
-          currency: 'USD',
-          value: 12.12,
-          email: 'nicholas.aguilar@segment.com'
-        }
-      })
-
-      await expect(
-        testDestination.testAction('addToCart2', {
-          event,
-          settings,
-          features,
-          mapping: {
-            __segment_internal_sync_mode: 'update',
-            currency: {
-              '@path': '$.properties.currency'
-            },
-            value: {
-              '@path': '$.properties.value'
-            },
-            user_data: {
-              email: {
-                '@path': '$.properties.email'
-              }
-            },
-            action_source: {
-              '@path': '$.properties.action_source'
-            },
-            event_time: {
-              '@path': '$.timestamp'
-            }
-          }
-        })
-      ).rejects.toThrowError('Sync mode update is not supported')
-    })
-
+  describe('AddToCart', () => {
     it('should handle a basic event', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
@@ -84,12 +40,11 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart2', {
+      const responses = await testDestination.testAction('addToCart', {
         event,
         settings,
         features,
         mapping: {
-          __segment_internal_sync_mode: 'add',
           currency: {
             '@path': '$.properties.currency'
           },
@@ -143,12 +98,11 @@ describe('FacebookConversionsApi', () => {
       })
 
       await expect(
-        testDestination.testAction('addToCart2', {
+        testDestination.testAction('addToCart', {
           event,
           settings,
           features,
           mapping: {
-            __segment_internal_sync_mode: 'add',
             currency: {
               '@path': '$.properties.currency'
             },
@@ -188,12 +142,12 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart2', {
+      const responses = await testDestination.testAction('addToCart', {
         event,
         settings,
         features,
         useDefaultMappings: true,
-        mapping: { __segment_internal_sync_mode: 'add', action_source: { '@path': '$.properties.action_source' } }
+        mapping: { action_source: { '@path': '$.properties.action_source' } }
       })
 
       expect(responses.length).toBe(1)
@@ -222,12 +176,11 @@ describe('FacebookConversionsApi', () => {
       })
 
       await expect(
-        testDestination.testAction('addToCart2', {
+        testDestination.testAction('addToCart', {
           event,
           settings,
           features,
           mapping: {
-            __segment_internal_sync_mode: 'add',
             currency: {
               '@path': '$.properties.currency'
             },
@@ -280,13 +233,12 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart2', {
+      const responses = await testDestination.testAction('addToCart', {
         event,
         settings,
         features,
         useDefaultMappings: true,
         mapping: {
-          __segment_internal_sync_mode: 'add',
           action_source: { '@path': '$.properties.action_source' },
           data_processing_options: {
             '@path': '$.properties.data_processing_options'
@@ -326,13 +278,12 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart2', {
+      const responses = await testDestination.testAction('addToCart', {
         event,
         settings,
         features,
         useDefaultMappings: true,
         mapping: {
-          __segment_internal_sync_mode: 'add',
           action_source: {
             '@path': '$.properties.action_source'
           },
@@ -368,13 +319,12 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart2', {
+      const responses = await testDestination.testAction('addToCart', {
         event,
         settings,
         features,
         useDefaultMappings: true,
         mapping: {
-          __segment_internal_sync_mode: 'add',
           action_source: { '@path': '$.properties.action_source' },
           data_processing_options: {
             '@path': '$.properties.data_processing_options'
@@ -409,12 +359,11 @@ describe('FacebookConversionsApi', () => {
       })
 
       await expect(
-        testDestination.testAction('addToCart2', {
+        testDestination.testAction('addToCart', {
           event,
           settings,
           features,
           mapping: {
-            __segment_internal_sync_mode: 'add',
             currency: {
               '@path': '$.properties.currency'
             },
@@ -465,12 +414,11 @@ describe('FacebookConversionsApi', () => {
       })
 
       await expect(
-        testDestination.testAction('addToCart2', {
+        testDestination.testAction('addToCart', {
           event,
           settings,
           features,
           mapping: {
-            __segment_internal_sync_mode: 'add',
             currency: {
               '@path': '$.properties.currency'
             },
@@ -511,12 +459,11 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart2', {
+      const responses = await testDestination.testAction('addToCart', {
         event,
         settings: settingsWithTestEventCode,
         features,
         mapping: {
-          __segment_internal_sync_mode: 'add',
           currency: {
             '@path': '$.properties.currency'
           },
@@ -569,12 +516,11 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart2', {
+      const responses = await testDestination.testAction('addToCart', {
         event,
-        settings: settingsWithTestEventCode,
+        settings: settings,
         features,
         mapping: {
-          __segment_internal_sync_mode: 'add',
           currency: {
             '@path': '$.properties.currency'
           },
@@ -606,6 +552,115 @@ describe('FacebookConversionsApi', () => {
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\"},\\"custom_data\\":{\\"city\\":\\"Gotham\\",\\"country\\":\\"United States\\",\\"last_name\\":\\"Wayne\\",\\"currency\\":\\"USD\\",\\"value\\":12.12}}],\\"test_event_code\\":\\"2345678901\\"}"`
+      )
+    })
+
+    it('should send app events without anon_id and madId using default mappings correctly', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Product Added',
+        userId: 'abc123',
+        messageId: '123',
+        timestamp: '1631210000',
+        properties: {
+          action_source: 'email',
+          currency: 'USD',
+          value: 12.12,
+          email: 'nicholas.aguilar@segment.com',
+          product_id: 'abc12345',
+          traits: {
+            city: 'Gotham',
+            country: 'United States',
+            last_name: 'Wayne'
+          }
+        },
+        context: {
+          app: {
+            build: '2',
+            name: 'Krusty Krab ToGo',
+            namespace: 'com.krusty.krab.ios-prod',
+            version: '2.0.1'
+          },
+          device: {
+            id: '1234-5678',
+            manufacturer: 'Apple',
+            model: 'iPhone10,5',
+            name: 'iPhone X',
+            type: 'ios'
+          },
+          locale: 'en-US',
+          timezone: 'America/Los Angeles',
+          screen: {
+            height: 736,
+            width: 414
+          },
+          network: {
+            carrier: 'AT&T',
+            cellular: true,
+            wifi: true
+          },
+          os: {
+            name: 'iOS',
+            version: '16.3.1'
+          }
+        }
+      })
+
+      const responses = await testDestination.testAction('addToCart', {
+        event,
+        settings,
+        features,
+        mapping: {
+          action_source: { '@path': '$.properties.action_source' },
+          app_data_field: {
+            use_app_data: true,
+            // The default mappings from the app_data object need to be recreated here
+            // since 'use_app_data' is set to true. Otherwise, the default mappings
+            // will not be set.
+            application_tracking_enabled: {
+              '@path': '$.context.device.adTrackingEnabled'
+            },
+            packageName: {
+              '@path': '$.context.app.namespace'
+            },
+            longVersion: {
+              '@path': '$.context.app.version'
+            },
+            osVersion: {
+              '@path': '$.context.os.version'
+            },
+            deviceName: {
+              '@path': '$.context.device.model'
+            },
+            locale: {
+              '@path': '$.context.locale'
+            },
+            carrier: {
+              '@path': '$.context.network.carrier'
+            },
+            width: {
+              '@path': '$.context.screen.width'
+            },
+            height: {
+              '@path': '$.context.screen.height'
+            },
+            density: {
+              '@path': '$.context.screen.density'
+            },
+            deviceTimezone: {
+              '@path': '$.context.timezone'
+            }
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"event_id\\":\\"123\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"]},\\"app_data\\":{\\"advertiser_tracking_enabled\\":0,\\"application_tracking_enabled\\":0,\\"extinfo\\":[\\"\\",\\"com.krusty.krab.ios-prod\\",\\"\\",\\"2.0.1\\",\\"16.3.1\\",\\"iPhone10,5\\",\\"en-US\\",\\"\\",\\"AT&T\\",\\"414\\",\\"736\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"America/Los Angeles\\"]},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"contents\\":[{\\"id\\":\\"abc12345\\"}]}}]}"`
       )
     })
 
@@ -662,17 +717,16 @@ describe('FacebookConversionsApi', () => {
             anon_id: '1231'
           },
           madId: {
-            madid: '2313'
+            madId: '2313'
           }
         }
       })
 
-      const responses = await testDestination.testAction('addToCart2', {
+      const responses = await testDestination.testAction('addToCart', {
         event,
         settings,
         features,
         mapping: {
-          __segment_internal_sync_mode: 'add',
           action_source: { '@path': '$.properties.action_source' },
           app_data_field: {
             use_app_data: true,
@@ -716,7 +770,7 @@ describe('FacebookConversionsApi', () => {
               '@path': '$.context.anonId.anon_id'
             },
             madId: {
-              '@path': '$.context.madId.madid'
+              '@path': '$.context.madId.madId'
             }
           }
         },
@@ -728,116 +782,6 @@ describe('FacebookConversionsApi', () => {
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"event_id\\":\\"123\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"]},\\"app_data\\":{\\"advertiser_tracking_enabled\\":0,\\"application_tracking_enabled\\":0,\\"madid\\":\\"2313\\",\\"extinfo\\":[\\"\\",\\"com.krusty.krab.ios-prod\\",\\"\\",\\"2.0.1\\",\\"16.3.1\\",\\"iPhone10,5\\",\\"en-US\\",\\"\\",\\"AT&T\\",\\"414\\",\\"736\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"America/Los Angeles\\"]},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"contents\\":[{\\"id\\":\\"abc12345\\"}]}}]}"`
-      )
-    })
-
-    it('should send app events without anon_id and madId using default mappings correctly', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
-
-      const event = createTestEvent({
-        event: 'Product Added',
-        userId: 'abc123',
-        messageId: '123',
-        timestamp: '1631210000',
-        properties: {
-          action_source: 'email',
-          currency: 'USD',
-          value: 12.12,
-          email: 'nicholas.aguilar@segment.com',
-          product_id: 'abc12345',
-          traits: {
-            city: 'Gotham',
-            country: 'United States',
-            last_name: 'Wayne'
-          }
-        },
-        context: {
-          app: {
-            build: '2',
-            name: 'Krusty Krab ToGo',
-            namespace: 'com.krusty.krab.ios-prod',
-            version: '2.0.1'
-          },
-          device: {
-            id: '1234-5678',
-            manufacturer: 'Apple',
-            model: 'iPhone10,5',
-            name: 'iPhone X',
-            type: 'ios'
-          },
-          locale: 'en-US',
-          timezone: 'America/Los Angeles',
-          screen: {
-            height: 736,
-            width: 414
-          },
-          network: {
-            carrier: 'AT&T',
-            cellular: true,
-            wifi: true
-          },
-          os: {
-            name: 'iOS',
-            version: '16.3.1'
-          }
-        }
-      })
-
-      const responses = await testDestination.testAction('addToCart2', {
-        event,
-        settings,
-        features,
-        mapping: {
-          __segment_internal_sync_mode: 'add',
-          action_source: { '@path': '$.properties.action_source' },
-          app_data_field: {
-            use_app_data: true,
-            // The default mappings from the app_data object need to be recreated here
-            // since 'use_app_data' is set to true. Otherwise, the default mappings
-            // will not be set.
-            application_tracking_enabled: {
-              '@path': '$.context.device.adTrackingEnabled'
-            },
-            packageName: {
-              '@path': '$.context.app.namespace'
-            },
-            longVersion: {
-              '@path': '$.context.app.version'
-            },
-            osVersion: {
-              '@path': '$.context.os.version'
-            },
-            deviceName: {
-              '@path': '$.context.device.model'
-            },
-            locale: {
-              '@path': '$.context.locale'
-            },
-            carrier: {
-              '@path': '$.context.network.carrier'
-            },
-            width: {
-              '@path': '$.context.screen.width'
-            },
-            height: {
-              '@path': '$.context.screen.height'
-            },
-            density: {
-              '@path': '$.context.screen.density'
-            },
-            deviceTimezone: {
-              '@path': '$.context.timezone'
-            }
-          }
-        },
-        useDefaultMappings: true
-      })
-
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(201)
-
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"event_id\\":\\"123\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"]},\\"app_data\\":{\\"advertiser_tracking_enabled\\":0,\\"application_tracking_enabled\\":0,\\"extinfo\\":[\\"\\",\\"com.krusty.krab.ios-prod\\",\\"\\",\\"2.0.1\\",\\"16.3.1\\",\\"iPhone10,5\\",\\"en-US\\",\\"\\",\\"AT&T\\",\\"414\\",\\"736\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"America/Los Angeles\\"]},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"contents\\":[{\\"id\\":\\"abc12345\\"}]}}]}"`
       )
     })
 
@@ -893,12 +837,11 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart2', {
+      const responses = await testDestination.testAction('addToCart', {
         event,
         settings,
         features,
         mapping: {
-          __segment_internal_sync_mode: 'add',
           action_source: { '@path': '$.properties.action_source' }
         },
         useDefaultMappings: true
@@ -934,12 +877,11 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart2', {
+      const responses = await testDestination.testAction('addToCart', {
         event,
         settings,
         features,
         mapping: {
-          __segment_internal_sync_mode: 'add',
           currency: {
             '@path': '$.properties.currency'
           },

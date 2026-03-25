@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import Destination from '../index'
-import { API_VERSION } from '../constants'
+import Destination from '../../index'
+import { API_VERSION } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -16,7 +16,7 @@ const settingsWithTestEventCode = {
 }
 const features = { FB_CAPI_REFACTOR_PURCHASE_EVENT: true }
 
-describe('purchase', () => {
+describe('purchase2', () => {
   it('should handle a basic event', async () => {
     nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
@@ -42,11 +42,12 @@ describe('purchase', () => {
       }
     })
 
-    const responses = await testDestination.testAction('purchase', {
+    const responses = await testDestination.testAction('purchase2', {
       event,
       settings,
       features,
       mapping: {
+        __segment_internal_sync_mode: 'add',
         currency: {
           '@path': '$.properties.currency'
         },
@@ -96,6 +97,55 @@ describe('purchase', () => {
     )
   })
 
+  it('should throw an error if syncMode not correct', async () => {
+    nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+    const event = createTestEvent({
+      event: 'Order Completed',
+      timestamp: '1631210063',
+      properties: {
+        action_source: 'website',
+        userId: 'abc123',
+        currency: 'USD',
+        value: 12.12,
+        context: {
+          traits: {
+            email: 'nicholas.aguilar@segment.com'
+          }
+        }
+      }
+    })
+
+    await expect(
+      testDestination.testAction('purchase2', {
+        event,
+        settings,
+        features,
+        useDefaultMappings: true,
+        mapping: {
+          __segment_internal_sync_mode: 'update',
+          currency: {
+            '@path': '$.properties.currency'
+          },
+          value: {
+            '@path': '$.properties.value'
+          },
+          action_source: {
+            '@path': '$.properties.action_source'
+          },
+          event_time: {
+            '@path': '$.timestamp'
+          },
+          user_data: {
+            email: {
+              '@path': '$.properties.context.traits.email'
+            }
+          }
+        }
+      })
+    ).rejects.toThrowError('Sync mode update is not supported')
+  })
+
   it('should handle default mappings', async () => {
     nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
@@ -115,12 +165,12 @@ describe('purchase', () => {
       }
     })
 
-    const responses = await testDestination.testAction('purchase', {
+    const responses = await testDestination.testAction('purchase2', {
       event,
       settings,
       features,
       useDefaultMappings: true,
-      mapping: { action_source: { '@path': '$.properties.action_source' } }
+      mapping: { __segment_internal_sync_mode: 'add', action_source: { '@path': '$.properties.action_source' } }
     })
 
     expect(responses.length).toBe(1)
@@ -149,11 +199,12 @@ describe('purchase', () => {
     })
 
     await expect(
-      testDestination.testAction('purchase', {
+      testDestination.testAction('purchase2', {
         event,
         settings,
         features,
         mapping: {
+          __segment_internal_sync_mode: 'add',
           action_source: {
             '@path': '$.properties.action_source'
           },
@@ -188,11 +239,12 @@ describe('purchase', () => {
     })
 
     await expect(
-      testDestination.testAction('purchase', {
+      testDestination.testAction('purchase2', {
         event,
         settings,
         features,
         mapping: {
+          __segment_internal_sync_mode: 'add',
           currency: {
             '@path': '$.properties.currency'
           },
@@ -236,11 +288,12 @@ describe('purchase', () => {
       }
     })
 
-    const responses = await testDestination.testAction('purchase', {
+    const responses = await testDestination.testAction('purchase2', {
       event,
       settings: settingsWithTestEventCode,
       features,
       mapping: {
+        __segment_internal_sync_mode: 'add',
         currency: {
           '@path': '$.properties.currency'
         },
@@ -308,11 +361,12 @@ describe('purchase', () => {
       }
     })
 
-    const responses = await testDestination.testAction('purchase', {
+    const responses = await testDestination.testAction('purchase2', {
       event,
       settings: settingsWithTestEventCode,
       features,
       mapping: {
+        __segment_internal_sync_mode: 'add',
         currency: {
           '@path': '$.properties.currency'
         },
@@ -385,11 +439,12 @@ describe('purchase', () => {
       }
     })
 
-    const responses = await testDestination.testAction('purchase', {
+    const responses = await testDestination.testAction('purchase2', {
       event,
       settings,
       features,
       mapping: {
+        __segment_internal_sync_mode: 'add',
         currency: {
           '@path': '$.properties.currency'
         },
@@ -466,11 +521,12 @@ describe('purchase', () => {
       }
     })
 
-    const responses = await testDestination.testAction('purchase', {
+    const responses = await testDestination.testAction('purchase2', {
       event,
       settings,
       features,
       mapping: {
+        __segment_internal_sync_mode: 'add',
         currency: {
           '@path': '$.properties.currency'
         },
