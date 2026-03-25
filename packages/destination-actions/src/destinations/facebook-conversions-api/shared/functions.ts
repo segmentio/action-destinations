@@ -19,7 +19,6 @@ import {
   InitiateCheckoutEventData,
   PageEventData,
   PurchaseEventData,
-  AppendValueEventData,
   GeneratedAppData,
   UserData,
   Content

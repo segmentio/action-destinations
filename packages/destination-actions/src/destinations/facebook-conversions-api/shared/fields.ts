@@ -367,33 +367,7 @@ export const value: InputField = {
 export const net_revenue: InputField = {
   label: 'Net Revenue',
   description: 'The numeric net revenue value associated with the event.',
-  type: 'number',
-  depends_on: {
-    match: 'any',
-    conditions: [
-      {
-        fieldKey: 'is_append_event',
-        operator: 'is_not',
-        value: true
-      }
-    ]
-  }
-}
-
-export const predicted_ltv: InputField = {
-  label: 'Predicted Lifetime Value',
-  description: 'The numeric predicted lifetime value (pLTV) associated with the event.',
-  type: 'number',
-  depends_on: {
-    match: 'any',
-    conditions: [
-      {
-        fieldKey: 'is_append_event',
-        operator: 'is_not',
-        value: true
-      }
-    ]
-  }
+  type: 'number'
 }
 
 export const content_category: InputField = {
@@ -551,16 +525,6 @@ export const order_id: InputField = {
   type: 'string',
   default: {
     '@path': '$.properties.order_id'
-  },
-  depends_on: {
-    match: 'any',
-    conditions: [
-      {
-        fieldKey: 'is_append_event',
-        operator: 'is_not',
-        value: true
-      }
-    ]
   }
 }
 
@@ -584,7 +548,6 @@ export const purchaseFields: Record<string, InputField> = {
     default: { '@path': '$.properties.revenue' }
   },
   net_revenue,
-  predicted_ltv,
   content_ids,
   content_name,
   content_type,
