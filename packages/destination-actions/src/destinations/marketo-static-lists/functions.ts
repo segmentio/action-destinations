@@ -126,7 +126,10 @@ export async function addToListBatch(
   })
 
   if (!response.data.success) {
-    statsContext?.statsClient?.incr('addToAudience.error', payloads.length, statsContext?.tags)
+    statsContext?.statsClient?.incr('addToAudience.error', payloads.length, [
+      ...(statsContext?.tags ?? []),
+      `error_code:${response?.data?.errors?.[0]?.code ?? 'unknown'}`
+    ])
     return parseErrorResponseBatch(response.data, payloads.length)
   }
 
@@ -235,7 +238,10 @@ export async function removeFromListBatch(
   })
 
   if (!getLeadsResponse.data.success) {
-    statsContext?.statsClient?.incr('removeFromAudience.error', payloads.length, statsContext?.tags)
+    statsContext?.statsClient?.incr('removeFromAudience.error', payloads.length, [
+      ...(statsContext?.tags ?? []),
+      `error_code:${getLeadsResponse?.data?.errors?.[0]?.code ?? 'unknown'}`
+    ])
     return parseErrorResponseBatch(getLeadsResponse.data, payloads.length)
   }
 
@@ -254,7 +260,10 @@ export async function removeFromListBatch(
   })
 
   if (!deleteLeadsResponse.data.success) {
-    statsContext?.statsClient?.incr('removeFromAudience.error', payloads.length, statsContext?.tags)
+    statsContext?.statsClient?.incr('removeFromAudience.error', payloads.length, [
+      ...(statsContext?.tags ?? []),
+      `error_code:${deleteLeadsResponse?.data?.errors?.[0]?.code ?? 'unknown'}`
+    ])
     return parseErrorResponseBatch(deleteLeadsResponse.data, payloads.length)
   }
   statsContext?.statsClient?.incr('removeFromAudience.success', payloads.length, statsContext?.tags)
@@ -369,6 +378,7 @@ function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number)
     return buildMultiStatusErrorResponse(payloadSize, {
       status: 500,
       errortype: ErrorCodes.RETRYABLE_ERROR,
+      body: response.errors[0] as unknown as JSONLikeObject,
       errormessage: message
     })
   }
@@ -376,6 +386,7 @@ function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number)
   return buildMultiStatusErrorResponse(payloadSize, {
     status: 406,
     errortype: ErrorCodes.NOT_ACCEPTABLE,
+    body: response.errors[0] as unknown as JSONLikeObject,
     errormessage: message
   })
 }
