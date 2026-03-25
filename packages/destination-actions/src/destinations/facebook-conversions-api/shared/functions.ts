@@ -420,7 +420,13 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
   })()
 
   const ge = (() => {
-    switch (gender?.replace(/\s/g, '').toLowerCase() ?? '') {
+    if (!gender) {
+      return undefined
+    }
+    if (isHashedInformation(gender)) {
+      return gender
+    }
+    switch (gender.replace(/\s/g, '').toLowerCase()) {
       case 'male':
       case 'm':
         return cleanAndHash('m')

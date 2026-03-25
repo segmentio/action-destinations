@@ -42,9 +42,24 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"PageView\\",\\"event_time\\":\\"1631210020\\",\\"action_source\\":\\"email\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"user_data\\":{\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}}]}"`
-      )
+      expect(JSON.parse(responses[0].options.body as string)).toEqual({
+          data: [
+            {
+              event_name: "PageView",
+              event_time: "1631210020",
+              action_source: "email",
+              event_source_url: "https://segment.com/academy/",
+              event_id: "test",
+              user_data: {
+                external_id: [
+                  "6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090"
+                ],
+                client_ip_address: "8.8.8.8",
+                client_user_agent: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1"
+              }
+            }
+          ]
+        })
     })
 
     it('should throw an error when action_source is website and no client_user_agent', async () => {
@@ -120,9 +135,22 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"PageView\\",\\"event_time\\":\\"1631210020\\",\\"action_source\\":\\"email\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\",\\"partner_id\\":\\"faf12efasdfasdf1edasdasdfadf=\\",\\"partner_name\\":\\"liveramp\\"}}]}"`
-      )
+      expect(JSON.parse(responses[0].options.body as string)).toEqual({
+          data: [
+            {
+              event_name: "PageView",
+              event_time: "1631210020",
+              action_source: "email",
+              event_source_url: "https://segment.com/academy/",
+              event_id: "test",
+              user_data: {
+                em: "eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380",
+                partner_id: "faf12efasdfasdf1edasdasdfadf=",
+                partner_name: "liveramp"
+              }
+            }
+          ]
+        })
     })
 
     it('should throw an error if no user_data keys are included', async () => {
@@ -187,9 +215,25 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"PageView\\",\\"event_time\\":\\"1631210020\\",\\"action_source\\":\\"email\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"user_data\\":{\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}}],\\"test_event_code\\":\\"1234567890\\"}"`
-      )
+      expect(JSON.parse(responses[0].options.body as string)).toEqual({
+          data: [
+            {
+              event_name: "PageView",
+              event_time: "1631210020",
+              action_source: "email",
+              event_source_url: "https://segment.com/academy/",
+              event_id: "test",
+              user_data: {
+                external_id: [
+                  "6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090"
+                ],
+                client_ip_address: "8.8.8.8",
+                client_user_agent: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1"
+              }
+            }
+          ],
+          test_event_code: "1234567890"
+        })
     })
 
     it('should send test_event_code if present in the mapping', async () => {
@@ -223,9 +267,25 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"PageView\\",\\"event_time\\":\\"1631210020\\",\\"action_source\\":\\"email\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"user_data\\":{\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"}}],\\"test_event_code\\":\\"2345678901\\"}"`
-      )
+      expect(JSON.parse(responses[0].options.body as string)).toEqual({
+          data: [
+            {
+              event_name: "PageView",
+              event_time: "1631210020",
+              action_source: "email",
+              event_source_url: "https://segment.com/academy/",
+              event_id: "test",
+              user_data: {
+                external_id: [
+                  "6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090"
+                ],
+                client_ip_address: "8.8.8.8",
+                client_user_agent: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1"
+              }
+            }
+          ],
+          test_event_code: "2345678901"
+        })
     })
 
     it('should handle a basic  event with multiple external Ids', async () => {
@@ -261,9 +321,23 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"PageView\\",\\"event_time\\":\\"1631210020\\",\\"action_source\\":\\"email\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"user_data\\":{\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\",\\"f0a72890897acefdb2c6c8c06134339a73cc6205833ca38dba6f9fdc94b60596\\"]}}]}"`
-      )
+      expect(JSON.parse(responses[0].options.body as string)).toEqual({
+          data: [
+            {
+              event_name: "PageView",
+              event_time: "1631210020",
+              action_source: "email",
+              event_source_url: "https://segment.com/academy/",
+              event_id: "test",
+              user_data: {
+                external_id: [
+                  "6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090",
+                  "f0a72890897acefdb2c6c8c06134339a73cc6205833ca38dba6f9fdc94b60596"
+                ]
+              }
+            }
+          ]
+        })
     })
   })
 })
