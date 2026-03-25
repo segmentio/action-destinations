@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
-import { API_VERSION } from '../constants'
+import { API_VERSION } from '../refactor-files/constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
