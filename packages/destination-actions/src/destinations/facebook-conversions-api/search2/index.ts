@@ -3,26 +3,12 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CURRENCY_ISO_CODES } from '../constants'
 import { get_api_version } from '../utils'
-import {
-  currency,
-  value,
-  contents,
-  validateContents,
-  content_ids,
-  custom_data,
-  event_time,
-  action_source,
-  content_category,
-  event_id,
-  event_source_url,
-  data_processing_options,
-  data_processing_options_country,
-  data_processing_options_state,
-  dataProcessingOptions,
-  test_event_code
-} from '../fb-capi-properties'
-import { user_data_field, hash_user_data } from '../fb-capi-user-data'
-import { generate_app_data, app_data_field } from '../fb-capi-app-data'
+import { validateContents, dataProcessingOptions } from '../fb-capi-properties'
+import { hash_user_data } from '../fb-capi-user-data'
+import { generate_app_data } from '../fb-capi-app-data'
+import { searchFields } from '../shared/fields'
+import { send, getSearchEventData } from '../shared/functions'
+import { EventType } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Search V2',
@@ -34,53 +20,14 @@ const action: ActionDefinition<Settings, Payload> = {
     default: 'add',
     choices: [{ label: 'Insert Records', value: 'add' }]
   },
-  fields: {
-    action_source: { ...action_source, required: true },
-    event_time: { ...event_time, required: true },
-    user_data: user_data_field,
-    app_data_field: app_data_field,
-    content_category: content_category,
-    content_ids: content_ids,
-    contents: {
-      ...contents,
-      default: {
-        // Segment Products Searched is a single product event
-        '@arrayPath': [
-          '$.properties',
-          {
-            id: {
-              '@path': '$.product_id'
-            },
-            quantity: {
-              '@path': '$.quantity'
-            },
-            item_price: {
-              '@path': '$.price'
-            }
-          }
-        ]
-      }
-    },
-    currency: currency,
-    event_id: event_id,
-    event_source_url: event_source_url,
-    search_string: {
-      label: 'Search String',
-      description: 'A search query made by a user. This must be a string.',
-      type: 'string',
-      default: {
-        '@path': '$.properties.query'
-      }
-    },
-    value: value,
-    custom_data: custom_data,
-    data_processing_options: data_processing_options,
-    data_processing_options_country: data_processing_options_country,
-    data_processing_options_state: data_processing_options_state,
-    test_event_code: test_event_code
-  },
+  fields: searchFields,
   perform: (request, { payload, settings, features, statsContext, syncMode }) => {
     if (syncMode === 'add') {
+      
+      if (features && features['FB_CAPI_REFACTOR_SEARCH_EVENT']) {
+        return send(request, payload, settings, getSearchEventData, EventType.Search, features, statsContext)
+      }
+      
       if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
         throw new IntegrationError(
           `${payload.currency} is not a valid currency code.`,

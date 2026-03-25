@@ -1,29 +1,14 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {
-  content_ids,
-  content_name,
-  content_type,
-  contents,
-  validateContents,
-  currency,
-  value,
-  action_source,
-  event_time,
-  event_source_url,
-  event_id,
-  custom_data,
-  data_processing_options,
-  data_processing_options_country,
-  data_processing_options_state,
-  dataProcessingOptions,
-  test_event_code
-} from '../fb-capi-properties'
+import { validateContents, dataProcessingOptions } from '../fb-capi-properties'
 import { CURRENCY_ISO_CODES } from '../constants'
-import { hash_user_data, user_data_field } from '../fb-capi-user-data'
+import { hash_user_data } from '../fb-capi-user-data'
 import { get_api_version } from '../utils'
-import { generate_app_data, app_data_field } from '../fb-capi-app-data'
+import { generate_app_data } from '../fb-capi-app-data'
+import { addToCartFields } from '../shared/fields'
+import { send, getAddToCartEventData } from '../shared/functions'
+import { EventType } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Cart V2',
@@ -35,47 +20,15 @@ const action: ActionDefinition<Settings, Payload> = {
     default: 'add',
     choices: [{ label: 'Insert Records', value: 'add' }]
   },
-  fields: {
-    action_source: { ...action_source, required: true },
-    event_time: { ...event_time, required: true },
-    user_data: user_data_field,
-    app_data_field: app_data_field,
-    content_ids: content_ids,
-    content_name: content_name,
-    content_type: content_type,
-    contents: {
-      ...contents,
-      default: {
-        // Segment Product Added is a single product event
-        '@arrayPath': [
-          '$.properties',
-          {
-            id: {
-              '@path': '$.product_id'
-            },
-            quantity: {
-              '@path': '$.quantity'
-            },
-            item_price: {
-              '@path': '$.price'
-            }
-          }
-        ]
-      }
-    },
-    currency: currency,
-    event_id: event_id,
-    event_source_url: event_source_url,
-    value: { ...value, default: { '@path': '$.properties.price' } },
-    custom_data: custom_data,
-    data_processing_options: data_processing_options,
-    data_processing_options_country: data_processing_options_country,
-    data_processing_options_state: data_processing_options_state,
-    test_event_code: test_event_code
-  },
+  fields: addToCartFields,
 
   perform: (request, { payload, settings, features, statsContext, syncMode }) => {
     if (syncMode === 'add') {
+
+      if (features && features['FB_CAPI_REFACTOR_ADD_TO_CART_EVENT']) {
+        return send(request, payload, settings, getAddToCartEventData, EventType.AddToCart, features, statsContext)
+      }
+
       if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
         throw new IntegrationError(
           `${payload.currency} is not a valid currency code.`,
