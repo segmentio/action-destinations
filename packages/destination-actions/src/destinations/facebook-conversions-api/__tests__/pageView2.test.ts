@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
 import { API_VERSION } from '../constants'
+import { FEATURE_FLAG_PAGE_VIEW } from '../shared/constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -15,8 +16,14 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
+const testCases = [
+  { name: 'flag off', features: undefined },
+  { name: 'flag on', features: { [FEATURE_FLAG_PAGE_VIEW]: true } }
+]
+
 describe('FacebookConversionsApi', () => {
-  describe('PageView2', () => {
+  describe.each(testCases)('PageView2 ($name)', ({ features }) => {
+    describe('PageView2', () => {
     it('should throw an error syncMode incorrect', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
@@ -34,6 +41,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('pageView2', {
           event,
           settings,
+          features,
           mapping: {
             __segment_internal_sync_mode: 'update',
             currency: {
@@ -76,6 +84,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView2', {
         event,
         settings,
+          features,
         useDefaultMappings: true,
         mapping: { __segment_internal_sync_mode: 'add', action_source: { '@path': '$.properties.action_source' } }
       })
@@ -120,6 +129,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('pageView2', {
           event,
           settings,
+          features,
           mapping: {
             __segment_internal_sync_mode: 'add',
             action_source: {
@@ -157,6 +167,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView2', {
         event,
         settings,
+          features,
         useDefaultMappings: true,
         mapping: {
           __segment_internal_sync_mode: 'add',
@@ -212,6 +223,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('pageView2', {
           event,
           settings,
+          features,
           mapping: {
             __segment_internal_sync_mode: 'add',
             currency: {
@@ -252,6 +264,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView2', {
         event,
         settings: settingsWithTestEventCode,
+          features,
         useDefaultMappings: true,
         mapping: { __segment_internal_sync_mode: 'add', action_source: { '@path': '$.properties.action_source' } }
       })
@@ -299,6 +312,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView2', {
         event,
         settings: settingsWithTestEventCode,
+          features,
         useDefaultMappings: true,
         mapping: {
           __segment_internal_sync_mode: 'add',
@@ -352,6 +366,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView2', {
         event,
         settings,
+          features,
         useDefaultMappings: true,
         mapping: {
           __segment_internal_sync_mode: 'add',
@@ -385,5 +400,6 @@ describe('FacebookConversionsApi', () => {
           ]
         })
     })
+  })
   })
 })

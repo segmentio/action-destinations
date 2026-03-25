@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
 import { API_VERSION } from '../constants'
+import { FEATURE_FLAG_PAGE_VIEW } from '../shared/constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -15,8 +16,14 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
+const testCases = [
+  { name: 'flag off', features: undefined },
+  { name: 'flag on', features: { [FEATURE_FLAG_PAGE_VIEW]: true } }
+]
+
 describe('FacebookConversionsApi', () => {
-  describe('PageView', () => {
+  describe.each(testCases)('PageView ($name)', ({ features }) => {
+    describe('PageView', () => {
     it('should handle a basic event', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
@@ -35,6 +42,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView', {
         event,
         settings,
+          features,
         useDefaultMappings: true,
         mapping: { action_source: { '@path': '$.properties.action_source' } }
       })
@@ -79,6 +87,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('pageView', {
           event,
           settings,
+          features,
           mapping: {
             action_source: {
               '@path': '$.properties.action_source'
@@ -115,6 +124,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView', {
         event,
         settings,
+          features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
@@ -169,6 +179,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('pageView', {
           event,
           settings,
+          features,
           mapping: {
             currency: {
               '@path': '$.properties.currency'
@@ -208,6 +219,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView', {
         event,
         settings: settingsWithTestEventCode,
+          features,
         useDefaultMappings: true,
         mapping: { action_source: { '@path': '$.properties.action_source' } }
       })
@@ -255,6 +267,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView', {
         event,
         settings: settingsWithTestEventCode,
+          features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
@@ -307,6 +320,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView', {
         event,
         settings,
+          features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
@@ -339,5 +353,6 @@ describe('FacebookConversionsApi', () => {
           ]
         })
     })
+  })
   })
 })

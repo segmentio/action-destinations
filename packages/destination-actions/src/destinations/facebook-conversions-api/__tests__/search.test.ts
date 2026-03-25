@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
 import { API_VERSION } from '../constants'
+import { FEATURE_FLAG_SEARCH } from '../shared/constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -15,8 +16,14 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
+const testCases = [
+  { name: 'flag off', features: undefined },
+  { name: 'flag on', features: { [FEATURE_FLAG_SEARCH]: true } }
+]
+
 describe('FacebookConversionsApi', () => {
-  describe('Search', () => {
+  describe.each(testCases)('Search ($name)', ({ features }) => {
+    describe('Search', () => {
     it('should handle a basic event', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
@@ -45,6 +52,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('search', {
         event,
         settings,
+          features,
         mapping: {
           currency: {
             '@path': '$.properties.currency'
@@ -142,6 +150,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('search', {
         event,
         settings,
+          features,
         useDefaultMappings: true,
         mapping: { action_source: { '@path': '$.properties.action_source' } }
       })
@@ -198,6 +207,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('search', {
           event,
           settings,
+          features,
           mapping: {
             currency: {
               '@path': '$.properties.currency'
@@ -244,6 +254,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('search', {
         event,
         settings: settingsWithTestEventCode,
+          features,
         mapping: {
           currency: {
             '@path': '$.properties.currency'
@@ -332,6 +343,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('search', {
         event,
         settings: settingsWithTestEventCode,
+          features,
         mapping: {
           currency: {
             '@path': '$.properties.currency'
@@ -396,5 +408,6 @@ describe('FacebookConversionsApi', () => {
         test_event_code: '2345678901'
       })
     })
+  })
   })
 })

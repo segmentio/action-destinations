@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
 import { API_VERSION } from '../constants'
+import { FEATURE_FLAG_VIEW_CONTENT } from '../shared/constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -15,8 +16,14 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
+const testCases = [
+  { name: 'flag off', features: undefined },
+  { name: 'flag on', features: { [FEATURE_FLAG_VIEW_CONTENT]: true } }
+]
+
 describe('FacebookConversionsApi', () => {
-  describe('ViewContent2', () => {
+  describe.each(testCases)('ViewContent2 ($name)', ({ features }) => {
+    describe('ViewContent2', () => {
     it('should throw an error if no syncMode invalid', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
@@ -36,6 +43,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('viewContent2', {
           event,
           settings,
+          features,
           mapping: {
             __segment_internal_sync_mode: 'update',
             currency: {
@@ -88,6 +96,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('viewContent2', {
         event,
         settings,
+          features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           currency: {
@@ -202,6 +211,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('viewContent2', {
         event,
         settings,
+          features,
         useDefaultMappings: true,
         mapping: { __segment_internal_sync_mode: 'add', action_source: { '@path': '$.properties.action_source' } }
       })
@@ -261,6 +271,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('viewContent2', {
           event,
           settings,
+          features,
           mapping: {
             __segment_internal_sync_mode: 'add',
             currency: {
@@ -309,6 +320,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('viewContent2', {
         event,
         settings: settingsWithTestEventCode,
+          features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           currency: {
@@ -415,6 +427,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('viewContent2', {
         event,
         settings: settingsWithTestEventCode,
+          features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           currency: {
@@ -496,5 +509,6 @@ describe('FacebookConversionsApi', () => {
           test_event_code: "2345678901"
         })
     })
+  })
   })
 })

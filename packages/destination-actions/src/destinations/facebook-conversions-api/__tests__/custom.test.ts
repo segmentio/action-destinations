@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
 import { API_VERSION } from '../constants'
+import { FEATURE_FLAG_CUSTOM } from '../shared/constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -15,8 +16,14 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
+const testCases = [
+  { name: 'flag off', features: undefined },
+  { name: 'flag on', features: { [FEATURE_FLAG_CUSTOM]: true } }
+]
+
 describe('FacebookConversionsApi', () => {
-  describe('Custom', () => {
+  describe.each(testCases)('Custom ($name)', ({ features }) => {
+    describe('Custom', () => {
     it('should fail if no event_name is passed', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
@@ -35,6 +42,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('custom', {
           event,
           settings,
+          features,
           mapping: {
             event_name: {
               '@path': '$.event'
@@ -64,6 +72,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('custom', {
           event,
           settings,
+          features,
           mapping: {
             event_name: {
               '@path': '$.event'
@@ -93,6 +102,7 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('custom', {
           event,
           settings,
+          features,
           mapping: {
             event_name: {
               '@path': '$.event'
@@ -149,6 +159,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('custom', {
         event,
         settings,
+          features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
@@ -228,6 +239,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('custom', {
         event,
         settings: settingsWithTestEventCode,
+          features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
@@ -302,6 +314,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('custom', {
         event,
         settings: settingsWithTestEventCode,
+          features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
@@ -339,5 +352,6 @@ describe('FacebookConversionsApi', () => {
           test_event_code: "2345678901"
         })
     })
+  })
   })
 })
