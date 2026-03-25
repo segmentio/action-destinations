@@ -1,4 +1,4 @@
-import { getUserData, clean, hash, cleanAndHash, hashArray } from '../../refactor-files/functions'
+import { getUserData, clean, hash, cleanAndHash, hashArray } from '../../shared/functions'
 import { Payload } from '../../purchase2/generated-types'
 
 describe('FacebookConversionsApi', () => {
