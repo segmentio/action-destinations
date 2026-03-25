@@ -8,7 +8,7 @@ import { get_api_version } from '../utils'
 import { generate_app_data } from '../fb-capi-app-data'
 import { initiateCheckoutFields } from '../shared/fields'
 import { send, getInitiateCheckoutEventData } from '../shared/functions'
-import { EventType } from '../shared/constants'
+import { EventType , FEATURE_FLAG_INITIATE_CHECKOUT } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Initiate Checkout',
@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: initiateCheckoutFields,
   perform: (request, { payload, settings, features, statsContext }) => {
 
-    if (features && features['FB_CAPI_REFACTOR_INITIATE_CHECKOUT_EVENT']) {
+    if (features && features[FEATURE_FLAG_INITIATE_CHECKOUT]) {
       return send(request, payload, settings, getInitiateCheckoutEventData, EventType.InitiateCheckout, features, statsContext)
     }
 

@@ -8,7 +8,7 @@ import { get_api_version } from '../utils'
 import { generate_app_data } from '../fb-capi-app-data'
 import { viewContentFields } from '../shared/fields'
 import { send, getViewContentEventData } from '../shared/functions'
-import { EventType } from '../shared/constants'
+import { EventType , FEATURE_FLAG_VIEW_CONTENT } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'View Content',
@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: viewContentFields,
   perform: (request, { payload, settings, features, statsContext }) => {
    
-    if (features && features['FB_CAPI_REFACTOR_VIEW_CONTENT_EVENT']) {
+    if (features && features[FEATURE_FLAG_VIEW_CONTENT]) {
       return send(request, payload, settings, getViewContentEventData, EventType.ViewContent, features, statsContext)
     }
     

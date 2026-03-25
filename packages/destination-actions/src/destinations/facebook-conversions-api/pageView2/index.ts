@@ -7,7 +7,7 @@ import { get_api_version } from '../utils'
 import { generate_app_data } from '../fb-capi-app-data'
 import { pageFields } from '../shared/fields'
 import { send, getPageViewEventData } from '../shared/functions'
-import { EventType } from '../shared/constants'
+import { EventType , FEATURE_FLAG_PAGE_VIEW } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View V2',
@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload, settings, features, statsContext, syncMode }) => {
     if (syncMode === 'add') {
 
-      if (features && features['FB_CAPI_REFACTOR_PAGE_VIEW_EVENT']) {
+      if (features && features[FEATURE_FLAG_PAGE_VIEW]) {
         return send(request, payload, settings, getPageViewEventData, EventType.PageView, features, statsContext)
       }
 

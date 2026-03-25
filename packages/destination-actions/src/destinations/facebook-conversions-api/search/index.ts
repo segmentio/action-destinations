@@ -8,7 +8,7 @@ import { hash_user_data } from '../fb-capi-user-data'
 import { generate_app_data } from '../fb-capi-app-data'
 import { searchFields } from '../shared/fields'
 import { send, getSearchEventData } from '../shared/functions'
-import { EventType } from '../shared/constants'
+import { EventType , FEATURE_FLAG_SEARCH } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Search',
@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: searchFields,
   perform: (request, { payload, settings, features, statsContext }) => {
     
-    if (features && features['FB_CAPI_REFACTOR_SEARCH_EVENT']) {
+    if (features && features[FEATURE_FLAG_SEARCH]) {
       return send(request, payload, settings, getSearchEventData, EventType.Search, features, statsContext)
     }
     

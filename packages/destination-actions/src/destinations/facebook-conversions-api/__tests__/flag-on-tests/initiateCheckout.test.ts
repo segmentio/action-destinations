@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { API_VERSION } from '../../constants'
+import { FEATURE_FLAG_INITIATE_CHECKOUT } from '../../shared/constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -14,7 +15,7 @@ const settingsWithTestEventCode = {
   testEventCode: '1234567890',
   token: process.env.TOKEN
 }
-const features = { FB_CAPI_REFACTOR_INITIATE_CHECKOUT_EVENT: true }
+const features = { [FEATURE_FLAG_INITIATE_CHECKOUT]: true }
 
 describe('FacebookConversionsApi', () => {
   describe('InitiateCheckout', () => {

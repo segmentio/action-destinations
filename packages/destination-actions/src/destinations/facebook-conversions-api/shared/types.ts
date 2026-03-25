@@ -12,7 +12,7 @@ import type { Payload as Purchase2Payload } from '../purchase2/generated-types'
 import type { Payload as SearchPayload } from '../search/generated-types'
 import type { Payload as Search2Payload } from '../search2/generated-types'
 import type { Payload as ViewContentPayload } from '../viewContent/generated-types'
-import type { Payload as ViewContentPayload2 } from '../viewContent2/generated-types'
+import type { Payload as ViewContent2Payload } from '../viewContent2/generated-types'
 
 export type AnyPayload =
   | PurchasePayload
@@ -20,7 +20,7 @@ export type AnyPayload =
   | AddToCartPayload
   | AddToCart2Payload
   | ViewContentPayload
-  | ViewContentPayload2
+  | ViewContent2Payload
   | InitiateCheckoutPayload
   | InitiateCheckout2Payload
   | PageViewPayload
@@ -32,7 +32,6 @@ export type AnyPayload =
 
 export type EventDataType =
   | PurchaseEventData
-  | AppendValueEventData
   | AddToCartEventData
   | ViewContentEventData
   | InitiateCheckoutEventData
@@ -165,21 +164,6 @@ export interface ViewContentEventData extends BaseEventData {
   }
 }
 
-export interface AppendValueEventData extends BaseEventData {
-  event_name: 'AppendValue'
-  original_event_data: {
-    event_name: string
-    event_time: number
-    order_id?: string
-    event_id?: string
-  }
-  custom_data: {
-    net_revenue?: number
-    predicted_ltv?: number
-    [k: string]: unknown
-  }
-}
-
 export type GeneratedAppData = {
   advertiser_tracking_enabled: 1 | 0
   application_tracking_enabled: 1 | 0
@@ -210,7 +194,6 @@ export interface UserData {
   fb_login_id?: number
   partner_id?: string
   partner_name?: string
-  ctwa_clid?: string
 }
 
 export type Content = {

@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { API_VERSION } from '../../constants'
+import { FEATURE_FLAG_PURCHASE } from '../../shared/constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -14,7 +15,7 @@ const settingsWithTestEventCode = {
   testEventCode: '1234567890',
   token: process.env.TOKEN
 }
-const features = { FB_CAPI_REFACTOR_PURCHASE_EVENT: true }
+const features = { [FEATURE_FLAG_PURCHASE]: true }
 
 describe('purchase2', () => {
   it('should handle a basic event', async () => {

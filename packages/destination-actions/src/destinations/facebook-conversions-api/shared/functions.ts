@@ -216,7 +216,7 @@ export function getPageViewEventData(payload: PageViewPayload | PageView2Payload
 export function getPurchaseEventData(payload: PurchasePayload | Purchase2Payload): PurchaseEventData {
   const baseEventData = getBaseEventData(payload)
 
-  const { custom_data, currency, value, content_ids, order_id, net_revenue, predicted_ltv, content_name, content_type, num_items, contents } = payload
+  const { custom_data, currency, value, content_ids, net_revenue, content_name, content_type, num_items, contents } = payload
 
   const data: PurchaseEventData = {
     event_name: 'Purchase',
@@ -225,9 +225,7 @@ export function getPurchaseEventData(payload: PurchasePayload | Purchase2Payload
       ...custom_data,
       currency,
       value,
-      ...(order_id && { order_id }),
       ...(typeof net_revenue === 'number' && { net_revenue }),
-      ...(typeof predicted_ltv === 'number' && { predicted_ltv }),
       ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
       ...(content_name && { content_name }),
       ...(content_type && { content_type }),
@@ -422,9 +420,6 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
   })()
 
   const ge = (() => {
-    if (isHashedInformation(gender ?? '')) {
-      return gender
-    }
     switch (gender?.replace(/\s/g, '').toLowerCase() ?? '') {
       case 'male':
       case 'm':

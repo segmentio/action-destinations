@@ -8,7 +8,7 @@ import { get_api_version } from '../utils'
 import { generate_app_data } from '../fb-capi-app-data'
 import { addToCartFields } from '../shared/fields'
 import { send, getAddToCartEventData } from '../shared/functions'
-import { EventType } from '../shared/constants'
+import { EventType , FEATURE_FLAG_ADD_TO_CART } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Cart',
@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: addToCartFields,
   perform: (request, { payload, settings, features, statsContext }) => {
 
-    if (features && features['FB_CAPI_REFACTOR_ADD_TO_CART_EVENT']) {
+    if (features && features[FEATURE_FLAG_ADD_TO_CART]) {
       return send(request, payload, settings, getAddToCartEventData, EventType.AddToCart, features, statsContext)
     }
   

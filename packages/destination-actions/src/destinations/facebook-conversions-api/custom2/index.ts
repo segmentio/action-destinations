@@ -7,7 +7,7 @@ import { get_api_version } from '../utils'
 import { generate_app_data } from '../fb-capi-app-data'
 import { customFields } from '../shared/fields'
 import { send, getCustomEventData } from '../shared/functions'
-import { EventType } from '../shared/constants'
+import { EventType , FEATURE_FLAG_CUSTOM } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event V2',
@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload, settings, features, statsContext, syncMode }) => {
     if (syncMode === 'add') {
     
-      if (features && features['FB_CAPI_REFACTOR_CUSTOM_EVENT']) {
+      if (features && features[FEATURE_FLAG_CUSTOM]) {
         return send(request, payload, settings, getCustomEventData, EventType.Custom, features, statsContext)
       }
 
