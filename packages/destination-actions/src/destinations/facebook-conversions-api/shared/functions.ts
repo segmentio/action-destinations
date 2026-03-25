@@ -82,8 +82,8 @@ export function send<P extends AnyPayload, T extends EventDataType>(
 export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
   const { action_source, user_data } = payload
 
-  if (eventType !== EventType.Custom && eventType !== EventType.Purchase) {
-    const { currency, contents } = payload as AddToCartPayload | AddToCart2Payload | SearchPayload | Search2Payload | ViewContentPayload | ViewContent2Payload | InitiateCheckoutPayload | InitiateCheckout2Payload
+  if (eventType !== EventType.Custom && eventType !== EventType.PageView) {
+    const { currency, contents } = payload as AddToCartPayload | AddToCart2Payload | SearchPayload | Search2Payload | ViewContentPayload | ViewContent2Payload | InitiateCheckoutPayload | InitiateCheckout2Payload | PurchasePayload | Purchase2Payload
 
     if (currency && typeof currency === 'string' && !CURRENCY_ISO_CODES.has(currency)) {
       throw new IntegrationError(`${currency} is not a valid currency code.`, ErrorCodes.INVALID_CURRENCY_CODE, 400)
@@ -218,7 +218,6 @@ export function getPageViewEventData(payload: PageViewPayload | PageView2Payload
 export function getPurchaseEventData(payload: PurchasePayload | Purchase2Payload): PurchaseEventData {
   const baseEventData = getBaseEventData(payload)
 
-  // @ts-ignore - ignore this until we migrate the purchase Action to use this code.
   const { custom_data, currency, value, content_ids, order_id, net_revenue, predicted_ltv, content_name, content_type, num_items, contents } = payload
 
   const data: PurchaseEventData = {
@@ -280,52 +279,6 @@ export function getViewContentEventData(payload: ViewContentPayload | ViewConten
     }
   }
   return data
-}
-
-export const convertToAppendValueEventData = (
-  data: PurchaseEventData | CustomEventData,
-  payload: AnyPayload,
-  type: EventTypeKey
-): AppendValueEventData => {
-  if (!isPurchaseMatch(payload, type) && !isCustomMatch(payload, type)) {
-    throw new PayloadValidationError('Invalid payload for AppendValue event conversion')
-  }
-  // @ts-ignore - ignore this until we migrate the purchase Action to use this code. 
-  const { is_append_event } = payload
-
-  if (!is_append_event) {
-    throw new PayloadValidationError('AppendValue details should not be processed')
-  }
-
-  const {
-    event_name,
-    custom_data: { order_id, ...restCustomData }
-  } = data
-
-  // @ts-ignore - ignore this until we migrate the purchase Action to use this code. 
-  const { append_event_details: { original_event_time, original_event_order_id, original_event_id, net_revenue_to_append, predicted_ltv_to_append } = {} } = payload
-
-  if(!original_event_time) {
-    throw new PayloadValidationError('AppendValue events must include "Append Event Details > Original Event Time"')
-  }
-
-  const appendValueEventData: AppendValueEventData = {
-      ...data,
-      event_name: 'AppendValue',
-      custom_data: {
-          ...restCustomData,
-          ...(typeof net_revenue_to_append ==='number' ? { net_revenue: net_revenue_to_append } : {}),
-          ...(typeof predicted_ltv_to_append ==='number' ? { predicted_ltv: predicted_ltv_to_append } : {})
-      },
-      original_event_data: {
-          event_name,
-          event_time: Math.floor(new Date(original_event_time).getTime() / 1000),
-          ...(original_event_order_id ? {order_id: original_event_order_id} : {}),
-          ...(original_event_id ? {event_id: original_event_id} : {})                 
-      }
-  }
-
-  return appendValueEventData
 }
 
 export const generateAppData = (app_data: AnyPayload['app_data_field']): GeneratedAppData | undefined => {
@@ -454,7 +407,6 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
     fbLoginID,
     partner_id,
     partner_name,
-    // @ts-ignore - ignore this until we migrate the purchase Action to use this code. 
     ctwa_clid
   } = payloadUserData ?? {}
 
