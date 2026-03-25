@@ -366,7 +366,7 @@ export const value: InputField = {
 
 export const net_revenue: InputField = {
   label: 'Net Revenue',
-  description: 'The numeric net revenue value associated with the event.',
+  description: 'The numeric net revenue value associated with the purchase event.',
   type: 'number'
 }
 
@@ -572,7 +572,6 @@ export const purchaseFields: Record<string, InputField> = {
     }
   },
   event_id,
-  order_id,
   event_source_url,
   num_items,
   custom_data,

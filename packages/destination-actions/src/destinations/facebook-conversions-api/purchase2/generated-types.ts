@@ -201,7 +201,7 @@ export interface Payload {
    */
   value: number
   /**
-   * The numeric net revenue value associated with the event.
+   * The numeric net revenue value associated with the purchase event.
    */
   net_revenue?: number
   /**
@@ -241,10 +241,6 @@ export interface Payload {
    * This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API.
    */
   event_id?: string
-  /**
-   * A unique identifier for the purchase event, typically the order ID or transaction ID from your ecommerce system.
-   */
-  order_id?: string
   /**
    * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. This is required if the action source is "website."
    */
