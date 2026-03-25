@@ -58,6 +58,7 @@ export function send<P extends AnyPayload, T extends EventDataType>(
   features?: Features,
   statsContext?: StatsContext
 ) {
+  console.log("XXXX")
   const { test_event_code } = payload
 
   const { testEventCode, pixelId } = settings
