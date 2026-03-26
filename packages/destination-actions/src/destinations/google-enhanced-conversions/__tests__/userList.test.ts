@@ -1,1818 +1,340 @@
-import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import GoogleEnhancedConversions from '../index'
-import { API_VERSION } from '../functions'
-import { SegmentEvent } from '@segment/actions-core'
-import { PayloadValidationError } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import {
+  createGoogleAudience,
+  getGoogleAudience,
+  getListIds,
+  handleUpdate,
+  processBatchPayload,
+  verifyCustomerId
+} from '../functions'
+import { IntegrationError } from '@segment/actions-core'
+import { UserListResponse } from '../types'
 
-const testDestination = createTestIntegration(GoogleEnhancedConversions)
-const timestamp = new Date('Thu Jun 10 2021 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
-const customerId = '1234'
-const mapping = {
-  phone: { '@path': '$.properties.phone' },
-  email: { '@path': '$.properties.email' },
-  firstName: { '@path': '$.properties.firstName' },
-  lastName: { '@path': '$.properties.lastName' },
-  event_name: {
-    '@path': '$.event'
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Customer Match User List',
+  description: 'Sync users into a Google Customer Match User List.',
+  defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
+  syncMode: {
+    description: 'Define how the records will be synced to Google',
+    label: 'How to sync records',
+    default: 'add',
+    choices: [
+      { label: 'Adds users to the connected Google Customer Match User List', value: 'add' },
+      { label: 'Remove users from the connected Google Customer Match User List', value: 'delete' },
+      { label: 'Add and remove users in the connected Google Customer Match User List', value: 'mirror' }
+    ]
   },
-  ad_user_data_consent_state: 'DENIED',
-  ad_personalization_consent_state: 'UNSPECIFIED',
-  external_audience_id: '1234',
-  retlOnMappingSave: {
-    outputs: {
-      id: '1234',
-      name: 'Test List',
-      external_id_type: 'CONTACT_INFO'
+  fields: {
+    first_name: {
+      label: 'First Name',
+      description: "The user's first name.",
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.traits.firstName' },
+          then: { '@path': '$.context.traits.firstName' },
+          else: { '@path': '$.properties.firstName' }
+        }
+      },
+      category: 'hashedPII'
+    },
+    last_name: {
+      label: 'Last Name',
+      description: "The user's last name.",
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.traits.lastName' },
+          then: { '@path': '$.context.traits.lastName' },
+          else: { '@path': '$.properties.lastName' }
+        }
+      },
+      category: 'hashedPII'
+    },
+    email: {
+      label: 'Email',
+      description: "The user's email address.",
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.properties.email' }
+        }
+      },
+      category: 'hashedPII'
+    },
+    phone: {
+      label: 'Phone',
+      description: "The user's phone number.",
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.traits.phone' },
+          then: { '@path': '$.context.traits.phone' },
+          else: { '@path': '$.properties.phone' }
+        }
+      },
+      category: 'hashedPII'
+    },
+    phone_country_code: {
+      label: 'Phone Number Country Code',
+      description: `The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.`,
+      type: 'string'
+    },
+    country_code: {
+      label: 'Address Country Code',
+      description: "2-letter country code in ISO-3166-1 alpha-2 of the user's address",
+      type: 'string'
+    },
+    postal_code: {
+      label: 'Postal Code',
+      description: "Postal code of the user's address.",
+      type: 'string'
+    },
+    crm_id: {
+      label: 'CRM ID',
+      description: 'Advertiser-assigned user ID for Customer Match upload. Required if external ID type is CRM ID.',
+      type: 'string'
+    },
+    mobile_advertising_id: {
+      label: 'Mobile Advertising ID',
+      description: 'Mobile device ID (advertising ID/IDFA). Required if external ID type is mobile advertising ID.',
+      type: 'string',
+      default: {
+        '@path': '$.context.device.advertisingId'
+      }
+    },
+    ad_user_data_consent_state: {
+      label: 'Ad User Data Consent State',
+      description:
+        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).',
+      type: 'string',
+      choices: [
+        { label: 'GRANTED', value: 'GRANTED' },
+        { label: 'DENIED', value: 'DENIED' },
+        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
+      ],
+      required: true
+    },
+    ad_personalization_consent_state: {
+      label: 'Ad Personalization Consent State',
+      type: 'string',
+      description:
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).',
+      choices: [
+        { label: 'GRANTED', value: 'GRANTED' },
+        { label: 'DENIED', value: 'DENIED' },
+        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
+      ],
+      required: true
+    },
+    external_audience_id: {
+      label: 'External Audience ID',
+      description: 'The ID of the List that users will be synced to.',
+      type: 'string',
+      default: {
+        '@path': '$.context.personas.external_audience_id'
+      },
+      unsafe_hidden: true
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'Enable batching for the request.',
+      type: 'boolean',
+      default: true,
+      unsafe_hidden: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'The number of records to send in each batch.',
+      type: 'integer',
+      default: 10000,
+      unsafe_hidden: true
+    },
+    event_name: {
+      label: 'Event Name',
+      description: 'The name of the current Segment event.',
+      type: 'string',
+      default: {
+        '@path': '$.event'
+      },
+      unsafe_hidden: true
     }
-  }
-}
-describe('GoogleEnhancedConversions', () => {
-  describe('userList', () => {
-    it('sends an event with default mappings - event = Audience Entered', async () => {
-      const event = createTestEvent({
-        timestamp,
-        event: 'Audience Entered',
-        properties: {
-          gclid: '54321',
-          email: 'test@gmail.com',
-          orderId: '1234',
-          phone: '3234567890',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          currency: 'USD',
-          value: '123',
-          address: {
-            street: '123 Street SW',
-            city: 'San Diego',
-            state: 'CA',
-            postalCode: '982004'
-          }
-        }
-      })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      const responses = await testDestination.testAction('userList', {
-        event,
-        mapping: {
-          ad_user_data_consent_state: 'GRANTED',
-          ad_personalization_consent_state: 'GRANTED',
-          external_audience_id: '1234',
-          retlOnMappingSave: {
-            outputs: {
-              id: '1234',
-              name: 'Test List',
-              external_id_type: 'CONTACT_INFO'
-            }
+  },
+  hooks: {
+    retlOnMappingSave: {
+      label: 'Connect to a Google Customer Match User List',
+      description: 'When saving this mapping, we will create a list in Google using the fields you provide.',
+      inputFields: {
+        list_id: {
+          type: 'string',
+          label: 'Existing List ID',
+          description:
+            'The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.',
+          dynamic: async (request, { settings, auth, features, statsContext }) => {
+            return await getListIds(request, settings, auth, features, statsContext)
           }
         },
-        useDefaultMappings: true,
-        settings: {
-          customerId
-        }
-      })
-
-      expect(responses.length).toEqual(3)
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
-      )
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
-      )
-    })
-
-    it('sends an event with default mappings - event = Audience Exited', async () => {
-      const event = createTestEvent({
-        timestamp,
-        event: 'Audience Exited',
-        properties: {
-          gclid: '54321',
-          email: 'test@gmail.com',
-          orderId: '1234',
-          phone: '3234567890',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          currency: 'USD',
-          value: '123',
-          address: {
-            street: '123 Street SW',
-            city: 'San Diego',
-            state: 'CA',
-            postalCode: '982004'
-          }
-        }
-      })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      const responses = await testDestination.testAction('userList', {
-        event,
-        mapping: {
-          ad_user_data_consent_state: 'GRANTED',
-          ad_personalization_consent_state: 'GRANTED',
-          external_audience_id: '1234',
-          retlOnMappingSave: {
-            outputs: {
-              id: '1234',
-              name: 'Test List',
-              external_id_type: 'CONTACT_INFO'
-            }
-          }
+        list_name: {
+          type: 'string',
+          label: 'List Name',
+          description: 'The name of the Google list that you would like to create.'
         },
-        useDefaultMappings: true,
-        settings: {
-          customerId
-        }
-      })
-
-      expect(responses.length).toEqual(3)
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
-      )
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
-      )
-    })
-
-    // FLAG_CLEANUP: delete this describe block when actions-core-audience-membership + actions-google-ec-audience-membership are removed
-    describe('syncMode-based routing (legacy — no feature flags)', () => {
-    it('sends an event with default mappings - syncMode = add', async () => {
-      const event = createTestEvent({
-        timestamp,
-        event: 'Test Event',
-        properties: {
-          gclid: '54321',
-          email: 'test@gmail.com',
-          orderId: '1234',
-          phone: '3234567890',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          currency: 'USD',
-          value: '123',
-          address: {
-            street: '123 Street SW',
-            city: 'San Diego',
-            state: 'CA',
-            postalCode: '982004'
-          }
-        }
-      })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      const responses = await testDestination.testAction('userList', {
-        event,
-        mapping: {
-          ad_user_data_consent_state: 'GRANTED',
-          ad_personalization_consent_state: 'GRANTED',
-          external_audience_id: '1234',
-          __segment_internal_sync_mode: 'add',
-          retlOnMappingSave: {
-            outputs: {
-              id: '1234',
-              name: 'Test List',
-              external_id_type: 'CONTACT_INFO'
-            }
-          }
-        },
-        useDefaultMappings: true,
-        settings: {
-          customerId
-        }
-      })
-
-      expect(responses.length).toEqual(3)
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
-      )
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
-      )
-    })
-
-    it('sends an event with default mappings - syncMode = mirror and event = new', async () => {
-      const event = createTestEvent({
-        timestamp,
-        event: 'new',
-        properties: {
-          gclid: '54321',
-          email: 'test@gmail.com',
-          orderId: '1234',
-          phone: '3234567890',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          currency: 'USD',
-          value: '123',
-          address: {
-            street: '123 Street SW',
-            city: 'San Diego',
-            state: 'CA',
-            postalCode: '982004'
-          }
-        }
-      })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      const responses = await testDestination.testAction('userList', {
-        event,
-        mapping: {
-          ad_user_data_consent_state: 'GRANTED',
-          ad_personalization_consent_state: 'GRANTED',
-          external_audience_id: '1234',
-          __segment_internal_sync_mode: 'mirror',
-          retlOnMappingSave: {
-            outputs: {
-              id: '1234',
-              name: 'Test List',
-              external_id_type: 'CONTACT_INFO'
-            }
-          }
-        },
-        useDefaultMappings: true,
-        settings: {
-          customerId
-        }
-      })
-
-      expect(responses.length).toEqual(3)
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
-      )
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
-      )
-    })
-
-    it('sends an event with default mappings - syncMode = mirror and event = deleted', async () => {
-      const event = createTestEvent({
-        timestamp,
-        event: 'deleted',
-        properties: {
-          gclid: '54321',
-          email: 'test@gmail.com',
-          orderId: '1234',
-          phone: '3234567890',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          currency: 'USD',
-          value: '123',
-          address: {
-            street: '123 Street SW',
-            city: 'San Diego',
-            state: 'CA',
-            postalCode: '982004'
-          }
-        }
-      })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      const responses = await testDestination.testAction('userList', {
-        event,
-        mapping: {
-          ad_user_data_consent_state: 'GRANTED',
-          ad_personalization_consent_state: 'GRANTED',
-          external_audience_id: '1234',
-          __segment_internal_sync_mode: 'mirror',
-          retlOnMappingSave: {
-            outputs: {
-              id: '1234',
-              name: 'Test List',
-              external_id_type: 'CONTACT_INFO'
-            }
-          }
-        },
-        useDefaultMappings: true,
-        settings: {
-          customerId
-        }
-      })
-
-      expect(responses.length).toEqual(3)
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
-      )
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
-      )
-    })
-
-    it('sends an event with default mappings - syncMode = delete', async () => {
-      const event = createTestEvent({
-        timestamp,
-        event: 'Test Event',
-        properties: {
-          gclid: '54321',
-          email: 'test@gmail.com',
-          orderId: '1234',
-          phone: '3234567890',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          currency: 'USD',
-          value: '123',
-          address: {
-            street: '123 Street SW',
-            city: 'San Diego',
-            state: 'CA',
-            postalCode: '982004'
-          }
-        }
-      })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      const responses = await testDestination.testAction('userList', {
-        event,
-        mapping: {
-          ad_user_data_consent_state: 'GRANTED',
-          ad_personalization_consent_state: 'GRANTED',
-          external_audience_id: '1234',
-          __segment_internal_sync_mode: 'delete',
-          retlOnMappingSave: {
-            outputs: {
-              id: '1234',
-              name: 'Test List',
-              external_id_type: 'CONTACT_INFO'
-            }
-          }
-        },
-        useDefaultMappings: true,
-        settings: {
-          customerId
-        }
-      })
-
-      expect(responses.length).toEqual(3)
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
-      )
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
-      )
-    })
-
-    }) // end FLAG_CLEANUP describe: syncMode-based routing
-
-    it('does not re-hash already hashed values', async () => {
-      const event = createTestEvent({
-        timestamp,
-        event: 'Audience Entered',
-        properties: {
-          gclid: '54321',
-          email: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674', //'test@gmail.com'
-          orderId: '1234',
-          phone: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0', //'3234567890'
-          firstName: '4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332', //'Jane'
-          lastName: 'fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7', //'Doe
-          currency: 'USD',
-          value: '123',
-          address: {
-            street: '123 Street SW',
-            city: 'San Diego',
-            state: 'CA',
-            postalCode: '982004'
-          }
-        }
-      })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      const responses = await testDestination.testAction('userList', {
-        event,
-        mapping: {
-          ad_user_data_consent_state: 'GRANTED',
-          ad_personalization_consent_state: 'GRANTED',
-          external_audience_id: '1234',
-          retlOnMappingSave: {
-            outputs: {
-              id: '1234',
-              name: 'Test List',
-              external_id_type: 'CONTACT_INFO'
-            }
-          }
-        },
-        useDefaultMappings: true,
-        settings: {
-          customerId
-        }
-      })
-
-      expect(responses.length).toEqual(3)
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
-      )
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
-      )
-    })
-
-    it('Does not format phone if country code already added', async () => {
-      const event = createTestEvent({
-        timestamp,
-        event: 'Audience Entered',
-        properties: {
-          gclid: '54321',
-          email: 'test@gmail.com',
-          orderId: '1234',
-          phone: '+3234567890',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          currency: 'USD',
-          value: '123',
-          address: {
-            street: '123 Street SW',
-            city: 'San Diego',
-            state: 'CA',
-            postalCode: '982004'
-          }
-        }
-      })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      const responses = await testDestination.testAction('userList', {
-        event,
-        mapping: {
-          ad_user_data_consent_state: 'GRANTED',
-          ad_personalization_consent_state: 'GRANTED',
-          external_audience_id: '1234',
-          retlOnMappingSave: {
-            outputs: {
-              id: '1234',
-              name: 'Test List',
-              external_id_type: 'CONTACT_INFO'
-            }
-          }
-        },
-        useDefaultMappings: true,
-        settings: {
-          customerId
-        },
-        features: {
-          'google-enhanced-phone-validation-check': true
-        }
-      })
-
-      expect(responses.length).toEqual(3)
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
-      )
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"15a36d1cf8c33da64ac3c45039986f871a796d44645d6d8efe3c8413359620eb\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
-      )
-    })
-
-    it('Does not format phone if country code already added and country code is in properties', async () => {
-      const event = createTestEvent({
-        timestamp,
-        event: 'Audience Entered',
-        properties: {
-          gclid: '54321',
-          email: 'test@gmail.com',
-          orderId: '1234',
-          phone: '+3234567890',
-          phone_country_code: '+1',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          currency: 'USD',
-          value: '123',
-          address: {
-            street: '123 Street SW',
-            city: 'San Diego',
-            state: 'CA',
-            postalCode: '982004'
-          }
-        }
-      })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      const responses = await testDestination.testAction('userList', {
-        event,
-        mapping: {
-          ad_user_data_consent_state: 'GRANTED',
-          ad_personalization_consent_state: 'GRANTED',
-          external_audience_id: '1234',
-          phone_country_code: {
-            '@path': '$.properties.phone_country_code'
-          },
-          retlOnMappingSave: {
-            outputs: {
-              id: '1234',
-              name: 'Test List',
-              external_id_type: 'CONTACT_INFO'
-            }
-          }
-        },
-        useDefaultMappings: true,
-        settings: {
-          customerId
-        },
-        features: {
-          'google-enhanced-phone-validation-check': true
-        }
-      })
-
-      expect(responses.length).toEqual(3)
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
-      )
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"15a36d1cf8c33da64ac3c45039986f871a796d44645d6d8efe3c8413359620eb\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
-      )
-    })
-
-    it('Format phone number if country code is added', async () => {
-      const event = createTestEvent({
-        timestamp,
-        event: 'Audience Entered',
-        properties: {
-          gclid: '54321',
-          email: 'test@gmail.com',
-          orderId: '1234',
-          phone: '3234567890',
-          phone_country_code: '+91',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          currency: 'USD',
-          value: '123',
-          address: {
-            street: '123 Street SW',
-            city: 'San Diego',
-            state: 'CA',
-            postalCode: '982004'
-          }
-        }
-      })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      const responses = await testDestination.testAction('userList', {
-        event,
-        mapping: {
-          ad_user_data_consent_state: 'GRANTED',
-          ad_personalization_consent_state: 'GRANTED',
-          external_audience_id: '1234',
-          phone_country_code: {
-            '@path': '$.properties.phone_country_code'
-          },
-          retlOnMappingSave: {
-            outputs: {
-              id: '1234',
-              name: 'Test List',
-              external_id_type: 'CONTACT_INFO'
-            }
-          }
-        },
-        useDefaultMappings: true,
-        settings: {
-          customerId
-        }
-      })
-
-      expect(responses.length).toEqual(3)
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
-      )
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"df7c233443c263c8a532f65c745c38f411ef984acbc02af10b45203472774e6d\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
-      )
-    })
-
-    it('Return same phone number if country code is wrong', async () => {
-      const event = createTestEvent({
-        timestamp,
-        event: 'Audience Entered',
-        properties: {
-          gclid: '54321',
-          email: 'test@gmail.com',
-          orderId: '1234',
-          phone: '3234567890',
-          phone_country_code: '+999',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          currency: 'USD',
-          value: '123',
-          address: {
-            street: '123 Street SW',
-            city: 'San Diego',
-            state: 'CA',
-            postalCode: '982004'
-          }
-        }
-      })
-
-      const responses = testDestination.testAction('userList', {
-        event,
-        mapping: {
-          ad_user_data_consent_state: 'GRANTED',
-          ad_personalization_consent_state: 'GRANTED',
-          external_audience_id: '1234',
-          phone_country_code: {
-            '@path': '$.properties.phone_country_code'
-          },
-          retlOnMappingSave: {
-            outputs: {
-              id: '1234',
-              name: 'Test List',
-              external_id_type: 'CONTACT_INFO'
-            }
-          }
-        },
-        useDefaultMappings: true,
-        settings: {
-          customerId
-        },
-        features: {
-          'google-enhanced-phone-validation-check': true
-        }
-      })
-
-      await expect(responses).rejects.toThrow(PayloadValidationError)
-    })
-
-    it('should successfully handle error other than CONCURRENT_MODIFICATION from createOfflineUserDataJobs API', async () => {
-      const events: SegmentEvent[] = [
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            email: 'test@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        }),
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            email: 'test+1@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        })
-      ]
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(400, {
-          error: {
-            code: 400,
-            details: [
-              {
-                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
-                errors: [
-                  {
-                    errorCode: {
-                      someotherError: 'DATA_CONSTRAINT_VIOLATION'
-                    },
-                    message:
-                      'The request conflicted with existing data. This error will usually be replaced with a more specific error if the request is retried.'
-                  }
-                ],
-                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
-              }
-            ],
-            message: 'Request contains an invalid argument.',
-            status: 'INVALID_ARGUMENT'
-          }
-        })
-
-      const responses = await testDestination.executeBatch('userList', {
-        events,
-        mapping,
-        settings: {
-          customerId
-        }
-      })
-
-      expect(responses[0]).toMatchObject({
-        status: 400,
-        errortype: 'BAD_REQUEST',
-        errormessage: 'Request contains an invalid argument.',
-        errorreporter: 'DESTINATION',
-        sent: {
-          job: {
-            type: 'CUSTOMER_MATCH_USER_LIST',
-            customerMatchUserListMetadata: {
-              userList: 'customers/1234/userLists/1234',
-              consent: {
-                adUserData: 'DENIED',
-                adPersonalization: 'UNSPECIFIED'
-              }
-            }
-          }
-        },
-        body: new Error('Bad Request')
-      })
-
-      expect(responses[1]).toMatchObject({
-        status: 400,
-        errortype: 'BAD_REQUEST',
-        errormessage: 'Request contains an invalid argument.',
-        errorreporter: 'DESTINATION'
-      })
-    })
-    it('Rethrows CONCURRENT_MODIFICATION error from createOfflineUserDataJobs API as retryable error', async () => {
-      const events: SegmentEvent[] = [
-        createTestEvent({
-          timestamp,
-          event: 'Audience Exited',
-          properties: {
-            gclid: '54321',
-            email: 'test@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        }),
-        createTestEvent({
-          timestamp,
-          event: 'Audience Exited',
-          properties: {
-            gclid: '54321',
-            email: 'test@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        })
-      ]
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(400, {
-          error: {
-            code: 400,
-            details: [
-              {
-                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
-                errors: [
-                  {
-                    errorCode: {
-                      databaseError: 'CONCURRENT_MODIFICATION'
-                    },
-                    message: 'Multiple requests were attempting to modify the same resource at once. Retry the request.'
-                  }
-                ],
-                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
-              }
-            ],
-            message: 'Request contains an invalid argument.',
-            status: 'INVALID_ARGUMENT'
-          }
-        })
-
-      // nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`).post(/.*/).reply(200)
-
-      const responses = await testDestination.executeBatch('userList', {
-        events,
-        mapping,
-        settings: {
-          customerId
-        }
-      })
-      expect(responses[0]).toMatchObject({
-        status: 429,
-        errortype: 'RETRYABLE_BATCH_FAILURE',
-        errormessage:
-          "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
-        sent: {
-          job: {
-            type: 'CUSTOMER_MATCH_USER_LIST',
-            customerMatchUserListMetadata: {
-              userList: `customers/1234/userLists/1234`,
-              consent: {
-                adUserData: 'DENIED',
-                adPersonalization: 'UNSPECIFIED'
-              }
-            }
-          }
-        },
-        body: new Error('Bad Request'),
-        errorreporter: 'DESTINATION'
-      })
-
-      expect(responses[1]).toMatchObject({
-        status: 429,
-        errortype: 'RETRYABLE_BATCH_FAILURE',
-        errormessage:
-          "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
-        sent: {
-          job: {
-            type: 'CUSTOMER_MATCH_USER_LIST',
-            customerMatchUserListMetadata: {
-              userList: `customers/1234/userLists/1234`,
-              consent: {
-                adUserData: 'DENIED',
-                adPersonalization: 'UNSPECIFIED'
-              }
-            }
-          }
-        },
-        body: new Error('Bad Request'),
-        errorreporter: 'DESTINATION'
-      })
-    })
-
-    it('Rethrows CONCURRENT_MODIFICATION error from addOperation offlineUserDataJobs API as retryable error', async () => {
-      const events: SegmentEvent[] = [
-        createTestEvent({
-          timestamp,
-          event: 'Audience Exited',
-          properties: {
-            gclid: '54321',
-            email: 'test@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        }),
-        createTestEvent({
-          timestamp,
-          event: 'Audience Exited',
-          properties: {
-            gclid: '54321',
-            email: 'test@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        })
-      ]
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { resourceName: 'customers/1234/userList/1234' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(400, {
-          error: {
-            code: 400,
-            details: [
-              {
-                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
-                errors: [
-                  {
-                    errorCode: {
-                      databaseError: 'CONCURRENT_MODIFICATION'
-                    },
-                    message: 'Multiple requests were attempting to modify the same resource at once. Retry the request.'
-                  }
-                ],
-                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
-              }
-            ],
-            message: 'Request contains an invalid argument.',
-            status: 'INVALID_ARGUMENT'
-          }
-        })
-
-      const responses = await testDestination.executeBatch('userList', {
-        events,
-        mapping,
-        settings: {
-          customerId
-        }
-      })
-      expect(responses[0]).toMatchObject({
-        status: 429,
-        errortype: 'RETRYABLE_BATCH_FAILURE',
-        errormessage:
-          "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
-        sent: {
-          enablePartialFailure: true,
-          operations: [
-            {
-              remove: {
-                userIdentifiers: [
-                  {
-                    hashedEmail: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
-                  },
-                  {
-                    hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0'
-                  }
-                ]
-              }
-            },
-            {
-              remove: {
-                userIdentifiers: [
-                  {
-                    hashedEmail: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
-                  },
-                  {
-                    hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0'
-                  }
-                ]
-              }
-            }
+        external_id_type: {
+          type: 'string',
+          label: 'External ID Type',
+          description: 'Customer match upload key types.',
+          default: 'CONTACT_INFO',
+          choices: [
+            { label: 'CONTACT INFO', value: 'CONTACT_INFO' },
+            { label: 'CRM ID', value: 'CRM_ID' },
+            { label: 'MOBILE ADVERTISING ID', value: 'MOBILE_ADVERTISING_ID' }
           ]
         },
-        body: new Error('Bad Request'),
-        errorreporter: 'DESTINATION'
-      })
-
-      expect(responses[1]).toMatchObject({
-        status: 429,
-        errortype: 'RETRYABLE_BATCH_FAILURE',
-        errormessage:
-          "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
-        sent: {
-          enablePartialFailure: true,
-          operations: [
-            {
-              remove: {
-                userIdentifiers: [
-                  {
-                    hashedEmail: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
-                  },
-                  {
-                    hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0'
-                  }
-                ]
-              }
-            },
-            {
-              remove: {
-                userIdentifiers: [
-                  {
-                    hashedEmail: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
-                  },
-                  {
-                    hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0'
-                  }
-                ]
-              }
-            }
-          ]
-        },
-        body: new Error('Bad Request'),
-        errorreporter: 'DESTINATION'
-      })
-    })
-
-    it('should successfully handle a Partial failure error from  addOperation offlineUserDataJobs API', async () => {
-      const events: SegmentEvent[] = [
-        // Assume this Payload gets failed in Partial Failure
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            email: 'test+1@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        }),
-        // Invalid Email
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            email: 'invalid_email',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123'
-          }
-        }),
-        //Valid Payload
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            email: 'test+2@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        }),
-        //invalid phone country code
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            email: 'test+2@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            phoneCountryCode: '999',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        }),
-        // Missing email ,phone and addressInfo which is necessary for CONTACT_INFO
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            orderId: '1234',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        }),
-        //Assume this Payload also gets failed in Partial Failure
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            email: 'test+3@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        })
-      ]
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { resourceName: 'customers/1234/userLists/1234' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, {
-          partialFailureError: {
-            code: 3,
-            message: 'Mocking Partial Failure Error',
-            details: [
+        app_id: {
+          label: 'App ID',
+          description:
+            'A string that uniquely identifies a mobile application from which the data was collected. Required if external ID type is mobile advertising ID',
+          type: 'string',
+          depends_on: {
+            match: 'all',
+            conditions: [
               {
-                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
-                errors: [
-                  {
-                    errorCode: {
-                      offlineUserDataJobError: 'INVALID_SHA256_FORMAT'
-                    },
-                    message: 'The SHA256 encoded value is malformed.',
-                    location: {
-                      fieldPathElements: [
-                        {
-                          fieldName: 'operations',
-                          index: 0
-                        },
-                        {
-                          fieldName: 'create'
-                        },
-                        {
-                          fieldName: 'user_identifiers',
-                          index: 0
-                        },
-                        {
-                          fieldName: 'hashed_email'
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    errorCode: {
-                      offlineUserDataJobError: 'INVALID_SHA256_FORMAT'
-                    },
-                    message: 'The SHA256 encoded value is malformed.',
-                    location: {
-                      fieldPathElements: [
-                        {
-                          fieldName: 'operations',
-                          index: 2
-                        },
-                        {
-                          fieldName: 'create'
-                        },
-                        {
-                          fieldName: 'user_identifiers',
-                          index: 0
-                        },
-                        {
-                          fieldName: 'hashed_email'
-                        }
-                      ]
-                    }
-                  }
-                ]
+                fieldKey: 'external_id_type',
+                operator: 'is',
+                value: 'MOBILE_ADVERTISING_ID'
               }
             ]
           }
-        })
+        }
+      },
+      outputTypes: {
+        id: {
+          type: 'string',
+          label: 'ID',
+          description: 'The ID of the Google Customer Match User list that users will be synced to.',
+          required: false
+        },
+        name: {
+          type: 'string',
+          label: 'List Name',
+          description: 'The name of the Google Customer Match User list that users will be synced to.',
+          required: false
+        },
+        external_id_type: {
+          type: 'string',
+          label: 'External ID Type',
+          description: 'Customer match upload key types.',
+          required: false
+        }
+      },
+      performHook: async (request, { auth, settings, hookInputs, features, statsContext }) => {
+        settings.customerId = verifyCustomerId(settings.customerId)
+        if (hookInputs.list_id) {
+          try {
+            const response: UserListResponse = await getGoogleAudience(
+              request,
+              settings,
+              hookInputs.list_id,
+              {
+                refresh_token: auth?.refreshToken
+              },
+              features,
+              statsContext
+            )
+            return {
+              successMessage: `Using existing list '${response.results[0].userList.id}' (id: ${hookInputs.list_id})`,
+              savedData: {
+                id: hookInputs.list_id,
+                name: response.results[0].userList.name,
+                external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO'
+              }
+            }
+          } catch (e) {
+            const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to get list'
+            const code = (e as IntegrationError).code || 'GET_LIST_FAILURE'
+            return {
+              error: {
+                message,
+                code
+              }
+            }
+          }
+        }
 
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`).post(/.*/).reply(200, { done: true })
+        try {
+          const input = {
+            audienceName: hookInputs.list_name,
+            settings: settings,
+            audienceSettings: {
+              external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO',
+              app_id: hookInputs.app_id
+            }
+          }
+          const listId = await createGoogleAudience(
+            request,
+            input,
+            { refresh_token: auth?.refreshToken },
+            features,
+            statsContext
+          )
 
-      const mappingWithPhoneCountryCode = {
-        ...mapping,
-        phone_country_code: {
-          '@path': '$.properties.phoneCountryCode'
+          return {
+            successMessage: `List '${hookInputs.list_name}' (id: ${listId}) created successfully!`,
+            savedData: {
+              id: listId,
+              name: hookInputs.list_name,
+              external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO'
+            }
+          }
+        } catch (e) {
+          const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to create list'
+          const code = (e as IntegrationError).code || 'CREATE_LIST_FAILURE'
+          return {
+            error: {
+              message,
+              code
+            }
+          }
         }
       }
+    }
+  },
+  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }) => {
+    settings.customerId = verifyCustomerId(settings.customerId)
 
-      const responses = await testDestination.executeBatch('userList', {
-        events,
-        mapping: mappingWithPhoneCountryCode,
-        settings: {
-          customerId
-        },
-        features: {
-          'google-enhanced-phone-validation-check': true
-        }
-      })
+    return await handleUpdate(
+      request,
+      settings,
+      audienceSettings,
+      [payload],
+      hookOutputs?.retlOnMappingSave?.outputs.id,
+      hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
+      syncMode,
+      features,
+      statsContext
+    )
+  },
+  performBatch: async (
+    request,
+    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }
+  ) => {
+    settings.customerId = verifyCustomerId(settings.customerId)
+    return await processBatchPayload(
+      request,
+      settings,
+      audienceSettings,
+      payload,
+      hookOutputs?.retlOnMappingSave?.outputs.id,
+      hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
+      syncMode,
+      features,
+      statsContext
+    )
+  }
+}
 
-      //Partial Failure(invalid payload) due to invalid Payload
-      expect(responses[0]).toMatchObject({
-        status: 400,
-        errortype: 'BAD_REQUEST',
-        errormessage: 'The SHA256 encoded value is malformed.',
-        sent: {
-          create: {
-            userIdentifiers: [
-              {
-                hashedEmail: 'ede2e3d4c737f00aaab14de19e6ce9e20248a35ea030882b72d5d22de1f867d6'
-              },
-              {
-                hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0'
-              }
-            ]
-          }
-        },
-        body: {
-          errorCode: { offlineUserDataJobError: 'INVALID_SHA256_FORMAT' },
-          message: 'The SHA256 encoded value is malformed.',
-          location: {
-            fieldPathElements: [
-              {
-                fieldName: 'operations',
-                index: 0
-              },
-              {
-                fieldName: 'create'
-              },
-              {
-                fieldName: 'user_identifiers',
-                index: 0
-              },
-              {
-                fieldName: 'hashed_email'
-              }
-            ]
-          }
-        },
-        errorreporter: 'DESTINATION'
-      })
-      // Invalid Email
-      expect(responses[1]).toMatchObject({
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: "Email provided doesn't seem to be in a valid format.",
-        errorreporter: 'INTEGRATIONS'
-      })
-      //success
-      expect(responses[2]).toMatchObject({
-        status: 200,
-        sent: '/customers/1234/userLists/1234:run',
-        body: { done: true }
-      })
-
-      expect(responses[3]).toMatchObject({
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Invalid country calling code',
-        errorreporter: 'INTEGRATIONS'
-      })
-      // Missing email ,phone and addressInfo which is necessary for CONTACT_INFO
-      expect(responses[4]).toMatchObject({
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Missing or Invalid data for CONTACT_INFO.',
-        errorreporter: 'INTEGRATIONS'
-      })
-      //Partial Failure(invalid payload) due to invalid Payload
-      expect(responses[5]).toMatchObject({
-        status: 400,
-        errortype: 'BAD_REQUEST',
-        errormessage: 'The SHA256 encoded value is malformed.',
-        sent: {
-          create: {
-            userIdentifiers: [
-              {
-                hashedEmail: 'faca876f60e93cf76a50b2f7c980168ef03c49a6313038b6386057e98cc3cffc'
-              },
-              {
-                hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0'
-              }
-            ]
-          }
-        },
-        body: {
-          errorCode: { offlineUserDataJobError: 'INVALID_SHA256_FORMAT' },
-          message: 'The SHA256 encoded value is malformed.',
-          location: {
-            fieldPathElements: [
-              {
-                fieldName: 'operations',
-                index: 2
-              },
-              {
-                fieldName: 'create'
-              },
-              {
-                fieldName: 'user_identifiers',
-                index: 0
-              },
-              {
-                fieldName: 'hashed_email'
-              }
-            ]
-          }
-        },
-        errorreporter: 'DESTINATION'
-      })
-    })
-
-    it('should successfully handle a batch of events where email is invalid or missing data for CONTACT_INFO', async () => {
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { resourceName: 'customers/1234/userLists/1234' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`).post(/.*/).reply(200, { done: true })
-
-      const events: SegmentEvent[] = [
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            orderId: '1234',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        }),
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            email: 'test@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        }),
-
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            email: 'invalid_email',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        })
-      ]
-
-      const responses = await testDestination.executeBatch('userList', {
-        events,
-        mapping,
-        settings: {
-          customerId
-        }
-      })
-
-      expect(responses[0]).toMatchObject({
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Missing or Invalid data for CONTACT_INFO.',
-        errorreporter: 'INTEGRATIONS'
-      })
-
-      expect(responses[1]).toMatchObject({
-        status: 200,
-        sent: '/customers/1234/userLists/1234:run',
-        body: {
-          done: true
-        }
-      })
-
-      expect(responses[2]).toMatchObject({
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: "Email provided doesn't seem to be in a valid format.",
-        errorreporter: 'INTEGRATIONS'
-      })
-    })
-
-    // FLAG_CLEANUP: delete this describe block when actions-core-audience-membership + actions-google-ec-audience-membership are removed
-    describe('syncMode-based routing (legacy — no feature flags)', () => {
-    it('Could not deteremine operation type due to invalid event name or syncMode', async () => {
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { resourceName: 'customers/1234/userLists/1234' })
-
-      const events: SegmentEvent[] = [
-        createTestEvent({
-          timestamp,
-          event: 'Invalid Event',
-          properties: {
-            email: 'test@gmail.com',
-            gclid: '54321',
-            orderId: '1234',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        }),
-        createTestEvent({
-          timestamp,
-          event: 'Invalid Event Name',
-          properties: {
-            gclid: '54321',
-            email: 'test+1@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        })
-      ]
-
-      const responses = await testDestination.executeBatch('userList', {
-        events,
-        mapping,
-        settings: {
-          customerId
-        }
-      })
-
-      expect(responses[0]).toMatchObject({
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Could not determine Operation Type.',
-        errorreporter: 'INTEGRATIONS'
-      })
-
-      expect(responses[1]).toMatchObject({
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Could not determine Operation Type.',
-        errorreporter: 'INTEGRATIONS'
-      })
-    })
-
-    }) // end FLAG_CLEANUP describe: syncMode-based routing
-
-    it('Should successfully handle error other than CONCURRENT_MODIFICATION from run offlineUserDataJobs API', async () => {
-      const events: SegmentEvent[] = [
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            email: 'test@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        }),
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            email: 'test@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        })
-      ]
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { resourceName: 'customers/1234/userLists/1234' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
-        .post(/.*/)
-        .reply(400, {
-          error: {
-            code: 400,
-            details: [
-              {
-                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
-                errors: [
-                  {
-                    errorCode: {
-                      someotherError: 'DATA_CONSTRAINT_VIOLATION'
-                    },
-                    message:
-                      'The request conflicted with existing data. This error will usually be replaced with a more specific error if the request is retried.'
-                  }
-                ],
-                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
-              }
-            ],
-            message: 'Request contains an invalid argument.',
-            status: 'INVALID_ARGUMENT'
-          }
-        })
-
-      const responses = await testDestination.executeBatch('userList', {
-        events,
-        mapping,
-        settings: {
-          customerId
-        }
-      })
-
-      expect(responses[0]).toMatchObject({
-        status: 400,
-        errortype: 'BAD_REQUEST',
-        errormessage: 'Request contains an invalid argument.',
-        sent: '/customers/1234/userLists/1234:run',
-        body: new Error('Bad Request'),
-        errorreporter: 'DESTINATION'
-      })
-
-      expect(responses[1]).toMatchObject({
-        status: 400,
-        errortype: 'BAD_REQUEST',
-        errormessage: 'Request contains an invalid argument.',
-        sent: '/customers/1234/userLists/1234:run',
-        body: new Error('Bad Request'),
-        errorreporter: 'DESTINATION'
-      })
-    })
-    it('Rethrows CONCURRENT_MODIFICATION error from run offlineUserDataJobs API as retryable error', async () => {
-      const events: SegmentEvent[] = [
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            email: 'test@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        }),
-        createTestEvent({
-          timestamp,
-          event: 'Audience Entered',
-          properties: {
-            gclid: '54321',
-            email: 'test@gmail.com',
-            orderId: '1234',
-            phone: '3234567890',
-            firstName: 'Jane',
-            lastName: 'Doe',
-            currency: 'USD',
-            value: '123',
-            address: {
-              street: '123 Street SW',
-              city: 'San Diego',
-              state: 'CA',
-              postalCode: '982004'
-            }
-          }
-        })
-      ]
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { resourceName: 'customers/1234/userLists/1234' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
-        .post(/.*/)
-        .reply(400, {
-          error: {
-            code: 400,
-            details: [
-              {
-                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
-                errors: [
-                  {
-                    errorCode: {
-                      databaseError: 'CONCURRENT_MODIFICATION'
-                    },
-                    message: 'Multiple requests were attempting to modify the same resource at once. Retry the request.'
-                  }
-                ],
-                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
-              }
-            ],
-            message: 'Request contains an invalid argument.',
-            status: 'INVALID_ARGUMENT'
-          }
-        })
-
-      const responses = await testDestination.executeBatch('userList', {
-        events,
-        mapping,
-        settings: {
-          customerId
-        }
-      })
-
-      expect(responses[0]).toMatchObject({
-        status: 429,
-        errortype: 'RETRYABLE_BATCH_FAILURE',
-        errormessage:
-          "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
-        sent: '/customers/1234/userLists/1234:run',
-        body: new Error('Bad Request'),
-        errorreporter: 'DESTINATION'
-      })
-
-      expect(responses[1]).toMatchObject({
-        status: 429,
-        errortype: 'RETRYABLE_BATCH_FAILURE',
-        errormessage:
-          "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
-        sent: '/customers/1234/userLists/1234:run',
-        body: new Error('Bad Request'),
-        errorreporter: 'DESTINATION'
-      })
-    })
-  })
-})
+export default action
