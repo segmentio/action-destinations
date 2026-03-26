@@ -1,6 +1,9 @@
 /* eslint-disable */
 // @ts-nocheck
 
+// If `account_id` is greater than this threshold, we load the VWO smartcode v3 and if not then the original smartcode v2.1
+const GENERIC_TEMPLATE_ACCOUNT_ID_THRESHOLD = 120000 // TO BE UPDATED
+
 export function initScript({
   vwoAccountId,
   settingsTolerance = 2000,
@@ -8,6 +11,96 @@ export function initScript({
   useExistingJquery = false,
   isSpa = 1
 }) {
+  // Generic smart-code template for high account IDs.
+  if (Number(vwoAccountId) > GENERIC_TEMPLATE_ACCOUNT_ID_THRESHOLD) {
+    window._vwo_code ||
+      (function () {
+        var account_id = vwoAccountId,
+          version = 3.0,
+          settings_tolerance = settingsTolerance,
+          hide_element = 'body',
+          hide_element_style =
+            'opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;transition:none !important'
+
+        /* DO NOT EDIT BELOW THIS LINE */
+        var w = window,
+          d = document
+        if (d.URL.indexOf('__vwo_disable__') > -1 || w._vwo_code) return
+
+        var f = false,
+          v = d.currentScript,
+          cc = { sT: settings_tolerance, hES: hide_element_style, hE: hide_element }
+
+        try {
+          cc = Object.assign(JSON.parse(localStorage.getItem('_vwo_' + account_id + '_config')), cc)
+        } catch (e) {}
+
+        var code = {
+          nonce: v && v.nonce,
+
+          settings_tolerance: function () {
+            return cc.sT
+          },
+
+          hide_element: function () {
+            // Match generic template behavior but be defensive about browser support.
+            var hasFcp =
+              typeof performance.getEntriesByName === 'function' &&
+              performance.getEntriesByName('first-contentful-paint')[0]
+            return hasFcp ? '' : cc.hE
+          },
+
+          hide_element_style: function () {
+            return '{' + cc.hES + '}'
+          },
+
+          getVersion: function () {
+            return version
+          },
+
+          finish: function () {
+            if (f) return
+            f = true
+            var el = d.getElementById('_vis_opt_path_hides')
+            if (el && el.parentNode) el.parentNode.removeChild(el)
+          },
+
+          finished: function () {
+            return f
+          },
+
+          addScript: function (src) {
+            var s = d.createElement('script')
+            s.type = 'text/javascript'
+            s.src = src
+            if (v && v.nonce) s.setAttribute('nonce', v.nonce)
+            d.getElementsByTagName('head')[0].appendChild(s)
+          },
+
+          init: function () {
+            w._vwo_settings_timer = setTimeout(function () {
+              code.finish()
+            }, this.settings_tolerance())
+
+            var styleEl = d.createElement('style')
+            styleEl.setAttribute('id', '_vis_opt_path_hides')
+            styleEl.type = 'text/css'
+            if (code && code.nonce) styleEl.setAttribute('nonce', code.nonce)
+            styleEl.appendChild(d.createTextNode(this.hide_element() + this.hide_element_style()))
+            d.head.appendChild(styleEl)
+
+            // Keep only script loading
+            this.addScript('https://dev.visualwebsiteoptimizer.com/tag/' + account_id + '.js')
+          }
+        }
+
+        w._vwo_code = code
+        code.init()
+      })()
+
+    return
+  }
+
   window._vwo_code ||
     (function () {
       var account_id = vwoAccountId,
