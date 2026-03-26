@@ -1,75 +1,26 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import {
-  action_source,
-  contents,
-  validateContents,
-  content_category,
-  content_ids,
-  content_name,
-  content_type,
-  currency,
-  custom_data,
-  event_id,
-  event_source_url,
-  event_time,
-  value,
-  data_processing_options,
-  data_processing_options_country,
-  data_processing_options_state,
-  dataProcessingOptions,
-  test_event_code
-} from '../fb-capi-properties'
-import { user_data_field, hash_user_data } from '../fb-capi-user-data'
+import { validateContents, dataProcessingOptions } from '../fb-capi-properties'
+import { hash_user_data } from '../fb-capi-user-data'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { CURRENCY_ISO_CODES } from '../constants'
 import { get_api_version } from '../utils'
-import { generate_app_data, app_data_field } from '../fb-capi-app-data'
+import { generate_app_data } from '../fb-capi-app-data'
+import { viewContentFields } from '../shared/fields'
+import { send, getViewContentEventData } from '../shared/functions'
+import { EventType , FEATURE_FLAG_VIEW_CONTENT } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'View Content',
   description: 'Send event when a user views content or a product',
   defaultSubscription: 'type = "track" and event = "Product Viewed"',
-  fields: {
-    action_source: { ...action_source, required: true },
-    event_time: { ...event_time, required: true },
-    user_data: user_data_field,
-    app_data_field: app_data_field,
-    content_category: content_category,
-    content_ids: { ...content_ids, default: { '@path': '$.properties.product_id' } },
-    content_name: content_name,
-    content_type: content_type,
-    contents: {
-      ...contents,
-      default: {
-        // Segment Product Viewed is a single product event
-        '@arrayPath': [
-          '$.properties',
-          {
-            id: {
-              '@path': '$.product_id'
-            },
-            quantity: {
-              '@path': '$.quantity'
-            },
-            item_price: {
-              '@path': '$.price'
-            }
-          }
-        ]
-      }
-    },
-    currency: currency,
-    event_id: event_id,
-    event_source_url: event_source_url,
-    value: { ...value, default: { '@path': '$.properties.price' } },
-    custom_data: custom_data,
-    data_processing_options: data_processing_options,
-    data_processing_options_country: data_processing_options_country,
-    data_processing_options_state: data_processing_options_state,
-    test_event_code: test_event_code
-  },
+  fields: viewContentFields,
   perform: (request, { payload, settings, features, statsContext }) => {
+   
+    if (features && features[FEATURE_FLAG_VIEW_CONTENT]) {
+      return send(request, payload, settings, getViewContentEventData, EventType.ViewContent, features, statsContext)
+    }
+    
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
       throw new IntegrationError(
         `${payload.currency} is not a valid currency code.`,
