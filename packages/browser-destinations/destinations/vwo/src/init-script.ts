@@ -26,63 +26,46 @@ export function initScript({
         var t = window,
           n = document;
         if (n.URL.indexOf('__vwo_disable__') > -1 || t._vwo_code) return;
-
         var i = !1,
-          r = n.currentScript,
+          o = n.currentScript,
           e = { sT: settings_tolerance, hES: hide_element_style, hE: hide_element };
-
         try {
           e = Object.assign(JSON.parse(localStorage.getItem('_vwo_' + account_id + '_config')), e)
         } catch (e) {}
-
-        var o = {
-          nonce: r && r.nonce,
-
+        code = {
+          nonce: o && o.nonce,
           settings_tolerance: function () {
             return e.sT
           },
-
           hide_element: function () {
-            return typeof performance.getEntriesByName === 'function' &&
-              performance.getEntriesByName('first-contentful-paint')[0]
-              ? ''
-              : e.hE
+            return performance.getEntriesByName('first-contentful-paint')[0] ? '' : e.hE
           },
-
           hide_element_style: function () {
             return '{' + e.hES + '}'
           },
-
           getVersion: function () {
             return version
           },
-
           finish: function () {
             var e;
             i || (i = !0, (e = n.getElementById('_vis_opt_path_hides')) && e.parentNode && e.parentNode.removeChild(e))
           },
-
           finished: function () {
             return i
           },
-
           addScript: function (e) {
             var t = n.createElement('script');
-            t.type = 'text/javascript', t.src = e, r && r.nonce && t.setAttribute('nonce', r.nonce), n.getElementsByTagName('head')[0].appendChild(t)
+            t.type = 'text/javascript', t.src = e, o && o.nonce && t.setAttribute('nonce', o.nonce), n.getElementsByTagName('head')[0].appendChild(t)
           },
-
           init: function () {
             t._vwo_settings_timer = setTimeout(function () {
-              o.finish()
+              code.finish()
             }, this.settings_tolerance());
-
             var e = n.createElement('style');
-            e.setAttribute('id', '_vis_opt_path_hides'), e.type = 'text/css', o && o.nonce && e.setAttribute('nonce', o.nonce), e.appendChild(n.createTextNode(this.hide_element() + this.hide_element_style())), n.head.appendChild(e), this.addScript('https://dev.visualwebsiteoptimizer.com/tag/' + account_id + '.js')
+            e.setAttribute('id', '_vis_opt_path_hides'), e.type = 'text/css', code && code.nonce && e.setAttribute('nonce', code.nonce), e.appendChild(n.createTextNode(this.hide_element() + this.hide_element_style())), n.head.appendChild(e), this.addScript('https://dev.visualwebsiteoptimizer.com/tag/' + account_id + '.js')
           }
-        };
-
-        t._vwo_code = o;
-        o.init();
+        }, t._vwo_code = code;
+        code.init();
       })();
 
     return
