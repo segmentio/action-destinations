@@ -26,7 +26,9 @@ import {
   Features,
   MultiStatusResponse,
   JSONLikeObject,
-  ErrorCodes
+  ErrorCodes,
+  AudienceMembership,
+  FLAGS
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
@@ -46,6 +48,7 @@ export const API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_API_VERSION
 export const CANARY_API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
+
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
@@ -524,6 +527,7 @@ const extractUserIdentifiers = (
   payloads: UserListPayload[],
   idType: string,
   syncMode?: string,
+  audienceMembership?: AudienceMembership,
   features?: Features | undefined,
   statsContext?: StatsContext | undefined
 ) => {
@@ -567,21 +571,39 @@ const extractUserIdentifiers = (
     }
   }
   // Map user data to Google Ads API format
-  for (const payload of payloads) {
-    if (
-      payload.event_name === 'Audience Entered' ||
-      syncMode === 'add' ||
-      (syncMode === 'mirror' && payload.event_name === 'new')
-    ) {
-      addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
-    } else if (
-      payload.event_name === 'Audience Exited' ||
-      syncMode === 'delete' ||
-      (syncMode === 'mirror' && payload.event_name === 'deleted')
-    ) {
-      removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
+  if(features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
+    for (const payload of payloads) {
+      if (
+        payload.event_name === 'Audience Entered' ||
+        audienceMembership === true
+      ) {
+        addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
+      } else if (
+        payload.event_name === 'Audience Exited' ||
+        audienceMembership === false 
+      ) {
+        removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
+      }
+    }
+  } 
+  else {
+    for (const payload of payloads) {
+      if (
+        payload.event_name === 'Audience Entered' ||
+        syncMode === 'add' ||
+        (syncMode === 'mirror' && payload.event_name === 'new')
+      ) {
+        addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
+      } else if (
+        payload.event_name === 'Audience Exited' ||
+        syncMode === 'delete' ||
+        (syncMode === 'mirror' && payload.event_name === 'deleted')
+      ) {
+        removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
+      }
     }
   }
+
   return [addUserIdentifiers, removeUserIdentifiers]
 }
 
@@ -694,6 +716,7 @@ export const handleUpdate = async (
   hookListId: string,
   hookListType: string,
   syncMode?: string,
+  audienceMembership?: AudienceMembership,
   features?: Features | undefined,
   statsContext?: StatsContext
 ) => {
@@ -707,6 +730,7 @@ export const handleUpdate = async (
     payloads,
     id_type,
     syncMode,
+    audienceMembership,
     features,
     statsContext
   )
@@ -912,6 +936,7 @@ const extractBatchUserIdentifiers = (
   idType: string,
   multiStatusResponse: MultiStatusResponse,
   syncMode?: string,
+  audienceMemberships?: AudienceMembership[],
   features?: Features
 ) => {
   const removeUserIdentifiers: any[] = []
@@ -943,8 +968,8 @@ const extractBatchUserIdentifiers = (
       })
       return
     }
-    const operationType = determineOperationType(payload, syncMode)
-    if (!operationType) {
+    const operationType = determineOperationType(payload, syncMode, audienceMemberships?.[index], features)
+    if (operationType === undefined) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
@@ -954,9 +979,10 @@ const extractBatchUserIdentifiers = (
     }
 
     validPayloadIndicesBitmap.push(index)
-    if (operationType === 'add') {
+    if (operationType === true) {
       addUserIdentifiers.push({ create: { userIdentifiers } })
-    } else {
+    } 
+    else if (operationType === false){
       removeUserIdentifiers.push({ remove: { userIdentifiers } })
     }
   })
@@ -965,22 +991,37 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string) => {
-  if (
-    payload.event_name === 'Audience Entered' ||
-    syncMode === 'add' ||
-    (syncMode === 'mirror' && payload.event_name === 'new')
-  ) {
-    return 'add'
-  } else if (
-    payload.event_name === 'Audience Exited' ||
-    syncMode === 'delete' ||
-    (syncMode === 'mirror' && payload.event_name === 'deleted')
-  ) {
-    return 'remove'
+const determineOperationType = (payload: UserListPayload, syncMode?: string, audienceMembership?: AudienceMembership, features?: Features): boolean | undefined => {
+  if(features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
+    if (
+      payload.event_name === 'Audience Entered' ||
+      audienceMembership === true
+    ) {
+      return true
+    } else if (
+      payload.event_name === 'Audience Exited' ||
+      audienceMembership === false
+    ) {
+      return false
+    }
+  }
+  else {
+    if (
+      payload.event_name === 'Audience Entered' ||
+      syncMode === 'add' ||
+      (syncMode === 'mirror' && payload.event_name === 'new')
+    ) {
+      return true
+    } else if (
+      payload.event_name === 'Audience Exited' ||
+      syncMode === 'delete' ||
+      (syncMode === 'mirror' && payload.event_name === 'deleted')
+    ) {
+      return false
+    }
   }
 
-  return null
+  return undefined
 }
 
 const createOfflineUserJobPayload = (audienceId: string, payload: UserListPayload, customerId?: string) => ({
@@ -1004,6 +1045,7 @@ export const processBatchPayload = async (
   hookListId: string,
   hookListType: string,
   syncMode?: string,
+  audienceMemberships?: AudienceMembership[],
   features?: Features | undefined,
   statsContext?: StatsContext
 ) => {
@@ -1019,6 +1061,7 @@ export const processBatchPayload = async (
     id_type,
     multiStatusResponse,
     syncMode,
+    audienceMemberships,
     features
   )
   // Create offline user data job payload
