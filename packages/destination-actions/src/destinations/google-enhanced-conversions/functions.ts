@@ -1185,3 +1185,17 @@ export function getSessionAttributesKeyValuePairs(payload: ClickConversionPayloa
 
   return keyValuePairList.length > 0 ? { sessionAttributesKeyValuePairs: { keyValuePairs: keyValuePairList } } : {}
 }
+
+export function validateMembership(audienceMemberships: AudienceMembership[] | undefined, payloads: UserListPayload[], features?: Features) {
+  if(features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
+    if(!Array.isArray(audienceMemberships)){
+      throw new PayloadValidationError('Audience Memberships must be an array')
+    }
+    if(audienceMemberships.length !== payloads.length){
+      throw new PayloadValidationError('Audience Memberships length must match payloads length')
+    }
+    if (audienceMemberships.some((membership) => typeof membership !== 'boolean')) {
+      throw new PayloadValidationError('Audience Membership must be a boolean');
+    }
+  }
+}

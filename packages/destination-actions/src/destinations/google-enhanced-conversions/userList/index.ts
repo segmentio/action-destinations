@@ -7,7 +7,8 @@ import {
   getListIds,
   handleUpdate,
   processBatchPayload,
-  verifyCustomerId
+  verifyCustomerId,
+  validateMembership
 } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
@@ -304,6 +305,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, audienceMembership, features }) => {
+    validateMembership([audienceMembership], [payload], features)
+    
     settings.customerId = verifyCustomerId(settings.customerId)
 
     return await handleUpdate(
@@ -323,6 +326,7 @@ const action: ActionDefinition<Settings, Payload> = {
     request,
     { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, audienceMembership, features }
   ) => {
+    validateMembership(audienceMembership, payload, features)
     settings.customerId = verifyCustomerId(settings.customerId)
     return await processBatchPayload(
       request,
