@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, FLAGS } from '@segment/actions-core'
 import Destination from '../../index'
 import { BASE_URL, LINKEDIN_SOURCE_PLATFORM } from '../../constants'
 
@@ -19,9 +19,15 @@ const event = createTestEvent({
   event: 'Audience Entered',
   type: 'track',
   properties: {
-    audience_key: 'personas_test_audience'
+    audience_key: 'personas_test_audience',
+    personas_test_audience: true
   },
   context: {
+    personas: {
+      computation_class: 'audience',
+      computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+      computation_key: 'personas_test_audience'
+    },
     device: {
       advertisingId: '123'
     },
@@ -69,7 +75,17 @@ const createDmpSegmentRequestBody = {
   ]
 }
 
+const testCases = [
+  { name: 'flag off', features: undefined },
+  { name: 'flag on', features: { [FLAGS.ACTIONS_LINKEDIN_AUDIENCES_AUDIENCE_MEMBERSHIP]: true } }
+]
+
 describe('LinkedinAudiences.updateAudience', () => {
+  describe.each(testCases)('updateAudience ($name)', ({ features }) => {
+  beforeEach(() => {
+    urlParams.account = 'urn:li:sponsoredAccount:123'
+  })
+
   describe('Successful cases', () => {
     it('should succeed if an existing DMP Segment is found', async () => {
       nock(`${BASE_URL}/dmpSegments`)
@@ -81,6 +97,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       await expect(
         testDestination.testAction('updateAudience', {
           event,
+          features,
           settings: {
             ad_account_id: '123',
             send_email: true,
@@ -109,6 +126,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       await expect(
         testDestination.testAction('updateAudience', {
           event,
+          features,
           settings: {
             ad_account_id: '456',
             send_email: true,
@@ -133,6 +151,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       await expect(
         testDestination.testAction('updateAudience', {
           event,
+          features,
           settings: {
             ad_account_id: '123',
             send_email: true,
@@ -161,6 +180,7 @@ describe('LinkedinAudiences.updateAudience', () => {
 
       const response = await testDestination.testAction('updateAudience', {
         event,
+        features,
         settings: {
           ad_account_id: '123',
           send_email: true,
@@ -189,6 +209,7 @@ describe('LinkedinAudiences.updateAudience', () => {
 
       const response = await testDestination.testAction('updateAudience', {
         event,
+        features,
         settings: {
           ad_account_id: '123',
           send_email: true,
@@ -233,6 +254,7 @@ describe('LinkedinAudiences.updateAudience', () => {
 
       const responses = await testDestination.testAction('updateAudience', {
         event: eventWithTraits,
+        features,
         settings: {
           ad_account_id: '123',
           send_email: true,
@@ -281,6 +303,7 @@ describe('LinkedinAudiences.updateAudience', () => {
 
       const responses = await testDestination.testAction('updateAudience', {
         event: eventWithTraits,
+        features,
         settings: {
           ad_account_id: '123',
           send_email: true,
@@ -329,6 +352,7 @@ describe('LinkedinAudiences.updateAudience', () => {
 
       const responses = await testDestination.testAction('updateAudience', {
         event: eventWithTraits,
+        features,
         settings: {
           ad_account_id: '123',
           send_email: true,
@@ -382,6 +406,7 @@ describe('LinkedinAudiences.updateAudience', () => {
 
       const responses = await testDestination.testAction('updateAudience', {
         event: eventWithTraits,
+        features,
         settings: {
           ad_account_id: '123',
           send_email: true,
@@ -438,6 +463,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       await expect(
         testDestination.testAction('updateAudience', {
           event: eventWithComputationKey,
+          features,
           settings: {
             ad_account_id: '123',
             send_email: true,
@@ -488,6 +514,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       await expect(
         testDestination.testAction('updateAudience', {
           event: eventWithBothKeys,
+          features,
           settings: {
             ad_account_id: '123',
             send_email: true,
@@ -551,6 +578,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       await expect(
         testDestination.testAction('updateAudience', {
           event: eventWithComputationKey,
+          features,
           settings: {
             ad_account_id: '123',
             send_email: true,
@@ -614,6 +642,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       await expect(
         testDestination.testAction('updateAudience', {
           event: eventWithBothKeys,
+          features,
           settings: {
             ad_account_id: '123',
             send_email: true,
@@ -650,6 +679,7 @@ describe('LinkedinAudiences.updateAudience', () => {
 
       const responses = await testDestination.testAction('updateAudience', {
         event,
+        features,
         settings: {
           ad_account_id: '123',
           send_email: true,
@@ -691,6 +721,7 @@ describe('LinkedinAudiences.updateAudience', () => {
 
       const responses = await testDestination.testAction('updateAudience', {
         event,
+        features,
         settings: {
           ad_account_id: '123',
           send_email: true,
@@ -712,6 +743,8 @@ describe('LinkedinAudiences.updateAudience', () => {
     })
 
     it('should cache dmpsegment_id when creating a new DMP Segment', async () => {
+      urlParams.account = 'urn:li:sponsoredAccount:456'
+
       let getRequestContextCalled = false
       let setResponseContextArgs: any[] = []
 
@@ -733,6 +766,7 @@ describe('LinkedinAudiences.updateAudience', () => {
 
       const responses = await testDestination.testAction('updateAudience', {
         event,
+        features,
         settings: {
           ad_account_id: '456',
           send_email: true,
@@ -768,6 +802,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       await expect(
         testDestination.testAction('updateAudience', {
           event,
+          features,
           settings: {
             ad_account_id: '123',
             send_email: true,
@@ -795,6 +830,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       await expect(
         testDestination.testAction('updateAudience', {
           event,
+          features,
           settings: {
             ad_account_id: '123',
             send_email: true,
@@ -813,6 +849,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       await expect(
         testDestination.testAction('updateAudience', {
           event,
+          features,
           settings: {
             ad_account_id: '123',
             send_email: true,
@@ -832,6 +869,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       await expect(
         testDestination.testAction('updateAudience', {
           event,
+          features,
           settings: {
             ad_account_id: '123',
             send_email: false,
@@ -850,6 +888,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       await expect(
         testDestination.testAction('updateAudience', {
           event,
+          features,
           settings: {
             ad_account_id: '123',
             send_email: true,
@@ -864,5 +903,6 @@ describe('LinkedinAudiences.updateAudience', () => {
         })
       ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
     })
+  })
   })
 })
