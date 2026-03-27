@@ -2,14 +2,16 @@ import { ActionDefinition, DynamicFieldResponse, RequestClient } from '@segment/
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { DDContactApi, DDListsApi } from '@segment/actions-shared'
-import { contactIdentifier } from '../input-fields'
+import { channelIdentifier, emailIdentifier, mobileNumberIdentifier } from '../input-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Contact from List',
   description: 'Removes a Contact from a List.',
   defaultSubscription: 'type = "track" and event = "Remove Contact from List"',
   fields: {
-    ...contactIdentifier,
+    channelIdentifier,
+    emailIdentifier,
+    mobileNumberIdentifier,
     listId: {
       label: 'List',
       description: `The List to remove the Contact from.`,
