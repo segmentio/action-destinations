@@ -1,133 +1,171 @@
-import type { Payload } from './send/generated-types'
 import type { Settings } from './generated-types'
-import { PayloadValidationError, MultiStatusResponse, RetryableError, IntegrationError } from '@segment/actions-core'
-import { KinesisClient, PutRecordsCommand } from '@aws-sdk/client-kinesis'
-import type { PutRecordsCommandOutput, PutRecordsResultEntry } from '@aws-sdk/client-kinesis'
+import type { Payload } from './send/generated-types'
+import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
+import {
+  KinesisClient,
+  PutRecordsCommand,
+  PutRecordsRequestEntry,
+  PutRecordsCommandOutput
+} from '@aws-sdk/client-kinesis'
 import { assumeRole } from '../../lib/AWS/sts'
 import { APP_AWS_REGION } from '../../lib/AWS/utils'
+import { RequestTimeoutError, MultiStatusResponse, IntegrationError, JSONLikeObject } from '@segment/actions-core'
 
-const KinesisRetryableErrors: Record<string, string> = {
-  ProvisionedThroughputExceededException: 'RETRYABLE',
-  InternalFailure: 'RETRYABLE',
-  KMSThrottlingException: 'RETRYABLE',
-  ServiceUnavailableException: 'RETRYABLE',
-  ThrottlingException: 'RETRYABLE'
+export const validateIamRoleArnFormat = (arn: string): boolean => {
+  const iamRoleArnRegex = /^arn:aws:iam::\d{12}:role\/[A-Za-z0-9+=,.@_\-/]+$/
+  return iamRoleArnRegex.test(arn)
 }
 
-const KinesisNotRetryableErrors: Record<string, string> = {
-  AccessDeniedException: 'NON_RETRYABLE',
-  InvalidArgumentException: 'NON_RETRYABLE',
-  KMSAccessDeniedException: 'NON_RETRYABLE',
-  KMSDisabledException: 'NON_RETRYABLE',
-  KMSInvalidStateException: 'NON_RETRYABLE',
-  KMSNotFoundException: 'NON_RETRYABLE',
-  KMSOptInRequired: 'NON_RETRYABLE',
-  ResourceNotFoundException: 'NON_RETRYABLE',
-  ValidationException: 'NON_RETRYABLE'
+const transformPayloads = (payloads: Payload[]): PutRecordsRequestEntry[] => {
+  return payloads.map((record) => ({
+    Data: Buffer.from(JSON.stringify(record.payload)),
+    PartitionKey: record.partitionKey
+  }))
 }
 
-export async function createKinesisClient(settings: Settings, region: string): Promise<KinesisClient> {
-  const credentials = await assumeRole(settings.iam_role_arn, settings.iam_external_id, APP_AWS_REGION)
+const createKinesisClient = async (
+  iamRoleArn: string,
+  iamExternalId: string,
+  awsRegion: string
+): Promise<KinesisClient> => {
+  const credentials = await assumeRole(iamRoleArn, iamExternalId, APP_AWS_REGION)
   return new KinesisClient({
-    region,
-    credentials: {
-      accessKeyId: credentials.accessKeyId,
-      secretAccessKey: credentials.secretAccessKey,
-      sessionToken: credentials.sessionToken
-    }
+    region: awsRegion,
+    credentials: credentials
   })
 }
 
-export function buildRecords(payloads: Payload[]): Array<{ Data: Uint8Array; PartitionKey: string }> {
-  return payloads.map((p) => {
-    if (!p.partitionKey) {
-      throw new PayloadValidationError('partitionKey is required but was not provided')
-    }
-    return {
-      Data: new TextEncoder().encode(JSON.stringify(p.payload)),
-      PartitionKey: p.partitionKey
-    }
-  })
-}
+export const send = async (
+  settings: Settings,
+  payloads: Payload[],
+  statsContext: StatsContext | undefined,
+  logger: Logger | undefined,
+  signal?: AbortSignal
+): Promise<MultiStatusResponse> => {
+  const { iamRoleArn, iamExternalId } = settings
+  const { streamName, awsRegion } = payloads[0]
+  const entries = transformPayloads(payloads)
 
-export async function sendToKinesis(payloads: Payload[], settings: Settings): Promise<MultiStatusResponse> {
-  if (payloads.length === 0) {
-    return new MultiStatusResponse()
-  }
-
-  const firstPayload = payloads[0]
-  const client = await createKinesisClient(settings, firstPayload.region)
-  const records = buildRecords(payloads)
-
-  const command = new PutRecordsCommand({
-    StreamName: firstPayload.streamName,
-    Records: records
-  })
-
-  let response: PutRecordsCommandOutput
+  statsContext?.statsClient?.histogram('actions_kinesis.batch_size', entries?.length, statsContext?.tags)
+  statsContext?.statsClient?.incr('actions_kinesis.request_hit', 1, statsContext?.tags)
 
   try {
-    response = await client.send(command)
+    const client = await createKinesisClient(iamRoleArn, iamExternalId, awsRegion)
+    const command = new PutRecordsCommand({
+      StreamName: streamName,
+      Records: entries
+    })
+
+    const response = await client.send(command, { abortSignal: signal })
+    const multiResp = handleMultiStatusResponse(response, statsContext, payloads)
+    return multiResp
   } catch (error) {
-    throwError(error, 'client.send')
+    // Handle abort signal error: https://aws.amazon.com/blogs/developer/abortcontroller-in-modular-aws-sdk-for-javascript/
+    if ((error as Error).name === 'AbortError') {
+      // Handle abort error
+      throw new RequestTimeoutError()
+    }
+
+    logger?.crit('Failed to send batch to Kinesis:', error)
+    handleError(error, statsContext)
   }
 
-  return buildMultiStatusResponse(response, payloads)
+  return Promise.resolve(new MultiStatusResponse()) // This line will never be reached but is needed to satisfy TypeScript
 }
 
-function buildMultiStatusResponse(response: PutRecordsCommandOutput, payloads: Payload[]): MultiStatusResponse {
-  const records: PutRecordsResultEntry[] = response.Records ?? []
-  const multiStatusResponse = new MultiStatusResponse()
+const handleError = (error: any, statsContext: StatsContext | undefined): void => {
+  if (error?.name === 'AccessDeniedException') {
+    statsContext?.statsClient?.incr('actions_kinesis.access_denied_exception', 1, statsContext?.tags)
+    throw new IntegrationError(
+      `Access denied. Please check that the provided IAM Role has the necessary permissions to access Kinesis.`,
+      'ACCESS_DENIED',
+      403
+    )
+  }
 
-  payloads.forEach((event, index) => {
-    const record = records[index] ?? {}
-    if (record.ErrorCode || record.ErrorMessage) {
-      const isRetryable = record.ErrorCode ? record.ErrorCode in KinesisRetryableErrors : false
-      multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: isRetryable ? 429 : 400,
-        errortype: isRetryable ? 'RETRYABLE_ERROR' : 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: record.ErrorMessage ?? record.ErrorCode ?? 'Unknown Error',
-        sent: JSON.stringify(event),
-        body: JSON.stringify(record)
+  statsContext?.statsClient?.incr('actions_kinesis.error', 1, statsContext?.tags)
+  throw new IntegrationError(`Failed to send batch to Kinesis: ${error?.message}`, 'DEPENDENCY_ERROR', 500)
+}
+
+// Error codes documented in https://docs.aws.amazon.com/kinesis/latest/APIReference/API_PutRecordsResultEntry.html
+const ERROR_CODE_STATUS_MAP: Record<string, number> = {
+  ThrottlingException: 429,
+  LimitExceededException: 429,
+  ProvisionedThroughputExceededException: 429,
+  KMSThrottlingException: 429,
+  AccessDeniedException: 502,
+  AccessDenied: 502,
+  KMSAccessDeniedException: 403,
+  KMSOptInRequired: 403,
+  ExpiredTokenException: 511,
+  IDPRejectedClaimException: 511,
+  InvalidIdentityTokenException: 511,
+  IDPCommunicationErrorException: 503,
+  InvalidAuthorizationMessageException: 400,
+  MalformedPolicyDocumentException: 400,
+  PackedPolicyTooLargeException: 400,
+  ValidationException: 400,
+  InvalidArgumentException: 400,
+  InvalidParameter: 400,
+  RegionDisabledException: 403,
+  ResourceNotFoundException: 404,
+  KMSNotFoundException: 404,
+  ResourceInUseException: 409,
+  KMSInvalidStateException: 409,
+  InternalFailureException: 503,
+  KMSDisabledException: 503
+}
+
+const convertErrorCodeToStatus = (code?: string): number => {
+  if (!code) {
+    return 500
+  }
+
+  const normalizedCode = code.trim()
+  return ERROR_CODE_STATUS_MAP[normalizedCode] ?? 500
+}
+
+const handleMultiStatusResponse = (
+  response: PutRecordsCommandOutput,
+  statsContext: StatsContext | undefined,
+  payloads: Payload[]
+): MultiStatusResponse => {
+  const multiStatusResponse: MultiStatusResponse = new MultiStatusResponse()
+  const { FailedRecordCount, Records } = response
+
+  if (!FailedRecordCount || FailedRecordCount == 0) {
+    statsContext?.statsClient?.incr('actions_kinesis.successful_record_count', Records?.length || 0, statsContext?.tags)
+    // All records succeeded
+    Records?.forEach((record: any, index: number) => {
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        body: record,
+        sent: payloads[index] as unknown as JSONLikeObject
       })
+    })
+    return multiStatusResponse
+  }
+
+  statsContext?.statsClient?.incr('actions_kinesis.failed_record_count', FailedRecordCount, statsContext?.tags)
+  // Add metrics for each error type
+  Records?.forEach((record: any, index: number) => {
+    if (record.ErrorCode) {
+      const statusCode = convertErrorCodeToStatus(record.ErrorCode)
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: statusCode,
+        errormessage: record.ErrorMessage
+      })
+      const errorCode = record.ErrorCode || 'UnknownError'
+      statsContext?.statsClient?.incr(`actions_kinesis.error.${errorCode}`, 1, statsContext?.tags)
     } else {
       multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: 200,
-        body: JSON.stringify({ ShardId: record.ShardId, SequenceNumber: record.SequenceNumber }),
-        sent: JSON.stringify(event)
+        body: record,
+        sent: payloads[index] as unknown as JSONLikeObject
       })
+      statsContext?.statsClient?.incr('actions_kinesis.successful_record_count', 1, statsContext?.tags)
     }
   })
 
   return multiStatusResponse
-}
-
-function isRetryableError(error: unknown): boolean {
-  if (typeof error === 'object' && error !== null && 'name' in error) {
-    const err = error as { name: string }
-    return err.name in KinesisRetryableErrors
-  }
-  return false
-}
-
-function isNotRetryableError(error: unknown): boolean {
-  if (typeof error === 'object' && error !== null && 'name' in error) {
-    const err = error as { name: string }
-    return err.name in KinesisNotRetryableErrors
-  }
-  return false
-}
-
-function throwError(error: unknown, context: string): never {
-  if (isRetryableError(error)) {
-    const err = error as { name: string; message?: string }
-    const message = err.message ?? 'No error message returned'
-    throw new RetryableError(`Retryable error ${err.name} in ${context}. Message: ${message}`)
-  } else if (isNotRetryableError(error)) {
-    const err = error as { name: string; message?: string }
-    const message = err.message ?? 'No error message returned'
-    throw new IntegrationError(`Non-retryable error ${err.name} in ${context}. Message: ${message}`, err.name, 400)
-  } else {
-    throw new IntegrationError(`Unknown error in ${context}: ${JSON.stringify(error)}`, 'UnknownError', 400)
-  }
 }
