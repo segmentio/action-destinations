@@ -355,7 +355,7 @@ function parseErrorResponse(response: MarketoResponse) {
     throw new RetryableError(message)
   }
 
-  throw new IntegrationError(message, ErrorCodes.NOT_ACCEPTABLE, 406)
+  throw new IntegrationError(message, ErrorCodes.RETRYABLE_ERROR, 500)
 }
 
 function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number) {
