@@ -83,7 +83,8 @@
     "ansi-regex": "5.0.1",
     "@babel/core/semver": "6.3.1",
     "@babel/helper-compilation-targets/semver": "6.3.1",
-    "istanbul-lib-instrument/semver": "6.3.1"
+    "istanbul-lib-instrument/semver": "6.3.1",
+    "fast-xml-parser": "5.3.6"
   },
   "husky": {
     "hooks": {
@@ -119,7 +120,7 @@
   },
   "dependencies": {
     "chance": "^1.1.8",
-    "liquidjs": "^10.21.0",
+    "liquidjs": "^10.25.0",
     "xml-js": "^1.6.11"
   }
 }
