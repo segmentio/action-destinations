@@ -126,15 +126,15 @@ describe('MultiStatus', () => {
 
       expect(response).toMatchObject([
         {
-          status: 406,
-          errortype: 'NOT_ACCEPTABLE',
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
           errormessage: 'Invalid Content Type',
           errorreporter: 'DESTINATION',
           body: { code: '612', message: 'Invalid Content Type' }
         },
         {
-          status: 406,
-          errortype: 'NOT_ACCEPTABLE',
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
           errormessage: 'Invalid Content Type',
           errorreporter: 'DESTINATION',
           body: { code: '612', message: 'Invalid Content Type' }
@@ -354,15 +354,15 @@ describe('MultiStatus', () => {
 
       expect(response).toMatchObject([
         {
-          status: 406,
-          errortype: 'NOT_ACCEPTABLE',
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
           errormessage: 'Invalid Content Type',
           errorreporter: 'DESTINATION',
           body: { code: '612', message: 'Invalid Content Type' }
         },
         {
-          status: 406,
-          errortype: 'NOT_ACCEPTABLE',
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
           errormessage: 'Invalid Content Type',
           errorreporter: 'DESTINATION',
           body: { code: '612', message: 'Invalid Content Type' }
@@ -398,15 +398,15 @@ describe('MultiStatus', () => {
 
       expect(response).toMatchObject([
         {
-          status: 406,
-          errortype: 'NOT_ACCEPTABLE',
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
           errormessage: 'Invalid Content Type',
           errorreporter: 'DESTINATION',
           body: { code: '612', message: 'Invalid Content Type' }
         },
         {
-          status: 406,
-          errortype: 'NOT_ACCEPTABLE',
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
           errormessage: 'Invalid Content Type',
           errorreporter: 'DESTINATION',
           body: { code: '612', message: 'Invalid Content Type' }
