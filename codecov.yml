@@ -21,6 +21,7 @@ coverage:
       default:
         target: 80%
         informational: false
+        if_no_uploads: success # Pass when no coverage uploaded (e.g. workflow-only PRs)
 
 # Define flags for different parts of the codebase
 flags:
