@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`BrazeCohorts.syncAudiences should add user to braze when event_properties is set to true 1`] = `
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should add user to braze when event_properties is set to true 1`] = `
 Object {
   "client_secret": "valid_client_secret_key",
   "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
@@ -10,7 +10,7 @@ Object {
 }
 `;
 
-exports[`BrazeCohorts.syncAudiences should add user to braze when event_properties is set to true 2`] = `
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should add user to braze when event_properties is set to true 2`] = `
 Object {
   "client_secret": "valid_client_secret_key",
   "cohort_changes": Array [
@@ -28,7 +28,7 @@ Object {
 }
 `;
 
-exports[`BrazeCohorts.syncAudiences should give priority in a order like userId,deviceId and then UserAlias,if it is provided 1`] = `
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should give priority in a order like userId,deviceId and then UserAlias,if it is provided 1`] = `
 Object {
   "client_secret": "valid_client_secret_key",
   "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
@@ -38,7 +38,7 @@ Object {
 }
 `;
 
-exports[`BrazeCohorts.syncAudiences should give priority in a order like userId,deviceId and then UserAlias,if it is provided 2`] = `
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should give priority in a order like userId,deviceId and then UserAlias,if it is provided 2`] = `
 Object {
   "client_secret": "valid_client_secret_key",
   "cohort_changes": Array [
@@ -56,7 +56,7 @@ Object {
 }
 `;
 
-exports[`BrazeCohorts.syncAudiences should give priority to userAlias,if userId and deviceId both are not provided 1`] = `
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should give priority to userAlias,if userId and deviceId both are not provided 1`] = `
 Object {
   "client_secret": "valid_client_secret_key",
   "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
@@ -66,7 +66,7 @@ Object {
 }
 `;
 
-exports[`BrazeCohorts.syncAudiences should give priority to userAlias,if userId and deviceId both are not provided 2`] = `
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should give priority to userAlias,if userId and deviceId both are not provided 2`] = `
 Object {
   "client_secret": "valid_client_secret_key",
   "cohort_changes": Array [
@@ -87,7 +87,7 @@ Object {
 }
 `;
 
-exports[`BrazeCohorts.syncAudiences should give second priority to deviceId ,if userId is not provided 1`] = `
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should give second priority to deviceId ,if userId is not provided 1`] = `
 Object {
   "client_secret": "valid_client_secret_key",
   "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
@@ -97,7 +97,7 @@ Object {
 }
 `;
 
-exports[`BrazeCohorts.syncAudiences should give second priority to deviceId ,if userId is not provided 2`] = `
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should give second priority to deviceId ,if userId is not provided 2`] = `
 Object {
   "client_secret": "valid_client_secret_key",
   "cohort_changes": Array [
@@ -115,7 +115,7 @@ Object {
 }
 `;
 
-exports[`BrazeCohorts.syncAudiences should hit create cohort api when cohort_name available in stateContext is not matching with computation key 1`] = `
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should hit create cohort api when cohort_name available in stateContext is not matching with computation key 1`] = `
 Object {
   "client_secret": "valid_client_secret_key",
   "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
@@ -125,7 +125,63 @@ Object {
 }
 `;
 
-exports[`BrazeCohorts.syncAudiences should hit create cohort api when cohort_name available in stateContext is not matching with computation key 2`] = `
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should hit create cohort api when cohort_name available in stateContext is not matching with computation key 2`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_changes": Array [
+    Object {
+      "aliases": Array [],
+      "device_ids": Array [],
+      "should_remove": undefined,
+      "user_ids": Array [
+        "w8KWCsdTxe1Ydaf3s62UMc",
+      ],
+    },
+  ],
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should not hit create cohort api when cohort_name is available in state context is matching with computation key 1`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_changes": Array [
+    Object {
+      "aliases": Array [],
+      "device_ids": Array [],
+      "should_remove": undefined,
+      "user_ids": Array [
+        "w8KWCsdTxe1Ydaf3s62UMc",
+      ],
+    },
+  ],
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should not throw an error even if payload doesn't have userId,device_id,user_alias 1`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "created_at": "2022-12-01T17:40:04.055Z",
+  "name": "j_o_jons__step_1_ns3i7",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should remove user to braze when event_properties set to false 1`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "created_at": "2022-12-01T17:40:04.055Z",
+  "name": "j_o_jons__step_1_ns3i7",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should remove user to braze when event_properties set to false 2`] = `
 Object {
   "client_secret": "valid_client_secret_key",
   "cohort_changes": Array [
@@ -143,7 +199,224 @@ Object {
 }
 `;
 
-exports[`BrazeCohorts.syncAudiences should not hit create cohort api when cohort_name is available in state context is matching with computation key 1`] = `
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should work with batch events 1`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "created_at": "2022-12-01T17:40:04.055Z",
+  "name": "j_o_jons__step_1_ns3i7",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag off) should work with batch events 2`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_changes": Array [
+    Object {
+      "aliases": Array [],
+      "device_ids": Array [],
+      "should_remove": undefined,
+      "user_ids": Array [
+        "w8KWCsdTxe1Ydaf3s62UMc",
+      ],
+    },
+    Object {
+      "aliases": Array [],
+      "device_ids": Array [],
+      "should_remove": true,
+      "user_ids": Array [
+        "user1234",
+      ],
+    },
+  ],
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should add user to braze when event_properties is set to true 1`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "created_at": "2022-12-01T17:40:04.055Z",
+  "name": "j_o_jons__step_1_ns3i7",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should add user to braze when event_properties is set to true 2`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_changes": Array [
+    Object {
+      "aliases": Array [],
+      "device_ids": Array [],
+      "should_remove": undefined,
+      "user_ids": Array [
+        "w8KWCsdTxe1Ydaf3s62UMc",
+      ],
+    },
+  ],
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should give priority in a order like userId,deviceId and then UserAlias,if it is provided 1`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "created_at": "2022-12-01T17:40:04.055Z",
+  "name": "j_o_jons__step_1_ns3i7",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should give priority in a order like userId,deviceId and then UserAlias,if it is provided 2`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_changes": Array [
+    Object {
+      "aliases": Array [],
+      "device_ids": Array [],
+      "should_remove": undefined,
+      "user_ids": Array [
+        "w8KWCsdTxe1Ydaf3s62UMc",
+      ],
+    },
+  ],
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should give priority to userAlias,if userId and deviceId both are not provided 1`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "created_at": "2022-12-01T17:40:04.055Z",
+  "name": "j_o_jons__step_1_ns3i7",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should give priority to userAlias,if userId and deviceId both are not provided 2`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_changes": Array [
+    Object {
+      "aliases": Array [
+        Object {
+          "alias_label": "test@twilio.com",
+          "alias_name": "email",
+        },
+      ],
+      "device_ids": Array [],
+      "should_remove": undefined,
+      "user_ids": Array [],
+    },
+  ],
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should give second priority to deviceId ,if userId is not provided 1`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "created_at": "2022-12-01T17:40:04.055Z",
+  "name": "j_o_jons__step_1_ns3i7",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should give second priority to deviceId ,if userId is not provided 2`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_changes": Array [
+    Object {
+      "aliases": Array [],
+      "device_ids": Array [
+        "1234567",
+      ],
+      "should_remove": undefined,
+      "user_ids": Array [],
+    },
+  ],
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should hit create cohort api when cohort_name available in stateContext is not matching with computation key 1`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "created_at": "2022-12-01T17:40:04.055Z",
+  "name": "j_o_jons__step_1_ns3i7",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should hit create cohort api when cohort_name available in stateContext is not matching with computation key 2`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_changes": Array [
+    Object {
+      "aliases": Array [],
+      "device_ids": Array [],
+      "should_remove": undefined,
+      "user_ids": Array [
+        "w8KWCsdTxe1Ydaf3s62UMc",
+      ],
+    },
+  ],
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should not hit create cohort api when cohort_name is available in state context is matching with computation key 1`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_changes": Array [
+    Object {
+      "aliases": Array [],
+      "device_ids": Array [],
+      "should_remove": undefined,
+      "user_ids": Array [
+        "w8KWCsdTxe1Ydaf3s62UMc",
+      ],
+    },
+  ],
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should not throw an error even if payload doesn't have userId,device_id,user_alias 1`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "created_at": "2022-12-01T17:40:04.055Z",
+  "name": "j_o_jons__step_1_ns3i7",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should remove user to braze when event_properties set to false 1`] = `
+Object {
+  "client_secret": "valid_client_secret_key",
+  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
+  "created_at": "2022-12-01T17:40:04.055Z",
+  "name": "j_o_jons__step_1_ns3i7",
+  "partner_api_key": undefined,
+}
+`;
+
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should remove user to braze when event_properties set to false 2`] = `
 Object {
   "client_secret": "valid_client_secret_key",
   "cohort_changes": Array [
@@ -161,7 +434,7 @@ Object {
 }
 `;
 
-exports[`BrazeCohorts.syncAudiences should not throw an error even if payload doesn't have userId,device_id,user_alias 1`] = `
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should work with batch events 1`] = `
 Object {
   "client_secret": "valid_client_secret_key",
   "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
@@ -171,45 +444,7 @@ Object {
 }
 `;
 
-exports[`BrazeCohorts.syncAudiences should remove user to braze when event_properties set to false 1`] = `
-Object {
-  "client_secret": "valid_client_secret_key",
-  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
-  "created_at": "2022-12-01T17:40:04.055Z",
-  "name": "j_o_jons__step_1_ns3i7",
-  "partner_api_key": undefined,
-}
-`;
-
-exports[`BrazeCohorts.syncAudiences should remove user to braze when event_properties set to false 2`] = `
-Object {
-  "client_secret": "valid_client_secret_key",
-  "cohort_changes": Array [
-    Object {
-      "aliases": Array [],
-      "device_ids": Array [],
-      "should_remove": true,
-      "user_ids": Array [
-        "w8KWCsdTxe1Ydaf3s62UMc",
-      ],
-    },
-  ],
-  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
-  "partner_api_key": undefined,
-}
-`;
-
-exports[`BrazeCohorts.syncAudiences should work with batch events 1`] = `
-Object {
-  "client_secret": "valid_client_secret_key",
-  "cohort_id": "aud_23WNzkzsTS3ydnKz5H71SEhMxls",
-  "created_at": "2022-12-01T17:40:04.055Z",
-  "name": "j_o_jons__step_1_ns3i7",
-  "partner_api_key": undefined,
-}
-`;
-
-exports[`BrazeCohorts.syncAudiences should work with batch events 2`] = `
+exports[`BrazeCohorts.syncAudiences syncAudiences (flag on) should work with batch events 2`] = `
 Object {
   "client_secret": "valid_client_secret_key",
   "cohort_changes": Array [
