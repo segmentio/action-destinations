@@ -1,5 +1,4 @@
 import type { ActionDefinition } from '@segment/actions-core'
-
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { syncAudience } from '../shared'
@@ -24,13 +23,13 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     partner_provided_id: { ...partner_provided_id }
   },
   perform: async (request, { payload, statsContext, audienceMembership }) => {
-    statsContext?.tags.push('slug:actions-display-video-360')
+    statsContext?.tags?.push('slug:actions-display-video-360')
     statsContext?.statsClient?.incr('syncAudience', 1, statsContext?.tags)
     await syncAudience(request, [payload], statsContext, [audienceMembership])
     return { success: true }
   },
   performBatch: async (request, { payload, statsContext, audienceMembership }) => {
-    statsContext?.tags.push('slug:actions-display-video-360')
+    statsContext?.tags?.push('slug:actions-display-video-360')
     statsContext?.statsClient?.incr('syncAudience.batch', 1, statsContext?.tags)
     await syncAudience(request, payload, statsContext, audienceMembership)
     return { success: true }
