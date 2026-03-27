@@ -186,8 +186,6 @@ function getAction(payload: Payload, index: number, audienceMemberships?: Audien
   }
 
   if (dmp_user_action === 'AUTO' || !dmp_user_action) {
-    const isAudienceMembershipFlagOn = features && features[FLAGS.ACTIONS_LINKEDIN_AUDIENCES_AUDIENCE_MEMBERSHIP]
-    const membership = isAudienceMembershipFlagOn && Array.isArray(audienceMemberships) ? audienceMemberships?.[index] : undefined
 
     if (payload.event_name === 'Audience Entered') {
       return 'ADD'
@@ -196,6 +194,9 @@ function getAction(payload: Payload, index: number, audienceMemberships?: Audien
     if (payload.event_name === 'Audience Exited') {
       return 'REMOVE'
     }
+
+    const isAudienceMembershipFlagOn = features && features[FLAGS.ACTIONS_LINKEDIN_AUDIENCES_AUDIENCE_MEMBERSHIP]
+    const membership = isAudienceMembershipFlagOn && Array.isArray(audienceMemberships) ? audienceMemberships?.[index] : undefined
 
     if (membership === true) {
       return 'ADD'
