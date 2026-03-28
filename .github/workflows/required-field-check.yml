@@ -18,15 +18,20 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
-          cache: yarn
+          cache: pnpm
 
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Get files changed in the PR
         id: get_files
@@ -63,7 +68,7 @@ jobs:
           # This is important because the main branch may have different dependencies
           # than the current branch, and we want to ensure that the required fields are
           # checked against the correct version of the dependencies
-          yarn install --frozen-lockfile --silent
+          pnpm install --frozen-lockfile --silent
           # Run the list-required-fields command on the main branch to get the required fields
           REQUIRED_FIELDS_MAIN_BRANCH=$(./bin/run list-required-fields -p ${{ steps.get_files.outputs.files }} | jq -c .)
           echo "REQUIRED_FIELDS_MAIN_BRANCH=$REQUIRED_FIELDS_MAIN_BRANCH" >> $GITHUB_ENV

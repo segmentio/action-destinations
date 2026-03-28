@@ -11,14 +11,14 @@
   "module": "dist/esm/index.js",
   "types": "dist/cjs/index.d.ts",
   "scripts": {
-    "prepack": "yarn build",
-    "prebuild": "yarn clean",
-    "build": "yarn build:cjs && yarn build:esm",
+    "prepack": "pnpm build",
+    "prebuild": "pnpm clean",
+    "build": "pnpm build:cjs && pnpm build:esm",
     "build:cjs": "tsc -p tsconfig.build.json -m commonjs --outDir dist/cjs",
     "build:esm": "tsc -p tsconfig.build.json -m es2015 --outDir dist/esm",
     "clean": "tsc --build tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
-    "prepublishOnly": "yarn build",
+    "prepublishOnly": "pnpm build",
     "test": "jest",
     "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },

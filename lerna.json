@@ -1,11 +1,8 @@
 {
   "packages": ["packages/*", "packages/browser-destinations/destinations/*"],
-  "npmClient": "yarn",
+  "npmClient": "pnpm",
   "version": "independent",
   "command": {
-    "bootstrap": {
-      "npmClientArgs": ["--ignore-engines", "--ignore-optional"]
-    },
     "version": {
       "allowBranch": ["main", "hotfix/*"]
     }

@@ -20,64 +20,64 @@ This is Segment's Action Destinations repository - a monorepo for building strea
 
 ```bash
 # Full build
-yarn build               # Build all packages via NX + browser bundles
-yarn clean-build         # Clean and rebuild everything
+pnpm build               # Build all packages via NX + browser bundles
+pnpm clean-build         # Clean and rebuild everything
 
 # Individual package builds (faster iteration)
-yarn cloud build         # Build cloud-mode destinations only
-yarn browser build-web   # Build browser-mode bundles only
-yarn core build          # Build actions-core only
+pnpm cloud build         # Build cloud-mode destinations only
+pnpm browser build-web   # Build browser-mode bundles only
+pnpm core build          # Build actions-core only
 
 # Browser bundles from root
-yarn build:browser-bundles  # Build only browser bundles
+pnpm build:browser-bundles  # Build only browser bundles
 ```
 
 ### Test Commands
 
 ```bash
 # Run all tests
-yarn test                # Run all tests (NX-based)
-yarn test:clear-cache    # Clear test cache
+pnpm test                # Run all tests (NX-based)
+pnpm test:clear-cache    # Clear test cache
 
 # Individual package tests (faster iteration)
-yarn cloud test          # Test cloud-mode destinations only
-yarn browser test        # Test browser-mode destinations only
-yarn core test           # Test actions-core only
+pnpm cloud test          # Test cloud-mode destinations only
+pnpm browser test        # Test browser-mode destinations only
+pnpm core test           # Test actions-core only
 
 # Specific test suites
-yarn test-browser        # Run browser-specific tests
-yarn test-partners       # Tests for partner-built destinations only
+pnpm test-browser        # Run browser-specific tests
+pnpm test-partners       # Tests for partner-built destinations only
 
 # Test a specific cloud-mode destination
-yarn cloud jest --testPathPattern="slack"
+pnpm cloud jest --testPathPattern="slack"
 
 # Test a specific browser-mode destination
-yarn browser jest --testPathPattern="braze"
+pnpm browser jest --testPathPattern="braze"
 
 # Test a specific core module
-yarn core jest --testPathPattern="mapping-kit"
+pnpm core jest --testPathPattern="mapping-kit"
 ```
 
-> **Note:** Always run tests with `TZ=UTC` (e.g. `TZ=UTC yarn cloud test`) to ensure snapshot tests produce consistent results regardless of local timezone.
+> **Note:** Always run tests with `TZ=UTC` (e.g. `TZ=UTC pnpm cloud test`) to ensure snapshot tests produce consistent results regardless of local timezone.
 
 ### Lint & Type Checking
 
 ```bash
-yarn lint                # ESLint on TypeScript files with cache
-yarn typecheck           # TypeScript type checking across all packages
+pnpm lint                # ESLint on TypeScript files with cache
+pnpm typecheck           # TypeScript type checking across all packages
 ```
 
 ### Type Generation
 
 ```bash
-yarn types               # Generate TypeScript definitions for all integrations
-yarn types --path <glob>  # Generate types for specific paths
+pnpm types               # Generate TypeScript definitions for all integrations
+pnpm types --path <glob>  # Generate types for specific paths
 ```
 
 ### Validation & Local Testing
 
 ```bash
-yarn validate            # Validate all destination definitions
+pnpm validate            # Validate all destination definitions
 ./bin/run serve [DESTINATION]  # Start local test server for a destination
 ```
 
@@ -279,7 +279,7 @@ fields: {
 ./bin/run generate:types
 
 # 3. Test
-yarn test
+pnpm test
 ```
 
 ## Key Files & Directories

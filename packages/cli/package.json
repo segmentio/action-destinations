@@ -25,8 +25,8 @@
   "private": true,
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
-    "prepack": "yarn build && oclif-dev manifest && oclif-dev readme",
-    "build": "yarn tsc -b tsconfig.build.json",
+    "prepack": "pnpm build && oclif-dev manifest && oclif-dev readme",
+    "build": "pnpm tsc -b tsconfig.build.json",
     "clean": "tsc -b tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
     "create:destination": "./bin/run init",

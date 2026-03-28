@@ -10,7 +10,7 @@
   "main": "./dist/cjs",
   "module": "./dist/esm",
   "scripts": {
-    "build": "yarn build:esm && yarn build:cjs",
+    "build": "pnpm build:esm && pnpm build:cjs",
     "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
     "build:esm": "tsc --outDir ./dist/esm"
   },

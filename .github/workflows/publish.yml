@@ -29,12 +29,17 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
-          cache: yarn
+          cache: pnpm
 
       - name: Setup git credentials
         run: |
@@ -42,10 +47,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: NODE_ENV=production yarn build
+        run: NODE_ENV=production pnpm build
 
       - name: Fetch Latest Tags
         run: |
@@ -58,7 +63,7 @@ jobs:
 
       - name: Publish
         run: |
-          yarn lerna publish from-package --yes --loglevel=verbose --dist-tag latest
+          pnpm lerna publish from-package --yes --loglevel=verbose --dist-tag latest
 
       - name: Generate Tags
         id: get-release-tag
