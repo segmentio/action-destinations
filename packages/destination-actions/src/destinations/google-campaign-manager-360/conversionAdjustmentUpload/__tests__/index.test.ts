@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
+import { API_VERSION, CANARY_API_VERSION, FLAGON_NAME } from '../../utils'
 
 const testDestination = createTestIntegration(Destination)
 const timestamp = new Date('Thu Jun 10 2024 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
@@ -42,7 +43,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
 
         delete event.userId
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+        )
           .post('')
           .reply(200, { results: [{}] })
 
@@ -145,7 +148,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         })
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+        )
           .post('')
           .reply(200, { results: [{}] })
 
@@ -223,7 +228,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         })
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+        )
           .post('')
           .reply(200, { results: [{}] })
 
@@ -288,7 +295,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
 
         delete event.userId
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+        )
           .post('')
           .reply(200, { results: [{}] })
 
@@ -423,7 +432,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         ]
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -545,7 +556,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         ]
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -640,7 +653,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         ]
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -996,7 +1011,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         kind: 'dfareporting#conversionsBatchUpdateResponse'
       }
 
-      nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+      )
         .post('')
         .reply(200, resp200WithErrors)
 
@@ -1105,7 +1122,9 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
 
       delete event.userId
 
-      nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+      )
         .post('')
         .reply(401)
 
@@ -1180,6 +1199,110 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         })
       ).rejects.toThrowError('Unauthorized')
+    })
+  })
+
+  describe('API Version Feature Flag', () => {
+    it('should use v4 API by default (stable version)', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          gclid: 'test-gclid',
+          value: 100,
+          quantity: 1,
+          ordinal: '1'
+        }
+      })
+
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+      )
+        .post('')
+        .reply(200, { results: [{}] })
+
+      await expect(
+        testDestination.testAction('conversionAdjustmentUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+      ).resolves.not.toThrowError()
+    })
+
+    it('should use v5 API when canary feature flag is enabled', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          gclid: 'test-gclid',
+          value: 100,
+          quantity: 1,
+          ordinal: '1'
+        }
+      })
+
+      // Should call v5 endpoint when feature flag is enabled
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${CANARY_API_VERSION}/userprofiles/${profileId}/conversions/batchupdate`
+      )
+        .post('')
+        .reply(200, { results: [{}] })
+
+      await expect(
+        testDestination.testAction('conversionAdjustmentUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          },
+          features: { [FLAGON_NAME]: true }
+        })
+      ).resolves.not.toThrowError()
     })
   })
 })
