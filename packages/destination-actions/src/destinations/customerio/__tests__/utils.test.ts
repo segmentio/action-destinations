@@ -1,5 +1,11 @@
 import { MultiStatusResponse } from '@segment/actions-core'
-import { isIsoDate, parseTrackApiErrors, parseTrackApiMultiStatusResponse, resolveIdentifiers, sendBatch } from '../utils'
+import {
+  isIsoDate,
+  parseTrackApiErrors,
+  parseTrackApiMultiStatusResponse,
+  resolveIdentifiers,
+  sendBatch
+} from '../utils'
 
 describe('isIsoDate', () => {
   it('should return true for valid ISO date with fractional seconds from 1-9 digits', () => {
@@ -115,18 +121,15 @@ describe('sendBatch', () => {
     expect((response as MultiStatusResponse).length()).toBe(2)
     expect((response as MultiStatusResponse).getResponseAtIndex(0).value()).toEqual({
       status: 200,
-      body: {},
-      sent: {}
+      body: { person_id: 'user-1', name: 'First' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
     })
     expect((response as MultiStatusResponse).getResponseAtIndex(1).value()).toEqual({
       status: 400,
       errormessage: 'Attribute value too long',
       errortype: 'PAYLOAD_VALIDATION_FAILED',
-      body: {
-        batch_index: 1,
-        reason: 'invalid',
-        message: 'Attribute value too long'
-      }
+      body: { person_id: 'user-2', name: 'Second' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-2' }, name: 'Second' }
     })
   })
 
@@ -159,18 +162,25 @@ describe('sendBatch', () => {
       status: 400,
       errormessage: 'Name is required',
       errortype: 'PAYLOAD_VALIDATION_FAILED',
-      body: {
-        batch_index: 0,
-        reason: 'required',
-        field: 'name',
-        message: 'Name is required'
-      }
+      body: { person_id: 'user-1', name: 'First' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
     })
   })
 })
 
 describe('parseTrackApiErrors', () => {
   it('should fill success entries for items without errors', () => {
+    const options = [
+      { type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-0' } },
+      { type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-1' } },
+      { type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-2' } }
+    ]
+    const batch = [
+      { type: 'person', action: 'event', identifiers: { id: 'user-0' } },
+      { type: 'person', action: 'event', identifiers: { id: 'user-1' } },
+      { type: 'person', action: 'event', identifiers: { id: 'user-2' } }
+    ]
+
     const response = parseTrackApiErrors(
       [
         {
@@ -180,29 +190,36 @@ describe('parseTrackApiErrors', () => {
           message: 'Name is required'
         }
       ],
-      3
+      options,
+      batch
     )
 
     expect(response.getAllResponses().map((result) => result.value())).toEqual([
-      { status: 200, body: {}, sent: {} },
+      {
+        status: 200,
+        body: { person_id: 'user-0' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-0' } }
+      },
       {
         status: 400,
         errormessage: 'Name is required',
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        body: {
-          batch_index: 1,
-          reason: 'required',
-          field: 'name',
-          message: 'Name is required'
-        }
+        body: { person_id: 'user-1' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' } }
       },
-      { status: 200, body: {}, sent: {} }
+      {
+        status: 200,
+        body: { person_id: 'user-2' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-2' } }
+      }
     ])
   })
 })
 
 describe('parseTrackApiMultiStatusResponse', () => {
   it('should return null for non-Track API response bodies', () => {
-    expect(parseTrackApiMultiStatusResponse({ ok: true }, 1)).toBeNull()
+    const options = [{ type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-0' } }]
+    const batch = [{ type: 'person', action: 'event', identifiers: { id: 'user-0' } }]
+    expect(parseTrackApiMultiStatusResponse({ ok: true }, options, batch)).toBeNull()
   })
 })
