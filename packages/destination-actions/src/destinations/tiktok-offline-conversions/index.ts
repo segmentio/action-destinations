@@ -5,8 +5,6 @@ import trackPaymentOfflineConversion from './trackPaymentOfflineConversion'
 import trackNonPaymentOfflineConversion from './trackNonPaymentOfflineConversion'
 import reportOfflineEvent from './reportOfflineEvent'
 
-export { TIKTOK_OFFLINE_CONVERSIONS_API_VERSION as API_VERSION }
-
 const productProperties = {
   price: {
     '@path': '$.price'
