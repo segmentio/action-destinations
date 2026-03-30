@@ -157,13 +157,6 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
 
   const { filename, fileContents } = generateFile(input.payloads)
 
-  // Track metric for whether incoming headers are in alphabetical order
-  if (input.statsContext?.statsClient) {
-    input.statsContext.statsClient.incr('liveramp_audiences.incoming_header_order', 1, [
-      ...(input.statsContext.tags || [])
-    ])
-  }
-
   if (input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true) {
     //------------
     // LEGACY FLOW
