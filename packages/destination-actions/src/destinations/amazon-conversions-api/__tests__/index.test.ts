@@ -1,6 +1,7 @@
 // Basic test to confirm destination structure
 import Destination from '../index'
-import type { DestinationDefinition } from '@segment/actions-core'
+import type { DestinationDefinition, RequestClient } from '@segment/actions-core'
+import { Region } from '../types'
 
 describe('Amazon Conversions API Destination', () => {
   it('should be properly configured', () => {
@@ -38,9 +39,9 @@ describe('Amazon Conversions API Destination', () => {
       const presets = (Destination as DestinationDefinition<any>).presets || []
 
       // Check some key presets exist
-      const addToCartPreset = presets.find(p => p.name === 'Add to Shopping Cart')
-      const pageViewPreset = presets.find(p => p.name === 'Page View')
-      const signUpPreset = presets.find(p => p.name === 'Sign Up')
+      const addToCartPreset = presets.find((p) => p.name === 'Add to Shopping Cart')
+      const pageViewPreset = presets.find((p) => p.name === 'Page View')
+      const signUpPreset = presets.find((p) => p.name === 'Sign Up')
 
       expect(addToCartPreset).toBeDefined()
       expect(pageViewPreset).toBeDefined()
@@ -64,7 +65,7 @@ describe('Amazon Conversions API Destination', () => {
       const presets = (Destination as DestinationDefinition<any>).presets || []
 
       // Get all event types from the presets
-      const presetEventTypes = presets.map(p => p.mapping?.eventType)
+      const presetEventTypes = presets.map((p) => p.mapping?.eventType)
 
       // Check that all expected Amazon event types are covered
       expect(presetEventTypes).toContain('ADD_TO_SHOPPING_CART')
@@ -91,7 +92,7 @@ describe('Amazon Conversions API Destination', () => {
         'Lead Generated': 'LEAD',
         'Order Completed': 'OFF_AMAZON_PURCHASES',
         'Application Opened': 'MOBILE_APP_FIRST_START',
-        'page': 'PAGE_VIEW',  // For type="page"
+        page: 'PAGE_VIEW', // For type="page"
         'Products Searched': 'SEARCH',
         'Signed Up': 'SIGN_UP',
         'Subscription Created': 'SUBSCRIBE'
@@ -103,14 +104,139 @@ describe('Amazon Conversions API Destination', () => {
 
         if (segmentEvent === 'page') {
           // Special case for page type
-          preset = presets.find(p => (p as any)?.subscribe === 'type = "page"')
+          preset = presets.find((p) => (p as any)?.subscribe === 'type = "page"')
         } else {
-          preset = presets.find(p => (p as any)?.subscribe?.includes(`event = "${segmentEvent}"`))
+          preset = presets.find((p) => (p as any)?.subscribe?.includes(`event = "${segmentEvent}"`))
         }
 
         expect(preset).toBeDefined()
         expect(preset?.mapping?.eventType).toBe(amazonEvent)
       }
+    })
+  })
+
+  describe('testAuthentication', () => {
+    const testAuth = Destination.authentication.testAuthentication!
+    let mockRequest: jest.Mock
+
+    beforeEach(() => {
+      mockRequest = jest.fn().mockResolvedValue({ status: 200 })
+    })
+
+    it('should throw for non-numeric advertiserId', async () => {
+      await expect(
+        testAuth(
+          mockRequest as unknown as RequestClient,
+          {
+            auth: { accessToken: 'valid-token', refreshToken: '' },
+            settings: { region: Region.NA, advertiserId: 'abc123' }
+          } as any
+        )
+      ).rejects.toThrow('Advertising ID must be numeric')
+    })
+
+    it('should throw for advertiserId not numeric', async () => {
+      await expect(
+        testAuth(
+          mockRequest as unknown as RequestClient,
+          {
+            auth: { accessToken: 'valid-token', refreshToken: '' },
+            settings: { region: Region.NA, advertiserId: '1234ac' }
+          } as any
+        )
+      ).rejects.toThrow('Advertising ID must be numeric')
+    })
+
+    it('should throw for dataSetName that is too short (under 5 chars)', async () => {
+      await expect(
+        testAuth(
+          mockRequest as unknown as RequestClient,
+          {
+            auth: { accessToken: 'valid-token', refreshToken: '' },
+            settings: { region: Region.NA, advertiserId: '12345', dataSetName: 'abcd' }
+          } as any
+        )
+      ).rejects.toThrow(
+        'Dataset Name must start with a letter and can only contain letters, numbers, underscores, or hyphens.'
+      )
+    })
+
+    it('should throw for dataSetName that starts with a digit', async () => {
+      await expect(
+        testAuth(
+          mockRequest as unknown as RequestClient,
+          {
+            auth: { accessToken: 'valid-token', refreshToken: '' },
+            settings: { region: Region.NA, advertiserId: '12345', dataSetName: '1invalid' }
+          } as any
+        )
+      ).rejects.toThrow(
+        'Dataset Name must start with a letter and can only contain letters, numbers, underscores, or hyphens.'
+      )
+    })
+
+    it('should throw for dataSetName with invalid characters', async () => {
+      await expect(
+        testAuth(
+          mockRequest as unknown as RequestClient,
+          {
+            auth: { accessToken: 'valid-token', refreshToken: '' },
+            settings: { region: Region.NA, advertiserId: '12345', dataSetName: 'my dataset!' }
+          } as any
+        )
+      ).rejects.toThrow(
+        'Dataset Name must start with a letter and can only contain letters, numbers, underscores, or hyphens.'
+      )
+    })
+
+    it('should pass with a valid dataSetName', async () => {
+      await expect(
+        testAuth(
+          mockRequest as unknown as RequestClient,
+          {
+            auth: { accessToken: 'valid-token', refreshToken: '' },
+            settings: { region: Region.NA, advertiserId: '12345', dataSetName: 'ValidDataset1' }
+          } as any
+        )
+      ).resolves.toBeDefined()
+      expect(mockRequest).toHaveBeenCalled()
+    })
+
+    it('should pass with a dataSetName using underscores and hyphens', async () => {
+      await expect(
+        testAuth(
+          mockRequest as unknown as RequestClient,
+          {
+            auth: { accessToken: 'valid-token', refreshToken: '' },
+            settings: { region: Region.NA, advertiserId: '12345', dataSetName: 'Default_Events-2' }
+          } as any
+        )
+      ).resolves.toBeDefined()
+    })
+
+    it('should pass without dataSetName (field is optional)', async () => {
+      await expect(
+        testAuth(
+          mockRequest as unknown as RequestClient,
+          {
+            auth: { accessToken: 'valid-token', refreshToken: '' },
+            settings: { region: Region.NA, advertiserId: '12345' }
+          } as any
+        )
+      ).resolves.toBeDefined()
+      expect(mockRequest).toHaveBeenCalled()
+    })
+
+    it('should pass with numeric advertiserId', async () => {
+      await expect(
+        testAuth(
+          mockRequest as unknown as RequestClient,
+          {
+            auth: { accessToken: 'valid-token', refreshToken: '' },
+            settings: { region: Region.NA, advertiserId: '9876543210' }
+          } as any
+        )
+      ).resolves.toBeDefined()
     })
   })
 })

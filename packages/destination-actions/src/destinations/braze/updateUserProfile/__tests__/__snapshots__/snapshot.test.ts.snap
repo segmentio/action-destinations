@@ -42,6 +42,12 @@ Object {
           "token": "M8rtOywDKgN((jhUBk9",
         },
       ],
+      "subscription_groups": Array [
+        Object {
+          "subscription_group_id": "M8rtOywDKgN((jhUBk9",
+          "subscription_state": "unsubscribed",
+        },
+      ],
       "testType": "M8rtOywDKgN((jhUBk9",
       "time_zone": "M8rtOywDKgN((jhUBk9",
       "twitter": Object {

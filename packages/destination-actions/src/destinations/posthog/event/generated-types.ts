@@ -43,4 +43,8 @@ export interface Payload {
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
+  /**
+   * The IP address of the user
+   */
+  ip_address?: string | null
 }

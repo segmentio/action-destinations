@@ -14,7 +14,7 @@ export interface Payload {
    */
   queryID?: string
   /**
-   * Position of the click in the list of Algolia search results.
+   * Position of the click in the list of Algolia search results. Positions should start from 1, not 0.
    */
   position?: number
   /**

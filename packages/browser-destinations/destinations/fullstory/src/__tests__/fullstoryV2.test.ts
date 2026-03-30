@@ -5,7 +5,7 @@ import identifyUserV2 from '../identifyUserV2'
 import viewedPageV2 from '../viewedPageV2'
 import { FS as FSApi } from '../types'
 import { Subscription } from '@segment/browser-destination-runtime/types'
-import { defaultValues } from '@segment/actions-core/*'
+import { defaultValues, JSONArray } from '@segment/actions-core'
 
 jest.mock('@fullstory/browser', () => ({
   ...jest.requireActual('@fullstory/browser'),
@@ -40,11 +40,24 @@ const example: Subscription[] = [
   }
 ]
 
+beforeEach(() => {
+  jest.restoreAllMocks()
+  delete window._fs_initialized
+  delete window._fs_script
+  delete window._fs_org
+  delete window._fs_namespace
+  if (typeof window._fs_namespace === 'number') {
+    delete window[window._fs_namespace]
+  }
+  // @ts-ignore
+  delete window.FS
+})
+
 describe('#track', () => {
   it('sends record events to fullstory on "event"', async () => {
     const [event] = await fullstory({
       orgId: FakeOrgId,
-      subscriptions: example
+      subscriptions: example as unknown as JSONArray
     })
 
     await event.load(Context.system(), {} as Analytics)
@@ -76,7 +89,7 @@ describe('#identify', () => {
   it('should default to anonymousId', async () => {
     const [_, identifyUser] = await fullstory({
       orgId: FakeOrgId,
-      subscriptions: example
+      subscriptions: example as unknown as JSONArray
     })
 
     await identifyUser.load(Context.system(), {} as Analytics)
@@ -102,7 +115,7 @@ describe('#identify', () => {
   it('should send an id', async () => {
     const [_, identifyUser] = await fullstory({
       orgId: FakeOrgId,
-      subscriptions: example
+      subscriptions: example as unknown as JSONArray
     })
     await identifyUser.load(Context.system(), {} as Analytics)
 
@@ -113,7 +126,7 @@ describe('#identify', () => {
   it('can set user vars', async () => {
     const [_, identifyUser] = await fullstory({
       orgId: FakeOrgId,
-      subscriptions: example
+      subscriptions: example as unknown as JSONArray
     })
 
     await identifyUser.load(Context.system(), {} as Analytics)
@@ -147,7 +160,7 @@ describe('#identify', () => {
   it('should set displayName correctly', async () => {
     const [_, identifyUser] = await fullstory({
       orgId: FakeOrgId,
-      subscriptions: example
+      subscriptions: example as unknown as JSONArray
     })
 
     await identifyUser.load(Context.system(), {} as Analytics)
@@ -184,7 +197,7 @@ describe('#page', () => {
   it('sends page events to fullstory on "page" (category edition)', async () => {
     const [, , viewed] = await fullstory({
       orgId: FakeOrgId,
-      subscriptions: example
+      subscriptions: example as unknown as JSONArray
     })
 
     await viewed.load(Context.system(), {} as Analytics)
@@ -216,7 +229,7 @@ describe('#page', () => {
   it('sends page events to fullstory on "page" (name edition)', async () => {
     const [, , viewed] = await fullstory({
       orgId: FakeOrgId,
-      subscriptions: example
+      subscriptions: example as unknown as JSONArray
     })
 
     await viewed.load(Context.system(), {} as Analytics)
@@ -247,7 +260,7 @@ describe('#page', () => {
   it('sends page events to fullstory on "page" (no pageName edition)', async () => {
     const [, , viewed] = await fullstory({
       orgId: FakeOrgId,
-      subscriptions: example
+      subscriptions: example as unknown as JSONArray
     })
 
     await viewed.load(Context.system(), {} as Analytics)

@@ -41,6 +41,13 @@ const destination: DestinationDefinition<Settings> = {
           'If enabled, this ensures that events are processed in order without triggering our spike detection systems. Affects events sent via the track Action only.',
         type: 'boolean',
         default: false
+      },
+      geoip_disable: {
+        label: 'Disable GeoIP Collection',
+        description:
+          'If enabled, [GeoIP collection](https://github.com/PostHog/posthog-plugin-geoip) will be disabled. This will prevent the collection of IP addresses and other geolocation data.',
+        type: 'boolean',
+        default: false
       }
     }
   },
@@ -60,10 +67,10 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Page View',
       subscribe: 'type = "page"',
       partnerAction: 'event',
-      mapping: { 
+      mapping: {
         ...defaultValues(event.fields),
         event_type: 'page',
-        event_name: '$pageview',
+        event_name: '$pageview'
       },
       type: 'automatic'
     },
@@ -71,10 +78,10 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Screen View',
       subscribe: 'type = "screen"',
       partnerAction: 'event',
-      mapping: { 
+      mapping: {
         ...defaultValues(event.fields),
         event_type: 'screen',
-        event_name: '$screenview',
+        event_name: '$screenview'
       },
       type: 'automatic'
     },

@@ -46,6 +46,12 @@ interface LRMetaPayload {
     s3SecretAccessKey: string
     s3BucketPath?: string
   }
+
+  segmentInternal: {
+    audienceId: string
+    destinationConfigId: string
+    subscriptionId: string
+  }
 }
 
 const NODE_ENV = process.env['NODE_ENV'] || `stage`
@@ -70,7 +76,14 @@ export const sendEventToAWS = async (input: SendToAWSRequest) => {
     audienceKey: input.audienceComputeId || '',
     uploadType: input.uploadType,
     filename: input.filename,
-    gzipCompressFile: input.gzipCompressFile
+    gzipCompressFile: input.gzipCompressFile,
+
+    // Segment Internal Metadata for Observability and Debugging
+    segmentInternal: {
+      audienceId: input.audienceComputeId || '',
+      destinationConfigId: input.destinationInstanceID || '',
+      subscriptionId: input.subscriptionId || ''
+    }
   }
 
   if (input.uploadType === 'sftp') {
@@ -94,11 +107,6 @@ export const sendEventToAWS = async (input: SendToAWSRequest) => {
   // Get S3 Client for Outbound Controller
   const s3Client = getS3Client('integrationsOutboundController')
 
-  // Add Row Count to the File Chunk for Observability
-  const urlEncodedTags = new URLSearchParams({
-    row_count: `${input.rowCount}`
-  }).toString()
-
   await Promise.all([
     // Upload user data to the S3 bucket
     s3Client.send(
@@ -107,7 +115,11 @@ export const sendEventToAWS = async (input: SendToAWSRequest) => {
         Key: userdataFilePath,
         Body: input.fileContents,
         ContentType: 'text/csv',
-        Tagging: urlEncodedTags
+
+        // Add Row Count to the File Chunk for Observability
+        Metadata: {
+          'row-count': `${input.rowCount}`
+        }
       })
     ),
 

@@ -50,13 +50,18 @@ export async function getSchemaFromHubspot(client: Client, schema: Schema): Prom
               )
             }
 
-            if (prop.type === 'number' && ['datetime', 'string', 'enumeration'].includes(maybeMatch.type)) {
+            if (prop.type === 'number' && maybeMatch.type === 'string') {
+              props[propName] = {
+                type: 'string',
+                stringFormat: 'string'
+              }
+            } else if (prop.type === 'number' && ['datetime', 'enumeration'].includes(maybeMatch.type)) {
               throw new PayloadValidationError(
                 `Hubspot.CustomEvent.getSchemaFromHubspot: Expected type ${prop.type} for property ${propName} - Hubspot returned type ${maybeMatch.type}`
               )
+            } else {
+              props[propName] = schema.properties[propName]
             }
-
-            props[propName] = schema.properties[propName]
           }
           return props
         })()

@@ -1,6 +1,7 @@
 import dayjs from '../../lib/dayjs'
 import isPlainObject from 'lodash/isPlainObject'
 import { fullFormats } from 'ajv-formats/dist/formats'
+import { CUSTOMERIO_TRACK_API_VERSION } from './versioning-info'
 
 const isEmail = (value: string): boolean => {
   return (fullFormats.email as RegExp).test(value)
@@ -203,7 +204,7 @@ export const sendBatch = <Payload extends BasePayload>(request: Function, option
   const [{ settings }] = options
   const batch = options.map((opts) => buildPayload(opts))
 
-  return request(`${trackApiEndpoint(settings)}/api/v2/batch`, {
+  return request(`${trackApiEndpoint(settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/batch`, {
     method: 'post',
     json: {
       batch
@@ -213,7 +214,7 @@ export const sendBatch = <Payload extends BasePayload>(request: Function, option
 
 export const sendSingle = <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>) => {
   const json = buildPayload(options)
-  return request(`${trackApiEndpoint(options.settings)}/api/v2/entity`, {
+  return request(`${trackApiEndpoint(options.settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/entity`, {
     method: 'post',
     json
   })

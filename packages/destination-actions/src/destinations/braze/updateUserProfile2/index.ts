@@ -273,6 +273,31 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    subscription_groups: {
+      label: 'Subscription Groups',
+      description: "Array of objects used to manage a user's subscription status for specific subscription groups.",
+      type: 'object',
+      defaultObjectUI: 'keyvalue',
+      multiple: true,
+      properties: {
+        subscription_group_id: {
+          label: 'Subscription Group ID',
+          description: 'The identifier for the subscription group',
+          type: 'string',
+          required: true
+        },
+        subscription_state: {
+          label: 'Subscription State',
+          description: 'The user\'s subscription status: "subscribed" or "unsubscribed"',
+          type: 'string',
+          required: true,
+          choices: [
+            { label: 'Subscribed', value: 'subscribed' },
+            { label: 'Unsubscribed', value: 'unsubscribed' }
+          ]
+        }
+      }
+    },
     custom_attributes: {
       label: 'Custom Attributes',
       description: 'Hash of custom attributes to send to Braze',

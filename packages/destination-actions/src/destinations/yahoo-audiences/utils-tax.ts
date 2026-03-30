@@ -1,9 +1,16 @@
 import type { Settings } from './generated-types'
-import { createHmac } from 'crypto'
-import { CredsObj, YahooSubTaxonomy } from './types'
+import type { ModifiedResponse } from '@segment/actions-core'
+import { CredsObj, YahooSubTaxonomy, TokenResponse } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { StatsClient } from '@segment/actions-core/destination-kit'
-import { YAHOO_AUDIENCES_OAUTH_VERSION, YAHOO_AUDIENCES_TAXONOMY_API_VERSION } from './versioning-info'
+import { generate_jwt } from './utils-rt'
+
+// Constants for Yahoo Taxonomy API
+import { YAHOO_AUDIENCES_TAXONOMY_API_VERSION } from './versioning-info'
+const TAXONOMY_CLIENT_KEY_PREFIX = 'idb2b.dsp.datax'
+const TAXONOMY_TOKEN_ENDPOINT = `https://id.b2b.yahooincapis.com/zts/${YAHOO_AUDIENCES_TAXONOMY_API_VERSION}/oauth2/token`
+const TAXONOMY_AUDIENCE_URL = `https://id.b2b.yahooincapis.com/zts/${YAHOO_AUDIENCES_TAXONOMY_API_VERSION}`
+const TAXONOMY_SCOPE = 'idb2b.dsp.datax:role.online.writer'
 
 export function gen_customer_taxonomy_payload(settings: Settings) {
   const data = {
@@ -46,26 +53,45 @@ export function gen_random_id(length: number): string {
   return random_id.join('')
 }
 
-export function gen_oauth1_signature(client_key: string, client_secret: string, method: string, url: string) {
-  // Following logic in #9 https://oauth.net/core/1.0a/#sig_norm_param
-  const timestamp = Math.floor(new Date().getTime() / 1000)
-  const nonce = gen_random_id(15)
+/**
+ * Obtains a short-lived OAuth 2.0 Bearer token for the Taxonomy API using the
+ * same JWT client-credentials flow used by the Online (Realtime) API.
+ * @param request RequestClient for making HTTP requests
+ * @param tx_client_key Taxonomy API client key (will be prefixed with 'idb2b.dsp.datax.')
+ * @param tx_client_secret Taxonomy API client secret
+ * @returns OAuth 2.0 access token
+ */
+export async function get_taxonomy_access_token(
+  request: RequestClient,
+  tx_client_key: string,
+  tx_client_secret: string
+): Promise<string> {
+  // Prefix the client key as required by Yahoo's Taxonomy API
+  const prefixed_client_key = `${TAXONOMY_CLIENT_KEY_PREFIX}.${tx_client_key}`
 
-  const param_string = `oauth_consumer_key=${encodeURIComponent(client_key)}&oauth_nonce=${encodeURIComponent(
-    nonce
-  )}&oauth_signature_method=${encodeURIComponent('HMAC-SHA1')}&oauth_timestamp=${encodeURIComponent(
-    timestamp
-  )}&oauth_version=${encodeURIComponent('1.0')}`
+  // Generate JWT using the shared utility
+  const jwt = generate_jwt(prefixed_client_key, tx_client_secret)
 
-  const base_string = `${method.toUpperCase()}&${encodeURIComponent(url)}&${encodeURIComponent(param_string)}`
-  const encoded_client_secret = encodeURIComponent(client_secret)
-  const signature = encodeURIComponent(
-    createHmac('sha1', encoded_client_secret + '&')
-      .update(base_string)
-      .digest('base64')
-  )
-  const oauth1_auth_string = `OAuth oauth_consumer_key="${client_key}", oauth_nonce="${nonce}", oauth_signature="${signature}", oauth_signature_method="HMAC-SHA1", oauth_timestamp="${timestamp}", oauth_version="${YAHOO_AUDIENCES_OAUTH_VERSION}"`
-  return oauth1_auth_string
+  const res: ModifiedResponse<TokenResponse> = await request<TokenResponse>(TAXONOMY_TOKEN_ENDPOINT, {
+    method: 'POST',
+    body: new URLSearchParams({
+      client_assertion: jwt,
+      client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      grant_type: 'client_credentials',
+      scope: TAXONOMY_SCOPE,
+      aud: TAXONOMY_AUDIENCE_URL
+    })
+  })
+
+  if (!res?.data?.access_token) {
+    throw new IntegrationError(
+      'Failed to obtain taxonomy access token - missing access_token in response',
+      'YAHOO_TAXONOMY_TOKEN_ERROR',
+      500
+    )
+  }
+
+  return res.data.access_token
 }
 
 export async function update_taxonomy(
@@ -81,13 +107,15 @@ export async function update_taxonomy(
   const url = `https://datax.yahooapis.com/${YAHOO_AUDIENCES_TAXONOMY_API_VERSION}/taxonomy/append${
     engage_space_id.length > 0 ? '/' + engage_space_id : ''
   }`
-  const oauth1_auth_string = gen_oauth1_signature(tx_client_key, tx_client_secret, 'PUT', url)
+
+  // Get a short-lived Bearer token using the same JWT client-credentials flow as the Online API
+  const access_token = await get_taxonomy_access_token(request, tx_client_key, tx_client_secret)
   try {
     const add_segment_node = await request(url, {
       method: 'PUT',
       body: body_form_data,
       headers: {
-        Authorization: oauth1_auth_string,
+        Authorization: `Bearer ${access_token}`,
         'Content-Type': 'multipart/form-data; boundary=SEGMENT-DATA'
       }
     })

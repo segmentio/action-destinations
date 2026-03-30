@@ -1,6 +1,7 @@
 import { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
+import { LINKEDIN_CONVERSIONS_API_VERSION } from './versioning-info'
 
-export const LINKEDIN_API_VERSION = '202505'
+export const LINKEDIN_API_VERSION = LINKEDIN_CONVERSIONS_API_VERSION
 export const BASE_URL = 'https://api.linkedin.com/rest'
 export const LINKEDIN_SOURCE_PLATFORM = 'SEGMENT'
 
@@ -63,7 +64,7 @@ export const DEPENDS_ON_CONVERSION_RULE_ID: DependsOnConditions = {
   conditions: [
     {
       fieldKey: 'conversionRuleId',
-      operator: 'is_not',
+      operator: 'is',
       value: undefined
     }
   ]

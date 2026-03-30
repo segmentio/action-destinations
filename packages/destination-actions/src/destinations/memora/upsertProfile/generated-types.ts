@@ -1,0 +1,35 @@
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface Payload {
+  /**
+   * Enable batching of requests to Memora. Batches can contain up to 1000 profiles.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of profiles to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
+  /**
+   * The Memora Store ID to use for this profile. This should be a valid Memora Store associated with your Twilio account.
+   */
+  memora_store: string
+  /**
+   * Profile identifiers (email and/or phone). At least one identifier is required. These identifiers are stored in the Contact trait group.
+   */
+  profile_identifiers: {
+    /**
+     * User email address
+     */
+    email?: string
+    /**
+     * User phone number
+     */
+    phone?: string
+  }
+  /**
+   * Traits for the profile from all trait groups. At least one trait is required. These fields are dynamically loaded from the selected Memora Store. When manually entering keys, use the format "TraitGroupName.$.traitName" (e.g., "Contact.$.firstName", "PurchaseHistory.$.lastPurchaseDate").
+   */
+  profile_traits: {
+    [k: string]: unknown
+  }
+}

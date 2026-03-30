@@ -191,10 +191,6 @@ export interface Payload {
     bookingHref?: string
   }
   /**
-   * Hidden field: The timestamp of the event.
-   */
-  timestamp: string
-  /**
    * Enable batching for this action.
    */
   enable_batching?: boolean

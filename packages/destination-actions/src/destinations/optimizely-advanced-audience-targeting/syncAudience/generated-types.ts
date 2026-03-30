@@ -29,4 +29,14 @@ export interface Payload {
    * Number of events to batch before sending to Optimizely.
    */
   batch_size?: number
+  /**
+   * The keys to use for batching events.
+   */
+  batch_keys?: string[]
+  /**
+   * User traits (for identify calls) or event properties (for track calls) to include with the audience sync.
+   */
+  traitsOrProperties?: {
+    [k: string]: unknown
+  }
 }

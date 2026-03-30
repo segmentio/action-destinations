@@ -3,6 +3,7 @@ import { Payload } from './updateSegment/generated-types'
 import { YahooPayload } from './types'
 import { gen_random_id } from './utils-tax'
 import { processHashing } from '../../lib/hashing-utils'
+import { YAHOO_AUDIENCES_TAXONOMY_API_VERSION } from './versioning-info'
 
 /**
  * Creates a SHA256 hash from the input
@@ -23,11 +24,11 @@ export function create_hash(input: string | undefined): string | undefined {
 export function generate_jwt(client_id: string, client_secret: string): string {
   const random_id = gen_random_id(24)
   const current_time = Math.floor(new Date().getTime() / 1000)
-  const url = 'https://id.b2b.yahooinc.com/identity/oauth2/access_token'
+  const url = `https://id.b2b.yahooincapis.com/zts/${YAHOO_AUDIENCES_TAXONOMY_API_VERSION}`
   const jwt_payload = {
     iss: client_id,
     sub: client_id,
-    aud: url + '?realm=dataxonline',
+    aud: url,
     jti: random_id,
     exp: current_time + 3600,
     iat: current_time

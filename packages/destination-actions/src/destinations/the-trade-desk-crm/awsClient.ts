@@ -3,7 +3,7 @@ import { getS3Client } from '../../lib/AWS/s3'
 import { PutObjectCommand } from '@aws-sdk/client-s3'
 
 interface SendToAWSRequest {
-  TDDAuthToken: string
+  TTDAuthToken: string
   AdvertiserId: string
   CrmDataId: string
   UsersFormatted: string
@@ -14,10 +14,16 @@ interface SendToAWSRequest {
     TtlInMinutes?: number
     RetentionEnabled?: boolean
   }
+  segmentInternal: {
+    audienceId?: string
+    destinationConfigId?: string
+    subscriptionId?: string
+  }
 }
 
-interface TTDEventPayload {
-  TDDAuthToken: string
+interface TTDMetaPayload {
+  TDDAuthToken: string // Typo, will be removed in future iterations
+  TTDAuthToken: string
   AdvertiserId: string
   CrmDataId: string
   RequeueCount: number
@@ -27,6 +33,13 @@ interface TTDEventPayload {
     MergeMode: string
     TtlInMinutes?: number
     RetentionEnabled?: boolean
+  }
+
+  // Segment Internal Metadata for Observability and Debugging
+  segmentInternal: {
+    audienceId: string
+    destinationConfigId: string
+    subscriptionId: string
   }
 }
 
@@ -43,21 +56,22 @@ export const sendEventToAWS = async (input: SendToAWSRequest) => {
   const metadataFilePath = `${ACTION_SLUG}/${input.AdvertiserId}/${input.CrmDataId}/meta.json`
 
   // Create Metadata
-  const metadata = {
-    TDDAuthToken: input.TDDAuthToken,
+  const metadata: TTDMetaPayload = {
+    TDDAuthToken: input.TTDAuthToken,
+    TTDAuthToken: input.TTDAuthToken,
     AdvertiserId: input.AdvertiserId,
     CrmDataId: input.CrmDataId,
     DropOptions: input.DropOptions,
-    RequeueCount: 0
-  } as TTDEventPayload
+    RequeueCount: 0,
+    segmentInternal: {
+      audienceId: input.segmentInternal.audienceId || '',
+      destinationConfigId: input.segmentInternal.destinationConfigId || '',
+      subscriptionId: input.segmentInternal.subscriptionId || ''
+    }
+  }
 
   // Get S3 Client for Outbound Controller
   const s3Client = getS3Client('integrationsOutboundController')
-
-  // Add Row Count to the File Chunk for Observability
-  const urlEncodedTags = new URLSearchParams({
-    row_count: `${input.RowCount}`
-  }).toString()
 
   await Promise.all([
     // Upload user data to the S3 bucket
@@ -67,7 +81,11 @@ export const sendEventToAWS = async (input: SendToAWSRequest) => {
         Key: userdataFilePath,
         Body: input.UsersFormatted,
         ContentType: 'text/csv',
-        Tagging: urlEncodedTags
+
+        // Add Row Count to the File Chunk for Observability
+        Metadata: {
+          'row-count': `${input.RowCount}`
+        }
       })
     ),
 
