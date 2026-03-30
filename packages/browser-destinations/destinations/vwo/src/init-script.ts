@@ -2,7 +2,7 @@
 // @ts-nocheck
 
 // If `account_id` is greater than this threshold, we load the VWO smartcode v3 and if not then the original smartcode v2.1
-const GENERIC_TEMPLATE_ACCOUNT_ID_THRESHOLD = 120000 // TO BE UPDATED
+const GENERIC_TEMPLATE_ACCOUNT_ID_THRESHOLD = 1200000
 
 export function initScript({
   vwoAccountId,
@@ -20,19 +20,19 @@ export function initScript({
           settings_tolerance = settingsTolerance,
           hide_element = 'body',
           hide_element_style =
-            'opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;transition:none !important';
+            'opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;transition:none !important'
 
         /* DO NOT EDIT BELOW THIS LINE */
         var t = window,
-          n = document;
-        if (n.URL.indexOf('__vwo_disable__') > -1 || t._vwo_code) return;
+          n = document
+        if (n.URL.indexOf('__vwo_disable__') > -1 || t._vwo_code) return
         var i = !1,
           o = n.currentScript,
-          e = { sT: settings_tolerance, hES: hide_element_style, hE: hide_element };
+          e = { sT: settings_tolerance, hES: hide_element_style, hE: hide_element }
         try {
           e = Object.assign(JSON.parse(localStorage.getItem('_vwo_' + account_id + '_config')), e)
         } catch (e) {}
-        code = {
+        var code = {
           nonce: o && o.nonce,
           settings_tolerance: function () {
             return e.sT
@@ -47,26 +47,36 @@ export function initScript({
             return version
           },
           finish: function () {
-            var e;
-            i || (i = !0, (e = n.getElementById('_vis_opt_path_hides')) && e.parentNode && e.parentNode.removeChild(e))
+            var e
+            i ||
+              ((i = !0), (e = n.getElementById('_vis_opt_path_hides')) && e.parentNode && e.parentNode.removeChild(e))
           },
           finished: function () {
             return i
           },
           addScript: function (e) {
-            var t = n.createElement('script');
-            t.type = 'text/javascript', t.src = e, o && o.nonce && t.setAttribute('nonce', o.nonce), n.getElementsByTagName('head')[0].appendChild(t)
+            var t = n.createElement('script')
+            ;(t.type = 'text/javascript'),
+              (t.src = e),
+              o && o.nonce && t.setAttribute('nonce', o.nonce),
+              n.getElementsByTagName('head')[0].appendChild(t)
           },
           init: function () {
             t._vwo_settings_timer = setTimeout(function () {
               code.finish()
-            }, this.settings_tolerance());
-            var e = n.createElement('style');
-            e.setAttribute('id', '_vis_opt_path_hides'), e.type = 'text/css', code && code.nonce && e.setAttribute('nonce', code.nonce), e.appendChild(n.createTextNode(this.hide_element() + this.hide_element_style())), n.head.appendChild(e), this.addScript('https://dev.visualwebsiteoptimizer.com/tag/' + account_id + '.js')
+            }, this.settings_tolerance())
+            var e = n.createElement('style')
+            e.setAttribute('id', '_vis_opt_path_hides'),
+              (e.type = 'text/css'),
+              code && code.nonce && e.setAttribute('nonce', code.nonce),
+              e.appendChild(n.createTextNode(this.hide_element() + this.hide_element_style())),
+              n.head.appendChild(e),
+              this.addScript('https://dev.visualwebsiteoptimizer.com/tag/' + account_id + '.js')
           }
-        }, t._vwo_code = code;
-        code.init();
-      })();
+        }
+        t._vwo_code = code
+        code.init()
+      })()
 
     return
   }
@@ -77,8 +87,7 @@ export function initScript({
         version = 2.1,
         settings_tolerance = settingsTolerance,
         hide_element = 'body',
-        hide_element_style =
-          'transition:none;',
+        hide_element_style = 'transition:none;',
         f = false,
         w = window,
         d = document,
@@ -88,7 +97,7 @@ export function initScript({
       try {
         var c = JSON.parse(localStorage.getItem('_vwo_' + account_id + '_config'))
         cc = c && typeof c === 'object' ? c : {}
-      } catch (e) { }
+      } catch (e) {}
       var stT = cc.stT === 'session' ? w.sessionStorage : w.localStorage
       var code = {
         nonce: v && v.nonce,

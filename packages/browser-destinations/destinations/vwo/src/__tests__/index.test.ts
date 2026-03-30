@@ -60,16 +60,13 @@ describe('VWO Web (Actions)', () => {
 })
 
 describe('VWO SmartCode initScript', () => {
-  const THRESHOLD = 1100000
+  const THRESHOLD = 1200000
 
   beforeEach(() => {
     jest.useFakeTimers()
     // ensure script injection and computed values come from initScript invocation
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (window as any)._vwo_code
-    // v3 smartcode assigns to `code` without declaration; define it for strict-mode Jest runtime
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(globalThis as any).code = undefined
     // v3 smartcode directly calls performance.getEntriesByName()
     if (typeof performance.getEntriesByName !== 'function') {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -80,8 +77,6 @@ describe('VWO SmartCode initScript', () => {
 
   afterEach(() => {
     jest.runOnlyPendingTimers()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (globalThis as any).code
     jest.useRealTimers()
   })
 
