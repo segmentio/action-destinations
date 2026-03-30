@@ -47,6 +47,8 @@ export const CANARY_API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
 export const FLAGON_NAME_JOURNEY_V2 = 'google-enhanced-conversions-journeysv2'
+export const FLAGON_NAME_DATA_MANAGER = 'google-customer-match-use-data-manager-api'
+export const DATA_MANAGER_API_BASE = 'https://datamanager.googleapis.com/v1'
 
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 
@@ -592,16 +594,15 @@ const extractUserIdentifiers = (
 }
 
 const getEngageAudienceMembership = (payload: UserListPayload, features?: Features): boolean | undefined => {
-  
-  if(!features || !features[FLAGON_NAME_JOURNEY_V2]) {
+  if (!features || !features[FLAGON_NAME_JOURNEY_V2]) {
     return undefined
   }
-  
+
   const {
     engage_fields: { traits_or_properties = undefined, audience_key = undefined, computation_class = undefined } = {}
   } = payload
 
-  const engageAudienceMembership = 
+  const engageAudienceMembership =
     typeof computation_class === 'string' &&
     typeof audience_key === 'string' &&
     ['audience', 'journey_step'].includes(computation_class) &&
@@ -729,6 +730,48 @@ export const handleUpdate = async (
     throw new PayloadValidationError('External Audience ID is required.')
   }
   const id_type = hookListType ?? audienceSettings.external_id_type
+
+  // ── Data Manager API path ──────────────────────────────────────────────────
+  if (features?.[FLAGON_NAME_DATA_MANAGER]) {
+    const destination = buildDataManagerDestination(settings.customerId!, externalAudienceId, settings.loginCustomerId)
+    const addMembers: Record<string, unknown>[] = []
+    const removeMembers: Record<string, unknown>[] = []
+
+    for (const payload of payloads) {
+      const member = buildDataManagerAudienceMember(payload, id_type, features, statsContext)
+      if (!member) continue
+      const operationType = determineOperationType(payload, syncMode, features)
+      if (operationType === 'add') addMembers.push(member)
+      else if (operationType === 'remove') removeMembers.push(member)
+    }
+
+    const responses = []
+
+    if (addMembers.length > 0) {
+      const result = await ingestAudienceMembers(
+        request,
+        { destinations: [destination], audienceMembers: addMembers },
+        statsContext
+      )
+      if (!result.success) throw result.error
+      responses.push(result.data)
+    }
+
+    if (removeMembers.length > 0) {
+      const result = await removeAudienceMembers(
+        request,
+        { destinations: [destination], audienceMembers: removeMembers },
+        statsContext
+      )
+      if (!result.success) throw result.error
+      responses.push(result.data)
+    }
+
+    statsContext?.statsClient?.incr('success.dataManagerUpdateAudience', 1, statsContext?.tags)
+    return responses
+  }
+  // ──────────────────────────────────────────────────────────────────────────
+
   // Format the user data for Google Ads API
   const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(
     payloads,
@@ -1027,6 +1070,113 @@ const createOfflineUserJobPayload = (audienceId: string, payload: UserListPayloa
   }
 })
 
+// ─── Data Manager API helpers ────────────────────────────────────────────────
+
+const buildDataManagerDestination = (customerId: string, audienceId: string, loginCustomerId?: string) => {
+  const destination: Record<string, unknown> = {
+    reference: 'dest1',
+    operatingAccount: { accountId: customerId, accountType: 'GOOGLE_ADS' },
+    productDestinationId: audienceId
+  }
+  if (loginCustomerId) {
+    destination.loginAccount = { accountId: loginCustomerId, accountType: 'GOOGLE_ADS_MANAGER' }
+  }
+  return destination
+}
+
+const buildDataManagerMemberData = (
+  payload: UserListPayload,
+  idType: string,
+  features?: Features,
+  statsContext?: StatsContext
+): Record<string, unknown> | null => {
+  if (idType === 'MOBILE_ADVERTISING_ID') {
+    const mobileId = payload.mobile_advertising_id?.trim()
+    if (!mobileId) return null
+    return { mobileData: { mobileIds: [mobileId] } }
+  }
+
+  if (idType === 'CRM_ID') {
+    const userId = payload.crm_id?.trim()
+    if (!userId) return null
+    return { userIdData: { userId } }
+  }
+
+  if (idType === 'CONTACT_INFO') {
+    const userIdentifiers: Record<string, unknown>[] = []
+
+    if (payload.email) {
+      userIdentifiers.push({
+        emailAddress: processHashing(payload.email, 'sha256', 'hex', commonEmailValidation)
+      })
+    }
+
+    if (payload.phone) {
+      userIdentifiers.push({
+        phoneNumber: processHashing(payload.phone, 'sha256', 'hex', (value) =>
+          formatPhone(value, payload.phone_country_code, features, statsContext)
+        )
+      })
+    }
+
+    if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
+      const address: Record<string, unknown> = {}
+      if (payload.first_name) address.givenName = processHashing(payload.first_name, 'sha256', 'hex')
+      if (payload.last_name) address.familyName = processHashing(payload.last_name, 'sha256', 'hex')
+      if (payload.country_code) address.regionCode = payload.country_code
+      if (payload.postal_code) address.postalCode = payload.postal_code
+      userIdentifiers.push({ address })
+    }
+
+    if (userIdentifiers.length === 0) return null
+    return { userData: { userIdentifiers } }
+  }
+
+  return null
+}
+
+const buildDataManagerAudienceMember = (
+  payload: UserListPayload,
+  idType: string,
+  features?: Features,
+  statsContext?: StatsContext
+): Record<string, unknown> | null => {
+  const memberData = buildDataManagerMemberData(payload, idType, features, statsContext)
+  if (!memberData) return null
+  return {
+    destinationReferences: ['dest1'],
+    consent: {
+      adUserData: payload.ad_user_data_consent_state,
+      adPersonalization: payload.ad_personalization_consent_state
+    },
+    ...memberData
+  }
+}
+
+const ingestAudienceMembers = async (request: RequestClient, body: object, statsContext?: StatsContext) => {
+  const url = `${DATA_MANAGER_API_BASE}/audienceMembers:ingest`
+  try {
+    const response = await request(url, { method: 'post', json: body })
+    return { success: true, data: response.data }
+  } catch (error) {
+    statsContext?.statsClient?.incr('error.dataManager.ingest', 1, statsContext?.tags)
+    return { success: false, error }
+  }
+}
+
+const removeAudienceMembers = async (request: RequestClient, body: object, statsContext?: StatsContext) => {
+  const url = `${DATA_MANAGER_API_BASE}/audienceMembers:remove`
+  try {
+    const response = await request(url, { method: 'post', json: body })
+    return { success: true, data: response.data }
+  } catch (error) {
+    statsContext?.statsClient?.incr('error.dataManager.remove', 1, statsContext?.tags)
+    return { success: false, error }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const processBatchPayload = async (
   request: RequestClient,
   settings: CreateAudienceInput['settings'],
@@ -1044,6 +1194,105 @@ export const processBatchPayload = async (
   }
   const multiStatusResponse = new MultiStatusResponse()
   const id_type = hookListType ?? audienceSettings.external_id_type
+
+  // ── Data Manager API path ──────────────────────────────────────────────────
+  if (features?.[FLAGON_NAME_DATA_MANAGER]) {
+    const destination = buildDataManagerDestination(settings.customerId!, externalAudienceId, settings.loginCustomerId)
+    const addMembers: Record<string, unknown>[] = []
+    const removeMembers: Record<string, unknown>[] = []
+    const addMemberIndices: number[] = []
+    const removeMemberIndices: number[] = []
+
+    payloads.forEach((payload, index) => {
+      let member: Record<string, unknown> | null = null
+      try {
+        member = buildDataManagerAudienceMember(payload, id_type, features, statsContext)
+      } catch (error) {
+        if (error instanceof PayloadValidationError) {
+          multiStatusResponse.setErrorResponseAtIndex(index, {
+            status: 400,
+            errortype: 'PAYLOAD_VALIDATION_FAILED',
+            errormessage: error.message
+          })
+        }
+        return
+      }
+
+      if (!member) {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: `Missing or Invalid data for ${id_type}.`
+        })
+        return
+      }
+
+      const operationType = determineOperationType(payload, syncMode, features)
+      if (!operationType) {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: 'Could not determine Operation Type.'
+        })
+        return
+      }
+
+      if (operationType === 'add') {
+        addMembers.push(member)
+        addMemberIndices.push(index)
+      } else {
+        removeMembers.push(member)
+        removeMemberIndices.push(index)
+      }
+    })
+
+    if (addMembers.length > 0) {
+      const body = { destinations: [destination], audienceMembers: addMembers }
+      const result = await ingestAudienceMembers(request, body, statsContext)
+      addMemberIndices.forEach((index) => {
+        if (result.success) {
+          multiStatusResponse.setSuccessResponseAtIndex(index, {
+            status: 200,
+            sent: body,
+            body: result.data as JSONLikeObject
+          })
+        } else {
+          multiStatusResponse.setErrorResponseAtIndex(index, {
+            status: 500,
+            errormessage: (result.error as Error)?.message ?? 'Failed to ingest audience members',
+            sent: body,
+            body: result.error
+          })
+        }
+      })
+    }
+
+    if (removeMembers.length > 0) {
+      const body = { destinations: [destination], audienceMembers: removeMembers }
+      const result = await removeAudienceMembers(request, body, statsContext)
+      removeMemberIndices.forEach((index) => {
+        if (result.success) {
+          multiStatusResponse.setSuccessResponseAtIndex(index, {
+            status: 200,
+            sent: body,
+            body: result.data as JSONLikeObject
+          })
+        } else {
+          multiStatusResponse.setErrorResponseAtIndex(index, {
+            status: 500,
+            errormessage: (result.error as Error)?.message ?? 'Failed to remove audience members',
+            sent: body,
+            body: result.error
+          })
+        }
+      })
+    }
+
+    statsContext?.statsClient?.incr('success.dataManagerUpdateAudience', 1, statsContext?.tags)
+    return multiStatusResponse
+  }
+  // ──────────────────────────────────────────────────────────────────────────
+
   // Extract user identifiers and validPayloadIndicesBitmap from payloads
   const { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap } = extractBatchUserIdentifiers(
     payloads,

@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import GoogleEnhancedConversions from '../index'
-import { API_VERSION, FLAGON_NAME_JOURNEY_V2 } from '../functions'
+import { API_VERSION, FLAGON_NAME_JOURNEY_V2, FLAGON_NAME_DATA_MANAGER } from '../functions'
 import { SegmentEvent } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 
@@ -2103,6 +2103,263 @@ describe('GoogleEnhancedConversions', () => {
         body: new Error('Bad Request'),
         errorreporter: 'DESTINATION'
       })
+    })
+  })
+
+  describe('Data Manager API (feature flag on)', () => {
+    const dataManagerFeatures = { [FLAGON_NAME_DATA_MANAGER]: true }
+
+    beforeEach(() => {
+      nock.cleanAll()
+      // Reset accumulated responses from executeBatch calls that don't auto-reset testDestination.responses
+      testDestination.responses = []
+    })
+
+    it('sends Audience Entered event via Data Manager ingest API (CONTACT_INFO)', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Audience Entered',
+        properties: {
+          email: 'test@gmail.com',
+          phone: '3234567890',
+          firstName: 'Jane',
+          lastName: 'Doe'
+        }
+      })
+
+      nock('https://datamanager.googleapis.com').post('/v1/audienceMembers:ingest').reply(200, { success: true })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          email: { '@path': '$.properties.email' },
+          phone: { '@path': '$.properties.phone' },
+          first_name: { '@path': '$.properties.firstName' },
+          last_name: { '@path': '$.properties.lastName' },
+          event_name: { '@path': '$.event' },
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          enable_batching: true,
+          external_audience_id: '1234',
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        settings: { customerId },
+        features: dataManagerFeatures
+      })
+
+      expect(responses.length).toEqual(1)
+      const body = JSON.parse(responses[0].options.body as string)
+      expect(body.destinations[0].operatingAccount.accountId).toEqual(customerId)
+      expect(body.destinations[0].productDestinationId).toEqual('1234')
+      expect(body.audienceMembers[0].destinationReferences).toEqual(['dest1'])
+      expect(body.audienceMembers[0].consent.adUserData).toEqual('GRANTED')
+      expect(body.audienceMembers[0].userData.userIdentifiers).toEqual(
+        expect.arrayContaining([
+          { emailAddress: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674' },
+          { phoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0' }
+        ])
+      )
+    })
+
+    it('sends Audience Exited event via Data Manager remove API (CONTACT_INFO)', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Audience Exited',
+        properties: {
+          email: 'test@gmail.com',
+          phone: '3234567890'
+        }
+      })
+
+      nock('https://datamanager.googleapis.com').post('/v1/audienceMembers:remove').reply(200, { success: true })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: { customerId },
+        features: dataManagerFeatures
+      })
+
+      expect(responses.length).toEqual(1)
+      const body = JSON.parse(responses[0].options.body as string)
+      expect(body.destinations[0].productDestinationId).toEqual('1234')
+      expect(body.audienceMembers[0].userData.userIdentifiers).toEqual(
+        expect.arrayContaining([{ emailAddress: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674' }])
+      )
+    })
+
+    it('sends Audience Entered event via Data Manager ingest API (MOBILE_ADVERTISING_ID)', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Audience Entered',
+        context: { device: { advertisingId: 'test-adid-123' } }
+      })
+
+      nock('https://datamanager.googleapis.com').post('/v1/audienceMembers:ingest').reply(200, { success: true })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'MOBILE_ADVERTISING_ID'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: { customerId },
+        features: dataManagerFeatures
+      })
+
+      expect(responses.length).toEqual(1)
+      const body = JSON.parse(responses[0].options.body as string)
+      expect(body.audienceMembers[0].mobileData.mobileIds).toEqual(['test-adid-123'])
+    })
+
+    it('sends Audience Entered event via Data Manager ingest API (CRM_ID)', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Audience Entered',
+        properties: { crm_id: 'user-abc-123' }
+      })
+
+      nock('https://datamanager.googleapis.com').post('/v1/audienceMembers:ingest').reply(200, { success: true })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          crm_id: { '@path': '$.properties.crm_id' },
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CRM_ID'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: { customerId },
+        features: dataManagerFeatures
+      })
+
+      expect(responses.length).toEqual(1)
+      const body = JSON.parse(responses[0].options.body as string)
+      expect(body.audienceMembers[0].userIdData.userId).toEqual('user-abc-123')
+    })
+
+    it('includes loginAccount in destination when loginCustomerId is set', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Audience Entered',
+        properties: { email: 'test@gmail.com' }
+      })
+
+      nock('https://datamanager.googleapis.com').post('/v1/audienceMembers:ingest').reply(200, { success: true })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: { customerId, loginCustomerId: '9999' },
+        features: dataManagerFeatures
+      })
+
+      expect(responses.length).toEqual(1)
+      const body = JSON.parse(responses[0].options.body as string)
+      expect(body.destinations[0].loginAccount).toEqual({ accountId: '9999', accountType: 'GOOGLE_ADS_MANAGER' })
+    })
+
+    it('throws PayloadValidationError when external_audience_id is missing', async () => {
+      const event = createTestEvent({ timestamp, event: 'Audience Entered' })
+
+      await expect(
+        testDestination.testAction('userList', {
+          event,
+          mapping: {
+            ad_user_data_consent_state: 'GRANTED',
+            ad_personalization_consent_state: 'GRANTED',
+            retlOnMappingSave: { outputs: { id: '', name: '', external_id_type: 'CONTACT_INFO' } }
+          },
+          useDefaultMappings: true,
+          settings: { customerId },
+          features: dataManagerFeatures
+        })
+      ).rejects.toThrowError(new PayloadValidationError('External Audience ID is required.'))
+    })
+
+    it('does not call Data Manager API when feature flag is off (falls back to OfflineUserDataJob)', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Audience Entered',
+        properties: { email: 'test@gmail.com' }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { resourceName: 'customers/1234/offlineUserDataJobs/1234' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/1234/offlineUserDataJobs/1234:addOperations`)
+        .post(/.*/)
+        .reply(200, {})
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/1234/offlineUserDataJobs/1234:run`)
+        .post(/.*/)
+        .reply(200, {})
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          retlOnMappingSave: {
+            outputs: { id: '1234', name: 'Test List', external_id_type: 'CONTACT_INFO' }
+          }
+        },
+        useDefaultMappings: true,
+        settings: { customerId },
+        features: { [FLAGON_NAME_DATA_MANAGER]: false }
+      })
+
+      // 3 calls = create + addOperations + run (legacy path)
+      expect(responses.length).toEqual(3)
     })
   })
 })
