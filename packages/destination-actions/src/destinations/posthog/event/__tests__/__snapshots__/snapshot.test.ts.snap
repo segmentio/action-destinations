@@ -7,6 +7,7 @@ Object {
     Object {
       "event": "$screen",
       "properties": Object {
+        "$ip": "178.245.88.241",
         "$process_person_profile": false,
         "$screen_name": ")z(DntC*1pA^Oh]x",
         "distinct_id": ")z(DntC*1pA^Oh]x",

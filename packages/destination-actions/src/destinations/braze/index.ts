@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { DEFAULT_REQUEST_TIMEOUT, defaultValues } from '@segment/actions-core'
+import ecommerce from './ecommerce'
+import ecommerceSingleProduct from './ecommerceSingleProduct'
 import createAlias from './createAlias'
 import createAlias2 from './createAlias2'
 import identifyUser from './identifyUser'
@@ -13,7 +15,7 @@ import trackPurchase2 from './trackPurchase2'
 import updateUserProfile2 from './updateUserProfile2'
 import triggerCampaign from './triggerCampaign'
 import triggerCanvas from './triggerCanvas'
-
+import { EVENT_NAMES } from './ecommerce/constants'
 import upsertCatalogItem from './upsertCatalogItem'
 
 const destination: DestinationDefinition<Settings> = {
@@ -55,7 +57,8 @@ const destination: DestinationDefinition<Settings> = {
           { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'https://rest.fra-01.braze.eu' },
           { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'https://rest.fra-02.braze.eu' },
           { label: 'AU-01 (https://dashboard.au-01.braze.com)', value: 'https://rest.au-01.braze.com' },
-          { label: 'ID-01 (https://dashboard.id-01.braze.com)', value: 'https://rest.id-01.braze.com' }
+          { label: 'ID-01 (https://dashboard.id-01.braze.com)', value: 'https://rest.id-01.braze.com' },
+          { label: 'JP-01 (https://dashboard.jp-01.braze.com)', value: 'https://rest.jp-01.braze.com' }
         ],
         default: 'https://rest.iad-01.braze.com',
         required: true
@@ -91,21 +94,78 @@ const destination: DestinationDefinition<Settings> = {
     createAlias2,
     upsertCatalogItem,
     triggerCampaign,
-    triggerCanvas
+    triggerCanvas,
+    ecommerce,
+    ecommerceSingleProduct
   },
   presets: [
     {
       name: 'Track Calls',
-      subscribe: 'type = "track" and event != "Order Completed"',
+      subscribe: 'type = "track" and event != "Order Completed" and event != "Checkout Started" and event != "Order Refunded" and event != "Order Cancelled" and event != "Product Viewed"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields),
       type: 'automatic'
     },
     {
-      name: 'Order Completed Calls',
+      name: 'Order Placed (beta)',
       subscribe: 'event = "Order Completed"',
-      partnerAction: 'trackPurchase',
-      mapping: defaultValues(trackPurchase.fields),
+      partnerAction: 'ecommerce',
+      mapping: { 
+        ...defaultValues(ecommerce.fields),
+        name: EVENT_NAMES.ORDER_PLACED, 
+        metadata: {
+          order_status_url: { '@path': '$.properties.order_status_url' }
+        }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Checkout Started (beta)',
+      subscribe: 'event = "Checkout Started"',
+      partnerAction: 'ecommerce',
+      mapping: { 
+        ...defaultValues(ecommerce.fields),
+        name: EVENT_NAMES.CHECKOUT_STARTED, 
+        metadata: {
+          checkout_url: { '@path': '$.properties.checkout_url' }
+        }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Order Refunded (beta)',
+      subscribe: 'event = "Order Refunded"',
+      partnerAction: 'ecommerce',
+      mapping: { 
+        ...defaultValues(ecommerce.fields),
+        name: EVENT_NAMES.ORDER_REFUNDED, 
+        metadata: {
+          order_status_url: { '@path': '$.properties.order_status_url' }
+        }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Order Cancelled (beta)',
+      subscribe: 'event = "Order Cancelled"',
+      partnerAction: 'ecommerce',
+      mapping: { 
+        ...defaultValues(ecommerce.fields),
+        name: EVENT_NAMES.ORDER_CANCELLED, 
+        metadata: {
+          order_status_url: { '@path': '$.properties.order_status_url' }
+        }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Product Viewed (beta)',
+      subscribe: 'event = "Product Viewed"',
+      partnerAction: 'ecommerceSingleProduct',
+      mapping: { 
+        ...defaultValues(ecommerceSingleProduct.fields),
+        name: EVENT_NAMES.PRODUCT_VIEWED
+      },
       type: 'automatic'
     },
     {

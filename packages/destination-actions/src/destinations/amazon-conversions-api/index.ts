@@ -30,9 +30,15 @@ const destination: DestinationDefinition<Settings> = {
       },
       advertiserId: {
         label: 'Amazon Advertiser ID',
-        description: 'Your Amazon Advertiser Account ID.',
+        description: 'Your Amazon Advertiser Account ID. This must be a numeric value. Use Amazon DSP CFID and not Entity ID.',
         type: 'string',
         required: true
+      },
+      dataSetName: {
+        label: 'Dataset Name',
+        description: 'Amazon Ads organizes uploaded data into datasets, which are logical groupings used to separate and categorize events from your sources. The default dataset name (if not provided) is Default_Events. All events within a dataset will appear in Amazon Ads Data Manager under the name you provide here. New destination? We recommend providing a dataset name during initial setup. Existing destination? We strongly recommend reading the [FAQ](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-amazon-conversions-api#what-is-a-dataset-and-how-does-amazon-use-the-dataset-name) before updating your dataset name, as changes may impact your existing events.',
+        type: 'string',
+        required: false
       }
     },
     testAuthentication: async (request, { auth, settings }) => {
@@ -40,10 +46,21 @@ const destination: DestinationDefinition<Settings> = {
         throw new InvalidAuthenticationError('Please authenticate via Oauth before enabling the destination.')
       }
 
+      const { dataSetName, advertiserId } = settings
+      
+      if(dataSetName && !/^[A-Za-z][A-Za-z0-9_-]{4,99}$/.test(dataSetName ?? '')){
+        throw new InvalidAuthenticationError('Dataset Name must start with a letter and can only contain letters, numbers, underscores, or hyphens. It must be between 5 and 100 characters long.')
+      }
+    
+      if(!/^\d+$/.test(advertiserId)) {
+        throw new InvalidAuthenticationError('Advertising ID must be numeric')
+      }
+
       return await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
         },
         timeout: 2500
       })
@@ -56,8 +73,7 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ auth }) {
     return {
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`,
-        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
+        authorization: `Bearer ${auth?.accessToken}`
       }
     }
   },

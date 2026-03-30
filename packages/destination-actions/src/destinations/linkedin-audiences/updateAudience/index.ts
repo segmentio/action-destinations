@@ -1,4 +1,4 @@
-import type { ActionDefinition} from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { processPayload } from './functions'
@@ -9,11 +9,11 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Syncs contacts from a Personas Audience to a LinkedIn DMP Segment.',
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   fields,
-  perform: async (request, { settings, payload, statsContext }) => {
-    return processPayload(request, settings, [payload], statsContext)
+  perform: async (request, { settings, payload, statsContext, stateContext }) => {
+    return processPayload(request, settings, [payload], statsContext, stateContext)
   },
-  performBatch: async (request, { settings, payload, statsContext }) => {
-    return processPayload(request, settings, payload, statsContext)
+  performBatch: async (request, { settings, payload, statsContext, stateContext }) => {
+    return processPayload(request, settings, payload, statsContext, stateContext)
   }
 }
 

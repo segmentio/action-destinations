@@ -17,7 +17,7 @@ const destination: DestinationDefinition<Settings> = {
       api_key: {
         label: 'API Key',
         description: 'Your Criteo API key',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

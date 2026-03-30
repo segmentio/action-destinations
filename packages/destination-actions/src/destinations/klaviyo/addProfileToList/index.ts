@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
     list_id: { ...list_id },
     external_id: { ...external_id },
     enable_batching: { ...enable_batching },
-    batch_size: { ...batch_size },
+    batch_size: { ...batch_size, default: 10000, minimum: 100, maximum: 10000 },
     first_name: { ...first_name },
     last_name: { ...last_name },
     image: { ...image },

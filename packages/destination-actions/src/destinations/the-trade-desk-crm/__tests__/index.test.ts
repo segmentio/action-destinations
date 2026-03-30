@@ -2,6 +2,19 @@ import nock from 'nock'
 import { createTestIntegration, IntegrationError } from '@segment/actions-core'
 import Destination, { BASE_URL, SEGMENT_TYPE } from '../index'
 
+// Mock AWS SDK before any imports to avoid initialization issues
+jest.mock('@aws-sdk/client-s3', () => ({
+  S3Client: jest.fn().mockImplementation(() => ({
+    send: jest.fn()
+  })),
+  PutObjectCommand: jest.fn()
+}))
+
+jest.mock('@aws-sdk/client-sts', () => ({
+  STSClient: jest.fn(),
+  AssumeRoleCommand: jest.fn()
+}))
+
 const testDestination = createTestIntegration(Destination)
 
 const createAudienceInput = {
@@ -57,7 +70,7 @@ describe('The Trade Desk CRM', () => {
       await expect(testDestination.getAudience(getAudienceInput)).rejects.toThrowError()
     })
 
-    it('should succeed when Segment External ID matches Data Segment in TikTok', async () => {
+    it('should succeed when Segment External ID matches Data Segment in The Trade Desk', async () => {
       nock(`${BASE_URL}/crmdata/segment/advertiser_id`)
         .get(/.*/)
         .reply(200, {

@@ -26,3 +26,7 @@ any of the tasks you completed below during your testing._
 _Please ensure sensitive data is properly protected in your integration._
 
 - [ ] **Reviewed all field definitions** for sensitive data (API keys, tokens, passwords, client secrets) and confirmed they use `type: 'password'`
+
+## New Destination Checklist
+
+- [ ] Extracted all action API versions to `verioning-info.ts` file. [example](https://github.com/segmentio/action-destinations/blob/main/packages/destination-actions/src/destinations/facebook-conversions-api/versioning-info.ts)

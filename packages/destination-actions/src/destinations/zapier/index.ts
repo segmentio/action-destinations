@@ -8,7 +8,9 @@ const destination: DestinationDefinition<Settings> = {
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
-    fields: {}
+    fields: {
+      
+    }
   },
   actions: {
     send

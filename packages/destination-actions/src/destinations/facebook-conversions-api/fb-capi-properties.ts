@@ -34,6 +34,12 @@ export const value: InputField = {
   type: 'number'
 }
 
+export const net_revenue: InputField = {
+  label: 'Net Revenue',
+  description: 'The numeric net revenue value associated with the purchase event.',
+  type: 'number'
+}
+
 export const content_category: InputField = {
   label: 'Content Category',
   description: 'The category of the content associated with the event.',

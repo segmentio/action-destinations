@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 import { flat } from '../flat'
 import { isDefined } from '../heapUtils'
+import { getHeapBaseUrl } from '../constants'
 
 type AddUserPropertiesPayload = {
   app_id: string
@@ -72,7 +73,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    return request('https://heapanalytics.com/api/add_user_properties', {
+    const baseUrl = getHeapBaseUrl(settings.region)
+
+    return request(`${baseUrl}/api/add_user_properties`, {
       method: 'post',
       json: addUserPropertiesPayload
     })

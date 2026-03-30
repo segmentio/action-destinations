@@ -118,13 +118,13 @@ describe('Mixpanel.identify', () => {
 
     expect(mockMPP.identify).toHaveBeenCalledWith("userId1")
     expect(mockMPP.people.set).toHaveBeenCalledWith({
-      name: 'name1',
-      last_name: 'lastName1',
-      first_name: 'firstName1',
-      email: 'aaa@aaa.com',
-      phone: '+12345678900',
-      avatar: 'https://example.com/avatar.png',
-      created: '2020-01-01T00:05:02.010Z'
+      $name: 'name1',
+      $last_name: 'lastName1',
+      $first_name: 'firstName1',
+      $email: 'aaa@aaa.com',
+      $phone: '+12345678900',
+      $avatar: 'https://example.com/avatar.png',
+      $created: '2020-01-01T00:05:02.010Z'
     })
     expect(mockMPP.people.set_once).toHaveBeenCalledWith({
       set_once_trait: 'set_once_value_1'

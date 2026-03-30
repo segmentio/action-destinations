@@ -148,7 +148,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       dynamic: true
     },
-    batch_size: { ...batch_size },
+    batch_size: { ...batch_size, default: 10000, minimum: 100, maximum: 10000 },
     override_list_id: {
       unsafe_hidden: true,
       label: 'List ID Override',

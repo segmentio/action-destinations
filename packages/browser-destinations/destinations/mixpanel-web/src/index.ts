@@ -23,10 +23,8 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
   slug: 'mixpanel-web-actions',
   mode: 'device',
   settings: settingFields,
-  initialize: async ({ settings }, deps) => {
+  initialize: async ({ settings }) => {
     await initScript()
-    await deps.resolveWhen(() => window?.mixpanel != null, 100)
-    const mixpanel = window.mixpanel
 
     const {
       projectToken,
@@ -44,6 +42,31 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       ...rest
     } = settings
 
+    const numericKeys = new Set([
+      'record_sessions_percent',
+      'record_min_ms',
+      'record_max_ms',
+      'record_idle_timeout_ms',
+      'cookie_expiration'
+    ])
+    
+    const remainingSettings = Object.fromEntries(
+      Object.entries(rest).flatMap(([key, value]) => {
+        if (numericKeys.has(key)) {
+          if (value === undefined || value === null || value === '') { 
+            return [] 
+          }
+          const num = Number(value)
+          if (Number.isNaN(num)) {
+            console.warn(`Setting "${key}" with value "${value}" cannot be converted to a number. Setting will be ignored.`)
+            return []
+          }
+          return [[key, num]]
+        }
+        return [[key, value]]
+      })
+    )
+    
     const config: Config = {
       autocapture:
         autocapture === AUTOCAPTURE_OPTIONS.CUSTOM
@@ -61,31 +84,34 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
           ? true
           : false,
       persistence: persistence as PersistenceOptions,
-      ...rest
+      ...remainingSettings
     }
 
-    if (name) {
-      mixpanel.init(projectToken, config, name)
-    } else {
-      mixpanel.init(projectToken, config)
-    }
-    return mixpanel
+    return new Promise<Mixpanel>((resolve) => {
+      config.loaded = (mp) => resolve(mp)
+
+      if (name) {
+        window.mixpanel.init(projectToken, config, name)
+      } else {
+        window.mixpanel.init(projectToken, config)
+      }
+    })
   },
   presets: [
-      {
-          name: 'Track',
-          subscribe: 'type = "track"',
-          partnerAction: 'track',
-          mapping: defaultValues(track.fields),
-          type: 'automatic'
-      },
-      {
-          name: 'Identify',
-          subscribe: 'type = "identify"',
-          partnerAction: 'identify',
-          mapping: defaultValues(identify.fields),
-          type: 'automatic'
-      }
+    {
+      name: 'Track',
+      subscribe: 'type = "track"',
+      partnerAction: 'track',
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Identify',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identify',
+      mapping: defaultValues(identify.fields),
+      type: 'automatic'
+    }
   ],
   actions: {
     track,

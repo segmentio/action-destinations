@@ -1,3 +1,7 @@
+export interface WindowWithOptionalFbq extends Omit<Window, 'fbq' | '_fbq'> {
+  fbq?: FBClient;
+  _fbq?: FBClient;
+}
 
 export type FBStandardEventType =
   | 'PageView'
@@ -21,27 +25,34 @@ export type FBStandardEventType =
 
 export type FBNonStandardEventType = 'CustomEvent'
 
-export type FieldName = 
- | 'content_category' 
- | 'content_ids'
- | 'content_name'
- | 'content_type'
- | 'contents'
- | 'currency'
- | 'num_items'
- | 'predicted_ltv'
- | 'status'
- | 'value'
+export type InitOptions = {
+  agent?: string
+}
 
-export type FBClient = {
-    (command: 'init', pixelId: string): void
-    (command: 'trackSingle', pixelId: string, event: FBStandardEventType, params?: FBEvent, options?: Options): void
-    (command: 'trackSingleCustom', pixelId: string, event: string, params?: FBEvent, options?: Options): void
-    (command: 'track', event: FBStandardEventType, params?: FBEvent): void
-    (command: 'trackCustom', event: string, params?: FBEvent): void
+export type EventOptions = { 
+  eventID?: string 
+  eventSourceUrl?: string
+}
+
+export type UserData = {
+  // Identifiers
+  external_id?: string // Unique user ID from your system (FB hashes with SHA-256)
+  em?: string // Email (FB hashes with SHA-256)
+  ph?: string // Phone number (FB hashes with SHA-256)
+  fn?: string // First name (FB hashes with SHA-256)
+  ln?: string // Last name (FB hashes with SHA-256)
+  ge?: 'm' | 'f' // Gender (FB hashes with SHA-256)
+  db?: string // Date of birth (FB hashes with SHA-256) - format: YYYYMMDD
+  ct?: string // City (FB hashes with SHA-256)
+  st?: string // State (FB hashes with SHA-256)
+  zp?: string // ZIP/Postal code (FB hashes with SHA-256)
+  country?: string // Country code (FB hashes with SHA-256)
+  fbp?: string // Facebook browser pixel ID
+  fbc?: string // Facebook click ID
 }
 
 export type FBEvent = {
+  partner_agent: 'segment'
   content_category?: string
   content_ids?: string[]
   content_name?: string
@@ -61,41 +72,29 @@ export type FBEvent = {
   }
 }
 
-export const ACTION_SOURCES = {
-  email: 'email',
-  website: 'website',
-  app: 'app',
-  phone_call: 'phone_call',
-  chat: 'chat',
-  physical_store: 'physical_store',
-  system_generated: 'system_generated',
-  other: 'other'
-} as const
-
-export type ActionSource = typeof ACTION_SOURCES[keyof typeof ACTION_SOURCES]
-
-export type Options = { 
-    eventID?: string 
-    eventSourceUrl?: string
-    userData?: UserData
-    actionSource?: ActionSource
+export type FBClient = {
+  disablePushState?: boolean
+  loaded?: boolean
+  version?: string
+  queue?: unknown[]
+  push?: FBClient
+  callMethod?: (...args: unknown[]) => void
+  (command: 'set', key: string, value: boolean, pixelId: string): void
+  (command: 'dataProcessingOptions', options: string[], country?: number, state?: number): void
+  (command: 'init', pixelId: string, userData?: UserData, options?: InitOptions ): void
+  (command: 'trackSingle', pixelId: string, event: FBStandardEventType, params?: FBEvent, options?: EventOptions): void
+  (command: 'trackSingleCustom', pixelId: string, event: string, params?: FBEvent, options?: EventOptions): void
 }
 
-export type UserData = {
-    // Identifiers
-    external_id?: string // Unique user ID from your system (SHA-256)
-
-    em?: string // Email (SHA-256)
-    ph?: string // Phone number (SHA-256)
-    fn?: string // First name (SHA-256)
-    ln?: string // Last name (SHA-256)
-    ge?: string // Gender (SHA-256)
-    db?: string // Date of birth (SHA-256) - format: YYYYMMDD
-    ct?: string // City (SHA-256)
-    st?: string // State (SHA-256)
-    zp?: string // ZIP/Postal code (SHA-256)
-    country?: string // Country code (SHA-256)
+export type FBClientParamBuilder = {
+  getNormalizedAndHashedPII: (value: string, piiType: PIIType) => string | undefined
+  processAndCollectAllParams: () => void 
+  getFbc: () => string | undefined
+  getFbp: () => string | undefined
 }
+
+export type PIIType = 'email' | 'phone' | 'first_name' | 'last_name' | 'gender' | 'date_of_birth' | 'city' | 'state' | 'zip_code' | 'country' | 'external_id'
+export type PIIParamName = 'em' | 'ph' | 'fn' | 'ln' | 'ge' | 'db' | 'ct' | 'st' | 'zp' | 'country' | 'external_id'
 
 export const LDU = {
   Disabled: {key: 'Disabled', state: undefined, country: undefined},

@@ -6,6 +6,7 @@ Object {
   "distinct_id": "5fdYDWiv]V!gh$",
   "event": "$identify",
   "properties": Object {
+    "$ip": "146.198.20.13",
     "$set": Object {
       "testType": "5fdYDWiv]V!gh$",
     },

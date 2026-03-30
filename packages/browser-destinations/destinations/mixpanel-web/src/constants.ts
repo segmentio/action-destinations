@@ -14,3 +14,13 @@ export const AUTOCAPTURE_OPTIONS = {
   DISABLED: 'disabled',
   CUSTOM: 'custom'
 } as const
+
+export const STANDARD_USER_PROFILE_PROPERTIES = [
+  'name',
+  'first_name',
+  'last_name',
+  'email',
+  'phone',
+  'avatar',
+  'created'
+] as readonly string[]
