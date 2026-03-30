@@ -55,11 +55,10 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   // Convert headers to an ordered array for consistent indexing
   const headerArray = Array.from(headers)
 
-  // Check if incoming headers (excluding audience_key) are already in alphabetical order
+  // Sort headers alphabetically, keeping audience_key first
   const incomingHeaders = headerArray.filter((h) => h !== 'audience_key')
   const sortedIncomingHeaders = [...incomingHeaders].sort()
 
-  // Sort alphabetically (excluding audience_key which is always first) if feature flag is enabled
   const sortedHeaderArray = ['audience_key', ...sortedIncomingHeaders]
 
   // Declare rows as an empty Buffer
