@@ -2,11 +2,7 @@ import nock from 'nock'
 import { createTestIntegration, PayloadValidationError, SegmentEvent, StatsContext } from '@segment/actions-core'
 import Destination from '../index'
 import fs from 'fs'
-import {
-  LIVERAMP_ALPHABETICAL_FIELD_ORDER_FLAG_NAME,
-  LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME,
-  LIVERAMP_MIN_RECORD_COUNT
-} from '../properties'
+import { LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME, LIVERAMP_MIN_RECORD_COUNT } from '../properties'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -272,7 +268,7 @@ describe('Liveramp Audiences', () => {
       )
     })
 
-    it('should track alphabetical order when flag is enabled', async () => {
+    it('should track alphabetical order (always enabled)', async () => {
       const mockStatsClient = {
         histogram: jest.fn(),
         incr: jest.fn(),
@@ -305,9 +301,7 @@ describe('Liveramp Audiences', () => {
           __segment_internal_engage_force_full_sync: true,
           __segment_internal_engage_batch_sync: true
         },
-        features: {
-          [LIVERAMP_ALPHABETICAL_FIELD_ORDER_FLAG_NAME]: true
-        },
+        features: {},
         statsContext
       })
 
@@ -470,7 +464,7 @@ describe('Liveramp Audiences', () => {
       )
     })
 
-    it('should track alphabetical order when flag is enabled', async () => {
+    it('should track alphabetical order (always enabled)', async () => {
       const mockStatsClient = {
         histogram: jest.fn(),
         incr: jest.fn(),
@@ -503,9 +497,7 @@ describe('Liveramp Audiences', () => {
           __segment_internal_engage_force_full_sync: true,
           __segment_internal_engage_batch_sync: true
         },
-        features: {
-          [LIVERAMP_ALPHABETICAL_FIELD_ORDER_FLAG_NAME]: true
-        },
+        features: {},
         statsContext
       })
 
