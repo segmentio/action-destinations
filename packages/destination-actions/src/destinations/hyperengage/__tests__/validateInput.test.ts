@@ -81,7 +81,21 @@ describe('validateInput', () => {
       expect(payload.traits.industry).toEqual(fakeGroupData.industry)
       expect(payload.traits.website).toEqual(fakeGroupData.website)
       expect(payload.traits).toHaveProperty('required')
-      expect(payload.local_tz_offset).toEqual(60)
+      const expectedOffsetMinutes = (() => {
+        const parts = new Intl.DateTimeFormat('en-US', {
+          timeZone: fakeGroupData.timezone,
+          timeZoneName: 'shortOffset' as Intl.DateTimeFormatOptions['timeZoneName']
+        }).formatToParts(new Date())
+        const tz = parts.find((p) => p.type === 'timeZoneName')?.value
+        const m = tz?.match(/GMT([+-])(\d{1,2})(?::?(\d{2}))?/)
+        if (!m) return undefined
+        const sign = m[1] === '-' ? -1 : 1
+        const hours = Number(m[2])
+        const mins = m[3] ? Number(m[3]) : 0
+        return sign * (hours * 60 + mins)
+      })()
+      expect(typeof payload.local_tz_offset).toBe('number')
+      expect(payload.local_tz_offset).toEqual(expectedOffsetMinutes)
     })
   })
 
