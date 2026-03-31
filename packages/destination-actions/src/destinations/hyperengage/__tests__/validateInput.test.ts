@@ -28,6 +28,22 @@ const fakeIdentifyData = {
   account_id: 'testAccount'
 }
 
+const fakeIdentifyFirstLastData = {
+  event_id: 'test-message-cz380xxe9kn',
+  page_title: 'Title',
+  event_name: 'test',
+  event_type: 'identify',
+  first_name: 'testFirst',
+  last_name: 'testLast',
+  email: 'testEmail',
+  traits: {
+    required: 'false'
+  },
+  timestamp: '2023-09-11T08:06:11.192Z',
+  user_id: 'test',
+  account_id: 'testAccount'
+}
+
 const fakeGroupData = {
   event_id: 'test-message-cz380xxe9kn',
   page_title: 'Title',
@@ -70,6 +86,12 @@ describe('validateInput', () => {
       expect(payload.traits.name).toEqual(fakeIdentifyData.name)
       expect(payload.traits).toHaveProperty('required')
     })
+
+    it('should combine first_name and last_name without trailing brace', async () => {
+      const payload = validateInput(settings, fakeIdentifyFirstLastData, 'user_identify')
+      expect(payload.traits.name).toEqual('testFirst testLast')
+      expect(payload.traits.name).not.toContain('}')
+    })
   })
 
   describe('test group payload', () => {
@@ -81,7 +103,21 @@ describe('validateInput', () => {
       expect(payload.traits.industry).toEqual(fakeGroupData.industry)
       expect(payload.traits.website).toEqual(fakeGroupData.website)
       expect(payload.traits).toHaveProperty('required')
-      expect(payload.local_tz_offset).toEqual(60)
+      const expectedOffsetMinutes = (() => {
+        const parts = new Intl.DateTimeFormat('en-US', {
+          timeZone: fakeGroupData.timezone,
+          timeZoneName: 'shortOffset' as Intl.DateTimeFormatOptions['timeZoneName']
+        }).formatToParts(new Date())
+        const tz = parts.find((p) => p.type === 'timeZoneName')?.value
+        const m = tz?.match(/GMT([+-])(\d{1,2})(?::?(\d{2}))?/)
+        if (!m) return undefined
+        const sign = m[1] === '-' ? -1 : 1
+        const hours = Number(m[2])
+        const mins = m[3] ? Number(m[3]) : 0
+        return sign * (hours * 60 + mins)
+      })()
+      expect(typeof payload.local_tz_offset).toBe('number')
+      expect(payload.local_tz_offset).toEqual(expectedOffsetMinutes)
     })
   })
 
