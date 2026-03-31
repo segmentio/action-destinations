@@ -265,6 +265,7 @@ function buildTraitGroups(payload: Payload): Record<string, Record<string, unkno
   // Merge identifiers into their respective trait groups (these are authoritative and will override any conflicting keys)
   if (payload.profile_identifiers && typeof payload.profile_identifiers === 'object') {
     const identifiers = payload.profile_identifiers as Record<string, unknown>
+    const invalidIdentifierKeys: string[] = []
     Object.entries(identifiers).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         const match = key.match(/^([^.]+)\.\$\.(.+)$/)
@@ -275,9 +276,19 @@ function buildTraitGroups(payload: Payload): Record<string, Record<string, unkno
             traitGroups[traitGroupName] = {}
           }
           traitGroups[traitGroupName][traitName] = value
+        } else {
+          invalidIdentifierKeys.push(key)
         }
       }
     })
+
+    if (invalidIdentifierKeys.length > 0) {
+      throw new PayloadValidationError(
+        `Invalid identifier key format detected. The following keys do not match the expected format: ${invalidIdentifierKeys.join(
+          ', '
+        )}. ` + `Expected format: "TraitGroupName.$.traitName" (e.g., "Contact.$.email", "Contact.$.phone").`
+      )
+    }
   }
 
   return traitGroups

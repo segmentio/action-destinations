@@ -646,6 +646,33 @@ describe('Memora.upsertProfile', () => {
       expect(mockRequest).not.toHaveBeenCalled()
     })
 
+    it('should throw error for invalid identifier key formats in single profile', async () => {
+      const mockRequest = jest.fn() as unknown as RequestClient
+      const action = Destination.actions.upsertProfile
+
+      const payload: Payload = {
+        memora_store: 'test-store-id',
+        profile_identifiers: {
+          email: 'test@example.com', // Missing "TraitGroupName.$."
+          'Contact.phone': '+1-555-0100' // Missing ".$."
+        },
+        profile_traits: { 'Contact.$.firstName': 'Test' }
+      }
+
+      const executeInput: ExecuteInput<Settings, Payload> = {
+        payload,
+        settings: defaultSettings
+      }
+
+      if (!action.perform) {
+        throw new Error('perform is not defined')
+      }
+
+      await expect(action.perform(mockRequest, executeInput)).rejects.toThrow('Invalid identifier key format detected')
+
+      expect(mockRequest).not.toHaveBeenCalled()
+    })
+
     it('should return raw ModifiedResponse when perform succeeds', async () => {
       const mockRequest = jest.fn().mockResolvedValue({
         status: 202,
