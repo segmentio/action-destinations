@@ -33,6 +33,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
+      json.events?.forEach((e: Record<string, unknown>) => { e.time = expect.any(String) })
       expect(json).toMatchSnapshot()
       return
     } catch (err) {
@@ -66,6 +67,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
+      json.events?.forEach((e: Record<string, unknown>) => { e.time = expect.any(String) })
       expect(json).toMatchSnapshot()
       return
     } catch (err) {
