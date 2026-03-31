@@ -13,12 +13,6 @@ import {
 } from '@segment/actions-core'
 import { API_URL } from './config'
 import { KLAVIYO_API_REVISION, KLAVIYO_CANARY_API_REVISION } from './versioning-info'
-
-export const FLAGON_NAME = 'klaviyo-canary-api-revision'
-
-export function getApiRevision(features?: Features): string {
-  return features && features[FLAGON_NAME] ? KLAVIYO_CANARY_API_REVISION : KLAVIYO_API_REVISION
-}
 import { Settings } from './generated-types'
 import {
   KlaviyoAPIError,
@@ -45,6 +39,12 @@ import dayjs from '../../lib/dayjs'
 import { Payload as AddProfileToListPayload } from './addProfileToList/generated-types'
 import { eventBulkCreateRegex } from './properties'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
+
+export const FLAGON_NAME = 'klaviyo-canary-version'
+
+export function getApiRevision(features?: Features): string {
+  return features && features[FLAGON_NAME] ? KLAVIYO_CANARY_API_REVISION : KLAVIYO_API_REVISION
+}
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
