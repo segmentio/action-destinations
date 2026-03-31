@@ -6,6 +6,8 @@ dist
 .eslintcache
 package-lock.json
 .env
+# API upgrade validation reports — generated files, force-add to upgrade PRs only
+**/__validation__/validation-report.md
 # JetBrains byproduct
 .idea
 coverage

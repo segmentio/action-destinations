@@ -317,7 +317,7 @@ import { DESTINATION_API_VERSION, DESTINATION_CANARY_API_VERSION } from './versi
 
 export const API_VERSION = DESTINATION_API_VERSION
 export const CANARY_API_VERSION = DESTINATION_CANARY_API_VERSION
-export const FLAGON_NAME = '{destination-slug}-canary-api-version'
+export const FLAGON_NAME = '{destination-slug}-canary-version'
 
 export function getApiVersion(features?: Features): string {
   return features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
@@ -412,13 +412,18 @@ export const API_VERSION = DESTINATION_API_VERSION
 
 **Step 4**: Add feature flag helper to `utils.ts` or `functions.ts`:
 
+> ⚠️ **Import order**: All `import` statements must come first. Add `FLAGON_NAME` and `getApiVersion` exports AFTER the last import — never between imports. Violating this triggers the `import/first` lint rule and will fail CI.
+
 ```typescript
+// All imports first
 import { Features } from '@segment/actions-core'
 import { DESTINATION_API_VERSION, DESTINATION_CANARY_API_VERSION } from './versioning-info'
+// ... all other imports ...
 
+// Exports after all imports
 export const API_VERSION = DESTINATION_API_VERSION
 export const CANARY_API_VERSION = DESTINATION_CANARY_API_VERSION
-export const FLAGON_NAME = '{destination-slug}-canary-api-version'
+export const FLAGON_NAME = '{destination-slug}-canary-version'
 
 export function getApiVersion(features?: Features): string {
   return features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
@@ -496,7 +501,8 @@ async performBatch(request, { payload, settings, features }) {
 
 ```markdown
 - [ ] versioning-info.ts file EXISTS with both DESTINATION_API_VERSION and DESTINATION_CANARY_API_VERSION
-- [ ] FLAGON_NAME constant defined with format '{destination-slug}-canary-api-version'
+- [ ] FLAGON_NAME constant defined with format '{destination-slug}-canary-version'
+- [ ] FLAGON_NAME and getApiVersion are placed AFTER all import statements (import/first lint rule)
 - [ ] getApiVersion(features) helper function implemented in utils.ts or functions.ts
 - [ ] All API calls use getApiVersion(features) instead of hardcoded version
 - [ ] extendRequest passes features parameter if version is used there
@@ -629,6 +635,51 @@ If tests fail due to breaking changes:
 5. **Re-run tests**
 
 Repeat until all tests pass.
+
+## Step 5.5: Run API Validation Against Real Endpoints
+
+This step makes real HTTP calls to both the stable and canary revisions and structurally diffs the responses. It catches breaking changes that mocked unit tests cannot detect.
+
+### Prerequisites
+
+- `KLAVIYO_TEST_API_KEY` (or equivalent) set in env — use a test account, never production
+- A pre-existing test list ID for the destination
+
+### Run the validation script
+
+```bash
+KLAVIYO_TEST_API_KEY=xxx \
+KLAVIYO_TEST_LIST_ID=your-list-id \
+npx ts-node packages/destination-actions/src/destinations/{destination}/__validation__/validate.ts
+```
+
+When chamber is available:
+
+```bash
+chamber exec {destination}-test -- npx ts-node .../validate.ts
+```
+
+### What it does
+
+- Fires each fixture against **both** revisions sequentially (stable first, then canary)
+- Each write fixture uses revision-scoped identifiers (`revisionEmail(revision)`) so calls never conflict
+- Normalizes non-deterministic fields (IDs, timestamps) before diffing
+- Writes `__validation__/validation-report.md` — **commit this to the PR**
+- Exits non-zero if any structural differences are found
+
+### Expected outcome
+
+```
+✅ All N endpoints are structurally identical across both revisions. Safe to promote canary.
+```
+
+If differences are found, review `validation-report.md` for the specific fields that changed and update the implementation accordingly before proceeding.
+
+### Notes
+
+- `validation-report.md` is gitignored by default but should be **force-added** to the upgrade PR as evidence
+- Delete it during the cleanup phase (Step 8) when the canary is promoted to stable
+- The script uses a `RUN_ID` timestamp so repeated runs never collide on the same test profiles/events
 
 ## Step 6: Commit Changes
 
