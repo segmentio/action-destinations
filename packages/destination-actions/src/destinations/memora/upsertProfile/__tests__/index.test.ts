@@ -64,7 +64,7 @@ describe('Memora.upsertProfile', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(202)
 
-      // Validate the bulk upsert request body
+      // Validate the bulk upsert request body.
       expect(capturedBody.profiles).toHaveLength(1)
       const profile = (capturedBody.profiles as any[])[0]
       expect(profile.traits.Contact).toBeDefined()
