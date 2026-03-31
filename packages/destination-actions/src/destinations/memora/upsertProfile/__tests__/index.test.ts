@@ -1,11 +1,10 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import type { RequestClient, ExecuteInput, Logger } from '@segment/actions-core'
+import type { RequestClient, Logger } from '@segment/actions-core'
 import Destination from '../../index'
 import { API_VERSION } from '../../versioning-info'
 import { BASE_URL } from '../../constants'
 import type { Payload } from '../generated-types'
-import type { Settings } from '../../generated-types'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -141,7 +140,7 @@ describe('Memora.upsertProfile', () => {
         profile_traits: { 'Contact.$.firstName': 'Test' }
       }
 
-      const executeInput: ExecuteInput<Settings, Payload> = {
+      const executeInput = {
         payload,
         settings: defaultSettings
       }
@@ -163,7 +162,7 @@ describe('Memora.upsertProfile', () => {
         profile_traits: {}
       }
 
-      const executeInput: ExecuteInput<Settings, Payload> = {
+      const executeInput = {
         payload,
         settings: defaultSettings
       }
@@ -190,7 +189,7 @@ describe('Memora.upsertProfile', () => {
         }
       }
 
-      const executeInput: ExecuteInput<Settings, Payload> = {
+      const executeInput = {
         payload,
         settings: defaultSettings
       }
@@ -631,7 +630,7 @@ describe('Memora.upsertProfile', () => {
         }
       }
 
-      const executeInput: ExecuteInput<Settings, Payload> = {
+      const executeInput = {
         payload,
         settings: defaultSettings
       }
@@ -661,7 +660,7 @@ describe('Memora.upsertProfile', () => {
         profile_traits: { 'Contact.$.firstName': 'Test' }
       }
 
-      const executeInput: ExecuteInput<Settings, Payload> = {
+      const executeInput = {
         payload,
         settings: defaultSettings
       }
@@ -690,7 +689,7 @@ describe('Memora.upsertProfile', () => {
         profile_traits: { 'Contact.$.firstName': 'John' }
       }
 
-      const executeInput: ExecuteInput<Settings, Payload> = {
+      const executeInput = {
         payload,
         settings: defaultSettings
       }
@@ -772,7 +771,7 @@ describe('Memora.upsertProfile', () => {
         throw new Error('performBatch is not defined')
       }
 
-      const executeInput: ExecuteInput<Settings, Payload[]> = {
+      const executeInput = {
         payload: [],
         settings: defaultSettings
       }
@@ -856,7 +855,7 @@ describe('Memora.upsertProfile', () => {
         }
       ]
 
-      const executeInput: ExecuteInput<Settings, Payload[]> = {
+      const executeInput = {
         payload: payloads,
         settings: defaultSettings
       }
@@ -930,7 +929,7 @@ describe('Memora.upsertProfile', () => {
         }
       ]
 
-      const executeInput: ExecuteInput<Settings, Payload[]> = {
+      const executeInput = {
         payload: payloads,
         settings: defaultSettings,
         logger: mockLogger
@@ -982,7 +981,7 @@ describe('Memora.upsertProfile', () => {
         }
       ]
 
-      const executeInput: ExecuteInput<Settings, Payload[]> = {
+      const executeInput = {
         payload: payloads,
         settings: defaultSettings
       }
@@ -1136,7 +1135,7 @@ describe('Memora.upsertProfile', () => {
         }
       ]
 
-      const executeInput: ExecuteInput<Settings, Payload[]> = {
+      const executeInput = {
         payload: payloads,
         settings: defaultSettings
       }
