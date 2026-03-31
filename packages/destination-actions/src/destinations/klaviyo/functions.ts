@@ -8,9 +8,17 @@ import {
   HTTPError,
   MultiStatusResponse,
   ErrorCodes,
-  StatsContext
+  StatsContext,
+  Features
 } from '@segment/actions-core'
-import { API_URL, REVISION_DATE } from './config'
+import { API_URL } from './config'
+import { KLAVIYO_API_REVISION, KLAVIYO_CANARY_API_REVISION } from './versioning-info'
+
+export const FLAGON_NAME = 'klaviyo-canary-api-revision'
+
+export function getApiRevision(features?: Features): string {
+  return features && features[FLAGON_NAME] ? KLAVIYO_CANARY_API_REVISION : KLAVIYO_API_REVISION
+}
 import { Settings } from './generated-types'
 import {
   KlaviyoAPIError,
@@ -127,11 +135,11 @@ export async function createProfile(
   }
 }
 
-export function buildHeaders(authKey: string) {
+export function buildHeaders(authKey: string, features?: Features) {
   return {
     Authorization: `Klaviyo-API-Key ${authKey}`,
     Accept: 'application/json',
-    revision: REVISION_DATE,
+    revision: getApiRevision(features),
     'Content-Type': 'application/json'
   }
 }

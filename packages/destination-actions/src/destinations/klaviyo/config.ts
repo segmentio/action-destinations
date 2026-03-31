@@ -1,5 +1,7 @@
+import { KLAVIYO_API_REVISION } from './versioning-info'
+
 export const API_URL = 'https://a.klaviyo.com/api'
-export const REVISION_DATE = '2025-01-15'
+export const REVISION_DATE = KLAVIYO_API_REVISION
 export const COUNTRY_CODES = [
   { label: 'AD - Andorra', value: 'AD' },
   { label: 'AE - United Arab Emirates', value: 'AE' },
