@@ -32,11 +32,18 @@ export const validateInput = (
 
   // Resolve local_tz_offset property, we can get local_tz_offset from the input context.timezone
   if (input?.timezone) {
-    const offset = new Date()
-      .toLocaleString('en-US', { timeZone: input.timezone, timeZoneName: 'short' })
-      .split(' ')[3]
-      .slice(3)
-    properties.local_tz_offset = parseInt(offset) * 60
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: input.timezone,
+      timeZoneName: 'shortOffset' as Intl.DateTimeFormatOptions['timeZoneName']
+    }).formatToParts(new Date())
+    const tz = parts.find((p) => p.type === 'timeZoneName')?.value
+    const m = tz?.match(/GMT([+-])(\d{1,2})(?::?(\d{2}))?/)
+    if (m) {
+      const sign = m[1] === '-' ? -1 : 1
+      const hours = Number(m[2])
+      const mins = m[3] ? Number(m[3]) : 0
+      properties.local_tz_offset = sign * (hours * 60 + mins)
+    }
     delete properties.timezone
   }
 
@@ -60,7 +67,7 @@ export const validateInput = (
     } else if (input?.first_name || input?.last_name) {
       properties.traits = {
         email: input?.email,
-        name: `${input?.first_name} ${input?.last_name}}`,
+        name: `${input?.first_name} ${input?.last_name}`,
         created_at: input?.created_at,
         ...properties.traits
       }

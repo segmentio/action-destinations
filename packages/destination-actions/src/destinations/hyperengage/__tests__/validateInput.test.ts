@@ -28,6 +28,22 @@ const fakeIdentifyData = {
   account_id: 'testAccount'
 }
 
+const fakeIdentifyFirstLastData = {
+  event_id: 'test-message-cz380xxe9kn',
+  page_title: 'Title',
+  event_name: 'test',
+  event_type: 'identify',
+  first_name: 'testFirst',
+  last_name: 'testLast',
+  email: 'testEmail',
+  traits: {
+    required: 'false'
+  },
+  timestamp: '2023-09-11T08:06:11.192Z',
+  user_id: 'test',
+  account_id: 'testAccount'
+}
+
 const fakeGroupData = {
   event_id: 'test-message-cz380xxe9kn',
   page_title: 'Title',
@@ -69,6 +85,12 @@ describe('validateInput', () => {
       expect(payload.traits.email).toEqual(fakeIdentifyData.email)
       expect(payload.traits.name).toEqual(fakeIdentifyData.name)
       expect(payload.traits).toHaveProperty('required')
+    })
+
+    it('should combine first_name and last_name without trailing brace', async () => {
+      const payload = validateInput(settings, fakeIdentifyFirstLastData, 'user_identify')
+      expect(payload.traits.name).toEqual(`${fakeIdentifyFirstLastData.first_name} ${fakeIdentifyFirstLastData.last_name}`)
+      expect(payload.traits.name).not.toContain('}')
     })
   })
 
