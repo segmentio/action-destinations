@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * The ARN of the IAM Role to assume for sending data to Kinesis.
+   * The ARN of the IAM role to assume for Kinesis access. Format: arn:aws:iam::<account-id>:role/<role-name>. Must have kinesis:PutRecord and kinesis:PutRecords permissions.
    */
   iamRoleArn: string
   /**
-   * The external ID to use when assuming the IAM Role. Generate a secure string and treat it like a password.  This is often used as an additional security measure.
+   * The external ID for cross-account role assumption. Used as a shared secret between Segment and the customer's IAM trust policy.
    */
   iamExternalId: string
 }

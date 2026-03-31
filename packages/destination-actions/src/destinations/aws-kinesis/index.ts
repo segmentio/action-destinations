@@ -1,44 +1,44 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
+import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 import { assumeRole } from '../../lib/AWS/sts'
-import { validateIamRoleArnFormat } from './utils'
 import { APP_AWS_REGION } from '../../lib/AWS/utils'
-
 import send from './send'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Aws Kinesis',
+  name: 'AWS Kinesis',
   slug: 'actions-aws-kinesis',
   mode: 'cloud',
-
+  description:
+    'Amazon Kinesis Data Streams is a real-time data streaming service. This destination enables delivery of Segment events to Kinesis streams for real-time processing and analytics.',
   authentication: {
     scheme: 'custom',
     fields: {
       iamRoleArn: {
-        label: 'IAM Role ARN',
-        description: 'The ARN of the IAM Role to assume for sending data to Kinesis.',
         type: 'string',
+        label: 'IAM Role ARN',
+        description:
+          'The ARN of the IAM role to assume for Kinesis access. Format: arn:aws:iam::<account-id>:role/<role-name>. Must have kinesis:PutRecord and kinesis:PutRecords permissions.',
         required: true
       },
       iamExternalId: {
-        label: 'IAM External ID',
-        description:
-          'The external ID to use when assuming the IAM Role. Generate a secure string and treat it like a password.  This is often used as an additional security measure.',
         type: 'password',
+        label: 'External ID',
+        description:
+          "The external ID for cross-account role assumption. Used as a shared secret between Segment and the customer's IAM trust policy.",
         required: true
       }
     },
     testAuthentication: async (_, { settings }) => {
-      const { iamRoleArn, iamExternalId } = settings
-      if (!validateIamRoleArnFormat(iamRoleArn)) {
-        throw new IntegrationError('The provided IAM Role ARN format is not valid', 'INVALID_IAM_ROLE_ARN_FORMAT', 400)
-      }
-
-      await assumeRole(iamRoleArn, iamExternalId, APP_AWS_REGION)
+      await assumeRole(settings.iamRoleArn, settings.iamExternalId, APP_AWS_REGION)
+      return true
     }
   },
-
+  extendRequest() {
+    return {
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
+    }
+  },
   actions: {
     send
   }

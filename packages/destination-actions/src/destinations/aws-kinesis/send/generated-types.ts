@@ -2,41 +2,41 @@
 
 export interface Payload {
   /**
-   * The data to send to AWS Kinesis
+   * The event data to send as the Kinesis record payload. Maps the entire Segment event by default.
    */
   payload: {
     [k: string]: unknown
   }
   /**
-   * The partition key to use for the record
-   */
-  partitionKey: string
-  /**
-   * The name of the Kinesis stream to send records to
+   * The name of the Kinesis stream to put the data record into.
    */
   streamName: string
   /**
-   * The AWS region where the Kinesis stream is located
+   * Determines which shard in the stream the data record is assigned to. Defaults to messageId for even distribution. Use userId or anonymousId for user-level ordering.
+   */
+  partitionKey: string
+  /**
+   * The AWS region where the Kinesis stream is located.
    */
   awsRegion: string
   /**
-   * The maximum number of payloads to include in a batch.
+   * Enable batching of records using PutRecords API.
+   */
+  enable_batching: boolean
+  /**
+   * Maximum number of records to include in each PutRecords request. Kinesis API limit is 500.
    */
   batch_size?: number
   /**
-   * The keys to use for batching the events.
+   * Fields used to group events into separate batches. Events with different values for these fields will be sent in different batches.
    */
   batch_keys?: string[]
   /**
-   * The maximum number of payloads to include in a batch.
+   * Framework-level cap on how many events can be in a single batch. Must not exceed 500 (Kinesis PutRecords limit).
    */
   max_batch_size: number
   /**
-   * If true, Segment will batch events before sending to Kinesis
-   */
-  enable_batching?: boolean
-  /**
-   * The number of bytes to write to the kinesis shard in a single batch. Limit is 1MB.
+   * Maximum total bytes per batch. Kinesis limits each PutRecords call to 1MB.
    */
   batch_bytes: number
 }
