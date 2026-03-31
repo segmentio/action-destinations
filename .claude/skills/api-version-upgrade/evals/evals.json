@@ -1,0 +1,29 @@
+{
+  "skill_name": "api-version-upgrade",
+  "evals": [
+    {
+      "id": 1,
+      "name": "klaviyo-simple-to-canary-migration",
+      "prompt": "Upgrade Klaviyo destination from version 2025-01-15 to 2026-01-15. The destination currently uses a simple REVISION_DATE constant in config.ts without feature flags. Please migrate it to use the canary pattern with feature flags, analyze breaking changes from the Klaviyo API changelog (https://developers.klaviyo.com/en/docs/changelog), run all tests, and create a PR. The Klaviyo API uses the revision date as an HTTP header.",
+      "expected_output": "Complete upgrade with:\n- versioning-info.ts created with both versions\n- config.ts updated to import from versioning-info\n- buildHeaders() updated to accept features parameter\n- getApiRevision() helper function created\n- extendRequest updated to pass features\n- All tests passing for both versions\n- Breaking changes analysis document\n- PR created with detailed description\n- Branch pushed to origin",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 2,
+      "name": "google-cm360-canary-update",
+      "prompt": "hey can you bump Google Campaign Manager 360 from v4 to v5? they already have the canary pattern set up with versioning-info.ts and feature flags. just need to update the CANARY version from v5 to v6 and check for breaking changes. their changelog is at https://developers.google.com/doubleclick-advertisers/deprecation. run tests and push a pr when done",
+      "expected_output": "Complete upgrade with:\n- GOOGLE_CM360_CANARY_API_VERSION updated to 'v6'\n- GOOGLE_CM360_API_VERSION remains 'v4' (stable)\n- Breaking changes fetched from Google docs\n- Comprehensive analysis of v4→v6 changes\n- All tests passing (stable and canary)\n- Feature flag tests verified\n- PR created with breaking changes\n- Branch created and pushed",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 3,
+      "name": "new-destination-first-version",
+      "prompt": "We're adding a new destination called 'amplitude-web' that uses API version 'v2' from https://amplitude.com/api/v2. It currently has the version hardcoded in utils.ts as a constant. Can you set up the versioning structure properly with v1 as stable and v2 as canary behind a feature flag? Also check https://amplitude.com/docs/apis/api-changelog for breaking changes between v1 and v2.",
+      "expected_output": "Complete setup with:\n- versioning-info.ts created from scratch\n- AMPLITUDE_WEB_API_VERSION = 'v1'\n- AMPLITUDE_WEB_CANARY_API_VERSION = 'v2'\n- getApiVersion() helper created\n- FLAGON_NAME defined\n- All API call sites updated to use helper\n- Tests added for both versions\n- Breaking changes analysis\n- PR with full implementation",
+      "files": [],
+      "assertions": []
+    }
+  ]
+}
