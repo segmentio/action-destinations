@@ -89,7 +89,7 @@ describe('validateInput', () => {
 
     it('should combine first_name and last_name without trailing brace', async () => {
       const payload = validateInput(settings, fakeIdentifyFirstLastData, 'user_identify')
-      expect(payload.traits.name).toEqual(`${fakeIdentifyFirstLastData.first_name} ${fakeIdentifyFirstLastData.last_name}`)
+      expect(payload.traits.name).toEqual('testFirst testLast')
       expect(payload.traits.name).not.toContain('}')
     })
   })
