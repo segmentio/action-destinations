@@ -6,7 +6,7 @@ import { PayloadValidationError } from '@segment/actions-core'
 import { formatUnsubscribeProfile, formatUnsubscribeRequestBody } from '../functions'
 import { UnsubscribeProfile } from '../types'
 import { API_URL } from '../config'
-import { country_code } from '../properties'
+import { country_code, batch_size } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Unsubscribe Profile',
@@ -60,6 +60,12 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       multiple: true,
       default: ['list_id']
+    },
+    batch_size: {
+      ...batch_size,
+      default: 100,
+      minimum: 50,
+      maximum: 100
     }
   },
   dynamicFields: {

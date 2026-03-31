@@ -233,6 +233,9 @@ register('699d9d9b1cf82fb3d614db02', './iterable-audiences')
 register('699d988eb2131bc0104e1b52', './attribution')
 register('699d98d1efa22d864e451400', './klime')
 register('699d9cfc7ddca5bfc98344dc', './amplitude-cohorts')
+register('69a6caedee3c3617ae42dde8', './pendo-audiences')
+register('69a6cb5fda60c0bec5994df4', './avo-v2')
+register('69b9249b38dabe2f2f1f528a', './youappi-audiences')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

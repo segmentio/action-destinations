@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * Enable batching of requests to Memora. Batches are uploaded as CSV files.
+   * Enable batching of requests to Memora. Batches can contain up to 1000 profiles.
    */
   enable_batching?: boolean
   /**
-   * Maximum number of profiles to include in each CSV import. Actual batch sizes may be lower.
+   * Maximum number of profiles to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
   /**
@@ -14,9 +14,9 @@ export interface Payload {
    */
   memora_store: string
   /**
-   * Contact identifiers (email and/or phone). At least one identifier is required.
+   * Profile identifiers (email and/or phone). At least one identifier is required. These identifiers are stored in the Contact trait group.
    */
-  contact_identifiers: {
+  profile_identifiers: {
     /**
      * User email address
      */
@@ -27,9 +27,9 @@ export interface Payload {
     phone?: string
   }
   /**
-   * Additional contact traits for the profile. These fields are dynamically loaded from the selected Memora Store.
+   * Traits for the profile from all trait groups. At least one trait is required. These fields are dynamically loaded from the selected Memora Store. When manually entering keys, use the format "TraitGroupName.$.traitName" (e.g., "Contact.$.firstName", "PurchaseHistory.$.lastPurchaseDate").
    */
-  contact_traits?: {
+  profile_traits: {
     [k: string]: unknown
   }
 }

@@ -58,6 +58,8 @@ yarn browser jest --testPathPattern="braze"
 yarn core jest --testPathPattern="mapping-kit"
 ```
 
+> **Note:** Always run tests with `TZ=UTC` (e.g. `TZ=UTC yarn cloud test`) to ensure snapshot tests produce consistent results regardless of local timezone.
+
 ### Lint & Type Checking
 
 ```bash
@@ -179,9 +181,61 @@ To override automatic HTTP error handling, set `throwHttpErrors: false` on the r
 
 ### Batching
 
+**Important**: Batching is handled by a component within Segment BEFORE your `performBatch` method is called. You do not need to implement chunking logic in your destination code.
+
 - Implement `performBatch` for high-volume destinations
 - Use appropriate batch keys with low cardinality to avoid inefficient batching
 - Test various batch sizes and edge cases
+
+#### batch_size vs batch_bytes
+
+Both fields control how Segment's platform groups events before calling your `performBatch` method:
+
+**batch_size** (recommended for customer exposure with caution):
+
+- Controls the maximum **number of events** in a batch
+- Default: 1000 events (subject to change)
+- Use when: Destination API has limits on number of records per request
+- Customer exposure: Use judgement - expose only when necessary (e.g., RETL sources with large records)
+- Always enforce min/max validation when exposed (e.g., `minimum: 100, maximum: 10000`)
+
+**batch_bytes** (generally should NOT be exposed):
+
+- Controls the maximum **payload size in bytes** of a batch
+- Default: 4MB (subject to change)
+- Use when: Destination API has strict request body size limits
+- Customer exposure: Avoid exposing to customers - can significantly impact delivery performance
+- Keep `unsafe_hidden: true` by default
+
+**Example field definitions**:
+
+```typescript
+fields: {
+  batch_size: {
+    label: 'Batch Size',
+    description: 'Maximum number of events to include in each batch.',
+    type: 'number',
+    unsafe_hidden: false,  // Only expose if customers need control
+    default: 10000,
+    minimum: 100,
+    maximum: 10000,
+    required: false
+  },
+  batch_bytes: {
+    label: 'Batch Bytes',
+    description: 'Maximum size of a batch in bytes.',
+    type: 'number',
+    unsafe_hidden: true,  // Avoid exposing to customers
+    default: 2000000,  // 2MB
+    required: false
+  }
+}
+```
+
+**Batching behavior**:
+
+- Batch sizes are not guaranteed - may be smaller than configured limit
+- Lower event volumes = smaller actual batch sizes
 
 ### Security
 
