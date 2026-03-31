@@ -17,13 +17,13 @@ const defaultSettings = {
 
 const defaultMapping = {
   memora_store: 'test-store-id',
-  contact_identifiers: {
+  profile_identifiers: {
     email: { '@path': '$.traits.email' },
     phone: { '@path': '$.traits.phone' }
   },
-  contact_traits: {
-    firstName: { '@path': '$.traits.first_name' },
-    lastName: { '@path': '$.traits.last_name' }
+  profile_traits: {
+    'Contact.$.firstName': { '@path': '$.traits.first_name' },
+    'Contact.$.lastName': { '@path': '$.traits.last_name' }
   }
 }
 
@@ -124,7 +124,7 @@ describe('Memora.upsertProfile', () => {
           event,
           settings: defaultSettings,
           mapping: {
-            contact_identifiers: defaultMapping.contact_identifiers
+            profile_identifiers: defaultMapping.profile_identifiers
           },
           useDefaultMappings: true
         })
@@ -132,51 +132,45 @@ describe('Memora.upsertProfile', () => {
     })
 
     it('should throw error when profile has no identifiers', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'user-123',
-        properties: {}
-      })
+      const mockRequest = jest.fn() as unknown as RequestClient
+      const action = Destination.actions.upsertProfile
 
-      await expect(
-        testDestination.testAction('upsertProfile', {
-          event,
-          settings: defaultSettings,
-          mapping: {
-            memora_store: 'test-store-id',
-            contact_identifiers: {},
-            contact_traits: {
-              firstName: { '@path': '$.properties.first_name' }
-            }
-          },
-          useDefaultMappings: false
-        })
-      ).rejects.toThrow('No valid profiles found for import')
+      const payload: Payload = {
+        memora_store: 'test-store-id',
+        profile_identifiers: {},
+        profile_traits: { 'Contact.$.firstName': 'Test' }
+      }
+
+      const executeInput: ExecuteInput<Settings, Payload> = {
+        payload,
+        settings: defaultSettings
+      }
+
+      await expect(action.perform(mockRequest, executeInput)).rejects.toThrow(
+        'Profile must contain at least one identifier'
+      )
+
+      expect(mockRequest).not.toHaveBeenCalled()
     })
 
     it('should throw error when profile has no traits', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'user-123',
-        properties: {
-          email: 'test@example.com'
-        }
-      })
+      const mockRequest = jest.fn() as unknown as RequestClient
+      const action = Destination.actions.upsertProfile
 
-      await expect(
-        testDestination.testAction('upsertProfile', {
-          event,
-          settings: defaultSettings,
-          mapping: {
-            memora_store: 'test-store-id',
-            contact_identifiers: {
-              email: { '@path': '$.properties.email' }
-            },
-            contact_traits: {}
-          },
-          useDefaultMappings: false
-        })
-      ).rejects.toThrow('No valid profiles found for import')
+      const payload: Payload = {
+        memora_store: 'test-store-id',
+        profile_identifiers: { email: 'test@example.com' },
+        profile_traits: {}
+      }
+
+      const executeInput: ExecuteInput<Settings, Payload> = {
+        payload,
+        settings: defaultSettings
+      }
+
+      await expect(action.perform(mockRequest, executeInput)).rejects.toThrow('at least one trait')
+
+      expect(mockRequest).not.toHaveBeenCalled()
     })
 
     it('should succeed with only email provided', async () => {
@@ -196,11 +190,11 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             email: { '@path': '$.properties.email' }
           },
-          contact_traits: {
-            firstName: { '@path': '$.properties.first_name' }
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.properties.first_name' }
           }
         },
         useDefaultMappings: false
@@ -227,11 +221,11 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             phone: { '@path': '$.properties.phone' }
           },
-          contact_traits: {
-            firstName: { '@path': '$.properties.first_name' }
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.properties.first_name' }
           }
         },
         useDefaultMappings: false
@@ -259,12 +253,12 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             email: { '@path': '$.properties.email' },
             phone: { '@path': '$.properties.phone' }
           },
-          contact_traits: {
-            firstName: { '@path': '$.properties.first_name' }
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.properties.first_name' }
           }
         },
         useDefaultMappings: false
@@ -386,12 +380,12 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             email: { '@path': '$.properties.email' }
           },
-          contact_traits: {
-            'first,name': { '@path': '$.properties.special_field' },
-            'last"name': { '@path': '$.properties.special_field' }
+          profile_traits: {
+            'Contact.$.first,name': { '@path': '$.properties.special_field' },
+            'Contact.$.last"name': { '@path': '$.properties.special_field' }
           }
         },
         useDefaultMappings: true
@@ -403,7 +397,7 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.Contact['last"name']).toBe('value')
     })
 
-    it('should prevent contact_traits from overriding identifier values', async () => {
+    it('should prevent profile_traits from overriding identifier values', async () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-789',
@@ -423,21 +417,21 @@ describe('Memora.upsertProfile', () => {
         })
         .reply(202)
 
-      // Mapping that tries to override identifiers in contact_traits
+      // Mapping that tries to override identifiers in profile_traits
       await testDestination.testAction('upsertProfile', {
         event,
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             email: { '@path': '$.traits.email' },
             phone: { '@path': '$.traits.phone' }
           },
-          contact_traits: {
-            firstName: { '@path': '$.traits.first_name' },
-            // Attempting to override identifiers (should be ignored)
-            email: { '@literal': 'wrong@example.com' },
-            phone: { '@literal': '+1-555-9999' }
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.traits.first_name' },
+            // Attempting to override identifiers (will be overridden by profile_identifiers which are authoritative)
+            'Contact.$.email': { '@literal': 'wrong@example.com' },
+            'Contact.$.phone': { '@literal': '+1-555-9999' }
           }
         },
         useDefaultMappings: true
@@ -448,6 +442,221 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.Contact.email).toBe('correct@example.com')
       expect(profile.traits.Contact.phone).toBe('+1-555-1234')
       expect(profile.traits.Contact.firstName).toBe('John')
+    })
+
+    it('should support other trait groups with traitGroupName.$.traitName format', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-890',
+        traits: {
+          email: 'test@example.com',
+          first_name: 'Alice',
+          last_purchase: '2024-01-15',
+          favorite_category: 'Electronics'
+        }
+      })
+
+      let capturedBody: Record<string, unknown> = {}
+
+      nock(BASE_URL)
+        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
+          capturedBody = body as Record<string, unknown>
+          return true
+        })
+        .reply(202)
+
+      await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          profile_identifiers: {
+            email: { '@path': '$.traits.email' }
+          },
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.traits.first_name' },
+            'PurchaseHistory.$.lastPurchaseDate': { '@path': '$.traits.last_purchase' },
+            'PurchaseHistory.$.favoriteCategory': { '@path': '$.traits.favorite_category' }
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      const profile = (capturedBody.profiles as any[])[0]
+      // Contact traits
+      expect(profile.traits.Contact.email).toBe('test@example.com')
+      expect(profile.traits.Contact.firstName).toBe('Alice')
+      // PurchaseHistory trait group
+      expect(profile.traits.PurchaseHistory).toBeDefined()
+      expect(profile.traits.PurchaseHistory.lastPurchaseDate).toBe('2024-01-15')
+      expect(profile.traits.PurchaseHistory.favoriteCategory).toBe('Electronics')
+    })
+
+    it('should handle multiple trait groups in the same profile', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-891',
+        traits: {
+          email: 'multi@example.com',
+          first_name: 'Bob',
+          last_purchase: '2024-02-20',
+          loyalty_tier: 'Gold',
+          last_login: '2024-03-01'
+        }
+      })
+
+      let capturedBody: Record<string, unknown> = {}
+
+      nock(BASE_URL)
+        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
+          capturedBody = body as Record<string, unknown>
+          return true
+        })
+        .reply(202)
+
+      await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          profile_identifiers: {
+            email: { '@path': '$.traits.email' }
+          },
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.traits.first_name' },
+            'PurchaseHistory.$.lastPurchaseDate': { '@path': '$.traits.last_purchase' },
+            'Loyalty.$.tier': { '@path': '$.traits.loyalty_tier' },
+            'Engagement.$.lastLogin': { '@path': '$.traits.last_login' }
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      const profile = (capturedBody.profiles as any[])[0]
+      // Verify all trait groups are present
+      expect(profile.traits.Contact.email).toBe('multi@example.com')
+      expect(profile.traits.Contact.firstName).toBe('Bob')
+      expect(profile.traits.PurchaseHistory.lastPurchaseDate).toBe('2024-02-20')
+      expect(profile.traits.Loyalty.tier).toBe('Gold')
+      expect(profile.traits.Engagement.lastLogin).toBe('2024-03-01')
+    })
+
+    it('should create Contact trait group when only non-Contact traits are provided', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-892',
+        traits: {
+          email: 'nocontact@example.com',
+          phone: '+1-555-9999',
+          last_purchase: '2024-03-15',
+          favorite_category: 'Books'
+        }
+      })
+
+      let capturedBody: Record<string, unknown> = {}
+
+      nock(BASE_URL)
+        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
+          capturedBody = body as Record<string, unknown>
+          return true
+        })
+        .reply(202)
+
+      await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          profile_identifiers: {
+            email: { '@path': '$.traits.email' },
+            phone: { '@path': '$.traits.phone' }
+          },
+          profile_traits: {
+            // Only non-Contact traits - no Contact.$.* fields
+            'PurchaseHistory.$.lastPurchaseDate': { '@path': '$.traits.last_purchase' },
+            'PurchaseHistory.$.favoriteCategory': { '@path': '$.traits.favorite_category' }
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      const profile = (capturedBody.profiles as any[])[0]
+      // Verify Contact trait group was created for identifiers
+      expect(profile.traits.Contact).toBeDefined()
+      expect(profile.traits.Contact.email).toBe('nocontact@example.com')
+      expect(profile.traits.Contact.phone).toBe('+1-555-9999')
+      // Verify PurchaseHistory trait group
+      expect(profile.traits.PurchaseHistory).toBeDefined()
+      expect(profile.traits.PurchaseHistory.lastPurchaseDate).toBe('2024-03-15')
+      expect(profile.traits.PurchaseHistory.favoriteCategory).toBe('Books')
+    })
+
+    it('should throw error for invalid trait key formats in single profile', async () => {
+      const mockRequest = jest.fn() as unknown as RequestClient
+      const action = Destination.actions.upsertProfile
+
+      const payload: Payload = {
+        memora_store: 'test-store-id',
+        profile_identifiers: { email: 'invalid@example.com' },
+        profile_traits: {
+          'Contact.firstName': 'InvalidFormat1', // Missing ".$."
+          ContactlastName: 'InvalidFormat2' // Missing separators
+        }
+      }
+
+      const executeInput: ExecuteInput<Settings, Payload> = {
+        payload,
+        settings: defaultSettings
+      }
+
+      if (!action.perform) {
+        throw new Error('perform is not defined')
+      }
+
+      await expect(action.perform(mockRequest, executeInput)).rejects.toThrow('Invalid trait key format detected')
+
+      // Verify no API call was made
+      expect(mockRequest).not.toHaveBeenCalled()
+    })
+
+    it('should return raw ModifiedResponse when perform succeeds', async () => {
+      const mockRequest = jest.fn().mockResolvedValue({
+        status: 202,
+        data: { success: true },
+        headers: { 'content-type': 'application/json' },
+        content: '{"success":true}'
+      }) as unknown as RequestClient
+      const action = Destination.actions.upsertProfile
+
+      const payload: Payload = {
+        memora_store: 'test-store-id',
+        profile_identifiers: { email: 'success@example.com' },
+        profile_traits: { 'Contact.$.firstName': 'John' }
+      }
+
+      const executeInput: ExecuteInput<Settings, Payload> = {
+        payload,
+        settings: defaultSettings
+      }
+
+      if (!action.perform) {
+        throw new Error('perform is not defined')
+      }
+
+      const result = await action.perform(mockRequest, executeInput)
+
+      // Should return raw ModifiedResponse (not MultiStatusResponse)
+      expect(result).toHaveProperty('status', 202)
+      expect(result).toHaveProperty('data')
+      expect(result).toHaveProperty('headers')
+      expect(result).toHaveProperty('content')
+
+      // Should NOT have MultiStatusResponse methods
+      expect(result).not.toHaveProperty('length')
+      expect(result).not.toHaveProperty('getResponseAtIndex')
+
+      // Verify API call was made
+      expect(mockRequest).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -500,14 +709,20 @@ describe('Memora.upsertProfile', () => {
     })
 
     it('should throw error when batch is empty', async () => {
-      await expect(
-        testDestination.testBatchAction('upsertProfile', {
-          events: [],
-          settings: defaultSettings,
-          mapping: defaultMapping,
-          useDefaultMappings: true
-        })
-      ).rejects.toThrow()
+      const mockRequest = jest.fn() as unknown as RequestClient
+      const action = Destination.actions.upsertProfile
+
+      if (!action.performBatch) {
+        throw new Error('performBatch is not defined')
+      }
+
+      const executeInput: ExecuteInput<Settings, Payload[]> = {
+        payload: [],
+        settings: defaultSettings
+      }
+
+      // Call performBatch directly with empty payloads array
+      await expect(action.performBatch(mockRequest, executeInput)).rejects.toThrow('No profiles provided')
     })
 
     it('should filter out invalid profiles and process valid ones', async () => {
@@ -541,11 +756,11 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             email: { '@path': '$.properties.email' }
           },
-          contact_traits: {
-            firstName: { '@path': '$.properties.first_name' }
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.properties.first_name' }
           }
         },
         useDefaultMappings: false
@@ -571,18 +786,18 @@ describe('Memora.upsertProfile', () => {
       const payloads: Payload[] = [
         {
           memora_store: 'test-store-id',
-          contact_identifiers: {},
-          contact_traits: { firstName: 'Missing identifier' }
+          profile_identifiers: {},
+          profile_traits: { 'Contact.$.firstName': 'Missing identifier' }
         },
         {
           memora_store: 'test-store-id',
-          contact_identifiers: { email: 'valid@example.com' },
-          contact_traits: { firstName: 'Valid' }
+          profile_identifiers: { email: 'valid@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'Valid' }
         },
         {
           memora_store: 'test-store-id',
-          contact_identifiers: { email: 'another@example.com' },
-          contact_traits: {}
+          profile_identifiers: { email: 'another@example.com' },
+          profile_traits: {}
         }
       ]
 
@@ -604,7 +819,6 @@ describe('Memora.upsertProfile', () => {
       expect(result.isErrorResponseAtIndex(0)).toBe(true)
       const error0 = result.getResponseAtIndex(0).value()
       expect(error0.status).toBe(400)
-      expect(error0.body).toBe('skipped')
 
       // Index 1: valid
       expect(result.isSuccessResponseAtIndex(1)).toBe(true)
@@ -616,7 +830,6 @@ describe('Memora.upsertProfile', () => {
       expect(result.isErrorResponseAtIndex(2)).toBe(true)
       const error2 = result.getResponseAtIndex(2).value()
       expect(error2.status).toBe(400)
-      expect(error2.body).toBe('skipped')
 
       // Verify only 1 profile was sent in bulk request
       expect(mockRequestFn).toHaveBeenCalledTimes(1)
@@ -624,7 +837,7 @@ describe('Memora.upsertProfile', () => {
       expect(callArgs[1].json.profiles).toHaveLength(1)
     })
 
-    it('should throw error when all profiles in batch are invalid and log skipped count', async () => {
+    it('should return MultiStatusResponse when all profiles in batch are invalid', async () => {
       const mockLogger: Logger = {
         level: 'info',
         name: 'test-logger',
@@ -642,14 +855,24 @@ describe('Memora.upsertProfile', () => {
 
       const payloads: Payload[] = [
         {
+          // Invalid: no identifiers
           memora_store: 'test-store-id',
-          contact_identifiers: {},
-          contact_traits: { firstName: undefined }
+          profile_identifiers: {},
+          profile_traits: { 'Contact.$.firstName': undefined }
         },
         {
+          // Invalid: no traits
           memora_store: 'test-store-id',
-          contact_identifiers: { email: 'test@example.com' },
-          contact_traits: {}
+          profile_identifiers: { email: 'test@example.com' },
+          profile_traits: {}
+        },
+        {
+          // Invalid: bad trait key format
+          memora_store: 'test-store-id',
+          profile_identifiers: { email: 'another@example.com' },
+          profile_traits: {
+            'Contact.firstName': 'InvalidFormat' // Missing ".$."
+          }
         }
       ]
 
@@ -663,10 +886,69 @@ describe('Memora.upsertProfile', () => {
         throw new Error('performBatch is not defined')
       }
 
-      await expect(action.performBatch(mockRequest, executeInput)).rejects.toThrow('No valid profiles found for import')
+      const result = (await action.performBatch(mockRequest, executeInput)) as any
 
-      // Verify logger.warn was called with skipped count before error was thrown
-      expect(mockLogger.warn).toHaveBeenCalledWith('Skipped 2 invalid profile(s). Processing 0 valid profile(s).')
+      // Verify MultiStatusResponse structure - all profiles should have error status
+      expect(result.length()).toBe(3)
+      expect(result.isErrorResponseAtIndex(0)).toBe(true)
+      expect(result.isErrorResponseAtIndex(1)).toBe(true)
+      expect(result.isErrorResponseAtIndex(2)).toBe(true)
+
+      // Verify error messages
+      const error0 = result.getResponseAtIndex(0).value()
+      expect(error0.status).toBe(400)
+      expect(error0.errormessage).toContain('Profile must contain at least one identifier')
+
+      const error1 = result.getResponseAtIndex(1).value()
+      expect(error1.status).toBe(400)
+      expect(error1.errormessage).toContain('at least one trait')
+
+      const error2 = result.getResponseAtIndex(2).value()
+      expect(error2.status).toBe(400)
+      expect(error2.errormessage).toContain('Invalid trait key format detected')
+      expect(error2.errormessage).toContain('Contact.firstName')
+
+      // Verify logger.warn was called
+      expect(mockLogger.warn).toHaveBeenCalledWith('Skipped 3 invalid profile(s). Processing 0 valid profile(s).')
+      expect(mockLogger.warn).toHaveBeenCalledWith('No valid profiles to import. All profiles failed validation.')
+
+      // Verify no API call was made
+      expect(mockRequest).not.toHaveBeenCalled()
+    })
+
+    it('should return MultiStatusResponse when performBatch called with single invalid payload', async () => {
+      const mockRequest = jest.fn() as unknown as RequestClient
+      const action = Destination.actions.upsertProfile
+
+      // Single invalid payload in a batch
+      const payloads: Payload[] = [
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: {},
+          profile_traits: {}
+        }
+      ]
+
+      const executeInput: ExecuteInput<Settings, Payload[]> = {
+        payload: payloads,
+        settings: defaultSettings
+      }
+
+      if (!action.performBatch) {
+        throw new Error('performBatch is not defined')
+      }
+
+      const result = (await action.performBatch(mockRequest, executeInput)) as any
+
+      // Should return MultiStatusResponse (not throw), even with single payload
+      expect(result.length()).toBe(1)
+      expect(result.isErrorResponseAtIndex(0)).toBe(true)
+      const error = result.getResponseAtIndex(0).value()
+      expect(error.status).toBe(400)
+      expect(error.errormessage).toContain('Profile must contain at least one identifier')
+
+      // Verify no API call was made
+      expect(mockRequest).not.toHaveBeenCalled()
     })
 
     it('should handle batch with sparse data correctly', async () => {
@@ -712,12 +994,12 @@ describe('Memora.upsertProfile', () => {
         settings: defaultSettings,
         mapping: {
           memora_store: 'test-store-id',
-          contact_identifiers: {
+          profile_identifiers: {
             email: { '@path': '$.properties.email' },
             phone: { '@path': '$.properties.phone' }
           },
-          contact_traits: {
-            firstName: { '@path': '$.properties.first_name' }
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.properties.first_name' }
           }
         },
         useDefaultMappings: false
@@ -766,6 +1048,73 @@ describe('Memora.upsertProfile', () => {
           useDefaultMappings: true
         })
       ).rejects.toThrow()
+    })
+
+    it('should handle invalid trait key formats in batch using MultiStatusResponse', async () => {
+      const mockRequestFn = jest.fn().mockResolvedValue({
+        status: 202,
+        data: {}
+      })
+      const mockRequest = mockRequestFn as unknown as RequestClient
+
+      const action = Destination.actions.upsertProfile
+
+      const payloads: Payload[] = [
+        {
+          // Valid profile
+          memora_store: 'test-store-id',
+          profile_identifiers: { email: 'valid@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'Valid' }
+        },
+        {
+          // Invalid profile - bad trait key format
+          memora_store: 'test-store-id',
+          profile_identifiers: { email: 'invalid@example.com' },
+          profile_traits: {
+            'Contact.firstName': 'Missing$', // Invalid: missing ".$."
+            badKey: 'value' // Invalid: wrong format
+          }
+        },
+        {
+          // Valid profile
+          memora_store: 'test-store-id',
+          profile_identifiers: { phone: '+1-555-1234' },
+          profile_traits: { 'PurchaseHistory.$.lastPurchase': '2024-01-01' }
+        }
+      ]
+
+      const executeInput: ExecuteInput<Settings, Payload[]> = {
+        payload: payloads,
+        settings: defaultSettings
+      }
+
+      if (!action.performBatch) {
+        throw new Error('performBatch is not defined')
+      }
+
+      const result = (await action.performBatch(mockRequest, executeInput)) as any
+
+      // Verify MultiStatusResponse structure
+      expect(result.length()).toBe(3)
+
+      // Index 0: valid profile - should succeed
+      expect(result.isSuccessResponseAtIndex(0)).toBe(true)
+
+      // Index 1: invalid profile - should fail with validation error
+      expect(result.isErrorResponseAtIndex(1)).toBe(true)
+      const error1 = result.getResponseAtIndex(1).value()
+      expect(error1.status).toBe(400)
+      expect(error1.errormessage).toContain('Invalid trait key format detected')
+      expect(error1.errormessage).toContain('Contact.firstName')
+      expect(error1.errormessage).toContain('badKey')
+
+      // Index 2: valid profile - should succeed
+      expect(result.isSuccessResponseAtIndex(2)).toBe(true)
+
+      // Verify only valid profiles were sent to API
+      expect(mockRequestFn).toHaveBeenCalledTimes(1)
+      const requestBody = mockRequestFn.mock.calls[0][1].json
+      expect(requestBody.profiles).toHaveLength(2) // Only 2 valid profiles
     })
   })
 
@@ -932,69 +1281,112 @@ describe('Memora.upsertProfile', () => {
       })
     })
 
-    describe('contact_traits (dynamic contact traits)', () => {
-      it('should fetch and return contact traits from Control Plane', async () => {
+    describe('profile_traits (dynamic traits from all trait groups)', () => {
+      it('should fetch and return traits from all trait groups', async () => {
+        // Mock listing trait groups (includes traits in response)
         nock(BASE_URL)
-          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/Contact?includeTraits=true&pageSize=100`)
+          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100&includeTraits=true`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
           .reply(200, {
-            traitGroup: {
-              description: '',
-              displayName: 'Contact',
-              traits: {
-                email: {
-                  dataType: 'STRING',
-                  description: '',
-                  displayName: 'email',
-                  idTypePromotion: 'email',
-                  validationRule: null
+            traitGroups: [
+              {
+                displayName: 'Contact',
+                description: '',
+                traits: {
+                  email: {
+                    dataType: 'STRING',
+                    description: '',
+                    displayName: 'email',
+                    idTypePromotion: 'email',
+                    validationRule: null
+                  },
+                  phone: {
+                    dataType: 'STRING',
+                    description: '',
+                    displayName: 'phone',
+                    idTypePromotion: 'phone',
+                    validationRule: null
+                  },
+                  firstName: {
+                    dataType: 'STRING',
+                    description: '',
+                    displayName: 'firstName',
+                    idTypePromotion: null,
+                    validationRule: null
+                  },
+                  lastName: {
+                    dataType: 'STRING',
+                    description: '',
+                    displayName: 'lastName',
+                    idTypePromotion: null,
+                    validationRule: null
+                  },
+                  age: {
+                    dataType: 'NUMBER',
+                    description: 'User age',
+                    displayName: 'age',
+                    idTypePromotion: null,
+                    validationRule: null
+                  }
                 },
-                phone: {
-                  dataType: 'STRING',
-                  description: '',
-                  displayName: 'phone',
-                  idTypePromotion: 'phone',
-                  validationRule: null
+                version: 1
+              },
+              {
+                displayName: 'PurchaseHistory',
+                description: 'Purchase history traits',
+                traits: {
+                  lastPurchaseDate: {
+                    dataType: 'STRING',
+                    description: 'Date of last purchase',
+                    displayName: 'Last Purchase Date',
+                    idTypePromotion: null,
+                    validationRule: null
+                  },
+                  totalSpent: {
+                    dataType: 'NUMBER',
+                    description: 'Total amount spent',
+                    displayName: 'Total Spent',
+                    idTypePromotion: null,
+                    validationRule: null
+                  },
+                  favoriteCategory: {
+                    dataType: 'STRING',
+                    description: 'Favorite product category',
+                    displayName: 'Favorite Category',
+                    idTypePromotion: null,
+                    validationRule: null
+                  }
                 },
-                firstName: {
-                  dataType: 'STRING',
-                  description: '',
-                  displayName: 'firstName',
-                  idTypePromotion: null,
-                  validationRule: null
-                },
-                lastName: {
-                  dataType: 'STRING',
-                  description: '',
-                  displayName: 'lastName',
-                  idTypePromotion: null,
-                  validationRule: null
-                },
-                age: {
-                  dataType: 'NUMBER',
-                  description: 'User age',
-                  displayName: 'age',
-                  idTypePromotion: null,
-                  validationRule: null
-                }
+                version: 1
               }
-            }
+            ]
           })
 
-        const result = (await testDestination.testDynamicField('upsertProfile', 'contact_traits.__keys__', {
+        const result = (await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
           settings: defaultSettings,
           payload: { memora_store: 'test-store-id' }
         })) as any
 
-        // Should exclude email and phone (identifiers) and age (non-String type)
+        // Should exclude email and phone (identifiers) and non-STRING traits
+        // All trait groups use traitGroupName.$.traitName format
         expect(result?.choices).toEqual([
-          { label: 'firstName', value: 'firstName', description: 'firstName (STRING)' },
-          { label: 'lastName', value: 'lastName', description: 'lastName (STRING)' }
+          { label: 'Contact.firstName', value: 'Contact.$.firstName', description: 'Contact - firstName (STRING)' },
+          { label: 'Contact.lastName', value: 'Contact.$.lastName', description: 'Contact - lastName (STRING)' },
+          {
+            label: 'PurchaseHistory.Last Purchase Date',
+            value: 'PurchaseHistory.$.lastPurchaseDate',
+            description: 'Date of last purchase'
+          },
+          {
+            label: 'PurchaseHistory.Favorite Category',
+            value: 'PurchaseHistory.$.favoriteCategory',
+            description: 'Favorite product category'
+          }
         ])
       })
 
       it('should return error when memora_store is not selected', async () => {
-        const result = (await testDestination.testDynamicField('upsertProfile', 'contact_traits.__keys__', {
+        const result = (await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
           settings: defaultSettings,
           payload: {}
         })) as any
@@ -1006,17 +1398,17 @@ describe('Memora.upsertProfile', () => {
 
       it('should return error message when API call fails', async () => {
         nock(BASE_URL)
-          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups/Contact?includeTraits=true&pageSize=100`)
+          .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100&includeTraits=true`)
           .reply(500, { message: 'Internal server error' })
 
-        const result = (await testDestination.testDynamicField('upsertProfile', 'contact_traits.__keys__', {
+        const result = (await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
           settings: defaultSettings,
           payload: { memora_store: 'test-store-id' }
         })) as any
 
         expect(result?.choices).toEqual([])
         expect(result?.error).toBeDefined()
-        expect(result?.error?.message).toContain('Unable to fetch contact traits')
+        expect(result?.error?.message).toContain('Unable to fetch traits')
         expect(result?.error?.code).toBe('FETCH_ERROR')
       })
     })

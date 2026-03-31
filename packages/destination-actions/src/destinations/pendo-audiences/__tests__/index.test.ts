@@ -1,12 +1,13 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
-import { CONSTANTS } from '../constants'
+import { REGIONS, SEGMENT_ENDPOINT } from '../constants'
 
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
-  integrationKey: 'test-integration-key'
+  integrationKey: 'test-integration-key',
+  region: REGIONS.DEFAULT.name
 }
 
 describe('Pendo Audiences - createAudience', () => {
@@ -15,8 +16,8 @@ describe('Pendo Audiences - createAudience', () => {
   })
 
   it('should create a segment and return the segmentId', async () => {
-    nock(CONSTANTS.API_BASE_URL)
-      .post(`${CONSTANTS.SEGMENT_ENDPOINT}/upload`, { name: 'My Audience', visitors: [] })
+    nock(REGIONS.DEFAULT.domain)
+      .post(`/${SEGMENT_ENDPOINT}/upload`, { name: 'My Audience', visitors: ['empty-visitor'] })
       .reply(200, { segmentId: 'seg-abc123' })
 
     const result = await testDestination.createAudience({
@@ -29,8 +30,8 @@ describe('Pendo Audiences - createAudience', () => {
   })
 
   it('should use audienceSettings.audienceName over audienceName when provided', async () => {
-    nock(CONSTANTS.API_BASE_URL)
-      .post(`${CONSTANTS.SEGMENT_ENDPOINT}/upload`, { name: 'Custom Name', visitors: [] })
+    nock(REGIONS.DEFAULT.domain)
+      .post(`/${SEGMENT_ENDPOINT}/upload`, { name: 'Custom Name', visitors: ['empty-visitor'] })
       .reply(200, { segmentId: 'seg-custom' })
 
     const result = await testDestination.createAudience({
@@ -61,8 +62,8 @@ describe('Pendo Audiences - getAudience', () => {
   it('should return the segmentId when the segment exists', async () => {
     const segmentId = 'seg-abc123'
 
-    nock(CONSTANTS.API_BASE_URL)
-      .get(`${CONSTANTS.SEGMENT_ENDPOINT}/${segmentId}`)
+    nock(REGIONS.DEFAULT.domain)
+      .get(`/${SEGMENT_ENDPOINT}/${segmentId}`)
       .reply(200, { id: segmentId, name: 'My Audience' })
 
     const result = await testDestination.getAudience({
@@ -76,8 +77,8 @@ describe('Pendo Audiences - getAudience', () => {
   it('should throw IntegrationError when segment ID in response does not match', async () => {
     const segmentId = 'seg-abc123'
 
-    nock(CONSTANTS.API_BASE_URL)
-      .get(`${CONSTANTS.SEGMENT_ENDPOINT}/${segmentId}`)
+    nock(REGIONS.DEFAULT.domain)
+      .get(`/${SEGMENT_ENDPOINT}/${segmentId}`)
       .reply(200, { id: 'seg-different', name: 'Other Audience' })
 
     await expect(
@@ -91,8 +92,8 @@ describe('Pendo Audiences - getAudience', () => {
   it('should throw when Pendo returns 404', async () => {
     const segmentId = 'seg-missing'
 
-    nock(CONSTANTS.API_BASE_URL)
-      .get(`${CONSTANTS.SEGMENT_ENDPOINT}/${segmentId}`)
+    nock(REGIONS.DEFAULT.domain)
+      .get(`/${SEGMENT_ENDPOINT}/${segmentId}`)
       .reply(404, { message: 'Not Found' })
 
     await expect(

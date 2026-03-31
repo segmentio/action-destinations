@@ -1,3 +1,7 @@
+import { REGIONS } from './constants'
+
+export type PendoDomain = typeof REGIONS[keyof typeof REGIONS]['domain']
+
 export interface CreateSegmentJSON {
   name: string
   visitors: string[]
@@ -9,9 +13,4 @@ export interface CreateSegmentResponse {
 
 export interface GetSegmentResponse {
   id?: string
-}
-
-export interface PendoErrorResponse {
-  status?: number
-  message?: string
 }

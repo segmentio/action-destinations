@@ -18,9 +18,5 @@ export interface BatchPatchResponse {
   multistatus: BatchMultistatusItem[]
 }
 
-export interface VisitorActionResponse {
-  message: string
-}
-
 export type AddMap = Map<number, string>
 export type RemoveMap = Map<number, string>

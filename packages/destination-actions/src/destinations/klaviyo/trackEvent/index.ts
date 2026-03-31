@@ -94,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     enable_batching: { ...enable_batching },
-    batch_size: { ...batch_size, default: 1000 }
+    batch_size: { ...batch_size, default: 1000, minimum: 100, maximum: 1000 }
   },
   perform: (request, { payload }) => {
     const { email, phone_number: initialPhoneNumber, external_id, anonymous_id, country_code } = payload.profile
