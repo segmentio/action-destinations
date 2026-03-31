@@ -1,5 +1,6 @@
 import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import alias from './alias'
 import event from './event'
 import identify from './identify'
 
@@ -44,6 +45,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
+    alias,
     event,
     identify
   },
@@ -52,10 +54,7 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Track',
       subscribe: 'type = "track"',
       partnerAction: 'event',
-      mapping: { 
-        ...defaultValues(event.fields),
-        type: 'track'
-      },
+      mapping: defaultValues(event.fields),
       type: 'automatic'
     },
     {
@@ -64,7 +63,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'event',
       mapping: {
         ...defaultValues(event.fields),
-        type: 'page'
+        event: '$pageview'
       },
       type: 'automatic'
     },
@@ -74,7 +73,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'event',
       mapping: {
         ...defaultValues(event.fields),
-        type: 'screen',
+        event: '$screen'
       },
       type: 'automatic'
     },
@@ -82,10 +81,14 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Identify',
       subscribe: 'type = "identify"',
       partnerAction: 'identify',
-      mapping: { 
-        ...defaultValues(identify.fields),
-        type: 'identify'
-      },
+      mapping: defaultValues(identify.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Alias',
+      subscribe: 'type = "alias"',
+      partnerAction: 'alias',
+      mapping: defaultValues(alias.fields),
       type: 'automatic'
     }
   ]

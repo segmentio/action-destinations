@@ -6,7 +6,6 @@ import { Region } from './types'
 import { defaultValues, InvalidAuthenticationError } from '@segment/actions-core'
 import { getAuthToken } from './utils'
 import trackConversion from './trackConversion'
-import { AMAZON_CONVERSIONS_API_PROFILES_VERSION } from './versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Amazon Conversions Api',
@@ -39,10 +38,9 @@ const destination: DestinationDefinition<Settings> = {
       dataSetName: {
         label: 'Dataset Name',
         description:
-          'Amazon Ads organizes uploaded data into datasets, which are logical groupings used to separate and categorize events from your sources. All events within a dataset will appear in Amazon Ads Data Manager under the name you provide here. New destination? We recommend providing a dataset name during initial setup. Existing destination? We strongly recommend reading the [FAQ](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-amazon-conversions-api#what-is-a-dataset-and-how-does-amazon-use-the-dataset-name) before updating your dataset name, as changes may impact your existing events.',
+          'Amazon Ads organizes uploaded data into datasets, which are logical groupings used to separate and categorize events from your sources. The default dataset name (if not provided) is Default_Events. All events within a dataset will appear in Amazon Ads Data Manager under the name you provide here. New destination? We recommend providing a dataset name during initial setup. Existing destination? We strongly recommend reading the [FAQ](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-amazon-conversions-api#what-is-a-dataset-and-how-does-amazon-use-the-dataset-name) before updating your dataset name, as changes may impact your existing events.',
         type: 'string',
-        required: false,
-        placeholder: 'Default_Events'
+        required: false
       }
     },
     testAuthentication: async (request, { auth, settings }) => {
@@ -62,17 +60,14 @@ const destination: DestinationDefinition<Settings> = {
         throw new InvalidAuthenticationError('Advertising ID must be numeric')
       }
 
-      return await request<RefreshTokenResponse>(
-        `${settings.region}/${AMAZON_CONVERSIONS_API_PROFILES_VERSION}/profiles`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
-          },
-          timeout: 2500
-        }
-      )
+      return await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
+        },
+        timeout: 2500
+      })
     },
     refreshAccessToken: async (request, { auth }) => {
       const authToken = await getAuthToken(request, auth)
