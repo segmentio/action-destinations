@@ -1,4 +1,11 @@
-import { resolveIdentifiers, isIsoDate } from '../utils'
+import { MultiStatusResponse } from '@segment/actions-core'
+import {
+  isIsoDate,
+  parseTrackApiErrors,
+  parseTrackApiMultiStatusResponse,
+  resolveIdentifiers,
+  sendBatch
+} from '../utils'
 
 describe('isIsoDate', () => {
   it('should return true for valid ISO date with fractional seconds from 1-9 digits', () => {
@@ -77,5 +84,142 @@ describe('resolveIdentifiers', () => {
 
   it('should return undefined if no identifiers are provided', () => {
     expect(resolveIdentifiers({})).toBeUndefined()
+  })
+})
+
+describe('sendBatch', () => {
+  it('should parse 207 multi-status Track API responses', async () => {
+    const request = jest.fn().mockResolvedValue({
+      status: 207,
+      data: {
+        errors: [
+          {
+            batch_index: 1,
+            reason: 'invalid',
+            message: 'Attribute value too long'
+          }
+        ]
+      }
+    })
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      },
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-2', name: 'Second' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect((response as MultiStatusResponse).length()).toBe(2)
+    expect((response as MultiStatusResponse).getResponseAtIndex(0).value()).toEqual({
+      status: 200,
+      body: { person_id: 'user-1', name: 'First' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
+    })
+    expect((response as MultiStatusResponse).getResponseAtIndex(1).value()).toEqual({
+      status: 400,
+      errormessage: 'Attribute value too long',
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      body: { person_id: 'user-2', name: 'Second' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-2' }, name: 'Second' }
+    })
+  })
+
+  it('should parse 200 Track API responses that still contain batch errors', async () => {
+    const request = jest.fn().mockResolvedValue({
+      status: 200,
+      data: {
+        errors: [
+          {
+            batch_index: 0,
+            reason: 'required',
+            field: 'name',
+            message: 'Name is required'
+          }
+        ]
+      }
+    })
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect((response as MultiStatusResponse).getResponseAtIndex(0).value()).toEqual({
+      status: 400,
+      errormessage: 'Name is required',
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      body: { person_id: 'user-1', name: 'First' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
+    })
+  })
+})
+
+describe('parseTrackApiErrors', () => {
+  it('should fill success entries for items without errors', () => {
+    const options = [
+      { type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-0' } },
+      { type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-1' } },
+      { type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-2' } }
+    ]
+    const batch = [
+      { type: 'person', action: 'event', identifiers: { id: 'user-0' } },
+      { type: 'person', action: 'event', identifiers: { id: 'user-1' } },
+      { type: 'person', action: 'event', identifiers: { id: 'user-2' } }
+    ]
+
+    const response = parseTrackApiErrors(
+      [
+        {
+          batch_index: 1,
+          reason: 'required',
+          field: 'name',
+          message: 'Name is required'
+        }
+      ],
+      options,
+      batch
+    )
+
+    expect(response.getAllResponses().map((result) => result.value())).toEqual([
+      {
+        status: 200,
+        body: { person_id: 'user-0' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-0' } }
+      },
+      {
+        status: 400,
+        errormessage: 'Name is required',
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        body: { person_id: 'user-1' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' } }
+      },
+      {
+        status: 200,
+        body: { person_id: 'user-2' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-2' } }
+      }
+    ])
+  })
+})
+
+describe('parseTrackApiMultiStatusResponse', () => {
+  it('should return null for non-Track API response bodies', () => {
+    const options = [{ type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-0' } }]
+    const batch = [{ type: 'person', action: 'event', identifiers: { id: 'user-0' } }]
+    expect(parseTrackApiMultiStatusResponse({ ok: true }, options, batch)).toBeNull()
   })
 })
