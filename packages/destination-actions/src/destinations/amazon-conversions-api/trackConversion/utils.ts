@@ -379,7 +379,8 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     name: payload.name,
     conversionType: payload.eventType as ConversionTypeV2,
     eventSource: payload.eventActionSource.toUpperCase(),
-    eventIngestionMethod: 'SERVER_TO_SERVER'
+    eventIngestionMethod: 'SERVER_TO_SERVER', 
+    ...(settings.dataSetName ? { dataSetName: settings.dataSetName } : {})
   }
 
   const eventData: EventData = {
