@@ -1,9 +1,14 @@
 import type { DestinationDefinition } from '@segment/actions-core'
-import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
+import {
+  InvalidAuthenticationError,
+  IntegrationError,
+  ErrorCodes,
+  RefreshTokenAndRetryError
+} from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { LinkedInConversions } from './api'
 import type { LinkedInTestAuthenticationError, RefreshTokenResponse, LinkedInRefreshTokenError } from './types'
-import { LINKEDIN_API_VERSION } from './constants'
+import { LINKEDIN_API_VERSION, LINKEDIN_TOKEN_PROPAGATION_ERROR_CODES } from './constants'
 import https from 'https'
 import streamConversion from './streamConversion'
 
@@ -100,7 +105,21 @@ const destination: DestinationDefinition<Settings> = {
         'LinkedIn-Version': LINKEDIN_API_VERSION,
         'X-Restli-Protocol-Version': `2.0.0`
       },
-      agent
+      agent,
+      afterResponse: [
+        (_request: unknown, _options: unknown, response: { status: number; data: unknown }) => {
+          if (response.status === 401) {
+            const body = response.data as Record<string, unknown> | undefined
+            const serviceErrorCode = body?.serviceErrorCode as number | undefined
+            if (serviceErrorCode && LINKEDIN_TOKEN_PROPAGATION_ERROR_CODES.includes(serviceErrorCode)) {
+              throw new RefreshTokenAndRetryError(
+                `LinkedIn eventual consistency: token not yet propagated (serviceErrorCode ${serviceErrorCode})`
+              )
+            }
+          }
+          return response
+        }
+      ]
     }
   },
   actions: {

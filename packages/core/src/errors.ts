@@ -99,6 +99,22 @@ export class APIError extends IntegrationError {
 }
 
 /**
+ * Error that signals the framework to refresh the OAuth token AND then
+ * throw a RetryableError. Use this when a provider's 401 may be caused
+ * by eventual consistency (token not yet propagated) rather than true
+ * revocation. The token refresh covers the revocation case; the retry
+ * covers the propagation delay case.
+ */
+export class RefreshTokenAndRetryError extends CustomError {
+  status = 401
+  code = ErrorCodes.REFRESH_AND_RETRY
+
+  constructor(message = 'Token refresh required with retry') {
+    super(message)
+  }
+}
+
+/**
  * Error to indicate the destination has gone over its allotted execution time
  * and is self-terminating.
  * This is typically used when the destination makes calls using a stack other than the
@@ -207,6 +223,9 @@ export enum CustomErrorCodes {
   GET_AUDIENCE_FAILED = 'GET_AUDIENCE_FAILED',
   // When the RETL onMappingSave hook fails
   RETL_ON_MAPPING_SAVE_FAILED = 'RETL_ON_MAPPING_SAVE_FAILED',
+  // Refresh the OAuth token and then retry via Segment infrastructure
+  REFRESH_AND_RETRY = 'REFRESH_AND_RETRY',
+
   // Fallback error code if no other error code matches
   UNKNOWN_ERROR = 'UNKNOWN_ERROR'
 }
