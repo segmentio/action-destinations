@@ -8,7 +8,7 @@ import {
 import type { Settings } from './generated-types'
 import { LinkedInConversions } from './api'
 import type { LinkedInTestAuthenticationError, RefreshTokenResponse, LinkedInRefreshTokenError } from './types'
-import { LINKEDIN_API_VERSION, LINKEDIN_TOKEN_PROPAGATION_ERROR_CODES } from './constants'
+import { getApiVersion, LINKEDIN_TOKEN_PROPAGATION_ERROR_CODES } from './constants'
 import https from 'https'
 import streamConversion from './streamConversion'
 
@@ -93,7 +93,7 @@ const destination: DestinationDefinition<Settings> = {
       return { accessToken: res?.data?.access_token }
     }
   },
-  extendRequest({ auth }) {
+  extendRequest({ auth, features }) {
     // Repeat calls to the same LinkedIn API endpoint were failing due to a `socket hang up`.
     // This seems to fix it: https://stackoverflow.com/questions/62500011/reuse-tcp-connection-with-node-fetch-in-node-js
     // Copied from LinkedIn Audiences extendRequest, which also ran into this issue.
@@ -102,7 +102,7 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'LinkedIn-Version': LINKEDIN_API_VERSION,
+        'LinkedIn-Version': getApiVersion(features),
         'X-Restli-Protocol-Version': `2.0.0`
       },
       agent,
