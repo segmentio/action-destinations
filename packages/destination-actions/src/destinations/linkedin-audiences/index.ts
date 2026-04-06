@@ -155,7 +155,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       agent,
       afterResponse: [
-        (_request, _options, response) => {
+        (_request: unknown, _options: unknown, response: { status: number; data: unknown }) => {
           if (response.status === 401) {
             const body = response.data as Record<string, unknown> | undefined
             const serviceErrorCode = body?.serviceErrorCode as number | undefined
