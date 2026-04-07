@@ -120,9 +120,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Create Audience: missing setting "Engage space Id" ', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET = 'DNhanq/BXvWFMLHpQhkfuZP9TKrLGoyiTkLmp6JTlUu0PVxBAw'
-      process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_ID = '2ee249f4-a110-4dc0-bb52-81cd5bf8fdf4'
-
       if (!process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET) {
         throw new IntegrationError('Missing Taxonomy API client secret', 'MISSING_REQUIRED_FIELD', 400)
       }
