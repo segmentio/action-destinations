@@ -1,6 +1,6 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import type { RequestClient, Logger } from '@segment/actions-core'
+import type { RequestClient, Logger, DynamicFieldResponse } from '@segment/actions-core'
 import Destination from '../../index'
 import { API_VERSION } from '../../versioning-info'
 import { BASE_URL } from '../../constants'
@@ -617,6 +617,52 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.PurchaseHistory.favoriteCategory).toBe('Books')
     })
 
+    it('should route non-Contact identifiers to correct trait groups', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-loyalty',
+        traits: {
+          loyalty_id: 'LOYAL123',
+          member_tier: 'Gold',
+          first_name: 'Jane'
+        }
+      })
+
+      let capturedBody: Record<string, unknown> = {}
+
+      nock(BASE_URL)
+        .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
+          capturedBody = body as Record<string, unknown>
+          return true
+        })
+        .reply(202)
+
+      await testDestination.testAction('upsertProfile', {
+        event,
+        settings: defaultSettings,
+        mapping: {
+          memora_store: 'test-store-id',
+          profile_identifiers: {
+            'Loyalty.$.memberId': { '@path': '$.traits.loyalty_id' }
+          },
+          profile_traits: {
+            'Contact.$.firstName': { '@path': '$.traits.first_name' },
+            'Loyalty.$.tier': { '@path': '$.traits.member_tier' }
+          }
+        },
+        useDefaultMappings: false
+      })
+
+      const profile = (capturedBody.profiles as any[])[0]
+      // Verify non-Contact identifier is routed to Loyalty trait group
+      expect(profile.traits.Loyalty).toBeDefined()
+      expect(profile.traits.Loyalty.memberId).toBe('LOYAL123')
+      expect(profile.traits.Loyalty.tier).toBe('Gold')
+      // Verify Contact trait is also present
+      expect(profile.traits.Contact).toBeDefined()
+      expect(profile.traits.Contact.firstName).toBe('Jane')
+    })
+
     it('should throw error for invalid trait key formats in single profile', async () => {
       const mockRequest = jest.fn() as unknown as RequestClient
       const action = Destination.actions.upsertProfile
@@ -1166,6 +1212,73 @@ describe('Memora.upsertProfile', () => {
       const requestBody = mockRequestFn.mock.calls[0][1].json
       expect(requestBody.profiles).toHaveLength(2) // Only 2 valid profiles
     })
+
+    it('should handle invalid identifier key formats in batch using MultiStatusResponse', async () => {
+      const mockRequestFn = jest.fn().mockResolvedValue({
+        status: 202,
+        data: {}
+      })
+      const mockRequest = mockRequestFn as unknown as RequestClient
+
+      const action = Destination.actions.upsertProfile
+
+      const payloads: Payload[] = [
+        {
+          // Valid profile
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'valid@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'Valid' }
+        },
+        {
+          // Invalid profile - bad identifier key format (bare key without TraitGroup.$.)
+          memora_store: 'test-store-id',
+          profile_identifiers: {
+            email: 'invalid@example.com', // Invalid: missing "Contact.$."
+            'Contact.phone': '+1-555-0100' // Invalid: missing ".$."
+          },
+          profile_traits: { 'Contact.$.firstName': 'Invalid' }
+        },
+        {
+          // Valid profile
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Loyalty.$.memberId': 'LOYAL456' },
+          profile_traits: { 'Loyalty.$.tier': 'Silver' }
+        }
+      ]
+
+      const executeInput = {
+        payload: payloads,
+        settings: defaultSettings
+      }
+
+      if (!action.performBatch) {
+        throw new Error('performBatch is not defined')
+      }
+
+      const result = (await action.performBatch(mockRequest, executeInput)) as any
+
+      // Verify MultiStatusResponse structure
+      expect(result.length()).toBe(3)
+
+      // Index 0: valid profile - should succeed
+      expect(result.isSuccessResponseAtIndex(0)).toBe(true)
+
+      // Index 1: invalid profile - should fail with validation error
+      expect(result.isErrorResponseAtIndex(1)).toBe(true)
+      const error1 = result.getResponseAtIndex(1).value()
+      expect(error1.status).toBe(400)
+      expect(error1.errormessage).toContain('Invalid identifier key format detected')
+      expect(error1.errormessage).toContain('email')
+      expect(error1.errormessage).toContain('Contact.phone')
+
+      // Index 2: valid profile - should succeed
+      expect(result.isSuccessResponseAtIndex(2)).toBe(true)
+
+      // Verify only valid profiles were sent to API
+      expect(mockRequestFn).toHaveBeenCalledTimes(1)
+      const requestBody = mockRequestFn.mock.calls[0][1].json
+      expect(requestBody.profiles).toHaveLength(2) // Only 2 valid profiles
+    })
   })
 
   describe('error handling', () => {
@@ -1226,9 +1339,10 @@ describe('Memora.upsertProfile', () => {
         const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
           settings: defaultSettings,
           payload: {}
-        })) as any
+        })) as DynamicFieldResponse
 
-        expect(result?.choices).toEqual([
+        expect(result).toBeDefined()
+        expect(result.choices).toEqual([
           { label: 'Store One', value: 'store-1' },
           { label: 'Store Two', value: 'store-2' },
           { label: 'Store Three', value: 'store-3' }
@@ -1247,9 +1361,10 @@ describe('Memora.upsertProfile', () => {
         const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
           settings: defaultSettings,
           payload: {}
-        })) as any
+        })) as DynamicFieldResponse
 
-        expect(result?.choices).toEqual([{ label: 'store-no-name', value: 'store-no-name' }])
+        expect(result).toBeDefined()
+        expect(result.choices).toEqual([{ label: 'store-no-name', value: 'store-no-name' }])
       })
 
       it('should include X-Pre-Auth-Context header in store detail requests when twilioAccount is provided', async () => {
@@ -1272,9 +1387,10 @@ describe('Memora.upsertProfile', () => {
         const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
           settings: settingsWithTwilio,
           payload: {}
-        })) as any
+        })) as DynamicFieldResponse
 
-        expect(result?.choices).toEqual([{ label: 'Store One', value: 'store-1' }])
+        expect(result).toBeDefined()
+        expect(result.choices).toEqual([{ label: 'Store One', value: 'store-1' }])
       })
 
       it('should handle empty stores list', async () => {
@@ -1288,9 +1404,10 @@ describe('Memora.upsertProfile', () => {
         const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
           settings: defaultSettings,
           payload: {}
-        })) as any
+        })) as DynamicFieldResponse
 
-        expect(result?.choices).toEqual([])
+        expect(result).toBeDefined()
+        expect(result.choices).toEqual([])
       })
 
       it('should return error when a store detail request fails', async () => {
@@ -1305,12 +1422,13 @@ describe('Memora.upsertProfile', () => {
         const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
           settings: defaultSettings,
           payload: {}
-        })) as any
+        })) as DynamicFieldResponse
 
-        expect(result?.choices).toEqual([])
-        expect(result?.error).toBeDefined()
-        expect(result?.error?.message).toContain('Unable to fetch memora stores')
-        expect(result?.error?.code).toBe('FETCH_ERROR')
+        expect(result).toBeDefined()
+        expect(result.choices).toEqual([])
+        expect(result.error).toBeDefined()
+        expect(result.error!.message).toContain('Unable to fetch memora stores')
+        expect(result.error!.code).toBe('FETCH_ERROR')
       })
 
       it('should return error message when API call fails', async () => {
@@ -1321,13 +1439,14 @@ describe('Memora.upsertProfile', () => {
         const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
           settings: defaultSettings,
           payload: {}
-        })) as any
+        })) as DynamicFieldResponse
 
-        expect(result?.choices).toEqual([])
-        expect(result?.error).toBeDefined()
-        expect(result?.error?.message).toContain('Unable to fetch memora stores')
-        expect(result?.error?.message).toContain('Please check your authentication credentials.')
-        expect(result?.error?.code).toBe('FETCH_ERROR')
+        expect(result).toBeDefined()
+        expect(result.choices).toEqual([])
+        expect(result.error).toBeDefined()
+        expect(result.error!.message).toContain('Unable to fetch memora stores')
+        expect(result.error!.message).toContain('Please check your authentication credentials.')
+        expect(result.error!.code).toBe('FETCH_ERROR')
       })
     })
 
@@ -1393,10 +1512,11 @@ describe('Memora.upsertProfile', () => {
         const result = (await testDestination.testDynamicField('upsertProfile', 'profile_identifiers.__keys__', {
           settings: defaultSettings,
           payload: { memora_store: 'test-store-id' }
-        })) as any
+        })) as DynamicFieldResponse
 
+        expect(result).toBeDefined()
         // Should return only traits with idTypePromotion set
-        expect(result?.choices).toEqual([
+        expect(result.choices).toEqual([
           { label: 'Contact.email', value: 'Contact.$.email', description: 'Contact - email (email)' },
           { label: 'Contact.phone', value: 'Contact.$.phone', description: 'Contact - phone (phone)' },
           { label: 'Loyalty.Member ID', value: 'Loyalty.$.memberId', description: 'Loyalty member ID' }
@@ -1407,11 +1527,13 @@ describe('Memora.upsertProfile', () => {
         const result = (await testDestination.testDynamicField('upsertProfile', 'profile_identifiers.__keys__', {
           settings: defaultSettings,
           payload: {}
-        })) as any
+        })) as DynamicFieldResponse
 
-        expect(result?.choices).toEqual([])
-        expect(result?.error?.message).toBe('Please select a Memora Store first')
-        expect(result?.error?.code).toBe('STORE_REQUIRED')
+        expect(result).toBeDefined()
+        expect(result.choices).toEqual([])
+        expect(result.error).toBeDefined()
+        expect(result.error!.message).toBe('Please select a Memora Store first')
+        expect(result.error!.code).toBe('STORE_REQUIRED')
       })
 
       it('should return error message when API call fails', async () => {
@@ -1422,12 +1544,13 @@ describe('Memora.upsertProfile', () => {
         const result = (await testDestination.testDynamicField('upsertProfile', 'profile_identifiers.__keys__', {
           settings: defaultSettings,
           payload: { memora_store: 'test-store-id' }
-        })) as any
+        })) as DynamicFieldResponse
 
-        expect(result?.choices).toEqual([])
-        expect(result?.error).toBeDefined()
-        expect(result?.error?.message).toContain('Unable to fetch identifiers')
-        expect(result?.error?.code).toBe('FETCH_ERROR')
+        expect(result).toBeDefined()
+        expect(result.choices).toEqual([])
+        expect(result.error).toBeDefined()
+        expect(result.error!.message).toContain('Unable to fetch identifiers')
+        expect(result.error!.code).toBe('FETCH_ERROR')
       })
     })
 
@@ -1515,11 +1638,12 @@ describe('Memora.upsertProfile', () => {
         const result = (await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
           settings: defaultSettings,
           payload: { memora_store: 'test-store-id' }
-        })) as any
+        })) as DynamicFieldResponse
 
+        expect(result).toBeDefined()
         // Should exclude identifiers (traits with idTypePromotion) and non-STRING traits
         // All trait groups use traitGroupName.$.traitName format
-        expect(result?.choices).toEqual([
+        expect(result.choices).toEqual([
           { label: 'Contact.firstName', value: 'Contact.$.firstName', description: 'Contact - firstName (STRING)' },
           { label: 'Contact.lastName', value: 'Contact.$.lastName', description: 'Contact - lastName (STRING)' },
           {
@@ -1539,11 +1663,13 @@ describe('Memora.upsertProfile', () => {
         const result = (await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
           settings: defaultSettings,
           payload: {}
-        })) as any
+        })) as DynamicFieldResponse
 
-        expect(result?.choices).toEqual([])
-        expect(result?.error?.message).toBe('Please select a Memora Store first')
-        expect(result?.error?.code).toBe('STORE_REQUIRED')
+        expect(result).toBeDefined()
+        expect(result.choices).toEqual([])
+        expect(result.error).toBeDefined()
+        expect(result.error!.message).toBe('Please select a Memora Store first')
+        expect(result.error!.code).toBe('STORE_REQUIRED')
       })
 
       it('should return error message when API call fails', async () => {
@@ -1554,12 +1680,13 @@ describe('Memora.upsertProfile', () => {
         const result = (await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
           settings: defaultSettings,
           payload: { memora_store: 'test-store-id' }
-        })) as any
+        })) as DynamicFieldResponse
 
-        expect(result?.choices).toEqual([])
-        expect(result?.error).toBeDefined()
-        expect(result?.error?.message).toContain('Unable to fetch traits')
-        expect(result?.error?.code).toBe('FETCH_ERROR')
+        expect(result).toBeDefined()
+        expect(result.choices).toEqual([])
+        expect(result.error).toBeDefined()
+        expect(result.error!.message).toContain('Unable to fetch traits')
+        expect(result.error!.code).toBe('FETCH_ERROR')
       })
     })
   })
