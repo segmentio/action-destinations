@@ -64,8 +64,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           400
         )
       } else {
-        // The last 2 params are undefined because statsContext.statsClient and statsContext.tags are not available testAuthentication()
-        return await update_taxonomy('', tx_creds, request, body_form_data, undefined, undefined)
+        // The last 3 params are undefined because statsContext.statsClient, statsContext.tags, and logger are not available in testAuthentication()
+        return await update_taxonomy('', tx_creds, request, body_form_data, undefined, undefined, undefined)
       }
     },
     refreshAccessToken: async (request, { auth }) => {
@@ -140,7 +140,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         tx_client_secret: process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET
       }
 
-      await update_taxonomy(engage_space_id, tx_creds, request, body_form_data, statsClient, statsTags)
+      await update_taxonomy(engage_space_id, tx_creds, request, body_form_data, statsClient, statsTags, undefined)
 
       return { externalId: audience_id }
     },
