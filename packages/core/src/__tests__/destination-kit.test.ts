@@ -1498,20 +1498,8 @@ describe('destination kit', () => {
             refresh_token: 'refresh-token'
           }
         }
-        const eventOptions = {
-          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
-            jest.fn(() => Promise.resolve())
-          }
-        }
-
-        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
-        const onTokenRefreshSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
-
-        // handleError should refresh the token and then throw RetryableError
-        await expect(destinationTest.onEvent(testEvent, testSettings, eventOptions)).rejects.toThrow(RetryableError)
-        // The perform was called once, then handleError refreshed the token and threw RetryableError
-        expect(refreshTokenSpy).toHaveBeenCalledTimes(1)
-        expect(onTokenRefreshSpy).toHaveBeenCalledTimes(1)
+        // handleError should throw RetryableError without calling refresh (token is already fresh)
+        await expect(destinationTest.onEvent(testEvent, testSettings)).rejects.toThrow(RetryableError)
       })
     })
     describe('onBatch', () => {

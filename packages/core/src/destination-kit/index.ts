@@ -1029,10 +1029,9 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     settings: JSONObject,
     options?: OnEventOptions
   ): Promise<JSONObject> {
-    // Handle RefreshTokenAndRetryError: refresh the token, then throw RetryableError
-    // so Segment infrastructure retries later (after token propagation)
+    // Handle RefreshTokenAndRetryError: token was just refreshed but hasn't propagated yet.
+    // Just retry later — no need to refresh again.
     if (error instanceof RefreshTokenAndRetryError) {
-      await this.handleAuthError(settings, options)
       throw new RetryableError(error.message, 503)
     }
 
