@@ -54,7 +54,7 @@ jobs:
           ARGS=()
           while IFS= read -r file; do
             ARGS+=(-p "$file")
-          done < <(echo "$CHANGED_FILES" | jq -r '.[]')
+          done < <(printf '%s' "$CHANGED_FILES" | jq -r '.[]')
           REQUIRED_FIELDS_CURR_BRANCH=$(./bin/run list-required-fields "${ARGS[@]}" | jq -c .)
           echo "REQUIRED_FIELDS_CURR_BRANCH=$REQUIRED_FIELDS_CURR_BRANCH" >> $GITHUB_ENV
 
@@ -76,7 +76,7 @@ jobs:
           ARGS=()
           while IFS= read -r file; do
             ARGS+=(-p "$file")
-          done < <(echo "$CHANGED_FILES" | jq -r '.[]')
+          done < <(printf '%s' "$CHANGED_FILES" | jq -r '.[]')
           REQUIRED_FIELDS_MAIN_BRANCH=$(./bin/run list-required-fields "${ARGS[@]}" | jq -c .)
           echo "REQUIRED_FIELDS_MAIN_BRANCH=$REQUIRED_FIELDS_MAIN_BRANCH" >> $GITHUB_ENV
 
