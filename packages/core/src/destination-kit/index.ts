@@ -35,7 +35,7 @@ import {
   IntegrationError,
   InvalidAuthenticationError,
   MultiStatusErrorReporter,
-  RefreshTokenAndRetryError,
+  TokenPropagationRetryError,
   RetryableError
 } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
@@ -1029,9 +1029,9 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     settings: JSONObject,
     options?: OnEventOptions
   ): Promise<JSONObject> {
-    // Handle RefreshTokenAndRetryError: token was just refreshed but hasn't propagated yet.
+    // Handle TokenPropagationRetryError: token was just refreshed but hasn't propagated yet.
     // Just retry later — no need to refresh again.
-    if (error instanceof RefreshTokenAndRetryError) {
+    if (error instanceof TokenPropagationRetryError) {
       throw new RetryableError(error.message, 503)
     }
 

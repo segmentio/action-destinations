@@ -1,4 +1,4 @@
-import { ErrorCodes, IntegrationError, RefreshTokenAndRetryError, RetryableError } from '../errors'
+import { ErrorCodes, IntegrationError, TokenPropagationRetryError, RetryableError } from '../errors'
 import { ActionDefinition, MultiStatusResponse } from '../destination-kit/action'
 import {
   StateContext,
@@ -1453,7 +1453,7 @@ describe('destination kit', () => {
         expect(spy).toHaveBeenCalledTimes(0)
       })
 
-      test('should throw RetryableError without token refresh when RefreshTokenAndRetryError is thrown', async () => {
+      test('should throw RetryableError without token refresh when TokenPropagationRetryError is thrown', async () => {
         const destinationWithPropagationError: DestinationDefinition<JSONObject> = {
           name: 'Test Propagation Error Destination',
           mode: 'cloud',
@@ -1472,7 +1472,7 @@ describe('destination kit', () => {
                 }
               },
               perform: () => {
-                throw new RefreshTokenAndRetryError('Token not yet propagated (serviceErrorCode 65601)')
+                throw new TokenPropagationRetryError('Token not yet propagated (serviceErrorCode 65601)')
               }
             }
           }

@@ -108,11 +108,11 @@ export class APIError extends IntegrationError {
  * the token will have propagated. No additional token refresh is performed
  * since the token is already fresh.
  */
-export class RefreshTokenAndRetryError extends CustomError {
+export class TokenPropagationRetryError extends CustomError {
   status = 401
-  code = ErrorCodes.REFRESH_AND_RETRY
+  code = ErrorCodes.TOKEN_PROPAGATION_RETRY
 
-  constructor(message = 'Token refresh required with retry') {
+  constructor(message = 'Token not yet propagated, retry later') {
     super(message)
   }
 }
@@ -226,9 +226,7 @@ export enum CustomErrorCodes {
   GET_AUDIENCE_FAILED = 'GET_AUDIENCE_FAILED',
   // When the RETL onMappingSave hook fails
   RETL_ON_MAPPING_SAVE_FAILED = 'RETL_ON_MAPPING_SAVE_FAILED',
-  // Refresh the OAuth token and then retry via Segment infrastructure
-  REFRESH_AND_RETRY = 'REFRESH_AND_RETRY',
-
+  TOKEN_PROPAGATION_RETRY = 'TOKEN_PROPAGATION_RETRY',
   // Fallback error code if no other error code matches
   UNKNOWN_ERROR = 'UNKNOWN_ERROR'
 }
