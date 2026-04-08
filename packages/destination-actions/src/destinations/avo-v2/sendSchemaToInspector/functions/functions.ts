@@ -201,6 +201,20 @@ function convertWirePropToConstraints(wire: PropertyConstraintWire, eventIds: st
     result.minMaxRanges = { [key]: [...eventIds] }
   }
 
+  // Regex patterns
+  if (wire.rx) {
+    if (typeof wire.rx === 'string') {
+      // Legacy format: rx is a single regex pattern string
+      result.regexPatterns = { [wire.rx]: [...eventIds] }
+    } else if (typeof wire.rx === 'object') {
+      // New format: rx is an object mapping regex patterns to event IDs
+      result.regexPatterns = {}
+      for (const [pattern, rxEventIds] of Object.entries(wire.rx)) {
+        result.regexPatterns[pattern] = [...rxEventIds]
+      }
+    }
+  }
+
   // Handle nested properties — guarded by depth limit to prevent stack overflow
   // from malformed or malicious wire payloads.
   const nestedSchema =
