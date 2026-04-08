@@ -24,6 +24,7 @@ import type {
 } from '../types'
 import { MatchKeyTypeV1, Region, ConversionTypeV2 } from '../types'
 import type { Payload } from './generated-types'
+import { AMAZON_CONVERSIONS_API_EVENTS_VERSION } from '../versioning-info'
 
 /**
  * Helper function to validate if a string value exists and is not empty
@@ -143,17 +144,20 @@ export async function sendEventsRequest<ImportConversionEventsResponse>(
   // Ensure eventData is always an array
   const events = Array.isArray(eventData) ? eventData : [eventData]
 
-  return await request<ImportConversionEventsResponse>(`${settings.region}/adsApi/v1/create/events`, {
-    method: 'POST',
-    json: {
-      events: events
-    },
-    headers: {
-      'Amazon-Ads-AccountId': settings.advertiserId,
-      'Amazon-Ads-ClientId': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
-    },
-    throwHttpErrors: false
-  })
+  return await request<ImportConversionEventsResponse>(
+    `${settings.region}/adsApi/${AMAZON_CONVERSIONS_API_EVENTS_VERSION}/create/events`,
+    {
+      method: 'POST',
+      json: {
+        events: events
+      },
+      headers: {
+        'Amazon-Ads-AccountId': settings.advertiserId,
+        'Amazon-Ads-ClientId': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
+      },
+      throwHttpErrors: false
+    }
+  )
 }
 
 /**
@@ -379,7 +383,7 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     name: payload.name,
     conversionType: payload.eventType as ConversionTypeV2,
     eventSource: payload.eventActionSource.toUpperCase(),
-    eventIngestionMethod: 'SERVER_TO_SERVER', 
+    eventIngestionMethod: 'SERVER_TO_SERVER',
     ...(settings.dataSetName ? { dataSetName: settings.dataSetName } : {})
   }
 
@@ -389,7 +393,6 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     eventTime: payload.timestamp
   }
 
-
   if (matchKeys) {
     eventData.matchKeys = matchKeys
   }
@@ -398,19 +401,20 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
 
   Object.assign(eventData, {
     ...(payload.value !== undefined && { value: payload.value }),
-    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.currencyCode && {
-      currencyCode: payload.currencyCode as CurrencyCodeV1
-    }),
-    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.unitsSold !== undefined && {
-      unitsSold: payload.unitsSold
-    }),
+    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES &&
+      payload.currencyCode && {
+        currencyCode: payload.currencyCode as CurrencyCodeV1
+      }),
+    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES &&
+      payload.unitsSold !== undefined && {
+        unitsSold: payload.unitsSold
+      }),
     ...(payload.clientDedupeId && { eventId: payload.clientDedupeId }),
     ...(payload.dataProcessingOptions?.[0] && {
       dataProcessingOptions: {
         options: payload.dataProcessingOptions[0]
       } as DataProcessingOptions
     }),
-
 
     ...(consent && { consent }),
     ...(payload.customAttributes && {
