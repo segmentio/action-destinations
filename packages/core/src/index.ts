@@ -38,7 +38,7 @@ export {
   RetryableError,
   PayloadValidationError,
   SelfTimeoutError,
-  RefreshTokenAndRetryError,
+  TokenPropagationRetryError,
   APIError,
   ErrorCodes,
   HttpErrorCodes,

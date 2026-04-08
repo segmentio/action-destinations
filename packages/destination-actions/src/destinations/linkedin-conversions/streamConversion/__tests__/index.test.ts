@@ -2,7 +2,7 @@ import nock from 'nock'
 import {
   createTestEvent,
   createTestIntegration,
-  RefreshTokenAndRetryError,
+  TokenPropagationRetryError,
   RetryableError
 } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
@@ -617,7 +617,7 @@ describe('LinkedinConversions.streamConversion', () => {
     ).rejects.toThrowError("User Info is missing the required field 'lastName'.")
   })
 
-  it('should throw RefreshTokenAndRetryError when LinkedIn returns 401 with token propagation error code', async () => {
+  it('should throw TokenPropagationRetryError when LinkedIn returns 401 with token propagation error code', async () => {
     nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(401, {
       serviceErrorCode: 65601,
       message: 'Unable to verify access token'
@@ -642,7 +642,7 @@ describe('LinkedinConversions.streamConversion', () => {
           batch_size: 5000
         }
       })
-    ).rejects.toThrow(RefreshTokenAndRetryError)
+    ).rejects.toThrow(TokenPropagationRetryError)
   })
 
   it('should throw RetryableError for the full propagation-delay flow without refreshing token', async () => {

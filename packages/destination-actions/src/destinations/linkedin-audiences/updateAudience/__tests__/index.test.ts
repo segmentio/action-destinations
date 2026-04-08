@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, RefreshTokenAndRetryError } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, TokenPropagationRetryError } from '@segment/actions-core'
 import Destination from '../../index'
 import { BASE_URL, LINKEDIN_SOURCE_PLATFORM } from '../../constants'
 
@@ -865,7 +865,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
     })
 
-    it('should throw RefreshTokenAndRetryError when LinkedIn returns 401 with token propagation error code', async () => {
+    it('should throw TokenPropagationRetryError when LinkedIn returns 401 with token propagation error code', async () => {
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
         .query(() => true)
@@ -889,7 +889,7 @@ describe('LinkedinAudiences.updateAudience', () => {
             personas_audience_key: 'personas_test_audience'
           }
         })
-      ).rejects.toThrow(RefreshTokenAndRetryError)
+      ).rejects.toThrow(TokenPropagationRetryError)
     })
   })
 })

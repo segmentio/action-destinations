@@ -5,7 +5,7 @@ import {
   InvalidAuthenticationError,
   IntegrationError,
   ErrorCodes,
-  RefreshTokenAndRetryError
+  TokenPropagationRetryError
 } from '@segment/actions-core'
 
 import type { Settings } from './generated-types'
@@ -160,7 +160,7 @@ const destination: DestinationDefinition<Settings> = {
             const body = response.data as Record<string, unknown> | undefined
             const serviceErrorCode = body?.serviceErrorCode as number | undefined
             if (serviceErrorCode && LINKEDIN_TOKEN_PROPAGATION_ERROR_CODES.includes(serviceErrorCode)) {
-              throw new RefreshTokenAndRetryError(
+              throw new TokenPropagationRetryError(
                 `LinkedIn eventual consistency: token not yet propagated (serviceErrorCode ${serviceErrorCode})`
               )
             }
