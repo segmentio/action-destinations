@@ -1453,7 +1453,7 @@ describe('destination kit', () => {
         expect(spy).toHaveBeenCalledTimes(0)
       })
 
-      test('should refresh token and throw RetryableError when RefreshTokenAndRetryError is thrown', async () => {
+      test('should throw RetryableError without token refresh when RefreshTokenAndRetryError is thrown', async () => {
         const destinationWithPropagationError: DestinationDefinition<JSONObject> = {
           name: 'Test Propagation Error Destination',
           mode: 'cloud',
