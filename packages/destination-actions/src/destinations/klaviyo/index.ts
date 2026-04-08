@@ -60,9 +60,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     })
   },
 
-  extendRequest({ settings }) {
+  extendRequest({ settings, features }) {
     return {
-      headers: buildHeaders(settings.api_key)
+      headers: buildHeaders(settings.api_key, features)
     }
   },
   audienceFields: {
