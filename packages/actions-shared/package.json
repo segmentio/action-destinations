@@ -23,10 +23,10 @@
     "registry": "https://registry.npmjs.org"
   },
   "scripts": {
-    "build": "yarn tsc -b tsconfig.build.json",
+    "build": "pnpm tsc -b tsconfig.build.json",
     "clean": "tsc -b tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
-    "prepublishOnly": "yarn build",
+    "prepublishOnly": "pnpm build",
     "test": "jest",
     "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },

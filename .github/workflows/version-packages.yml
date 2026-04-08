@@ -38,12 +38,17 @@ jobs:
           fetch-tags: true
           ref: ${{ env.BASE_BRANCH }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
-          cache: yarn
+          cache: pnpm
 
       - name: Checkout branch
         run: |
@@ -51,7 +56,7 @@ jobs:
           git push origin ${{ env.BRANCH }}
 
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Configure git
         run: |
@@ -59,15 +64,15 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Build
-        run: NODE_ENV=production yarn build
+        run: NODE_ENV=production pnpm build
 
       - name: Version Packages
         run: |
           # minor version bump for main branch and patch for hotfixes
           if [ "${{ env.BASE_BRANCH }}" == "main" ]; then
-            yarn lerna version minor --yes --allow-branch ${{ env.BRANCH }} --no-git-tag-version --no-commit-hooks --no-private
+            pnpm lerna version minor --yes --allow-branch ${{ env.BRANCH }} --no-git-tag-version --no-commit-hooks --no-private
           else
-            yarn lerna version patch --yes --allow-branch ${{ env.BRANCH }} --no-git-tag-version --no-commit-hooks --no-private
+            pnpm lerna version patch --yes --allow-branch ${{ env.BRANCH }} --no-git-tag-version --no-commit-hooks --no-private
           fi
 
       - name: Commit and push

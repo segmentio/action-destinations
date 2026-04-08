@@ -9,14 +9,14 @@
     "directory": "packages/destination-subscriptions"
   },
   "scripts": {
-    "build": "yarn build:cjs && yarn build:esm",
-    "build:cjs": "yarn tsc -p tsconfig.build.json -m commonjs --outDir dist/cjs",
-    "build:esm": "yarn tsc -p tsconfig.build.json -m es2015 --outDir dist/esm",
+    "build": "pnpm build:cjs && pnpm build:esm",
+    "build:cjs": "pnpm tsc -p tsconfig.build.json -m commonjs --outDir dist/cjs",
+    "build:esm": "pnpm tsc -p tsconfig.build.json -m es2015 --outDir dist/esm",
     "clean": "tsc -b tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
     "test": "jest",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
-    "prepare": "yarn build",
+    "prepare": "pnpm build",
     "size": "bash scripts/size.sh"
   },
   "main": "dist/cjs/index.js",

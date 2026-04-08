@@ -11,8 +11,8 @@
   "scripts": {
     "test:sauce": "wdio wdio.conf.sauce.ts",
     "test:local": "wdio wdio.conf.local.ts",
-    "start-destination-server": "yarn ts-node src/server/start-destination-server.ts",
-    "browser-destinations:build": "NODE_ENV=production yarn nx build-web @segment/browser-destinations"
+    "start-destination-server": "pnpm ts-node src/server/start-destination-server.ts",
+    "browser-destinations:build": "NODE_ENV=production pnpm nx build-web @segment/browser-destinations"
   },
   "devDependencies": {
     "@wdio/cli": "^7.26.0",
