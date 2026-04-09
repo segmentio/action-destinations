@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-amplitude-plugins",
-  "version": "1.96.1-staging-da64537d2.0",
+  "version": "1.96.1-staging-55e5ae3e9.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,7 +15,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "1.95.1-staging-da64537d2.0"
+    "@segment/browser-destination-runtime": "1.95.1-staging-55e5ae3e9.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
