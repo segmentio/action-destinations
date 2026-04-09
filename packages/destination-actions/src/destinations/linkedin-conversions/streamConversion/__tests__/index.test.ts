@@ -617,7 +617,7 @@ describe('LinkedinConversions.streamConversion', () => {
     ).rejects.toThrowError("User Info is missing the required field 'lastName'.")
   })
 
-  it('should throw TokenPropagationRetryError when LinkedIn returns 401 with token propagation error code', async () => {
+  it('should throw TokenPropagationRetryError when LinkedIn returns 401 with token propagation error code 65601', async () => {
     nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(401, {
       serviceErrorCode: 65601,
       message: 'Unable to verify access token'
@@ -643,6 +643,64 @@ describe('LinkedinConversions.streamConversion', () => {
         }
       })
     ).rejects.toThrow(TokenPropagationRetryError)
+  })
+
+  it('should throw TokenPropagationRetryError when LinkedIn returns 401 with token propagation error code 65602', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(401, {
+      serviceErrorCode: 65602,
+      message: 'Unable to verify access token'
+    })
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: 789123
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrow(TokenPropagationRetryError)
+  })
+
+  it('should not throw TokenPropagationRetryError when LinkedIn returns 401 without a propagation error code', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(401, {
+      serviceErrorCode: 99999,
+      message: 'Unauthorized'
+    })
+
+    const error = await testDestination
+      .testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: 789123
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+      .catch((e) => e)
+
+    expect(error).not.toBeInstanceOf(TokenPropagationRetryError)
   })
 
   it('should throw RetryableError for the full propagation-delay flow without refreshing token', async () => {

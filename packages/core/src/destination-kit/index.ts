@@ -1030,7 +1030,11 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     options?: OnEventOptions
   ): Promise<JSONObject> {
     // Handle TokenPropagationRetryError: token was just refreshed but hasn't propagated yet.
-    // Just retry later — no need to refresh again.
+    // Throwing here intentionally terminates the internal retry loop in retry.ts — when
+    // onFailedAttempt throws, retry.ts propagates that exception immediately without
+    // continuing the loop. RetryableError(503) signals Segment infrastructure to retry
+    // after backoff, by which time the token will have propagated. 503 (Service Unavailable)
+    // distinguishes a propagation delay from a generic internal error (500).
     if (error instanceof TokenPropagationRetryError) {
       throw new RetryableError(error.message, 503)
     }

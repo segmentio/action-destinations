@@ -106,10 +106,18 @@ export class APIError extends IntegrationError {
  * The framework converts this into a RetryableError(503) so Segment
  * infrastructure retries the event after a backoff delay, by which time
  * the token will have propagated. No additional token refresh is performed
- * since the token is already fresh.
+ * on the exception-throwing path — handleError intercepts this error before
+ * the OAuth re-authentication logic runs.
+ *
+ * This error is currently thrown by LinkedIn destination hooks when
+ * serviceErrorCode 65601 or 65602 appears in a 401 response body. Reuse for
+ * other providers should only occur after confirming the same
+ * retry-without-refresh semantic applies.
  */
 export class TokenPropagationRetryError extends CustomError {
-  status = 401
+  // Use 503 to match the RetryableError this converts into — do NOT use 401,
+  // which would cause generic status-based 401 handlers to trigger a token refresh.
+  status = 503
   code = ErrorCodes.TOKEN_PROPAGATION_RETRY
 
   constructor(message = 'Token not yet propagated, retry later') {
