@@ -5,8 +5,7 @@ import { sendEventToAWS } from '../awsClient'
 import {
   LIVERAMP_MIN_RECORD_COUNT,
   LIVERAMP_LEGACY_FLOW_FLAG_NAME,
-  LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME,
-  LIVERAMP_ALPHABETICAL_FIELD_ORDER_FLAG_NAME
+  LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME
 } from '../properties'
 
 import type { Settings } from '../generated-types'
@@ -133,17 +132,7 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
 
   validateSFTP(input.payloads[0])
 
-  const alphabeticalFieldOrder = input.features?.[LIVERAMP_ALPHABETICAL_FIELD_ORDER_FLAG_NAME] === true
-  const { filename, fileContents, isIncomingAlphabetical } = generateFile(input.payloads, alphabeticalFieldOrder)
-
-  // Track metric for whether incoming headers are in alphabetical order
-  if (input.statsContext?.statsClient) {
-    const incomingOrder = isIncomingAlphabetical ? 'alphabetical' : 'non_alphabetical'
-    input.statsContext.statsClient.incr('liveramp_audiences.incoming_header_order', 1, [
-      ...(input.statsContext.tags || []),
-      `order:${incomingOrder}`
-    ])
-  }
+  const { filename, fileContents } = generateFile(input.payloads)
 
   if (input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true) {
     //------------
