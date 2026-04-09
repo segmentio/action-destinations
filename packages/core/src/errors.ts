@@ -226,7 +226,7 @@ export enum CustomErrorCodes {
   GET_AUDIENCE_FAILED = 'GET_AUDIENCE_FAILED',
   // When the RETL onMappingSave hook fails
   RETL_ON_MAPPING_SAVE_FAILED = 'RETL_ON_MAPPING_SAVE_FAILED',
-  // Refresh the OAuth token and then retry via Segment infrastructure
+  // Retry later due to OAuth token propagation delay
   TOKEN_PROPAGATION_RETRY = 'TOKEN_PROPAGATION_RETRY',
   // Fallback error code if no other error code matches
   UNKNOWN_ERROR = 'UNKNOWN_ERROR'
