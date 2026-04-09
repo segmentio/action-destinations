@@ -1,5 +1,10 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import {
+  createTestEvent,
+  createTestIntegration,
+  TokenPropagationRetryError,
+  RetryableError
+} from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { BASE_URL } from '../../constants'
 import Destination from '../../index'
@@ -610,6 +615,125 @@ describe('LinkedinConversions.streamConversion', () => {
         }
       })
     ).rejects.toThrowError("User Info is missing the required field 'lastName'.")
+  })
+
+  it('should throw TokenPropagationRetryError when LinkedIn returns 401 with token propagation error code 65601', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(401, {
+      serviceErrorCode: 65601,
+      message: 'Unable to verify access token'
+    })
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: 789123
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrow(TokenPropagationRetryError)
+  })
+
+  it('should throw TokenPropagationRetryError when LinkedIn returns 401 with token propagation error code 65602', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(401, {
+      serviceErrorCode: 65602,
+      message: 'Unable to verify access token'
+    })
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: 789123
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrow(TokenPropagationRetryError)
+  })
+
+  it('should not throw TokenPropagationRetryError when LinkedIn returns 401 without a propagation error code', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(401, {
+      serviceErrorCode: 99999,
+      message: 'Unauthorized'
+    })
+
+    const error = await testDestination
+      .testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: 789123
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+      .catch((e) => e)
+
+    expect(error).not.toBeInstanceOf(TokenPropagationRetryError)
+  })
+
+  it('should throw RetryableError for the full propagation-delay flow without refreshing token', async () => {
+    // Simulate a fresh token that hasn't propagated yet:
+    // the conversion call returns 401+65601, the framework throws RetryableError
+    // so Segment infrastructure retries later — no token refresh needed.
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(401, {
+      serviceErrorCode: 65601,
+      message: 'Unable to verify access token'
+    })
+
+    await expect(
+      testDestination.onEvent(event, {
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'streamConversion',
+          mapping: {
+            email: { '@path': '$.context.traits.email' },
+            conversionHappenedAt: { '@path': '$.timestamp' },
+            onMappingSave: {
+              inputs: {},
+              outputs: { id: 789123 }
+            },
+            enable_batching: false,
+            batch_size: 5000
+          }
+        },
+        oauth: {
+          access_token: 'old-not-yet-propagated-token',
+          refresh_token: 'refresh-token'
+        }
+      })
+    ).rejects.toThrow(RetryableError)
   })
 
   it('should detect hashed email if feature flag for smart hashing is passed', async () => {

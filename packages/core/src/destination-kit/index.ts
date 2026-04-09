@@ -30,7 +30,14 @@ import type {
   ResultMultiStatusNode
 } from './types'
 import type { AllRequestOptions } from '../request-client'
-import { ErrorCodes, IntegrationError, InvalidAuthenticationError, MultiStatusErrorReporter } from '../errors'
+import {
+  ErrorCodes,
+  IntegrationError,
+  InvalidAuthenticationError,
+  MultiStatusErrorReporter,
+  TokenPropagationRetryError,
+  RetryableError
+} from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
 import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
@@ -1022,6 +1029,16 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     settings: JSONObject,
     options?: OnEventOptions
   ): Promise<JSONObject> {
+    // Handle TokenPropagationRetryError: token was just refreshed but hasn't propagated yet.
+    // Throwing here intentionally terminates the internal retry loop in retry.ts — when
+    // onFailedAttempt throws, retry.ts propagates that exception immediately without
+    // continuing the loop. RetryableError(503) signals Segment infrastructure to retry
+    // after backoff, by which time the token will have propagated. 503 (Service Unavailable)
+    // distinguishes a propagation delay from a generic internal error (500).
+    if (error instanceof TokenPropagationRetryError) {
+      throw new RetryableError(error.message, 503)
+    }
+
     const statusCode = (error as ResponseError).status ?? (error as HTTPError)?.response?.status ?? 500
     const needsReauthentication =
       statusCode === 401 &&
