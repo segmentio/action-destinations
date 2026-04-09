@@ -253,9 +253,10 @@ The supported conditional values are:
 
 - "exists": If the given value is not undefined or null, the @if directive resolves to the "then"
   value. Otherwise, the "else" value is used.
-- "blank": If the given value is not undefined, not null, and not an empty string (i.e., is not
-  blank), the @if directive resolves to the "then" value. Otherwise (undefined, null, or empty
-  string), the "else" value is used.
+- "blank": If the given value is not undefined, not null, and does not loosely equal an empty
+  string (`''`) (i.e., is not blank), the @if directive resolves to the "then" value. Otherwise,
+  the "else" value is used. Because this check uses JavaScript loose equality semantics, values
+  such as `0` and `false` are currently treated as blank and will use the "else" branch.
 
 ```json
 Input:
