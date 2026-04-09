@@ -67,6 +67,9 @@ Output:
   - [@replace](#replace)
   - [@merge](#merge)
   - [@transform](#transform)
+  - [@flatten](#flatten)
+  - [@json](#json)
+  - [@liquid](#liquid)
   - [@excludeWhenNull](#excludewhennull)
 
 <!-- tocstop -->
@@ -208,9 +211,7 @@ Valid:
 ## Validation
 
 Mapping configurations can be validated using JSON Schema. The [test
-suite][schema.test.js] is a good source-of-truth for current implementation behavior.
-
-[schema.test.js]: https://github.com/segmentio/fab-5-engine/blob/master/packages/destination-actions/src/lib/mapping-kit/__tests__
+suite](./__tests__/index.iso.test.ts) is a good source-of-truth for current implementation behavior.
 
 ## Removing values from object
 
@@ -252,7 +253,9 @@ The supported conditional values are:
 
 - "exists": If the given value is not undefined or null, the @if directive resolves to the "then"
   value. Otherwise, the "else" value is used.
-- "blank": If the given value is undefined or null, the @if directive resolves to the "then" value. Otherwise, the "else" value is used.
+- "blank": If the given value is not undefined, not null, and not an empty string (i.e., is not
+  blank), the @if directive resolves to the "then" value. Otherwise (undefined, null, or empty
+  string), the "else" value is used.
 
 ```json
 Input:
@@ -292,7 +295,7 @@ Mappings:
   }
 }
 =>
-"yep"
+"nope"
 ```
 
 If "then" or "else" are not defined and the conditional indicates that their value should be used,
@@ -490,20 +493,25 @@ Result:
 
 ### @replace
 
-The @replace directive replaces to the given pattern value with a replacement string. Both "pattern" and "replacement"
-fields are required but replacement can be an empty string.
+The @replace directive replaces occurrences of a pattern in a string with a replacement string.
+The `value` field specifies the input string (may be a directive or raw value). The `pattern` field
+is required; `replacement` defaults to an empty string if omitted.
 
-````json
+By default, replacement is global (all occurrences) and case-sensitive. Use `global: false` to
+replace only the first occurrence, and `ignorecase: true` for case-insensitive matching.
+
+```json
 Input:
 
 {
-  "a": "cool-story",
+  "a": "cool-story"
 }
 
 Mappings:
 
 {
   "@replace": {
+    "value": { "@path": "$.a" },
     "pattern": "-",
     "replacement": ""
   }
@@ -511,36 +519,29 @@ Mappings:
 =>
 "coolstory"
 
-```json
-Input:
-
-{
-  "a": "cool-story",
-}
-
-Mappings:
-
 {
   "@replace": {
+    "value": { "@path": "$.a" },
     "pattern": "-",
     "replacement": "nice"
   }
 }
 =>
 "coolnicestory"
-````
+```
 
 ```json
 Input:
 
 {
-  "a": "cWWl-story-ww",
+  "a": "cWWl-story-ww"
 }
 
 Mappings:
 
 {
   "@replace": {
+    "value": { "@path": "$.a" },
     "pattern": "WW",
     "replacement": "oo",
     "ignorecase": false
@@ -554,13 +555,14 @@ Mappings:
 Input:
 
 {
-  "a": "just-the-first",
+  "a": "just-the-first"
 }
 
 Mappings:
 
 {
   "@replace": {
+    "value": { "@path": "$.a" },
     "pattern": "-",
     "replacement": "@",
     "global": false
@@ -568,6 +570,33 @@ Mappings:
 }
 =>
 "just@the-first"
+```
+
+A second pattern/replacement pair (`pattern2` / `replacement2`) can be provided to apply a second
+substitution on the result of the first:
+
+```json
+Input:
+
+{
+  "a": "something-great!"
+}
+
+Mapping:
+
+{
+  "@replace": {
+    "value": { "@path": "$.a" },
+    "pattern": "-",
+    "replacement": " ",
+    "pattern2": "great",
+    "replacement2": "awesome"
+  }
+}
+
+Output:
+
+"something awesome!"
 ```
 
 ### @merge
@@ -688,6 +717,141 @@ Mappings:
   "newValue": 1
 }
 ```
+
+### @flatten
+
+The @flatten directive flattens a nested object into a single-level object using a separator string
+for the keys. The `value` field specifies the object to flatten and the `separator` field (required)
+specifies the string used to join nested keys. Set `omitArrays: true` to leave array values
+un-flattened.
+
+```json
+Input:
+
+{
+  "foo": {
+    "bar": "baz",
+    "aces": { "a": 1, "b": 2 }
+  }
+}
+
+Mapping:
+
+{
+  "@flatten": {
+    "value": { "@path": "$.foo" },
+    "separator": "."
+  }
+}
+
+Output:
+
+{
+  "bar": "baz",
+  "aces.a": 1,
+  "aces.b": 2
+}
+```
+
+With `omitArrays: true`, array values are preserved as-is instead of being flattened:
+
+```json
+Input:
+
+{
+  "foo": {
+    "bar": "baz",
+    "tags": [1, 2]
+  }
+}
+
+Mapping:
+
+{
+  "@flatten": {
+    "value": { "@path": "$.foo" },
+    "separator": ".",
+    "omitArrays": true
+  }
+}
+
+Output:
+
+{
+  "bar": "baz",
+  "tags": [1, 2]
+}
+```
+
+### @json
+
+The @json directive encodes a value to a JSON string or decodes a JSON string to a value. The `mode`
+field must be either `"encode"` or `"decode"`, and the `value` field specifies the input.
+
+```json
+Input:
+
+{
+  "foo": { "bar": "baz" }
+}
+
+Mappings:
+
+{ "@json": { "mode": "encode", "value": { "@path": "$.foo" } } }
+=>
+"{\"bar\":\"baz\"}"
+```
+
+```json
+Input:
+
+{
+  "foo": "[\"bar\",\"baz\"]"
+}
+
+Mappings:
+
+{ "@json": { "mode": "decode", "value": { "@path": "$.foo" } } }
+=>
+["bar", "baz"]
+```
+
+If `mode` is `"decode"` and the value is not valid JSON, the original string is returned unchanged.
+
+### @liquid
+
+The @liquid directive evaluates a [Liquid](https://liquidjs.com/) template string against the input
+payload and returns the rendered result. The directive value must be a string of at most 1000
+characters.
+
+```json
+Input:
+
+{
+  "properties": {
+    "name": "SpongeBob",
+    "world": "Bikini Bottom"
+  }
+}
+
+Mappings:
+
+{ "@liquid": "Hello, {{ properties.name }}!" }
+=>
+"Hello, SpongeBob!"
+
+{ "@liquid": "{% if properties.world == \"Bikini Bottom\" %}Under the sea{% endif %}" }
+=>
+"Under the sea"
+
+{ "@liquid": "{{ properties.name | upcase }}" }
+=>
+"SPONGEBOB"
+```
+
+**Restrictions:** The following Liquid tags are disabled: `case`, `for`, `include`, `layout`,
+`render`, `tablerow`. Several array-manipulation filters (e.g. `sort`, `map`, `reverse`) are also
+disabled.
 
 ### @excludeWhenNull
 
