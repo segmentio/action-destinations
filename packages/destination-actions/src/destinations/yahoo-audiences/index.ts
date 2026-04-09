@@ -115,6 +115,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const statsClient = createAudienceInput?.statsContext?.statsClient
       const statsTags = createAudienceInput?.statsContext?.tags
+      const logger = createAudienceInput?.logger
 
       if (!engage_space_id) {
         throw new IntegrationError('Create Audience: missing setting "Engage space Id" ', 'MISSING_REQUIRED_FIELD', 400)
@@ -140,7 +141,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         tx_client_secret: process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET
       }
 
-      await update_taxonomy(engage_space_id, tx_creds, request, body_form_data, statsClient, statsTags, undefined)
+      await update_taxonomy(engage_space_id, tx_creds, request, body_form_data, statsClient, statsTags, logger)
 
       return { externalId: audience_id }
     },

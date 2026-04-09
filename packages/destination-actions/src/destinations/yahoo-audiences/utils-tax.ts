@@ -101,7 +101,7 @@ export async function update_taxonomy(
   body_form_data: string,
   statsClient: StatsClient | undefined,
   statsTags: string[] | undefined,
-  logger?: Logger
+  logger: Logger | undefined
 ) {
   const tx_client_secret = tx_creds.tx_client_secret
   const tx_client_key = tx_creds.tx_client_key
