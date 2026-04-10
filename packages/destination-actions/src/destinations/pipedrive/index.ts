@@ -100,6 +100,27 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'createUpdateActivity',
       mapping: defaultValues(createUpdateActivity.fields),
       type: 'automatic'
+    },
+    {
+      name: 'Create or Update a Deal',
+      subscribe: 'type = "identify"',
+      partnerAction: 'createUpdateDeal',
+      mapping: defaultValues(createUpdateDeal.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Create or Update a Note',
+      subscribe: 'type = "track" and event = "Note Upserted"',
+      partnerAction: 'createUpdateNote',
+      mapping: defaultValues(createUpdateNote.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Create or Update a Lead',
+      subscribe: 'type = "track" and event = "Lead Upserted"',
+      partnerAction: 'createUpdateLead',
+      mapping: defaultValues(createUpdateLead.fields),
+      type: 'automatic'
     }
   ]
 }
