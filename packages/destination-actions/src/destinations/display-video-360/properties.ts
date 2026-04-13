@@ -34,7 +34,7 @@ export const partner_provided_id: InputField = {
 
 export const enable_batching: InputField = {
   label: 'Enable Batching',
-  description: 'Enable batching of requests to the TikTok Audiences.',
+  description: 'Enable batching of requests to the Display & Video 360.',
   type: 'boolean',
   default: true,
   required: true,

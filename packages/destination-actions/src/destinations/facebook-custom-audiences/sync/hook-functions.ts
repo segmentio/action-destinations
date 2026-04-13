@@ -1,0 +1,109 @@
+import { RequestClient, ErrorCodes, Features } from '@segment/actions-core'
+import type { DynamicFieldItem } from '@segment/actions-core'
+import { StatsContext } from '@segment/actions-core/destination-kit'
+import { GetAllAudienceResponse } from './types'
+import { BASE_URL } from '../constants'
+import { Settings } from '../generated-types'
+import { createAudience, getAudience, parseFacebookError, getApiVersion, normalizeAccountId } from '../functions'
+import { FacebookResponseError, NonFacebookError } from '../types'
+
+export async function performHook(request: RequestClient, adAccountId: string, operation?: string, audienceName?: string, existingAudienceId?: string) {
+  if (operation === 'create') {
+    if (!audienceName || typeof audienceName !== 'string') {
+      return {
+        error: {
+          message: 'Missing audience name value',
+          code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
+        }
+      }
+    } 
+    else {
+      const { data: { externalId } = {}, error } = await createAudience(request, audienceName, adAccountId)
+
+      if (error) {
+        return { error, choices: [] }
+      }
+
+      return {
+        successMessage: `Audience created with ID: ${externalId}`,
+        savedData: {
+          audienceId: externalId,
+          audienceName
+        }
+      }
+    }
+  }
+
+  if (operation === 'existing') {
+    if (!existingAudienceId || typeof existingAudienceId !== 'string') {
+      return {
+        error: {
+          message: 'Missing audience ID value',
+          code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
+        }
+      }
+    } 
+    else {
+      const { data: { name } = {}, error } = await getAudience(request, existingAudienceId)
+
+      if (error) {
+        return { error }
+      }
+
+      return {
+        successMessage: `Connected to audience with ID: ${existingAudienceId}`,
+        savedData: {
+          audienceId: existingAudienceId,
+          audienceName: name
+        }
+      }
+    }
+  }
+
+  return {
+    error: {
+      message: 'Invalid operation value. Must be existing or create.',
+      code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
+    }
+  }
+}
+
+export async function getExistingAudienceIdChoices(request: RequestClient, { settings }: { settings: Settings }) {
+  const { retlAdAccountId: adAccountId } = settings
+  const { choices, error } = await getAllAudiences(request, adAccountId)
+  if (error) {
+    return { error, choices: [] }
+  }
+  return {
+    choices
+  }
+}
+
+export async function getAllAudiences(request: RequestClient, adAccountId: string, features?: Features, statsContext?: StatsContext): Promise<{choices: DynamicFieldItem[], error?: NonFacebookError}> {
+  
+  const url = `${BASE_URL}/${getApiVersion(features, statsContext)}/${normalizeAccountId(adAccountId)}/customaudiences?fields=id,name&limit=200`
+
+  try {
+    const { data } = await request<GetAllAudienceResponse>(url)
+    const choices = data.data.map(({ id, name }) => ({
+      value: id,
+      label: name
+    }))
+    if (choices.length > 0) {
+      return {
+        choices
+      }
+    }
+    return {
+      error: {
+        message: 'No custom audiences found in this ad account. Please create an audience in Facebook before connecting it to Segment.',
+        code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
+      },
+      choices: []
+    }
+  } 
+  catch (error) {
+    const { message, code } = parseFacebookError(error as FacebookResponseError)
+    return { error: { message, code }, choices: [] }
+  }
+}
