@@ -20,7 +20,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const event = createTestEvent({
       properties: {
         ...eventData,
-        mp3_Link: eventData.mp3_Link ?? 'https://example.com/audio.mp3'
+        mp3_Link: 'https://example.com/audio.mp3',
+        ...(eventData.multi_channel_recording_link !== undefined
+          ? { multi_channel_recording_link: 'https://example.com/audio-multi.wav' }
+          : {})
       }
     })
 
@@ -56,7 +59,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const event = createTestEvent({
       properties: {
         ...eventData,
-        mp3_Link: eventData.mp3_Link ?? 'https://example.com/audio.mp3'
+        mp3_Link: 'https://example.com/audio.mp3',
+        ...(eventData.multi_channel_recording_link !== undefined
+          ? { multi_channel_recording_link: 'https://example.com/audio-multi.wav' }
+          : {})
       }
     })
 

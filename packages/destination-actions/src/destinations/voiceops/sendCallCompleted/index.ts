@@ -41,6 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'MP3 Link',
       description: 'A link to the single-channel recording for the call.',
       type: 'string',
+      format: 'uri',
       default: {
         '@path': '$.properties.mp3_Link'
       }
@@ -49,6 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Multi-Channel Recording Link',
       description: 'A link to the multi-channel recording when conference splitting is needed.',
       type: 'string',
+      format: 'uri',
       default: {
         '@path': '$.properties.multi_channel_recording_link'
       }

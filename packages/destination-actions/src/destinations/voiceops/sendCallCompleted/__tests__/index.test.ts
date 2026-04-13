@@ -9,17 +9,29 @@ const SETTINGS: Settings = {
   accessToken: 'voiceops-token'
 }
 
-function createCallCompletedEvent(properties: Record<string, unknown> = {}) {
+function createCallCompletedEvent(
+  properties: Record<string, unknown> = {},
+  { includeDefaultAudio = true }: { includeDefaultAudio?: boolean } = {}
+) {
+  const eventProperties: Record<string, unknown> = {
+    call_id: 'call-123',
+    call_started_at: '1712683200',
+    agent_email: 'agent@voiceops.com',
+    ...properties
+  }
+
+  if (
+    includeDefaultAudio &&
+    !Object.prototype.hasOwnProperty.call(properties, 'mp3_Link') &&
+    !Object.prototype.hasOwnProperty.call(properties, 'multi_channel_recording_link')
+  ) {
+    eventProperties.mp3_Link = 'https://example.com/audio.mp3'
+  }
+
   return createTestEvent({
     type: 'track',
     event: 'call_completed',
-    properties: {
-      call_id: 'call-123',
-      call_started_at: '1712683200',
-      agent_email: 'agent@voiceops.com',
-      mp3_Link: 'https://example.com/audio.mp3',
-      ...properties
-    }
+    properties: eventProperties
   })
 }
 
@@ -57,7 +69,6 @@ describe('Voiceops.sendCallCompleted', () => {
     nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
 
     const event = createCallCompletedEvent({
-      mp3_Link: undefined,
       multi_channel_recording_link: 'https://example.com/audio.wav',
       channels: [
         {
@@ -119,10 +130,7 @@ describe('Voiceops.sendCallCompleted', () => {
   })
 
   it('fails before sending when no audio link is present', async () => {
-    const event = createCallCompletedEvent({
-      mp3_Link: '',
-      multi_channel_recording_link: '   '
-    })
+    const event = createCallCompletedEvent({}, { includeDefaultAudio: false })
 
     await expect(
       testDestination.testAction('sendCallCompleted', {
@@ -136,10 +144,7 @@ describe('Voiceops.sendCallCompleted', () => {
   it('still succeeds when first_name and last_name are omitted', async () => {
     nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
 
-    const event = createCallCompletedEvent({
-      first_name: undefined,
-      last_name: undefined
-    })
+    const event = createCallCompletedEvent({ first_name: undefined, last_name: undefined })
 
     const responses = await testDestination.testAction('sendCallCompleted', {
       event,

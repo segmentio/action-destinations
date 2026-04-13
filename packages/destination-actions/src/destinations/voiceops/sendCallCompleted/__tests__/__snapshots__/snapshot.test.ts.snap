@@ -20,8 +20,8 @@ Object {
   },
   "first_name": "t(Wu8lroLkPwL",
   "last_name": "t(Wu8lroLkPwL",
-  "mp3_Link": "t(Wu8lroLkPwL",
-  "multi_channel_recording_link": "t(Wu8lroLkPwL",
+  "mp3_Link": "https://example.com/audio.mp3",
+  "multi_channel_recording_link": "https://example.com/audio-multi.wav",
 }
 `;
 

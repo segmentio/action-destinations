@@ -20,8 +20,8 @@ Object {
   },
   "first_name": "PdayLkf!",
   "last_name": "PdayLkf!",
-  "mp3_Link": "PdayLkf!",
-  "multi_channel_recording_link": "PdayLkf!",
+  "mp3_Link": "https://example.com/audio.mp3",
+  "multi_channel_recording_link": "https://example.com/audio-multi.wav",
 }
 `;
 
