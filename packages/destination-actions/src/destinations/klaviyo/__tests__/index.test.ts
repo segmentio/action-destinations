@@ -1,6 +1,8 @@
 import nock from 'nock'
 import { APIError, IntegrationError, createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
+import { KLAVIYO_API_REVISION, KLAVIYO_CANARY_API_REVISION } from '../versioning-info'
+import { FLAGON_NAME } from '../functions'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -142,6 +144,61 @@ describe('Klaviyo (actions)', () => {
       await expect(audiencePromise).rejects.toThrow(APIError)
       await expect(audiencePromise).rejects.toHaveProperty('message', errorMessage)
       await expect(audiencePromise).rejects.toHaveProperty('status', 404)
+    })
+  })
+
+  describe('API Revision Feature Flag', () => {
+    it('should use stable API revision by default', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        userId: 'user-123',
+        traits: {
+          email: 'test@example.com'
+        }
+      })
+
+      nock(API_URL)
+        .post('/profiles/')
+        .matchHeader('revision', KLAVIYO_API_REVISION)
+        .reply(200, { data: { id: 'profile-123' } })
+
+      const responses = await testDestination.testAction('upsertProfile', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          email: { '@path': '$.traits.email' }
+        }
+      })
+
+      expect(responses[0].status).toBe(200)
+    })
+
+    it('should use canary API revision when feature flag is enabled', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        userId: 'user-123',
+        traits: {
+          email: 'test@example.com'
+        }
+      })
+
+      nock(API_URL)
+        .post('/profiles/')
+        .matchHeader('revision', KLAVIYO_CANARY_API_REVISION)
+        .reply(200, { data: { id: 'profile-123' } })
+
+      const responses = await testDestination.testAction('upsertProfile', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          email: { '@path': '$.traits.email' }
+        },
+        features: { [FLAGON_NAME]: true }
+      })
+
+      expect(responses[0].status).toBe(200)
     })
   })
 })
