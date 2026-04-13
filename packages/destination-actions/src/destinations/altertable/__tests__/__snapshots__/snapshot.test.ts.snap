@@ -1,7 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Testing snapshot for actions-altertable destination: alias action - all fields 1`] = `
+Object {
+  "device_id": "ggO&g",
+  "distinct_id": "ggO&g",
+  "environment": "ggO&g",
+  "new_user_id": "ggO&g",
+  "timestamp": "2024-06-01T12:00:00.000Z",
+}
+`;
+
+exports[`Testing snapshot for actions-altertable destination: alias action - required fields 1`] = `
+Object {
+  "distinct_id": "ggO&g",
+  "environment": "ggO&g",
+  "new_user_id": "ggO&g",
+  "timestamp": "2024-06-01T12:00:00.000Z",
+}
+`;
+
 exports[`Testing snapshot for actions-altertable destination: event action - all fields 1`] = `
 Object {
+  "anonymous_id": "UM[e12E",
   "device_id": "UM[e12E",
   "distinct_id": "UM[e12E",
   "environment": "UM[e12E",

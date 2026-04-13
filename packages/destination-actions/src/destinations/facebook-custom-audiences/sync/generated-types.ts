@@ -14,10 +14,6 @@ export interface Payload {
    */
   phone?: string
   /**
-   * User’s country. Use 2-letter country codes in ISO 3166-1 alpha-2 format.
-   */
-  country?: string
-  /**
    * User’s date of birth. Include as many fields as possible for better match rates (ex: year = YYYY, month = MM, day = DD)
    */
   birth?: {
@@ -34,6 +30,10 @@ export interface Payload {
     firstInitial?: string
   }
   /**
+   * User’s gender (m for male, f for female)
+   */
+  gender?: string
+  /**
    * User’s city. Use a-z only. No punctuation. No special characters.
    */
   city?: string
@@ -46,9 +46,9 @@ export interface Payload {
    */
   zip?: string
   /**
-   * User’s gender (m for male, f for female)
+   * User’s country. Use 2-letter country codes in ISO 3166-1 alpha-2 format.
    */
-  gender?: string
+  country?: string
   /**
    * User’s Apple IDFA, Android Ad ID, or Facebook app scoped ID. Keep hyphens (ex: AB1234CD-E123-12FG-J123)
    */
@@ -61,6 +61,10 @@ export interface Payload {
    * The page ID of the user.
    */
   pageId?: string
+  /**
+   * The Instagram account ID of the user.
+   */
+  igAccountIds?: string
   /**
    * The ID representing the Facebook identifier. This is the identifier that is returned during audience creation.'
    */

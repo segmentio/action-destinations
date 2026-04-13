@@ -7,7 +7,7 @@ import { PayloadValidationError } from '@segment/actions-core'
 import { formatSubscribeProfile, formatSubscribeRequestBody } from '../functions'
 import { SubscribeProfile } from '../types'
 import { API_URL } from '../config'
-import { country_code } from '../properties'
+import { batch_size, country_code } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Subscribe Profile',
@@ -82,6 +82,12 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       multiple: true,
       default: ['list_id', 'custom_source', 'historical_import']
+    },
+    batch_size: {
+      ...batch_size,
+      default: 1000,
+      minimum: 100,
+      maximum: 1000
     }
   },
   dynamicFields: {
