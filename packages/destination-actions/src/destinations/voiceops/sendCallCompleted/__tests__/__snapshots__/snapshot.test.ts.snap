@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Voiceops's sendCallCompleted destination action: all fields 1`] = `
+Object {
+  "agent_email": "opad@pa.ly",
+  "call_id": "t(Wu8lroLkPwL",
+  "call_started_at": "t(Wu8lroLkPwL",
+  "channels": Array [
+    Object {
+      "channel": 690770122113024,
+      "first_name": "t(Wu8lroLkPwL",
+      "identifier": "t(Wu8lroLkPwL",
+      "last_name": "t(Wu8lroLkPwL",
+      "recording_start_time": "t(Wu8lroLkPwL",
+      "type": "t(Wu8lroLkPwL",
+    },
+  ],
+  "extraMetadata": Object {
+    "testType": "t(Wu8lroLkPwL",
+  },
+  "first_name": "t(Wu8lroLkPwL",
+  "last_name": "t(Wu8lroLkPwL",
+  "mp3_Link": "t(Wu8lroLkPwL",
+  "multi_channel_recording_link": "t(Wu8lroLkPwL",
+}
+`;
+
+exports[`Testing snapshot for Voiceops's sendCallCompleted destination action: required fields 1`] = `
+Object {
+  "agent_email": "opad@pa.ly",
+  "call_id": "t(Wu8lroLkPwL",
+  "call_started_at": "t(Wu8lroLkPwL",
+  "mp3_Link": "https://example.com/audio.mp3",
+}
+`;
