@@ -90,7 +90,8 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Recording Start Time',
           description:
             'The participant start time as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:32:47.000Z`.',
-          type: 'string'
+          type: 'string',
+          format: 'date-time'
         },
         identifier: {
           label: 'Identifier',

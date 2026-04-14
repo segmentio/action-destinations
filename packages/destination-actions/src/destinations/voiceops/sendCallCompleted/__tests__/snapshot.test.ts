@@ -5,7 +5,7 @@ import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'sendCallCompleted'
-const destinationSlug = 'Voiceops'
+const destinationSlug = 'actions-voiceops'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
