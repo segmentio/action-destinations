@@ -70,7 +70,7 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
       type: 'boolean',
       description: 'Disable Moengage from showing Onsite Messaging on your website.',
       required: false,
-      default: false
+      default: true
     },
     customProxyDomain: {
       label: 'Custom Proxy Domain',
@@ -197,8 +197,10 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
 
     if(window.moe) {
       window.Moengage = window.moe(initConfig)
-      await deps.resolveWhen(() => typeof window?.Moengage?.onsite === 'function', 100)
-      const client = window.Moengage
+      if (!disable_onsite) {
+        await deps.resolveWhen(() => typeof window?.Moengage?.onsite === 'function', 100)
+      }
+      const client = window.Moengage 
       const originalReset = analytics.reset
       analytics.reset = (...args) => {
         if (typeof originalReset === 'function') {
