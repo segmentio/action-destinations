@@ -84,7 +84,7 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('pageView2', {
         event,
         settings,
-          features,
+        features,
         useDefaultMappings: true,
         mapping: { __segment_internal_sync_mode: 'add', action_source: { '@path': '$.properties.action_source' } }
       })
@@ -93,23 +93,22 @@ describe('FacebookConversionsApi', () => {
       expect(responses[0].status).toBe(201)
 
       expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "PageView",
-              event_time: "1631210020",
-              action_source: "email",
-              event_source_url: "https://segment.com/academy/",
-              event_id: "test",
-              user_data: {
-                external_id: [
-                  "6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090"
-                ],
-                client_ip_address: "8.8.8.8",
-                client_user_agent: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1"
-              }
+        data: [
+          {
+            event_name: 'PageView',
+            event_time: '1631210020',
+            action_source: 'email',
+            event_source_url: 'https://segment.com/academy/',
+            event_id: 'test',
+            user_data: {
+              external_id: ['6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090'],
+              client_ip_address: '8.8.8.8',
+              client_user_agent:
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
             }
-          ]
-        })
+          }
+        ]
+      })
     })
 
     it('should throw an error when action_source is website and no client_user_agent', async () => {
