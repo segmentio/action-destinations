@@ -20,6 +20,7 @@ export interface BingCAPIRequestItem {
   pageTitle?: string
   keywords?: string
   adStorageConsent?: string
+  dataProvider?: string
   customData?: {
     eventCategory?: string
     eventLabel?: string
