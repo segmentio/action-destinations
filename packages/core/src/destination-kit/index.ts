@@ -27,7 +27,9 @@ import type {
   Deletion,
   DeletionPayload,
   DynamicFieldResponse,
-  ResultMultiStatusNode
+  ResultMultiStatusNode,
+  AsyncActionResponseType,
+  AsyncPollResponseType
 } from './types'
 import type { AllRequestOptions } from '../request-client'
 import {
@@ -51,7 +53,9 @@ export type {
   ActionHookType,
   ExecuteInput,
   RequestFn,
-  Result
+  Result,
+  AsyncActionResponseType,
+  AsyncPollResponseType
 }
 export { hookTypeStrings }
 export type { MinimalInputField }
@@ -721,6 +725,49 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     return action.executeDynamicField(fieldKey, data, dynamicFn)
+  }
+
+  public async executePoll(
+    actionSlug: string,
+    {
+      event,
+      mapping,
+      subscriptionMetadata,
+      settings,
+      features,
+      statsContext,
+      logger,
+      engageDestinationCache,
+      transactionContext,
+      stateContext,
+      signal
+    }: EventInput<Settings>
+  ): Promise<AsyncPollResponseType> {
+    const action = this.actions[actionSlug]
+    if (!action) {
+      throw new IntegrationError(`Action ${actionSlug} not found`, 'NotImplemented', 404)
+    }
+
+    let audienceSettings = {} as AudienceSettings
+    if (event.context?.personas) {
+      audienceSettings = event.context?.personas?.audience_settings as AudienceSettings
+    }
+    const authData = getAuthData(settings as JSONObject)
+    return action.executePoll({
+      mapping,
+      data: event as unknown as InputData,
+      settings,
+      audienceSettings,
+      auth: authData,
+      features,
+      statsContext,
+      logger,
+      engageDestinationCache,
+      transactionContext,
+      stateContext,
+      subscriptionMetadata,
+      signal
+    })
   }
 
   private async onSubscription(
