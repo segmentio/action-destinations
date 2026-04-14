@@ -2,7 +2,7 @@ import type { Settings } from './generated-types'
 import type { ModifiedResponse } from '@segment/actions-core'
 import { CredsObj, YahooSubTaxonomy, TokenResponse } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
-import { StatsClient, Logger } from '@segment/actions-core/destination-kit'
+import { StatsClient } from '@segment/actions-core/destination-kit'
 import { generate_jwt } from './utils-rt'
 
 // Constants for Yahoo Taxonomy API
@@ -99,14 +99,13 @@ export async function update_taxonomy(
   request: RequestClient,
   body_form_data: string,
   statsClient: StatsClient | undefined,
-  statsTags: string[] | undefined,
-  logger?: Logger
+  statsTags: string[] | undefined
 ) {
   const tx_client_secret = tx_creds.tx_client_secret
   const tx_client_key = tx_creds.tx_client_key
   const url = `https://datax.yahooapis.com/v1/taxonomy/append${engage_space_id.length > 0 ? '/' + engage_space_id : ''}`
 
-  logger?.info(
+  console.info(
     '[update_taxonomy] Starting taxonomy update request',
     `engage_space_id: ${engage_space_id}`,
     `url: ${url}`,
@@ -116,10 +115,10 @@ export async function update_taxonomy(
   // Get a short-lived Bearer token using the same JWT client-credentials flow as the Online API
   const access_token = await get_taxonomy_access_token(request, tx_client_key, tx_client_secret)
 
-  logger?.info('[update_taxonomy] Access token obtained successfully')
+  console.info('[update_taxonomy] Access token obtained successfully')
 
   try {
-    logger?.info('[update_taxonomy] Sending PUT request to Yahoo Taxonomy API', `url: ${url}`)
+    console.info('[update_taxonomy] Sending PUT request to Yahoo Taxonomy API', `url: ${url}`)
 
     const add_segment_node = await request(url, {
       method: 'PUT',
@@ -130,7 +129,7 @@ export async function update_taxonomy(
       }
     })
 
-    logger?.info(
+    console.info(
       '[update_taxonomy] Received response from Yahoo Taxonomy API',
       `status: ${add_segment_node.status}`,
       `statusText: ${add_segment_node.statusText}`
@@ -142,7 +141,7 @@ export async function update_taxonomy(
 
     const responseData = await add_segment_node.json()
 
-    logger?.info(
+    console.info(
       '[update_taxonomy] Response data from Yahoo Taxonomy API',
       `responseData: ${JSON.stringify(responseData)}`
     )
@@ -151,7 +150,7 @@ export async function update_taxonomy(
   } catch (error) {
     const _error = error as { response: { data: unknown; status: string } }
 
-    logger?.warn(
+    console.warn(
       '[update_taxonomy] Error occurred during taxonomy update',
       `status: ${_error.response?.status || 'unknown'}`,
       `responseData: ${JSON.stringify(_error.response?.data || {})}`
