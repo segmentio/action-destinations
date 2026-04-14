@@ -321,6 +321,7 @@ function extractLeadIds(leads: MarketoLeads[] = []) {
 // Marketo error codes that indicate transient/temporary failures which should be retried.
 // Reference: https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/rest/error-codes
 const MARKETO_RETRYABLE_CODES = new Set([
+  '500', // Internal server error
   '502', // Bad gateway / timeout
   '604', // Request timeout
   '606', // Rate limit exceeded (>100 calls per 20 seconds)
@@ -355,7 +356,7 @@ function parseErrorResponse(response: MarketoResponse) {
     throw new RetryableError(message)
   }
 
-  throw new IntegrationError(message, ErrorCodes.RETRYABLE_ERROR, 500)
+  throw new IntegrationError(message, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
 }
 
 function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number) {
@@ -385,8 +386,8 @@ function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number)
   }
 
   return buildMultiStatusErrorResponse(payloadSize, {
-    status: 500,
-    errortype: ErrorCodes.RETRYABLE_ERROR,
+    status: 400,
+    errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
     body: response.errors[0] as unknown as JSONLikeObject,
     errormessage: message
   })
