@@ -240,20 +240,20 @@ export function getSearchEventData(payload: SearchPayload | Search2Payload): Sea
   const baseEventData = getBaseEventData(payload)
   const { custom_data, currency, value, content_ids, search_string, content_category, contents } = payload
 
-    const data: SearchEventData = {
-      event_name: 'Search',
-      ...baseEventData,
-      custom_data: {
-        ...custom_data,
-        currency: currency as string,
-        value,
-        ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
-        ...(contents && { contents }),
-        ...(content_category && { content_category }),
-        ...(search_string && { search_string })
-      }
+  const data: SearchEventData = {
+    event_name: 'Search',
+    ...baseEventData,
+    custom_data: {
+      ...custom_data,
+      currency: currency as string,
+      value,
+      ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
+      ...(contents && { contents }),
+      ...(content_category && { content_category }),
+      ...(search_string && { search_string })
     }
-    return data
+  }
+  return data
 }
 
 export function getViewContentEventData(payload: ViewContentPayload | ViewContent2Payload): ViewContentEventData {
