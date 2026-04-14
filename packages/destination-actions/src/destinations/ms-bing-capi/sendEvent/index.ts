@@ -59,9 +59,6 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
       },
       continueOnValidationError: true
     }
-
-    console.log('Processing payload: ', jsonItem)
-
     json.push(jsonItem)
   })
 
