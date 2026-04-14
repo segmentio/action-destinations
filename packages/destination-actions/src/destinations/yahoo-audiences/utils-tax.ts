@@ -105,10 +105,21 @@ export async function update_taxonomy(
   const tx_client_key = tx_creds.tx_client_key
   const url = `https://datax.yahooapis.com/v1/taxonomy/append${engage_space_id.length > 0 ? '/' + engage_space_id : ''}`
 
+  console.info(
+    '[update_taxonomy] Starting taxonomy update request',
+    `engage_space_id: ${engage_space_id}`,
+    `url: ${url}`,
+    `tx_client_key: ${tx_client_key ? 'present' : 'missing'}`
+  )
+
   // Get a short-lived Bearer token using the same JWT client-credentials flow as the Online API
   const access_token = await get_taxonomy_access_token(request, tx_client_key, tx_client_secret)
 
+  console.info('[update_taxonomy] Access token obtained successfully')
+
   try {
+    console.info('[update_taxonomy] Sending PUT request to Yahoo Taxonomy API', `url: ${url}`)
+
     const add_segment_node = await request(url, {
       method: 'PUT',
       body: body_form_data,
@@ -117,12 +128,34 @@ export async function update_taxonomy(
         'Content-Type': 'multipart/form-data; boundary=SEGMENT-DATA'
       }
     })
+
+    console.info(
+      '[update_taxonomy] Received response from Yahoo Taxonomy API',
+      `status: ${add_segment_node.status}`,
+      `statusText: ${add_segment_node.statusText}`
+    )
+
     if (statsClient && statsTags) {
       statsClient.incr('update_taxonomy.success', 1, statsTags)
     }
-    return await add_segment_node.json()
+
+    const responseData = await add_segment_node.json()
+
+    console.info(
+      '[update_taxonomy] Response data from Yahoo Taxonomy API',
+      `responseData: ${JSON.stringify(responseData)}`
+    )
+
+    return responseData
   } catch (error) {
     const _error = error as { response: { data: unknown; status: string } }
+
+    console.warn(
+      '[update_taxonomy] Error occurred during taxonomy update',
+      `status: ${_error.response?.status || 'unknown'}`,
+      `responseData: ${JSON.stringify(_error.response?.data || {})}`
+    )
+
     if (statsClient && statsTags) {
       statsClient.incr('update_taxonomy.error', 1, statsTags)
     }
