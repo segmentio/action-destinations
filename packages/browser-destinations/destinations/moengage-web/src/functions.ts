@@ -72,8 +72,10 @@ export function initializeSDK(settings: Settings): Promise<void> {
         r.async = true
         r.src = t
         o.appendChild(r)
+        // @ts-expect-error - vendor code
         e.moe = e.moe ||
             function () {
+                // @ts-expect-error - vendor code
                 return ((s.invoked = s.invoked + 1), s.invoked > 1)
                     ? (console.error("MoEngage Web SDK initialised multiple times. Please integrate the Web SDK only once!"),!1)
                     : ((d = arguments.length <= 0 ? void 0 : arguments[0]), l);
