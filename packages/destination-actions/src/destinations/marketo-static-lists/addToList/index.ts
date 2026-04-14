@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
     lookup_field: { ...lookup_field },
     data: { ...data },
     enable_batching: { ...enable_batching },
-    batch_size: { ...batch_size },
+    batch_size: { ...batch_size, minimum: 10000 },
     event_name: { ...event_name }
   },
   hooks: {
