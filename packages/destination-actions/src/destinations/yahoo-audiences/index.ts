@@ -65,7 +65,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         )
       } else {
         // The last 3 params are undefined because statsContext.statsClient, statsContext.tags, and logger are not available in testAuthentication()
-        return await update_taxonomy('', tx_creds, request, body_form_data, undefined, undefined, undefined)
+        return await update_taxonomy('', tx_creds, request, body_form_data, undefined, undefined)
       }
     },
     refreshAccessToken: async (request, { auth }) => {
@@ -115,7 +115,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const statsClient = createAudienceInput?.statsContext?.statsClient
       const statsTags = createAudienceInput?.statsContext?.tags
-      const logger = createAudienceInput?.logger
 
       if (!engage_space_id) {
         throw new IntegrationError('Create Audience: missing setting "Engage space Id" ', 'MISSING_REQUIRED_FIELD', 400)
@@ -141,7 +140,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         tx_client_secret: process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET
       }
 
-      await update_taxonomy(engage_space_id, tx_creds, request, body_form_data, statsClient, statsTags, logger)
+      await update_taxonomy(engage_space_id, tx_creds, request, body_form_data, statsClient, statsTags)
 
       return { externalId: audience_id }
     },

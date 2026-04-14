@@ -124,8 +124,6 @@ export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> 
   statsContext?: StatsContext
 
   features?: Features
-
-  logger?: Logger
 }
 
 export type GetAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
