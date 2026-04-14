@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, PayloadValidationError } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { Settings } from '../../generated-types'
 import { VOICEOPS_BASE_URL } from '../../constants'
@@ -11,7 +11,7 @@ const SETTINGS: Settings = {
 
 function createCallCompletedEvent(
   properties: Record<string, unknown> = {},
-  { includeDefaultAudio = true }: { includeDefaultAudio?: boolean } = {}
+  { includeDefaultRecording = true }: { includeDefaultRecording?: boolean } = {}
 ) {
   const eventProperties: Record<string, unknown> = {
     call_id: 'call-123',
@@ -20,17 +20,13 @@ function createCallCompletedEvent(
     ...properties
   }
 
-  if (
-    includeDefaultAudio &&
-    !Object.prototype.hasOwnProperty.call(properties, 'mp3_Link') &&
-    !Object.prototype.hasOwnProperty.call(properties, 'multi_channel_recording_link')
-  ) {
-    eventProperties.mp3_Link = 'https://example.com/audio.mp3'
+  if (includeDefaultRecording && !Object.prototype.hasOwnProperty.call(properties, 'recording_url')) {
+    eventProperties.recording_url = 'https://example.com/audio.wav'
   }
 
   return createTestEvent({
     type: 'track',
-    event: 'call_completed',
+    event: 'Call Completed',
     properties: eventProperties
   })
 }
@@ -61,15 +57,15 @@ describe('Voiceops.sendCallCompleted', () => {
       call_id: 'call-123',
       call_started_at: '1712683200',
       agent_email: 'agent@voiceops.com',
-      mp3_Link: 'https://example.com/audio.mp3'
+      recording_url: 'https://example.com/audio.wav'
     })
   })
 
-  it('forwards multi-channel recordings and channels unchanged', async () => {
+  it('forwards channels with a supported type unchanged', async () => {
     nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
 
     const event = createCallCompletedEvent({
-      multi_channel_recording_link: 'https://example.com/audio.wav',
+      recording_url: 'https://example.com/audio.wav',
       channels: [
         {
           channel: 3,
@@ -89,7 +85,7 @@ describe('Voiceops.sendCallCompleted', () => {
     })
 
     expect(responses[0].options.json).toMatchObject({
-      multi_channel_recording_link: 'https://example.com/audio.wav',
+      recording_url: 'https://example.com/audio.wav',
       channels: [
         {
           channel: 3,
@@ -129,8 +125,8 @@ describe('Voiceops.sendCallCompleted', () => {
     })
   })
 
-  it('fails before sending when no audio link is present', async () => {
-    const event = createCallCompletedEvent({}, { includeDefaultAudio: false })
+  it('fails when recording_url is missing', async () => {
+    const event = createCallCompletedEvent({}, { includeDefaultRecording: false })
 
     await expect(
       testDestination.testAction('sendCallCompleted', {
@@ -138,7 +134,7 @@ describe('Voiceops.sendCallCompleted', () => {
         settings: SETTINGS,
         useDefaultMappings: true
       })
-    ).rejects.toThrow(PayloadValidationError)
+    ).rejects.toThrow()
   })
 
   it('still succeeds when first_name and last_name are omitted', async () => {
@@ -159,5 +155,26 @@ describe('Voiceops.sendCallCompleted', () => {
     })
     expect(responses[0].options.json).not.toHaveProperty('first_name')
     expect(responses[0].options.json).not.toHaveProperty('last_name')
+  })
+
+  it('fails when a channel type is not supported', async () => {
+    const event = createCallCompletedEvent({
+      channels: [
+        {
+          channel: 2,
+          type: 'SUPERVISOR',
+          recording_start_time: '2025-12-08T13:32:47.000Z',
+          identifier: 'agent@voiceops.com'
+        }
+      ]
+    })
+
+    await expect(
+      testDestination.testAction('sendCallCompleted', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow()
   })
 })

@@ -18,12 +18,10 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
+        event: 'Call Completed',
         properties: {
           ...eventData,
-          mp3_Link: 'https://example.com/audio.mp3',
-          ...(eventData.multi_channel_recording_link !== undefined
-            ? { multi_channel_recording_link: 'https://example.com/audio-multi.wav' }
-            : {})
+          recording_url: 'https://example.com/audio.wav'
         }
       })
 
@@ -58,12 +56,10 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().put(/.*/).reply(200)
 
       const event = createTestEvent({
+        event: 'Call Completed',
         properties: {
           ...eventData,
-          mp3_Link: 'https://example.com/audio.mp3',
-          ...(eventData.multi_channel_recording_link !== undefined
-            ? { multi_channel_recording_link: 'https://example.com/audio-multi.wav' }
-            : {})
+          recording_url: 'https://example.com/audio.wav'
         }
       })
 

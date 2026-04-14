@@ -6,7 +6,7 @@ export interface Payload {
    */
   call_id: string
   /**
-   * The time the call started. This should match the existing Regal payload format.
+   * The call start time as a Unix timestamp in seconds, for example `1712683200`.
    */
   call_started_at: string
   /**
@@ -14,13 +14,9 @@ export interface Payload {
    */
   agent_email: string
   /**
-   * A link to the single-channel recording for the call.
+   * A direct URI to the call recording file, for example `https://example.com/audio.wav`.
    */
-  mp3_Link?: string
-  /**
-   * A link to the multi-channel recording when conference splitting is needed.
-   */
-  multi_channel_recording_link?: string
+  recording_url: string
   /**
    * The first name for the primary handling agent.
    */
@@ -38,11 +34,11 @@ export interface Payload {
      */
     channel?: number
     /**
-     * The participant type for the channel.
+     * The participant role for the channel. Supported values are CONTACT, HANDLING_AGENT, and TRANSFER_AGENT.
      */
     type?: string
     /**
-     * When this participant started in the recording.
+     * The participant start time as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:32:47.000Z`.
      */
     recording_start_time?: string
     /**

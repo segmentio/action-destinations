@@ -1,4 +1,3 @@
-import { PayloadValidationError } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -6,8 +5,8 @@ import { VOICEOPS_CALLS_ENDPOINT } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Call Completed',
-  description: 'Send a completed call event to Voiceops using the existing Regal-compatible call payload.',
-  defaultSubscription: 'type = "track" and event = "call_completed"',
+  description: 'Send a completed call event to Voiceops using the canonical Voiceops call payload.',
+  defaultSubscription: 'type = "track" and event = "Call Completed"',
   fields: {
     call_id: {
       label: 'Call ID',
@@ -20,7 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     call_started_at: {
       label: 'Call Started At',
-      description: 'The time the call started. This should match the existing Regal payload format.',
+      description: 'The call start time as a Unix timestamp in seconds, for example `1712683200`.',
       type: 'string',
       required: true,
       default: {
@@ -37,22 +36,14 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.agent_email'
       }
     },
-    mp3_Link: {
-      label: 'MP3 Link',
-      description: 'A link to the single-channel recording for the call.',
+    recording_url: {
+      label: 'Recording URL',
+      description: 'A direct URI to the call recording file, for example `https://example.com/audio.wav`.',
       type: 'string',
       format: 'uri',
+      required: true,
       default: {
-        '@path': '$.properties.mp3_Link'
-      }
-    },
-    multi_channel_recording_link: {
-      label: 'Multi-Channel Recording Link',
-      description: 'A link to the multi-channel recording when conference splitting is needed.',
-      type: 'string',
-      format: 'uri',
-      default: {
-        '@path': '$.properties.multi_channel_recording_link'
+        '@path': '$.properties.recording_url'
       }
     },
     first_name: {
@@ -86,12 +77,19 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         type: {
           label: 'Type',
-          description: 'The participant type for the channel.',
-          type: 'string'
+          description:
+            'The participant role for the channel. Supported values are CONTACT, HANDLING_AGENT, and TRANSFER_AGENT.',
+          type: 'string',
+          choices: [
+            { label: 'Contact', value: 'CONTACT' },
+            { label: 'Handling Agent', value: 'HANDLING_AGENT' },
+            { label: 'Transfer Agent', value: 'TRANSFER_AGENT' }
+          ]
         },
         recording_start_time: {
           label: 'Recording Start Time',
-          description: 'When this participant started in the recording.',
+          description:
+            'The participant start time as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:32:47.000Z`.',
           type: 'string'
         },
         identifier: {
@@ -147,12 +145,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
-    const hasAudioUrl = data.payload.multi_channel_recording_link?.trim() || data.payload.mp3_Link?.trim()
-
-    if (!hasAudioUrl) {
-      throw new PayloadValidationError('Either mp3_Link or multi_channel_recording_link must be provided.')
-    }
-
     return request(VOICEOPS_CALLS_ENDPOINT, {
       method: 'post',
       json: data.payload

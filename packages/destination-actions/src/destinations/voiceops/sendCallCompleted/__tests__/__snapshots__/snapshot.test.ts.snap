@@ -12,7 +12,7 @@ Object {
       "identifier": "t(Wu8lroLkPwL",
       "last_name": "t(Wu8lroLkPwL",
       "recording_start_time": "t(Wu8lroLkPwL",
-      "type": "t(Wu8lroLkPwL",
+      "type": "HANDLING_AGENT",
     },
   ],
   "extraMetadata": Object {
@@ -20,8 +20,7 @@ Object {
   },
   "first_name": "t(Wu8lroLkPwL",
   "last_name": "t(Wu8lroLkPwL",
-  "mp3_Link": "https://example.com/audio.mp3",
-  "multi_channel_recording_link": "https://example.com/audio-multi.wav",
+  "recording_url": "https://example.com/audio.wav",
 }
 `;
 
@@ -30,6 +29,6 @@ Object {
   "agent_email": "opad@pa.ly",
   "call_id": "t(Wu8lroLkPwL",
   "call_started_at": "t(Wu8lroLkPwL",
-  "mp3_Link": "https://example.com/audio.mp3",
+  "recording_url": "https://example.com/audio.wav",
 }
 `;

@@ -12,7 +12,7 @@ Object {
       "identifier": "PdayLkf!",
       "last_name": "PdayLkf!",
       "recording_start_time": "PdayLkf!",
-      "type": "PdayLkf!",
+      "type": "CONTACT",
     },
   ],
   "extraMetadata": Object {
@@ -20,8 +20,7 @@ Object {
   },
   "first_name": "PdayLkf!",
   "last_name": "PdayLkf!",
-  "mp3_Link": "https://example.com/audio.mp3",
-  "multi_channel_recording_link": "https://example.com/audio-multi.wav",
+  "recording_url": "https://example.com/audio.wav",
 }
 `;
 
@@ -30,6 +29,6 @@ Object {
   "agent_email": "bah@curoj.cw",
   "call_id": "PdayLkf!",
   "call_started_at": "PdayLkf!",
-  "mp3_Link": "https://example.com/audio.mp3",
+  "recording_url": "https://example.com/audio.wav",
 }
 `;

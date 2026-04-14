@@ -23,7 +23,7 @@ const destination: DestinationDefinition<Settings> = {
   presets: [
     {
       name: 'Send Call Completed',
-      subscribe: 'type = "track" and event = "call_completed"',
+      subscribe: 'type = "track" and event = "Call Completed"',
       partnerAction: 'sendCallCompleted',
       mapping: defaultValues(sendCallCompleted.fields),
       type: 'automatic'
