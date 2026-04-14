@@ -363,7 +363,7 @@ describe('FacebookConversionsApi', () => {
         })
       })
 
-      it('should handle basic event mapping with mutiple externalId', async () => {
+      it('should handle basic event mapping with multiple externalId', async () => {
         nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
         const event = createTestEvent({
