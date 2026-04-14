@@ -1,4 +1,5 @@
 import { Settings } from './generated-types'
+import { MoengageSDK } from './types'
 
 export function initializeSDK(settings: Settings): Promise<void> {
     const {
@@ -14,16 +15,16 @@ export function initializeSDK(settings: Settings): Promise<void> {
         const a = "Moengage"
         let r: HTMLScriptElement
         let o: HTMLElement
-        let d: unknown 
 
         if (!moeDataCenter || !moeDataCenter.match(/^dc_[0-9]+$/gm)){
             return console.error( "Data center has not been passed correctly. Please follow the SDK installation instruction carefully." )
         }
-        // @ts-expect-error - vendor code
-        var s = (e[a] = e[a] || []);
-        // @ts-expect-error - vendor code: s is an untyped stub object with invoked/initialised properties
-        if (((s.invoked = 0), s.initialised > 0 || s.invoked > 0)){
-            return (console.error("MoEngage Web SDK initialised multiple times. Please integrate the Web SDK only once!"),!1);
+        // @ts-expect-error - vendor code: e[a] is a dynamic stub array before the real SDK loads
+        var s = (e[a] = e[a] || [])
+        // @ts-expect-error - vendor code: s.invoked and s.initialised are set by the real SDK at runtime
+        if (((s.invoked = 0), s.initialised > 0 || s.invoked > 0)) {
+            console.error("MoEngage Web SDK initialised multiple times. Please integrate the Web SDK only once!")
+            return
         }
         e.moengage_object = a;
         var l = {};
@@ -72,14 +73,15 @@ export function initializeSDK(settings: Settings): Promise<void> {
         r.async = true
         r.src = t
         o.appendChild(r)
-        // @ts-expect-error - vendor code
-        e.moe = e.moe ||
-            function () {
-                // @ts-expect-error - vendor code
-                return ((s.invoked = s.invoked + 1), s.invoked > 1)
-                    ? (console.error("MoEngage Web SDK initialised multiple times. Please integrate the Web SDK only once!"),!1)
-                    : ((d = arguments.length <= 0 ? void 0 : arguments[0]), l);
+        e.moe = e.moe || function(): MoengageSDK {
+            // @ts-expect-error - vendor code: s.invoked is set at runtime by the real SDK
+            s.invoked = s.invoked + 1
+            // @ts-expect-error - vendor code: s.invoked is set at runtime by the real SDK
+            if (s.invoked > 1) {
+                console.error("MoEngage Web SDK initialised multiple times. Please integrate the Web SDK only once!")
             }
+            return l as unknown as MoengageSDK
+        }
 
         r.addEventListener("load", function () {
             resolve()
