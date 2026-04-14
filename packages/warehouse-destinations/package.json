@@ -1,6 +1,6 @@
 {
   "name": "@segment/warehouse-destinations",
-  "version": "1.21.1-staging-2c8f0a5fe.0",
+  "version": "1.21.1-staging-80e87c7d1.2",
   "description": "Definitions for warehouse destinations. Only used for definitions - should not be imported for anything other than types.",
   "publishConfig": {
     "access": "public",
@@ -25,7 +25,7 @@
   "engineStrict": true,
   "license": "MIT",
   "dependencies": {
-    "@segment/actions-core": "3.166.1-staging-2c8f0a5fe.0",
+    "@segment/actions-core": "3.166.1-staging-80e87c7d1.2",
     "globby": "^14.1.0"
   }
 }
