@@ -26,7 +26,7 @@ export interface Payload {
    */
   last_name?: string
   /**
-   * Optional channel metadata used by Voiceops to split conference bridge recordings and attribute agents.
+   * Optional channel metadata for multi-channel audio-aware integrations. Use this when you can provide precise channel-based conference bridge data.
    */
   channels?: {
     /**
@@ -55,7 +55,32 @@ export interface Payload {
     last_name?: string
   }[]
   /**
-   * Additional org-specific call metadata to forward to Voiceops unchanged.
+   * Optional warm-transfer metadata for agent handoff windows. Use this when you cannot provide channel-based multi-channel recording data.
+   */
+  agentLegs?: {
+    /**
+     * The email address for the agent handling this leg of the call.
+     */
+    agent_email: string
+    /**
+     * When this agent began handling the call as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:32:47.000Z`.
+     */
+    started_at: string
+    /**
+     * When this agent stopped handling the call as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:37:47.000Z`.
+     */
+    ended_at?: string
+    /**
+     * The first name of the agent for this call leg.
+     */
+    first_name?: string
+    /**
+     * The last name of the agent for this call leg.
+     */
+    last_name?: string
+  }[]
+  /**
+   * Additional call metadata to forward to Voiceops unchanged.
    */
   extraMetadata?: {
     [k: string]: unknown

@@ -2,6 +2,15 @@
 
 exports[`Testing snapshot for actions-voiceops's sendCallCompleted destination action: all fields 1`] = `
 Object {
+  "agentLegs": Array [
+    Object {
+      "agent_email": "bah@curoj.cw",
+      "ended_at": "2082-03-02T00:19:30.144Z",
+      "first_name": "PdayLkf!",
+      "last_name": "PdayLkf!",
+      "started_at": "2082-03-02T00:19:30.144Z",
+    },
+  ],
   "agent_email": "bah@curoj.cw",
   "call_id": "PdayLkf!",
   "call_started_at": "PdayLkf!",

@@ -59,6 +59,8 @@ describe('Voiceops.sendCallCompleted', () => {
       agent_email: 'agent@voiceops.com',
       recording_url: 'https://example.com/audio.wav'
     })
+    expect(responses[0].options.json).not.toHaveProperty('channels')
+    expect(responses[0].options.json).not.toHaveProperty('agentLegs')
   })
 
   it('forwards channels with a supported type unchanged', async () => {
@@ -94,6 +96,85 @@ describe('Voiceops.sendCallCompleted', () => {
           identifier: 'agent@voiceops.com',
           first_name: 'Ava',
           last_name: 'Agent'
+        }
+      ]
+    })
+  })
+
+  it('forwards agentLegs unchanged', async () => {
+    nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+
+    const event = createCallCompletedEvent({
+      agentLegs: [
+        {
+          agent_email: 'first-agent@voiceops.com',
+          started_at: '2025-12-08T13:32:47.000Z',
+          ended_at: '2025-12-08T13:35:47.000Z',
+          first_name: 'Ava',
+          last_name: 'Agent'
+        }
+      ]
+    })
+
+    const responses = await testDestination.testAction('sendCallCompleted', {
+      event,
+      settings: SETTINGS,
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].options.json).toMatchObject({
+      agentLegs: [
+        {
+          agent_email: 'first-agent@voiceops.com',
+          started_at: '2025-12-08T13:32:47.000Z',
+          ended_at: '2025-12-08T13:35:47.000Z',
+          first_name: 'Ava',
+          last_name: 'Agent'
+        }
+      ]
+    })
+  })
+
+  it('accepts payloads with both channels and agentLegs', async () => {
+    nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+
+    const event = createCallCompletedEvent({
+      channels: [
+        {
+          channel: 3,
+          type: 'HANDLING_AGENT',
+          recording_start_time: '2025-12-08T13:32:47.000Z',
+          identifier: 'agent@voiceops.com'
+        }
+      ],
+      agentLegs: [
+        {
+          agent_email: 'agent@voiceops.com',
+          started_at: '2025-12-08T13:32:47.000Z'
+        }
+      ]
+    })
+
+    const responses = await testDestination.testAction('sendCallCompleted', {
+      event,
+      settings: SETTINGS,
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject({
+      channels: [
+        {
+          channel: 3,
+          type: 'HANDLING_AGENT',
+          recording_start_time: '2025-12-08T13:32:47.000Z',
+          identifier: 'agent@voiceops.com'
+        }
+      ],
+      agentLegs: [
+        {
+          agent_email: 'agent@voiceops.com',
+          started_at: '2025-12-08T13:32:47.000Z'
         }
       ]
     })
@@ -165,6 +246,62 @@ describe('Voiceops.sendCallCompleted', () => {
           type: 'SUPERVISOR',
           recording_start_time: '2025-12-08T13:32:47.000Z',
           identifier: 'agent@voiceops.com'
+        }
+      ]
+    })
+
+    await expect(
+      testDestination.testAction('sendCallCompleted', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow()
+  })
+
+  it('fails when an agent leg is missing agent_email', async () => {
+    const event = createCallCompletedEvent({
+      agentLegs: [
+        {
+          started_at: '2025-12-08T13:32:47.000Z'
+        }
+      ]
+    })
+
+    await expect(
+      testDestination.testAction('sendCallCompleted', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow()
+  })
+
+  it('fails when an agent leg is missing started_at', async () => {
+    const event = createCallCompletedEvent({
+      agentLegs: [
+        {
+          agent_email: 'agent@voiceops.com'
+        }
+      ]
+    })
+
+    await expect(
+      testDestination.testAction('sendCallCompleted', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow()
+  })
+
+  it('fails when an agent leg timestamp is invalid', async () => {
+    const event = createCallCompletedEvent({
+      agentLegs: [
+        {
+          agent_email: 'agent@voiceops.com',
+          started_at: 'not-a-timestamp',
+          ended_at: 'still-not-a-timestamp'
         }
       ]
     })

@@ -65,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
     channels: {
       label: 'Channels',
       description:
-        'Optional channel metadata used by Voiceops to split conference bridge recordings and attribute agents.',
+        'Optional channel metadata for multi-channel audio-aware integrations. Use this when you can provide precise channel-based conference bridge data.',
       type: 'object',
       multiple: true,
       defaultObjectUI: 'arrayeditor',
@@ -135,9 +135,73 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     },
+    agentLegs: {
+      label: 'Agent Legs',
+      description:
+        'Optional warm-transfer metadata for agent handoff windows. Use this when you cannot provide channel-based multi-channel recording data.',
+      type: 'object',
+      multiple: true,
+      defaultObjectUI: 'arrayeditor',
+      properties: {
+        agent_email: {
+          label: 'Agent Email',
+          description: 'The email address for the agent handling this leg of the call.',
+          type: 'string',
+          format: 'email',
+          required: true
+        },
+        started_at: {
+          label: 'Started At',
+          description:
+            'When this agent began handling the call as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:32:47.000Z`.',
+          type: 'string',
+          format: 'date-time',
+          required: true
+        },
+        ended_at: {
+          label: 'Ended At',
+          description:
+            'When this agent stopped handling the call as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:37:47.000Z`.',
+          type: 'string',
+          format: 'date-time'
+        },
+        first_name: {
+          label: 'First Name',
+          description: 'The first name of the agent for this call leg.',
+          type: 'string'
+        },
+        last_name: {
+          label: 'Last Name',
+          description: 'The last name of the agent for this call leg.',
+          type: 'string'
+        }
+      },
+      default: {
+        '@arrayPath': [
+          '$.properties.agentLegs',
+          {
+            agent_email: {
+              '@path': '$.agent_email'
+            },
+            started_at: {
+              '@path': '$.started_at'
+            },
+            ended_at: {
+              '@path': '$.ended_at'
+            },
+            first_name: {
+              '@path': '$.first_name'
+            },
+            last_name: {
+              '@path': '$.last_name'
+            }
+          }
+        ]
+      }
+    },
     extraMetadata: {
       label: 'Extra Metadata',
-      description: 'Additional org-specific call metadata to forward to Voiceops unchanged.',
+      description: 'Additional call metadata to forward to Voiceops unchanged.',
       type: 'object',
       additionalProperties: true,
       default: {
