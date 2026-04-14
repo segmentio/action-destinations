@@ -1,4 +1,4 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, PayloadValidationError, MultiStatusResponse } from '@segment/actions-core'
@@ -35,36 +35,22 @@ const action: ActionDefinition<Settings, Payload> = {
       dynamic: true,
       disabledInputMethods: ['literal', 'variable', 'function', 'enrichment', 'freeform']
     },
-    contact_identifiers: {
-      label: 'Contact Identifiers',
-      description: 'Contact identifiers (email and/or phone). At least one identifier is required.',
-      type: 'object',
-      required: true,
-      additionalProperties: false,
-      properties: {
-        email: {
-          label: 'Email',
-          description: 'User email address',
-          type: 'string',
-          format: 'email'
-        },
-        phone: {
-          label: 'Phone',
-          description: 'User phone number',
-          type: 'string'
-        }
-      },
-      default: {
-        email: { '@path': '$.traits.email' },
-        phone: { '@path': '$.traits.phone' }
-      }
-    },
-    contact_traits: {
-      label: 'Contact Traits',
+    profile_identifiers: {
+      label: 'Profile Identifiers',
       description:
-        'Contact traits for the profile. At least one trait is required. These fields are dynamically loaded from the selected Memora Store.',
+        'Profile identifiers from all trait groups. At runtime, each event must contain at least one identifier with a non-null value, and at least two total non-null fields across identifiers and traits combined. Events with sparse data (e.g., only one identifier present) will be rejected. These fields are dynamically loaded from the selected Memora Store. When manually entering keys, use the format "TraitGroupName.$.traitName" (e.g., "Contact.$.email", "Contact.$.phone").',
       type: 'object',
       required: true,
+      additionalProperties: true,
+      dynamic: true,
+      defaultObjectUI: 'keyvalue'
+    },
+    profile_traits: {
+      label: 'Profile Traits',
+      description:
+        'Traits for the profile from all trait groups. While this field is optional in the mapping configuration, at runtime each event must have at least two total non-null fields across identifiers and traits combined. If you map only one identifier, you must also map at least one trait that will have a value for your events. These fields are dynamically loaded from the selected Memora Store. When manually entering keys, use the format "TraitGroupName.$.traitName" (e.g., "Contact.$.firstName", "PurchaseHistory.$.lastPurchaseDate").',
+      type: 'object',
+      required: false,
       additionalProperties: true,
       dynamic: true,
       defaultObjectUI: 'keyvalue'
@@ -74,21 +60,46 @@ const action: ActionDefinition<Settings, Payload> = {
     memora_store: async (request, { settings }) => {
       return fetchMemoraStores(request, settings)
     },
-    contact_traits: {
+    profile_identifiers: {
       __keys__: async (request, { settings, payload }) => {
         if (!payload.memora_store) {
           return { choices: [], error: { message: 'Please select a Memora Store first', code: 'STORE_REQUIRED' } }
         }
-        return fetchContactTraits(request, settings, payload.memora_store)
+        const result = await fetchTraitGroupFields(request, settings, payload.memora_store)
+        return result.identifiers
+      }
+    },
+    profile_traits: {
+      __keys__: async (request, { settings, payload }) => {
+        if (!payload.memora_store) {
+          return { choices: [], error: { message: 'Please select a Memora Store first', code: 'STORE_REQUIRED' } }
+        }
+        const result = await fetchTraitGroupFields(request, settings, payload.memora_store)
+        return result.traits
       }
     }
   },
   perform: async (request, { payload, settings, logger }) => {
-    return upsertProfiles(request, [payload], settings, logger)
+    const { rawResponse, multiStatus } = await upsertProfiles(request, [payload], settings, logger)
+
+    // For single-event execution, convert validation errors to thrown exceptions
+    if (multiStatus.isErrorResponseAtIndex(0)) {
+      const response = multiStatus.getResponseAtIndex(0).value()
+      const error = response as { status: number; errormessage?: string }
+      throw new PayloadValidationError(error.errormessage || 'Invalid profile')
+    }
+
+    // rawResponse should always be defined if we reach here (validation passed)
+    if (!rawResponse) {
+      throw new IntegrationError('No response returned from bulk upsert', 'MISSING_RESPONSE', 500)
+    }
+
+    return rawResponse
   },
 
   performBatch: async (request, { payload: payloads, settings, logger }) => {
-    return upsertProfiles(request, payloads, settings, logger)
+    const { multiStatus } = await upsertProfiles(request, payloads, settings, logger)
+    return multiStatus
   }
 }
 
@@ -98,7 +109,7 @@ async function upsertProfiles(
   payloads: Payload[],
   settings: Settings,
   logger?: Logger
-): Promise<MultiStatusResponse> {
+): Promise<{ rawResponse: ModifiedResponse | undefined; multiStatus: MultiStatusResponse }> {
   if (!payloads || payloads.length === 0) {
     throw new IntegrationError('No profiles provided', 'EMPTY_BATCH', 400)
   }
@@ -109,26 +120,45 @@ async function upsertProfiles(
   const validProfiles: { traits: Record<string, Record<string, unknown>> }[] = []
   const validIndices: number[] = []
   const invalidIndices: number[] = []
+  const validationErrors: Map<number, string> = new Map()
 
   payloads.forEach((payload, index) => {
-    // Validate that profile has at least one identifier AND at least one trait
-    const identifiers = payload.contact_identifiers || {}
-    const hasIdentifier = !!(identifiers.email || identifiers.phone)
+    // Validate: at least one identifier is required and at least two total fields (identifiers + traits) must be mapped
+    const identifiers = payload.profile_identifiers || {}
+    const identifierCount = Object.values(identifiers).filter((v) => v !== undefined && v !== null).length
+    const hasIdentifier = identifierCount > 0
 
     const traits = (
-      payload.contact_traits && typeof payload.contact_traits === 'object' ? payload.contact_traits : {}
+      payload.profile_traits && typeof payload.profile_traits === 'object' ? payload.profile_traits : {}
     ) as Record<string, unknown>
-    const hasTraits = Object.keys(traits).some((key) => traits[key] !== undefined && traits[key] !== null)
+    const traitCount = Object.values(traits).filter((v) => v !== undefined && v !== null).length
+    const totalFields = identifierCount + traitCount
 
-    if (!hasIdentifier || !hasTraits) {
+    if (!hasIdentifier) {
       invalidIndices.push(index)
+      validationErrors.set(index, 'Profile must contain at least one identifier')
+      return
+    }
+
+    if (totalFields < 2) {
+      invalidIndices.push(index)
+      validationErrors.set(
+        index,
+        'Profile must contain at least two total fields (identifiers + traits). It could be two identifiers, or one identifier and one trait.'
+      )
       return
     }
 
     // Build trait groups for valid profile
-    const traitGroups = buildTraitGroups(payload)
-    validProfiles.push({ traits: traitGroups })
-    validIndices.push(index)
+    try {
+      const traitGroups = buildTraitGroups(payload)
+      validProfiles.push({ traits: traitGroups })
+      validIndices.push(index)
+    } catch (error) {
+      // Catch validation errors for invalid trait key formats
+      invalidIndices.push(index)
+      validationErrors.set(index, error instanceof Error ? error.message : String(error))
+    }
   })
 
   if (invalidIndices.length > 0) {
@@ -137,10 +167,18 @@ async function upsertProfiles(
     )
   }
 
+  // If all profiles are invalid, return MultiStatusResponse with per-profile errors
   if (validProfiles.length === 0) {
-    throw new PayloadValidationError(
-      'No valid profiles found for import. All profiles must contain at least one identifier (email or phone) and at least one trait.'
-    )
+    logger?.warn?.('No valid profiles to import. All profiles failed validation.')
+
+    const multiStatusResponse = new MultiStatusResponse()
+    invalidIndices.forEach((index) => {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errormessage: validationErrors.get(index) || 'Invalid profile'
+      })
+    })
+    return { rawResponse: undefined, multiStatus: multiStatusResponse }
   }
 
   try {
@@ -175,13 +213,11 @@ async function upsertProfiles(
     invalidIndices.forEach((index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
-        errormessage: 'Profile must contain at least one identifier (email or phone) and at least one trait',
-        sent: {},
-        body: 'skipped'
+        errormessage: validationErrors.get(index) || 'Invalid profile'
       })
     })
 
-    return multiStatusResponse
+    return { rawResponse: response, multiStatus: multiStatusResponse }
   } catch (error) {
     logger?.error?.(`Error in bulk upsert: ${error instanceof Error ? error.message : String(error)}`)
     throw error
@@ -191,31 +227,68 @@ async function upsertProfiles(
 // Build trait groups payload for Memora API
 function buildTraitGroups(payload: Payload): Record<string, Record<string, unknown>> {
   const traitGroups: Record<string, Record<string, unknown>> = {}
-  const contactTraits: Record<string, unknown> = {}
+  const invalidKeys: string[] = []
 
-  // Merge contact traits first
-  if (payload.contact_traits && typeof payload.contact_traits === 'object') {
-    const traits = payload.contact_traits as Record<string, unknown>
+  // Process all traits from profile_traits field (format: TraitGroupName.$.traitName)
+  if (payload.profile_traits && typeof payload.profile_traits === 'object') {
+    const traits = payload.profile_traits as Record<string, unknown>
     Object.entries(traits).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        contactTraits[key] = value
+        // All traits use the format traitGroupName.$.traitName
+        const match = key.match(/^([^.]+)\.\$\.(.+)$/)
+        if (match) {
+          const traitGroupName = match[1]
+          const traitName = match[2]
+
+          if (!traitGroups[traitGroupName]) {
+            traitGroups[traitGroupName] = {}
+          }
+          traitGroups[traitGroupName][traitName] = value
+        } else {
+          // Track invalid keys for error reporting
+          invalidKeys.push(key)
+        }
       }
     })
+
+    // Throw error for invalid trait keys to prevent data loss
+    if (invalidKeys.length > 0) {
+      throw new PayloadValidationError(
+        `Invalid trait key format detected. The following keys do not match the expected format: ${invalidKeys.join(
+          ', '
+        )}. ` +
+          `Expected format: "TraitGroupName.$.traitName" (e.g., "Contact.$.firstName", "PurchaseHistory.$.lastPurchaseDate").`
+      )
+    }
   }
 
-  // Merge identifiers last (these are authoritative and will override any conflicting keys)
-  if (payload.contact_identifiers && typeof payload.contact_identifiers === 'object') {
-    const identifiers = payload.contact_identifiers as Record<string, unknown>
+  // Merge identifiers into their respective trait groups (these are authoritative and will override any conflicting keys)
+  if (payload.profile_identifiers && typeof payload.profile_identifiers === 'object') {
+    const identifiers = payload.profile_identifiers as Record<string, unknown>
+    const invalidIdentifierKeys: string[] = []
     Object.entries(identifiers).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        contactTraits[key] = value
+        const match = key.match(/^([^.]+)\.\$\.(.+)$/)
+        if (match) {
+          const traitGroupName = match[1]
+          const traitName = match[2]
+          if (!traitGroups[traitGroupName]) {
+            traitGroups[traitGroupName] = {}
+          }
+          traitGroups[traitGroupName][traitName] = value
+        } else {
+          invalidIdentifierKeys.push(key)
+        }
       }
     })
-  }
 
-  // Only add Contact trait group if it has at least one field
-  if (Object.keys(contactTraits).length > 0) {
-    traitGroups.Contact = contactTraits
+    if (invalidIdentifierKeys.length > 0) {
+      throw new PayloadValidationError(
+        `Invalid identifier key format detected. The following keys do not match the expected format: ${invalidIdentifierKeys.join(
+          ', '
+        )}. ` + `Expected format: "TraitGroupName.$.traitName" (e.g., "Contact.$.email", "Contact.$.phone").`
+      )
+    }
   }
 
   return traitGroups
@@ -242,17 +315,35 @@ interface TraitDefinition {
   idTypePromotion?: string | null
 }
 
-interface TraitGroupResponse {
-  traitGroup?: {
+interface TraitGroupsListResponse {
+  traitGroups?: Array<{
+    displayName: string
+    description?: string
     traits?: Record<string, TraitDefinition>
+    version?: number
+  }>
+  meta?: {
+    pageSize?: number
+    nextToken?: string
+    previousToken?: string
   }
 }
 
-// Fetch contact trait definitions for dynamic fields
-async function fetchContactTraits(request: RequestClient, settings: Settings, storeId: string) {
+type DynamicFieldResult = {
+  choices: Array<{ label: string; value: string; description: string }>
+  error?: { message: string; code: string }
+}
+
+// Fetch all trait group fields and return identifiers and traits separately.
+// Identifiers are traits with idTypePromotion set; traits are non-identifier STRING traits.
+async function fetchTraitGroupFields(
+  request: RequestClient,
+  settings: Settings,
+  storeId: string
+): Promise<{ identifiers: DynamicFieldResult; traits: DynamicFieldResult }> {
   try {
-    const response = await request<TraitGroupResponse>(
-      `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups/Contact?includeTraits=true&pageSize=100`,
+    const traitGroupsResponse = await request<TraitGroupsListResponse>(
+      `${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}/TraitGroups?pageSize=100&includeTraits=true`,
       {
         method: 'GET',
         headers: {
@@ -264,30 +355,50 @@ async function fetchContactTraits(request: RequestClient, settings: Settings, st
       }
     )
 
-    const traitsObj = response?.data?.traitGroup?.traits || {}
-    const choices = Object.entries(traitsObj)
-      .filter(
-        ([_, trait]) =>
-          trait.idTypePromotion !== 'email' && trait.idTypePromotion !== 'phone' && trait.dataType === 'STRING'
-      ) // Exclude identifiers and non-string traits
-      .map(([traitName, trait]) => ({
-        label: trait.displayName || traitName,
-        value: traitName,
-        description: trait.description || `${trait.displayName} (${trait.dataType})`
-      }))
+    const traitGroupObjects = traitGroupsResponse?.data?.traitGroups || []
+
+    const identifierChoices: DynamicFieldResult['choices'] = []
+    const traitChoices: DynamicFieldResult['choices'] = []
+
+    for (const traitGroup of traitGroupObjects) {
+      const traitGroupName = traitGroup.displayName
+      const traits = traitGroup.traits || {}
+
+      Object.entries(traits).forEach(([traitName, trait]) => {
+        const value = `${traitGroupName}.$.${traitName}`
+        const label = `${traitGroupName}.${trait.displayName || traitName}`
+
+        if (trait.idTypePromotion && trait.dataType === 'STRING') {
+          const description = trait.description
+            ? trait.description
+            : `${traitGroupName} - ${trait.displayName} (${trait.idTypePromotion})`
+          identifierChoices.push({ label, value, description })
+        } else if (!trait.idTypePromotion && trait.dataType === 'STRING') {
+          const description = trait.description
+            ? trait.description
+            : `${traitGroupName} - ${trait.displayName} (${trait.dataType})`
+          traitChoices.push({ label, value, description })
+        }
+      })
+    }
 
     return {
-      choices
+      identifiers: { choices: identifierChoices },
+      traits: { choices: traitChoices }
     }
   } catch (error) {
     const statusCode = error?.response?.status || 'unknown'
     const errorMsg = error?.response?.data?.message || (error instanceof Error ? error.message : String(error))
-    return {
+    const errorResult = (fieldType: string): DynamicFieldResult => ({
       choices: [],
       error: {
-        message: `Unable to fetch contact traits (HTTP ${statusCode}: ${errorMsg}). You can still manually enter field names.`,
+        message: `Unable to fetch ${fieldType} (HTTP ${statusCode}: ${errorMsg}). You can still manually enter field names.`,
         code: 'FETCH_ERROR'
       }
+    })
+    return {
+      identifiers: errorResult('identifiers'),
+      traits: errorResult('traits')
     }
   }
 }

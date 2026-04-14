@@ -33,13 +33,13 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const response = await github.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/files', {
+            const files = await github.paginate('GET /repos/{owner}/{repo}/pulls/{pull_number}/files', {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.issue.number
-            })
-            const files = response.data.map(file => file.filename)
-            core.setOutput('files', files.join(' '))
+              pull_number: context.issue.number,
+              per_page: 100
+            }, response => response.data.map(file => file.filename))
+            core.setOutput('files', JSON.stringify(files))
             if (files.length === 0) {
               core.setOutput('no_files_changed', true)
             }
@@ -47,16 +47,24 @@ jobs:
       - name: Find required fields on current branch
         id: required-fields-curr-branch
         if: steps.get_files.outputs.no_files_changed != 'true'
+        env:
+          CHANGED_FILES: ${{ steps.get_files.outputs.files }}
         run: |
-          set -e
-          REQUIRED_FIELDS_CURR_BRANCH=$(./bin/run list-required-fields -p ${{ steps.get_files.outputs.files }} | jq -c .)
+          set -euo pipefail
+          ARGS=()
+          while IFS= read -r file; do
+            ARGS+=(-p "$file")
+          done < <(printf '%s' "$CHANGED_FILES" | jq -r '.[]')
+          REQUIRED_FIELDS_CURR_BRANCH=$(./bin/run list-required-fields "${ARGS[@]}" | jq -ce .)
           echo "REQUIRED_FIELDS_CURR_BRANCH=$REQUIRED_FIELDS_CURR_BRANCH" >> $GITHUB_ENV
 
       - name: Check for required fields on main branch
         id: required-fields-main-branch
         if: steps.get_files.outputs.no_files_changed != 'true'
+        env:
+          CHANGED_FILES: ${{ steps.get_files.outputs.files }}
         run: |
-          set -e
+          set -euo pipefail
           git checkout main
           # Run install again on main branch to ensure all dependencies are installed
           # and the lockfile is up to date
@@ -65,7 +73,11 @@ jobs:
           # checked against the correct version of the dependencies
           yarn install --frozen-lockfile --silent
           # Run the list-required-fields command on the main branch to get the required fields
-          REQUIRED_FIELDS_MAIN_BRANCH=$(./bin/run list-required-fields -p ${{ steps.get_files.outputs.files }} | jq -c .)
+          ARGS=()
+          while IFS= read -r file; do
+            ARGS+=(-p "$file")
+          done < <(printf '%s' "$CHANGED_FILES" | jq -r '.[]')
+          REQUIRED_FIELDS_MAIN_BRANCH=$(./bin/run list-required-fields "${ARGS[@]}" | jq -ce .)
           echo "REQUIRED_FIELDS_MAIN_BRANCH=$REQUIRED_FIELDS_MAIN_BRANCH" >> $GITHUB_ENV
 
       - name: Add comment on PR if there is diff in required fields
@@ -82,34 +94,29 @@ jobs:
               const requiredFieldsOnMain = JSON.parse(process.env.REQUIRED_FIELDS_MAIN_BRANCH)
 
               Object.keys(requiredFieldsOnBranch).forEach(key => {
-                // Check if key is present in requiredFieldsOnMain
-                if(requiredFieldsOnMain[key]) {
-                  const getActionKeys = Object.keys(requiredFieldsOnBranch[key])
-                  for(const actionKey of getActionKeys) {
-                    const branchRequiredFields = requiredFieldsOnBranch[key][actionKey]
-                    const mainRequiredFields = requiredFieldsOnMain[key][actionKey]
-                    const diff = branchRequiredFields.filter(field => !mainRequiredFields?.includes(field))
-                    if(diff.length > 0) {
-                      const isSettingsKey = actionKey === 'settings'
-                      if (isSettingsKey) {
-                        fieldsAdded.push(`- **Destination**: ${key}, **Settings**:${diff.join(',')}`)
-                      } else {
-                        fieldsAdded.push(`- **Destination**: ${key}, Action **Field(s)**:${diff.join(',')}`)
-                      }
+                // Skip new destinations — no existing customers to break
+                if(!requiredFieldsOnMain[key]) {
+                  return
+                }
+
+                const getActionKeys = Object.keys(requiredFieldsOnBranch[key])
+                for(const actionKey of getActionKeys) {
+                  // Skip new actions — no existing configurations to break
+                  if(!requiredFieldsOnMain[key][actionKey]) {
+                    continue
+                  }
+
+                  const branchRequiredFields = requiredFieldsOnBranch[key][actionKey]
+                  const mainRequiredFields = requiredFieldsOnMain[key][actionKey]
+                  const diff = branchRequiredFields.filter(field => !mainRequiredFields.includes(field))
+                  if(diff.length > 0) {
+                    const isSettingsKey = actionKey === 'settings'
+                    if (isSettingsKey) {
+                      fieldsAdded.push(`- **Destination**: ${key}, **Settings**:${diff.join(',')}`)
+                    } else {
+                      fieldsAdded.push(`- **Destination**: ${key}, Action **Field(s)**:${diff.join(',')}`)
                     }
                   }
-                } else {
-
-                  // If key is not present in requiredFieldsOnMain, then all fields are added recently
-                  const getActionKeys = Object.keys(requiredFieldsOnBranch[key])
-                  for(const actionKey of getActionKeys) {
-                    const branchRequiredFields = requiredFieldsOnBranch[key][actionKey]
-                    if(actionKey === 'settings') {
-                      fieldsAdded.push(`- **Destination**: ${key}, **Settings**:${branchRequiredFields.join(',')}`)
-                    } else {
-                      fieldsAdded.push(`- **Destination**: ${key}, **Action**:${actionKey}, **Fields**:${branchRequiredFields.join(',')}`)
-                    }
-                }
                 }
               })
             }
