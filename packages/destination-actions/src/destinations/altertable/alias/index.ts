@@ -2,29 +2,20 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from '../fields'
-import { sendTrack, sendTrackBatch } from '../utils'
+import { sendAlias, sendAliasBatch } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
-  description: 'Track a single event in Altertable.',
-  defaultSubscription: 'type = "track"',
+  title: 'Alias',
+  description: 'Link a previous anonymous or temporary ID to a user ID in Altertable.',
+  defaultSubscription: 'type = "alias"',
   fields: {
-    event: {
-      label: 'Event Name',
-      description: 'The name of the event to track.',
+    previousId: {
+      label: 'Previous ID',
+      description: 'The previous user identifier (maps to distinct_id in the Altertable API).',
       type: 'string',
-      default: {
-        '@path': '$.event'
-      },
-      required: true
-    },
-    properties: {
-      label: 'Properties',
-      description: 'The properties of the event',
-      type: 'object',
       required: true,
       default: {
-        '@path': '$.properties'
+        '@path': '$.previousId'
       }
     },
     ...commonFields,
@@ -54,10 +45,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    return sendTrack(request, settings, payload)
+    return sendAlias(request, settings, payload)
   },
   performBatch: (request, { settings, payload }) => {
-    return sendTrackBatch(request, settings, payload)
+    return sendAliasBatch(request, settings, payload)
   }
 }
 

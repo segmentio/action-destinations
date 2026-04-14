@@ -140,6 +140,23 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
       performHook: async (request, { hookInputs, hookOutputs }) => {
         const linkedIn = new LinkedInConversions(request)
 
+        // Validate required fields when creating a new conversion rule
+        if (!hookInputs?.conversionRuleId && !hookOutputs?.onMappingSave?.outputs) {
+          const missingFields: string[] = []
+          if (!hookInputs?.name) missingFields.push('Name')
+          if (!hookInputs?.conversionType) missingFields.push('Conversion Type')
+          if (!hookInputs?.attribution_type) missingFields.push('Attribution Type')
+
+          if (missingFields.length > 0) {
+            return {
+              error: {
+                message: `Missing required fields for creating a new conversion rule: ${missingFields.join(', ')}`,
+                code: 'MISSING_REQUIRED_FIELD'
+              }
+            }
+          }
+        }
+
         let hookReturn: ActionHookResponse<OnMappingSaveOutputs>
         if (hookOutputs?.onMappingSave?.outputs) {
           linkedIn.setConversionRuleId(hookOutputs.onMappingSave.outputs.id)
@@ -284,7 +301,8 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     },
     externalIds: {
       label: 'External ID',
-      description: "An identifier your organization uses for the user. See [LinkedIn's documentation](https://learn.microsoft.com/en-us/linkedin/marketing/conversions/custom-matching-identifiers?view=li-lms-2025-08) for more details.",
+      description:
+        "An identifier your organization uses for the user. See [LinkedIn's documentation](https://learn.microsoft.com/en-us/linkedin/marketing/conversions/custom-matching-identifiers?view=li-lms-2025-08) for more details.",
       type: 'string',
       multiple: true,
       required: false

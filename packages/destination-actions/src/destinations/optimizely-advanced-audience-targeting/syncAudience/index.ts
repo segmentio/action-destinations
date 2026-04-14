@@ -44,6 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The user identifier to sync to the Optimizely Audience',
       type: 'string',
       required: true,
+      allowNull: false,
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
