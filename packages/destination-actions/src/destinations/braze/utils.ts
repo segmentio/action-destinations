@@ -673,7 +673,7 @@ export function mergeUsers(request: RequestClient, settings: Settings, payload: 
   if (!hasMergeIdentifier) {
     throw new IntegrationError(
       'Identifier to Merge must specify one of: external_id, user_alias, braze_id, email, or phone.',
-      'Missing required identifier',
+      'Missing required fields',
       400
     )
   }

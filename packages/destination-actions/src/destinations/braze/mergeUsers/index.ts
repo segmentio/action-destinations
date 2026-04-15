@@ -109,13 +109,25 @@ const action: ActionDefinition<Settings, Payload> = {
           '@path': '$.userId'
         },
         braze_id: {
-          '@path': '$.context.traits.brazeId'
+          '@if': {
+            exists: { '@path': '$.context.traits.brazeId' }
+          },
+          then: { '@path': '$.context.traits.brazeId' },
+          else: { '@path': '$.properties.brazeId' }
         },
         email: {
-          '@path': '$.context.traits.email'
+          '@if': {
+            exists: { '@path': '$.context.traits.email' }
+          },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.properties.email' }
         },
         phone: {
-          '@path': '$.context.traits.phone'
+          '@if': {
+            exists: { '@path': '$.context.traits.phone' }
+          },
+          then: { '@path': '$.context.traits.phone' },
+          else: { '@path': '$.properties.phone' }
         }
       }
     }
