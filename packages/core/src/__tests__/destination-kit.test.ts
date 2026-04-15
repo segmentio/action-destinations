@@ -1453,11 +1453,17 @@ describe('destination kit', () => {
         expect(spy).toHaveBeenCalledTimes(0)
       })
 
-      test('should throw RetryableError without token refresh when TokenPropagationRetryError is thrown', async () => {
+      test('should refresh token and throw RetryableError(503) when TokenPropagationRetryError is thrown', async () => {
+        const refreshAccessToken = jest.fn().mockResolvedValue({ accessToken: 'fresh-token' })
+        const onTokenRefresh = jest.fn()
+
         const destinationWithPropagationError: DestinationDefinition<JSONObject> = {
           name: 'Test Propagation Error Destination',
           mode: 'cloud',
-          authentication: authentication,
+          authentication: {
+            ...authentication,
+            refreshAccessToken
+          },
           actions: {
             customEvent: {
               title: 'Send a Custom Event',
@@ -1499,13 +1505,13 @@ describe('destination kit', () => {
           }
         }
 
-        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
-
-        // handleError should throw RetryableError(503) without calling refresh (token is already fresh)
-        const error = await destinationTest.onEvent(testEvent, testSettings).catch((e) => e)
+        // handleError should refresh the token (expired tokens also return 65601) then
+        // throw RetryableError(503) so the retry uses a fresh token
+        const error = await destinationTest.onEvent(testEvent, testSettings, { onTokenRefresh }).catch((e) => e)
         expect(error).toBeInstanceOf(RetryableError)
         expect(error.status).toBe(503)
-        expect(refreshTokenSpy).not.toHaveBeenCalled()
+        expect(refreshAccessToken).toHaveBeenCalledTimes(1)
+        expect(onTokenRefresh).toHaveBeenCalledWith({ accessToken: 'fresh-token' })
       })
     })
     describe('onBatch', () => {

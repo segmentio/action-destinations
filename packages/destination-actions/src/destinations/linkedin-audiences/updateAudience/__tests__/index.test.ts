@@ -924,7 +924,10 @@ describe('LinkedinAudiences.updateAudience', () => {
       ).rejects.toThrow(TokenPropagationRetryError)
     })
 
-    it('should throw RetryableError for the full propagation-delay flow without refreshing token', async () => {
+    it('should refresh token and throw RetryableError when LinkedIn returns 401+65601', async () => {
+      // LinkedIn returns 65601 for both propagation delays and revoked/expired tokens.
+      // The framework refreshes the token before throwing RetryableError so the retry
+      // always uses a fresh token regardless of which case triggered the 401.
       nock(`${BASE_URL}/dmpSegments`)
         .get(/.*/)
         .query(() => true)
@@ -933,6 +936,9 @@ describe('LinkedinAudiences.updateAudience', () => {
         serviceErrorCode: 65601,
         message: 'Unable to verify access token'
       })
+      nock('https://www.linkedin.com')
+        .post('/oauth/v2/accessToken')
+        .reply(200, { access_token: 'fresh-token', expires_in: 5183944 })
 
       await expect(
         testDestination.onEvent(event, {
@@ -951,8 +957,10 @@ describe('LinkedinAudiences.updateAudience', () => {
             }
           },
           oauth: {
-            access_token: 'old-not-yet-propagated-token',
-            refresh_token: 'refresh-token'
+            access_token: 'old-token',
+            refresh_token: 'refresh-token',
+            clientId: 'test-client-id',
+            clientSecret: 'test-client-secret'
           }
         })
       ).rejects.toThrow(RetryableError)

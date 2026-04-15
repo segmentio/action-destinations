@@ -1029,13 +1029,16 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     settings: JSONObject,
     options?: OnEventOptions
   ): Promise<JSONObject> {
-    // Handle TokenPropagationRetryError: token was just refreshed but hasn't propagated yet.
-    // Throwing here intentionally terminates the internal retry loop in retry.ts — when
-    // onFailedAttempt throws, retry.ts propagates that exception immediately without
-    // continuing the loop. RetryableError(503) signals Segment infrastructure to retry
-    // after backoff, by which time the token will have propagated. 503 (Service Unavailable)
-    // distinguishes a propagation delay from a generic internal error (500).
+    // Handle TokenPropagationRetryError: LinkedIn returns serviceErrorCode 65601 for both
+    // token propagation delays and revoked/expired tokens. Refresh the token first so the
+    // retry always uses a fresh token. If the refresh itself fails (e.g. the refresh token
+    // is also expired), that error propagates instead of retrying forever with a dead token.
+    // RetryableError(503) signals Segment infrastructure to retry after backoff.
     if (error instanceof TokenPropagationRetryError) {
+      const isOAuth = this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed'
+      if (isOAuth) {
+        await this.handleAuthError(settings, options)
+      }
       throw new RetryableError(error.message, 503)
     }
 
