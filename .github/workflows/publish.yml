@@ -36,6 +36,14 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
+      - name: Cache NX
+        uses: actions/cache@v4
+        with:
+          path: .nx/cache
+          key: ${{ runner.os }}-nx-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
+
       - name: Setup git credentials
         run: |
           git config user.name "github-actions[bot]"
@@ -46,10 +54,6 @@ jobs:
 
       - name: Build
         run: NODE_ENV=production yarn build
-
-      - name: Fetch Latest Tags
-        run: |
-          git fetch --tags
 
       - name: Set NPM Token
         run: |
