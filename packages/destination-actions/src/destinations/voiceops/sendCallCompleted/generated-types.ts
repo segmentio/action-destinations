@@ -32,19 +32,19 @@ export interface Payload {
     /**
      * The audio channel number.
      */
-    channel?: number
+    channel: number
     /**
      * The participant role for the channel. Supported values are CONTACT, HANDLING_AGENT, and TRANSFER_AGENT.
      */
-    type?: string
+    type: string
     /**
      * The participant start time as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:32:47.000Z`.
      */
-    recording_start_time?: string
+    recording_start_time: string
     /**
-     * A participant identifier, usually an email address.
+     * The participant identifier. HANDLING_AGENT entries must use an email address, while CONTACT and TRANSFER_AGENT entries can use any non-empty string.
      */
-    identifier?: string
+    identifier: string
     /**
      * The participant first name when available.
      */

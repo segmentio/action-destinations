@@ -1,7 +1,31 @@
+import { PayloadValidationError } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { VOICEOPS_CALLS_ENDPOINT } from '../constants'
+
+const HANDLING_AGENT_TYPE = 'HANDLING_AGENT'
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function validateWarmTransferPayload(payload: Payload): void {
+  if (payload.channels && payload.agentLegs) {
+    throw new PayloadValidationError('Provide only one of channels or agentLegs.')
+  }
+
+  for (const channel of payload.channels ?? []) {
+    const identifier = channel.identifier?.trim()
+
+    if (!identifier) {
+      throw new PayloadValidationError('channels.identifier is required for every channel entry.')
+    }
+
+    if (channel.type === HANDLING_AGENT_TYPE && !EMAIL_REGEX.test(identifier)) {
+      throw new PayloadValidationError(
+        'channels.identifier must be a valid email address when channels.type is HANDLING_AGENT.'
+      )
+    }
+  }
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Call Completed',
@@ -73,13 +97,15 @@ const action: ActionDefinition<Settings, Payload> = {
         channel: {
           label: 'Channel',
           description: 'The audio channel number.',
-          type: 'integer'
+          type: 'integer',
+          required: true
         },
         type: {
           label: 'Type',
           description:
             'The participant role for the channel. Supported values are CONTACT, HANDLING_AGENT, and TRANSFER_AGENT.',
           type: 'string',
+          required: true,
           choices: [
             { label: 'Contact', value: 'CONTACT' },
             { label: 'Handling Agent', value: 'HANDLING_AGENT' },
@@ -91,12 +117,15 @@ const action: ActionDefinition<Settings, Payload> = {
           description:
             'The participant start time as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:32:47.000Z`.',
           type: 'string',
-          format: 'date-time'
+          format: 'date-time',
+          required: true
         },
         identifier: {
           label: 'Identifier',
-          description: 'A participant identifier, usually an email address.',
-          type: 'string'
+          description:
+            'The participant identifier. HANDLING_AGENT entries must use an email address, while CONTACT and TRANSFER_AGENT entries can use any non-empty string.',
+          type: 'string',
+          required: true
         },
         first_name: {
           label: 'First Name',
@@ -210,6 +239,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
+    validateWarmTransferPayload(data.payload)
+
     return request(VOICEOPS_CALLS_ENDPOINT, {
       method: 'post',
       json: data.payload

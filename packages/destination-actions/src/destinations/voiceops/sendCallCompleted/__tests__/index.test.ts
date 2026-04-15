@@ -135,9 +135,7 @@ describe('Voiceops.sendCallCompleted', () => {
     })
   })
 
-  it('accepts payloads with both channels and agentLegs', async () => {
-    nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
-
+  it('rejects payloads that include both channels and agentLegs', async () => {
     const event = createCallCompletedEvent({
       channels: [
         {
@@ -155,29 +153,13 @@ describe('Voiceops.sendCallCompleted', () => {
       ]
     })
 
-    const responses = await testDestination.testAction('sendCallCompleted', {
-      event,
-      settings: SETTINGS,
-      useDefaultMappings: true
-    })
-
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].options.json).toMatchObject({
-      channels: [
-        {
-          channel: 3,
-          type: 'HANDLING_AGENT',
-          recording_start_time: '2025-12-08T13:32:47.000Z',
-          identifier: 'agent@voiceops.com'
-        }
-      ],
-      agentLegs: [
-        {
-          agent_email: 'agent@voiceops.com',
-          started_at: '2025-12-08T13:32:47.000Z'
-        }
-      ]
-    })
+    await expect(
+      testDestination.testAction('sendCallCompleted', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow('Provide only one of channels or agentLegs.')
   })
 
   it('forwards extraMetadata unchanged', async () => {
@@ -236,6 +218,22 @@ describe('Voiceops.sendCallCompleted', () => {
     })
     expect(responses[0].options.json).not.toHaveProperty('first_name')
     expect(responses[0].options.json).not.toHaveProperty('last_name')
+  })
+
+  it('still succeeds when neither channels nor agentLegs are provided', async () => {
+    nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+
+    const event = createCallCompletedEvent()
+
+    const responses = await testDestination.testAction('sendCallCompleted', {
+      event,
+      settings: SETTINGS,
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).not.toHaveProperty('channels')
+    expect(responses[0].options.json).not.toHaveProperty('agentLegs')
   })
 
   it('fails when a channel type is not supported', async () => {
@@ -313,5 +311,92 @@ describe('Voiceops.sendCallCompleted', () => {
         useDefaultMappings: true
       })
     ).rejects.toThrow()
+  })
+
+  it('fails when a HANDLING_AGENT channel identifier is not an email address', async () => {
+    const event = createCallCompletedEvent({
+      channels: [
+        {
+          channel: 2,
+          type: 'HANDLING_AGENT',
+          recording_start_time: '2025-12-08T13:32:47.000Z',
+          identifier: 'agent-123'
+        }
+      ]
+    })
+
+    await expect(
+      testDestination.testAction('sendCallCompleted', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow('channels.identifier must be a valid email address when channels.type is HANDLING_AGENT.')
+  })
+
+  it('allows a CONTACT channel identifier that is not an email address', async () => {
+    nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+
+    const event = createCallCompletedEvent({
+      channels: [
+        {
+          channel: 0,
+          type: 'CONTACT',
+          recording_start_time: '2025-12-08T13:32:47.000Z',
+          identifier: 'customer-42'
+        }
+      ]
+    })
+
+    const responses = await testDestination.testAction('sendCallCompleted', {
+      event,
+      settings: SETTINGS,
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject({
+      channels: [
+        {
+          channel: 0,
+          type: 'CONTACT',
+          recording_start_time: '2025-12-08T13:32:47.000Z',
+          identifier: 'customer-42'
+        }
+      ]
+    })
+  })
+
+  it('allows a TRANSFER_AGENT channel identifier that is not an email address', async () => {
+    nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+
+    const event = createCallCompletedEvent({
+      channels: [
+        {
+          channel: 2,
+          type: 'TRANSFER_AGENT',
+          recording_start_time: '2025-12-08T13:35:47.000Z',
+          identifier: 'transfer-agent-id'
+        }
+      ]
+    })
+
+    const responses = await testDestination.testAction('sendCallCompleted', {
+      event,
+      settings: SETTINGS,
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject({
+      channels: [
+        {
+          channel: 2,
+          type: 'TRANSFER_AGENT',
+          recording_start_time: '2025-12-08T13:35:47.000Z',
+          identifier: 'transfer-agent-id'
+        }
+      ]
+    })
   })
 })

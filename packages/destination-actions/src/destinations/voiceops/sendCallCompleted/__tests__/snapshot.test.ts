@@ -7,6 +7,49 @@ const testDestination = createTestIntegration(destination)
 const actionSlug = 'sendCallCompleted'
 const destinationSlug = 'actions-voiceops'
 const seedName = `${destinationSlug}#${actionSlug}`
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function normalizeWarmTransferFields(eventData: Record<string, unknown>) {
+  const normalizedChannels = Array.isArray(eventData.channels)
+    ? eventData.channels.map((channel) => {
+        if (!channel || typeof channel !== 'object') {
+          return channel
+        }
+
+        const typedChannel = channel as Record<string, unknown>
+        const identifier = typeof typedChannel.identifier === 'string' ? typedChannel.identifier : ''
+
+        if (typedChannel.type === 'HANDLING_AGENT' && !EMAIL_REGEX.test(identifier)) {
+          return {
+            ...typedChannel,
+            identifier: 'agent@example.com'
+          }
+        }
+
+        if (!identifier.trim()) {
+          return {
+            ...typedChannel,
+            identifier: 'participant-1'
+          }
+        }
+
+        return typedChannel
+      })
+    : eventData.channels
+
+  if (eventData.channels && eventData.agentLegs) {
+    return {
+      ...eventData,
+      channels: normalizedChannels,
+      agentLegs: undefined
+    }
+  }
+
+  return {
+    ...eventData,
+    channels: normalizedChannels
+  }
+}
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
@@ -20,7 +63,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const event = createTestEvent({
       event: 'Call Completed',
       properties: {
-        ...eventData,
+        ...normalizeWarmTransferFields(eventData as Record<string, unknown>),
         recording_url: 'https://example.com/audio.wav'
       }
     })
@@ -57,7 +100,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const event = createTestEvent({
       event: 'Call Completed',
       properties: {
-        ...eventData,
+        ...normalizeWarmTransferFields(eventData as Record<string, unknown>),
         recording_url: 'https://example.com/audio.wav'
       }
     })
