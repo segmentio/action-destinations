@@ -40,9 +40,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .nx/cache
-          key: ${{ runner.os }}-nx-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-nx-${{ hashFiles('**/yarn.lock') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-nx-
+            ${{ runner.os }}-node-${{ matrix.node-version }}-nx-${{ hashFiles('**/yarn.lock') }}-
+            ${{ runner.os }}-node-${{ matrix.node-version }}-nx-
 
       - name: Setup git credentials
         run: |
