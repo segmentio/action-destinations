@@ -99,6 +99,33 @@ export class APIError extends IntegrationError {
 }
 
 /**
+ * Error indicating a 401 caused by OAuth token propagation delay (eventual
+ * consistency) rather than true revocation. The token was recently refreshed
+ * and is valid but has not yet propagated across all provider nodes.
+ *
+ * The framework converts this into a RetryableError(503) so Segment
+ * infrastructure retries the event after a backoff delay, by which time
+ * the token will have propagated. No additional token refresh is performed
+ * on the exception-throwing path — handleError intercepts this error before
+ * the OAuth re-authentication logic runs.
+ *
+ * This error is currently thrown by LinkedIn destination hooks when
+ * serviceErrorCode 65601 or 65602 appears in a 401 response body. Reuse for
+ * other providers should only occur after confirming the same
+ * retry-without-refresh semantic applies.
+ */
+export class TokenPropagationRetryError extends CustomError {
+  // Use 503 to match the RetryableError this converts into — do NOT use 401,
+  // which would cause generic status-based 401 handlers to trigger a token refresh.
+  status = 503
+  code = ErrorCodes.TOKEN_PROPAGATION_RETRY
+
+  constructor(message = 'Token not yet propagated, retry later') {
+    super(message)
+  }
+}
+
+/**
  * Error to indicate the destination has gone over its allotted execution time
  * and is self-terminating.
  * This is typically used when the destination makes calls using a stack other than the
@@ -207,6 +234,8 @@ export enum CustomErrorCodes {
   GET_AUDIENCE_FAILED = 'GET_AUDIENCE_FAILED',
   // When the RETL onMappingSave hook fails
   RETL_ON_MAPPING_SAVE_FAILED = 'RETL_ON_MAPPING_SAVE_FAILED',
+  // Retry later due to OAuth token propagation delay
+  TOKEN_PROPAGATION_RETRY = 'TOKEN_PROPAGATION_RETRY',
   // Fallback error code if no other error code matches
   UNKNOWN_ERROR = 'UNKNOWN_ERROR'
 }

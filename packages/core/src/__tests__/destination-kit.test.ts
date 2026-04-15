@@ -1,4 +1,4 @@
-import { ErrorCodes, IntegrationError } from '../errors'
+import { ErrorCodes, IntegrationError, TokenPropagationRetryError, RetryableError } from '../errors'
 import { ActionDefinition, MultiStatusResponse } from '../destination-kit/action'
 import {
   StateContext,
@@ -1451,6 +1451,67 @@ describe('destination kit', () => {
           { data: 'this is a test', output: 'Action Executed' }
         ])
         expect(spy).toHaveBeenCalledTimes(0)
+      })
+
+      test('should refresh token and throw RetryableError(503) when TokenPropagationRetryError is thrown', async () => {
+        const refreshAccessToken = jest.fn().mockResolvedValue({ accessToken: 'fresh-token' })
+        const onTokenRefresh = jest.fn()
+
+        const destinationWithPropagationError: DestinationDefinition<JSONObject> = {
+          name: 'Test Propagation Error Destination',
+          mode: 'cloud',
+          authentication: {
+            ...authentication,
+            refreshAccessToken
+          },
+          actions: {
+            customEvent: {
+              title: 'Send a Custom Event',
+              description: 'Send events to a custom event in API',
+              defaultSubscription: 'type = "track"',
+              fields: {
+                advertiserId: {
+                  label: 'Advertiser ID',
+                  description: 'Advertiser Id',
+                  type: 'string',
+                  required: true
+                }
+              },
+              perform: () => {
+                throw new TokenPropagationRetryError('Token not yet propagated (serviceErrorCode 65601)')
+              }
+            }
+          }
+        }
+
+        const destinationTest = new Destination(destinationWithPropagationError)
+        const testEvent: SegmentEvent = {
+          properties: { a: 'foo' },
+          userId: '3456fff',
+          type: 'track'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "track"',
+            partnerAction: 'customEvent',
+            mapping: {
+              advertiserId: '1231241241'
+            }
+          },
+          oauth: {
+            access_token: 'some-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+
+        // handleError should refresh the token (expired tokens also return 65601) then
+        // throw RetryableError(503) so the retry uses a fresh token
+        const error = await destinationTest.onEvent(testEvent, testSettings, { onTokenRefresh }).catch((e) => e)
+        expect(error).toBeInstanceOf(RetryableError)
+        expect(error.status).toBe(503)
+        expect(refreshAccessToken).toHaveBeenCalledTimes(1)
+        expect(onTokenRefresh).toHaveBeenCalledWith({ accessToken: 'fresh-token' })
       })
     })
     describe('onBatch', () => {
