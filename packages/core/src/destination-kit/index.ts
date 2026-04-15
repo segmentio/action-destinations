@@ -720,7 +720,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     return action.executeDynamicField(fieldKey, data, dynamicFn)
   }
 
-  public async executePollStatus(
+  public async executePoll(
     actionSlug: string,
     {
       event,

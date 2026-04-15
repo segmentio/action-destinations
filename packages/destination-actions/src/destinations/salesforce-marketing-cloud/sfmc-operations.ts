@@ -109,7 +109,16 @@ export async function pollAsyncOperation(
       status: data.status.requestStatus,
       operationId: operationId,
       completedAt: data.status.completionDateTime,
-      errorMessage: data.status.hasErrors ? 'Operation completed with errors' : undefined
+      errorMessage: data.status.hasErrors ? 'Operation completed with errors' : undefined,
+      results: {
+        requestStatus: data.status.requestStatus,
+        resultStatus: data.status.resultStatus,
+        hasErrors: data.status.hasErrors,
+        resultMessages: data.resultMessages || [],
+        callDateTime: data.status.callDateTime,
+        pickupDateTime: data.status.pickupDateTime,
+        completionDateTime: data.status.completionDateTime
+      }
     }
   } catch (error) {
     console.log('poll error', error)
@@ -162,6 +171,7 @@ export async function asyncUpsertRowsV2(
       json: { items: rows }
     }
   )
+  console.log('no multistatsus')
   return response
 }
 
