@@ -1,21 +1,13 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import {
-  action_source,
-  custom_data,
-  event_time,
-  event_id,
-  event_source_url,
-  data_processing_options,
-  data_processing_options_country,
-  data_processing_options_state,
-  dataProcessingOptions,
-  test_event_code
-} from '../fb-capi-properties'
-import { user_data_field, hash_user_data } from '../fb-capi-user-data'
+import { dataProcessingOptions } from '../fb-capi-properties'
+import { hash_user_data } from '../fb-capi-user-data'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { get_api_version } from '../utils'
-import { generate_app_data, app_data_field } from '../fb-capi-app-data'
+import { generate_app_data } from '../fb-capi-app-data'
+import { pageFields } from '../shared/fields'
+import { send, getPageViewEventData } from '../shared/functions'
+import { EventType, FEATURE_FLAG_PAGE_VIEW } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View V2',
@@ -27,21 +19,14 @@ const action: ActionDefinition<Settings, Payload> = {
     default: 'add',
     choices: [{ label: 'Insert Records', value: 'add' }]
   },
-  fields: {
-    action_source: { ...action_source, required: true },
-    event_time: { ...event_time, required: true },
-    user_data: user_data_field,
-    app_data_field: app_data_field,
-    event_id: event_id,
-    event_source_url: event_source_url,
-    custom_data: custom_data,
-    data_processing_options: data_processing_options,
-    data_processing_options_country: data_processing_options_country,
-    data_processing_options_state: data_processing_options_state,
-    test_event_code: test_event_code
-  },
+  fields: pageFields,
   perform: (request, { payload, settings, features, statsContext, syncMode }) => {
     if (syncMode === 'add') {
+
+      if (features && features[FEATURE_FLAG_PAGE_VIEW]) {
+        return send(request, payload, settings, getPageViewEventData, EventType.PageView, features, statsContext)
+      }
+
       if (!payload.user_data) {
         throw new IntegrationError('Must include at least one user data property', 'Misconfigured required field', 400)
       }
