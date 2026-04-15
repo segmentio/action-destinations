@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Braze's mergeUsers destination action: all fields 1`] = `
+Object {
+  "merge_updates": Array [
+    Object {
+      "identifier_to_keep": Object {
+        "braze_id": "8$QYsxcxpjIn)Y",
+        "email": "gonwijpel@vep.il",
+        "external_id": "8$QYsxcxpjIn)Y",
+        "phone": "8$QYsxcxpjIn)Y",
+        "user_alias": Object {
+          "alias_label": "segment",
+          "alias_name": "keep-alias",
+        },
+      },
+      "identifier_to_merge": Object {
+        "braze_id": "8$QYsxcxpjIn)Y",
+        "email": "gonwijpel@vep.il",
+        "external_id": "8$QYsxcxpjIn)Y",
+        "phone": "8$QYsxcxpjIn)Y",
+        "user_alias": Object {
+          "alias_label": "segment",
+          "alias_name": "merge-alias",
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's mergeUsers destination action: required fields 1`] = `
+Object {
+  "merge_updates": Array [
+    Object {
+      "identifier_to_keep": Object {
+        "external_id": "user-to-keep",
+      },
+      "identifier_to_merge": Object {
+        "external_id": "user-to-merge",
+      },
+    },
+  ],
+}
+`;
