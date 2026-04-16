@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestIntegration, PayloadValidationError, SegmentEvent } from '@segment/actions-core'
 import Destination from '../index'
 import fs from 'fs'
-import { LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME, LIVERAMP_MIN_RECORD_COUNT } from '../properties'
+import { LIVERAMP_MIN_RECORD_COUNT } from '../properties'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -105,9 +105,6 @@ describe('Liveramp Audiences', () => {
         settings: {
           __segment_internal_engage_force_full_sync: true,
           __segment_internal_engage_batch_sync: true
-        },
-        features: {
-          [LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME]: true
         }
       })
       for (let i = 0; i < mockedEvents.length; i++) {
@@ -215,7 +212,6 @@ describe('Liveramp Audiences', () => {
         expect(e.status).toEqual(400)
       }
     })
-
   })
   describe('audienceEnteredSFTP', () => {
     it('should send events with valid payload size and events', async () => {
@@ -266,9 +262,6 @@ describe('Liveramp Audiences', () => {
         settings: {
           __segment_internal_engage_force_full_sync: true,
           __segment_internal_engage_batch_sync: true
-        },
-        features: {
-          [LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME]: true
         }
       })
       for (let i = 0; i < mockedEvents.length; i++) {
@@ -309,6 +302,5 @@ describe('Liveramp Audiences', () => {
         expect(e.status).toEqual(400)
       }
     })
-
   })
 })

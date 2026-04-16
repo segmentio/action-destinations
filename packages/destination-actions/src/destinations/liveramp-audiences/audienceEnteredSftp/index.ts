@@ -2,11 +2,7 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
 import { generateFile, enrichStatsContextWithMetadata } from '../operations'
 import { sendEventToAWS } from '../awsClient'
-import {
-  LIVERAMP_MIN_RECORD_COUNT,
-  LIVERAMP_LEGACY_FLOW_FLAG_NAME,
-  LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME
-} from '../properties'
+import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
 
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -144,8 +140,6 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     //------------
     // AWS FLOW
     // -----------
-    const shouldEnableCompression = input.features && input.features[LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME] === true
-
     return sendEventToAWS({
       audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
       uploadType: 'sftp',
@@ -154,7 +148,7 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
       rowCount: input.payloads.length,
       destinationInstanceID: subscriptionMetadata?.destinationConfigId,
       subscriptionId: subscriptionMetadata?.actionConfigId,
-      gzipCompressFile: shouldEnableCompression,
+      gzipCompressFile: true, // Enabled for all by default
       sftpInfo: {
         sftpUsername: input.payloads[0].sftp_username,
         sftpPassword: input.payloads[0].sftp_password,
