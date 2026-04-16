@@ -13,9 +13,10 @@ function validateWarmTransferPayload(payload: Payload): void {
   }
 
   for (const channel of payload.channels ?? []) {
-    const identifier = channel.identifier?.trim()
+    const identifier = channel.identifier
+    const trimmedIdentifier = identifier?.trim()
 
-    if (!identifier) {
+    if (!trimmedIdentifier) {
       throw new PayloadValidationError('channels.identifier is required for every channel entry.')
     }
 

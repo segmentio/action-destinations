@@ -334,6 +334,27 @@ describe('Voiceops.sendCallCompleted', () => {
     ).rejects.toThrow('channels.identifier must be a valid email address when channels.type is HANDLING_AGENT.')
   })
 
+  it('fails when a HANDLING_AGENT channel identifier has surrounding whitespace', async () => {
+    const event = createCallCompletedEvent({
+      channels: [
+        {
+          channel: 2,
+          type: 'HANDLING_AGENT',
+          recording_start_time: '2025-12-08T13:32:47.000Z',
+          identifier: ' agent@voiceops.com '
+        }
+      ]
+    })
+
+    await expect(
+      testDestination.testAction('sendCallCompleted', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow('channels.identifier must be a valid email address when channels.type is HANDLING_AGENT.')
+  })
+
   it('allows a CONTACT channel identifier that is not an email address', async () => {
     nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
 
