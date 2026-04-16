@@ -43,7 +43,6 @@
     "@segment/analytics-browser-actions-pendo-web-actions": "^1.88.0",
     "@segment/analytics-browser-actions-playerzero": "^1.97.0",
     "@segment/analytics-browser-actions-replaybird": "^1.79.0",
-    "@segment/analytics-browser-actions-ripe": "^1.98.0",
     "@segment/analytics-browser-actions-rokt-plugins": "^1.5.0",
     "@segment/analytics-browser-actions-sabil": "^1.6.0",
     "@segment/analytics-browser-actions-screeb": "^1.98.0",
