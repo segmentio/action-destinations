@@ -6,6 +6,7 @@ import action from './trackPurchase'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import { Payload as TrackPurchasePayload } from './trackPurchase/generated-types'
 import { Payload as UpdateUserProfilePayload } from './updateUserProfile/generated-types'
+import { Payload as MergeUsersPayload } from './mergeUsers/generated-types'
 import { getUserAlias } from './userAlias'
 import { HTTPError } from '@segment/actions-core'
 import { MAX_BATCH_SIZE } from './constants'
@@ -657,6 +658,67 @@ async function handleBrazeAPIResponse(
       throw error
     }
   }
+}
+
+export function mergeUsers(request: RequestClient, settings: Settings, payload: MergeUsersPayload) {
+  // Validate identifier_to_merge
+  const mergeUserAlias = getUserAlias(payload.identifier_to_merge?.user_alias)
+  const hasMergeIdentifier =
+    payload.identifier_to_merge?.external_id ||
+    mergeUserAlias ||
+    payload.identifier_to_merge?.braze_id ||
+    payload.identifier_to_merge?.email ||
+    payload.identifier_to_merge?.phone
+
+  if (!hasMergeIdentifier) {
+    throw new IntegrationError(
+      'Identifier to Merge must specify one of: external_id, user_alias, braze_id, email, or phone.',
+      'Missing required fields',
+      400
+    )
+  }
+
+  // Validate identifier_to_keep
+  const keepUserAlias = getUserAlias(payload.identifier_to_keep?.user_alias)
+  const hasKeepIdentifier =
+    payload.identifier_to_keep?.external_id ||
+    keepUserAlias ||
+    payload.identifier_to_keep?.braze_id ||
+    payload.identifier_to_keep?.email ||
+    payload.identifier_to_keep?.phone
+
+  if (!hasKeepIdentifier) {
+    throw new IntegrationError(
+      'Identifier to Keep must specify one of: external_id, user_alias, braze_id, email, or phone.',
+      'Missing required fields',
+      400
+    )
+  }
+
+  // Build the merge update object
+  const mergeUpdate: Record<string, unknown> = {
+    identifier_to_merge: {
+      ...(payload.identifier_to_merge?.external_id && { external_id: payload.identifier_to_merge.external_id }),
+      ...(mergeUserAlias && { user_alias: mergeUserAlias }),
+      ...(payload.identifier_to_merge?.braze_id && { braze_id: payload.identifier_to_merge.braze_id }),
+      ...(payload.identifier_to_merge?.email && { email: payload.identifier_to_merge.email }),
+      ...(payload.identifier_to_merge?.phone && { phone: payload.identifier_to_merge.phone })
+    },
+    identifier_to_keep: {
+      ...(payload.identifier_to_keep?.external_id && { external_id: payload.identifier_to_keep.external_id }),
+      ...(keepUserAlias && { user_alias: keepUserAlias }),
+      ...(payload.identifier_to_keep?.braze_id && { braze_id: payload.identifier_to_keep.braze_id }),
+      ...(payload.identifier_to_keep?.email && { email: payload.identifier_to_keep.email }),
+      ...(payload.identifier_to_keep?.phone && { phone: payload.identifier_to_keep.phone })
+    }
+  }
+
+  return request(`${settings.endpoint}/users/merge`, {
+    method: 'post',
+    json: {
+      merge_updates: [mergeUpdate]
+    }
+  })
 }
 
 export function generateMultiStatusError(batchSize: number, errorMessage: string): MultiStatusResponse {
