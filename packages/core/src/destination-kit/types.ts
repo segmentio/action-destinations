@@ -403,15 +403,6 @@ export type ActionDestinationErrorResponseType = {
   body?: JSONLikeObject | string
 }
 
-export type AsyncActionResponseType = {
-  /** Indicates this is an async operation */
-  isAsync: true
-  /** Optional message about the async operation(s) */
-  message?: string
-  /** Initial status code */
-  status?: number
-}
-
 export type AsyncOperationResult = {
   /** The current status of this operation */
   status: 'pending' | 'completed' | 'failed'

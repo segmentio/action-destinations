@@ -83,7 +83,6 @@ export type {
   Logger,
   Preset,
   Result,
-  AsyncActionResponseType,
   AsyncPollResponseType
 } from './destination-kit'
 

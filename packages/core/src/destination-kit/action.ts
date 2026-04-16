@@ -671,9 +671,6 @@ export class Action<
 
     // Construct the request client and perform the poll operation
     const requestClient = this.createRequestClient(dataBundle)
-    if (!this.definition.pollStatus) {
-      throw new IntegrationError('Poll method is not defined.', 'NotImplemented', 501)
-    }
     const pollResponse = await this.definition.pollStatus(requestClient, dataBundle)
 
     return pollResponse
@@ -813,17 +810,19 @@ export class Action<
      * Try to use the parsed response `.data` or `.content` string
      * @see {@link ../middleware/after-response/prepare-response.ts}
      */
-
-    // Handle async action responses by returning them as it is
-    if (response && typeof response === 'object' && (response as any).isAsync === true) {
-      return response
-    }
+    console.log('[parseResponse] response type:', typeof response)
+    console.log('[parseResponse] response instanceof Response:', response instanceof Response)
+    console.log('[parseResponse] response value:', JSON.stringify(response))
+    console.log('[parseResponse] response.data:', (response as ModifiedResponse).data)
 
     if (response instanceof Response) {
-      return (response as ModifiedResponse).data ?? (response as ModifiedResponse).content
+      const result = (response as ModifiedResponse).data ?? (response as ModifiedResponse).content
+      console.log('[parseResponse] extracted from Response — .data/.content:', JSON.stringify(result))
+      return result
     }
 
     // otherwise, we don't really know what this is, so return as-is
+    console.log('[parseResponse] returning as-is (not a Response instance)')
     return response
   }
 
