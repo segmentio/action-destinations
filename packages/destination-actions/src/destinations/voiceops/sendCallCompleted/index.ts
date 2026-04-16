@@ -6,8 +6,13 @@ import { VOICEOPS_CALLS_ENDPOINT } from '../constants'
 
 const HANDLING_AGENT_TYPE = 'HANDLING_AGENT'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const UNIX_SECONDS_PATTERN = /^\d{10}$/
 
-function validateWarmTransferPayload(payload: Payload): void {
+function validateSegmentPayload(payload: Payload): void {
+  if (!UNIX_SECONDS_PATTERN.test(payload.call_started_at)) {
+    throw new PayloadValidationError('call_started_at must be a 10-digit Unix timestamp in seconds.')
+  }
+
   if (payload.channels && payload.agentLegs) {
     throw new PayloadValidationError('Provide only one of channels or agentLegs.')
   }
@@ -24,6 +29,16 @@ function validateWarmTransferPayload(payload: Payload): void {
       throw new PayloadValidationError(
         'channels.identifier must be a valid email address when channels.type is HANDLING_AGENT.'
       )
+    }
+  }
+
+  for (const agentLeg of payload.agentLegs ?? []) {
+    if (!agentLeg.first_name?.trim()) {
+      throw new PayloadValidationError('agentLegs.first_name is required for every agent leg entry.')
+    }
+
+    if (!agentLeg.last_name?.trim()) {
+      throw new PayloadValidationError('agentLegs.last_name is required for every agent leg entry.')
     }
   }
 }
@@ -198,12 +213,14 @@ const action: ActionDefinition<Settings, Payload> = {
         first_name: {
           label: 'First Name',
           description: 'The first name of the agent for this call leg.',
-          type: 'string'
+          type: 'string',
+          required: true
         },
         last_name: {
           label: 'Last Name',
           description: 'The last name of the agent for this call leg.',
-          type: 'string'
+          type: 'string',
+          required: true
         }
       },
       default: {
@@ -240,7 +257,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
-    validateWarmTransferPayload(data.payload)
+    validateSegmentPayload(data.payload)
 
     return request(VOICEOPS_CALLS_ENDPOINT, {
       method: 'post',

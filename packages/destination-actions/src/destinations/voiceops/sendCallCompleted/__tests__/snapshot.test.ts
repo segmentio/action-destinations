@@ -37,9 +37,32 @@ function normalizeWarmTransferFields(eventData: Record<string, unknown>) {
       })
     : eventData.channels
 
+  const normalizedAgentLegs = Array.isArray(eventData.agentLegs)
+    ? eventData.agentLegs.map((agentLeg) => {
+        if (!agentLeg || typeof agentLeg !== 'object') {
+          return agentLeg
+        }
+
+        const typedAgentLeg = agentLeg as Record<string, unknown>
+
+        return {
+          ...typedAgentLeg,
+          first_name:
+            typeof typedAgentLeg.first_name === 'string' && typedAgentLeg.first_name.trim()
+              ? typedAgentLeg.first_name
+              : 'Agent',
+          last_name:
+            typeof typedAgentLeg.last_name === 'string' && typedAgentLeg.last_name.trim()
+              ? typedAgentLeg.last_name
+              : 'Example'
+        }
+      })
+    : eventData.agentLegs
+
   if (eventData.channels && eventData.agentLegs) {
     return {
       ...eventData,
+      call_started_at: '1712683200',
       channels: normalizedChannels,
       agentLegs: undefined
     }
@@ -47,7 +70,9 @@ function normalizeWarmTransferFields(eventData: Record<string, unknown>) {
 
   return {
     ...eventData,
-    channels: normalizedChannels
+    call_started_at: '1712683200',
+    channels: normalizedChannels,
+    agentLegs: normalizedAgentLegs
   }
 }
 

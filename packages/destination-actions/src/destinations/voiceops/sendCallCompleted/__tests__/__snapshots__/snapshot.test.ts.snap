@@ -4,7 +4,7 @@ exports[`Testing snapshot for actions-voiceops's sendCallCompleted destination a
 Object {
   "agent_email": "bah@curoj.cw",
   "call_id": "PdayLkf!",
-  "call_started_at": "PdayLkf!",
+  "call_started_at": "1712683200",
   "channels": Array [
     Object {
       "channel": -4911932045787136,
@@ -28,7 +28,7 @@ exports[`Testing snapshot for actions-voiceops's sendCallCompleted destination a
 Object {
   "agent_email": "bah@curoj.cw",
   "call_id": "PdayLkf!",
-  "call_started_at": "PdayLkf!",
+  "call_started_at": "1712683200",
   "recording_url": "https://example.com/audio.wav",
 }
 `;

@@ -148,7 +148,9 @@ describe('Voiceops.sendCallCompleted', () => {
       agentLegs: [
         {
           agent_email: 'agent@voiceops.com',
-          started_at: '2025-12-08T13:32:47.000Z'
+          started_at: '2025-12-08T13:32:47.000Z',
+          first_name: 'Ava',
+          last_name: 'Agent'
         }
       ]
     })
@@ -261,7 +263,9 @@ describe('Voiceops.sendCallCompleted', () => {
     const event = createCallCompletedEvent({
       agentLegs: [
         {
-          started_at: '2025-12-08T13:32:47.000Z'
+          started_at: '2025-12-08T13:32:47.000Z',
+          first_name: 'Ava',
+          last_name: 'Agent'
         }
       ]
     })
@@ -279,7 +283,9 @@ describe('Voiceops.sendCallCompleted', () => {
     const event = createCallCompletedEvent({
       agentLegs: [
         {
-          agent_email: 'agent@voiceops.com'
+          agent_email: 'agent@voiceops.com',
+          first_name: 'Ava',
+          last_name: 'Agent'
         }
       ]
     })
@@ -299,7 +305,63 @@ describe('Voiceops.sendCallCompleted', () => {
         {
           agent_email: 'agent@voiceops.com',
           started_at: 'not-a-timestamp',
-          ended_at: 'still-not-a-timestamp'
+          ended_at: 'still-not-a-timestamp',
+          first_name: 'Ava',
+          last_name: 'Agent'
+        }
+      ]
+    })
+
+    await expect(
+      testDestination.testAction('sendCallCompleted', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow()
+  })
+
+  it('fails when call_started_at is a millisecond timestamp', async () => {
+    const event = createCallCompletedEvent({
+      call_started_at: '1712683200000'
+    })
+
+    await expect(
+      testDestination.testAction('sendCallCompleted', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow('call_started_at must be a 10-digit Unix timestamp in seconds.')
+  })
+
+  it('fails when an agent leg is missing first_name', async () => {
+    const event = createCallCompletedEvent({
+      agentLegs: [
+        {
+          agent_email: 'agent@voiceops.com',
+          started_at: '2025-12-08T13:32:47.000Z',
+          last_name: 'Agent'
+        }
+      ]
+    })
+
+    await expect(
+      testDestination.testAction('sendCallCompleted', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow()
+  })
+
+  it('fails when an agent leg is missing last_name', async () => {
+    const event = createCallCompletedEvent({
+      agentLegs: [
+        {
+          agent_email: 'agent@voiceops.com',
+          started_at: '2025-12-08T13:32:47.000Z',
+          first_name: 'Ava'
         }
       ]
     })
