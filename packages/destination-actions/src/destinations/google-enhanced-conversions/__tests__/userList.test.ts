@@ -362,6 +362,71 @@ describe('GoogleEnhancedConversions', () => {
       )
     })
 
+    it('sends an event with default mappings - syncMode = mirror and event = updated', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'updated',
+        properties: {
+          gclid: '54321',
+          email: 'test@gmail.com',
+          orderId: '1234',
+          phone: '3234567890',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          currency: 'USD',
+          value: '123',
+          address: {
+            street: '123 Street SW',
+            city: 'San Diego',
+            state: 'CA',
+            postalCode: '982004'
+          }
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          __segment_internal_sync_mode: 'mirror',
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        },
+        features
+      })
+
+      expect(responses.length).toEqual(3)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
+      )
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
+      )
+    })
+
     it('sends an event with default mappings - syncMode = delete', async () => {
       const event = createTestEvent({
         timestamp,
@@ -1554,6 +1619,49 @@ describe('GoogleEnhancedConversions', () => {
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: "Email provided doesn't seem to be in a valid format.",
         errorreporter: 'INTEGRATIONS'
+      })
+    })
+
+    it('treats updated event as add when syncMode = mirror', async () => {
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { resourceName: 'customers/1234/userLists/1234' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/1234/userLists/1234:addOperations`)
+        .post(/.*/)
+        .reply(200, {})
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/1234/userLists/1234:run`)
+        .post(/.*/)
+        .reply(200, {})
+
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'updated',
+          properties: {
+            email: 'test@gmail.com',
+            phone: '3234567890',
+            firstName: 'Jane',
+            lastName: 'Doe'
+          }
+        })
+      ]
+
+      const responses = await testDestination.executeBatch('userList', {
+        events,
+        mapping: {
+          ...mapping,
+          __segment_internal_sync_mode: 'mirror'
+        },
+        settings: {
+          customerId
+        },
+        features
+      })
+
+      expect(responses[0]).toMatchObject({
+        status: 200
       })
     })
 

@@ -571,12 +571,12 @@ const extractUserIdentifiers = (
     }
   }
   // Map user data to Google Ads API format
-  if(features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
+  if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
     for (const payload of payloads) {
       if (
         payload.event_name === 'Audience Entered' ||
         syncMode === 'add' ||
-        (syncMode === 'mirror' && payload.event_name === 'new') || 
+        (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
         audienceMembership === true
       ) {
         addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
@@ -584,18 +584,17 @@ const extractUserIdentifiers = (
         payload.event_name === 'Audience Exited' ||
         syncMode === 'delete' ||
         (syncMode === 'mirror' && payload.event_name === 'deleted') ||
-        audienceMembership === false 
+        audienceMembership === false
       ) {
         removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
       }
     }
-  } 
-  else {
+  } else {
     for (const payload of payloads) {
       if (
         payload.event_name === 'Audience Entered' ||
         syncMode === 'add' ||
-        (syncMode === 'mirror' && payload.event_name === 'new')
+        (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
       ) {
         addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
       } else if (
@@ -985,8 +984,7 @@ const extractBatchUserIdentifiers = (
     validPayloadIndicesBitmap.push(index)
     if (operationType === true) {
       addUserIdentifiers.push({ create: { userIdentifiers } })
-    } 
-    else if (operationType === false){
+    } else if (operationType === false) {
       removeUserIdentifiers.push({ remove: { userIdentifiers } })
     }
   })
@@ -995,12 +993,17 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string, audienceMembership?: AudienceMembership, features?: Features): boolean | undefined => {
-  if(features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
+const determineOperationType = (
+  payload: UserListPayload,
+  syncMode?: string,
+  audienceMembership?: AudienceMembership,
+  features?: Features
+): boolean | undefined => {
+  if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
     if (
       payload.event_name === 'Audience Entered' ||
       syncMode === 'add' ||
-      (syncMode === 'mirror' && payload.event_name === 'new') ||
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
       audienceMembership === true
     ) {
       return true
@@ -1012,12 +1015,11 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, aud
     ) {
       return false
     }
-  }
-  else {
+  } else {
     if (
       payload.event_name === 'Audience Entered' ||
       syncMode === 'add' ||
-      (syncMode === 'mirror' && payload.event_name === 'new')
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
     ) {
       return true
     } else if (
