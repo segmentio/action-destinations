@@ -99,9 +99,16 @@ export function getIDSchema(payload: GenericPayload): string[] {
   return id_schema
 }
 
-const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
+export function normalizeEmail(email: string): string {
+  return email
+    .replace(/\+.*@/, '@')
+    .replace(/\.(?=.*@)/g, '')
+    .toLowerCase()
+}
 
-const hash = (value: string): string => {
+export const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
+
+export const hash = (value: string): string => {
   return processHashing(value, 'sha256', 'hex')
 }
 

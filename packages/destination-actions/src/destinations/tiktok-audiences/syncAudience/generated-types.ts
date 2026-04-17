@@ -34,6 +34,10 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
+   * The keys to use for batching the events.
+   */
+  batch_keys?: string[]
+  /**
    * The Audience ID in TikTok's DB.
    */
   external_audience_id?: string
