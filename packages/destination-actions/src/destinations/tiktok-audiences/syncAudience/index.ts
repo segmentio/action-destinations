@@ -28,16 +28,15 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     send_advertising_id,
     event_name,
     enable_batching,
-    batch_keys,
-    external_audience_id,
+    batch_keys: { ...batch_keys, type: 'string' as const },
+    external_audience_id
   },
   perform: async (request, { audienceSettings, payload, audienceMembership }) => {
     return send(request, [payload], audienceSettings, [audienceMembership])
   },
   performBatch: async (request, { payload: payloads, audienceSettings, audienceMembership: audienceMemberships }) => {
-    return send(request, payloads, audienceSettings, audienceMemberships)
+    return send(request, payloads, audienceSettings, audienceMemberships, true)
   }
 }
-
 
 export default action
