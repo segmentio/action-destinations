@@ -103,15 +103,6 @@ export const enable_batching: InputField = {
   unsafe_hidden: true
 }
 
-export const batch_keys: InputField = {
-  label: 'Batch Keys',
-  description: 'The keys to use for batching the events.',
-  type: 'string',
-  multiple: true,
-  default: ['send_email', 'send_phone', 'send_advertising_id', 'external_audience_id'],
-  unsafe_hidden: true
-}
-
 export const external_audience_id: InputField = {
   label: 'External Audience ID',
   description: "The Audience ID in TikTok's DB.",

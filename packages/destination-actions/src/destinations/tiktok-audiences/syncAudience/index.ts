@@ -11,7 +11,6 @@ import {
   send_advertising_id,
   event_name,
   enable_batching,
-  batch_keys,
   external_audience_id
 } from '../properties'
 
@@ -28,7 +27,14 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     send_advertising_id,
     event_name,
     enable_batching,
-    batch_keys: { ...batch_keys, type: 'string' as const },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      multiple: true,
+      default: ['send_email', 'send_phone', 'send_advertising_id', 'external_audience_id'],
+      unsafe_hidden: true
+    },
     external_audience_id
   },
   perform: async (request, { audienceSettings, payload, audienceMembership }) => {

@@ -22,11 +22,11 @@ export async function send(
   const multiStatusResponse = new MultiStatusResponse()
 
   if (!audienceSettings) {
-    return handleAllErrors(multiStatusResponse, payloads, 400, 'Bad Request: no audienceSettings found.', isBatch)
+    return returnAllErrors(multiStatusResponse, payloads, 400, 'Bad Request: no audienceSettings found.', isBatch)
   }
 
   if (!Array.isArray(audienceMembership) || audienceMembership.length !== payloads.length) {
-    return handleAllErrors(
+    return returnAllErrors(
       multiStatusResponse,
       payloads,
       400,
@@ -162,7 +162,7 @@ export async function sendAndCollectResponses(
   }
 }
 
-function handleAllErrors(
+function returnAllErrors(
   multiStatusResponse: MultiStatusResponse,
   payloads: Payload[],
   status: number,
@@ -245,6 +245,9 @@ export function validate(
   return true
 }
 
+/*
+ * Kept the same logic as before for extracting users
+ */
 export function extractUsers(payloads: Payload[]): Record<string, unknown>[][] {
   const batchData: Record<string, unknown>[][] = []
 
