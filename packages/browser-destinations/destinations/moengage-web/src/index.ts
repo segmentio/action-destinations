@@ -171,9 +171,9 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
     } = settings
     
     await initializeSDK(settings)
-    
+
     const initConfig: InitConfig = {
-        app_id, 
+        app_id,
         env,
         ...(project_id ? { project_id } : {}),
         ...(typeof enableSPA === 'boolean' ? { enableSPA } : {}),
@@ -194,11 +194,13 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
     }
 
     await deps.resolveWhen(() => typeof window.moe === 'function', 100)
-    
+
     if(window.moe) {
       window.Moengage = window.moe(initConfig)
-      await deps.resolveWhen(() => typeof window?.Moengage?.onsite === 'function', 100)
-      const client = window.Moengage
+      
+      await deps.resolveWhen(() => window?.Moengage?.initialized === true, 100)
+      
+      const client = window.Moengage 
       const originalReset = analytics.reset
       analytics.reset = (...args) => {
         if (typeof originalReset === 'function') {
