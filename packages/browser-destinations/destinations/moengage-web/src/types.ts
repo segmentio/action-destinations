@@ -13,6 +13,7 @@ export interface MoengageSDK {
     identifyUser(identifiers: string | Identifiers) : void
     getUserIdentities() : Record<string, unknown>
     onsite(): void
+    initialized: boolean
 }
 
 export interface Attributes {
