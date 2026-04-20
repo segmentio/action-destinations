@@ -534,7 +534,7 @@ describe.each(testCases)('purchase2 ($name)', ({ features }) => {
       })
     })
 
-    it('should handle a basic event with mutiple external Ids', async () => {
+    it('should handle a basic event with multiple external Ids', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
       const event = createTestEvent({
