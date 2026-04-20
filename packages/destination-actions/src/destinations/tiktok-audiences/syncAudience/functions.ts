@@ -9,7 +9,7 @@ import {
 import { TikTokAudiences } from '../api'
 import { AudienceSettings } from '../generated-types'
 import { Payload } from './generated-types'
-import { getIDSchema, isHashedInformation, hash, normalizeEmail } from '../functions'
+import { getIDSchema, isHashedInformation, hash } from '../functions'
 import { TikTokAudienceAction } from './types'
 
 export async function send(
@@ -287,4 +287,11 @@ export function extractUsers(payloads: Payload[]): Record<string, unknown>[][] {
   }
 
   return batchData
+}
+
+export function normalizeEmail(email: string): string {
+  return email
+    .replace(/\+.*@/, '@')
+    .replace(/\.(?=.*@)/g, '')
+    .toLowerCase()
 }
