@@ -4154,10 +4154,10 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
-"@segment/action-emitters@^1.3.6":
-  version "1.3.6"
-  resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.3.6.tgz#0160442ae99821c43a9465c05226afddec73cbe5"
-  integrity sha512-866kjuuebzDdRvls0OGFw9uPRiY5xK9N2unfPdO77TJBSGak31csmhQhYk6lMcanFUlfTewRSVS8Rt0kXQk0iQ==
+"@segment/action-emitters@1.3.7-fix-ACTVTNS-588":
+  version "1.3.7-fix-ACTVTNS-588"
+  resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.3.7-fix-ACTVTNS-588.tgz#a2f2fa54c68320f46e09b9abb79e16002b3e2882"
+  integrity sha512-D0ZyphKoUApUY6a/WTBMUuAg5PwYhv9jHOLt0YRBXadUtMPoYwSw+t7abH78tvorba69XZLvWbi4ZGj0ruxIbg==
   dependencies:
     "@types/node" "^18.11.15"
 
