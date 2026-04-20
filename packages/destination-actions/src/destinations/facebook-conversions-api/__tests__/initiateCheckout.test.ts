@@ -96,8 +96,6 @@ describe('FacebookConversionsApi', () => {
       })
 
       it('should throw an error for invalid currency values', async () => {
-        nock(`https://graph.facebook.com/v${API_VERSION}0/${settings.pixelId}`).post(`/events`).reply(201, {})
-
         const event = createTestEvent({
           event: 'Checkout Started',
           userId: 'abc123',
