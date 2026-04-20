@@ -33,7 +33,7 @@ export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unkno
 Generates the LiveRamp ingestion file. Expected format:
 liveramp_audience_key[1],identifier_data[0..n]
 */
-function generateFile(payloads: s3Payload[] | sftpPayload[], alphabeticalFieldOrder = false) {
+function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   const headers = new Set<string>()
   headers.add('audience_key')
 
@@ -55,13 +55,11 @@ function generateFile(payloads: s3Payload[] | sftpPayload[], alphabeticalFieldOr
   // Convert headers to an ordered array for consistent indexing
   const headerArray = Array.from(headers)
 
-  // Check if incoming headers (excluding audience_key) are already in alphabetical order
+  // Sort headers alphabetically, keeping audience_key first
   const incomingHeaders = headerArray.filter((h) => h !== 'audience_key')
   const sortedIncomingHeaders = [...incomingHeaders].sort()
-  const isIncomingAlphabetical = incomingHeaders.every((header, index) => header === sortedIncomingHeaders[index])
 
-  // Sort alphabetically (excluding audience_key which is always first) if feature flag is enabled
-  const sortedHeaderArray = alphabeticalFieldOrder ? ['audience_key', ...sortedIncomingHeaders] : headerArray
+  const sortedHeaderArray = ['audience_key', ...sortedIncomingHeaders]
 
   // Declare rows as an empty Buffer
   let rows = Buffer.from('')
@@ -119,7 +117,7 @@ function generateFile(payloads: s3Payload[] | sftpPayload[], alphabeticalFieldOr
   rows = Buffer.concat([Buffer.from(sortedHeaderArray.join(payloads[0].delimiter) + '\n'), rows])
 
   const filename = payloads[0].filename
-  return { filename, fileContents: rows, isIncomingAlphabetical }
+  return { filename, fileContents: rows }
 }
 /*
   To avoid collision with delimeters, we should surround identifiers with quotation marks.
