@@ -24,7 +24,7 @@ const testCases = [
 describe('FacebookConversionsApi', () => {
   describe.each(testCases)('ViewContent2 ($name)', ({ features }) => {
     describe('ViewContent2', () => {
-      it('should throw an error if no syncMode invalid', async () => {
+      it('should throw an error if syncMode is invalid', async () => {
         nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
         const event = createTestEvent({
