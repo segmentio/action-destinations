@@ -3,7 +3,6 @@ import { Payload } from '../../purchase2/generated-types'
 
 describe('FacebookConversionsApi', () => {
   describe('UserData', () => {
-
     describe('hash_user_data', () => {
       it('if value is undefined or empty string set as undefined otherwise convert into hash value', async () => {
         const userData: Payload['user_data'] = {
