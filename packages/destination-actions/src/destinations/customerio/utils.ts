@@ -1,7 +1,7 @@
 import dayjs from '../../lib/dayjs'
 import isPlainObject from 'lodash/isPlainObject'
 import { fullFormats } from 'ajv-formats/dist/formats'
-import { ErrorCodes, MultiStatusResponse, RequestClient } from '@segment/actions-core'
+import { ErrorCodes, HTTPError, MultiStatusResponse, RequestClient } from '@segment/actions-core'
 import { CUSTOMERIO_TRACK_API_VERSION } from './versioning-info'
 
 const isEmail = (value: string): boolean => {
@@ -200,9 +200,9 @@ export const resolveIdentifiers = ({
 export const sendBatch = async <Payload extends BasePayload>(
   request: RequestClient,
   options: RequestPayload<Payload>[]
-) => {
+): Promise<MultiStatusResponse> => {
   if (!options?.length) {
-    return
+    return new MultiStatusResponse()
   }
 
   const [{ settings }] = options
@@ -219,31 +219,37 @@ export const sendBatch = async <Payload extends BasePayload>(
       }
     )
 
-    const responseBody = getResponseBody(response)
-
-    if ((response?.status === 200 || response?.status === 207) && responseBody) {
-      const parsedResults = parseTrackApiMultiStatusResponse(responseBody, options, batch)
-      if (parsedResults) {
-        return parsedResults
-      }
+    const parsedResults = parseTrackApiMultiStatusResponse(response.data, options, batch)
+    if (parsedResults) {
+      return parsedResults
     }
 
-    return response
+    throw new Error('Customer.io Track API batch response did not include an errors array')
   } catch (err) {
-    const error = err as { message?: string; response?: { status?: number } }
-    const status = error.response?.status ?? 500
-    const message = error.message ?? 'Unknown error'
+    // Retryable HTTP errors (408 Request Timeout, 429 Too Many Requests, 5xx Server Errors)
+    // and unexpected non-HTTP errors should be rethrown so the framework's retry wrapper
+    // can handle them. Only convert to per-item errors for non-retryable HTTP failures.
+    if (err instanceof HTTPError) {
+      const status = err.response.status
+      if (status === 408 || status === 429 || status >= 500) {
+        throw err
+      }
 
-    const multiStatusResponse = new MultiStatusResponse()
-    for (let i = 0; i < options.length; i++) {
-      multiStatusResponse.setErrorResponseAtIndex(i, {
-        status,
-        errormessage: message,
-        body: options[i].payload,
-        sent: batch[i]
-      })
+      const message = err.message ?? 'Unknown error'
+      const multiStatusResponse = new MultiStatusResponse()
+      for (let i = 0; i < options.length; i++) {
+        multiStatusResponse.setErrorResponseAtIndex(i, {
+          status,
+          errormessage: message,
+          body: options[i].payload,
+          sent: batch[i]
+        })
+      }
+      return multiStatusResponse
     }
-    return multiStatusResponse
+
+    // Non-HTTP errors are unexpected - rethrow so the framework can handle/retry them
+    throw err
   }
 }
 
@@ -258,43 +264,13 @@ interface CustomerIOBatchResponse {
   errors?: TrackApiError[]
 }
 
-interface RequestResponse {
-  status?: number
-  data?: unknown
-  content?: unknown
-  body?: unknown
-}
-
 function mapTrackApiReasonToErrorCode(reason: string | undefined) {
-  if (!reason) {
-    return undefined
-  }
-
-  switch (reason.toLowerCase()) {
+  switch (reason?.toLowerCase()) {
     case 'invalid':
     case 'required':
       return ErrorCodes.PAYLOAD_VALIDATION_FAILED
     default:
-      return undefined
-  }
-}
-
-function getResponseBody(response: RequestResponse): CustomerIOBatchResponse | string | undefined {
-  const body = response.data ?? response.content ?? response.body
-
-  if (typeof body !== 'string') {
-    return body
-  }
-
-  try {
-    return JSON.parse(body)
-  } catch {
-    try {
-      const decoded = Buffer.from(body, 'base64').toString('utf-8')
-      return JSON.parse(decoded)
-    } catch {
-      return body
-    }
+      return ErrorCodes.UNKNOWN_ERROR
   }
 }
 
@@ -304,18 +280,23 @@ export function parseTrackApiErrors<Payload extends BasePayload>(
   batch: Record<string, unknown>[]
 ): MultiStatusResponse {
   const multiStatusResponse = new MultiStatusResponse()
-  const errorMap = new Map<number, TrackApiError>()
+  const errorMap = new Map<number, TrackApiError[]>()
 
   for (const error of errors) {
     if (typeof error.batch_index === 'number') {
-      errorMap.set(error.batch_index, error)
+      const existing = errorMap.get(error.batch_index)
+      if (existing) {
+        existing.push(error)
+      } else {
+        errorMap.set(error.batch_index, [error])
+      }
     }
   }
 
   for (let i = 0; i < options.length; i++) {
-    const error = errorMap.get(i)
+    const indexErrors = errorMap.get(i)
 
-    if (!error) {
+    if (!indexErrors) {
       multiStatusResponse.setSuccessResponseAtIndex(i, {
         status: 200,
         body: options[i].payload,
@@ -324,10 +305,18 @@ export function parseTrackApiErrors<Payload extends BasePayload>(
       continue
     }
 
+    const errormessage = indexErrors
+      .map((e) => e.message || `${e.reason || 'ERROR'}: ${e.field || 'unknown field'}`)
+      .join('; ')
+
+    // Use the reason from the first error for error code mapping (all errors for the same
+    // batch_index are expected to share the same underlying reason class)
+    const errortype = mapTrackApiReasonToErrorCode(indexErrors[0].reason)
+
     multiStatusResponse.setErrorResponseAtIndex(i, {
       status: 400,
-      errormessage: error.message || `${error.reason || 'ERROR'}: ${error.field || 'unknown field'}`,
-      errortype: mapTrackApiReasonToErrorCode(error.reason),
+      errormessage,
+      errortype,
       body: options[i].payload,
       sent: batch[i]
     })
@@ -337,7 +326,7 @@ export function parseTrackApiErrors<Payload extends BasePayload>(
 }
 
 export function parseTrackApiMultiStatusResponse<Payload extends BasePayload>(
-  responseBody: CustomerIOBatchResponse | string | undefined,
+  responseBody: CustomerIOBatchResponse | undefined,
   options: RequestPayload<Payload>[],
   batch: Record<string, unknown>[]
 ): MultiStatusResponse | null {
@@ -346,7 +335,7 @@ export function parseTrackApiMultiStatusResponse<Payload extends BasePayload>(
   }
 
   const { errors } = responseBody as CustomerIOBatchResponse
-  if (!Array.isArray(errors) || errors.length === 0) {
+  if (!Array.isArray(errors)) {
     return null
   }
 
