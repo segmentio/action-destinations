@@ -241,11 +241,12 @@ export const sendBatch = async <Payload extends BasePayload>(
 
       const responseBody = err.response?.data as { message?: string } | undefined
       const message = responseBody?.message ?? err.message ?? 'Unknown error'
+      const errortype = mapHttpStatusToErrorCode(status)
       const multiStatusResponse = new MultiStatusResponse()
       for (let i = 0; i < options.length; i++) {
         multiStatusResponse.setErrorResponseAtIndex(i, {
           status,
-          errortype: ErrorCodes.INTEGRATION_ERROR,
+          errortype,
           errormessage: message,
           body: options[i].payload,
           sent: batch[i]
@@ -268,6 +269,11 @@ interface TrackApiError {
 
 interface CustomerIOBatchResponse {
   errors?: TrackApiError[]
+}
+
+function mapHttpStatusToErrorCode(status: number): ErrorCodes {
+  if (status === 400) return ErrorCodes.PAYLOAD_VALIDATION_FAILED
+  return ErrorCodes.INTEGRATION_ERROR
 }
 
 function mapTrackApiReasonToErrorCode(reason: string | undefined) {

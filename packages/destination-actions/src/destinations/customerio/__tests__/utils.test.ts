@@ -237,6 +237,43 @@ describe('sendBatch', () => {
     ).rejects.toBe(error)
   })
 
+  it('should convert non-retryable HTTP errors into per-item MultiStatusResponse entries', async () => {
+    const error = new HTTPError(
+      { status: 400, statusText: 'Bad Request' } as any,
+      { url: 'https://track.customer.io/api/v2/batch' } as any,
+      {} as any
+    )
+    const request = jest.fn().mockRejectedValue(error)
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      },
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-2', name: 'Second' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response.length()).toBe(2)
+    expect(response.getResponseAtIndex(0).value()).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      body: { person_id: 'user-1', name: 'First' }
+    })
+    expect(response.getResponseAtIndex(1).value()).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      body: { person_id: 'user-2', name: 'Second' }
+    })
+  })
+
   it('should throw when the batch endpoint returns an unexpected response shape', async () => {
     const request = jest.fn().mockResolvedValue({
       status: 200,
