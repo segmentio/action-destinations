@@ -39,7 +39,7 @@ describe('MultiStatus', () => {
         }
       },
       enable_batching: true,
-      batch_size: 100
+      batch_size: 10000
     }
 
     const events: SegmentEvent[] = [
@@ -126,15 +126,15 @@ describe('MultiStatus', () => {
 
       expect(response).toMatchObject([
         {
-          status: 500,
-          errortype: 'RETRYABLE_ERROR',
+          status: 406,
+          errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'DESTINATION',
           body: { code: '612', message: 'Invalid Content Type' }
         },
         {
-          status: 500,
-          errortype: 'RETRYABLE_ERROR',
+          status: 406,
+          errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'DESTINATION',
           body: { code: '612', message: 'Invalid Content Type' }
@@ -354,15 +354,15 @@ describe('MultiStatus', () => {
 
       expect(response).toMatchObject([
         {
-          status: 500,
-          errortype: 'RETRYABLE_ERROR',
+          status: 406,
+          errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'DESTINATION',
           body: { code: '612', message: 'Invalid Content Type' }
         },
         {
-          status: 500,
-          errortype: 'RETRYABLE_ERROR',
+          status: 406,
+          errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'DESTINATION',
           body: { code: '612', message: 'Invalid Content Type' }
@@ -398,15 +398,15 @@ describe('MultiStatus', () => {
 
       expect(response).toMatchObject([
         {
-          status: 500,
-          errortype: 'RETRYABLE_ERROR',
+          status: 406,
+          errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'DESTINATION',
           body: { code: '612', message: 'Invalid Content Type' }
         },
         {
-          status: 500,
-          errortype: 'RETRYABLE_ERROR',
+          status: 406,
+          errortype: 'NOT_ACCEPTABLE',
           errormessage: 'Invalid Content Type',
           errorreporter: 'DESTINATION',
           body: { code: '612', message: 'Invalid Content Type' }

@@ -386,8 +386,8 @@ function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number)
   }
 
   return buildMultiStatusErrorResponse(payloadSize, {
-    status: 400,
-    errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+    status: 406,
+    errortype: ErrorCodes.NOT_ACCEPTABLE,
     body: response.errors[0] as unknown as JSONLikeObject,
     errormessage: message
   })
