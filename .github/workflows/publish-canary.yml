@@ -43,6 +43,9 @@ jobs:
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Reset NX Cache
+        run: npx nx reset
+
       - name: Build
         run: NODE_ENV=production yarn build
 
