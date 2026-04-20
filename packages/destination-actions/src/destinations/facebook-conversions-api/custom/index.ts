@@ -1,24 +1,49 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
-import { dataProcessingOptions } from '../fb-capi-properties'
-import { hash_user_data } from '../fb-capi-user-data'
+import {
+  action_source,
+  custom_data,
+  event_id,
+  event_source_url,
+  event_time,
+  data_processing_options,
+  data_processing_options_country,
+  data_processing_options_state,
+  dataProcessingOptions,
+  test_event_code
+} from '../fb-capi-properties'
+import { hash_user_data, user_data_field } from '../fb-capi-user-data'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { get_api_version } from '../utils'
-import { generate_app_data } from '../fb-capi-app-data'
-import { customFields } from '../shared/fields'
-import { send, getCustomEventData } from '../shared/functions'
-import { EventType , FEATURE_FLAG_CUSTOM } from '../shared/constants'
+import { generate_app_data, app_data_field } from '../fb-capi-app-data'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
   description: 'Send a custom event',
-  fields: customFields,
+  fields: {
+    action_source: { ...action_source, required: true },
+    event_name: {
+      label: 'Event Name',
+      description:
+        'A Facebook [standard event](https://developers.facebook.com/docs/meta-pixel/implementation/conversion-tracking#standard-events) or [custom event](https://developers.facebook.com/docs/meta-pixel/implementation/conversion-tracking#custom-events) name.',
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.event'
+      }
+    },
+    event_time: { ...event_time, required: true },
+    user_data: user_data_field,
+    app_data_field: app_data_field,
+    custom_data: custom_data,
+    event_id: event_id,
+    event_source_url: event_source_url,
+    data_processing_options: data_processing_options,
+    data_processing_options_country: data_processing_options_country,
+    data_processing_options_state: data_processing_options_state,
+    test_event_code: test_event_code
+  },
   perform: (request, { payload, settings, features, statsContext }) => {
-    
-    if (features && features[FEATURE_FLAG_CUSTOM]) {
-      return send(request, payload, settings, getCustomEventData, EventType.Custom, features, statsContext)
-    }
-       
     if (!payload.user_data) {
       throw new IntegrationError('Must include at least one user data property', 'Misconfigured required field', 400)
     }

@@ -24,86 +24,87 @@ const testCases = [
 describe('FacebookConversionsApi', () => {
   describe.each(testCases)('PageView ($name)', ({ features }) => {
     describe('PageView', () => {
-    it('should handle a basic event', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+      it('should handle a basic event', async () => {
+        nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
-      const event = createTestEvent({
-        type: 'page',
-        userId: 'abc123',
-        timestamp: '1631210020',
-        messageId: 'test',
-        properties: {
-          timestamp: 1631210000,
-          action_source: 'email',
-          email: 'nicholas.aguilar@segment.com'
-        }
-      })
+        const event = createTestEvent({
+          type: 'page',
+          userId: 'abc123',
+          timestamp: '1631210020',
+          messageId: 'test',
+          properties: {
+            timestamp: 1631210000,
+            action_source: 'email',
+            email: 'nicholas.aguilar@segment.com'
+          }
+        })
 
-      const responses = await testDestination.testAction('pageView', {
-        event,
-        settings,
+        const responses = await testDestination.testAction('pageView', {
+          event,
+          settings,
           features,
-        useDefaultMappings: true,
-        mapping: { action_source: { '@path': '$.properties.action_source' } }
-      })
+          useDefaultMappings: true,
+          mapping: { action_source: { '@path': '$.properties.action_source' } }
+        })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(201)
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(201)
 
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
+        expect(JSON.parse(responses[0].options.body as string)).toEqual({
           data: [
             {
-              event_name: "PageView",
-              event_time: "1631210020",
-              action_source: "email",
-              event_source_url: "https://segment.com/academy/",
-              event_id: "test",
+              event_name: 'PageView',
+              event_time: '1631210020',
+              action_source: 'email',
+              event_source_url: 'https://segment.com/academy/',
+              event_id: 'test',
               user_data: {
                 external_id: [
-                  "6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090"
+                  '6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090'
                 ],
-                client_ip_address: "8.8.8.8",
-                client_user_agent: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1"
+                client_ip_address: '8.8.8.8',
+                client_user_agent:
+                  'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
               }
             }
           ]
         })
-    })
-
-    it('should throw an error when action_source is website and no client_user_agent', async () => {
-      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
-
-      const event = createTestEvent({
-        type: 'page',
-        userId: 'abc123',
-        properties: {
-          timestamp: 1631210000,
-          action_source: 'website',
-          email: 'nicholas.aguilar@segment.com'
-        }
       })
 
-      await expect(
-        testDestination.testAction('pageView', {
-          event,
-          settings,
-          features,
-          mapping: {
-            action_source: {
-              '@path': '$.properties.action_source'
-            },
-            event_time: {
-              '@path': '$.properties.timestamp'
-            },
-            user_data: {
-              email: {
-                '@path': '$.properties.email'
-              }
-            }
+      it('should throw an error when action_source is website and no client_user_agent', async () => {
+        nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+        const event = createTestEvent({
+          type: 'page',
+          userId: 'abc123',
+          properties: {
+            timestamp: 1631210000,
+            action_source: 'website',
+            email: 'nicholas.aguilar@segment.com'
           }
         })
-      ).rejects.toThrowError('If action source is "Website" then client_user_agent must be defined')
-    })
+
+        await expect(
+          testDestination.testAction('pageView', {
+            event,
+            settings,
+            features,
+            mapping: {
+              action_source: {
+                '@path': '$.properties.action_source'
+              },
+              event_time: {
+                '@path': '$.properties.timestamp'
+              },
+              user_data: {
+                email: {
+                  '@path': '$.properties.email'
+                }
+              }
+            }
+          })
+        ).rejects.toThrowError('If action source is "Website" then client_user_agent must be defined')
+      })
 
     it('should handle default mappings', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})

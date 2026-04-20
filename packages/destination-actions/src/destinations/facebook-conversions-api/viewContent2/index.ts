@@ -8,7 +8,7 @@ import { get_api_version } from '../utils'
 import { generate_app_data } from '../fb-capi-app-data'
 import { viewContentFields } from '../shared/fields'
 import { send, getViewContentEventData } from '../shared/functions'
-import { EventType , FEATURE_FLAG_VIEW_CONTENT } from '../shared/constants'
+import { EventType, FEATURE_FLAG_VIEW_CONTENT } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'View Content V2',
@@ -23,7 +23,6 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: viewContentFields,
   perform: (request, { payload, settings, features, statsContext, syncMode }) => {
     if (syncMode === 'add') {
-
       if (features && features[FEATURE_FLAG_VIEW_CONTENT]) {
         return send(request, payload, settings, getViewContentEventData, EventType.ViewContent, features, statsContext)
       }

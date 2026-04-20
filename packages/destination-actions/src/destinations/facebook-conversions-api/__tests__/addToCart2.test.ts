@@ -2,7 +2,6 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
 import { API_VERSION } from '../constants'
-import { FEATURE_FLAG_ADD_TO_CART } from '../shared/constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -16,14 +15,8 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
-const testCases = [
-  { name: 'flag off', features: undefined },
-  { name: 'flag on', features: { [FEATURE_FLAG_ADD_TO_CART]: true } }
-]
-
 describe('FacebookConversionsApi', () => {
-  describe.each(testCases)('AddToCart2 ($name)', ({ features }) => {
-    describe('AddToCart2', () => {
+  describe('AddToCart2', () => {
     it('should throw an error for invalid syncMode', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
@@ -43,7 +36,6 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('addToCart2', {
           event,
           settings,
-          features,
           mapping: {
             __segment_internal_sync_mode: 'update',
             currency: {
@@ -93,7 +85,6 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
-          features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           currency: {
@@ -128,27 +119,9 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "AddToCart",
-              event_time: "1631210000",
-              action_source: "email",
-              user_data: {
-                em: "eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380",
-                partner_id: "faf12efasdfasdf1edasdasdfadf=",
-                partner_name: "liveramp"
-              },
-              custom_data: {
-                city: "Gotham",
-                country: "United States",
-                last_name: "Wayne",
-                currency: "USD",
-                value: 12.12
-              }
-            }
-          ]
-        })
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\",\\"partner_id\\":\\"faf12efasdfasdf1edasdasdfadf=\\",\\"partner_name\\":\\"liveramp\\"},\\"custom_data\\":{\\"city\\":\\"Gotham\\",\\"country\\":\\"United States\\",\\"last_name\\":\\"Wayne\\",\\"currency\\":\\"USD\\",\\"value\\":12.12}}]}"`
+      )
     })
 
     it('should throw an error for invalid currency values', async () => {
@@ -170,7 +143,6 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('addToCart2', {
           event,
           settings,
-          features,
           mapping: {
             __segment_internal_sync_mode: 'add',
             currency: {
@@ -215,7 +187,6 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
-          features,
         useDefaultMappings: true,
         mapping: { __segment_internal_sync_mode: 'add', action_source: { '@path': '$.properties.action_source' } }
       })
@@ -223,35 +194,9 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "AddToCart",
-              event_time: "1631210020",
-              event_source_url: "https://segment.com/academy/",
-              event_id: "test",
-              action_source: "email",
-              user_data: {
-                external_id: [
-                  "831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb"
-                ],
-                client_ip_address: "8.8.8.8",
-                client_user_agent: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1"
-              },
-              custom_data: {
-                currency: "USD",
-                value: 100,
-                contents: [
-                  {
-                    id: "abc12345",
-                    quantity: 1,
-                    item_price: 100
-                  }
-                ]
-              }
-            }
-          ]
-        })
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210020\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":[\\"831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":100,\\"contents\\":[{\\"id\\":\\"abc12345\\",\\"quantity\\":1,\\"item_price\\":100}]}}]}"`
+      )
     })
 
     it('should throw an error if no id parameter is included in contents array objects', async () => {
@@ -275,7 +220,6 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('addToCart2', {
           event,
           settings,
-          features,
           mapping: {
             __segment_internal_sync_mode: 'add',
             currency: {
@@ -333,7 +277,6 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
-          features,
         useDefaultMappings: true,
         mapping: {
           __segment_internal_sync_mode: 'add',
@@ -353,40 +296,9 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "AddToCart",
-              event_time: "1631210020",
-              event_source_url: "https://segment.com/academy/",
-              event_id: "test",
-              action_source: "email",
-              user_data: {
-                external_id: [
-                  "831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb"
-                ],
-                client_ip_address: "8.8.8.8",
-                client_user_agent: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1"
-              },
-              custom_data: {
-                currency: "USD",
-                value: 100,
-                contents: [
-                  {
-                    id: "abc12345",
-                    quantity: 1,
-                    item_price: 100
-                  }
-                ]
-              },
-              data_processing_options: [
-                "LDU"
-              ],
-              data_processing_options_country: 1,
-              data_processing_options_state: 1000
-            }
-          ]
-        })
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210020\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":[\\"831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":100,\\"contents\\":[{\\"id\\":\\"abc12345\\",\\"quantity\\":1,\\"item_price\\":100}]},\\"data_processing_options\\":[\\"LDU\\"],\\"data_processing_options_country\\":1,\\"data_processing_options_state\\":1000}]}"`
+      )
     })
 
     it('should not send data processing options', async () => {
@@ -410,7 +322,6 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
-          features,
         useDefaultMappings: true,
         mapping: {
           __segment_internal_sync_mode: 'add',
@@ -426,35 +337,9 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "AddToCart",
-              event_time: "1631210020",
-              event_source_url: "https://segment.com/academy/",
-              event_id: "test",
-              action_source: "email",
-              user_data: {
-                external_id: [
-                  "831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb"
-                ],
-                client_ip_address: "8.8.8.8",
-                client_user_agent: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1"
-              },
-              custom_data: {
-                currency: "USD",
-                value: 100,
-                contents: [
-                  {
-                    id: "abc12345",
-                    quantity: 1,
-                    item_price: 100
-                  }
-                ]
-              }
-            }
-          ]
-        })
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210020\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":[\\"831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":100,\\"contents\\":[{\\"id\\":\\"abc12345\\",\\"quantity\\":1,\\"item_price\\":100}]}}]}"`
+      )
     })
 
     it('should send data processing options without state or country code set by user', async () => {
@@ -478,7 +363,6 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
-          features,
         useDefaultMappings: true,
         mapping: {
           __segment_internal_sync_mode: 'add',
@@ -492,40 +376,9 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "AddToCart",
-              event_time: "1631210020",
-              event_source_url: "https://segment.com/academy/",
-              event_id: "test",
-              action_source: "email",
-              user_data: {
-                external_id: [
-                  "831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb"
-                ],
-                client_ip_address: "8.8.8.8",
-                client_user_agent: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1"
-              },
-              custom_data: {
-                currency: "USD",
-                value: 100,
-                contents: [
-                  {
-                    id: "abc12345",
-                    quantity: 1,
-                    item_price: 100
-                  }
-                ]
-              },
-              data_processing_options: [
-                "LDU"
-              ],
-              data_processing_options_country: 0,
-              data_processing_options_state: 0
-            }
-          ]
-        })
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210020\\",\\"event_source_url\\":\\"https://segment.com/academy/\\",\\"event_id\\":\\"test\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":[\\"831c237928e6212bedaa4451a514ace3174562f6761f6a157a2fe5082b36e2fb\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":100,\\"contents\\":[{\\"id\\":\\"abc12345\\",\\"quantity\\":1,\\"item_price\\":100}]},\\"data_processing_options\\":[\\"LDU\\"],\\"data_processing_options_country\\":0,\\"data_processing_options_state\\":0}]}"`
+      )
     })
 
     it('should throw an error if contents.delivery_category is not supported', async () => {
@@ -550,7 +403,6 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('addToCart2', {
           event,
           settings,
-          features,
           mapping: {
             __segment_internal_sync_mode: 'add',
             currency: {
@@ -606,7 +458,6 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('addToCart2', {
           event,
           settings,
-          features,
           mapping: {
             __segment_internal_sync_mode: 'add',
             currency: {
@@ -652,7 +503,6 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('addToCart2', {
         event,
         settings: settingsWithTestEventCode,
-          features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           currency: {
@@ -681,26 +531,9 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "AddToCart",
-              event_time: "1631210000",
-              action_source: "email",
-              user_data: {
-                em: "eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380"
-              },
-              custom_data: {
-                city: "Gotham",
-                country: "United States",
-                last_name: "Wayne",
-                currency: "USD",
-                value: 12.12
-              }
-            }
-          ],
-          test_event_code: "1234567890"
-        })
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\"},\\"custom_data\\":{\\"city\\":\\"Gotham\\",\\"country\\":\\"United States\\",\\"last_name\\":\\"Wayne\\",\\"currency\\":\\"USD\\",\\"value\\":12.12}}],\\"test_event_code\\":\\"1234567890\\"}"`
+      )
     })
 
     it('should send test_event_code if present in the mapping', async () => {
@@ -727,7 +560,6 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('addToCart2', {
         event,
         settings: settingsWithTestEventCode,
-          features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           currency: {
@@ -759,26 +591,9 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "AddToCart",
-              event_time: "1631210000",
-              action_source: "email",
-              user_data: {
-                em: "eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380"
-              },
-              custom_data: {
-                city: "Gotham",
-                country: "United States",
-                last_name: "Wayne",
-                currency: "USD",
-                value: 12.12
-              }
-            }
-          ],
-          test_event_code: "2345678901"
-        })
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\"},\\"custom_data\\":{\\"city\\":\\"Gotham\\",\\"country\\":\\"United States\\",\\"last_name\\":\\"Wayne\\",\\"currency\\":\\"USD\\",\\"value\\":12.12}}],\\"test_event_code\\":\\"2345678901\\"}"`
+      )
     })
 
     it('should send app events using default mappings correctly', async () => {
@@ -842,7 +657,6 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
-          features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           action_source: { '@path': '$.properties.action_source' },
@@ -898,52 +712,9 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "AddToCart",
-              event_time: "1631210000",
-              event_id: "123",
-              action_source: "email",
-              user_data: {
-                external_id: [
-                  "6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090"
-                ]
-              },
-              custom_data: {
-                currency: "USD",
-                contents: [
-                  {
-                    id: "abc12345"
-                  }
-                ]
-              },
-              app_data: {
-                advertiser_tracking_enabled: 0,
-                application_tracking_enabled: 0,
-                madid: "2313",
-                extinfo: [
-                  "",
-                  "com.krusty.krab.ios-prod",
-                  "",
-                  "2.0.1",
-                  "16.3.1",
-                  "iPhone10,5",
-                  "en-US",
-                  "",
-                  "AT&T",
-                  "414",
-                  "736",
-                  "",
-                  "",
-                  "",
-                  "",
-                  "America/Los Angeles"
-                ]
-              }
-            }
-          ]
-        })
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"event_id\\":\\"123\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"]},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"contents\\":[{\\"id\\":\\"abc12345\\"}]},\\"app_data\\":{\\"advertiser_tracking_enabled\\":0,\\"application_tracking_enabled\\":0,\\"madid\\":\\"2313\\",\\"extinfo\\":[\\"\\",\\"com.krusty.krab.ios-prod\\",\\"\\",\\"2.0.1\\",\\"16.3.1\\",\\"iPhone10,5\\",\\"en-US\\",\\"\\",\\"AT&T\\",\\"414\\",\\"736\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"America/Los Angeles\\"]}}]}"`
+      )
     })
 
     it('should send app events without anon_id and madId using default mappings correctly', async () => {
@@ -1001,7 +772,6 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
-          features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           action_source: { '@path': '$.properties.action_source' },
@@ -1051,51 +821,9 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "AddToCart",
-              event_time: "1631210000",
-              event_id: "123",
-              action_source: "email",
-              user_data: {
-                external_id: [
-                  "6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090"
-                ]
-              },
-              custom_data: {
-                currency: "USD",
-                contents: [
-                  {
-                    id: "abc12345"
-                  }
-                ]
-              },
-              app_data: {
-                advertiser_tracking_enabled: 0,
-                application_tracking_enabled: 0,
-                extinfo: [
-                  "",
-                  "com.krusty.krab.ios-prod",
-                  "",
-                  "2.0.1",
-                  "16.3.1",
-                  "iPhone10,5",
-                  "en-US",
-                  "",
-                  "AT&T",
-                  "414",
-                  "736",
-                  "",
-                  "",
-                  "",
-                  "",
-                  "America/Los Angeles"
-                ]
-              }
-            }
-          ]
-        })
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"event_id\\":\\"123\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"]},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"contents\\":[{\\"id\\":\\"abc12345\\"}]},\\"app_data\\":{\\"advertiser_tracking_enabled\\":0,\\"application_tracking_enabled\\":0,\\"extinfo\\":[\\"\\",\\"com.krusty.krab.ios-prod\\",\\"\\",\\"2.0.1\\",\\"16.3.1\\",\\"iPhone10,5\\",\\"en-US\\",\\"\\",\\"AT&T\\",\\"414\\",\\"736\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"America/Los Angeles\\"]}}]}"`
+      )
     })
 
     it('should not send app events by default', async () => {
@@ -1153,7 +881,6 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
-          features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           action_source: { '@path': '$.properties.action_source' }
@@ -1163,29 +890,9 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "AddToCart",
-              event_time: "1631210000",
-              event_id: "123",
-              action_source: "email",
-              user_data: {
-                external_id: [
-                  "6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090"
-                ]
-              },
-              custom_data: {
-                currency: "USD",
-                contents: [
-                  {
-                    id: "abc12345"
-                  }
-                ]
-              }
-            }
-          ]
-        })
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"event_id\\":\\"123\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"]},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"contents\\":[{\\"id\\":\\"abc12345\\"}]}}]}"`
+      )
     })
 
     it('should handle basic event with mutiple externalIds', async () => {
@@ -1214,7 +921,6 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
-          features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           currency: {
@@ -1251,32 +957,9 @@ describe('FacebookConversionsApi', () => {
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "AddToCart",
-              event_time: "1631210000",
-              action_source: "email",
-              user_data: {
-                em: "eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380",
-                external_id: [
-                  "6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090",
-                  "f0a72890897acefdb2c6c8c06134339a73cc6205833ca38dba6f9fdc94b60596"
-                ],
-                partner_id: "faf12efasdfasdf1edasdasdfadf=",
-                partner_name: "liveramp"
-              },
-              custom_data: {
-                city: "Gotham",
-                country: "United States",
-                last_name: "Wayne",
-                currency: "USD",
-                value: 12.12
-              }
-            }
-          ]
-        })
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\",\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\",\\"f0a72890897acefdb2c6c8c06134339a73cc6205833ca38dba6f9fdc94b60596\\"],\\"partner_id\\":\\"faf12efasdfasdf1edasdasdfadf=\\",\\"partner_name\\":\\"liveramp\\"},\\"custom_data\\":{\\"city\\":\\"Gotham\\",\\"country\\":\\"United States\\",\\"last_name\\":\\"Wayne\\",\\"currency\\":\\"USD\\",\\"value\\":12.12}}]}"`
+      )
     })
-  })
   })
 })

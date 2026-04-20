@@ -8,7 +8,7 @@ import { get_api_version } from '../utils'
 import { generate_app_data } from '../fb-capi-app-data'
 import { viewContentFields } from '../shared/fields'
 import { send, getViewContentEventData } from '../shared/functions'
-import { EventType , FEATURE_FLAG_VIEW_CONTENT } from '../shared/constants'
+import { EventType, FEATURE_FLAG_VIEW_CONTENT } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'View Content',
@@ -16,11 +16,10 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Product Viewed"',
   fields: viewContentFields,
   perform: (request, { payload, settings, features, statsContext }) => {
-   
     if (features && features[FEATURE_FLAG_VIEW_CONTENT]) {
       return send(request, payload, settings, getViewContentEventData, EventType.ViewContent, features, statsContext)
     }
-    
+
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
       throw new IntegrationError(
         `${payload.currency} is not a valid currency code.`,

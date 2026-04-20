@@ -2,7 +2,6 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
 import { API_VERSION } from '../constants'
-import { FEATURE_FLAG_CUSTOM } from '../shared/constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -16,14 +15,8 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
-const testCases = [
-  { name: 'flag off', features: undefined },
-  { name: 'flag on', features: { [FEATURE_FLAG_CUSTOM]: true } }
-]
-
 describe('FacebookConversionsApi', () => {
-  describe.each(testCases)('Custom ($name)', ({ features }) => {
-    describe('Custom', () => {
+  describe('Custom', () => {
     it('should fail if no event_name is passed', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
@@ -42,7 +35,6 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('custom', {
           event,
           settings,
-          features,
           mapping: {
             event_name: {
               '@path': '$.event'
@@ -72,7 +64,6 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('custom', {
           event,
           settings,
-          features,
           mapping: {
             event_name: {
               '@path': '$.event'
@@ -102,7 +93,6 @@ describe('FacebookConversionsApi', () => {
         testDestination.testAction('custom', {
           event,
           settings,
-          features,
           mapping: {
             event_name: {
               '@path': '$.event'
@@ -159,7 +149,6 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('custom', {
         event,
         settings,
-          features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
@@ -178,24 +167,9 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "identify",
-              event_time: "2015-02-23T22:28:55.111Z",
-              action_source: "website",
-              event_id: "022bb90c-bbac-11e4-8dfc-aa07a5b093db",
-              user_data: {
-                partner_id: "faf12efasdfasdf1edasdasdfadf=",
-                partner_name: "liveramp"
-              },
-              custom_data: {
-                action_source: "website",
-                timestamp: "1633473963"
-              }
-            }
-          ]
-        })
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"identify\\",\\"event_time\\":\\"2015-02-23T22:28:55.111Z\\",\\"action_source\\":\\"website\\",\\"event_id\\":\\"022bb90c-bbac-11e4-8dfc-aa07a5b093db\\",\\"user_data\\":{\\"partner_id\\":\\"faf12efasdfasdf1edasdasdfadf=\\",\\"partner_name\\":\\"liveramp\\"},\\"custom_data\\":{\\"action_source\\":\\"website\\",\\"timestamp\\":\\"1633473963\\"}}]}"`
+      )
     })
 
     it('should send test_event_code if present in settings', async () => {
@@ -239,7 +213,6 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('custom', {
         event,
         settings: settingsWithTestEventCode,
-          features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
@@ -250,28 +223,9 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "identify",
-              event_time: "2015-02-23T22:28:55.111Z",
-              action_source: "website",
-              event_id: "022bb90c-bbac-11e4-8dfc-aa07a5b093db",
-              user_data: {
-                external_id: [
-                  "df73b86ff613b9d7008c175ae3c3aa3f2c1ea1674a80cac85274d58048e44127"
-                ],
-                client_ip_address: "8.8.8.8",
-                client_user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36"
-              },
-              custom_data: {
-                action_source: "website",
-                timestamp: "1633473963"
-              }
-            }
-          ],
-          test_event_code: "1234567890"
-        })
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"identify\\",\\"event_time\\":\\"2015-02-23T22:28:55.111Z\\",\\"action_source\\":\\"website\\",\\"event_id\\":\\"022bb90c-bbac-11e4-8dfc-aa07a5b093db\\",\\"user_data\\":{\\"external_id\\":[\\"df73b86ff613b9d7008c175ae3c3aa3f2c1ea1674a80cac85274d58048e44127\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36\\"},\\"custom_data\\":{\\"action_source\\":\\"website\\",\\"timestamp\\":\\"1633473963\\"}}],\\"test_event_code\\":\\"1234567890\\"}"`
+      )
     })
 
     it('should send test_event_code if present in the mapping', async () => {
@@ -314,7 +268,6 @@ describe('FacebookConversionsApi', () => {
       const responses = await testDestination.testAction('custom', {
         event,
         settings: settingsWithTestEventCode,
-          features,
         useDefaultMappings: true,
         mapping: {
           action_source: { '@path': '$.properties.action_source' },
@@ -328,30 +281,9 @@ describe('FacebookConversionsApi', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(JSON.parse(responses[0].options.body as string)).toEqual({
-          data: [
-            {
-              event_name: "identify",
-              event_time: "2015-02-23T22:28:55.111Z",
-              action_source: "website",
-              event_id: "022bb90c-bbac-11e4-8dfc-aa07a5b093db",
-              user_data: {
-                external_id: [
-                  "df73b86ff613b9d7008c175ae3c3aa3f2c1ea1674a80cac85274d58048e44127"
-                ],
-                client_ip_address: "8.8.8.8",
-                client_user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36"
-              },
-              custom_data: {
-                action_source: "website",
-                timestamp: "1633473963",
-                test_event_code: "2345678901"
-              }
-            }
-          ],
-          test_event_code: "2345678901"
-        })
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"identify\\",\\"event_time\\":\\"2015-02-23T22:28:55.111Z\\",\\"action_source\\":\\"website\\",\\"event_id\\":\\"022bb90c-bbac-11e4-8dfc-aa07a5b093db\\",\\"user_data\\":{\\"external_id\\":[\\"df73b86ff613b9d7008c175ae3c3aa3f2c1ea1674a80cac85274d58048e44127\\"],\\"client_ip_address\\":\\"8.8.8.8\\",\\"client_user_agent\\":\\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36\\"},\\"custom_data\\":{\\"action_source\\":\\"website\\",\\"timestamp\\":\\"1633473963\\",\\"test_event_code\\":\\"2345678901\\"}}],\\"test_event_code\\":\\"2345678901\\"}"`
+      )
     })
-  })
   })
 })

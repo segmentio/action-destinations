@@ -8,7 +8,7 @@ import { hash_user_data } from '../fb-capi-user-data'
 import { generate_app_data } from '../fb-capi-app-data'
 import { searchFields } from '../shared/fields'
 import { send, getSearchEventData } from '../shared/functions'
-import { EventType , FEATURE_FLAG_SEARCH } from '../shared/constants'
+import { EventType, FEATURE_FLAG_SEARCH } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Search V2',
@@ -23,11 +23,10 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: searchFields,
   perform: (request, { payload, settings, features, statsContext, syncMode }) => {
     if (syncMode === 'add') {
-      
       if (features && features[FEATURE_FLAG_SEARCH]) {
         return send(request, payload, settings, getSearchEventData, EventType.Search, features, statsContext)
       }
-      
+
       if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
         throw new IntegrationError(
           `${payload.currency} is not a valid currency code.`,

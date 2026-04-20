@@ -8,7 +8,7 @@ import { hash_user_data } from '../fb-capi-user-data'
 import { generate_app_data } from '../fb-capi-app-data'
 import { purchaseFields } from '../shared/fields'
 import { send, getPurchaseEventData } from '../shared/functions'
-import { EventType , FEATURE_FLAG_PURCHASE } from '../shared/constants'
+import { EventType, FEATURE_FLAG_PURCHASE } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Purchase',
@@ -16,11 +16,10 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: purchaseFields,
   perform: (request, { payload, settings, features, statsContext }) => {
-    
     if (features && features[FEATURE_FLAG_PURCHASE]) {
       return send(request, payload, settings, getPurchaseEventData, EventType.Purchase, features, statsContext)
     }
-    
+
     if (!CURRENCY_ISO_CODES.has(payload.currency)) {
       throw new IntegrationError(
         `${payload.currency} is not a valid currency code.`,

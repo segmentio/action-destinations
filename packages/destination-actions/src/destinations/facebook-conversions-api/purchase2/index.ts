@@ -8,7 +8,7 @@ import { hash_user_data } from '../fb-capi-user-data'
 import { generate_app_data } from '../fb-capi-app-data'
 import { purchaseFields } from '../shared/fields'
 import { send, getPurchaseEventData } from '../shared/functions'
-import { EventType , FEATURE_FLAG_PURCHASE } from '../shared/constants'
+import { EventType, FEATURE_FLAG_PURCHASE } from '../shared/constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Purchase V2',
@@ -23,7 +23,6 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: purchaseFields,
   perform: (request, { payload, settings, features, statsContext, syncMode }) => {
     if (syncMode === 'add') {
-  
       if (features && features[FEATURE_FLAG_PURCHASE]) {
         return send(request, payload, settings, getPurchaseEventData, EventType.Purchase, features, statsContext)
       }
@@ -62,37 +61,36 @@ const action: ActionDefinition<Settings, Payload> = {
         {
           method: 'POST',
           json: {
-          data: [
-            {
-            event_name: 'Purchase',
-            event_time: payload.event_time,
-            action_source: payload.action_source,
-            event_source_url: payload.event_source_url,
-            event_id: payload.event_id,
-            user_data: hash_user_data({ user_data: payload.user_data }),
-            custom_data: {
-                ...payload.custom_data,
-                currency: payload.currency,
-                value: payload.value,
-                net_revenue: payload.net_revenue,
-                content_ids: payload.content_ids,
-                content_name: payload.content_name,
-                content_type: payload.content_type,
-                contents: payload.contents,
-                num_items: payload.num_items
-            },
-            app_data: generate_app_data(payload.app_data_field),
-            data_processing_options: data_options,
-            data_processing_options_country: country_code,
-            data_processing_options_state: state_code
-            }
-          ],
-          ...(testEventCode && { test_event_code: testEventCode })
+            data: [
+              {
+                event_name: 'Purchase',
+                event_time: payload.event_time,
+                action_source: payload.action_source,
+                event_source_url: payload.event_source_url,
+                event_id: payload.event_id,
+                user_data: hash_user_data({ user_data: payload.user_data }),
+                custom_data: {
+                  ...payload.custom_data,
+                  currency: payload.currency,
+                  value: payload.value,
+                  net_revenue: payload.net_revenue,
+                  content_ids: payload.content_ids,
+                  content_name: payload.content_name,
+                  content_type: payload.content_type,
+                  contents: payload.contents,
+                  num_items: payload.num_items
+                },
+                app_data: generate_app_data(payload.app_data_field),
+                data_processing_options: data_options,
+                data_processing_options_country: country_code,
+                data_processing_options_state: state_code
+              }
+            ],
+            ...(testEventCode && { test_event_code: testEventCode })
           }
         }
       )
-    } 
-    else {
+    } else {
       throw new IntegrationError(`Sync mode ${syncMode} is not supported`, 'Misconfigured sync mode', 400)
     }
   }

@@ -83,6 +83,10 @@ export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
   if (eventType !== EventType.Custom && eventType !== EventType.PageView) {
     const { currency, contents } = payload as AddToCartPayload | AddToCart2Payload | SearchPayload | Search2Payload | ViewContentPayload | ViewContent2Payload | InitiateCheckoutPayload | InitiateCheckout2Payload | PurchasePayload | Purchase2Payload
 
+    if(eventType === EventType.Purchase && !currency) {
+      throw new PayloadValidationError('Must include a currency for Purchase events')
+    }
+
     if (currency && typeof currency === 'string' && !CURRENCY_ISO_CODES.has(currency)) {
       throw new IntegrationError(`${currency} is not a valid currency code.`, ErrorCodes.INVALID_CURRENCY_CODE, 400)
     }
@@ -240,20 +244,20 @@ export function getSearchEventData(payload: SearchPayload | Search2Payload): Sea
   const baseEventData = getBaseEventData(payload)
   const { custom_data, currency, value, content_ids, search_string, content_category, contents } = payload
 
-    const data: SearchEventData = {
-      event_name: 'Search',
-      ...baseEventData,
-      custom_data: {
-        ...custom_data,
-        currency: currency as string,
-        value,
-        ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
-        ...(contents && { contents }),
-        ...(content_category && { content_category }),
-        ...(search_string && { search_string })
-      }
+  const data: SearchEventData = {
+    event_name: 'Search',
+    ...baseEventData,
+    custom_data: {
+      ...custom_data,
+      currency: currency as string,
+      value,
+      ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
+      ...(contents && { contents }),
+      ...(content_category && { content_category }),
+      ...(search_string && { search_string })
     }
-    return data
+  }
+  return data
 }
 
 export function getViewContentEventData(payload: ViewContentPayload | ViewContent2Payload): ViewContentEventData {
