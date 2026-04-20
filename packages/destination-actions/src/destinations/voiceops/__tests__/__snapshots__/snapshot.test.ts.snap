@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-voiceops destination: sendCallCompleted action - all fields 1`] = `
+Object {
+  "agent_email": "bah@curoj.cw",
+  "call_id": "PdayLkf!",
+  "call_started_at": Any<String>,
+  "channels": Array [
+    Object {
+      "channel": -4911932045787136,
+      "first_name": "PdayLkf!",
+      "identifier": "PdayLkf!",
+      "last_name": "PdayLkf!",
+      "type": "CONTACT",
+    },
+  ],
+  "extraMetadata": Object {
+    "testType": "PdayLkf!",
+  },
+  "first_name": "PdayLkf!",
+  "last_name": "PdayLkf!",
+  "recording_url": "https://example.com/audio.wav",
+}
+`;
+
+exports[`Testing snapshot for actions-voiceops destination: sendCallCompleted action - required fields 1`] = `
+Object {
+  "agent_email": "bah@curoj.cw",
+  "call_id": "PdayLkf!",
+  "call_started_at": Any<String>,
+  "recording_url": "https://example.com/audio.wav",
+}
+`;
