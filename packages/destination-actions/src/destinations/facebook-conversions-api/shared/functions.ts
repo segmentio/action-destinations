@@ -83,6 +83,10 @@ export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
   if (eventType !== EventType.Custom && eventType !== EventType.PageView) {
     const { currency, contents } = payload as AddToCartPayload | AddToCart2Payload | SearchPayload | Search2Payload | ViewContentPayload | ViewContent2Payload | InitiateCheckoutPayload | InitiateCheckout2Payload | PurchasePayload | Purchase2Payload
 
+    if(eventType === EventType.Purchase && !currency) {
+      throw new PayloadValidationError('Must include a currency for Purchase events')
+    }
+
     if (currency && typeof currency === 'string' && !CURRENCY_ISO_CODES.has(currency)) {
       throw new IntegrationError(`${currency} is not a valid currency code.`, ErrorCodes.INVALID_CURRENCY_CODE, 400)
     }

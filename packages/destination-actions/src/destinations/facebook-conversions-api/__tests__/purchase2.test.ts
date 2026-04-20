@@ -289,6 +289,49 @@ describe.each(testCases)('purchase2 ($name)', ({ features }) => {
       )
     })
 
+    it('should throw an error when currency is an empty string', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Order Completed',
+        timestamp: '1631210063',
+        properties: {
+          action_source: 'email',
+          currency: '',
+          value: 12.12,
+          email: 'nicholas.aguilar@segment.com'
+        }
+      })
+
+      await expect(
+        testDestination.testAction('purchase2', {
+          event,
+          settings,
+          features,
+          mapping: {
+            __segment_internal_sync_mode: 'add',
+            currency: {
+              '@path': '$.properties.currency'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            user_data: {
+              email: {
+                '@path': '$.properties.email'
+              }
+            },
+            action_source: {
+              '@path': '$.properties.action_source'
+            },
+            event_time: {
+              '@path': '$.timestamp'
+            }
+          }
+        })
+      ).rejects.toThrowError()
+    })
+
     it('should throw an error if no user_data keys are included', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
