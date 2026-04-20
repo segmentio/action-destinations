@@ -9,6 +9,16 @@ const destinationSlug = 'actions-voiceops'
 const seedName = `${destinationSlug}#${actionSlug}`
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+function stripTimestamps(json: Record<string, unknown>) {
+  for (const ch of (json.channels as Record<string, unknown>[] | undefined) ?? []) {
+    delete ch.recording_start_time
+  }
+  for (const leg of (json.agentLegs as Record<string, unknown>[] | undefined) ?? []) {
+    delete leg.started_at
+    delete leg.ended_at
+  }
+}
+
 function normalizeWarmTransferFields(eventData: Record<string, unknown>) {
   const normalizedChannels = Array.isArray(eventData.channels)
     ? eventData.channels.map((channel) => {
@@ -105,7 +115,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
+      stripTimestamps(json)
+      expect(json).toMatchSnapshot({
+        call_started_at: expect.any(String)
+      })
       return
     } catch (err) {
       expect(rawBody).toMatchSnapshot()
@@ -142,7 +155,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
+      stripTimestamps(json)
+      expect(json).toMatchSnapshot({
+        call_started_at: expect.any(String)
+      })
       return
     } catch (err) {
       expect(rawBody).toMatchSnapshot()

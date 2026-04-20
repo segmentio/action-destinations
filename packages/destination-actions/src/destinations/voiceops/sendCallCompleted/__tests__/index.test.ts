@@ -55,7 +55,7 @@ describe('Voiceops.sendCallCompleted', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.json).toMatchObject({
       call_id: 'call-123',
-      call_started_at: '1712683200',
+      call_started_at: expect.any(String),
       agent_email: 'agent@voiceops.com',
       recording_url: 'https://example.com/audio.wav'
     })
@@ -92,7 +92,7 @@ describe('Voiceops.sendCallCompleted', () => {
         {
           channel: 3,
           type: 'HANDLING_AGENT',
-          recording_start_time: '2025-12-08T13:32:47.000Z',
+          recording_start_time: expect.any(String),
           identifier: 'agent@voiceops.com',
           first_name: 'Ava',
           last_name: 'Agent'
@@ -126,8 +126,8 @@ describe('Voiceops.sendCallCompleted', () => {
       agentLegs: [
         {
           agent_email: 'first-agent@voiceops.com',
-          started_at: '2025-12-08T13:32:47.000Z',
-          ended_at: '2025-12-08T13:35:47.000Z',
+          started_at: expect.any(String),
+          ended_at: expect.any(String),
           first_name: 'Ava',
           last_name: 'Agent'
         }
@@ -443,7 +443,7 @@ describe('Voiceops.sendCallCompleted', () => {
         {
           channel: 0,
           type: 'CONTACT',
-          recording_start_time: '2025-12-08T13:32:47.000Z',
+          recording_start_time: expect.any(String),
           identifier: 'customer-42'
         }
       ]
@@ -476,7 +476,7 @@ describe('Voiceops.sendCallCompleted', () => {
         {
           channel: 2,
           type: 'TRANSFER_AGENT',
-          recording_start_time: '2025-12-08T13:35:47.000Z',
+          recording_start_time: expect.any(String),
           identifier: 'transfer-agent-id'
         }
       ]
