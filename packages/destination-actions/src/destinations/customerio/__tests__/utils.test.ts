@@ -1,4 +1,4 @@
-import { HTTPError, MultiStatusResponse } from '@segment/actions-core'
+import { HTTPError, IntegrationError, MultiStatusResponse } from '@segment/actions-core'
 import {
   isIsoDate,
   parseTrackApiErrors,
@@ -205,8 +205,24 @@ describe('sendBatch', () => {
     ])
   })
 
-  it('should rethrow retryable HTTP errors so the framework can retry them', async () => {
+  it('should rethrow retryable HTTP errors (429) so the framework can retry them', async () => {
     const error = new HTTPError({ status: 429, statusText: 'Too Many Requests' } as any, {} as any, {} as any)
+    const request = jest.fn().mockRejectedValue(error)
+
+    await expect(
+      sendBatch(request, [
+        {
+          type: 'person',
+          action: 'event',
+          settings: {},
+          payload: { person_id: 'user-1', name: 'First' }
+        }
+      ])
+    ).rejects.toBe(error)
+  })
+
+  it('should rethrow retryable HTTP errors (500) so the framework can retry them', async () => {
+    const error = new HTTPError({ status: 500, statusText: 'Internal Server Error' } as any, {} as any, {} as any)
     const request = jest.fn().mockRejectedValue(error)
 
     await expect(
@@ -238,7 +254,7 @@ describe('sendBatch', () => {
           payload: { person_id: 'user-1', name: 'First' }
         }
       ])
-    ).rejects.toThrow('Customer.io Track API batch response did not include an errors array')
+    ).rejects.toThrow(IntegrationError)
   })
 })
 

@@ -1,7 +1,7 @@
 import dayjs from '../../lib/dayjs'
 import isPlainObject from 'lodash/isPlainObject'
 import { fullFormats } from 'ajv-formats/dist/formats'
-import { ErrorCodes, HTTPError, MultiStatusResponse, RequestClient } from '@segment/actions-core'
+import { ErrorCodes, HTTPError, IntegrationError, MultiStatusResponse, RequestClient } from '@segment/actions-core'
 import { CUSTOMERIO_TRACK_API_VERSION } from './versioning-info'
 
 const isEmail = (value: string): boolean => {
@@ -224,7 +224,11 @@ export const sendBatch = async <Payload extends BasePayload>(
       return parsedResults
     }
 
-    throw new Error('Customer.io Track API batch response did not include an errors array')
+    throw new IntegrationError(
+      'Customer.io Track API batch response did not include an errors array',
+      'INVALID_RESPONSE',
+      400
+    )
   } catch (err) {
     // Retryable HTTP errors (408 Request Timeout, 429 Too Many Requests, 5xx Server Errors)
     // and unexpected non-HTTP errors should be rethrown so the framework's retry wrapper
@@ -235,11 +239,13 @@ export const sendBatch = async <Payload extends BasePayload>(
         throw err
       }
 
-      const message = err.message ?? 'Unknown error'
+      const responseBody = err.response?.data as { message?: string } | undefined
+      const message = responseBody?.message ?? err.message ?? 'Unknown error'
       const multiStatusResponse = new MultiStatusResponse()
       for (let i = 0; i < options.length; i++) {
         multiStatusResponse.setErrorResponseAtIndex(i, {
           status,
+          errortype: ErrorCodes.INTEGRATION_ERROR,
           errormessage: message,
           body: options[i].payload,
           sent: batch[i]
