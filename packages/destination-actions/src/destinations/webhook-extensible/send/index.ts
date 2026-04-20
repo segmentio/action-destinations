@@ -4,6 +4,11 @@ import type { Payload } from './generated-types'
 
 type RequestMethod = 'POST' | 'PUT' | 'PATCH'
 
+function normalizeHeaders(headers: Record<string, unknown> | undefined): Record<string, string> {
+  if (!headers) return {}
+  return Object.fromEntries(Object.entries(headers).map(([key, value]) => [key, String(value)]))
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
   description: 'Send an HTTP request.',
@@ -62,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       return request(payload.url, {
         method: payload.method as RequestMethod,
-        headers: payload.headers as Record<string, string>,
+        headers: normalizeHeaders(payload.headers),
         ...body
       })
     } catch (error) {
@@ -76,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
       const { url, method, headers } = payload[0]
       return request(url, {
         method: method as RequestMethod,
-        headers: headers as Record<string, string>,
+        headers: normalizeHeaders(headers),
         json: payload.map(({ data }) => {
           let contentType = 'application/json'
 

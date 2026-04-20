@@ -263,6 +263,55 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
         ).rejects.toThrow(PayloadValidationError)
       })
 
+      it('should not throw an error when header value is coerced to a number by the Mapping Tester', async () => {
+        const url = 'https://example.build'
+        const event = createTestEvent()
+        const headerField = 'x-auth-token'
+        const data = { cool: true }
+
+        // Simulates Mapping Tester coercing a hex-looking string to a number before reaching perform
+        nock(url).put('/', data).matchHeader(headerField, '1234567890').reply(200)
+
+        const responses = await testDestination.testAction('send', {
+          event,
+          mapping: {
+            url,
+            method: 'PUT',
+            headers: { [headerField]: 1234567890 as unknown as string },
+            data
+          },
+          settings: noAuthSettings
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+      })
+
+      it('should stringify null header values and omit undefined', async () => {
+        const url = 'https://example.build'
+        const event = createTestEvent()
+        const data = { cool: true }
+
+        nock(url).put('/', data).matchHeader('x-null-header', 'null').reply(200)
+
+        const responses = await testDestination.testAction('send', {
+          event,
+          mapping: {
+            url,
+            method: 'PUT',
+            headers: {
+              'x-null-header': null as unknown as string,
+              'x-undefined-header': undefined as unknown as string
+            },
+            data
+          },
+          settings: noAuthSettings
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+      })
+
       it('supports request signing for no auth', async () => {
         const url = 'https://example.com'
         const event = createTestEvent({
