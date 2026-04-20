@@ -356,7 +356,7 @@ function parseErrorResponse(response: MarketoResponse) {
     throw new RetryableError(message)
   }
 
-  throw new IntegrationError(message, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
+  throw new IntegrationError(message, ErrorCodes.BAD_REQUEST, 400)
 }
 
 function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number) {
@@ -386,8 +386,8 @@ function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number)
   }
 
   return buildMultiStatusErrorResponse(payloadSize, {
-    status: 406,
-    errortype: ErrorCodes.NOT_ACCEPTABLE,
+    status: 400,
+    errortype: ErrorCodes.BAD_REQUEST,
     body: response.errors[0] as unknown as JSONLikeObject,
     errormessage: message
   })
