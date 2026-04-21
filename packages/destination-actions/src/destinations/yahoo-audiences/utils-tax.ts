@@ -6,9 +6,10 @@ import { StatsClient } from '@segment/actions-core/destination-kit'
 import { generate_jwt } from './utils-rt'
 
 // Constants for Yahoo Taxonomy API
+import { YAHOO_AUDIENCES_TAXONOMY_API_VERSION } from './versioning-info'
 const TAXONOMY_CLIENT_KEY_PREFIX = 'idb2b.dsp.datax'
-const TAXONOMY_TOKEN_ENDPOINT = 'https://id.b2b.yahooincapis.com/zts/v1/oauth2/token'
-const TAXONOMY_AUDIENCE_URL = 'https://id.b2b.yahooincapis.com/zts/v1'
+const TAXONOMY_TOKEN_ENDPOINT = `https://id.b2b.yahooincapis.com/zts/${YAHOO_AUDIENCES_TAXONOMY_API_VERSION}/oauth2/token`
+const TAXONOMY_AUDIENCE_URL = `https://id.b2b.yahooincapis.com/zts/${YAHOO_AUDIENCES_TAXONOMY_API_VERSION}`
 const TAXONOMY_SCOPE = 'idb2b.dsp.datax:role.online.writer'
 
 export function gen_customer_taxonomy_payload(settings: Settings) {
@@ -103,7 +104,9 @@ export async function update_taxonomy(
 ) {
   const tx_client_secret = tx_creds.tx_client_secret
   const tx_client_key = tx_creds.tx_client_key
-  const url = `https://datax.yahooapis.com/v1/taxonomy/append${engage_space_id.length > 0 ? '/' + engage_space_id : ''}`
+  const url = `https://datax.yahooapis.com/${YAHOO_AUDIENCES_TAXONOMY_API_VERSION}/taxonomy/append${
+    engage_space_id.length > 0 ? '/' + engage_space_id : ''
+  }`
 
   console.info(
     '[update_taxonomy] Starting taxonomy update request',
