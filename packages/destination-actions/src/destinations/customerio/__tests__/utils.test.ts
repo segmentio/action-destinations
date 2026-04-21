@@ -321,6 +321,28 @@ describe('sendBatch', () => {
 })
 
 describe('parseTrackApiErrors', () => {
+  it('should throw when errors contain an unindexable batch_index', () => {
+    const options = [
+      { type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-0' } }
+    ]
+    const batch = [{ type: 'person', action: 'event', identifiers: { id: 'user-0' } }]
+
+    expect(() =>
+      parseTrackApiErrors(
+        [{ reason: 'invalid', message: 'some error' }], // no batch_index
+        options,
+        batch
+      )
+    ).toThrow(IntegrationError)
+
+    expect(() =>
+      parseTrackApiErrors(
+        [{ batch_index: 99, reason: 'invalid', message: 'out of range' }], // out of range
+        options,
+        batch
+      )
+    ).toThrow(IntegrationError)
+  })
   it('should fill success entries for items without errors', () => {
     const options = [
       { type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-0' } },

@@ -227,7 +227,7 @@ export const sendBatch = async <Payload extends BasePayload>(
     throw new IntegrationError(
       'Customer.io Track API batch response did not include an errors array',
       'INVALID_RESPONSE',
-      400
+      502
     )
   } catch (err) {
     // Retryable HTTP errors (408 Request Timeout, 429 Too Many Requests, 5xx Server Errors)
@@ -271,7 +271,7 @@ interface CustomerIOBatchResponse {
   errors?: TrackApiError[]
 }
 
-function mapHttpStatusToErrorCode(status: number): string {
+function mapHttpStatusToErrorCode(status: number): keyof typeof ErrorCodes {
   return getErrorCodeFromHttpStatus(status)
 }
 
@@ -292,16 +292,37 @@ export function parseTrackApiErrors<Payload extends BasePayload>(
 ): MultiStatusResponse {
   const multiStatusResponse = new MultiStatusResponse()
   const errorMap = new Map<number, TrackApiError[]>()
+  const unindexableErrors: TrackApiError[] = []
 
   for (const error of errors) {
-    if (typeof error.batch_index === 'number') {
-      const existing = errorMap.get(error.batch_index)
-      if (existing) {
-        existing.push(error)
-      } else {
-        errorMap.set(error.batch_index, [error])
-      }
+    const batchIndex = error.batch_index
+
+    if (!Number.isInteger(batchIndex) || (batchIndex as number) < 0 || (batchIndex as number) >= options.length) {
+      unindexableErrors.push(error)
+      continue
     }
+
+    const existing = errorMap.get(batchIndex as number)
+    if (existing) {
+      existing.push(error)
+    } else {
+      errorMap.set(batchIndex as number, [error])
+    }
+  }
+
+  if (unindexableErrors.length > 0) {
+    const errormessage = unindexableErrors
+      .map((e) => {
+        const indexDesc = typeof e.batch_index === 'number' ? `batch_index ${e.batch_index}` : 'missing batch_index'
+        return e.message || `${e.reason || 'ERROR'}: ${e.field || 'unknown field'} (${indexDesc})`
+      })
+      .join('; ')
+
+    throw new IntegrationError(
+      `Customer.io returned batch errors that could not be mapped to request items: ${errormessage}`,
+      'INVALID_RESPONSE',
+      502
+    )
   }
 
   for (let i = 0; i < options.length; i++) {
