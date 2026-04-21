@@ -1597,14 +1597,14 @@ describe('GoogleEnhancedConversions', () => {
         .post(/.*/)
         .reply(200, { resourceName: 'customers/1234/userLists/1234' })
 
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/1234/userLists/1234:addOperations`)
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/userLists/1234:addOperations`)
         .post(/.*/, (body: Record<string, unknown>) => {
           const operations = body.operations as Array<Record<string, unknown>>
           return operations.every((op) => 'create' in op && !('remove' in op))
         })
         .reply(200, {})
 
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/1234/userLists/1234:run`)
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/userLists/1234:run`)
         .post(/.*/)
         .reply(200, {})
 
