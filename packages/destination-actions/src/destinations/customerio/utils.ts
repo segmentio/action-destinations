@@ -39,7 +39,8 @@ export enum AccountRegion {
 
 export const convertValidTimestamp = <Value = unknown>(value: Value): Value | number => {
   // Timestamps may be on a `string` field, so check if the string is only
-  // numbers. If it is, ignore it since it's probably already a unix timestamp.
+  // digits (optionally with a fractional part). If it is, ignore it since
+  // it's probably already a unix timestamp (integer or decimal).
   // DayJS doesn't parse unix timestamps correctly outside of the `.unix()`
   // initializer.
   if (typeof value !== 'string' || /^\d+(\.\d+)?$/.test(value)) {
