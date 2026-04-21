@@ -1,4 +1,4 @@
-import { JSONLikeObject, ModifiedResponse, MultiStatusResponse, omit } from '@segment/actions-core'
+import { JSONLikeObject, ModifiedResponse, MultiStatusResponse, omit, PayloadValidationError } from '@segment/actions-core'
 import { IntegrationError, RequestClient, removeUndefined } from '@segment/actions-core'
 import dayjs from 'dayjs'
 import { Settings } from './generated-types'
@@ -7,7 +7,8 @@ import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import { Payload as TrackPurchasePayload } from './trackPurchase/generated-types'
 import { Payload as UpdateUserProfilePayload } from './updateUserProfile/generated-types'
 import { Payload as MergeUsersPayload } from './mergeUsers/generated-types'
-import { getUserAlias } from './userAlias'
+import { MergeUsersJSON, MergeIdentifierType } from './mergeUsers/types'
+import { getUserAlias, UserAlias } from './userAlias'
 import { HTTPError } from '@segment/actions-core'
 import { MAX_BATCH_SIZE } from './constants'
 type DateInput = string | Date | number | null | undefined
@@ -661,56 +662,21 @@ async function handleBrazeAPIResponse(
 }
 
 export function mergeUsers(request: RequestClient, settings: Settings, payload: MergeUsersPayload) {
-  // Validate identifier_to_merge
-  const mergeUserAlias = getUserAlias(payload.identifier_to_merge?.user_alias)
-  const hasMergeIdentifier =
-    payload.identifier_to_merge?.external_id ||
-    mergeUserAlias ||
-    payload.identifier_to_merge?.braze_id ||
-    payload.identifier_to_merge?.email ||
-    payload.identifier_to_merge?.phone
+  const { 
+    previousIdType,
+    previousIdValue,
+    previousAliasIdValue,
+    keepIdType,
+    keepIdValue,
+    keepAliasIdValue
+  } = payload
+  
+  const previousId = getMergeIdentifier(previousIdType as MergeIdentifierType, 'merge', previousIdValue, previousAliasIdValue)
+  const keepId = getMergeIdentifier(keepIdType as MergeIdentifierType, 'keep', keepIdValue, keepAliasIdValue)
 
-  if (!hasMergeIdentifier) {
-    throw new IntegrationError(
-      'Identifier to Merge must specify one of: external_id, user_alias, braze_id, email, or phone.',
-      'Missing required fields',
-      400
-    )
-  }
-
-  // Validate identifier_to_keep
-  const keepUserAlias = getUserAlias(payload.identifier_to_keep?.user_alias)
-  const hasKeepIdentifier =
-    payload.identifier_to_keep?.external_id ||
-    keepUserAlias ||
-    payload.identifier_to_keep?.braze_id ||
-    payload.identifier_to_keep?.email ||
-    payload.identifier_to_keep?.phone
-
-  if (!hasKeepIdentifier) {
-    throw new IntegrationError(
-      'Identifier to Keep must specify one of: external_id, user_alias, braze_id, email, or phone.',
-      'Missing required fields',
-      400
-    )
-  }
-
-  // Build the merge update object
-  const mergeUpdate: Record<string, unknown> = {
-    identifier_to_merge: {
-      ...(payload.identifier_to_merge?.external_id && { external_id: payload.identifier_to_merge.external_id }),
-      ...(mergeUserAlias && { user_alias: mergeUserAlias }),
-      ...(payload.identifier_to_merge?.braze_id && { braze_id: payload.identifier_to_merge.braze_id }),
-      ...(payload.identifier_to_merge?.email && { email: payload.identifier_to_merge.email }),
-      ...(payload.identifier_to_merge?.phone && { phone: payload.identifier_to_merge.phone })
-    },
-    identifier_to_keep: {
-      ...(payload.identifier_to_keep?.external_id && { external_id: payload.identifier_to_keep.external_id }),
-      ...(keepUserAlias && { user_alias: keepUserAlias }),
-      ...(payload.identifier_to_keep?.braze_id && { braze_id: payload.identifier_to_keep.braze_id }),
-      ...(payload.identifier_to_keep?.email && { email: payload.identifier_to_keep.email }),
-      ...(payload.identifier_to_keep?.phone && { phone: payload.identifier_to_keep.phone })
-    }
+  const mergeUpdate: MergeUsersJSON = {
+    identifier_to_merge: { [previousIdType]: previousId },
+    identifier_to_keep: { [keepIdType]: keepId }
   }
 
   return request(`${settings.endpoint}/users/merge`, {
@@ -720,6 +686,23 @@ export function mergeUsers(request: RequestClient, settings: Settings, payload: 
     }
   })
 }
+
+export function getMergeIdentifier(type: MergeIdentifierType, label: string, value?: string, aliasValue?: UserAlias): string | UserAlias {
+  if (type === 'user_alias') {
+    const { alias_label, alias_name } = aliasValue || {}
+    if (!alias_label || !alias_name) {
+      throw new PayloadValidationError(`When Type of Identifier to ${label} is user_alias, alias_label and alias_name must be provided.`)
+    }
+    return { alias_label, alias_name }
+  }
+
+  if (!value) {
+    throw new PayloadValidationError(`ID value to ${label} value must be provided.`)
+  }
+  
+  return value
+}
+
 
 export function generateMultiStatusError(batchSize: number, errorMessage: string): MultiStatusResponse {
   const multiStatusResponse = new MultiStatusResponse()

@@ -2,59 +2,45 @@
 
 export interface Payload {
   /**
-   * User identifier for the user to be merged (the user to be deprecated). Must specify one of: External ID, User Alias, Braze ID, Email, or Phone. See [the docs](https://www.braze.com/docs/api/endpoints/user_data/post_users_merge/).
+   * The type of identifier for the user to be merged. One of: external_id, user_alias, braze_id, email, or phone.
    */
-  identifier_to_merge: {
+  previousIdType: string
+  /**
+   * The value of the identifier for the user to be merged.
+   */
+  previousIdValue?: string
+  /**
+   * The value of the user alias identifier for the user to be merged. Required if the previous identifier type is user_alias.
+   */
+  previousAliasIdValue?: {
     /**
-     * The external ID of the user to merge
+     * The label of the user alias for the user to be merged.
      */
-    external_id?: string
+    alias_label: string
     /**
-     * The user alias object identifying the user to merge
+     * The name of the user alias for the user to be merged.
      */
-    user_alias?: {
-      alias_name?: string
-      alias_label?: string
-    }
-    /**
-     * The Braze ID of the user to merge
-     */
-    braze_id?: string
-    /**
-     * The email address of the user to merge
-     */
-    email?: string
-    /**
-     * The phone number of the user to merge in E.164 format (e.g., +14155552671)
-     */
-    phone?: string
+    alias_name: string
   }
   /**
-   * User identifier for the user to keep (the target user). Must specify one of: External ID, User Alias, Braze ID, Email, or Phone. See [the docs](https://www.braze.com/docs/api/endpoints/user_data/post_users_merge/).
+   * The type of identifier for the user to be kept. One of: external_id, user_alias, braze_id, email, or phone.
    */
-  identifier_to_keep: {
+  keepIdType: string
+  /**
+   * The value of the identifier for the user to be kept.
+   */
+  keepIdValue?: string
+  /**
+   * The value of the user alias identifier for the user to be kept. Required if the keep identifier type is user_alias.
+   */
+  keepAliasIdValue?: {
     /**
-     * The external ID of the user to keep
+     * The label of the user alias for the user to be kept.
      */
-    external_id?: string
+    alias_label: string
     /**
-     * The user alias object identifying the user to keep
+     * The name of the user alias for the user to be kept.
      */
-    user_alias?: {
-      alias_name?: string
-      alias_label?: string
-    }
-    /**
-     * The Braze ID of the user to keep
-     */
-    braze_id?: string
-    /**
-     * The email address of the user to keep
-     */
-    email?: string
-    /**
-     * The phone number of the user to keep in E.164 format (e.g., +14155552671)
-     */
-    phone?: string
+    alias_name: string
   }
 }
