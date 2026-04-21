@@ -264,13 +264,38 @@ describe('sendBatch', () => {
     expect(response.length()).toBe(2)
     expect(response.getResponseAtIndex(0).value()).toMatchObject({
       status: 400,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errortype: 'BAD_REQUEST',
       body: { person_id: 'user-1', name: 'First' }
     })
     expect(response.getResponseAtIndex(1).value()).toMatchObject({
       status: 400,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errortype: 'BAD_REQUEST',
       body: { person_id: 'user-2', name: 'Second' }
+    })
+  })
+
+  it('should convert non-retryable auth errors (401) into per-item INTEGRATION_ERROR entries', async () => {
+    const error = new HTTPError(
+      { status: 401, statusText: 'Unauthorized' } as any,
+      { url: 'https://track.customer.io/api/v2/batch' } as any,
+      {} as any
+    )
+    const request = jest.fn().mockRejectedValue(error)
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response.getResponseAtIndex(0).value()).toMatchObject({
+      status: 401,
+      errortype: 'UNAUTHORIZED',
+      body: { person_id: 'user-1', name: 'First' }
     })
   })
 

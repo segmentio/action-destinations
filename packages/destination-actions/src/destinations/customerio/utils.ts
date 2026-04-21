@@ -1,7 +1,7 @@
 import dayjs from '../../lib/dayjs'
 import isPlainObject from 'lodash/isPlainObject'
 import { fullFormats } from 'ajv-formats/dist/formats'
-import { ErrorCodes, HTTPError, IntegrationError, MultiStatusResponse, RequestClient } from '@segment/actions-core'
+import { ErrorCodes, getErrorCodeFromHttpStatus, HTTPError, IntegrationError, MultiStatusResponse, RequestClient } from '@segment/actions-core'
 import { CUSTOMERIO_TRACK_API_VERSION } from './versioning-info'
 
 const isEmail = (value: string): boolean => {
@@ -271,9 +271,8 @@ interface CustomerIOBatchResponse {
   errors?: TrackApiError[]
 }
 
-function mapHttpStatusToErrorCode(status: number): ErrorCodes {
-  if (status === 400) return ErrorCodes.PAYLOAD_VALIDATION_FAILED
-  return ErrorCodes.INTEGRATION_ERROR
+function mapHttpStatusToErrorCode(status: number): string {
+  return getErrorCodeFromHttpStatus(status)
 }
 
 function mapTrackApiReasonToErrorCode(reason: string | undefined) {
