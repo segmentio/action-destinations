@@ -7,127 +7,165 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Merge Users',
   description:
     'Merge one identified user into another identified user. The merge will occur asynchronously and can take between 5-10 minutes.',
+  defaultSubscription: 'type = "alias"',
   fields: {
-    identifier_to_merge: {
-      label: 'Identifier to Merge',
+    previousIdType: {
+      label: 'Type of Identifier to merge',
       description:
-        'User identifier for the user to be merged (the user to be deprecated). Must specify one of: External ID, User Alias, Braze ID, Email, or Phone. See [the docs](https://www.braze.com/docs/api/endpoints/user_data/post_users_merge/).',
-      type: 'object',
+        'The type of identifier for the user to be merged. One of: external_id, user_alias, braze_id, email, or phone.',
+      type: 'string',
       required: true,
-      defaultObjectUI: 'keyvalue',
-      additionalProperties: false,
-      properties: {
-        external_id: {
-          label: 'External ID',
-          description: 'The external ID of the user to merge',
-          type: 'string'
-        },
-        user_alias: {
-          label: 'User Alias',
-          description: 'The user alias object identifying the user to merge',
-          type: 'object',
-          properties: {
-            alias_name: {
-              label: 'Alias Name',
-              type: 'string'
-            },
-            alias_label: {
-              label: 'Alias Label',
-              type: 'string'
-            }
+      choices: [
+        { label: 'External ID', value: 'external_id' },
+        { label: 'User Alias', value: 'user_alias' },
+        { label: 'Braze ID', value: 'braze_id' },
+        { label: 'Email', value: 'email' },
+        { label: 'Phone', value: 'phone' }
+      ],
+      default: 'external_id'
+    },
+    previousIdValue: {
+      label: 'ID value to merge',
+      description: 'The value of the identifier for the user to be merged.',
+      type: 'string',
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'previousIdType',
+            operator: 'is_not',
+            value: 'user_alias'
           }
-        },
-        braze_id: {
-          label: 'Braze ID',
-          description: 'The Braze ID of the user to merge',
-          type: 'string'
-        },
-        email: {
-          label: 'Email',
-          description: 'The email address of the user to merge',
+        ]
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'previousIdType',
+            operator: 'is_not',
+            value: 'user_alias'
+          }
+        ]
+      },
+      default: '$.previousId'
+    },
+    previousAliasIdValue: {
+      label: 'User Alias value to merge',
+      description: 'The value of the user alias identifier for the user to be merged. Required if the previous identifier type is user_alias.',
+      type: 'object',
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'previousIdType',
+            operator: 'is',
+            value: 'user_alias'
+          }
+        ]
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'previousIdType',
+            operator: 'is',
+            value: 'user_alias'
+          }
+        ]
+      },
+      properties: {
+        alias_label: {
+          label: 'User Alias Label',
+          description: 'The label of the user alias for the user to be merged.',
           type: 'string',
-          format: 'email'
+          required: true
         },
-        phone: {
-          label: 'Phone',
-          description: 'The phone number of the user to merge in E.164 format (e.g., +14155552671)',
-          type: 'string'
+        alias_name: {
+          label: 'User Alias Name',
+          description: 'The name of the user alias for the user to be merged.',
+          type: 'string',
+          required: true
         }
       }
     },
-    identifier_to_keep: {
-      label: 'Identifier to Keep',
+    keepIdType: {
+      label: 'Type of Identifier to keep',
       description:
-        'User identifier for the user to keep (the target user). Must specify one of: External ID, User Alias, Braze ID, Email, or Phone. See [the docs](https://www.braze.com/docs/api/endpoints/user_data/post_users_merge/).',
-      type: 'object',
+        'The type of identifier for the user to be kept. One of: external_id, user_alias, braze_id, email, or phone.',
+      type: 'string',
       required: true,
-      defaultObjectUI: 'keyvalue',
-      additionalProperties: false,
-      properties: {
-        external_id: {
-          label: 'External ID',
-          description: 'The external ID of the user to keep',
-          type: 'string',
-          default: {
-            '@path': '$.userId'
+      choices: [
+        { label: 'External ID', value: 'external_id' },
+        { label: 'User Alias', value: 'user_alias' },
+        { label: 'Braze ID', value: 'braze_id' },
+        { label: 'Email', value: 'email' },
+        { label: 'Phone', value: 'phone' }
+      ],
+      default: 'external_id'
+    },
+    keepIdValue: {
+      label: 'ID value to keep',
+      description: 'The value of the identifier for the user to be kept.',
+      type: 'string',
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'keepIdType',
+            operator: 'is_not',
+            value: 'user_alias'
           }
-        },
-        user_alias: {
-          label: 'User Alias',
-          description: 'The user alias object identifying the user to keep',
-          type: 'object',
-          properties: {
-            alias_name: {
-              label: 'Alias Name',
-              type: 'string'
-            },
-            alias_label: {
-              label: 'Alias Label',
-              type: 'string'
-            }
-          }
-        },
-        braze_id: {
-          label: 'Braze ID',
-          description: 'The Braze ID of the user to keep',
-          type: 'string'
-        },
-        email: {
-          label: 'Email',
-          description: 'The email address of the user to keep',
-          type: 'string',
-          format: 'email'
-        },
-        phone: {
-          label: 'Phone',
-          description: 'The phone number of the user to keep in E.164 format (e.g., +14155552671)',
-          type: 'string'
-        }
+        ]
       },
-      default: {
-        external_id: {
-          '@path': '$.userId'
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'keepIdType',
+            operator: 'is_not',
+            value: 'user_alias'
+          }
+        ]
+      },
+      default: '$.userId'
+    },
+    keepAliasIdValue: {
+      label: 'User Alias value to keep',
+      description: 'The value of the user alias identifier for the user to be kept. Required if the keep identifier type is user_alias.',
+      type: 'object',
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'keepIdType',
+            operator: 'is',
+            value: 'user_alias'
+          }
+        ]
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'keepIdType',
+            operator: 'is',
+            value: 'user_alias'
+          }
+        ]
+      },
+      properties: {
+        alias_label: {
+          label: 'User Alias Label',
+          description: 'The label of the user alias for the user to be kept.',
+          type: 'string',
+          required: true
         },
-        braze_id: {
-          '@if': {
-            exists: { '@path': '$.context.traits.brazeId' }
-          },
-          then: { '@path': '$.context.traits.brazeId' },
-          else: { '@path': '$.properties.brazeId' }
-        },
-        email: {
-          '@if': {
-            exists: { '@path': '$.context.traits.email' }
-          },
-          then: { '@path': '$.context.traits.email' },
-          else: { '@path': '$.properties.email' }
-        },
-        phone: {
-          '@if': {
-            exists: { '@path': '$.context.traits.phone' }
-          },
-          then: { '@path': '$.context.traits.phone' },
-          else: { '@path': '$.properties.phone' }
+        alias_name: {
+          label: 'User Alias Name',
+          description: 'The name of the user alias for the user to be kept.',
+          type: 'string',
+          required: true
         }
       }
     }
