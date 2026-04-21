@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
-import { BASE_URL } from '../../constants'
+import { BASE_URL, FLAGON_NAME, LINKEDIN_API_VERSION, LINKEDIN_CANARY_API_VERSION } from '../../constants'
 import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
@@ -706,6 +706,80 @@ describe('LinkedinConversions.dynamicField', () => {
         code: 'FIELD_NOT_SELECTED'
       }
     })
+  })
+})
+
+describe('LinkedinConversions.apiVersion feature flag', () => {
+  it('should use stable API version (202505) by default', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ]
+        }
+      })
+      .matchHeader('LinkedIn-Version', LINKEDIN_API_VERSION)
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: { '@path': '$.timestamp' },
+          onMappingSave: {
+            inputs: {},
+            outputs: { id: payload.conversionId }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+        // no features = stable version
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should use canary API version (202603) when feature flag is enabled', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ]
+        }
+      })
+      .matchHeader('LinkedIn-Version', LINKEDIN_CANARY_API_VERSION)
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: { '@path': '$.timestamp' },
+          onMappingSave: {
+            inputs: {},
+            outputs: { id: payload.conversionId }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        },
+        features: { [FLAGON_NAME]: true }
+      })
+    ).resolves.not.toThrowError()
   })
 })
 
