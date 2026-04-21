@@ -11,11 +11,10 @@ export function initScript({
   window._vwo_code ||
     (function () {
       var account_id = vwoAccountId,
-        version = 2.1,
+        version = 3.0,
         settings_tolerance = settingsTolerance,
         hide_element = 'body',
-        hide_element_style =
-          'transition:none;',
+        hide_element_style = 'transition:none;',
         f = false,
         w = window,
         d = document,
@@ -25,7 +24,7 @@ export function initScript({
       try {
         var c = JSON.parse(localStorage.getItem('_vwo_' + account_id + '_config'))
         cc = c && typeof c === 'object' ? c : {}
-      } catch (e) { }
+      } catch (e) {}
       var stT = cc.stT === 'session' ? w.sessionStorage : w.localStorage
       var code = {
         nonce: v && v.nonce,

@@ -81,7 +81,17 @@ export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
   const { action_source, user_data } = payload
 
   if (eventType !== EventType.Custom && eventType !== EventType.PageView) {
-    const { currency, contents } = payload as AddToCartPayload | AddToCart2Payload | SearchPayload | Search2Payload | ViewContentPayload | ViewContent2Payload | InitiateCheckoutPayload | InitiateCheckout2Payload | PurchasePayload | Purchase2Payload
+    const { currency, contents } = payload as
+      | AddToCartPayload
+      | AddToCart2Payload
+      | SearchPayload
+      | Search2Payload
+      | ViewContentPayload
+      | ViewContent2Payload
+      | InitiateCheckoutPayload
+      | InitiateCheckout2Payload
+      | PurchasePayload
+      | Purchase2Payload
 
     if (eventType === EventType.Purchase && !currency) {
       throw new PayloadValidationError('Must include a currency for Purchase events')
@@ -188,7 +198,9 @@ export function getCustomEventData(payload: CustomPayload | Custom2Payload): Cus
   return data
 }
 
-export function getInitiateCheckoutEventData(payload: InitiateCheckoutPayload | InitiateCheckout2Payload): InitiateCheckoutEventData {
+export function getInitiateCheckoutEventData(
+  payload: InitiateCheckoutPayload | InitiateCheckout2Payload
+): InitiateCheckoutEventData {
   const baseEventData = getBaseEventData(payload)
   const { custom_data, currency, value, content_ids, content_category, num_items, contents } = payload
 
@@ -220,7 +232,8 @@ export function getPageViewEventData(payload: PageViewPayload | PageView2Payload
 export function getPurchaseEventData(payload: PurchasePayload | Purchase2Payload): PurchaseEventData {
   const baseEventData = getBaseEventData(payload)
 
-  const { custom_data, currency, value, content_ids, net_revenue, content_name, content_type, num_items, contents } = payload
+  const { custom_data, currency, value, content_ids, net_revenue, content_name, content_type, num_items, contents } =
+    payload
 
   const data: PurchaseEventData = {
     event_name: 'Purchase',
