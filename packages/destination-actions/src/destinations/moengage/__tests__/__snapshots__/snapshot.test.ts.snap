@@ -52,6 +52,7 @@ Object {
   },
   "event": "E@t!q#n(^u",
   "properties": Object {
+    "moe_project_name": "E@t!q#n(^u",
     "testType": "E@t!q#n(^u",
   },
   "timestamp": "2021-02-01T00:00:00.000Z",
@@ -69,6 +70,7 @@ Object {
     "os": Object {},
   },
   "event": "E@t!q#n(^u",
+  "properties": Object {},
   "type": "E@t!q#n(^u",
   "update_existing_only": false,
 }
