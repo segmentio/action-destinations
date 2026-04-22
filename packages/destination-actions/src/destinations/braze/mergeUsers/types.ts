@@ -6,9 +6,9 @@ export type MergeUsersJSON = {
       alias_label: string
       alias_name: string
     }
-    braze_id?: string
     email?: string
     phone?: string
+    previousIdPrioritization?: string
   }
   identifier_to_keep: {
     // Only one of the following
@@ -17,10 +17,10 @@ export type MergeUsersJSON = {
       alias_label: string
       alias_name: string
     }
-    braze_id?: string
     email?: string
     phone?: string
+    keepIdPrioritization?: string
   }
 }
 
-export type MergeIdentifierType = 'external_id' | 'user_alias' | 'braze_id' | 'email' | 'phone'
+export type MergeIdentifierType = 'external_id' | 'user_alias' | 'email' | 'phone'
