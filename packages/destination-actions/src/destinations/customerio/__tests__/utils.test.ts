@@ -1,4 +1,11 @@
-import { resolveIdentifiers, isIsoDate } from '../utils'
+import { HTTPError, IntegrationError, MultiStatusResponse } from '@segment/actions-core'
+import {
+  isIsoDate,
+  parseTrackApiErrors,
+  parseTrackApiMultiStatusResponse,
+  resolveIdentifiers,
+  sendBatch
+} from '../utils'
 
 describe('isIsoDate', () => {
   it('should return true for valid ISO date with fractional seconds from 1-9 digits', () => {
@@ -77,5 +84,362 @@ describe('resolveIdentifiers', () => {
 
   it('should return undefined if no identifiers are provided', () => {
     expect(resolveIdentifiers({})).toBeUndefined()
+  })
+})
+
+describe('sendBatch', () => {
+  it('should parse 207 multi-status Track API responses', async () => {
+    const request = jest.fn().mockResolvedValue({
+      status: 207,
+      data: {
+        errors: [
+          {
+            batch_index: 1,
+            reason: 'invalid',
+            message: 'Attribute value too long'
+          }
+        ]
+      }
+    })
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      },
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-2', name: 'Second' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response.length()).toBe(2)
+    expect(response.getResponseAtIndex(0).value()).toEqual({
+      status: 200,
+      body: { person_id: 'user-1', name: 'First' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
+    })
+    expect(response.getResponseAtIndex(1).value()).toEqual({
+      status: 400,
+      errormessage: 'Attribute value too long',
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      body: { person_id: 'user-2', name: 'Second' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-2' }, name: 'Second' }
+    })
+  })
+
+  it('should parse 200 Track API responses that still contain batch errors', async () => {
+    const request = jest.fn().mockResolvedValue({
+      status: 200,
+      data: {
+        errors: [
+          {
+            batch_index: 0,
+            reason: 'required',
+            field: 'name',
+            message: 'Name is required'
+          }
+        ]
+      }
+    })
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response.getResponseAtIndex(0).value()).toEqual({
+      status: 400,
+      errormessage: 'Name is required',
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      body: { person_id: 'user-1', name: 'First' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
+    })
+  })
+
+  it('should return all-success responses when the Track API reports an empty errors array', async () => {
+    const request = jest.fn().mockResolvedValue({
+      status: 207,
+      data: {
+        errors: []
+      }
+    })
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      },
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-2', name: 'Second' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response.getAllResponses().map((result) => result.value())).toEqual([
+      {
+        status: 200,
+        body: { person_id: 'user-1', name: 'First' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
+      },
+      {
+        status: 200,
+        body: { person_id: 'user-2', name: 'Second' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-2' }, name: 'Second' }
+      }
+    ])
+  })
+
+  it('should rethrow retryable HTTP errors (429) so the framework can retry them', async () => {
+    const error = new HTTPError({ status: 429, statusText: 'Too Many Requests' } as any, {} as any, {} as any)
+    const request = jest.fn().mockRejectedValue(error)
+
+    await expect(
+      sendBatch(request, [
+        {
+          type: 'person',
+          action: 'event',
+          settings: {},
+          payload: { person_id: 'user-1', name: 'First' }
+        }
+      ])
+    ).rejects.toBe(error)
+  })
+
+  it('should rethrow retryable HTTP errors (500) so the framework can retry them', async () => {
+    const error = new HTTPError({ status: 500, statusText: 'Internal Server Error' } as any, {} as any, {} as any)
+    const request = jest.fn().mockRejectedValue(error)
+
+    await expect(
+      sendBatch(request, [
+        {
+          type: 'person',
+          action: 'event',
+          settings: {},
+          payload: { person_id: 'user-1', name: 'First' }
+        }
+      ])
+    ).rejects.toBe(error)
+  })
+
+  it('should convert non-retryable HTTP errors into per-item MultiStatusResponse entries', async () => {
+    const error = new HTTPError(
+      { status: 400, statusText: 'Bad Request' } as any,
+      { url: 'https://track.customer.io/api/v2/batch' } as any,
+      {} as any
+    )
+    const request = jest.fn().mockRejectedValue(error)
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      },
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-2', name: 'Second' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response.length()).toBe(2)
+    expect(response.getResponseAtIndex(0).value()).toMatchObject({
+      status: 400,
+      errortype: 'BAD_REQUEST',
+      body: { person_id: 'user-1', name: 'First' }
+    })
+    expect(response.getResponseAtIndex(1).value()).toMatchObject({
+      status: 400,
+      errortype: 'BAD_REQUEST',
+      body: { person_id: 'user-2', name: 'Second' }
+    })
+  })
+
+  it('should convert non-retryable auth errors (401) into per-item INTEGRATION_ERROR entries', async () => {
+    const error = new HTTPError(
+      { status: 401, statusText: 'Unauthorized' } as any,
+      { url: 'https://track.customer.io/api/v2/batch' } as any,
+      {} as any
+    )
+    const request = jest.fn().mockRejectedValue(error)
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response.getResponseAtIndex(0).value()).toMatchObject({
+      status: 401,
+      errortype: 'UNAUTHORIZED',
+      body: { person_id: 'user-1', name: 'First' }
+    })
+  })
+
+  it('should throw when the batch endpoint returns an unexpected response shape', async () => {
+    const request = jest.fn().mockResolvedValue({
+      status: 200,
+      data: {
+        ok: true
+      }
+    })
+
+    await expect(
+      sendBatch(request, [
+        {
+          type: 'person',
+          action: 'event',
+          settings: {},
+          payload: { person_id: 'user-1', name: 'First' }
+        }
+      ])
+    ).rejects.toThrow(IntegrationError)
+  })
+})
+
+describe('parseTrackApiErrors', () => {
+  it('should throw when errors contain an unindexable batch_index', () => {
+    const options = [
+      { type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-0' } }
+    ]
+    const batch = [{ type: 'person', action: 'event', identifiers: { id: 'user-0' } }]
+
+    expect(() =>
+      parseTrackApiErrors(
+        [{ reason: 'invalid', message: 'some error' }], // no batch_index
+        options,
+        batch
+      )
+    ).toThrow(IntegrationError)
+
+    expect(() =>
+      parseTrackApiErrors(
+        [{ batch_index: 99, reason: 'invalid', message: 'out of range' }], // out of range
+        options,
+        batch
+      )
+    ).toThrow(IntegrationError)
+  })
+  it('should fill success entries for items without errors', () => {
+    const options = [
+      { type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-0' } },
+      { type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-1' } },
+      { type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-2' } }
+    ]
+    const batch = [
+      { type: 'person', action: 'event', identifiers: { id: 'user-0' } },
+      { type: 'person', action: 'event', identifiers: { id: 'user-1' } },
+      { type: 'person', action: 'event', identifiers: { id: 'user-2' } }
+    ]
+
+    const response = parseTrackApiErrors(
+      [
+        {
+          batch_index: 1,
+          reason: 'required',
+          field: 'name',
+          message: 'Name is required'
+        }
+      ],
+      options,
+      batch
+    )
+
+    expect(response.getAllResponses().map((result) => result.value())).toEqual([
+      {
+        status: 200,
+        body: { person_id: 'user-0' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-0' } }
+      },
+      {
+        status: 400,
+        errormessage: 'Name is required',
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        body: { person_id: 'user-1' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' } }
+      },
+      {
+        status: 200,
+        body: { person_id: 'user-2' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-2' } }
+      }
+    ])
+  })
+
+  it('should preserve multiple errors for the same batch index and default unknown reasons', () => {
+    const options = [{ type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-1' } }]
+    const batch = [{ type: 'person', action: 'event', identifiers: { id: 'user-1' } }]
+
+    const response = parseTrackApiErrors(
+      [
+        {
+          batch_index: 0,
+          reason: 'duplicate',
+          field: 'email',
+          message: 'Email already exists'
+        },
+        {
+          batch_index: 0,
+          reason: 'duplicate',
+          field: 'id',
+          message: 'ID already exists'
+        }
+      ],
+      options,
+      batch
+    )
+
+    expect(response.getResponseAtIndex(0).value()).toEqual({
+      status: 400,
+      errormessage: 'Email already exists; ID already exists',
+      errortype: 'UNKNOWN_ERROR',
+      body: { person_id: 'user-1' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' } }
+    })
+  })
+})
+
+describe('parseTrackApiMultiStatusResponse', () => {
+  it('should return null for non-Track API response bodies', () => {
+    const options = [{ type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-0' } }]
+    const batch = [{ type: 'person', action: 'event', identifiers: { id: 'user-0' } }]
+    expect(parseTrackApiMultiStatusResponse({ ok: true }, options, batch)).toBeNull()
+  })
+
+  it('should treat an empty Track API errors array as an all-success response', () => {
+    const options = [{ type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-0' } }]
+    const batch = [{ type: 'person', action: 'event', identifiers: { id: 'user-0' } }]
+
+    const response = parseTrackApiMultiStatusResponse({ errors: [] }, options, batch)
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect((response as MultiStatusResponse).getResponseAtIndex(0).value()).toEqual({
+      status: 200,
+      body: { person_id: 'user-0' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-0' } }
+    })
   })
 })
