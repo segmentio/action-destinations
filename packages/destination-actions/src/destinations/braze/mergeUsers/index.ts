@@ -3,6 +3,13 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { mergeUsers } from '../utils'
 
+const prioritizationChoices = [
+  { value: 'identified', label: 'Identified' },
+  { value: 'unidentified', label: 'Unidentified' },
+  { value: 'most_recently_updated', label: 'Most Recently Updated' },
+  { value: 'least_recently_updated', label: 'Least Recently Updated' }
+]
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Merge Users',
   description:
@@ -12,17 +19,18 @@ const action: ActionDefinition<Settings, Payload> = {
     previousIdType: {
       label: 'Type of Identifier to merge',
       description:
-        'The type of identifier for the user to be merged. One of: external_id, user_alias, braze_id, email, or phone.',
+        'The type of identifier for the user to be merged. One of: external_id, user_alias, email, or phone.',
       type: 'string',
       required: true,
       choices: [
         { label: 'External ID', value: 'external_id' },
         { label: 'User Alias', value: 'user_alias' },
-        { label: 'Braze ID', value: 'braze_id' },
         { label: 'Email', value: 'email' },
         { label: 'Phone', value: 'phone' }
       ],
-      default: 'external_id'
+      default: {
+        '@path': 'external_id'
+      }
     },
     previousIdValue: {
       label: 'ID value to merge',
@@ -48,11 +56,14 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]
       },
-      default: '$.previousId'
+      default: {
+        '@path': '$.previousId'
+      }
     },
     previousAliasIdValue: {
       label: 'User Alias value to merge',
-      description: 'The value of the user alias identifier for the user to be merged. Required if the previous identifier type is user_alias.',
+      description:
+        'The value of the user alias identifier for the user to be merged. Required if the previous identifier type is user_alias.',
       type: 'object',
       required: {
         match: 'all',
@@ -91,14 +102,12 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     keepIdType: {
       label: 'Type of Identifier to keep',
-      description:
-        'The type of identifier for the user to be kept. One of: external_id, user_alias, braze_id, email, or phone.',
+      description: 'The type of identifier for the user to be kept. One of: external_id, user_alias, email, or phone.',
       type: 'string',
       required: true,
       choices: [
         { label: 'External ID', value: 'external_id' },
         { label: 'User Alias', value: 'user_alias' },
-        { label: 'Braze ID', value: 'braze_id' },
         { label: 'Email', value: 'email' },
         { label: 'Phone', value: 'phone' }
       ],
@@ -128,11 +137,12 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]
       },
-      default: '$.userId'
+      default: 'external_id'
     },
     keepAliasIdValue: {
       label: 'User Alias value to keep',
-      description: 'The value of the user alias identifier for the user to be kept. Required if the keep identifier type is user_alias.',
+      description:
+        'The value of the user alias identifier for the user to be kept. Required if the keep identifier type is user_alias.',
       type: 'object',
       required: {
         match: 'all',
@@ -168,6 +178,60 @@ const action: ActionDefinition<Settings, Payload> = {
           required: true
         }
       }
+    },
+    keepIdPrioritization: {
+      label: 'Rule Prioritization',
+      description: 'Rule determining which user to merge if multiple users are found.',
+      type: 'string',
+      choices: prioritizationChoices,
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'keepIdType',
+            operator: 'is',
+            value: ['email', 'phone']
+          }
+        ]
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'keepIdType',
+            operator: 'is',
+            value: ['email', 'phone']
+          }
+        ]
+      },
+      default: 'identified'
+    },
+    previousIdPrioritization: {
+      label: 'Rule Prioritization',
+      description: 'Rule determining which user to merge if multiple users are found.',
+      type: 'string',
+      choices: prioritizationChoices,
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'previousIdType',
+            operator: 'is',
+            value: ['email', 'phone']
+          }
+        ]
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'previousIdType',
+            operator: 'is',
+            value: ['email', 'phone']
+          }
+        ]
+      },
+      default: 'identified'
     }
   },
   perform: (request, { settings, payload }) => {
