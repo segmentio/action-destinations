@@ -33,7 +33,7 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
 
   payloads.forEach((payload) => {
     const {
-      data: { eventTime, eventType, adStorageConsent, eventSourceUrl, eventName, ...restOfData } = {},
+      data: { eventTime, eventType, adStorageConsent, eventSourceUrl, eventName, dataProvider, ...restOfData } = {},
       userData: { em, ph, ...restOfUserData } = {},
       customData,
       items,
@@ -46,6 +46,7 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
       adStorageConsent: adStorageConsent ?? settings.adStorageConsent,
       eventSourceUrl: eventSourceUrl,
       eventName: eventName,
+      dataProvider: dataProvider ?? 'SEGMENT',
       userData: {
         ...restOfUserData,
         em: em ? processHashing(em, 'sha256', 'hex', (v) => v.trim().toLowerCase()) : null,
@@ -58,7 +59,6 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
       },
       continueOnValidationError: true
     }
-
     json.push(jsonItem)
   })
 
