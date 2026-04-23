@@ -3,7 +3,12 @@ import {
   ModifiedResponse,
   DynamicFieldResponse,
   ActionHookResponse,
-  PayloadValidationError
+  PayloadValidationError,
+  JSONLikeObject,
+  MultiStatusResponse,
+  HTTPError,
+  InvalidAuthenticationError,
+  ErrorCodes
 } from '@segment/actions-core'
 import { BASE_URL, DEFAULT_POST_CLICK_LOOKBACK_WINDOW, DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW } from '../constants'
 import type {
@@ -471,39 +476,95 @@ export class LinkedInConversions {
     })
   }
 
-  async batchConversionAdd(payloads: Payload[]): Promise<ModifiedResponse> {
-    return this.request(`${BASE_URL}/conversionEvents`, {
-      method: 'post',
-      headers: {
-        'X-RestLi-Method': 'BATCH_CREATE'
-      },
-      json: {
-        elements: [
-          ...payloads.map((payload) => {
-            const conversionTime = isNotEpochTimestampInMilliseconds(payload.conversionHappenedAt)
-              ? convertToEpochMillis(payload.conversionHappenedAt)
-              : Number(payload.conversionHappenedAt)
-            validate(payload, conversionTime)
+  async batchConversionAdd(payloads: Payload[]): Promise<MultiStatusResponse> {
+    const multiStatusResponse = new MultiStatusResponse()
+    const validElements: ReturnType<typeof this.buildConversionElement>[] = []
+    const validResponseIndices: number[] = []
 
-            const userIds = this.buildUserIdsArray(payload)
-            return {
-              conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
-              conversionHappenedAt: conversionTime,
-              conversionValue: payload.conversionValue,
-              eventId: payload.eventId,
-              user: {
-                userIds,
-                userInfo: payload.userInfo,
-                // only 1 externalId value allowed currently in the externalIds array by LinkedIn currently Oct 2025
-                ...(Array.isArray(payload?.externalIds) && payload.externalIds.length > 0
-                  ? { externalIds: [payload.externalIds[0]] }
-                  : {})
-              }
-            }
-          })
-        ]
+    payloads.forEach((payload, i) => {
+      const conversionTime = isNotEpochTimestampInMilliseconds(payload.conversionHappenedAt)
+        ? convertToEpochMillis(payload.conversionHappenedAt)
+        : Number(payload.conversionHappenedAt)
+
+      try {
+        validate(payload, conversionTime)
+        validElements.push(this.buildConversionElement(payload, conversionTime))
+        validResponseIndices.push(i)
+      } catch (e) {
+        multiStatusResponse.setErrorResponseAtIndex(i, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: (e as Error).message
+        })
       }
     })
+
+    if (validElements.length === 0) {
+      return multiStatusResponse
+    }
+
+    try {
+      const response = await this.request(`${BASE_URL}/conversionEvents`, {
+        method: 'post',
+        headers: {
+          'X-RestLi-Method': 'BATCH_CREATE'
+        },
+        json: {
+          elements: validElements
+        }
+      })
+
+      validResponseIndices.forEach((originalIndex, filteredIndex) => {
+        multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
+          status: 201,
+          sent: validElements[filteredIndex] as unknown as JSONLikeObject,
+          body: (response.content ?? response.data ?? '') as unknown as JSONLikeObject
+        })
+      })
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        const status = error.response.status
+
+        // 401 means the OAuth token is expired — re-throw so the platform triggers a token refresh
+        if (status === 401) {
+          throw new InvalidAuthenticationError(
+            'LinkedIn OAuth token is expired or invalid. Please re-authenticate.',
+            ErrorCodes.INVALID_AUTHENTICATION
+          )
+        }
+
+        // For all other API errors, mark every valid event as failed with the actual status
+        validResponseIndices.forEach((originalIndex, filteredIndex) => {
+          multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+            status,
+            errormessage: error.message,
+            sent: validElements[filteredIndex] as unknown as JSONLikeObject
+          })
+        })
+      } else {
+        throw error
+      }
+    }
+
+    return multiStatusResponse
+  }
+
+  private buildConversionElement(payload: Payload, conversionTime: number) {
+    const userIds = this.buildUserIdsArray(payload)
+    return {
+      conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
+      conversionHappenedAt: conversionTime,
+      conversionValue: payload.conversionValue,
+      eventId: payload.eventId,
+      user: {
+        userIds,
+        userInfo: payload.userInfo,
+        // only 1 externalId value allowed currently in the externalIds array by LinkedIn currently Oct 2025
+        ...(Array.isArray(payload?.externalIds) && payload.externalIds.length > 0
+          ? { externalIds: [payload.externalIds[0]] }
+          : {})
+      }
+    }
   }
 
   async bulkAssociateCampaignToConversion(campaignIds?: string[]): Promise<ModifiedResponse | void> {
