@@ -103,19 +103,65 @@ describe('MultiStatus', () => {
       await expect(response).rejects.toThrowError('Access token invalid')
     })
 
-    it('should return multistatus for any other error', async () => {
+    it.each([
+      '603',
+      '605',
+      '609',
+      '610',
+      '612',
+      '613',
+      '616',
+      '701',
+      '702',
+      '703',
+      '704',
+      '709',
+      '710',
+      '711',
+      '712',
+      '714',
+      '718',
+      '1001',
+      '1002',
+      '1003',
+      '1004',
+      '1005',
+      '1006',
+      '1007',
+      '1008',
+      '1009',
+      '1010',
+      '1011',
+      '1012',
+      '1013',
+      '1014',
+      '1015',
+      '1017',
+      '1018',
+      '1021',
+      '1022',
+      '1025',
+      '1026',
+      '1027',
+      '1028',
+      '1035',
+      '1036',
+      '1037',
+      '1042',
+      '1048',
+      '1049',
+      '1076',
+      '1077',
+      '1078',
+      '1079'
+    ])('should return non-retryable multistatus for known non-retryable error code %s', async (code) => {
       nock(settings.api_endpoint)
         .post('/bulk/v1/leads.json?format=csv&listId=101&lookupField=email')
         .reply(200, {
           requestId: '0001#1234f2f3e4',
           success: false,
           warnings: [],
-          errors: [
-            {
-              code: '612',
-              message: 'Invalid Content Type'
-            }
-          ]
+          errors: [{ code, message: `Non-retryable error ${code}` }]
         })
 
       const response = await testDestination.executeBatch('addToList', {
@@ -128,56 +174,53 @@ describe('MultiStatus', () => {
         {
           status: 400,
           errortype: 'BAD_REQUEST',
-          errormessage: 'Invalid Content Type',
+          errormessage: `Non-retryable error ${code}`,
           errorreporter: 'DESTINATION',
-          body: { code: '612', message: 'Invalid Content Type' }
+          body: { code, message: `Non-retryable error ${code}` }
         },
         {
           status: 400,
           errortype: 'BAD_REQUEST',
-          errormessage: 'Invalid Content Type',
+          errormessage: `Non-retryable error ${code}`,
           errorreporter: 'DESTINATION',
-          body: { code: '612', message: 'Invalid Content Type' }
+          body: { code, message: `Non-retryable error ${code}` }
         }
       ])
     })
 
-    it.each(['502', '604', '606', '607', '608', '611', '614', '615', '713', '719', '1019', '1029'])(
-      'should return retryable multistatus for transient error code %s',
-      async (code) => {
-        nock(settings.api_endpoint)
-          .post('/bulk/v1/leads.json?format=csv&listId=101&lookupField=email')
-          .reply(200, {
-            requestId: '0001#1234f2f3e4',
-            success: false,
-            warnings: [],
-            errors: [{ code, message: `Transient error ${code}` }]
-          })
-
-        const response = await testDestination.executeBatch('addToList', {
-          events,
-          settings,
-          mapping
+    it('should return retryable multistatus for unknown/future error codes', async () => {
+      nock(settings.api_endpoint)
+        .post('/bulk/v1/leads.json?format=csv&listId=101&lookupField=email')
+        .reply(200, {
+          requestId: '0001#1234f2f3e4',
+          success: false,
+          warnings: [],
+          errors: [{ code: '9999', message: 'Unknown future error' }]
         })
 
-        expect(response).toMatchObject([
-          {
-            status: 500,
-            errortype: 'RETRYABLE_ERROR',
-            errormessage: `Transient error ${code}`,
-            errorreporter: 'DESTINATION',
-            body: { code, message: `Transient error ${code}` }
-          },
-          {
-            status: 500,
-            errortype: 'RETRYABLE_ERROR',
-            errormessage: `Transient error ${code}`,
-            errorreporter: 'DESTINATION',
-            body: { code, message: `Transient error ${code}` }
-          }
-        ])
-      }
-    )
+      const response = await testDestination.executeBatch('addToList', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response).toMatchObject([
+        {
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
+          errormessage: 'Unknown future error',
+          errorreporter: 'DESTINATION',
+          body: { code: '9999', message: 'Unknown future error' }
+        },
+        {
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
+          errormessage: 'Unknown future error',
+          errorreporter: 'DESTINATION',
+          body: { code: '9999', message: 'Unknown future error' }
+        }
+      ])
+    })
 
     it.each([{ errors: [] }, {}])(
       'should return retryable multistatus when response has no error details',
@@ -331,19 +374,41 @@ describe('MultiStatus', () => {
       await expect(response).rejects.toThrowError('Access token invalid')
     })
 
-    it('should return multistatus for any other error on getLeads', async () => {
+    it.each([
+      '603',
+      '605',
+      '609',
+      '610',
+      '612',
+      '613',
+      '616',
+      '701',
+      '702',
+      '703',
+      '704',
+      '709',
+      '710',
+      '711',
+      '712',
+      '714',
+      '718',
+      '1004',
+      '1007',
+      '1008',
+      '1009',
+      '1010',
+      '1013',
+      '1017',
+      '1027',
+      '1036'
+    ])('should return non-retryable multistatus for known non-retryable error code %s on getLeads', async (code) => {
       nock(settings.api_endpoint)
         .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
         .reply(200, {
           requestId: '0001#1234f2f3e4',
           success: false,
           warnings: [],
-          errors: [
-            {
-              code: '612',
-              message: 'Invalid Content Type'
-            }
-          ]
+          errors: [{ code, message: `Non-retryable error ${code}` }]
         })
 
       const response = await testDestination.executeBatch('removeFromList', {
@@ -356,21 +421,48 @@ describe('MultiStatus', () => {
         {
           status: 400,
           errortype: 'BAD_REQUEST',
-          errormessage: 'Invalid Content Type',
+          errormessage: `Non-retryable error ${code}`,
           errorreporter: 'DESTINATION',
-          body: { code: '612', message: 'Invalid Content Type' }
+          body: { code, message: `Non-retryable error ${code}` }
         },
         {
           status: 400,
           errortype: 'BAD_REQUEST',
-          errormessage: 'Invalid Content Type',
+          errormessage: `Non-retryable error ${code}`,
           errorreporter: 'DESTINATION',
-          body: { code: '612', message: 'Invalid Content Type' }
+          body: { code, message: `Non-retryable error ${code}` }
         }
       ])
     })
 
-    it('should return multistatus for any other error on deleteLeads', async () => {
+    it.each([
+      '603',
+      '605',
+      '609',
+      '610',
+      '612',
+      '613',
+      '616',
+      '701',
+      '702',
+      '703',
+      '704',
+      '709',
+      '710',
+      '711',
+      '712',
+      '714',
+      '718',
+      '1004',
+      '1007',
+      '1008',
+      '1009',
+      '1010',
+      '1013',
+      '1017',
+      '1027',
+      '1036'
+    ])('should return non-retryable multistatus for known non-retryable error code %s on deleteLeads', async (code) => {
       nock(settings.api_endpoint)
         .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
         .reply(200, {
@@ -387,7 +479,7 @@ describe('MultiStatus', () => {
           requestId: '0001#1234f2f3e4',
           success: false,
           warnings: [],
-          errors: [{ code: '612', message: 'Invalid Content Type' }]
+          errors: [{ code, message: `Non-retryable error ${code}` }]
         })
 
       const response = await testDestination.executeBatch('removeFromList', {
@@ -400,103 +492,97 @@ describe('MultiStatus', () => {
         {
           status: 400,
           errortype: 'BAD_REQUEST',
-          errormessage: 'Invalid Content Type',
+          errormessage: `Non-retryable error ${code}`,
           errorreporter: 'DESTINATION',
-          body: { code: '612', message: 'Invalid Content Type' }
+          body: { code, message: `Non-retryable error ${code}` }
         },
         {
           status: 400,
           errortype: 'BAD_REQUEST',
-          errormessage: 'Invalid Content Type',
+          errormessage: `Non-retryable error ${code}`,
           errorreporter: 'DESTINATION',
-          body: { code: '612', message: 'Invalid Content Type' }
+          body: { code, message: `Non-retryable error ${code}` }
         }
       ])
     })
 
-    it.each(['502', '604', '606', '607', '608', '611', '614', '615', '713', '719', '1019', '1029'])(
-      'should return retryable multistatus for transient error code %s on getLeads',
-      async (code) => {
-        nock(settings.api_endpoint)
-          .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
-          .reply(200, {
-            requestId: '0001#1234f2f3e4',
-            success: false,
-            warnings: [],
-            errors: [{ code, message: `Transient error ${code}` }]
-          })
-
-        const response = await testDestination.executeBatch('removeFromList', {
-          events,
-          settings,
-          mapping
+    it('should return retryable multistatus for unknown/future error codes on getLeads', async () => {
+      nock(settings.api_endpoint)
+        .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
+        .reply(200, {
+          requestId: '0001#1234f2f3e4',
+          success: false,
+          warnings: [],
+          errors: [{ code: '9999', message: 'Unknown future error' }]
         })
 
-        expect(response).toMatchObject([
-          {
-            status: 500,
-            errortype: 'RETRYABLE_ERROR',
-            errormessage: `Transient error ${code}`,
-            errorreporter: 'DESTINATION',
-            body: { code, message: `Transient error ${code}` }
-          },
-          {
-            status: 500,
-            errortype: 'RETRYABLE_ERROR',
-            errormessage: `Transient error ${code}`,
-            errorreporter: 'DESTINATION',
-            body: { code, message: `Transient error ${code}` }
-          }
-        ])
-      }
-    )
+      const response = await testDestination.executeBatch('removeFromList', {
+        events,
+        settings,
+        mapping
+      })
 
-    it.each(['502', '604', '606', '607', '608', '611', '614', '615', '713', '719', '1019', '1029'])(
-      'should return retryable multistatus for transient error code %s on deleteLeads',
-      async (code) => {
-        nock(settings.api_endpoint)
-          .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
-          .reply(200, {
-            requestId: '0001#1234f2f3e4',
-            success: true,
-            warnings: [],
-            errors: [],
-            result: [{ id: 1 }, { id: 2 }]
-          })
+      expect(response).toMatchObject([
+        {
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
+          errormessage: 'Unknown future error',
+          errorreporter: 'DESTINATION',
+          body: { code: '9999', message: 'Unknown future error' }
+        },
+        {
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
+          errormessage: 'Unknown future error',
+          errorreporter: 'DESTINATION',
+          body: { code: '9999', message: 'Unknown future error' }
+        }
+      ])
+    })
 
-        nock(settings.api_endpoint)
-          .delete('/rest/v1/lists/101/leads.json?id=1,2')
-          .reply(200, {
-            requestId: '0001#1234f2f3e4',
-            success: false,
-            warnings: [],
-            errors: [{ code, message: `Transient error ${code}` }]
-          })
-
-        const response = await testDestination.executeBatch('removeFromList', {
-          events,
-          settings,
-          mapping
+    it('should return retryable multistatus for unknown/future error codes on deleteLeads', async () => {
+      nock(settings.api_endpoint)
+        .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
+        .reply(200, {
+          requestId: '0001#1234f2f3e4',
+          success: true,
+          warnings: [],
+          errors: [],
+          result: [{ id: 1 }, { id: 2 }]
         })
 
-        expect(response).toMatchObject([
-          {
-            status: 500,
-            errortype: 'RETRYABLE_ERROR',
-            errormessage: `Transient error ${code}`,
-            errorreporter: 'DESTINATION',
-            body: { code, message: `Transient error ${code}` }
-          },
-          {
-            status: 500,
-            errortype: 'RETRYABLE_ERROR',
-            errormessage: `Transient error ${code}`,
-            errorreporter: 'DESTINATION',
-            body: { code, message: `Transient error ${code}` }
-          }
-        ])
-      }
-    )
+      nock(settings.api_endpoint)
+        .delete('/rest/v1/lists/101/leads.json?id=1,2')
+        .reply(200, {
+          requestId: '0001#1234f2f3e4',
+          success: false,
+          warnings: [],
+          errors: [{ code: '9999', message: 'Unknown future error' }]
+        })
+
+      const response = await testDestination.executeBatch('removeFromList', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response).toMatchObject([
+        {
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
+          errormessage: 'Unknown future error',
+          errorreporter: 'DESTINATION',
+          body: { code: '9999', message: 'Unknown future error' }
+        },
+        {
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
+          errormessage: 'Unknown future error',
+          errorreporter: 'DESTINATION',
+          body: { code: '9999', message: 'Unknown future error' }
+        }
+      ])
+    })
 
     it.each([{ errors: [] }, {}])(
       'should return retryable multistatus when getLeads response has no error details',
