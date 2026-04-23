@@ -2,9 +2,10 @@ import { Features, IntegrationError, RequestClient, StatsContext } from '@segmen
 import { Payload } from './addToAudContactInfo/generated-types'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
+import { FIRST_PARTY_DV360_API_VERSION, FIRST_PARTY_DV360_CANARY_API_VERSION } from './versioning-info'
 
-export const API_VERSION = 'v4'
-export const CANARY_API_VERSION = 'v4'
+export const API_VERSION = FIRST_PARTY_DV360_API_VERSION
+export const CANARY_API_VERSION = FIRST_PARTY_DV360_CANARY_API_VERSION
 export const FLAGON_NAME = 'first-party-dv360-canary-version'
 
 const DV360API = `https://displayvideo.googleapis.com/`

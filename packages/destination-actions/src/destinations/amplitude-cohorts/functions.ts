@@ -12,7 +12,7 @@ export async function createAudience(request: RequestClient, settings: Settings,
   const { 
     endpoint,
     app_id,
-    owner_email: default_owner_email
+    default_owner_email 
   } = settings
 
   if (!name) {

@@ -2,12 +2,7 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import { isValidS3Path, isValidS3BucketName, normalizeS3Path, uploadS3 } from './s3'
 import { generateFile, enrichStatsContextWithMetadata } from '../operations'
 import { sendEventToAWS } from '../awsClient'
-import {
-  LIVERAMP_MIN_RECORD_COUNT,
-  LIVERAMP_LEGACY_FLOW_FLAG_NAME,
-  LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME,
-  LIVERAMP_ALPHABETICAL_FIELD_ORDER_FLAG_NAME
-} from '../properties'
+import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
 
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -156,17 +151,7 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     )
   }
 
-  const alphabeticalFieldOrder = input.features?.[LIVERAMP_ALPHABETICAL_FIELD_ORDER_FLAG_NAME] === true
-  const { filename, fileContents, isIncomingAlphabetical } = generateFile(input.payloads, alphabeticalFieldOrder)
-
-  // Track metric for whether incoming headers are in alphabetical order
-  if (input.statsContext?.statsClient) {
-    const incomingOrder = isIncomingAlphabetical ? 'alphabetical' : 'non_alphabetical'
-    input.statsContext.statsClient.incr('liveramp_audiences.incoming_header_order', 1, [
-      ...(input.statsContext.tags || []),
-      `order:${incomingOrder}`
-    ])
-  }
+  const { filename, fileContents } = generateFile(input.payloads)
 
   if (input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true) {
     //------------
@@ -177,7 +162,6 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     //------------
     // AWS FLOW
     // -----------
-    const shouldEnableGzipCompression = input.features && input.features[LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME] === true
     return sendEventToAWS({
       audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
       uploadType: 's3',
@@ -186,7 +170,7 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
       subscriptionId: subscriptionMetadata?.actionConfigId,
       fileContents,
       rowCount: input.payloads.length,
-      gzipCompressFile: shouldEnableGzipCompression,
+      gzipCompressFile: true, // Enabled for all by default
       s3Info: {
         s3BucketName: input.payloads[0].s3_aws_bucket_name,
         s3Region: input.payloads[0].s3_aws_region,
