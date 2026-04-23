@@ -236,9 +236,10 @@ const action: ActionDefinition<Settings, Payload> = {
     )
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-        settings.customerId
-      }:uploadCallConversions`,
+      `https://googleads.googleapis.com/${getApiVersion(
+        features,
+        statsContext
+      )}/customers/${customerId}:uploadCallConversions`,
       {
         method: 'post',
         headers: {
