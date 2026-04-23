@@ -36,3 +36,4 @@ describe('customerio presets', () => {
     expect(destination.actions.trackEvent.defaultSubscription).toContain('event != "Object Deleted"')
     expect(destination.actions.trackEvent.defaultSubscription).toContain('event != "Report Content Event"')
   })
+})
