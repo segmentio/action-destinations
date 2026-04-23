@@ -5,4 +5,8 @@ export interface Settings {
    * Your Voiceops access token.
    */
   accessToken: string
+  /**
+   * Your Voiceops base URL.
+   */
+  baseUrl: string
 }
