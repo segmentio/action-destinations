@@ -1,7 +1,7 @@
 import { ActionDefinition, RequestClient, DynamicFieldResponse, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { contactIdentifier } from '../input-fields'
+import { channelIdentifier, emailIdentifier, mobileNumberIdentifier } from '../input-fields'
 import { DDEnrolmentApi, DDContactApi, ChannelIdentifier, Identifiers } from '@segment/actions-shared'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -9,7 +9,9 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Creates a program enrolment.',
   defaultSubscription: 'type = "track" and event = "Enrol Contact to Program"',
   fields: {
-    ...contactIdentifier,
+    channelIdentifier,
+    emailIdentifier,
+    mobileNumberIdentifier,
     programId: {
       label: 'Program',
       description: `List of active programs`,
