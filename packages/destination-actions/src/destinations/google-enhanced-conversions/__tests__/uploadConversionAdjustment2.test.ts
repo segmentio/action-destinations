@@ -1335,5 +1335,72 @@ describe('GoogleEnhancedConversions', () => {
         expect(e.message).toBe("Email provided doesn't seem to be in a valid format.")
       }
     })
+
+    it('strips hyphens from customerId in batch conversionAction', async () => {
+      const hyphenatedCustomerId = '123-456-7890'
+      const strippedCustomerId = '1234567890'
+
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 1',
+          properties: {
+            gclid: '54321',
+            email: 'test1@gmail.com',
+            orderId: '1234',
+            phone: '1234567890',
+            firstName: 'Jane',
+            lastName: 'Doe',
+            currency: 'USD',
+            value: '123',
+            address: {
+              street: '123 Street SW',
+              city: 'San Diego',
+              state: 'CA',
+              postalCode: '982004'
+            }
+          }
+        })
+      ]
+
+      nock(
+        `https://googleads.googleapis.com/${API_VERSION}/customers/${strippedCustomerId}:uploadConversionAdjustments`
+      )
+        .post('')
+        .reply(201, { results: [{}] })
+
+      const responses = await testDestination.testBatchAction('uploadConversionAdjustment2', {
+        events,
+        mapping: {
+          gclid: {
+            '@path': '$.properties.gclid'
+          },
+          conversion_action: '12345',
+          adjustment_type: 'ENHANCEMENT',
+          conversion_timestamp: {
+            '@path': '$.timestamp'
+          },
+          restatement_value: {
+            '@path': '$.properties.value'
+          },
+          restatement_currency_code: {
+            '@path': '$.properties.currency'
+          },
+          __segment_internal_sync_mode: 'add'
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId: hyphenatedCustomerId
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      const body = JSON.parse(responses[0].options.body as string)
+      expect(body.conversionAdjustments[0].conversionAction).toBe(
+        `customers/${strippedCustomerId}/conversionActions/12345`
+      )
+    })
   })
 })

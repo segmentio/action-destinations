@@ -109,7 +109,7 @@ const action: ActionDefinition<Settings, Payload> = {
         session_start_time_usec: {
           label: 'Session Start Time',
           description:
-            "The timestamp of when the user's session began on your website. This helps track the duration of user visits. The format should be a full ISO 8601 string. For example \"2025-11-18T08:52:17.023Z\".",
+            'The timestamp of when the user\'s session began on your website. This helps track the duration of user visits. The format should be a full ISO 8601 string. For example "2025-11-18T08:52:17.023Z".',
           type: 'string',
           format: 'date-time'
         },
@@ -367,7 +367,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       const { session_attributes_encoded, user_ip_address } = payload
-      
+
       const request_object: ClickConversionRequestObjectInterface = {
         conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
         conversionDateTime: convertTimestamp(payload.conversion_timestamp),
@@ -486,7 +486,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const { session_attributes_encoded, user_ip_address } = payloadItem
 
         const request_object: ClickConversionRequestObjectInterface = {
-          conversionAction: `customers/${settings.customerId}/conversionActions/${payloadItem.conversion_action}`,
+          conversionAction: `customers/${customerId}/conversionActions/${payloadItem.conversion_action}`,
           conversionDateTime: convertTimestamp(payloadItem.conversion_timestamp),
           gclid: payloadItem.gclid,
           gbraid: payloadItem.gbraid,
@@ -559,9 +559,10 @@ const action: ActionDefinition<Settings, Payload> = {
     )
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-        settings.customerId
-      }:uploadClickConversions`,
+      `https://googleads.googleapis.com/${getApiVersion(
+        features,
+        statsContext
+      )}/customers/${customerId}:uploadClickConversions`,
       {
         method: 'post',
         headers: {
