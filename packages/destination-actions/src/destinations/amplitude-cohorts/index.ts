@@ -35,7 +35,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         label: 'Cohort Owner Email',
         description: 'The email of the user who will own the cohorts in Amplitude. This can be overriden per Audience, but if left blank, all cohorts will be owned by this user.',
         type: 'string',
-        format: 'email',
         required: true
       },
       endpoint: {
