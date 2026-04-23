@@ -73,11 +73,11 @@ export interface Payload {
     /**
      * The first name of the agent for this call leg.
      */
-    first_name?: string
+    first_name: string
     /**
      * The last name of the agent for this call leg.
      */
-    last_name?: string
+    last_name: string
   }[]
   /**
    * Additional call metadata to forward to Voiceops unchanged.

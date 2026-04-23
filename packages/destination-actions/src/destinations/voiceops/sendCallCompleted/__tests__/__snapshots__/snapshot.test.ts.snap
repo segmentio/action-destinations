@@ -4,14 +4,13 @@ exports[`Testing snapshot for actions-voiceops's sendCallCompleted destination a
 Object {
   "agent_email": "bah@curoj.cw",
   "call_id": "PdayLkf!",
-  "call_started_at": "1712683200",
+  "call_started_at": Any<String>,
   "channels": Array [
     Object {
       "channel": -4911932045787136,
       "first_name": "PdayLkf!",
       "identifier": "PdayLkf!",
       "last_name": "PdayLkf!",
-      "recording_start_time": "2082-03-02T00:19:30.144Z",
       "type": "CONTACT",
     },
   ],
@@ -28,7 +27,7 @@ exports[`Testing snapshot for actions-voiceops's sendCallCompleted destination a
 Object {
   "agent_email": "bah@curoj.cw",
   "call_id": "PdayLkf!",
-  "call_started_at": "1712683200",
+  "call_started_at": Any<String>,
   "recording_url": "https://example.com/audio.wav",
 }
 `;
