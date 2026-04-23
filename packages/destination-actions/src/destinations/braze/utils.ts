@@ -1,4 +1,4 @@
-import { JSONLikeObject, ModifiedResponse, MultiStatusResponse, omit } from '@segment/actions-core'
+import { JSONLikeObject, ModifiedResponse, MultiStatusResponse, omit, PayloadValidationError } from '@segment/actions-core'
 import { IntegrationError, RequestClient, removeUndefined } from '@segment/actions-core'
 import dayjs from 'dayjs'
 import { Settings } from './generated-types'
@@ -6,7 +6,9 @@ import action from './trackPurchase'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import { Payload as TrackPurchasePayload } from './trackPurchase/generated-types'
 import { Payload as UpdateUserProfilePayload } from './updateUserProfile/generated-types'
-import { getUserAlias } from './userAlias'
+import { Payload as MergeUsersPayload } from './mergeUsers/generated-types'
+import { MergeUsersJSON, MergeIdentifierType } from './mergeUsers/types'
+import { getUserAlias, UserAlias } from './userAlias'
 import { HTTPError } from '@segment/actions-core'
 import { MAX_BATCH_SIZE } from './constants'
 type DateInput = string | Date | number | null | undefined
@@ -658,6 +660,49 @@ async function handleBrazeAPIResponse(
     }
   }
 }
+
+export function mergeUsers(request: RequestClient, settings: Settings, payload: MergeUsersPayload) {
+  const { 
+    previousIdType,
+    previousIdValue,
+    previousAliasIdValue,
+    keepIdType,
+    keepIdValue,
+    keepAliasIdValue
+  } = payload
+  
+  const previousId = getMergeIdentifier(previousIdType as MergeIdentifierType, 'merge', previousIdValue, previousAliasIdValue)
+  const keepId = getMergeIdentifier(keepIdType as MergeIdentifierType, 'keep', keepIdValue, keepAliasIdValue)
+
+  const mergeUpdate: MergeUsersJSON = {
+    identifier_to_merge: { [previousIdType]: previousId },
+    identifier_to_keep: { [keepIdType]: keepId }
+  }
+
+  return request(`${settings.endpoint}/users/merge`, {
+    method: 'post',
+    json: {
+      merge_updates: [mergeUpdate]
+    }
+  })
+}
+
+export function getMergeIdentifier(type: MergeIdentifierType, label: string, value?: string, aliasValue?: UserAlias): string | UserAlias {
+  if (type === 'user_alias') {
+    const { alias_label, alias_name } = aliasValue || {}
+    if (!alias_label || !alias_name) {
+      throw new PayloadValidationError(`When Type of Identifier to ${label} is user_alias, alias_label and alias_name must be provided.`)
+    }
+    return { alias_label, alias_name }
+  }
+
+  if (!value) {
+    throw new PayloadValidationError(`ID value to ${label} value must be provided.`)
+  }
+  
+  return value
+}
+
 
 export function generateMultiStatusError(batchSize: number, errorMessage: string): MultiStatusResponse {
   const multiStatusResponse = new MultiStatusResponse()
