@@ -31,7 +31,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         type: 'string',
         required: true
       },
-      owner_email: {
+      default_owner_email: {
         label: 'Cohort Owner Email',
         description: 'The email of the user who will own the cohorts in Amplitude. This can be overriden per Audience, but if left blank, all cohorts will be owned by this user.',
         type: 'string',
@@ -59,10 +59,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     testAuthentication: (request, { settings }) => {
       const { 
         endpoint,
-        owner_email
+        default_owner_email
       } = settings
       const baseUrl = getEndpointByRegion('usersearch', endpoint)
-      return request(`${baseUrl}?user=${owner_email}`)
+      return request(`${baseUrl}?user=${default_owner_email}`)
     }
   },
   extendRequest({ settings }) {
