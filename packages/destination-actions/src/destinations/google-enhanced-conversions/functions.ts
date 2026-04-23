@@ -571,7 +571,7 @@ const extractUserIdentifiers = (
     if (
       payload.event_name === 'Audience Entered' ||
       syncMode === 'add' ||
-      (syncMode === 'mirror' && payload.event_name === 'new')
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
     ) {
       addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
     } else if (
@@ -969,7 +969,7 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string) => 
   if (
     payload.event_name === 'Audience Entered' ||
     syncMode === 'add' ||
-    (syncMode === 'mirror' && payload.event_name === 'new')
+    (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
   ) {
     return 'add'
   } else if (
