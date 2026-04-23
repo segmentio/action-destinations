@@ -1,7 +1,7 @@
 export const DEFAULT_VOICEOPS_BASE_URL = 'https://projectfrontline.net'
 
 export function normalizeVoiceopsBaseUrl(baseUrl?: string): string {
-  return (baseUrl ?? DEFAULT_VOICEOPS_BASE_URL).replace(/\/$/, '')
+  return (baseUrl ?? DEFAULT_VOICEOPS_BASE_URL).trim().replace(/\/+$/, '')
 }
 
 export function getVoiceopsAuthenticationEndpoint(baseUrl?: string): string {
