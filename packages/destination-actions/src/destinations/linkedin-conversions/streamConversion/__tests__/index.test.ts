@@ -1211,3 +1211,177 @@ describe('LinkedinConversions.onMappingSave - performHook', () => {
     })
   })
 })
+
+describe('LinkedinConversions.multistatus', () => {
+  const staleTimestamp = new Date(Date.now() - 100 * 24 * 60 * 60 * 1000).toISOString()
+
+  const staleEvent = createTestEvent({
+    messageId: 'stale-event-id',
+    event: 'Funding Application Submitted',
+    type: 'track',
+    timestamp: staleTimestamp,
+    context: { traits: { email: 'stale@example.com' } },
+    properties: {}
+  })
+
+  const batchMapping = {
+    email: { '@path': '$.context.traits.email' },
+    conversionHappenedAt: { '@path': '$.timestamp' },
+    onMappingSave: {
+      inputs: {},
+      outputs: { id: payload.conversionId }
+    },
+    enable_batching: true,
+    batch_size: 5000
+  }
+
+  it('should mark stale event as PAYLOAD_VALIDATION_FAILED and still send valid events', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        elements: [
+          {
+            conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`,
+            conversionHappenedAt: currentTimestamp,
+            user: {
+              userIds: [
+                { idType: 'SHA256_EMAIL', idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777' }
+              ]
+            }
+          }
+        ]
+      })
+      .reply(201)
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [event, staleEvent],
+      settings,
+      mapping: batchMapping
+    })
+
+    // valid event succeeds
+    expect(response[0]).toMatchObject({ status: 201 })
+    // stale event fails with PAYLOAD_VALIDATION_FAILED
+    expect(response[1]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'Timestamp should be within the past 90 days.',
+      errorreporter: 'INTEGRATIONS'
+    })
+  })
+
+  it('should not make an API call when all events in the batch are invalid', async () => {
+    const staleEvent2 = createTestEvent({
+      messageId: 'stale-event-id-2',
+      event: 'Funding Application Submitted',
+      type: 'track',
+      timestamp: staleTimestamp,
+      context: { traits: { email: 'stale2@example.com' } },
+      properties: {}
+    })
+
+    const scope = nock(`${BASE_URL}/conversionEvents`).post('').reply(201)
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [staleEvent, staleEvent2],
+      settings,
+      mapping: batchMapping
+    })
+
+    expect(scope.isDone()).toBe(false)
+    expect(response[0]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
+    expect(response[1]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
+  })
+
+  it('should mark event as PAYLOAD_VALIDATION_FAILED when user ID is missing', async () => {
+    const noUserIdEvent = createTestEvent({
+      messageId: 'no-user-id-event',
+      event: 'Funding Application Submitted',
+      type: 'track',
+      timestamp: currentTimestamp.toString(),
+      context: { traits: {} },
+      properties: {}
+    })
+
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        elements: [
+          {
+            conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`,
+            conversionHappenedAt: currentTimestamp,
+            user: {
+              userIds: [
+                { idType: 'SHA256_EMAIL', idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777' }
+              ]
+            }
+          }
+        ]
+      })
+      .reply(201)
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [event, noUserIdEvent],
+      settings,
+      mapping: batchMapping
+    })
+
+    expect(response[0]).toMatchObject({ status: 201 })
+    expect(response[1]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+      errorreporter: 'INTEGRATIONS'
+    })
+  })
+
+  it('should correctly map responses to original batch indices', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post('').reply(201)
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [staleEvent, event, staleEvent],
+      settings,
+      mapping: batchMapping
+    })
+
+    expect(response[0]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
+    expect(response[1]).toMatchObject({ status: 201 })
+    expect(response[2]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
+  })
+
+  it('should throw InvalidAuthenticationError when LinkedIn returns 401', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post('').reply(401, { message: 'Unauthorized' })
+
+    await expect(
+      testDestination.executeBatch('streamConversion', {
+        events: [event],
+        settings,
+        mapping: batchMapping
+      })
+    ).rejects.toThrow('LinkedIn OAuth token is expired or invalid. Please re-authenticate.')
+  })
+
+  it('should mark all valid events as failed when LinkedIn returns 429', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post('').reply(429, { message: 'Too Many Requests' })
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [event, secondEvent],
+      settings,
+      mapping: batchMapping
+    })
+
+    expect(response[0]).toMatchObject({ status: 429 })
+    expect(response[1]).toMatchObject({ status: 429 })
+  })
+
+  it('should mark all valid events as failed when LinkedIn returns 500', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post('').reply(500, { message: 'Internal Server Error' })
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [event, secondEvent],
+      settings,
+      mapping: batchMapping
+    })
+
+    expect(response[0]).toMatchObject({ status: 500 })
+    expect(response[1]).toMatchObject({ status: 500 })
+  })
+})
