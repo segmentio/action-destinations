@@ -1336,7 +1336,7 @@ describe('GoogleEnhancedConversions', () => {
       }
     })
 
-    it('strips hyphens from customerId in batch conversionAction', async () => {
+    it('strips hyphens from customerId in batch API URL and conversionAction', async () => {
       const hyphenatedCustomerId = '123-456-7890'
       const strippedCustomerId = '1234567890'
 

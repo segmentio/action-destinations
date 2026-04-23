@@ -617,7 +617,7 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses[0].status).toBe(201)
     })
 
-    it('strips hyphens from customerId in batch API URL', async () => {
+    it('strips hyphens from customerId in batch API URL and conversionAction', async () => {
       const hyphenatedCustomerId = '123-456-7890'
       const strippedCustomerId = '1234567890'
 
