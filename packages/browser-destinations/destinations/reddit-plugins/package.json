@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-reddit-plugins",
-  "version": "1.40.0",
+  "version": "1.40.1-staging-4bb5d7b6f.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -16,7 +16,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "^1.96.0"
+    "@segment/browser-destination-runtime": "1.96.1-staging-4bb5d7b6f.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
