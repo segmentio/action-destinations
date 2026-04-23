@@ -1,4 +1,4 @@
-import type { StatsContext } from '@segment/actions-core'
+import type { StatsContext, Features } from '@segment/actions-core'
 import { RequestClient, RetryableError, IntegrationError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -12,7 +12,8 @@ export async function processPayload(
   settings: Settings,
   payloads: Payload[],
   statsContext: StatsContext | undefined,
-  stateContext?: StateContext
+  stateContext?: StateContext,
+  features?: Features
 ) {
   validate(settings, payloads)
 
@@ -36,7 +37,7 @@ export async function processPayload(
     `endpoint:add-or-remove-users-from-dmpSegment`
   ])
 
-  const res = await linkedinApiClient.batchUpdate(dmpSegmentId, elements)
+  const res = await linkedinApiClient.batchUpdate(dmpSegmentId, elements, features)
 
   // Handle 401 explicitly so the framework can trigger token refresh.
   // Without this, 401s are swallowed by throwHttpErrors: false and converted
