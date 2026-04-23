@@ -9,12 +9,18 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Track an event for a known or anonymous person.',
   defaultSubscription: `
     type = "track"
+    and event != "Application Installed"
+    and event != "Application Opened"
+    and event != "Application Uninstalled"
+    and event != "Device Created or Updated"
+    and event != "Device Deleted"
     and event != "Relationship Deleted"
     and event != "User Deleted"
     and event != "User Suppressed"
     and event != "User Unsuppressed"
-    and event != "Group Deleted"
+    and event != "Object Deleted"
     and event != "Report Delivery Event"
+    and event != "Report Content Event"
   `,
   fields: {
     id: {
