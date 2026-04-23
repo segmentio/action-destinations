@@ -33,14 +33,14 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
 
   payloads.forEach((payload) => {
     const {
-      data: { eventTime, eventType, adStorageConsent, eventSourceUrl, eventName } = {},
+      data: { eventTime, eventType, adStorageConsent, eventSourceUrl, eventName, ...restOfData } = {},
       userData: { em, ph, ...restOfUserData } = {},
       customData,
       items,
       hotelData
     } = payload
     const jsonItem: BingCAPIRequestItem = {
-      ...data,
+      ...restOfData,
       eventType: eventType as 'pageLoad' | 'custom',
       eventTime: Math.floor(new Date(eventTime ?? new Date()).getTime() / 1000),
       adStorageConsent: adStorageConsent ?? settings.adStorageConsent,
