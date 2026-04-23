@@ -21,19 +21,22 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },
       secret_key: {
         label: 'Secret Key',
-        description: 'Amplitude project secret key. You can find this key in the "General" tab of your Amplitude project.',
+        description:
+          'Amplitude project secret key. You can find this key in the "General" tab of your Amplitude project.',
         type: 'password',
         required: true
       },
       app_id: {
         label: 'Amplitude App ID',
-        description: 'The Amplitude App ID for the cohort you want to sync to. You can find this in the "General" tab of your Amplitude project.',
+        description:
+          'The Amplitude App ID for the cohort you want to sync to. You can find this in the "General" tab of your Amplitude project.',
         type: 'string',
         required: true
       },
       default_owner_email: {
         label: 'Cohort Owner Email',
-        description: 'The email of the user who will own the cohorts in Amplitude. This can be overriden per Audience, but if left blank, all cohorts will be owned by this user.',
+        description:
+          'The email of the user who will own the cohorts in Amplitude. This can be overriden per Audience, but if left blank, all cohorts will be owned by this user.',
         type: 'string',
         required: true
       },
@@ -57,10 +60,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      const { 
-        endpoint,
-        default_owner_email
-      } = settings
+      const { endpoint, default_owner_email } = settings
       const baseUrl = getEndpointByRegion('usersearch', endpoint)
       return request(`${baseUrl}?user=${default_owner_email}`)
     }
@@ -68,16 +68,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   extendRequest({ settings }) {
     const { api_key, secret_key } = settings
     return {
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
-        Authorization: `Basic ${Buffer.from(`${api_key}:${secret_key}`).toString('base64')}` 
+        Authorization: `Basic ${Buffer.from(`${api_key}:${secret_key}`).toString('base64')}`
       }
     }
   },
   audienceFields: {
     owner_email: {
       label: 'Cohort Owner Email',
-      description: 'The email of the user who will own the cohort in Amplitude. Overrides the default Cohort Owner Email value from Settings.',
+      description:
+        'The email of the user who will own the cohort in Amplitude. Overrides the default Cohort Owner Email value from Settings.',
       type: 'string',
       format: 'email',
       required: false
@@ -94,14 +95,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         },
         {
           label: 'Amplitude ID',
-          value: ID_TYPES.BY_AMP_ID 
+          value: ID_TYPES.BY_AMP_ID
         }
       ],
       default: ID_TYPES.BY_USER_ID
     },
     audience_name: {
       label: 'Cohort Name',
-      description: 'The name of the cohort in Amplitude. This will override the default cohort name which is the snake_case version of the Segment Audience name.',
+      description:
+        'The name of the cohort in Amplitude. This will override the default cohort name which is the snake_case version of the Segment Audience name.',
       type: 'string',
       required: false
     }
@@ -112,14 +114,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const { 
-        audienceName, 
-        settings, 
-        audienceSettings: { 
-          owner_email,
-          audience_name, 
-          id_type
-        } = {}
+      const {
+        audienceName,
+        settings,
+        audienceSettings: { owner_email, audience_name, id_type } = {}
       } = createAudienceInput
 
       const name = typeof audience_name === 'string' && audience_name.length > 0 ? audience_name : audienceName
@@ -128,13 +126,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       return { externalId }
     },
     async getAudience(request, createAudienceInput) {
-      const { 
-        externalId,
-        settings
-      } = createAudienceInput
+      const { externalId, settings } = createAudienceInput
 
       await getAudience(request, settings, externalId)
-      
+
       return { externalId }
     }
   },

@@ -233,6 +233,46 @@ describe('Microsoft Bing CAPI (Actions) - sendEvent (updated)', () => {
     expect(scope.isDone()).toBe(true)
   })
 
+  test('dataProvider defaults to SEGMENT when not provided in mapping', async () => {
+    const event = buildTrackEvent()
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`, (body: any) => {
+        expect(body.data[0].dataProvider).toBe('SEGMENT')
+        return true
+      })
+      .reply(200, {})
+    await testDestination.testAction('sendEvent', {
+      event,
+      settings,
+      mapping: {
+        data: { eventType: 'custom', eventTime: '2024-01-01T00:00:00.000Z' },
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(scope.isDone()).toBe(true)
+  })
+
+  test('dataProvider can be overridden via mapping', async () => {
+    const event = buildTrackEvent()
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`, (body: any) => {
+        expect(body.data[0].dataProvider).toBe('CUSTOM_PROVIDER')
+        return true
+      })
+      .reply(200, {})
+    await testDestination.testAction('sendEvent', {
+      event,
+      settings,
+      mapping: {
+        data: { eventType: 'custom', eventTime: '2024-01-01T00:00:00.000Z', dataProvider: 'CUSTOM_PROVIDER' },
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(scope.isDone()).toBe(true)
+  })
+
   test('extra data fields (eventId, pageLoadId, referrerUrl, pageTitle, keywords) are forwarded to the request', async () => {
     const event = buildTrackEvent()
     const scope = nock('https://capi.uet.microsoft.com')
@@ -288,6 +328,32 @@ describe('Microsoft Bing CAPI (Actions) - sendEvent (updated)', () => {
         timestamp: { '@path': '$.timestamp' }
       }
     })
+    expect(scope.isDone()).toBe(true)
+  })
+
+  test('dataProvider is included in batch payloads', async () => {
+    const events = [buildTrackEvent({ messageId: 'm1' }), buildTrackEvent({ messageId: 'm2' })]
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`, (body: any) => {
+        expect(body.data).toHaveLength(2)
+        expect(body.data[0].dataProvider).toBe('SEGMENT')
+        expect(body.data[1].dataProvider).toBe('SEGMENT')
+        return true
+      })
+      .reply(200, {})
+    const responses: any = await testDestination.executeBatch('sendEvent', {
+      events,
+      settings,
+      mapping: {
+        enable_batching: true,
+        data: { eventType: 'custom', eventTime: '2024-01-01T00:00:00.000Z' },
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(200)
+    expect(responses[1].status).toBe(200)
     expect(scope.isDone()).toBe(true)
   })
 

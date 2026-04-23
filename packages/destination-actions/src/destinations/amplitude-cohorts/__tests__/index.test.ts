@@ -86,11 +86,9 @@ describe('Amplitude Cohorts', () => {
     it('should successfully retrieve an existing audience', async () => {
       const externalId = 'cohort_789'
 
-      nock('https://amplitude.com')
-        .get(`/api/5/cohorts/request/${externalId}`)
-        .reply(200, {
-          cohortId: externalId
-        })
+      nock('https://amplitude.com').get(`/api/5/cohorts/request/${externalId}`).reply(200, {
+        cohortId: externalId
+      })
 
       const result = await testDestination.getAudience({
         settings,
@@ -103,11 +101,9 @@ describe('Amplitude Cohorts', () => {
     it('should throw error if cohort not found', async () => {
       const externalId = 'nonexistent_cohort'
 
-      nock('https://amplitude.com')
-        .get(`/api/5/cohorts/request/${externalId}`)
-        .reply(200, {
-          cohortId: 'different_id'
-        })
+      nock('https://amplitude.com').get(`/api/5/cohorts/request/${externalId}`).reply(200, {
+        cohortId: 'different_id'
+      })
 
       await expect(
         testDestination.getAudience({

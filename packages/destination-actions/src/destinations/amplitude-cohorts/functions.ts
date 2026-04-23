@@ -8,23 +8,25 @@ export function getEndpointByRegion(endpoint: keyof typeof endpoints, region?: s
   return endpoints[endpoint][region as Region] ?? endpoints[endpoint]['north_america']
 }
 
-export async function createAudience(request: RequestClient, settings: Settings, name: string, id_type: IDType, owner_email?: string): Promise<string> {
-  const { 
-    endpoint,
-    app_id,
-    default_owner_email 
-  } = settings
+export async function createAudience(
+  request: RequestClient,
+  settings: Settings,
+  name: string,
+  id_type: IDType,
+  owner_email?: string
+): Promise<string> {
+  const { endpoint, app_id, default_owner_email } = settings
 
   if (!name) {
     throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
   }
-  
-  if(!id_type){
+
+  if (!id_type) {
     throw new IntegrationError('Missing id_type value', 'MISSING_REQUIRED_FIELD', 400)
   }
 
   const url = getEndpointByRegion('cohorts_upload', endpoint)
-  
+
   const json: CreateAudienceJSON = {
     name,
     app_id,
@@ -42,25 +44,31 @@ export async function createAudience(request: RequestClient, settings: Settings,
   const id = response?.data?.cohortId
 
   if (!id) {
-    throw new IntegrationError('Invalid response from Amplitude Cohorts API when attempting to create new Cohort: Missing cohortId', 'INVALID_RESPONSE', 500)
+    throw new IntegrationError(
+      'Invalid response from Amplitude Cohorts API when attempting to create new Cohort: Missing cohortId',
+      'INVALID_RESPONSE',
+      500
+    )
   }
   return id
 }
 
 export async function getAudience(request: RequestClient, settings: Settings, externalId: string): Promise<void> {
-  const { 
-    endpoint
-  } = settings
+  const { endpoint } = settings
 
   const url = `${getEndpointByRegion('cohorts_get_one', endpoint)}/${externalId}`
   const response = await request<CreateAudienceResponse>(url)
   const id = response?.data?.cohortId
-  
-  if(!id) {
-    throw new IntegrationError('Invalid response from Amplitude Cohorts API when attempting to get Cohort: Missing cohortId', 'INVALID_RESPONSE', 500)
+
+  if (!id) {
+    throw new IntegrationError(
+      'Invalid response from Amplitude Cohorts API when attempting to get Cohort: Missing cohortId',
+      'INVALID_RESPONSE',
+      500
+    )
   }
 
-  if(id !== externalId) {
+  if (id !== externalId) {
     throw new IntegrationError(`Cohort with id ${externalId} not found`, 'COHORT_NOT_FOUND', 404)
   }
 }
