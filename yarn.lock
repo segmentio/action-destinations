@@ -4154,10 +4154,10 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
-"@segment/action-emitters@1.3.9-canary.0":
-  version "1.3.9-canary.0"
-  resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.3.9-canary.0.tgz#7a8f7745bfc399d8a7f0e1be10db60ab98d655de"
-  integrity sha512-NfaN0M6MuFWDsFqrG31bYUHS+1EpP0AY3MV00LS1DoVt7yWBnWLelu9EWkhC3PwkhIfYy7JvFE3PR2ftL7lPWw==
+"@segment/action-emitters@1.3.9-canary.1":
+  version "1.3.9-canary.1"
+  resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.3.9-canary.1.tgz#b616f73c7753d8ede60617313cac02fb8094724d"
+  integrity sha512-Yvi5HeFRjtg9iAObWeaLuUvIf0ocBeaSGfR1UBOTA4VTR+OXzX/TxMGKDkgwt5wW+iRpTkOd4zsGheTthFDnjw==
   dependencies:
     "@types/node" "^18.11.15"
 
