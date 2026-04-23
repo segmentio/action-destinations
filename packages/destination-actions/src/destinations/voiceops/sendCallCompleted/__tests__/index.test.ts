@@ -2,11 +2,12 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { Settings } from '../../generated-types'
-import { VOICEOPS_BASE_URL } from '../../constants'
+import { DEFAULT_VOICEOPS_BASE_URL } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 const SETTINGS: Settings = {
-  accessToken: 'voiceops-token'
+  accessToken: 'voiceops-token',
+  baseUrl: DEFAULT_VOICEOPS_BASE_URL
 }
 
 function createCallCompletedEvent(
@@ -37,7 +38,7 @@ describe('Voiceops.sendCallCompleted', () => {
   })
 
   it('posts the minimal valid call payload with bearer auth', async () => {
-    nock(VOICEOPS_BASE_URL)
+    nock(DEFAULT_VOICEOPS_BASE_URL)
       .post('/frontline-api/integrations/v1/segment/calls')
       .matchHeader('authorization', 'Bearer voiceops-token')
       .matchHeader('user-agent', 'Segment')
@@ -64,7 +65,7 @@ describe('Voiceops.sendCallCompleted', () => {
   })
 
   it('forwards channels with a supported type unchanged', async () => {
-    nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+    nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
 
     const event = createCallCompletedEvent({
       recording_url: 'https://example.com/audio.wav',
@@ -102,7 +103,7 @@ describe('Voiceops.sendCallCompleted', () => {
   })
 
   it('forwards agentLegs unchanged', async () => {
-    nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+    nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
 
     const event = createCallCompletedEvent({
       agentLegs: [
@@ -165,7 +166,7 @@ describe('Voiceops.sendCallCompleted', () => {
   })
 
   it('forwards extraMetadata unchanged', async () => {
-    nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+    nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
 
     const event = createCallCompletedEvent({
       extraMetadata: {
@@ -203,7 +204,7 @@ describe('Voiceops.sendCallCompleted', () => {
   })
 
   it('still succeeds when first_name and last_name are omitted', async () => {
-    nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+    nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
 
     const event = createCallCompletedEvent({ first_name: undefined, last_name: undefined })
 
@@ -223,7 +224,7 @@ describe('Voiceops.sendCallCompleted', () => {
   })
 
   it('still succeeds when neither channels nor agentLegs are provided', async () => {
-    nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+    nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
 
     const event = createCallCompletedEvent()
 
@@ -418,7 +419,7 @@ describe('Voiceops.sendCallCompleted', () => {
   })
 
   it('allows a CONTACT channel identifier that is not an email address', async () => {
-    nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+    nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
 
     const event = createCallCompletedEvent({
       channels: [
@@ -451,7 +452,7 @@ describe('Voiceops.sendCallCompleted', () => {
   })
 
   it('allows a TRANSFER_AGENT channel identifier that is not an email address', async () => {
-    nock(VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+    nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
 
     const event = createCallCompletedEvent({
       channels: [
@@ -481,5 +482,27 @@ describe('Voiceops.sendCallCompleted', () => {
         }
       ]
     })
+  })
+
+  it('uses a custom base URL when provided in settings', async () => {
+    nock('https://custom.projectfrontline.net')
+      .post('/frontline-api/integrations/v1/segment/calls')
+      .matchHeader('authorization', 'Bearer voiceops-token')
+      .reply(200, {})
+
+    const customSettings: Settings = {
+      accessToken: 'voiceops-token',
+      baseUrl: 'https://custom.projectfrontline.net/'
+    }
+
+    const event = createCallCompletedEvent()
+
+    const responses = await testDestination.testAction('sendCallCompleted', {
+      event,
+      settings: customSettings,
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].status).toBe(200)
   })
 })
