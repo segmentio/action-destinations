@@ -321,23 +321,65 @@ function extractLeadIds(leads: MarketoLeads[] = []) {
   return ids
 }
 
-// Marketo error codes that indicate transient/temporary failures which should be retried.
+// Marketo error codes that are definitively non-retryable (bad input / permanent state).
+// Unknown/future codes default to retryable to avoid silently dropping events.
+// Explicitly retryable (NOT listed here): 1016 (too many imports), 1019 (import in progress),
+//   1020 (daily clone quota), 1029 (bulk extract queue/quota).
 // Reference: https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/rest/error-codes
-const MARKETO_RETRYABLE_CODES = new Set([
-  '500', // Internal server error
-  '502', // Bad gateway / timeout
-  '604', // Request timeout
-  '606', // Rate limit exceeded (>100 calls per 20 seconds)
-  '607', // Daily quota exhausted
-  '608', // API temporarily unavailable
-  '611', // Unhandled system exception
-  '614', // Unreachable subscription
-  '615', // Concurrent access limit exceeded
-  '713', // Transient error – system resource temporarily unavailable
-  '719', // Lock wait timeout
-  '1019', // Batch import in progress on list
-  '1016', // Too many imports in progress
-  '1029' // Queue/export limit exceeded
+const MARKETO_NON_RETRYABLE_CODES = new Set([
+  // HTTP-level errors
+  '603', // Access denied
+  '605', // HTTP method not supported
+  '609', // Invalid JSON
+  '610', // Requested resource not found
+  '612', // Invalid content type
+  '613', // Invalid multipart request
+  '616', // Not a valid subscription type
+  // REST API parameter/field errors
+  '701', // Mandatory field value missing
+  '702', // No data found for search scenario
+  '703', // Feature not enabled for subscription
+  '704', // Invalid date format
+  '709', // Business rule violation
+  '710', // Parent folder not found
+  '711', // Incompatible folder type
+  '712', // Person merge failed
+  '714', // Unable to find default record type
+  '718', // ExternalSalesPersonID not found
+  // Application-level errors
+  '1001', // Invalid value — type mismatch
+  '1002', // Missing required parameter
+  '1003', // Invalid data
+  '1004', // Lead not found (updateOnly mode)
+  '1005', // Lead already exists (createOnly mode)
+  '1006', // Field not found
+  '1007', // Multiple leads match lookup criteria
+  '1008', // Access denied to partition
+  '1009', // Partition name must be specified
+  '1010', // Partition update not allowed
+  '1011', // Field not supported as filter/lookup
+  '1012', // Invalid cookie value
+  '1013', // Object not found
+  '1014', // Failed to create object
+  '1015', // Lead not in list
+  '1017', // Object already exists
+  '1018', // CRM integration enabled — action not allowed
+  '1021', // Company update not allowed during syncLead
+  '1022', // Object in use — delete not allowed
+  '1025', // Program status not found
+  '1026', // Custom object not enabled for subscription
+  '1027', // Max activity type limit reached
+  '1028', // Max field limit reached (custom activity attributes)
+  '1035', // Unsupported filter type for bulk extract
+  '1036', // Duplicate object found in input
+  '1037', // Lead skipped — already in or past target status
+  '1042', // Invalid runAt date (too far in future)
+  '1048', // Custom object discard draft failed
+  '1049', // Activity attributes array too long
+  '1076', // Merge leads — duplicate record in CRM
+  '1077', // Merge leads — SFDC field too long
+  '1078', // Merge leads — deleted entity or field filter mismatch
+  '1079' // Merge leads — personalized URL conflict
 ])
 
 function parseErrorResponse(response: MarketoResponse) {
@@ -355,11 +397,11 @@ function parseErrorResponse(response: MarketoResponse) {
     throw new IntegrationError(message, 'INVALID_AUTHENTICATION', 401)
   }
 
-  if (MARKETO_RETRYABLE_CODES.has(code)) {
-    throw new RetryableError(message)
+  if (MARKETO_NON_RETRYABLE_CODES.has(code)) {
+    throw new IntegrationError(message, ErrorCodes.BAD_REQUEST, 400)
   }
 
-  throw new IntegrationError(message, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
+  throw new RetryableError(message)
 }
 
 function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number) {
@@ -379,18 +421,18 @@ function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number)
     throw new IntegrationError(message, ErrorCodes.INVALID_AUTHENTICATION, 401)
   }
 
-  if (MARKETO_RETRYABLE_CODES.has(code)) {
+  if (MARKETO_NON_RETRYABLE_CODES.has(code)) {
     return buildMultiStatusErrorResponse(payloadSize, {
-      status: 500,
-      errortype: ErrorCodes.RETRYABLE_ERROR,
+      status: 400,
+      errortype: ErrorCodes.BAD_REQUEST,
       body: response.errors[0] as unknown as JSONLikeObject,
       errormessage: message
     })
   }
 
   return buildMultiStatusErrorResponse(payloadSize, {
-    status: 400,
-    errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+    status: 500,
+    errortype: ErrorCodes.RETRYABLE_ERROR,
     body: response.errors[0] as unknown as JSONLikeObject,
     errormessage: message
   })
