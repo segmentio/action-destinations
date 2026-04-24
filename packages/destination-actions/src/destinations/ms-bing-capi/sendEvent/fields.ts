@@ -153,6 +153,13 @@ export const data: InputField = {
       ],
       default: 'G',
       required: false
+    },
+    dataProvider: {
+      label: 'Data Provider',
+      description: 'The source of the event data.',
+      type: 'string',
+      default: 'SEGMENT',
+      required: false
     }
   },
   default: {
