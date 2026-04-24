@@ -271,9 +271,6 @@ export function validate(
   return true
 }
 
-/*
- * Kept the same logic as before for extracting users
- */
 export function extractUsers(payloads: Payload[]): Record<string, unknown>[][] {
   const batchData: Record<string, unknown>[][] = []
 
