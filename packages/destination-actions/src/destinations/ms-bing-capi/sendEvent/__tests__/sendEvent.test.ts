@@ -233,6 +233,165 @@ describe('Microsoft Bing CAPI (Actions) - sendEvent (updated)', () => {
     expect(scope.isDone()).toBe(true)
   })
 
+  test('dataProvider defaults to SEGMENT when not provided in mapping', async () => {
+    const event = buildTrackEvent()
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`, (body: any) => {
+        expect(body.data[0].dataProvider).toBe('SEGMENT')
+        return true
+      })
+      .reply(200, {})
+    await testDestination.testAction('sendEvent', {
+      event,
+      settings,
+      mapping: {
+        data: { eventType: 'custom', eventTime: '2024-01-01T00:00:00.000Z' },
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(scope.isDone()).toBe(true)
+  })
+
+  test('dataProvider can be overridden via mapping', async () => {
+    const event = buildTrackEvent()
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`, (body: any) => {
+        expect(body.data[0].dataProvider).toBe('CUSTOM_PROVIDER')
+        return true
+      })
+      .reply(200, {})
+    await testDestination.testAction('sendEvent', {
+      event,
+      settings,
+      mapping: {
+        data: { eventType: 'custom', eventTime: '2024-01-01T00:00:00.000Z', dataProvider: 'CUSTOM_PROVIDER' },
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(scope.isDone()).toBe(true)
+  })
+
+  test('extra data fields (eventId, pageLoadId, referrerUrl, pageTitle, keywords) are forwarded to the request', async () => {
+    const event = buildTrackEvent()
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`, (body: any) => {
+        const item = body.data[0]
+        expect(item.eventId).toBe('msg-123')
+        expect(item.pageLoadId).toBe('pl-1')
+        expect(item.referrerUrl).toBe('https://google.com')
+        expect(item.pageTitle).toBe('Product Page')
+        expect(item.keywords).toBe('shoes running')
+        return true
+      })
+      .reply(200, {})
+    await testDestination.testAction('sendEvent', {
+      event,
+      settings,
+      mapping: {
+        data: {
+          eventType: 'custom',
+          eventTime: '2024-01-01T00:00:00.000Z',
+          eventId: 'msg-123',
+          pageLoadId: 'pl-1',
+          referrerUrl: 'https://google.com',
+          pageTitle: 'Product Page',
+          keywords: 'shoes running'
+        },
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(scope.isDone()).toBe(true)
+  })
+
+  test('data field metadata (label, description, etc.) does not leak into the request payload', async () => {
+    const event = buildTrackEvent()
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`, (body: any) => {
+        const item = body.data[0]
+        expect(item).not.toHaveProperty('label')
+        expect(item).not.toHaveProperty('description')
+        expect(item).not.toHaveProperty('type')
+        expect(item).not.toHaveProperty('properties')
+        expect(item).not.toHaveProperty('default')
+        return true
+      })
+      .reply(200, {})
+    await testDestination.testAction('sendEvent', {
+      event,
+      settings,
+      mapping: {
+        data: { eventType: 'custom', eventTime: '2024-01-01T00:00:00.000Z' },
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(scope.isDone()).toBe(true)
+  })
+
+  test('dataProvider is included in batch payloads', async () => {
+    const events = [buildTrackEvent({ messageId: 'm1' }), buildTrackEvent({ messageId: 'm2' })]
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`, (body: any) => {
+        expect(body.data).toHaveLength(2)
+        expect(body.data[0].dataProvider).toBe('SEGMENT')
+        expect(body.data[1].dataProvider).toBe('SEGMENT')
+        return true
+      })
+      .reply(200, {})
+    const responses: any = await testDestination.executeBatch('sendEvent', {
+      events,
+      settings,
+      mapping: {
+        enable_batching: true,
+        data: { eventType: 'custom', eventTime: '2024-01-01T00:00:00.000Z' },
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(200)
+    expect(responses[1].status).toBe(200)
+    expect(scope.isDone()).toBe(true)
+  })
+
+  test('batch forwards extra data fields for each payload', async () => {
+    const events = [buildTrackEvent({ messageId: 'm1' }), buildTrackEvent({ messageId: 'm2' })]
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`, (body: any) => {
+        expect(body.data).toHaveLength(2)
+        body.data.forEach((item: any) => {
+          expect(item.referrerUrl).toBe('https://referrer.com')
+          expect(item.pageTitle).toBe('Test Title')
+          expect(item).not.toHaveProperty('label')
+          expect(item).not.toHaveProperty('description')
+        })
+        return true
+      })
+      .reply(200, {})
+    const responses: any = await testDestination.executeBatch('sendEvent', {
+      events,
+      settings,
+      mapping: {
+        enable_batching: true,
+        data: {
+          eventType: 'custom',
+          eventTime: '2024-01-01T00:00:00.000Z',
+          referrerUrl: 'https://referrer.com',
+          pageTitle: 'Test Title'
+        },
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(200)
+    expect(responses[1].status).toBe(200)
+    expect(scope.isDone()).toBe(true)
+  })
+
   test('phone digits normalized before hashing', async () => {
     const rawPhone = '+1 (555) 123-4567 ext.89'
     const event = buildTrackEvent({ context: { traits: { phone: rawPhone, email: 'norm@example.com' } } })
