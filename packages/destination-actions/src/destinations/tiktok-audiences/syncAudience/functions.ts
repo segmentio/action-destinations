@@ -5,13 +5,14 @@ import {
   AudienceMembership,
   JSONLikeObject,
   PayloadValidationError,
-  HTTPError
+  IntegrationError
 } from '@segment/actions-core'
 import { TikTokAudiences } from '../api'
 import { AudienceSettings } from '../generated-types'
 import { Payload } from './generated-types'
 import { getIDSchema, isHashedInformation, hash } from '../functions'
 import { TikTokAudienceAction } from './types'
+import { APIResponse } from '../types'
 
 export async function send(
   request: RequestClient,
@@ -91,16 +92,24 @@ export async function sendRequest(
 ): Promise<ModifiedResponse> {
   const payloads = Array.from(payloadMap.values())
   const { advertiserId } = audienceSettings
-  const idSchema = getIDSchema(payloads[0]) // This is safe because of batch keys
+  const idSchema = getIDSchema(payloads[0]) // This is safe we're only processing one payload in non-batch mode
   const batchData = extractUsers(payloads)
   const TikTokApiClient = new TikTokAudiences(request, advertiserId)
 
-  return TikTokApiClient.batchUpdate({
+  const response = await TikTokApiClient.batchUpdate({
     advertiser_ids: [advertiserId],
     action,
     id_schema: idSchema,
     batch_data: batchData
   })
+
+  const responseData = response.data as APIResponse | undefined
+  if (response.status < 200 || response.status >= 300 || responseData?.code !== 0) {
+    const message = responseData?.message ?? 'Unknown TikTok API error'
+    throw new IntegrationError(message, String(responseData?.code ?? response.status), response.status)
+  }
+
+  return response
 }
 
 export async function sendAndCollectResponses(
@@ -123,36 +132,58 @@ export async function sendAndCollectResponses(
   try {
     const TikTokApiClient = new TikTokAudiences(request, advertiserId)
 
-    await TikTokApiClient.batchUpdate({
+    const response = await TikTokApiClient.batchUpdate({
       advertiser_ids: [advertiserId],
       action,
       id_schema: idSchema,
       batch_data: batchData
     })
 
-    // If we get here, all payloads in the batch were successful
-    for (const [index, p] of payloadMap) {
-      if (!multiStatusResponse.getResponseAtIndex(index)) {
-        multiStatusResponse.setSuccessResponseAtIndex(index, {
-          status: 200,
-          sent: {
-            action,
-            advertiser_ids: [advertiserId],
-            id_schema: idSchema,
-            batch_data: extractUsers([p])
-          } as unknown as JSONLikeObject,
-          body: p as unknown as JSONLikeObject
-        })
+    const responseData = response.data as APIResponse | undefined
+    const isSuccess = response.status >= 200 && response.status < 300 && responseData?.code === 0
+
+    if (isSuccess) {
+      for (const [index, p] of payloadMap) {
+        if (!multiStatusResponse.getResponseAtIndex(index)) {
+          multiStatusResponse.setSuccessResponseAtIndex(index, {
+            status: 200,
+            sent: {
+              action,
+              advertiser_ids: [advertiserId],
+              id_schema: idSchema,
+              batch_data: extractUsers([p])
+            } as unknown as JSONLikeObject,
+            body: p as unknown as JSONLikeObject
+          })
+        }
+      }
+    } else {
+      const status = response.status >= 400 ? response.status : 400
+      const message = responseData?.message ?? 'Unknown TikTok API error'
+
+      for (const [index, p] of payloadMap) {
+        if (!multiStatusResponse.getResponseAtIndex(index)) {
+          multiStatusResponse.setErrorResponseAtIndex(index, {
+            status,
+            errormessage: message,
+            sent: {
+              action,
+              advertiser_ids: [advertiserId],
+              id_schema: idSchema,
+              batch_data: extractUsers([p])
+            } as unknown as JSONLikeObject,
+            body: p as unknown as JSONLikeObject
+          })
+        }
       }
     }
   } catch (err) {
-    const status = err instanceof HTTPError ? err.response.status : 500
     const message = err instanceof Error ? err.message : 'Unknown error'
 
     for (const [index, p] of payloadMap) {
       if (!multiStatusResponse.getResponseAtIndex(index)) {
         multiStatusResponse.setErrorResponseAtIndex(index, {
-          status,
+          status: 500,
           errormessage: message,
           sent: {
             action,
