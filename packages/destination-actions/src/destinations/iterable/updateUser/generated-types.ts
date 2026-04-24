@@ -28,6 +28,10 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
+   * When enabled, Segment will only update existing users in Iterable. New users will not be created. This is only applicable when batching is enabled. Talk to your Iterable representative to enable this feature on the Iterable side.
+   */
+  updateOnly?: boolean
+  /**
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
