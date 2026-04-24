@@ -250,4 +250,144 @@ describe('AmazonAds.syncAudiencesToDSP (consent suppress errors flag)', () => {
 
     expect(response[0].status).toBe(202)
   })
+
+  it('should succeed for EEA country code with valid consent when suppress errors flag is on (single event)', async () => {
+    nock('https://advertising-api.amazon.com')
+      .post('/amc/audiences/records')
+      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
+      .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+
+    const deEvent = {
+      ...event,
+      context: {
+        ...event.context,
+        personas: {
+          ...event.context!.personas,
+          audience_settings: {
+            ...event.context!.personas!.audience_settings,
+            countryCode: 'DE'
+          }
+        }
+      },
+      properties: {
+        ...event.properties,
+        amznAdStorage: 'GRANTED',
+        amznUserData: 'GRANTED'
+      }
+    }
+
+    const response = await testDestination.testAction('syncAudiencesToDSP', {
+      event: deEvent,
+      settings,
+      useDefaultMappings: true,
+      features: featuresWithErrorFlag
+    })
+
+    expect(response[0].status).toBe(202)
+  })
+
+  it('should succeed for valid consent and error for missing consent when suppress errors flag is on (batch)', async () => {
+    nock('https://advertising-api.amazon.com')
+      .post('/amc/audiences/records')
+      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
+      .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+
+    const deEvents: SegmentEvent[] = [
+      {
+        ...event,
+        userId: 'test_user_01',
+        context: {
+          ...event.context,
+          personas: {
+            ...event.context!.personas,
+            audience_settings: {
+              ...event.context!.personas!.audience_settings,
+              countryCode: 'DE'
+            }
+          }
+        },
+        properties: {
+          ...event.properties,
+          amznAdStorage: 'GRANTED',
+          amznUserData: 'GRANTED'
+        },
+        event: 'Audience Entered'
+      },
+      {
+        ...event,
+        userId: 'test_user_02',
+        context: {
+          ...event.context,
+          personas: {
+            ...event.context!.personas,
+            audience_settings: {
+              ...event.context!.personas!.audience_settings,
+              countryCode: 'DE'
+            }
+          }
+        },
+        event: 'Audience Exited'
+      }
+    ]
+
+    const response = await testDestination.executeBatch('syncAudiencesToDSP', {
+      events: deEvents,
+      settings,
+      mapping: {
+        ...mapping,
+        consent: {
+          amznAdStorage: { '@path': '$.properties.amznAdStorage' },
+          amznUserData: { '@path': '$.properties.amznUserData' }
+        }
+      },
+      features: featuresWithErrorFlag
+    })
+
+    expect(response.length).toBe(2)
+    expect(response[0].status).toBe(202)
+    expect(response[1]).toEqual(
+      expect.objectContaining({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage:
+          'Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.'
+      })
+    )
+  })
+
+  it('should produce per-record error for invalid country code when suppress errors flag is on (batch)', async () => {
+    const xxEvents: SegmentEvent[] = [
+      {
+        ...event,
+        userId: 'test_user_01',
+        context: {
+          ...event.context,
+          personas: {
+            ...event.context!.personas,
+            audience_settings: {
+              ...event.context!.personas!.audience_settings,
+              countryCode: 'XX'
+            }
+          }
+        },
+        event: 'Audience Entered'
+      }
+    ]
+
+    const response = await testDestination.executeBatch('syncAudiencesToDSP', {
+      events: xxEvents,
+      settings,
+      mapping,
+      features: featuresWithErrorFlag
+    })
+
+    expect(response.length).toBe(1)
+    expect(response[0]).toEqual(
+      expect.objectContaining({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Invalid country code: XX. Country code must be a valid ISO 3166-1 alpha-2 code.'
+      })
+    )
+  })
 })

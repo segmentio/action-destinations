@@ -492,7 +492,12 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     })
   })
 
-  it('should return consent validation errors in batch response when EEA country code is provided without consent', async () => {
+  it('should not return consent validation errors in batch when EEA country code is provided without consent and suppress errors flag is off', async () => {
+    nock(`https://advertising-api.amazon.com`)
+      .post('/amc/audiences/records')
+      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
+      .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+
     const deEvents: SegmentEvent[] = [
       {
         ...event,
@@ -534,27 +539,13 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     })
 
     expect(response.length).toBe(2)
-    expect(response[0]).toEqual(
-      expect.objectContaining({
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage:
-          'Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.',
-        errorreporter: 'DESTINATION'
-      })
-    )
-    expect(response[1]).toEqual(
-      expect.objectContaining({
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage:
-          'Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.',
-        errorreporter: 'DESTINATION'
-      })
-    )
+    expect(response[0].status).toBe(202)
+    expect(response[0]).not.toHaveProperty('errortype')
+    expect(response[1].status).toBe(202)
+    expect(response[1]).not.toHaveProperty('errortype')
   })
 
-  it('should return consent validation error only for event missing consent while valid consented event succeeds in batch', async () => {
+  it('should send both events successfully in batch when one has consent and one does not, and suppress errors flag is off', async () => {
     nock(`https://advertising-api.amazon.com`)
       .post('/amc/audiences/records')
       .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
@@ -613,18 +604,15 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
 
     expect(response.length).toBe(2)
     expect(response[0].status).toBe(202)
-    expect(response[1]).toEqual(
-      expect.objectContaining({
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage:
-          'Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.',
-        errorreporter: 'DESTINATION'
-      })
-    )
+    expect(response[1].status).toBe(202)
   })
 
-  it('should throw an error when an EEA country code is passed without any consent', async () => {
+  it('should not throw an error when an EEA country code is passed without consent and suppress errors flag is off', async () => {
+    nock(`https://advertising-api.amazon.com`)
+      .post('/amc/audiences/records')
+      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
+      .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+
     const deEvent = {
       ...event,
       context: {
@@ -638,14 +626,14 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         }
       }
     }
-    await expect(
-      testDestination.testAction('syncAudiencesToDSP', {
-        event: deEvent,
-        settings,
-        useDefaultMappings: true,
-        features
-      })
-    ).rejects.toThrowError('Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.')
+    const response = await testDestination.testAction('syncAudiencesToDSP', {
+      event: deEvent,
+      settings,
+      useDefaultMappings: true,
+      features
+    })
+
+    expect(response[0].status).toBe(202)
   })
 
 
