@@ -102,6 +102,48 @@ describe('MultiStatus', () => {
 
       await expect(response).rejects.toThrowError('Access token invalid')
     })
+    it('should throw INVALID_AUTHENTICATION error for invalid access token (single event)', async () => {
+      nock(settings.api_endpoint)
+        .post('/bulk/v1/leads.json?format=csv&listId=101&lookupField=email')
+        .reply(200, {
+          requestId: '0001#1234f2f3e4',
+          success: false,
+          warnings: [],
+          errors: [
+            {
+              code: '601',
+              message: 'Access token invalid'
+            }
+          ]
+        })
+
+      await expect(
+        testDestination.testAction('addToList', {
+          event: events[0],
+          settings,
+          mapping
+        })
+      ).rejects.toThrowError('Access token invalid')
+    })
+
+    it('should throw BAD_REQUEST error for known non-retryable error code (single event)', async () => {
+      nock(settings.api_endpoint)
+        .post('/bulk/v1/leads.json?format=csv&listId=101&lookupField=email')
+        .reply(200, {
+          requestId: '0001#1234f2f3e4',
+          success: false,
+          warnings: [],
+          errors: [{ code: '1013', message: 'Static list not found' }]
+        })
+
+      await expect(
+        testDestination.testAction('addToList', {
+          event: events[0],
+          settings,
+          mapping
+        })
+      ).rejects.toThrowError('Static list not found')
+    })
 
     it.each([
       '603',
