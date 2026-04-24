@@ -50,6 +50,7 @@ export const CONSTANTS = {
 export const CURRENCY = ['USD', 'CAD', 'JPY', 'GBP', 'EUR', 'SAR', 'AUD', 'AED', 'CNY', 'MXN', 'INR', 'SEK', 'TRY']
 
 export const FLAG_CONSENT_REQUIRED = 'actions-amazon-amc-consent'
+export const FLAG_CONSENT_ENABLE_ERRORS = 'actions-amazon-amc-consent-enable-errors'
 
 export const COUNTRY_CODES = [
   "AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ",
