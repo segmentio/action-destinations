@@ -125,8 +125,8 @@ describe('ActionsMoengage.trackEvent', () => {
 
     nock(`${endpoint}`).post(`/v1/integrations/segment?appId=${api_id}`).reply(200, {})
 
-    try {
-      await testDestination.testAction('trackEvent', {
+    await expect(
+      testDestination.testAction('trackEvent', {
         event,
         useDefaultMappings: true,
         settings: {
@@ -135,8 +135,6 @@ describe('ActionsMoengage.trackEvent', () => {
           region
         }
       })
-    } catch (e) {
-      expect(e.message).toBe("The root value is missing the required field 'event'.")
-    }
+    ).rejects.toThrow("The root value is missing the required field 'event'.")
   })
 })

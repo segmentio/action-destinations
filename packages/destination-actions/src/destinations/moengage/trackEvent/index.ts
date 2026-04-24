@@ -106,9 +106,12 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Missing API ID or API KEY', 'Missing required field', 400)
     }
 
-    const properties = payload.properties ? { ...payload.properties } : {}
+    let properties = payload.properties
     if (payload.project_name) {
-      properties.moe_project_name = payload.project_name
+      properties = {
+        ...(payload.properties ?? {}),
+        moe_project_name: payload.project_name
+      }
     }
 
     const event = {
