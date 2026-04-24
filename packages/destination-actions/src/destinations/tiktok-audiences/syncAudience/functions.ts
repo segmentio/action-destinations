@@ -4,7 +4,8 @@ import {
   ModifiedResponse,
   AudienceMembership,
   JSONLikeObject,
-  PayloadValidationError
+  PayloadValidationError,
+  HTTPError
 } from '@segment/actions-core'
 import { TikTokAudiences } from '../api'
 import { AudienceSettings } from '../generated-types'
@@ -25,12 +26,16 @@ export async function send(
     return returnAllErrors(multiStatusResponse, payloads, 400, 'Bad Request: no audienceSettings found.', isBatch)
   }
 
-  if (!Array.isArray(audienceMembership) || audienceMembership.length !== payloads.length) {
+  if (
+    !Array.isArray(audienceMembership) ||
+    audienceMembership.length !== payloads.length ||
+    audienceMembership.some((m) => typeof m !== 'boolean')
+  ) {
     return returnAllErrors(
       multiStatusResponse,
       payloads,
       400,
-      'Audience Memberships must be an array with the same length as payloads.',
+      'Audience Memberships must be an array of booleans with the same length as payloads.',
       isBatch
     )
   }
@@ -40,7 +45,7 @@ export async function send(
 
   payloads.forEach((p, i) => {
     const membership = audienceMembership[i]
-    if (!validate(p, multiStatusResponse, i, membership, isBatch)) {
+    if (!validate(p, multiStatusResponse, i, isBatch)) {
       return
     }
 
@@ -85,8 +90,8 @@ export async function sendRequest(
   action: TikTokAudienceAction
 ): Promise<ModifiedResponse> {
   const payloads = Array.from(payloadMap.values())
-  const advertiserId = audienceSettings.advertiserId
-  const idSchema = getIDSchema(payloads[0])
+  const { advertiserId } = audienceSettings
+  const idSchema = getIDSchema(payloads[0]) // This is safe because of batch keys
   const batchData = extractUsers(payloads)
   const TikTokApiClient = new TikTokAudiences(request, advertiserId)
 
@@ -111,8 +116,8 @@ export async function sendAndCollectResponses(
     return
   }
 
-  const advertiserId = audienceSettings.advertiserId
-  const idSchema = getIDSchema(payloads[0])
+  const { advertiserId } = audienceSettings
+  const idSchema = getIDSchema(payloads[0]) // This is safe because of batch keys
   const batchData = extractUsers(payloads)
 
   try {
@@ -125,6 +130,7 @@ export async function sendAndCollectResponses(
       batch_data: batchData
     })
 
+    // If we get here, all payloads in the batch were successful
     for (const [index, p] of payloadMap) {
       if (!multiStatusResponse.getResponseAtIndex(index)) {
         multiStatusResponse.setSuccessResponseAtIndex(index, {
@@ -140,9 +146,8 @@ export async function sendAndCollectResponses(
       }
     }
   } catch (err) {
-    const error = err as { message?: string; response?: { status?: number } }
-    const status = error.response?.status ?? 500
-    const message = error.message ?? 'Unknown error'
+    const status = err instanceof HTTPError ? err.response.status : 500
+    const message = err instanceof Error ? err.message : 'Unknown error'
 
     for (const [index, p] of payloadMap) {
       if (!multiStatusResponse.getResponseAtIndex(index)) {
@@ -205,18 +210,8 @@ export function validate(
   payload: Payload,
   multiStatusResponse: MultiStatusResponse,
   index: number,
-  membership: boolean | undefined,
   isBatch?: boolean
 ): boolean {
-  if (membership !== true && membership !== false) {
-    return handleValidationError(
-      multiStatusResponse,
-      index,
-      payload,
-      'Audience membership value must be a boolean.',
-      isBatch
-    )
-  }
 
   const { email, phone, advertising_id, send_email, send_phone, send_advertising_id } = payload
 
