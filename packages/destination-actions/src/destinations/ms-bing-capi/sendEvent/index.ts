@@ -33,19 +33,20 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
 
   payloads.forEach((payload) => {
     const {
-      data: { eventTime, eventType, adStorageConsent, eventSourceUrl, eventName } = {},
+      data: { eventTime, eventType, adStorageConsent, eventSourceUrl, eventName, dataProvider, ...restOfData } = {},
       userData: { em, ph, ...restOfUserData } = {},
       customData,
       items,
       hotelData
     } = payload
     const jsonItem: BingCAPIRequestItem = {
-      ...data,
+      ...restOfData,
       eventType: eventType as 'pageLoad' | 'custom',
       eventTime: Math.floor(new Date(eventTime ?? new Date()).getTime() / 1000),
       adStorageConsent: adStorageConsent ?? settings.adStorageConsent,
       eventSourceUrl: eventSourceUrl,
       eventName: eventName,
+      dataProvider: dataProvider ?? 'SEGMENT',
       userData: {
         ...restOfUserData,
         em: em ? processHashing(em, 'sha256', 'hex', (v) => v.trim().toLowerCase()) : null,
@@ -58,7 +59,6 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
       },
       continueOnValidationError: true
     }
-
     json.push(jsonItem)
   })
 
