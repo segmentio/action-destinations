@@ -3,7 +3,7 @@ import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestCli
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
 import { MaybeString, AudienceRecord, UserConsent, HashedPIIObject } from './types'
-import { FLAG_CONSENT_REQUIRED, FLAG_CONSENT_SUPPRESS_ERRORS, CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID, COUNTRY_CODES, UK_EEA_COUNTRY_CODES } from './utils'
+import { FLAG_CONSENT_REQUIRED, FLAG_CONSENT_ENABLE_ERRORS, CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID, COUNTRY_CODES, UK_EEA_COUNTRY_CODES } from './utils'
 import { processHashing } from '../../lib/hashing-utils'
 import { AMAZON_AMC_API_VERSION } from './versioning-info'
 
@@ -13,7 +13,7 @@ function hasStringValue(value: MaybeString): boolean {
 
 function getUserConsent(payloadConsent: Payload['consent'], countryCode: string, features?: Features): UserConsent {
   const { ipAddress, amznAdStorage, amznUserData, tcf, gpp } = payloadConsent || {}
-  const enableErrors = features?.[FLAG_CONSENT_SUPPRESS_ERRORS]
+  const enableErrors = features?.[FLAG_CONSENT_ENABLE_ERRORS]
 
   if(!COUNTRY_CODES.includes(countryCode)){
     if (enableErrors) {
@@ -209,7 +209,6 @@ export async function processBatchPayload(
     /"audienceId":"(\d+)"/,
     '"audienceId":$1'
   )
-
   const response = await request<RecordsResponseType>(`${settings.region}/amc/audiences/records`, {
     method: 'POST',
     body: payloadString,

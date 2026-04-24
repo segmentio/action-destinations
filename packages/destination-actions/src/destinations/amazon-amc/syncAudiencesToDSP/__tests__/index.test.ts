@@ -3,7 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { SegmentEvent } from '@segment/actions-core/*'
 import { InvalidAuthenticationError } from '@segment/actions-core'
-import { FLAG_CONSENT_REQUIRED, FLAG_CONSENT_SUPPRESS_ERRORS } from '../../utils'
+import { FLAG_CONSENT_REQUIRED, FLAG_CONSENT_ENABLE_ERRORS } from '../../utils'
 
 const testDestination = createTestIntegration(Destination)
 const event = createTestEvent({
@@ -112,7 +112,7 @@ const settings = {
   region: 'https://advertising-api.amazon.com'
 }
 
-const features = { [FLAG_CONSENT_REQUIRED]: true, [FLAG_CONSENT_SUPPRESS_ERRORS]: true }
+const features = { [FLAG_CONSENT_REQUIRED]: true, [FLAG_CONSENT_ENABLE_ERRORS]: true }
 
 describe('AmazonAds.syncAudiencesToDSP', () => {
   beforeEach(() => {
