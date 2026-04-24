@@ -355,12 +355,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     }
 
     linkedinApiClient.setConversionRuleId(conversionRuleId)
-
-    try {
-      return linkedinApiClient.batchConversionAdd(payloads)
-    } catch (error) {
-      throw handleRequestError(error)
-    }
+    return linkedinApiClient.batchConversionAdd(payloads)
   }
 }
 
