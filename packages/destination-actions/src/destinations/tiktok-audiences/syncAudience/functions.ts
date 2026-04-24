@@ -100,7 +100,7 @@ export async function sendRequest(
     advertiser_ids: [advertiserId],
     action,
     id_schema: idSchema,
-    batch_data: batchData
+    batch_data: batchData 
   })
 
   const responseData = response.data as APIResponse | undefined
