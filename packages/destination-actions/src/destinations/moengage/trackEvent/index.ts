@@ -84,6 +84,14 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties'
       }
     },
+    project_name: {
+      label: 'Project Name',
+      type: 'string',
+      description:
+        'Enter the Project Name from MoEngage Settings > Portfolio. Values must match exactly. Mismatched events stay at the portfolio level and are unusable for project-level analysis. Leave this field blank if Portfolio is not enabled for your workspace.',
+      required: false,
+      default: ''
+    },
     update_existing_only: {
       label: 'Update Existing Users Only',
       type: 'boolean',
@@ -98,6 +106,14 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('Missing API ID or API KEY', 'Missing required field', 400)
     }
 
+    let properties = payload.properties
+    if (payload.project_name) {
+      properties = {
+        ...(payload.properties ?? {}),
+        moe_project_name: payload.project_name
+      }
+    }
+
     const event = {
       type: payload.type,
       user_id: payload.userId,
@@ -108,7 +124,7 @@ const action: ActionDefinition<Settings, Payload> = {
         os: { name: payload.os_name },
         library: { version: payload.library_version }
       },
-      properties: payload.properties,
+      properties,
       timestamp: payload.timestamp,
       update_existing_only: payload.update_existing_only || false
     }
