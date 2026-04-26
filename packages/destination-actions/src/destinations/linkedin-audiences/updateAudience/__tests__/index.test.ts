@@ -1,5 +1,10 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import {
+  createTestEvent,
+  createTestIntegration,
+  TokenPropagationRetryError,
+  RetryableError
+} from '@segment/actions-core'
 import Destination from '../../index'
 import { BASE_URL, LINKEDIN_SOURCE_PLATFORM } from '../../constants'
 
@@ -863,6 +868,102 @@ describe('LinkedinAudiences.updateAudience', () => {
           }
         })
       ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
+    })
+
+    it('should throw TokenPropagationRetryError when LinkedIn returns 401 with token propagation error code 65601', async () => {
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(401, {
+        serviceErrorCode: 65601,
+        message: 'Unable to verify access token'
+      })
+
+      await expect(
+        testDestination.testAction('updateAudience', {
+          event,
+          settings: {
+            ad_account_id: '123',
+            send_email: true,
+            send_google_advertising_id: true
+          },
+          useDefaultMappings: true,
+          auth,
+          mapping: {
+            personas_audience_key: 'personas_test_audience'
+          }
+        })
+      ).rejects.toThrow(TokenPropagationRetryError)
+    })
+
+    it('should throw TokenPropagationRetryError when LinkedIn returns 401 with token propagation error code 65602', async () => {
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(401, {
+        serviceErrorCode: 65602,
+        message: 'Unable to verify access token'
+      })
+
+      await expect(
+        testDestination.testAction('updateAudience', {
+          event,
+          settings: {
+            ad_account_id: '123',
+            send_email: true,
+            send_google_advertising_id: true
+          },
+          useDefaultMappings: true,
+          auth,
+          mapping: {
+            personas_audience_key: 'personas_test_audience'
+          }
+        })
+      ).rejects.toThrow(TokenPropagationRetryError)
+    })
+
+    it('should refresh token and throw RetryableError when LinkedIn returns 401+65601', async () => {
+      // LinkedIn returns 65601 for both propagation delays and revoked/expired tokens.
+      // The framework refreshes the token before throwing RetryableError so the retry
+      // always uses a fresh token regardless of which case triggered the 401.
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/).reply(401, {
+        serviceErrorCode: 65601,
+        message: 'Unable to verify access token'
+      })
+      nock('https://www.linkedin.com')
+        .post('/oauth/v2/accessToken')
+        .reply(200, { access_token: 'fresh-token', expires_in: 5183944 })
+
+      await expect(
+        testDestination.onEvent(event, {
+          ad_account_id: '123',
+          send_email: true,
+          send_google_advertising_id: true,
+          subscription: {
+            subscribe: 'event = "Audience Entered" or event = "Audience Exited"',
+            partnerAction: 'updateAudience',
+            mapping: {
+              personas_audience_key: 'personas_test_audience',
+              source_segment_id: { '@path': '$.properties.audience_key' },
+              email: { '@path': '$.context.traits.email' },
+              google_advertising_id: { '@path': '$.context.device.advertisingId' },
+              dmp_user_action: 'AUTO'
+            }
+          },
+          oauth: {
+            access_token: 'old-token',
+            refresh_token: 'refresh-token',
+            clientId: 'test-client-id',
+            clientSecret: 'test-client-secret'
+          }
+        })
+      ).rejects.toThrow(RetryableError)
     })
   })
 })

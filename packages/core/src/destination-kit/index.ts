@@ -30,7 +30,14 @@ import type {
   ResultMultiStatusNode
 } from './types'
 import type { AllRequestOptions } from '../request-client'
-import { ErrorCodes, IntegrationError, InvalidAuthenticationError, MultiStatusErrorReporter } from '../errors'
+import {
+  ErrorCodes,
+  IntegrationError,
+  InvalidAuthenticationError,
+  MultiStatusErrorReporter,
+  TokenPropagationRetryError,
+  RetryableError
+} from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
 import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
@@ -1022,6 +1029,19 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     settings: JSONObject,
     options?: OnEventOptions
   ): Promise<JSONObject> {
+    // Handle TokenPropagationRetryError: LinkedIn returns serviceErrorCode 65601 for both
+    // token propagation delays and revoked/expired tokens. Refresh the token first so the
+    // retry always uses a fresh token. If the refresh itself fails (e.g. the refresh token
+    // is also expired), that error propagates instead of retrying forever with a dead token.
+    // RetryableError(503) signals Segment infrastructure to retry after backoff.
+    if (error instanceof TokenPropagationRetryError) {
+      const isOAuth = this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed'
+      if (isOAuth) {
+        await this.handleAuthError(settings, options)
+      }
+      throw new RetryableError(error.message, 503)
+    }
+
     const statusCode = (error as ResponseError).status ?? (error as HTTPError)?.response?.status ?? 500
     const needsReauthentication =
       statusCode === 401 &&

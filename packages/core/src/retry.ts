@@ -26,6 +26,10 @@ export async function retry<T>(
       return response
     } catch (error) {
       if (options?.onFailedAttempt) {
+        // IMPORTANT: if onFailedAttempt throws, that exception propagates immediately
+        // and the retry loop terminates — no further attempts are made. handleError relies
+        // on this behavior to convert TokenPropagationRetryError into a RetryableError
+        // that escapes to Segment infrastructure rather than being retried in-process.
         await options.onFailedAttempt(error, attemptCount)
       }
 
