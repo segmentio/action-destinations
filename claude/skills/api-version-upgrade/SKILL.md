@@ -24,6 +24,8 @@ This skill automates the complete process of upgrading API versions for Segment 
 
 ### Step header format
 
+Steps are numbered 0–8 with one sub-step (5.5), giving 10 total headers. Use the exact step label shown in each section (e.g. `0/8`, `5.5/8`).
+
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [STEP N/8] <STEP TITLE>
@@ -751,9 +753,7 @@ Switch to compatible Node version and run tests:
 source ~/.nvm/nvm.sh && nvm use 22.13.1
 
 # Run destination-specific tests
-# NOTE: `yarn cloud jest --testPathPattern` fails in newer Jest versions with
-# "Option was replaced by --testPathPatterns". Use npx jest directly instead:
-cd packages/destination-actions && TZ=UTC npx jest "{destination}" --no-coverage
+TZ=UTC yarn cloud jest --testPathPattern="src/destinations/{destination}" --no-coverage
 ```
 
 **Expected outcome**: All tests must pass. If tests fail:
@@ -818,10 +818,11 @@ This step makes real HTTP calls to both the stable and canary revisions and stru
 
 ### Run the validation script
 
+This step is **optional** and requires you to first create a validation script at a path of your choosing (e.g. `packages/destination-actions/src/destinations/{destination}/validate.ts`). There is no pre-existing `__validation__` directory in this repo — you must create the script if you want live endpoint validation.
+
 ```bash
-KLAVIYO_TEST_API_KEY=xxx \
-KLAVIYO_TEST_LIST_ID=your-list-id \
-npx ts-node packages/destination-actions/src/destinations/{destination}/__validation__/validate.ts
+DESTINATION_TEST_API_KEY=xxx \
+npx ts-node packages/destination-actions/src/destinations/{destination}/validate.ts
 ```
 
 When chamber is available:
@@ -833,9 +834,8 @@ chamber exec {destination}-test -- npx ts-node .../validate.ts
 ### What it does
 
 - Fires each fixture against **both** revisions sequentially (stable first, then canary)
-- Each write fixture uses revision-scoped identifiers (`revisionEmail(revision)`) so calls never conflict
+- Each write fixture uses revision-scoped identifiers so calls never conflict
 - Normalizes non-deterministic fields (IDs, timestamps) before diffing
-- Writes `__validation__/validation-report.md` — **commit this to the PR**
 - Exits non-zero if any structural differences are found
 
 ### Expected outcome
@@ -844,13 +844,12 @@ chamber exec {destination}-test -- npx ts-node .../validate.ts
 ✅ All N endpoints are structurally identical across both revisions. Safe to promote canary.
 ```
 
-If differences are found, review `validation-report.md` for the specific fields that changed and update the implementation accordingly before proceeding.
+If differences are found, review the script output for the specific fields that changed and update the implementation accordingly before proceeding.
 
 ### Notes
 
-- `validation-report.md` is gitignored by default but should be **force-added** to the upgrade PR as evidence
-- Delete it during the cleanup phase (Step 8) when the canary is promoted to stable
-- The script uses a `RUN_ID` timestamp so repeated runs never collide on the same test profiles/events
+- If you produce a validation report, include a **sanitized summary** in the PR description rather than committing raw output (it may contain PII or sensitive API responses)
+- The script should use a timestamp-based `RUN_ID` so repeated runs never collide on the same test profiles/events
 
 Print after step completes:
 

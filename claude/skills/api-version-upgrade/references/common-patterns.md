@@ -311,7 +311,7 @@ export const REVISION_DATE = KLAVIYO_API_VERSION
 // AFTER (functions.ts) - add feature flag support
 export const FLAGON_NAME = 'klaviyo-canary-version'
 export function getApiRevision(features?: Features): string {
-  return features && features[FLAGON_NAME] ? KLAVIYO_CANARY_API_REVISION : KLAVIYO_API_REVISION
+  return features && features[FLAGON_NAME] ? KLAVIYO_CANARY_API_VERSION : KLAVIYO_API_VERSION
 }
 
 export function buildHeaders(authKey: string, features?: Features) {
