@@ -236,6 +236,7 @@ register('699d9cfc7ddca5bfc98344dc', './amplitude-cohorts')
 register('69a6caedee3c3617ae42dde8', './pendo-audiences')
 register('69a6cb5fda60c0bec5994df4', './avo-v2')
 register('69b9249b38dabe2f2f1f528a', './youappi-audiences')
+register('69e75a7148bfabf0961fbe4d', './voiceops')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

@@ -1,7 +1,14 @@
 import { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
-import { LINKEDIN_CONVERSIONS_API_VERSION } from './versioning-info'
+import { Features } from '@segment/actions-core'
+import { LINKEDIN_CONVERSIONS_API_VERSION, LINKEDIN_CONVERSIONS_CANARY_API_VERSION } from './versioning-info'
 
 export const LINKEDIN_API_VERSION = LINKEDIN_CONVERSIONS_API_VERSION
+export const LINKEDIN_CANARY_API_VERSION = LINKEDIN_CONVERSIONS_CANARY_API_VERSION
+export const FLAGON_NAME = 'linkedin-conversions-canary-version'
+
+export function getApiVersion(features?: Features): string {
+  return features && features[FLAGON_NAME] ? LINKEDIN_CANARY_API_VERSION : LINKEDIN_API_VERSION
+}
 export const BASE_URL = 'https://api.linkedin.com/rest'
 export const LINKEDIN_SOURCE_PLATFORM = 'SEGMENT'
 

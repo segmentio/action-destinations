@@ -64,7 +64,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           400
         )
       } else {
-        // The last 3 params are undefined because statsContext.statsClient, statsContext.tags, and logger are not available in testAuthentication()
+        // The last 2 params are undefined because statsContext.statsClient and statsContext.tags are not available testAuthentication()
         return await update_taxonomy('', tx_creds, request, body_form_data, undefined, undefined)
       }
     },

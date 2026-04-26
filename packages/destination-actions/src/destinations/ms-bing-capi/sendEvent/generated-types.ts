@@ -45,6 +45,10 @@ export interface Payload {
      * Ad Storage Consent for GDPR compliance
      */
     adStorageConsent?: string
+    /**
+     * The source of the event data.
+     */
+    dataProvider?: string
   }
   /**
    * A list of user identifiers associated with the event.
