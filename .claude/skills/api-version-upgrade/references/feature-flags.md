@@ -89,13 +89,8 @@ export const API_VERSION = DESTINATION_API_VERSION
 export const CANARY_API_VERSION = DESTINATION_CANARY_API_VERSION
 
 /** Feature flag name for canary API version testing */
-export const FLAGON_NAME = 'destination-canary-version'
+export const FLAGON_NAME = '{destination-slug}-canary-version'
 
-/**
- * Get API version based on feature flag.
- * @param features - Feature flags object from request context
- * @returns API version to use (stable or canary)
- */
 export function getApiVersion(features?: Features): string {
   return features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
 }
@@ -428,7 +423,7 @@ Automatic rollback if:
 ```markdown
 ## Feature Flag Details
 
-**Flag Name**: `destination-canary-version`
+**Flag Name**: `{destination-slug}-canary-version` (e.g. `google-enhanced-canary-version`)
 
 **Stable Version**: v4
 **Canary Version**: v5

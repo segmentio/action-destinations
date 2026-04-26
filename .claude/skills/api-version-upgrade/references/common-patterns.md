@@ -4,7 +4,7 @@ This document catalogs the different patterns used for API versioning across Seg
 
 ## Pattern 1: Canary with versioning-info.ts (Preferred)
 
-**Used by**: Google Campaign Manager 360, The Trade Desk CRM
+**Used by**: Google Enhanced Conversions, The Trade Desk CRM
 
 **Structure**:
 
@@ -40,7 +40,7 @@ import { DESTINATION_API_VERSION, DESTINATION_CANARY_API_VERSION } from './versi
 
 export const API_VERSION = DESTINATION_API_VERSION
 export const CANARY_API_VERSION = DESTINATION_CANARY_API_VERSION
-export const FLAGON_NAME = 'destination-canary-version'
+export const FLAGON_NAME = '{destination-slug}-canary-version'
 
 export function getApiVersion(features?: Features): string {
   return features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
@@ -203,7 +203,7 @@ const url = `${BASE_URL}/endpoint?api-version=${API_VERSION}`
 **Usage in code**:
 
 ```typescript
-export const FLAGON_NAME = 'destination-canary-version'
+export const FLAGON_NAME = '{destination-slug}-canary-version'
 
 // In actions
 async perform(request, { payload, settings, features }) {
@@ -265,22 +265,27 @@ When migrating from Pattern 2/3 to Pattern 1:
 
 ## Real-World Examples
 
-### Google Campaign Manager 360
+### Google Enhanced Conversions
+
+Located at `packages/destination-actions/src/destinations/google-enhanced-conversions/`.
 
 ```typescript
 // versioning-info.ts
-export const GOOGLE_CM360_API_VERSION = 'v4' // stable
-export const GOOGLE_CM360_CANARY_API_VERSION = 'v5' // canary
+export const GOOGLE_ENHANCED_CONVERSIONS_API_VERSION = 'v21'
+export const GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION = 'v21'
 
-// utils.ts
-export const FLAGON_NAME = 'cm360-canary-api-version'
+// functions.ts
+export const API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_API_VERSION
+export const CANARY_API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION
+export const FLAGON_NAME = 'google-enhanced-canary-version'
+
 export function getApiVersion(features?: Features): string {
   return features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
 }
 
 // Usage
 const version = getApiVersion(features)
-const url = `https://dfareporting.googleapis.com/dfareporting/${version}/userprofiles/...`
+const url = `https://googleads.googleapis.com/v${version}/customers/...`
 ```
 
 ### The Trade Desk CRM

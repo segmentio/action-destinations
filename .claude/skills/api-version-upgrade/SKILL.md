@@ -1,17 +1,26 @@
 ---
 name: api-version-upgrade
-description: |
-  Upgrade API versions for Segment Action Destinations with feature flags, comprehensive breaking change analysis, automated testing, and PR creation.
-
-  Use this skill when the user wants to:
-  - Upgrade a destination's API version (e.g., "upgrade Klaviyo to 2026-01-15")
-  - Update API endpoints to newer versions
-  - Bump version numbers for any action destination
-  - Migrate a destination to use versioned APIs
-  - Test a new API version with feature flags
-
-  This skill handles the complete workflow: version detection, changelog analysis, feature flag implementation, testing, and PR creation with detailed breaking changes documentation.
-allowed-tools: Read, Write, Edit, Glob, Grep, WebFetch, Bash(git *), Bash(gh *), Bash(yarn *), Bash(nvm *), Bash(source *), Bash(node *), Bash(find *), Bash(ls *), Bash(grep *), Bash(which *)
+description: Upgrade API versions for Segment Action Destinations with feature flags, comprehensive breaking change analysis, automated testing, and PR creation.
+version: 1.0.0
+allowed-tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - WebFetch
+  - AskUserQuestion
+  - Bash(git *)
+  - Bash(gh *)
+  - Bash(yarn *)
+  - Bash(nvm *)
+  - Bash(source *)
+  - Bash(node *)
+  - Bash(find *)
+  - Bash(ls *)
+  - Bash(grep *)
+  - Bash(which *)
+disable-model-invocation: false
 ---
 
 # API Version Upgrade Workflow
