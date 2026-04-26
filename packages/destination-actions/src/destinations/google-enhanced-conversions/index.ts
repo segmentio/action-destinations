@@ -299,7 +299,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
       eventSlug: 'journeys_step_entered_track'
     },
     {
-      name: 'Journeys Step All Trigger',
+      name: 'Journeys Step All Triggers',
       partnerAction: 'uploadCallConversion2',
       mapping: defaultValues(uploadCallConversion2.fields),
       type: 'specificEvent',

@@ -201,14 +201,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(addToAudience.fields),
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
-    },
-    {
-      name: 'Journeys Step All Trigger',
-      partnerAction: 'addToAudience',
-      mapping: defaultValues(addToAudience.fields),
-      type: 'specificEvent',
-      eventSlug: 'journeys_step_all_triggers_track'
     }
+    //TODO: uncomment this once the tik tok changes are applied as part of
+    // https://github.com/segmentio/action-destinations/pull/3732/changes#diff-820724a64b4d01bee37a38690220879172da2720386b7c98cd1c06d86275792a
+    // {
+    //   name: 'Journeys Step All Triggers',
+    //   partnerAction: 'syncAudience',
+    //   mapping: defaultValues(sync.fields),
+    //   type: 'specificEvent',
+    //   eventSlug: 'journeys_step_all_triggers_track'
+    // }
   ]
 }
 
