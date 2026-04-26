@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import type { DestinationDefinition, ModifiedResponse } from '@segment/actions-core'
 import {
   InvalidAuthenticationError,
   IntegrationError,
@@ -8,7 +8,7 @@ import {
 import type { Settings } from './generated-types'
 import { LinkedInConversions } from './api'
 import type { LinkedInTestAuthenticationError, RefreshTokenResponse, LinkedInRefreshTokenError } from './types'
-import { LINKEDIN_API_VERSION, LINKEDIN_TOKEN_PROPAGATION_ERROR_CODES, getApiVersion } from './constants'
+import { LINKEDIN_TOKEN_PROPAGATION_ERROR_CODES, getApiVersion } from './constants'
 import https from 'https'
 import streamConversion from './streamConversion'
 
@@ -107,9 +107,9 @@ const destination: DestinationDefinition<Settings> = {
       },
       agent,
       afterResponse: [
-        (_request: unknown, _options: unknown, response: { status: number; data: unknown }) => {
+        (_request, _options, response) => {
           if (response.status === 401) {
-            const body = response.data as Record<string, unknown> | undefined
+            const body = (response as ModifiedResponse).data as Record<string, unknown> | undefined
             const serviceErrorCode = body?.serviceErrorCode as number | undefined
             if (serviceErrorCode && LINKEDIN_TOKEN_PROPAGATION_ERROR_CODES.includes(serviceErrorCode)) {
               throw new TokenPropagationRetryError(

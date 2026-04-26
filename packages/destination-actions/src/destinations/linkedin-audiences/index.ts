@@ -155,9 +155,9 @@ const destination: DestinationDefinition<Settings> = {
       },
       agent,
       afterResponse: [
-        (_request: unknown, _options: unknown, response: { status: number; data: unknown }) => {
+        (_request, _options, response) => {
           if (response.status === 401) {
-            const body = response.data as Record<string, unknown> | undefined
+            const body = (response as ModifiedResponse).data as Record<string, unknown> | undefined
             const serviceErrorCode = body?.serviceErrorCode as number | undefined
             if (serviceErrorCode && LINKEDIN_TOKEN_PROPAGATION_ERROR_CODES.includes(serviceErrorCode)) {
               throw new TokenPropagationRetryError(

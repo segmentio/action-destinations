@@ -8,7 +8,7 @@ import {
   SubscriptionMetadata,
   RequestFn
 } from './index'
-import type { RequestOptions } from '../request-client'
+import type { AllRequestOptions } from '../request-client'
 import type { JSONLikeObject, JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
 import type { RequestClient } from '../create-request-client'
@@ -345,7 +345,9 @@ export type Directive = IfDirective | TemplateDirective | PathDirective | CaseDi
  * A function to configure a request client instance with options
  * that will be applied to every request made by that instance
  */
-export type RequestExtension<Settings, Payload = undefined> = (data: ExecuteInput<Settings, Payload>) => RequestOptions
+export type RequestExtension<Settings, Payload = undefined> = (
+  data: ExecuteInput<Settings, Payload>
+) => AllRequestOptions
 
 /**
  * Common fields derived from the Segment event schema for use in deletion calls to endpoints
