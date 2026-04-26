@@ -10,16 +10,7 @@ allowed-tools:
   - Grep
   - WebFetch
   - AskUserQuestion
-  - Bash(git *)
-  - Bash(gh *)
-  - Bash(yarn *)
-  - Bash(nvm *)
-  - Bash(source *)
-  - Bash(node *)
-  - Bash(find *)
-  - Bash(ls *)
-  - Bash(grep *)
-  - Bash(which *)
+  - Bash
 disable-model-invocation: false
 ---
 
@@ -547,7 +538,7 @@ export const API_VERSION = DESTINATION_API_VERSION
 
 **Step 4**: Add feature flag helper to `utils.ts` or `functions.ts`:
 
-> ⚠️ **Import order**: All `import` statements must come first. Add `FLAGON_NAME` and `getApiVersion` exports AFTER the last import — never between imports. Violating this triggers the `import/first` lint rule and will fail CI.
+> ⚠️ **Import order**: Keep all `import` statements grouped at the top. Add `FLAGON_NAME` and `getApiVersion` after the last import rather than between imports — this matches the repository's usual style and avoids confusing the reader.
 
 ```typescript
 // All imports first

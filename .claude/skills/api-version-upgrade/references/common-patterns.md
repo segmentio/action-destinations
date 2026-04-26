@@ -285,7 +285,7 @@ export function getApiVersion(features?: Features): string {
 
 // Usage
 const version = getApiVersion(features)
-const url = `https://googleads.googleapis.com/v${version}/customers/...`
+const url = `https://googleads.googleapis.com/${version}/customers/...`
 ```
 
 ### The Trade Desk CRM
