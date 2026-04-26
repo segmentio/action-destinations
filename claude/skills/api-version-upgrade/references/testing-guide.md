@@ -58,6 +58,18 @@ TZ=UTC yarn cloud test --testPathPattern=src/destinations/{destination} --no-cov
 TZ=UTC yarn cloud test --testPathPattern=src/destinations/{destination}/__tests__/index.test.ts
 ```
 
+#### Run a Single Test Case (IDE-style or targeted)
+
+IDEs (VS Code, JetBrains) generate this form when you click "Run test" on a specific case. You can also run it manually:
+
+```bash
+node packages/destination-actions/node_modules/jest/bin/jest.js \
+  'packages/destination-actions/src/destinations/{destination}/{action}/__tests__/index.test.ts' \
+  -t '^{DescribeName} {testName}(\s.*)?$'
+```
+
+This calls the package-local Jest binary directly, bypassing yarn workspaces. Useful for a single test during active development, but use `yarn cloud test` for full destination runs to ensure correct workspace config.
+
 #### Run With Coverage
 
 ```bash
