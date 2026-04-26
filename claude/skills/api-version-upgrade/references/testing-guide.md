@@ -49,25 +49,25 @@ node --version  # Should show v22.13.1
 
 ```bash
 # From repository root
-TZ=UTC yarn cloud jest --testPathPattern="src/destinations/{destination}" --no-coverage
+TZ=UTC yarn cloud test --testPathPattern=src/destinations/{destination} --no-coverage
 ```
 
 #### Run Specific Test File
 
 ```bash
-TZ=UTC yarn cloud jest --testPathPattern="src/destinations/{destination}/__tests__/index.test.ts"
+TZ=UTC yarn cloud test --testPathPattern=src/destinations/{destination}/__tests__/index.test.ts
 ```
 
 #### Run With Coverage
 
 ```bash
-TZ=UTC yarn cloud jest --testPathPattern="src/destinations/{destination}" --coverage
+TZ=UTC yarn cloud test --testPathPattern=src/destinations/{destination} --coverage
 ```
 
 #### Run in Watch Mode
 
 ```bash
-TZ=UTC yarn cloud jest --testPathPattern="src/destinations/{destination}" --watch
+TZ=UTC yarn cloud test --testPathPattern=src/destinations/{destination} --watch
 ```
 
 ### Auto-Detecting Test Pattern
@@ -80,7 +80,7 @@ const testPattern = `src/destinations/${destinationName}`
 // Results in: src/destinations/klaviyo
 
 // Run tests
-const command = `TZ=UTC yarn cloud jest --testPathPattern="${testPattern}" --no-coverage`
+const command = `TZ=UTC yarn cloud test --testPathPattern=${testPattern} --no-coverage`
 ```
 
 ## Test Output Interpretation
@@ -356,7 +356,7 @@ If snapshots need updating (when changes are intentional):
 
 ```bash
 # Update snapshots
-TZ=UTC yarn cloud jest --testPathPattern="src/destinations/{destination}" --updateSnapshot
+TZ=UTC yarn cloud test --testPathPattern=src/destinations/{destination} --updateSnapshot
 
 # Review changes
 git diff
@@ -403,13 +403,13 @@ Before marking tests as complete:
 ### Enable Verbose Output
 
 ```bash
-TZ=UTC yarn cloud jest --testPathPattern="src/destinations/{destination}" --verbose
+TZ=UTC yarn cloud test --testPathPattern=src/destinations/{destination} --verbose
 ```
 
 ### Run Single Test
 
 ```bash
-TZ=UTC yarn cloud jest --testPathPattern="src/destinations/{destination}" --testNamePattern="specific test name"
+TZ=UTC yarn cloud test --testPathPattern=src/destinations/{destination} --testNamePattern="specific test name"
 ```
 
 ### Add Debug Logging
@@ -464,7 +464,7 @@ it('should handle large batch', async () => {
 Tests run in parallel by default. If this causes issues:
 
 ```bash
-TZ=UTC yarn cloud jest --testPathPattern="src/destinations/{destination}" --runInBand
+TZ=UTC yarn cloud test --testPathPattern=src/destinations/{destination} --runInBand
 ```
 
 ### Test Isolation
@@ -491,7 +491,7 @@ Tests must pass in CI before merge:
 
 ```bash
 # Run what CI will run
-TZ=UTC yarn cloud jest --testPathPattern="src/destinations/{destination}" --no-coverage --ci
+TZ=UTC yarn cloud test --testPathPattern=src/destinations/{destination} --no-coverage --ci
 
 # Check exit code
 echo $?  # Should be 0

@@ -753,7 +753,7 @@ Switch to compatible Node version and run tests:
 source ~/.nvm/nvm.sh && nvm use 22.13.1
 
 # Run destination-specific tests
-TZ=UTC yarn cloud jest --testPathPattern="src/destinations/{destination}" --no-coverage
+TZ=UTC yarn cloud test --testPathPattern=src/destinations/{destination} --no-coverage
 ```
 
 **Expected outcome**: All tests must pass. If tests fail:
