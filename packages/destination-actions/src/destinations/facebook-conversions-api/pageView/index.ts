@@ -15,7 +15,6 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "page"',
   fields: pageFields,
   perform: (request, { payload, settings, features, statsContext }) => {
-
     if (features && features[FEATURE_FLAG_PAGE_VIEW]) {
       return send(request, payload, settings, getPageViewEventData, EventType.PageView, features, statsContext)
     }

@@ -15,14 +15,14 @@ export const FEATURE_FLAG_SEARCH = 'FB_CAPI_REFACTOR_SEARCH_EVENT'
 export const FEATURE_FLAG_VIEW_CONTENT = 'FB_CAPI_REFACTOR_VIEW_CONTENT_EVENT'
 
 export const EventType = {
-    AddToCart: 'AddToCart',
-    Custom: 'Custom',
-    InitiateCheckout: 'InitiateCheckout',
-    PageView: 'PageView',
-    Purchase: 'Purchase',
-    AppendValue: 'AppendValue',
-    Search: 'Search',
-    ViewContent: 'ViewContent'
+  AddToCart: 'AddToCart',
+  Custom: 'Custom',
+  InitiateCheckout: 'InitiateCheckout',
+  PageView: 'PageView',
+  Purchase: 'Purchase',
+  AppendValue: 'AppendValue',
+  Search: 'Search',
+  ViewContent: 'ViewContent'
 } as const
 
 export const CURRENCY_ISO_CODES = new Set([

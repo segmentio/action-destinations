@@ -25,7 +25,7 @@ describe('FacebookConversionsApi', () => {
         event_time: '1631210000'
       } as any
 
-      expect(() => validate(payload, EventType.Purchase)).toThrow('Must include at least one user data property')
+      expect(() => validate(payload, EventType.AddToCart)).toThrow('Must include at least one user data property')
     })
 
     it('should throw when action_source is website but client_user_agent is missing', () => {
