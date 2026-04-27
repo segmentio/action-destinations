@@ -7,6 +7,7 @@ import {
   PayloadValidationError,
   IntegrationError
 } from '@segment/actions-core'
+import { StatsContext } from '@segment/actions-core/destination-kit'
 import { TikTokAudiences } from '../api'
 import { AudienceSettings } from '../generated-types'
 import { Payload } from './generated-types'
@@ -15,19 +16,24 @@ import { TikTokAudienceAction } from './types'
 import { APIResponse } from '../types'
 import { processHashing } from '../../../lib/hashing-utils'
 
+function trackMetric(statsContext: StatsContext | undefined, metric: string) {
+  statsContext?.statsClient?.incr(metric, 1, statsContext?.tags)
+}
+
 export async function send(
   request: RequestClient,
   payloads: Payload[],
   audienceSettings?: AudienceSettings,
   audienceMembership?: AudienceMembership[],
-  isBatch?: boolean
+  isBatch?: boolean,
+  statsContext?: StatsContext
 ) {
   const multiStatusResponse = new MultiStatusResponse()
 
   const { advertiserId } = audienceSettings || {}
 
   if (!audienceSettings) {
-    return returnAllErrors(multiStatusResponse, payloads, 400, 'Bad Request: no audienceSettings found.', isBatch)
+    return returnAllErrors(multiStatusResponse, payloads, 400, 'Bad Request: no audienceSettings found.', isBatch, statsContext)
   }
 
   if(!advertiserId) {
@@ -36,7 +42,8 @@ export async function send(
       payloads,
       400,
       'Bad Request: Advertiser ID is required in audienceSettings.',
-      isBatch
+      isBatch,
+      statsContext
     )
   }
 
@@ -50,7 +57,8 @@ export async function send(
       payloads,
       400,
       'Audience Memberships must be an array of booleans with the same length as payloads.',
-      isBatch
+      isBatch,
+      statsContext
     )
   }
 
@@ -59,7 +67,7 @@ export async function send(
 
   payloads.forEach((p, i) => {
     const membership = audienceMembership[i]
-    if (!validate(p, multiStatusResponse, i, isBatch)) {
+    if (!validate(p, multiStatusResponse, i, isBatch, statsContext)) {
       return
     }
 
@@ -75,16 +83,16 @@ export async function send(
   if (addMap.size > 0) {
     requests.push(
       isBatch
-        ? sendAndCollectResponses(request, audienceSettings, addMap, 'add', multiStatusResponse)
-        : sendRequest(request, audienceSettings, addMap, 'add')
+        ? sendAndCollectResponses(request, audienceSettings, addMap, 'add', multiStatusResponse, statsContext)
+        : sendRequest(request, audienceSettings, addMap, 'add', statsContext)
     )
   }
 
   if (deleteMap.size > 0) {
     requests.push(
       isBatch
-        ? sendAndCollectResponses(request, audienceSettings, deleteMap, 'delete', multiStatusResponse)
-        : sendRequest(request, audienceSettings, deleteMap, 'delete')
+        ? sendAndCollectResponses(request, audienceSettings, deleteMap, 'delete', multiStatusResponse, statsContext)
+        : sendRequest(request, audienceSettings, deleteMap, 'delete', statsContext)
     )
   }
 
@@ -101,7 +109,8 @@ export async function sendRequest(
   request: RequestClient,
   audienceSettings: AudienceSettings,
   payloadMap: Map<number, Payload>,
-  action: TikTokAudienceAction
+  action: TikTokAudienceAction,
+  statsContext?: StatsContext
 ): Promise<ModifiedResponse> {
   const payloads = Array.from(payloadMap.values())
   const { advertiserId } = audienceSettings
@@ -120,9 +129,11 @@ export async function sendRequest(
   if (response.status < 200 || response.status >= 300 || responseData?.code !== 0) {
     const message = responseData?.message ?? 'Unknown TikTok API error'
     const errorStatus = response.status >= 400 ? response.status : 400
+    trackMetric(statsContext, `syncAudience.single.${action}.error`)
     throw new IntegrationError(message, String(responseData?.code ?? response.status), errorStatus)
   }
 
+  trackMetric(statsContext, `syncAudience.single.${action}.success`)
   return response
 }
 
@@ -131,7 +142,8 @@ export async function sendAndCollectResponses(
   audienceSettings: AudienceSettings,
   payloadMap: Map<number, Payload>,
   action: TikTokAudienceAction,
-  multiStatusResponse: MultiStatusResponse
+  multiStatusResponse: MultiStatusResponse,
+  statsContext?: StatsContext
 ): Promise<void> {
   const payloads = Array.from(payloadMap.values())
 
@@ -157,6 +169,7 @@ export async function sendAndCollectResponses(
     const isSuccess = response.status >= 200 && response.status < 300 && responseData?.code === 0
 
     if (isSuccess) {
+      trackMetric(statsContext, `syncAudience.batch.${action}.success`)
       for (const [index, p] of payloadMap) {
         if (!multiStatusResponse.getResponseAtIndex(index)) {
           multiStatusResponse.setSuccessResponseAtIndex(index, {
@@ -174,6 +187,7 @@ export async function sendAndCollectResponses(
     } else {
       const status = response.status >= 400 ? response.status : 400
       const message = responseData?.message ?? 'Unknown TikTok API error'
+      trackMetric(statsContext, `syncAudience.batch.${action}.error`)
 
       for (const [index, p] of payloadMap) {
         if (!multiStatusResponse.getResponseAtIndex(index)) {
@@ -194,10 +208,11 @@ export async function sendAndCollectResponses(
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     const status = (err as { response?: { status?: number } })?.response?.status || 500
+    trackMetric(statsContext, `syncAudience.batch.${action}.error`)
 
     for (const [index, p] of payloadMap) {
       if (!multiStatusResponse.getResponseAtIndex(index)) {
-        
+
         multiStatusResponse.setErrorResponseAtIndex(index, {
           status,
           errormessage: message,
@@ -219,8 +234,11 @@ function returnAllErrors(
   payloads: Payload[],
   status: number,
   message: string,
-  isBatch?: boolean
+  isBatch?: boolean,
+  statsContext?: StatsContext
 ): never | MultiStatusResponse {
+  const prefix = isBatch ? 'syncAudience.batch' : 'syncAudience.single'
+  trackMetric(statsContext, `${prefix}.validation_error`)
   if (!isBatch) {
     throw new PayloadValidationError(message)
   }
@@ -239,8 +257,11 @@ function handleValidationError(
   index: number,
   payload: Payload,
   message: string,
-  isBatch?: boolean
+  isBatch?: boolean,
+  statsContext?: StatsContext
 ): never | false {
+  const prefix = isBatch ? 'syncAudience.batch' : 'syncAudience.single'
+  trackMetric(statsContext, `${prefix}.validation_error`)
   if (!isBatch) {
     throw new PayloadValidationError(message)
   }
@@ -257,18 +278,20 @@ export function validate(
   payload: Payload,
   multiStatusResponse: MultiStatusResponse,
   index: number,
-  isBatch?: boolean
+  isBatch?: boolean,
+  statsContext?: StatsContext
 ): boolean {
 
   const { email, phone, advertising_id, send_email, send_phone, send_advertising_id, external_audience_id } = payload
 
   if (!external_audience_id) {
     return handleValidationError(
-      multiStatusResponse, 
-      index, 
-      payload, 
-      'Missing required field: external_audience_id.', 
-      isBatch
+      multiStatusResponse,
+      index,
+      payload,
+      'Missing required field: external_audience_id.',
+      isBatch,
+      statsContext
     )
   }
 
@@ -278,7 +301,8 @@ export function validate(
       index,
       payload,
       'At least one of `Send Email`, `Send Phone` or `Send Advertising ID` must be set to `true`.',
-      isBatch
+      isBatch,
+      statsContext
     )
   }
 
@@ -290,7 +314,8 @@ export function validate(
       index,
       payload,
       'At least one enabled identifier (Email, Phone, or Advertising ID) must have a value.',
-      isBatch
+      isBatch,
+      statsContext
     )
   }
 

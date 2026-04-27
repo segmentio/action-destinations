@@ -37,11 +37,13 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       unsafe_hidden: true
     }
   },
-  perform: async (request, { audienceSettings, payload, audienceMembership }) => {
-    return send(request, [payload], audienceSettings, [audienceMembership])
+  perform: async (request, { audienceSettings, payload, audienceMembership, statsContext }) => {
+    statsContext?.statsClient?.incr('syncAudience.single', 1, statsContext?.tags)
+    return send(request, [payload], audienceSettings, [audienceMembership], false, statsContext)
   },
-  performBatch: async (request, { payload: payloads, audienceSettings, audienceMembership: audienceMemberships }) => {
-    return send(request, payloads, audienceSettings, audienceMemberships, true)
+  performBatch: async (request, { payload: payloads, audienceSettings, audienceMembership: audienceMemberships, statsContext }) => {
+    statsContext?.statsClient?.incr('syncAudience.batch', 1, statsContext?.tags)
+    return send(request, payloads, audienceSettings, audienceMemberships, true, statsContext)
   }
 }
 
