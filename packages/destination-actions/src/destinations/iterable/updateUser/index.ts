@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError, DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError, DEFAULT_REQUEST_TIMEOUT, omit } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -26,13 +26,10 @@ interface BulkUserUpdateRequestPayload {
 }
 
 const transformIterableUserPayload: (payload: Payload) => UserUpdateRequestPayload = (payload) => {
-  // Store the phoneNumber value before deleting from the top-level object
   const phoneNumber = payload.phoneNumber
-  delete payload.phoneNumber
-
   const formattedDataFields = convertDatesInObject(payload.dataFields ?? {})
   const userUpdateRequest: UserUpdateRequestPayload = {
-    ...payload,
+    ...omit(payload, ['updateOnly', 'enable_batching', 'batch_size', 'phoneNumber']),
     dataFields: {
       ...formattedDataFields,
       phoneNumber: phoneNumber
