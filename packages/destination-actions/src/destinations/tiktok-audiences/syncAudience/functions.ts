@@ -119,7 +119,8 @@ export async function sendRequest(
   const responseData = response.data as APIResponse | undefined
   if (response.status < 200 || response.status >= 300 || responseData?.code !== 0) {
     const message = responseData?.message ?? 'Unknown TikTok API error'
-    throw new IntegrationError(message, String(responseData?.code ?? response.status), response.status)
+    const errorStatus = response.status >= 400 ? response.status : 400
+    throw new IntegrationError(message, String(responseData?.code ?? response.status), errorStatus)
   }
 
   return response

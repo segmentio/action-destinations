@@ -204,7 +204,7 @@ describe('TiktokAudiences.syncAudience', () => {
 
       expect(responses.length).toBe(1)
       const requestBody = JSON.parse(responses[0].options.body as string)
-      // 'Test.User+tag@Testing.com' -> normalized to 'testuser@testingcom' -> hashed
+      // 'Test.User+tag@Testing.com' -> normalized to 'testuser@testing.com' -> hashed
       // Normalization: remove dots before @, remove +tag, lowercase
       expect(requestBody.batch_data[0][0].id).toBeDefined()
       expect(requestBody.batch_data[0][0].id).toHaveLength(64) // SHA256 hex
