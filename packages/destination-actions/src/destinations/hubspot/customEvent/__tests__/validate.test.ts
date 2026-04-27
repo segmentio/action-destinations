@@ -85,5 +85,9 @@ describe('Hubspot.customEvent', () => {
     // Regular string should remain as string
     expect(validatedPayload.properties?.valid_string).toBe('hello')
     expect(typeof validatedPayload.properties?.valid_string).toBe('string')
+
+    // Boolean string should be converted to boolean
+    expect(validatedPayload.properties?.bool_str).toBe(false)
+    expect(typeof validatedPayload.properties?.bool_str).toBe('boolean')
   })
 })
