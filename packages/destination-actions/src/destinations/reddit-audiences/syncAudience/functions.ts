@@ -4,6 +4,7 @@ import { UpdateAudienceReq, Columns } from '../types'
 import { EMAIL_SCHEMA_NAME, MAID_SCHEMA_NAME } from '../const'
 // eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
+import { REDDIT_AUDIENCES_ADS_API_VERSION } from '../versioning-info'
 
 export async function send(request: RequestClient, payloads: Payload[]) {
   const audienceId = payloads[0].external_audience_id
@@ -89,10 +90,13 @@ function getColumns(payloads: Payload[]): Columns {
 }
 
 async function updateAudience(request: RequestClient, json: UpdateAudienceReq, audienceid: string) {
-  return await request<UpdateAudienceReq>(`https://ads-api.reddit.com/api/v3/custom_audiences/${audienceid}/users`, {
-    method: 'PATCH',
-    json
-  })
+  return await request<UpdateAudienceReq>(
+    `https://ads-api.reddit.com/api/${REDDIT_AUDIENCES_ADS_API_VERSION}/custom_audiences/${audienceid}/users`,
+    {
+      method: 'PATCH',
+      json
+    }
+  )
 }
 
 function ensureHashed(value: string): boolean {

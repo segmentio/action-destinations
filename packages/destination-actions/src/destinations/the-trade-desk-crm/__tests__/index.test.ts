@@ -70,7 +70,7 @@ describe('The Trade Desk CRM', () => {
       await expect(testDestination.getAudience(getAudienceInput)).rejects.toThrowError()
     })
 
-    it('should succeed when Segment External ID matches Data Segment in TikTok', async () => {
+    it('should succeed when Segment External ID matches Data Segment in The Trade Desk', async () => {
       nock(`${BASE_URL}/crmdata/segment/advertiser_id`)
         .get(/.*/)
         .reply(200, {

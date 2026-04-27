@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { DDEmailApi } from '../api'
+import { DDEmailApi } from '@segment/actions-shared'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Transactional Email',
@@ -60,7 +60,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    const emailApi = new DDEmailApi(settings, request)
+    const emailApi = new DDEmailApi(settings.api_host, request)
     return await emailApi.sendTransactionalEmail(payload)
   }
 }

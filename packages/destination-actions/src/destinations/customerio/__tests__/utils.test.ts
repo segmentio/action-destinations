@@ -1,4 +1,4 @@
-import { resolveIdentifiers, isIsoDate } from '../utils'
+import { convertValidTimestamp, resolveIdentifiers, isIsoDate } from '../utils'
 
 describe('isIsoDate', () => {
   it('should return true for valid ISO date with fractional seconds from 1-9 digits', () => {
@@ -77,5 +77,11 @@ describe('resolveIdentifiers', () => {
 
   it('should return undefined if no identifiers are provided', () => {
     expect(resolveIdentifiers({})).toBeUndefined()
+  })
+})
+
+describe('convertValidTimestamp', () => {
+  it('should leave decimal unix timestamps unchanged', () => {
+    expect(convertValidTimestamp('1712345678.123')).toBe('1712345678.123')
   })
 })

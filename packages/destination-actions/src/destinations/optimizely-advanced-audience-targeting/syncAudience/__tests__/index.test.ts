@@ -64,6 +64,18 @@ describe('OptimizelyAdvancedAudienceTargeting.syncAudience', () => {
       ).resolves.not.toThrowError()
     })
 
+    it('should reject event when optimizelyUserId is null', async () => {
+      await expect(
+        testDestination.testAction('syncAudience', {
+          event: trackEvent,
+          useDefaultMappings: true,
+          mapping: {
+            optimizelyUserId: null
+          }
+        })
+      ).rejects.toThrowError()
+    })
+
     it('should handle errors response', async () => {
       nock('https://function.zaius.app/twilio_segment').post('/batch_sync_audience').reply(400)
 
@@ -151,6 +163,20 @@ describe('OptimizelyAdvancedAudienceTargeting.syncAudience', () => {
           useDefaultMappings: true
         })
       ).resolves.not.toThrowError()
+    })
+
+    it('should reject events when optimizelyUserId is null', async () => {
+      await testDestination.testBatchAction('syncAudience', {
+        events: identifyEvents,
+        useDefaultMappings: true,
+        mapping: {
+          optimizelyUserId: null
+        }
+      })
+
+      const multiStatus = testDestination.results[0].multistatus
+      expect(multiStatus).toBeDefined()
+      expect(multiStatus?.every((r) => r.status === 400)).toBe(true)
     })
 
     it('should handle errors response', async () => {

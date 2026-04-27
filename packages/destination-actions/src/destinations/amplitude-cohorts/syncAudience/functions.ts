@@ -1,4 +1,4 @@
-import { RequestClient, MultiStatusResponse, JSONLikeObject, PayloadValidationError, ErrorCodes } from '@segment/actions-core'
+import { RequestClient, MultiStatusResponse, JSONLikeObject, PayloadValidationError, ErrorCodes, AudienceMembership } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PayloadMap, Operation, UploadToCohortJSON, UploadToCohortResponse, ResponseError, PossibleErrorCodes } from './types'
@@ -6,12 +6,9 @@ import { ID_TYPES } from '../constants'
 import { getEndpointByRegion } from '../functions'
 import { IDType } from '../types'
 
-export async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean, audienceSettings?: AudienceSettings) {
+export async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean, audienceSettings?: AudienceSettings, audienceMemberships?: AudienceMembership[]) {
   const { 
-    engage_fields: { 
-      segment_external_audience_id: audienceId,
-      segment_audience_key: audience_key
-    },
+    segment_external_audience_id: audienceId
   } = payloads[0] 
 
   const {
@@ -24,8 +21,8 @@ export async function send(request: RequestClient, payloads: Payload[], settings
 
   const msResponse = new MultiStatusResponse()
 
-  if(!audience_key){
-    return failAllPayloads(payloads, msResponse, isBatch, 'Segment Audience Key is a required field.')
+  if(!Array.isArray(audienceMemberships) ){
+    return failAllPayloads(payloads, msResponse, isBatch, 'Audience membership details missing')
   }
   if(!id_type) {
     return failAllPayloads(payloads, msResponse, isBatch, 'ID Type must be specified in Audience Settings.')
@@ -34,19 +31,23 @@ export async function send(request: RequestClient, payloads: Payload[], settings
   const addMap: PayloadMap = new Map()
   const deleteMap: PayloadMap = new Map()
 
-  payloads.forEach((payload, index) => {
-    const { 
-      engage_fields: { 
-        traits_or_properties
-      } = {}
-    } = payload
-
-    const isAudienceMember = traits_or_properties && typeof audience_key === 'string' && traits_or_properties[audience_key] === true
-    
-    if (isAudienceMember) {
+  payloads.forEach((payload, index) => {  
+    const membership = audienceMemberships[index]
+    if (membership === true) {
       addMap.set(index, payload)
-    } else {
+    } 
+    if (membership === false) {
       deleteMap.set(index, payload)
+    }
+    if(membership === undefined) {
+      handleError(
+        payload,
+        msResponse,
+        index,
+        isBatch,
+        "Audience Membership Details missing",
+        'PAYLOAD_VALIDATION_FAILED'
+      )
     }
   })
 

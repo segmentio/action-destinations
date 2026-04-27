@@ -16,7 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
     phone_number: { ...phone_number },
     enable_batching: { ...enable_batching },
     country_code: { ...country_code },
-    batch_size: { ...batch_size, default: 1000 },
+    batch_size: { ...batch_size, default: 1000, minimum: 100, maximum: 1000 },
     batch_keys: {
       label: 'Batch Keys',
       description: 'The keys to use for batching the events.',

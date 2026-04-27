@@ -2,6 +2,7 @@ import { defaultValues, AudienceDestinationDefinition } from '@segment/actions-c
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 import { CreateAudienceReq, CreateAudienceResp } from './types'
+import { REDDIT_AUDIENCES_AUTH_API_VERSION } from './versioning-info'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Reddit Audiences',
@@ -20,7 +21,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     refreshAccessToken: async (request, { auth }) => {
       const authToken = Buffer.from(`${auth.clientId}:${auth.clientSecret}`).toString('base64')
 
-      const res = await request('https://www.reddit.com/api/v1/access_token', {
+      const res = await request(`https://www.reddit.com/api/${REDDIT_AUDIENCES_AUTH_API_VERSION}/access_token`, {
         method: 'POST',
         headers: {
           Authorization: `Basic ${authToken}`,

@@ -1,5 +1,5 @@
 import { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
+import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { processBatchPayload, processPayload } from '../function'
 
@@ -105,6 +105,62 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.personas.external_audience_id'
       }
     },
+    consent: {
+      label: 'Consent',
+      description:
+        'Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.',
+      type: 'object',
+      required: false,
+      additionalProperties: false,
+      properties: {
+        ipAddress: {
+          label: 'Geographic Consent: IP Address',
+          description: "Captures the user's geographic information (IP address) for consent checking.",
+          type: 'string',
+          required: false
+        },
+        amznAdStorage: {
+          label: 'Ad Storage Consent',
+          description: 'Amazon Consent Format: Captures whether the user has consented to cookie based tracking.',
+          type: 'string',
+          required: false,
+          choices: [
+            { label: 'Granted', value: 'GRANTED' },
+            { label: 'Denied', value: 'DENIED' }
+          ]
+        },
+        amznUserData: {
+          label: 'User Data Consent',
+          description:
+            'Amazon Consent Format: Captures whether the user has consented to use personal data for advertising.',
+          type: 'string',
+          required: false,
+          choices: [
+            { label: 'Granted', value: 'GRANTED' },
+            { label: 'Denied', value: 'DENIED' }
+          ]
+        },
+        tcf: {
+          label: 'TCF String',
+          description: 'An encoded Transparency and Consent Framework (TCF) string describing user consent choices.',
+          type: 'string',
+          required: false
+        },
+        gpp: {
+          label: 'GPP String',
+          description: 'An encoded Global Privacy Platform (GPP) string describing user privacy preferences.',
+          type: 'string',
+          required: false
+        }
+      },
+      default: {
+        ipAddress: { '@path': '$.properties.ip' },
+        amznAdStorage: { '@path': '$.properties.amznAdStorage' },
+        amznUserData: { '@path': '$.properties.amznUserData' },
+        tcf: { '@path': '$.properties.tcf' },
+        gpp: { '@path': '$.properties.gpp' }
+      }
+    },
     enable_batching: {
       label: 'Enable Batching',
       description: 'When enabled,segment will send data in batching',
@@ -123,11 +179,11 @@ const action: ActionDefinition<Settings, Payload> = {
       minimum: 1500
     }
   },
-  perform: (request, { settings, payload, audienceSettings }) => {
-    return processPayload(request, settings, [payload], audienceSettings)
+  perform: (request, { settings, payload, audienceSettings, features }) => {
+    return processPayload(request, settings, [payload], audienceSettings as AudienceSettings, features)
   },
-  performBatch: async (request, { settings, payload: payloads, audienceSettings }) => {
-    return await processBatchPayload(request, settings, payloads, audienceSettings)
+  performBatch: async (request, { settings, payload: payloads, audienceSettings, features }) => {
+    return await processBatchPayload(request, settings, payloads, audienceSettings as AudienceSettings, features)
   }
 }
 

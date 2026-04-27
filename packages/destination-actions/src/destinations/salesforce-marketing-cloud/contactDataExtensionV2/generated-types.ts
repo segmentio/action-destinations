@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The primary key(s) that uniquely identify a row in the data extension. On the left-hand side, input the SFMC key name. On the right-hand side, map the Segment field that contains the corresponding value. When multiple primary keys are provided, SFMC will update an existing row if all primary keys match, otherwise a new row will be created
+   * The Primary Key is a unique identifier for each row in the Data Extension. In the mapping configuration, enter the SFMC Key Name on the left and map the corresponding Segment Field on the right. Each Data Extension supports only one Primary Key. When data is sent to SFMC, the system will update an existing row if the Primary Key matches; otherwise, it will create a new record.
    */
   keys: {
     /**
