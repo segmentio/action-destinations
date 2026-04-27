@@ -33,7 +33,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       description: 'The keys to use for batching the events.',
       type: 'string',
       multiple: true,
-      default: ['send_email', 'send_phone', 'send_advertising_id', 'external_audience_id'],
+      default: ['send_email', 'send_phone', 'send_advertising_id'],
       unsafe_hidden: true
     }
   },
