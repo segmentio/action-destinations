@@ -10,9 +10,10 @@ import {
 import { TikTokAudiences } from '../api'
 import { AudienceSettings } from '../generated-types'
 import { Payload } from './generated-types'
-import { getIDSchema, isHashedInformation, hash } from '../functions'
+import { getIDSchema } from '../functions'
 import { TikTokAudienceAction } from './types'
 import { APIResponse } from '../types'
+import { processHashing } from '../../../lib/hashing-utils'
 
 export async function send(
   request: RequestClient,
@@ -23,8 +24,20 @@ export async function send(
 ) {
   const multiStatusResponse = new MultiStatusResponse()
 
+  const { advertiserId } = audienceSettings || {}
+
   if (!audienceSettings) {
     return returnAllErrors(multiStatusResponse, payloads, 400, 'Bad Request: no audienceSettings found.', isBatch)
+  }
+
+  if(!advertiserId) {
+    return returnAllErrors(
+      multiStatusResponse,
+      payloads,
+      400,
+      'Bad Request: Advertiser ID is required in audienceSettings.',
+      isBatch
+    )
   }
 
   if (
@@ -178,12 +191,14 @@ export async function sendAndCollectResponses(
       }
     }
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error'
+    const message = err instanceof IntegrationError ? err.message : 'Unknown error'
+    const status = err instanceof IntegrationError && typeof err.status === 'number' ? err.status : 500
 
     for (const [index, p] of payloadMap) {
       if (!multiStatusResponse.getResponseAtIndex(index)) {
+        
         multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 500,
+          status,
           errormessage: message,
           sent: {
             action,
@@ -244,7 +259,17 @@ export function validate(
   isBatch?: boolean
 ): boolean {
 
-  const { email, phone, advertising_id, send_email, send_phone, send_advertising_id } = payload
+  const { email, phone, advertising_id, send_email, send_phone, send_advertising_id, external_audience_id } = payload
+
+  if (!external_audience_id) {
+    return handleValidationError(
+      multiStatusResponse, 
+      index, 
+      payload, 
+      'Missing required field: external_audience_id.', 
+      isBatch
+    )
+  }
 
   if (!send_email && !send_phone && !send_advertising_id) {
     return handleValidationError(
@@ -281,7 +306,7 @@ export function extractUsers(payloads: Payload[]): Record<string, unknown>[][] {
     if (payload.send_email) {
       if (payload.email) {
         const normalized = normalizeEmail(payload.email)
-        userIds.push({ id: isHashedInformation(normalized) ? normalized : hash(normalized), audience_ids: audienceIds })
+        userIds.push({ id: processHashing(normalized, 'sha256', 'hex'), audience_ids: audienceIds })
       } else {
         userIds.push({})
       }
@@ -290,7 +315,7 @@ export function extractUsers(payloads: Payload[]): Record<string, unknown>[][] {
     if (payload.send_phone) {
       if (payload.phone) {
         userIds.push({
-          id: isHashedInformation(payload.phone) ? payload.phone : hash(payload.phone),
+          id: processHashing(payload.phone, 'sha256', 'hex'),
           audience_ids: audienceIds
         })
       } else {
@@ -300,7 +325,7 @@ export function extractUsers(payloads: Payload[]): Record<string, unknown>[][] {
 
     if (payload.send_advertising_id) {
       if (payload.advertising_id) {
-        userIds.push({ id: hash(payload.advertising_id), audience_ids: audienceIds })
+        userIds.push({ id: processHashing(payload.advertising_id, 'sha256', 'hex'), audience_ids: audienceIds })
       } else {
         userIds.push({})
       }
