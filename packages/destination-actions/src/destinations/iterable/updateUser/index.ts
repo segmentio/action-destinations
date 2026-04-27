@@ -21,6 +21,7 @@ interface UserUpdateRequestPayload {
 }
 
 interface BulkUserUpdateRequestPayload {
+  updateOnly?: boolean
   users: UserUpdateRequestPayload[]
 }
 
@@ -68,6 +69,23 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: true
     },
+    updateOnly: {
+      label: 'Update Only',
+      description: 'When enabled, Segment will only update existing users in Iterable. New users will not be created. This is only applicable when batching is enabled. Talk to your Iterable representative to enable this feature on the Iterable side.',
+      type: 'boolean',
+      required: false, 
+      disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment'],
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'enable_batching',
+            operator: 'is',
+            value: true
+          }
+        ]
+      }
+    },
     batch_size: {
       label: 'Batch Size',
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
@@ -92,7 +110,9 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   },
   performBatch: (request, { settings, payload }) => {
+    const { updateOnly } = payload[0]
     const bulkUpdateUserRequestPayload: BulkUserUpdateRequestPayload = {
+      ...( updateOnly ? { updateOnly } : {}),
       users: payload.map(transformIterableUserPayload)
     }
 
