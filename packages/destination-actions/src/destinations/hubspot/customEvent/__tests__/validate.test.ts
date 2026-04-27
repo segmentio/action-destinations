@@ -51,4 +51,39 @@ describe('Hubspot.customEvent', () => {
     const validatedPayload = validate(payload)
     expect(validatedPayload).toEqual(expectedValidatedPayload)
   })
+
+  it('should preserve empty strings as strings and not convert them to numbers', async () => {
+    const payloadWithEmptyString: Payload = {
+      event_name: 'Test Event',
+      record_details: {
+        object_type: 'contact',
+        email: 'test@example.com'
+      },
+      properties: {
+        empty_string: '',
+        whitespace_string: '   ',
+        valid_number: '123',
+        valid_string: 'hello',
+        bool_str: 'false'
+      }
+    }
+
+    const validatedPayload = validate(payloadWithEmptyString)
+
+    // Empty string should remain as empty string, not be converted to 0
+    expect(validatedPayload.properties?.empty_string).toBe('')
+    expect(typeof validatedPayload.properties?.empty_string).toBe('string')
+
+    // Whitespace-only string should be trimmed to empty string, not converted to 0
+    expect(validatedPayload.properties?.whitespace_string).toBe('')
+    expect(typeof validatedPayload.properties?.whitespace_string).toBe('string')
+
+    // Numeric string should still be converted to number
+    expect(validatedPayload.properties?.valid_number).toBe(123)
+    expect(typeof validatedPayload.properties?.valid_number).toBe('number')
+
+    // Regular string should remain as string
+    expect(validatedPayload.properties?.valid_string).toBe('hello')
+    expect(typeof validatedPayload.properties?.valid_string).toBe('string')
+  })
 })
