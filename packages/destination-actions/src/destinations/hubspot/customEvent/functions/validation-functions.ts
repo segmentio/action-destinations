@@ -16,10 +16,11 @@ export function validate(payload: Payload): Payload {
       'Contact requires at least one of object_id (as number), email or utk to be provided'
     )
   }
-
+  console.log('Payload before cleaning', payload)
   cleanIdentifiers(payload)
   payload.event_name = cleanEventName(payload.event_name)
   payload.properties = cleanPropObj(payload.properties ?? {})
+  console.log('Payload after cleaning properties:', payload)
 
   return payload
 }
@@ -62,8 +63,9 @@ function cleanPropObj(
     ) {
       // If the value can be cast to a boolean
       cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
-    } else if (!isNaN(Number(value))) {
+    } else if (typeof value === 'string' && value.trim() !== '' && !isNaN(Number(value))) {
       // If the value can be cast to a number
+      console.log(`Converting value ${value} to number for property ${cleanKey}`)
       cleanObj[cleanKey] = Number(value)
     } else if (typeof value === 'object' && value !== null) {
       // If the value is an object
