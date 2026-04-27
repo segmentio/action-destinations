@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestIntegration, PayloadValidationError, SegmentEvent } from '@segment/actions-core'
 import Destination from '../index'
 import fs from 'fs'
-import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME } from '../properties'
+import { LIVERAMP_MIN_RECORD_COUNT } from '../properties'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -32,6 +32,11 @@ jest.mock('@aws-sdk/client-s3', () => ({
     constructor: { name: 'PutObjectCommand' },
     input
   }))
+}))
+
+jest.mock('@aws-sdk/client-sts', () => ({
+  STSClient: jest.fn(),
+  AssumeRoleCommand: jest.fn()
 }))
 
 describe('Liveramp Audiences', () => {
@@ -100,9 +105,6 @@ describe('Liveramp Audiences', () => {
         settings: {
           __segment_internal_engage_force_full_sync: true,
           __segment_internal_engage_batch_sync: true
-        },
-        features: {
-          [LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME]: true
         }
       })
       for (let i = 0; i < mockedEvents.length; i++) {
@@ -260,9 +262,6 @@ describe('Liveramp Audiences', () => {
         settings: {
           __segment_internal_engage_force_full_sync: true,
           __segment_internal_engage_batch_sync: true
-        },
-        features: {
-          [LIVERAMP_ENABLE_COMPRESSION_FLAG_NAME]: true
         }
       })
       for (let i = 0; i < mockedEvents.length; i++) {

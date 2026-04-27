@@ -25,11 +25,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
       nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(201, {
-        importId: 'mem_import_test',
-        url: 'https://example.com/presigned-url'
-      })
-      nock(/.*/).persist().put(/.*/).reply(200)
+      nock(/.*/).persist().put(/.*/).reply(202)
 
       const event = createTestEvent({
         properties: eventData
@@ -39,8 +35,11 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const mapping = {
         ...event.properties,
         memora_store: 'test-store-id',
-        contact_identifiers: {
-          email: 'test@example.com'
+        profile_identifiers: {
+          'Contact.$.email': 'test@example.com'
+        },
+        profile_traits: {
+          'Contact.$.firstName': 'Test'
         }
       }
 
@@ -71,11 +70,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
       nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(201, {
-        importId: 'mem_import_test',
-        url: 'https://example.com/presigned-url'
-      })
-      nock(/.*/).persist().put(/.*/).reply(200)
+      nock(/.*/).persist().put(/.*/).reply(202)
 
       const event = createTestEvent({
         properties: eventData
@@ -85,12 +80,12 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const mapping = {
         ...event.properties,
         memora_store: 'test-store-id',
-        contact_identifiers: {
-          email: 'test@example.com'
+        profile_identifiers: {
+          'Contact.$.email': 'test@example.com'
         },
-        contact_traits: {
-          firstName: 'Test',
-          lastName: 'User'
+        profile_traits: {
+          'Contact.$.firstName': 'Test',
+          'Contact.$.lastName': 'User'
         }
       }
 
@@ -111,61 +106,6 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       } catch (err) {
         expect(rawBody).toMatchSnapshot()
       }
-    })
-
-    it(`${actionSlug} action - should throw error when memora_store is missing`, async () => {
-      const seedName = `${destinationSlug}#${actionSlug}`
-      const action = destination.actions[actionSlug]
-      const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
-
-      const event = createTestEvent({
-        properties: eventData
-      })
-
-      const mapping = {
-        ...event.properties,
-        contact_identifiers: {
-          email: 'test@example.com'
-        }
-      }
-
-      await expect(
-        testDestination.testAction(actionSlug, {
-          event: event,
-          mapping: mapping,
-          settings: settingsData,
-          auth: undefined
-        })
-      ).rejects.toThrow()
-    })
-
-    it(`${actionSlug} action - should throw error when profile has no traits`, async () => {
-      const seedName = `${destinationSlug}#${actionSlug}`
-      const action = destination.actions[actionSlug]
-      const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
-
-      nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(202)
-      nock(/.*/).persist().put(/.*/).reply(202)
-
-      const event = createTestEvent({
-        properties: eventData
-      })
-
-      const mapping = {
-        ...event.properties,
-        memora_store: 'test-store-id',
-        contact_identifiers: {}
-      }
-
-      await expect(
-        testDestination.testAction(actionSlug, {
-          event: event,
-          mapping: mapping,
-          settings: settingsData,
-          auth: undefined
-        })
-      ).rejects.toThrow('Profile at index 0 must contain at least one identifier (email or phone)')
     })
   }
 })

@@ -1,0 +1,1 @@
+export const ATTRIBUTION_ENDPOINT = 'https://track.attributionapp.com'

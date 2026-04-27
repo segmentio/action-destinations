@@ -52,6 +52,7 @@ export type UserData = {
 }
 
 export type FBEvent = {
+  partner_agent: 'segment'
   content_category?: string
   content_ids?: string[]
   content_name?: string

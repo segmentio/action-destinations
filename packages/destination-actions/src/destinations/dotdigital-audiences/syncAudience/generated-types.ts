@@ -33,8 +33,4 @@ export interface Payload {
   dataFields?: {
     [k: string]: unknown
   }
-  /**
-   * Batching not supported.
-   */
-  enable_batching: boolean
 }

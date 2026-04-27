@@ -7,6 +7,7 @@ Object {
     Object {
       "event": "$screen",
       "properties": Object {
+        "$ip": "196.63.8.112",
         "$process_person_profile": false,
         "$screen_name": "scGkpY98jhDM)^PXi",
         "distinct_id": "scGkpY98jhDM)^PXi",
@@ -42,6 +43,7 @@ Object {
   "distinct_id": "Y@^Qn@JBH%2A45seK8B[",
   "event": "$identify",
   "properties": Object {
+    "$ip": "245.175.220.233",
     "$set": Object {
       "testType": "Y@^Qn@JBH%2A45seK8B[",
     },

@@ -1,6 +1,20 @@
 import { isAWSError } from '../syncToS3/client'
 import { _Error as AWSError } from '@aws-sdk/client-s3'
 
+// Mock AWS SDK before any imports to avoid initialization issues
+jest.mock('@aws-sdk/client-s3', () => ({
+  S3Client: jest.fn().mockImplementation(() => ({
+    send: jest.fn()
+  })),
+  PutObjectCommand: jest.fn(),
+  _Error: jest.fn()
+}))
+
+jest.mock('@aws-sdk/client-sts', () => ({
+  STSClient: jest.fn(),
+  AssumeRoleCommand: jest.fn()
+}))
+
 describe('isAWSError', () => {
   it('should return true for a valid AWS error', () => {
     const error: AWSError = {

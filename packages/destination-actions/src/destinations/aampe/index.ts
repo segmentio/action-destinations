@@ -2,7 +2,7 @@ import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendEvent from './sendEvent'
 import upsertUserProfile from './upsertUserProfile'
-import { SingaporeURL, GermanyURL, FranceURL } from './constants'
+import { SingaporeURL, GermanyURL, UsURL } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Aampe (Actions)',
@@ -26,7 +26,7 @@ const destination: DestinationDefinition<Settings> = {
         choices: [
           { label: 'Singapore', value: SingaporeURL },
           { label: 'Germany', value: GermanyURL },
-          { label: 'France', value: FranceURL }
+          { label: 'US', value: UsURL }
         ],
         default: SingaporeURL
       }

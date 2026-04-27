@@ -11,17 +11,20 @@ import type { Settings } from '../generated-types'
 import type {
   EventData,
   ConsentData,
+  EventDescription,
+  DataProcessingOptions,
   RegionValue,
   AmazonConsentFormat,
-  ImportConversionEventsResponse,
-  EventDataSuccessResponseV1,
-  EventDataErrorResponseV1,
+  EventMultiStatusResponse,
+  EventMultiStatusSuccess,
+  ErrorsIndex,
   MatchKeyV1,
   CurrencyCodeV1,
   CustomAttributeV1
 } from '../types'
 import { MatchKeyTypeV1, Region, ConversionTypeV2 } from '../types'
 import type { Payload } from './generated-types'
+import { AMAZON_CONVERSIONS_API_EVENTS_VERSION } from '../versioning-info'
 
 /**
  * Helper function to validate if a string value exists and is not empty
@@ -44,13 +47,12 @@ export function validateConsent(consent: Payload['consent'], region: RegionValue
   const { ipAddress, amznAdStorage, amznUserData, tcf, gpp } = consent || {}
   const consentData: Partial<ConsentData> = {
     ...(hasStringValue(ipAddress) && { geo: { ipAddress } }),
-    ...(hasStringValue(amznAdStorage) &&
-      hasStringValue(amznUserData) && {
-        amazonConsent: {
-          amznAdStorage,
-          amznUserData
-        } as AmazonConsentFormat
-      }),
+    ...(hasStringValue(amznUserData) && {
+      amazonConsent: {
+        amznUserData,
+        ...(hasStringValue(amznAdStorage) && { amznAdStorage })
+      } as AmazonConsentFormat
+    }),
     ...(hasStringValue(tcf) && { tcf }),
     ...(hasStringValue(gpp) && { gpp })
   }
@@ -142,18 +144,20 @@ export async function sendEventsRequest<ImportConversionEventsResponse>(
   // Ensure eventData is always an array
   const events = Array.isArray(eventData) ? eventData : [eventData]
 
-  return await request<ImportConversionEventsResponse>(`${settings.region}/events/v1`, {
-    method: 'POST',
-    json: {
-      eventData: events,
-      ingestionMethod: 'SERVER_TO_SERVER'
-    },
-    headers: {
-      'Amazon-Ads-AccountId': settings.advertiserId
-    },
-    timeout: 25000,
-    throwHttpErrors: false
-  })
+  return await request<ImportConversionEventsResponse>(
+    `${settings.region}/adsApi/${AMAZON_CONVERSIONS_API_EVENTS_VERSION}/create/events`,
+    {
+      method: 'POST',
+      json: {
+        events: events
+      },
+      headers: {
+        'Amazon-Ads-AccountId': settings.advertiserId,
+        'Amazon-Ads-ClientId': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
+      },
+      throwHttpErrors: false
+    }
+  )
 }
 
 /**
@@ -185,15 +189,15 @@ export function validateCountryCode(input: string): string {
 }
 
 export function handleResponse(
-  response: ModifiedResponse<ImportConversionEventsResponse>
-): ModifiedResponse<ImportConversionEventsResponse> {
+  response: ModifiedResponse<EventMultiStatusResponse>
+): ModifiedResponse<EventMultiStatusResponse> {
   if (response.status === 207 && response.data) {
     const responseData = response.data
 
     if (responseData.error && Array.isArray(responseData.error) && responseData.error.length > 0) {
       return {
         ...response,
-        status: Number(responseData.error[0].httpStatusCode) || 400
+        status: 400
       }
     }
   }
@@ -205,25 +209,25 @@ export function handleResponse(
  * Handles 207 multistatus responses with errors
  */
 export function handleBatchResponse(
-  response: ModifiedResponse<ImportConversionEventsResponse>,
+  response: ModifiedResponse<EventMultiStatusResponse>,
   validPayloads: EventData[],
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse
 ): MultiStatusResponse {
   if (response.status === 207 && response.data) {
     const responseData = response.data
-    const successMap: Record<number, EventDataSuccessResponseV1> = {}
-    const errorMap: Record<number, EventDataErrorResponseV1> = {}
+    const successMap: Record<number, EventMultiStatusSuccess> = {}
+    const errorMap: Record<number, ErrorsIndex> = {}
 
     if (responseData.success && Array.isArray(responseData.success)) {
       responseData.success.forEach((item) => {
-        successMap[item.index - 1] = item
+        successMap[item.index] = item
       })
     }
 
     if (responseData.error && Array.isArray(responseData.error)) {
       responseData.error.forEach((item) => {
-        errorMap[item.index - 1] = item
+        errorMap[item.index] = item
       })
     }
 
@@ -232,10 +236,10 @@ export function handleBatchResponse(
       if (errorMap[arrayPosition]) {
         const errorResult = errorMap[arrayPosition]
         multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
-          status: parseInt(errorResult.httpStatusCode || '400', 10),
+          status: parseInt('400', 10),
           sent: payload as unknown as JSONLikeObject,
           body: errorResult as unknown as JSONLikeObject,
-          errormessage: errorResult.subErrors?.[0]?.errorMessage || 'Error processing payload'
+          errormessage: errorResult.errors[0].message || 'Error processing payload'
         })
       } else if (successMap[arrayPosition]) {
         multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
@@ -375,13 +379,18 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     })
   })
 
-  // Prepare event data
-  const eventData: EventData = {
+  const eventDescription: EventDescription = {
     name: payload.name,
-    eventType: payload.eventType as ConversionTypeV2,
-    eventActionSource: payload.eventActionSource.toUpperCase(),
+    conversionType: payload.eventType as ConversionTypeV2,
+    eventSource: payload.eventActionSource.toUpperCase(),
+    eventIngestionMethod: 'SERVER_TO_SERVER',
+    ...(settings.dataSetName ? { dataSetName: settings.dataSetName } : {})
+  }
+
+  const eventData: EventData = {
+    eventDescription,
     countryCode: validateCountryCode(payload.countryCode),
-    timestamp: payload.timestamp
+    eventTime: payload.timestamp
   }
 
   if (matchKeys) {
@@ -392,17 +401,24 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
 
   Object.assign(eventData, {
     ...(payload.value !== undefined && { value: payload.value }),
-    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.currencyCode && {
-      currencyCode: payload.currencyCode as CurrencyCodeV1
+    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES &&
+      payload.currencyCode && {
+        currencyCode: payload.currencyCode as CurrencyCodeV1
+      }),
+    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES &&
+      payload.unitsSold !== undefined && {
+        unitsSold: payload.unitsSold
+      }),
+    ...(payload.clientDedupeId && { eventId: payload.clientDedupeId }),
+    ...(payload.dataProcessingOptions?.[0] && {
+      dataProcessingOptions: {
+        options: payload.dataProcessingOptions[0]
+      } as DataProcessingOptions
     }),
-    ...(payload.eventType === ConversionTypeV2.OFF_AMAZON_PURCHASES && payload.unitsSold !== undefined && {
-      unitsSold: payload.unitsSold
-    }),
-    ...(payload.clientDedupeId && { clientDedupeId: payload.clientDedupeId }),
-    ...(payload.dataProcessingOptions && { dataProcessingOptions: payload.dataProcessingOptions }),
+
     ...(consent && { consent }),
     ...(payload.customAttributes && {
-      customAttributes: customAttributeArray.length > 0 ? customAttributeArray : undefined
+      customData: customAttributeArray.length > 0 ? customAttributeArray : undefined
     })
   })
 

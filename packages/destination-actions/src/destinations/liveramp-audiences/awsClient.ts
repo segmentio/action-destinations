@@ -46,6 +46,12 @@ interface LRMetaPayload {
     s3SecretAccessKey: string
     s3BucketPath?: string
   }
+
+  segmentInternal: {
+    audienceId: string
+    destinationConfigId: string
+    subscriptionId: string
+  }
 }
 
 const NODE_ENV = process.env['NODE_ENV'] || `stage`
@@ -70,7 +76,14 @@ export const sendEventToAWS = async (input: SendToAWSRequest) => {
     audienceKey: input.audienceComputeId || '',
     uploadType: input.uploadType,
     filename: input.filename,
-    gzipCompressFile: input.gzipCompressFile
+    gzipCompressFile: input.gzipCompressFile,
+
+    // Segment Internal Metadata for Observability and Debugging
+    segmentInternal: {
+      audienceId: input.audienceComputeId || '',
+      destinationConfigId: input.destinationInstanceID || '',
+      subscriptionId: input.subscriptionId || ''
+    }
   }
 
   if (input.uploadType === 'sftp') {

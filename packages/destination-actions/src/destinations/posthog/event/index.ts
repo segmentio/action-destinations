@@ -120,6 +120,14 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number',
       default: 100,
       unsafe_hidden: true
+    },
+    ip_address: {
+      label: 'IP Address',
+      description: 'The IP address of the user',
+      type: 'string',
+      format: 'ipv4',
+      default: { '@path': '$.context.ip' },
+      allowNull: true
     }
   },
   perform: (request, { settings, payload }) => {
@@ -149,7 +157,8 @@ function send(request: RequestClient, settings: Settings, payload: Payload[]) {
         $screen_name: payload.event_type === 'screen' ? payload.screen_name : undefined,
         distinct_id: payload.distinct_id,
         $process_person_profile: payload.anonymous_event_capture,
-        $geoip_disable: settings.geoip_disable || undefined
+        $geoip_disable: settings.geoip_disable || undefined,
+        $ip: payload.ip_address || undefined
       }
     }))
   }

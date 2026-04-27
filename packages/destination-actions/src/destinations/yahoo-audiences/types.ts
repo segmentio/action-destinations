@@ -32,3 +32,7 @@ export interface YahooSubTaxonomy {
   engage_space_id: string
   //identifier: string
 }
+
+export interface TokenResponse {
+  access_token: string
+}

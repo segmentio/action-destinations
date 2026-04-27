@@ -3,7 +3,11 @@ import { assumeRole } from '../sts'
 import { ErrorCodes } from '@segment/actions-core'
 
 // Mock dependencies
-jest.mock('@aws-sdk/client-sts')
+jest.mock('@aws-sdk/client-sts', () => ({
+  STSClient: jest.fn(),
+  AssumeRoleCommand: jest.fn()
+}))
+
 jest.mock('uuid', () => ({ v4: jest.fn(() => 'mocked-session-id') }))
 jest.mock('@segment/actions-core', () => ({
   IntegrationError: jest.fn().mockImplementation((message, code, status) => ({

@@ -1,15 +1,17 @@
 import { ActionDefinition, DynamicFieldResponse, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { DDContactApi, DDListsApi } from '../api'
-import { contactIdentifier } from '../input-fields'
+import { DDContactApi, DDListsApi } from '@segment/actions-shared'
+import { channelIdentifier, emailIdentifier, mobileNumberIdentifier } from '../input-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Contact from List',
   description: 'Removes a Contact from a List.',
   defaultSubscription: 'type = "track" and event = "Remove Contact from List"',
   fields: {
-    ...contactIdentifier,
+    channelIdentifier,
+    emailIdentifier,
+    mobileNumberIdentifier,
     listId: {
       label: 'List',
       description: `The List to remove the Contact from.`,
@@ -22,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   dynamicFields: {
     listId: async (request: RequestClient, { settings }): Promise<DynamicFieldResponse> => {
-      return new DDListsApi(settings, request).getLists()
+      return new DDListsApi(settings.api_host, request).getLists()
     }
   },
 
@@ -30,10 +32,10 @@ const action: ActionDefinition<Settings, Payload> = {
     const { channelIdentifier, emailIdentifier, mobileNumberIdentifier, listId } = payload
     const identifierValue = channelIdentifier === 'email' ? emailIdentifier : mobileNumberIdentifier
 
-    const contact = new DDContactApi(settings, request)
+    const contact = new DDContactApi(settings.api_host, request)
     const response = await contact.getContact(channelIdentifier, identifierValue)
 
-    const lists = new DDListsApi(settings, request)
+    const lists = new DDListsApi(settings.api_host, request)
     return lists.deleteContactFromList(listId, response.contactId)
   }
 }

@@ -25,10 +25,10 @@ Headers {
       "application/json",
     ],
     "ld-api-version": Array [
-      "20220603",
+      "20240415",
     ],
     "user-agent": Array [
-      "SegmentSyncAudiences/1.0.0",
+      "SegmentSyncAudiences/1.1.0",
     ],
   },
 }

@@ -62,6 +62,10 @@ describe('validateIamRoleArnFormat', () => {
 })
 
 jest.mock('@aws-sdk/client-kinesis')
+jest.mock('@aws-sdk/client-sts', () => ({
+  STSClient: jest.fn(),
+  AssumeRoleCommand: jest.fn()
+}))
 jest.mock('../../../lib/AWS/sts')
 
 const mockSend = jest.fn()

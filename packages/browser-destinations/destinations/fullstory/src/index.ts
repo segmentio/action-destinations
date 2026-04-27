@@ -66,6 +66,24 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
       type: 'boolean',
       required: false,
       default: false
+    }, 
+    host: {
+      label: 'Host',
+      description: "The domain of the web capture server host. Can be set to direct captured events to a [Fullstory Custom Endpoint](https://help.fullstory.com/hc/en-us/articles/18612999473175-How-to-send-captured-traffic-to-your-First-Party-Domain-using-Custom-Endpoints) or a proxy that you host. Defaults to 'fullstory.com'.",
+      type: 'string',
+      required: false
+    }, 
+    appHost: {
+      label: 'App Host',
+      description: "The App Host is used to define the specific base URL for the Fullstory application where session URLs are generated and displayed. Leave blank if using the default value for \"Host\"",
+      type: 'string',
+      required: false
+    }, 
+    script: {
+      label: 'Custom Script URL',
+      description: "Optionally specify a custom FullStory script URL. Useful if you are using a proxy. The default is 'edge.fullstory.com/s/fs.js'.",
+      type: 'string',
+      required: false
     }
   },
   actions: {
@@ -77,7 +95,21 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
     viewedPageV2
   },
   initialize: async ({ settings }, dependencies) => {
-    initFullStory(settings)
+
+    const { 
+      host, 
+      appHost,
+      script
+    } = settings
+
+    const inputOptions = {
+      ...settings, 
+      ...(host ? { host } : {}),
+      ...(appHost ? { appHost } : {}),
+      ...(script ? { script } : {})
+    } 
+
+    initFullStory(inputOptions)
     await dependencies.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'FS'), 100)
     return window.FS
   }

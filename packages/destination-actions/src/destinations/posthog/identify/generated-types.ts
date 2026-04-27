@@ -15,4 +15,8 @@ export interface Payload {
    * The timestamp of the event
    */
   timestamp?: string | number
+  /**
+   * The IP address of the user
+   */
+  ip_address?: string | null
 }
