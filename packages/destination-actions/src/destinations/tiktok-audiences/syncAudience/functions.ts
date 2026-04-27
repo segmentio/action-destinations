@@ -245,6 +245,7 @@ function returnAllErrors(
   payloads.forEach((p, i) => {
     multiStatusResponse.setErrorResponseAtIndex(i, {
       status,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: message,
       body: p as unknown as JSONLikeObject
     })
