@@ -9,32 +9,17 @@ describe('getIds function', () => {
       const payloads: Payload[] = [
         {
           user_id: 'user1',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: {},
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort123'
-          },
+          segment_external_audience_id: 'cohort123',
           batch_size: 100
         },
         {
           user_id: 'user2',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: {},
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort123'
-          },
+          segment_external_audience_id: 'cohort123',
           batch_size: 100
         },
         {
           user_id: 'user3',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: {},
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort123'
-          },
+          segment_external_audience_id: 'cohort123',
           batch_size: 100
         }
       ]
@@ -55,42 +40,22 @@ describe('getIds function', () => {
       const payloads: Payload[] = [
         {
           user_id: 'user1',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: {},
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort123'
-          },
+           segment_external_audience_id: 'cohort123',
           batch_size: 100
         },
         {
           user_id: 'user2',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: {},
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort123'
-          },
+          segment_external_audience_id: 'cohort123',
           batch_size: 100
         },
         {
           user_id: 'user1', // Duplicate of index 0
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: {},
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort123'
-          },
+          segment_external_audience_id: 'cohort123',
           batch_size: 100
         },
         {
           user_id: 'user3',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: {},
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort123'
-          },
+          segment_external_audience_id: 'cohort123',
           batch_size: 100
         }
       ]
@@ -110,12 +75,7 @@ describe('getIds function', () => {
         data: {
           body: {
             batch_size: 100,
-            engage_fields: {
-              segment_audience_key: "test_audience",
-              segment_computation_class: "audience",
-              segment_external_audience_id: "cohort123",
-              traits_or_properties: {}
-            },
+            segment_external_audience_id: 'cohort123',
             user_id: "user1"
           },
           errormessage: "Duplicate ID user1 of type User ID found in payload batch. The duplicate payload has been rejected. Each payload must have a unique ID for the specified ID Type.",
@@ -133,42 +93,22 @@ describe('getIds function', () => {
       const payloads: Payload[] = [
         {
           user_id: 'duplicate_user',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: {},
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort123'
-          },
+          segment_external_audience_id: 'cohort123',
           batch_size: 100
         },
         {
           user_id: 'unique_user',
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: {},
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort123'
-          },
+          segment_external_audience_id: 'cohort123',
           batch_size: 100
         },
         {
           user_id: 'duplicate_user', // First duplicate
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: {},
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort123'
-          },
+          segment_external_audience_id: 'cohort123',
           batch_size: 100
         },
         {
           user_id: 'duplicate_user', // Second duplicate
-          engage_fields: {
-            segment_computation_class: 'audience',
-            traits_or_properties: {},
-            segment_audience_key: 'test_audience',
-            segment_external_audience_id: 'cohort123'
-          },
+          segment_external_audience_id: 'cohort123',
           batch_size: 100
         }
       ]

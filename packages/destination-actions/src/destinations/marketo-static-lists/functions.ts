@@ -126,7 +126,10 @@ export async function addToListBatch(
   })
 
   if (!response.data.success) {
-    statsContext?.statsClient?.incr('addToAudience.error', payloads.length, statsContext?.tags)
+    statsContext?.statsClient?.incr('addToAudience.error', payloads.length, [
+      ...(statsContext?.tags ?? []),
+      `error_code:${response?.data?.errors?.[0]?.code ?? 'unknown'}`
+    ])
     return parseErrorResponseBatch(response.data, payloads.length)
   }
 
@@ -235,7 +238,10 @@ export async function removeFromListBatch(
   })
 
   if (!getLeadsResponse.data.success) {
-    statsContext?.statsClient?.incr('removeFromAudience.error', payloads.length, statsContext?.tags)
+    statsContext?.statsClient?.incr('removeFromAudience.error', payloads.length, [
+      ...(statsContext?.tags ?? []),
+      `error_code:${getLeadsResponse?.data?.errors?.[0]?.code ?? 'unknown'}`
+    ])
     return parseErrorResponseBatch(getLeadsResponse.data, payloads.length)
   }
 
@@ -254,7 +260,10 @@ export async function removeFromListBatch(
   })
 
   if (!deleteLeadsResponse.data.success) {
-    statsContext?.statsClient?.incr('removeFromAudience.error', payloads.length, statsContext?.tags)
+    statsContext?.statsClient?.incr('removeFromAudience.error', payloads.length, [
+      ...(statsContext?.tags ?? []),
+      `error_code:${deleteLeadsResponse?.data?.errors?.[0]?.code ?? 'unknown'}`
+    ])
     return parseErrorResponseBatch(deleteLeadsResponse.data, payloads.length)
   }
   statsContext?.statsClient?.incr('removeFromAudience.success', payloads.length, statsContext?.tags)
@@ -323,6 +332,7 @@ const MARKETO_RETRYABLE_CODES = new Set([
   '713', // Transient error – system resource temporarily unavailable
   '719', // Lock wait timeout
   '1019', // Batch import in progress on list
+  '1016', // Too many imports in progress
   '1029' // Queue/export limit exceeded
 ])
 
@@ -345,7 +355,7 @@ function parseErrorResponse(response: MarketoResponse) {
     throw new RetryableError(message)
   }
 
-  throw new IntegrationError(message, ErrorCodes.NOT_ACCEPTABLE, 406)
+  throw new IntegrationError(message, ErrorCodes.RETRYABLE_ERROR, 500)
 }
 
 function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number) {
@@ -369,13 +379,15 @@ function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number)
     return buildMultiStatusErrorResponse(payloadSize, {
       status: 500,
       errortype: ErrorCodes.RETRYABLE_ERROR,
+      body: response.errors[0] as unknown as JSONLikeObject,
       errormessage: message
     })
   }
 
   return buildMultiStatusErrorResponse(payloadSize, {
-    status: 406,
-    errortype: ErrorCodes.NOT_ACCEPTABLE,
+    status: 500,
+    errortype: ErrorCodes.RETRYABLE_ERROR,
+    body: response.errors[0] as unknown as JSONLikeObject,
     errormessage: message
   })
 }

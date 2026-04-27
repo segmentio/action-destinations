@@ -126,16 +126,18 @@ describe('MultiStatus', () => {
 
       expect(response).toMatchObject([
         {
-          status: 406,
-          errortype: 'NOT_ACCEPTABLE',
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'INTEGRATIONS'
+          errorreporter: 'DESTINATION',
+          body: { code: '612', message: 'Invalid Content Type' }
         },
         {
-          status: 406,
-          errortype: 'NOT_ACCEPTABLE',
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'INTEGRATIONS'
+          errorreporter: 'DESTINATION',
+          body: { code: '612', message: 'Invalid Content Type' }
         }
       ])
     })
@@ -163,13 +165,15 @@ describe('MultiStatus', () => {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'INTEGRATIONS'
+            errorreporter: 'DESTINATION',
+            body: { code, message: `Transient error ${code}` }
           },
           {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'INTEGRATIONS'
+            errorreporter: 'DESTINATION',
+            body: { code, message: `Transient error ${code}` }
           }
         ])
       }
@@ -350,16 +354,18 @@ describe('MultiStatus', () => {
 
       expect(response).toMatchObject([
         {
-          status: 406,
-          errortype: 'NOT_ACCEPTABLE',
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'INTEGRATIONS'
+          errorreporter: 'DESTINATION',
+          body: { code: '612', message: 'Invalid Content Type' }
         },
         {
-          status: 406,
-          errortype: 'NOT_ACCEPTABLE',
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'INTEGRATIONS'
+          errorreporter: 'DESTINATION',
+          body: { code: '612', message: 'Invalid Content Type' }
         }
       ])
     })
@@ -392,16 +398,18 @@ describe('MultiStatus', () => {
 
       expect(response).toMatchObject([
         {
-          status: 406,
-          errortype: 'NOT_ACCEPTABLE',
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'INTEGRATIONS'
+          errorreporter: 'DESTINATION',
+          body: { code: '612', message: 'Invalid Content Type' }
         },
         {
-          status: 406,
-          errortype: 'NOT_ACCEPTABLE',
+          status: 500,
+          errortype: 'RETRYABLE_ERROR',
           errormessage: 'Invalid Content Type',
-          errorreporter: 'INTEGRATIONS'
+          errorreporter: 'DESTINATION',
+          body: { code: '612', message: 'Invalid Content Type' }
         }
       ])
     })
@@ -429,13 +437,15 @@ describe('MultiStatus', () => {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'INTEGRATIONS'
+            errorreporter: 'DESTINATION',
+            body: { code, message: `Transient error ${code}` }
           },
           {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'INTEGRATIONS'
+            errorreporter: 'DESTINATION',
+            body: { code, message: `Transient error ${code}` }
           }
         ])
       }
@@ -474,13 +484,15 @@ describe('MultiStatus', () => {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'INTEGRATIONS'
+            errorreporter: 'DESTINATION',
+            body: { code, message: `Transient error ${code}` }
           },
           {
             status: 500,
             errortype: 'RETRYABLE_ERROR',
             errormessage: `Transient error ${code}`,
-            errorreporter: 'INTEGRATIONS'
+            errorreporter: 'DESTINATION',
+            body: { code, message: `Transient error ${code}` }
           }
         ])
       }

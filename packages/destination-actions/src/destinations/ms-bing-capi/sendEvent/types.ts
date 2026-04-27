@@ -16,10 +16,11 @@ export interface BingCAPIRequestItem {
   eventId?: string
   eventName?: string
   pageLoadId?: string
-  referrerUr?: string
+  referrerUrl?: string
   pageTitle?: string
   keywords?: string
   adStorageConsent?: string
+  dataProvider?: string
   customData?: {
     eventCategory?: string
     eventLabel?: string

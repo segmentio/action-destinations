@@ -628,6 +628,56 @@ describe('trackConversion utils', () => {
       expect(result.unitsSold).toBeUndefined()
     })
 
+    it('should include dataSetName in eventDescription when provided in settings', () => {
+      const settingsWithDataSet = { ...settings, dataSetName: 'MyDataset1' }
+      const payload: Payload = {
+        name: 'test_event',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
+        countryCode: 'US',
+        timestamp: '2023-01-01T12:00:00Z',
+        matchKeys: { email: 'test@example.com' },
+        enable_batching: true
+      }
+
+      const result = prepareEventData(payload, settingsWithDataSet)
+
+      expect(result.eventDescription.dataSetName).toBe('MyDataset1')
+    })
+
+    it('should not include dataSetName in eventDescription when absent from settings', () => {
+      const payload: Payload = {
+        name: 'test_event',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
+        countryCode: 'US',
+        timestamp: '2023-01-01T12:00:00Z',
+        matchKeys: { email: 'test@example.com' },
+        enable_batching: true
+      }
+
+      const result = prepareEventData(payload, settings)
+
+      expect(result.eventDescription.dataSetName).toBeUndefined()
+    })
+
+    it('should not include dataSetName in eventDescription when settings.dataSetName is empty string', () => {
+      const settingsWithEmptyDataSet = { ...settings, dataSetName: '' }
+      const payload: Payload = {
+        name: 'test_event',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
+        countryCode: 'US',
+        timestamp: '2023-01-01T12:00:00Z',
+        matchKeys: { email: 'test@example.com' },
+        enable_batching: true
+      }
+
+      const result = prepareEventData(payload, settingsWithEmptyDataSet)
+
+      expect(result.eventDescription.dataSetName).toBeUndefined()
+    })
+
     it('should include optional fields when provided', () => {
       const payload: Payload = {
         name: 'purchase_event',

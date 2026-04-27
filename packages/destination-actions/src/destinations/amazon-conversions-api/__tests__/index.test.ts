@@ -1,6 +1,7 @@
 // Basic test to confirm destination structure
 import Destination from '../index'
-import type { DestinationDefinition } from '@segment/actions-core'
+import type { DestinationDefinition, RequestClient } from '@segment/actions-core'
+import { Region } from '../types'
 
 describe('Amazon Conversions API Destination', () => {
   it('should be properly configured', () => {
@@ -111,6 +112,98 @@ describe('Amazon Conversions API Destination', () => {
         expect(preset).toBeDefined()
         expect(preset?.mapping?.eventType).toBe(amazonEvent)
       }
+    })
+  })
+
+  describe('testAuthentication', () => {
+    const testAuth = Destination.authentication.testAuthentication!
+    let mockRequest: jest.Mock
+
+    beforeEach(() => {
+      mockRequest = jest.fn().mockResolvedValue({ status: 200 })
+    })
+
+    it('should throw for non-numeric advertiserId', async () => {
+      await expect(
+        testAuth(mockRequest as unknown as RequestClient, {
+          auth: { accessToken: 'valid-token', refreshToken: '' },
+          settings: { region: Region.NA, advertiserId: 'abc123' }
+        } as any)
+      ).rejects.toThrow('Advertising ID must be numeric')
+    })
+
+    it('should throw for advertiserId not numeric', async () => {
+      await expect(
+        testAuth(mockRequest as unknown as RequestClient, {
+          auth: { accessToken: 'valid-token', refreshToken: '' },
+          settings: { region: Region.NA, advertiserId: '1234ac' }
+        } as any)
+      ).rejects.toThrow('Advertising ID must be numeric')
+    })
+
+    it('should throw for dataSetName that is too short (under 5 chars)', async () => {
+      await expect(
+        testAuth(mockRequest as unknown as RequestClient, {
+          auth: { accessToken: 'valid-token', refreshToken: '' },
+          settings: { region: Region.NA, advertiserId: '12345', dataSetName: 'abcd' }
+        } as any)
+      ).rejects.toThrow('Dataset Name must start with a letter and can only contain letters, numbers, underscores, or hyphens.')
+    })
+
+    it('should throw for dataSetName that starts with a digit', async () => {
+      await expect(
+        testAuth(mockRequest as unknown as RequestClient, {
+          auth: { accessToken: 'valid-token', refreshToken: '' },
+          settings: { region: Region.NA, advertiserId: '12345', dataSetName: '1invalid' }
+        } as any)
+      ).rejects.toThrow('Dataset Name must start with a letter and can only contain letters, numbers, underscores, or hyphens.')
+    })
+
+    it('should throw for dataSetName with invalid characters', async () => {
+      await expect(
+        testAuth(mockRequest as unknown as RequestClient, {
+          auth: { accessToken: 'valid-token', refreshToken: '' },
+          settings: { region: Region.NA, advertiserId: '12345', dataSetName: 'my dataset!' }
+        } as any)
+      ).rejects.toThrow('Dataset Name must start with a letter and can only contain letters, numbers, underscores, or hyphens.')
+    })
+
+    it('should pass with a valid dataSetName', async () => {
+      await expect(
+        testAuth(mockRequest as unknown as RequestClient, {
+          auth: { accessToken: 'valid-token', refreshToken: '' },
+          settings: { region: Region.NA, advertiserId: '12345', dataSetName: 'ValidDataset1' }
+        } as any)
+      ).resolves.toBeDefined()
+      expect(mockRequest).toHaveBeenCalled()
+    })
+
+    it('should pass with a dataSetName using underscores and hyphens', async () => {
+      await expect(
+        testAuth(mockRequest as unknown as RequestClient, {
+          auth: { accessToken: 'valid-token', refreshToken: '' },
+          settings: { region: Region.NA, advertiserId: '12345', dataSetName: 'Default_Events-2' }
+        } as any)
+      ).resolves.toBeDefined()
+    })
+
+    it('should pass without dataSetName (field is optional)', async () => {
+      await expect(
+        testAuth(mockRequest as unknown as RequestClient, {
+          auth: { accessToken: 'valid-token', refreshToken: '' },
+          settings: { region: Region.NA, advertiserId: '12345' }
+        } as any)
+      ).resolves.toBeDefined()
+      expect(mockRequest).toHaveBeenCalled()
+    })
+
+    it('should pass with numeric advertiserId', async () => {
+      await expect(
+        testAuth(mockRequest as unknown as RequestClient, {
+          auth: { accessToken: 'valid-token', refreshToken: '' },
+          settings: { region: Region.NA, advertiserId: '9876543210' }
+        } as any)
+      ).resolves.toBeDefined()
     })
   })
 })

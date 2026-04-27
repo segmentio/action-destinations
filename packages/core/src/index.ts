@@ -86,6 +86,7 @@ export type {
 } from './destination-kit'
 
 export type {
+  AudienceMembership,
   DynamicFieldResponse,
   DynamicFieldError,
   DynamicFieldItem,
@@ -108,3 +109,5 @@ export {
 } from './destination-kit/action'
 
 export { validateSchema } from './schema-validation'
+export { resolveAudienceMembership } from './audience-membership'
+export { FLAGS } from './flags'
