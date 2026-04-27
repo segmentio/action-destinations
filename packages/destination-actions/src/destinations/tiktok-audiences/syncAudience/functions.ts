@@ -192,8 +192,8 @@ export async function sendAndCollectResponses(
       }
     }
   } catch (err) {
-    const message = err instanceof IntegrationError ? err.message : 'Unknown error'
-    const status = err instanceof IntegrationError && typeof err.status === 'number' ? err.status : 500
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    const status = (err as { response?: { status?: number } })?.response?.status || 500
 
     for (const [index, p] of payloadMap) {
       if (!multiStatusResponse.getResponseAtIndex(index)) {
