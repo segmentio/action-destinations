@@ -2,7 +2,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from './common-fields'
 import { Client } from './client'
-import { ActionDefinition, RequestClient, IntegrationError, StatsContext } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, IntegrationError, StatsContext, Logger } from '@segment/actions-core'
 import { dynamicFields } from './functions/dynamic-field-functions'
 import { SyncMode, SchemaMatch, CachableSchema } from './types'
 import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
@@ -38,8 +38,8 @@ const action: ActionDefinition<Settings, Payload> = {
     ...commonFields
   },
   dynamicFields,
-  perform: async (request, { payload, syncMode, subscriptionMetadata, statsContext }) => {
-    return await send(request, payload, syncMode as SyncMode, subscriptionMetadata, statsContext)
+  perform: async (request, { payload, syncMode, subscriptionMetadata, statsContext, logger }) => {
+    return await send(request, payload, syncMode as SyncMode, subscriptionMetadata, statsContext, logger)
   }
 }
 
@@ -48,12 +48,13 @@ const send = async (
   payload: Payload,
   syncMode: SyncMode,
   subscriptionMetadata?: SubscriptionMetadata,
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  logger?: Logger
 ) => {
   statsContext?.tags?.push('action:custom_event')
 
   const client = new Client(request)
-  const validPayload = validate(payload)
+  const validPayload = validate(payload, statsContext, logger, subscriptionMetadata)
   const schema = eventSchema(validPayload)
   const cachedSchema = getSchemaFromCache(schema.name, subscriptionMetadata, statsContext)
 
