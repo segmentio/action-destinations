@@ -1,7 +1,7 @@
 import { Payload } from '../generated-types'
-import { PayloadValidationError } from '@segment/actions-core'
+import { PayloadValidationError, StatsContext, Logger } from '@segment/actions-core'
 
-export function validate(payload: Payload): Payload {
+export function validate(payload: Payload, statsContext?: StatsContext, logger?: Logger): Payload {
   if (payload.record_details.object_type !== 'contact' && typeof payload.record_details.object_id !== 'number') {
     throw new PayloadValidationError('object_id is required and must be numeric')
   }
@@ -16,9 +16,10 @@ export function validate(payload: Payload): Payload {
       'Contact requires at least one of object_id (as number), email or utk to be provided'
     )
   }
+
   cleanIdentifiers(payload)
   payload.event_name = cleanEventName(payload.event_name)
-  payload.properties = cleanPropObj(payload.properties ?? {})
+  payload.properties = cleanPropObj(payload.properties ?? {}, statsContext, logger)
 
   return payload
 }
@@ -41,7 +42,9 @@ export function cleanEventName(str: string): string {
 }
 
 function cleanPropObj(
-  obj: { [k: string]: unknown } | undefined
+  obj: { [k: string]: unknown } | undefined,
+  statsContext?: StatsContext,
+  logger?: Logger
 ): { [k: string]: string | number | boolean } | undefined {
   const cleanObj: { [k: string]: string | number | boolean } = {}
 
@@ -61,8 +64,12 @@ function cleanPropObj(
     ) {
       // If the value can be cast to a boolean
       cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
-    } else if (typeof value === 'string' && value.trim() !== '' && !isNaN(Number(value))) {
-      // If the value can be cast to a number excluding empty strings and strings with just whitespace
+    } else if (!isNaN(Number(value))) {
+      if (typeof value === 'string' && value.trim() === '') {
+        statsContext?.statsClient?.incr('hubspot.custom_event.empty_string_to_number', 1, statsContext?.tags)
+        logger?.warn(`hubspot.custom_event.empty_string_to_number property: ${cleanKey}`)
+      }
+      // If the value can be cast to a number
       cleanObj[cleanKey] = Number(value)
     } else if (typeof value === 'object' && value !== null) {
       // If the value is an object
