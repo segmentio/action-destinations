@@ -691,6 +691,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       auth,
       features,
       statsContext,
+      // All events in a batch share the same personas context because batching is keyed on audience/computation.
       personasContext: events[0]?.context?.personas as Personas | undefined,
       logger,
       engageDestinationCache,
