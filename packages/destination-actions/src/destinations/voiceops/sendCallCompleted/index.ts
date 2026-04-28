@@ -2,7 +2,7 @@ import { PayloadValidationError } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { VOICEOPS_CALLS_ENDPOINT } from '../constants'
+import { getVoiceopsCallsEndpoint } from '../constants'
 
 const HANDLING_AGENT_TYPE = 'HANDLING_AGENT'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -259,7 +259,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, data) => {
     validateSegmentPayload(data.payload)
 
-    return request(VOICEOPS_CALLS_ENDPOINT, {
+    return request(getVoiceopsCallsEndpoint(data.settings.baseUrl), {
       method: 'post',
       json: data.payload
     })
