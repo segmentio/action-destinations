@@ -1005,9 +1005,13 @@ describe('Memora.upsertProfile', () => {
       expect(error2.errormessage).toContain('Invalid trait key format detected')
       expect(error2.errormessage).toContain('Contact.firstName')
 
-      // Verify logger.warn was called
-      expect(mockLogger.warn).toHaveBeenCalledWith('Skipped 3 invalid profile(s). Processing 0 valid profile(s).')
-      expect(mockLogger.warn).toHaveBeenCalledWith('No valid profiles to import. All profiles failed validation.')
+      // Verify logger.warn was called (messages include tags)
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Skipped 3 invalid profile(s). Processing 0 valid profile(s).')
+      )
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('No valid profiles to import. All profiles failed validation.')
+      )
 
       // Verify no API call was made
       expect(mockRequest).not.toHaveBeenCalled()
@@ -1319,17 +1323,20 @@ describe('Memora.upsertProfile', () => {
         statsContext: mockStatsContext
       })
 
-      expect(mockStatsClient.incr).toHaveBeenCalledWith(
-        'memora.upsert_profile.success',
-        2,
+      const tags = mockStatsClient.incr.mock.calls.find(
+        (c: any[]) => c[0] === 'memora.upsert_profile.success'
+      )?.[2] as string[]
+      expect(tags).toEqual(
         expect.arrayContaining([
           'env:test',
           `twilioAccountId:${defaultSettings.twilioAccount}`,
-          'memoraStoreId:test-store-id',
-          'computationKey:connections',
-          'spaceId:connections'
+          'memory_store_id:test-store-id'
         ])
       )
+      expect(tags).not.toEqual(
+        expect.arrayContaining([expect.stringMatching(/^audience_key:/), expect.stringMatching(/^space_id:/)])
+      )
+      expect(mockStatsClient.incr).toHaveBeenCalledWith('memora.upsert_profile.success', 2, expect.anything())
       expect(mockStatsClient.incr).not.toHaveBeenCalledWith(
         'memora.upsert_profile.failure',
         expect.anything(),
@@ -1424,11 +1431,11 @@ describe('Memora.upsertProfile', () => {
       expect(mockStatsClient.incr).toHaveBeenCalledWith(
         'memora.upsert_profile.success',
         1,
-        expect.arrayContaining(['computationKey:my-audience', 'spaceId:space-abc'])
+        expect.arrayContaining(['audience_key:my-audience', 'space_id:space-abc'])
       )
     })
 
-    it('should default computationKey and spaceId to connections when personasContext is undefined', async () => {
+    it('should omit audience_key and space_id tags when personasContext is undefined', async () => {
       const mockRequestFn = jest.fn().mockResolvedValue({ status: 202, data: {}, headers: { get: () => null } })
       const action = Destination.actions.upsertProfile
 
@@ -1446,11 +1453,11 @@ describe('Memora.upsertProfile', () => {
         statsContext: mockStatsContext
       })
 
-      expect(mockStatsClient.incr).toHaveBeenCalledWith(
-        'memora.upsert_profile.success',
-        1,
-        expect.arrayContaining(['computationKey:connections', 'spaceId:connections'])
-      )
+      const tags = mockStatsClient.incr.mock.calls.find(
+        (c: any[]) => c[0] === 'memora.upsert_profile.success'
+      )?.[2] as string[]
+      expect(tags.some((t: string) => t.startsWith('audience_key:'))).toBe(false)
+      expect(tags.some((t: string) => t.startsWith('space_id:'))).toBe(false)
     })
 
     it('should emit failure stat when all profiles fail validation without making an API call', async () => {
@@ -1476,9 +1483,9 @@ describe('Memora.upsertProfile', () => {
         expect.arrayContaining([
           'env:test',
           `twilioAccountId:${defaultSettings.twilioAccount}`,
-          'memoraStoreId:test-store-id',
-          'computationKey:my-audience',
-          'spaceId:sp-1'
+          'memory_store_id:test-store-id',
+          'audience_key:my-audience',
+          'space_id:sp-1'
         ])
       )
       expect(mockStatsClient.incr).not.toHaveBeenCalledWith(

@@ -170,17 +170,18 @@ async function upsertProfiles(
     }
   })
 
+  const statsTags = buildStatsTags(settings, storeId, personasContext, statsContext?.tags)
+  const tagStr = statsTags.join(', ')
+
   if (invalidIndices.length > 0) {
     logger?.warn?.(
-      `Skipped ${invalidIndices.length} invalid profile(s). Processing ${validProfiles.length} valid profile(s).`
+      `Skipped ${invalidIndices.length} invalid profile(s). Processing ${validProfiles.length} valid profile(s). ${tagStr}`
     )
   }
 
-  const statsTags = buildStatsTags(settings, storeId, personasContext, statsContext?.tags)
-
   // If all profiles are invalid, return MultiStatusResponse with per-profile errors
   if (validProfiles.length === 0) {
-    logger?.warn?.('No valid profiles to import. All profiles failed validation.')
+    logger?.warn?.(`No valid profiles to import. All profiles failed validation. ${tagStr}`)
 
     statsContext?.statsClient?.incr('memora.upsert_profile.failure', invalidIndices.length, statsTags)
 
@@ -212,7 +213,7 @@ async function upsertProfiles(
     logger?.info?.(
       `Bulk upsert completed successfully for ${validProfiles.length} profile(s)${
         twilioRequestId ? `. twilio-request-id: ${twilioRequestId}` : ''
-      }`
+      }. ${tagStr}`
     )
 
     statsContext?.statsClient?.incr('memora.upsert_profile.success', validProfiles.length, statsTags)
@@ -243,7 +244,7 @@ async function upsertProfiles(
     logger?.error?.(
       `Error in bulk upsert: ${error instanceof Error ? error.message : String(error)}${
         twilioRequestId ? `. twilio-request-id: ${twilioRequestId}` : ''
-      }`
+      }. ${tagStr}`
     )
     statsContext?.statsClient?.incr('memora.upsert_profile.failure', payloads.length, statsTags)
     throw error
@@ -256,20 +257,14 @@ function buildStatsTags(
   personasContext?: Personas,
   existingTags?: string[]
 ): string[] {
-  const computationKey = personasContext?.computation_key ?? 'connections'
-  const rawSpaceId = personasContext?.['space_id']
-  const spaceId =
-    typeof rawSpaceId === 'string'
-      ? rawSpaceId
-      : typeof rawSpaceId === 'number' || typeof rawSpaceId === 'boolean'
-      ? String(rawSpaceId)
-      : 'connections'
+  const audienceKey = personasContext?.computation_key
+  const spaceId = personasContext?.['space_id'] != null ? String(personasContext['space_id']) : undefined
   return [
     ...(existingTags ?? []),
     `twilioAccountId:${settings.twilioAccount}`,
-    `memoraStoreId:${storeId}`,
-    `computationKey:${computationKey}`,
-    `spaceId:${spaceId}`
+    `memory_store_id:${storeId}`,
+    ...(audienceKey ? [`audience_key:${audienceKey}`] : []),
+    ...(spaceId ? [`space_id:${spaceId}`] : [])
   ]
 }
 
