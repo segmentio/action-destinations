@@ -1262,7 +1262,7 @@ describe('LinkedinConversions.multistatus', () => {
     expect(response[1]).toMatchObject({
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errormessage: 'One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+      errormessage: 'One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.',
       errorreporter: 'INTEGRATIONS'
     })
   })
