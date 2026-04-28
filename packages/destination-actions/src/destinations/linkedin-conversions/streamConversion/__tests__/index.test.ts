@@ -509,7 +509,7 @@ describe('LinkedinConversions.streamConversion', () => {
           batch_size: 5000
         }
       })
-    ).rejects.toThrowError('One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.')
+    ).rejects.toThrowError('One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.')
   })
 
   it('should normalize the user ID email field such that uppercase letters are converted to lowercase', async () => {

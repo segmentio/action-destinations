@@ -47,7 +47,7 @@ function validate(payload: Payload, conversionTime: number) {
   }
 
   if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID) {
-    throw new PayloadValidationError('One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.')
+    throw new PayloadValidationError('One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.')
   }
 }
 
@@ -516,9 +516,9 @@ export class LinkedInConversions {
 
       validResponseIndices.forEach((originalIndex, filteredIndex) => {
         multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
-          status: 201,
-          sent: validElements[filteredIndex] as unknown as JSONLikeObject,
-          body: (response.content ?? response.data ?? '') as unknown as JSONLikeObject
+          status: response.status,
+          sent: validElements[filteredIndex] as JSONLikeObject,
+          body: response.content
         })
       })
     } catch (error) {
@@ -538,7 +538,7 @@ export class LinkedInConversions {
           multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
             status,
             errormessage: error.message,
-            sent: validElements[filteredIndex] as unknown as JSONLikeObject
+            sent: validElements[filteredIndex] as JSONLikeObject
           })
         })
       } else {
