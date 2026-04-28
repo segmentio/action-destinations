@@ -90,7 +90,7 @@ function cleanPropObj(
 
   if (hasEmptyStringToNumber) {
     statsContext?.statsClient?.incr('hubspot.custom_event.empty_string_to_number', 1, statsContext?.tags)
-    logger?.warn(
+    logger?.warn?.(
       `hubspot.custom_event.empty_string_to_number destinationConfigId: ${subscriptionMetadata?.destinationConfigId} sourceId: ${subscriptionMetadata?.sourceId}`
     )
   }
