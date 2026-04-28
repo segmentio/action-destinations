@@ -83,6 +83,11 @@ describe('Hubspot.customEvent', () => {
       jest.clearAllMocks()
     })
 
+    const subscriptionMetadata = {
+      destinationConfigId: 'dest-123',
+      sourceId: 'src-456'
+    }
+
     it('should emit a metric and log when an empty string is coerced to a number', () => {
       const payloadWithEmptyString: Payload = {
         event_name: 'Test Event',
@@ -95,7 +100,7 @@ describe('Hubspot.customEvent', () => {
         }
       }
 
-      validate(payloadWithEmptyString, statsContext, logger)
+      validate(payloadWithEmptyString, statsContext, logger, subscriptionMetadata)
 
       expect(statsClient.incr).toHaveBeenCalledWith(
         'hubspot.custom_event.empty_string_to_number',
@@ -103,7 +108,7 @@ describe('Hubspot.customEvent', () => {
         statsContext.tags
       )
       expect(logger.warn).toHaveBeenCalledWith(
-        'hubspot.custom_event.empty_string_to_number property: some_prop'
+        'hubspot.custom_event.empty_string_to_number destinationConfigId: dest-123 sourceId: src-456'
       )
     })
 
@@ -121,7 +126,7 @@ describe('Hubspot.customEvent', () => {
         }
       }
 
-      validate(payloadWithNormalValues, statsContext, logger)
+      validate(payloadWithNormalValues, statsContext, logger, subscriptionMetadata)
 
       expect(statsClient.incr).not.toHaveBeenCalledWith(
         'hubspot.custom_event.empty_string_to_number',
