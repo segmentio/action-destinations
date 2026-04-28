@@ -6,7 +6,8 @@ import {
   EngageDestinationCache,
   ActionHookType,
   SubscriptionMetadata,
-  RequestFn
+  RequestFn,
+  Personas
 } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONLikeObject, JSONObject } from '../json-object'
@@ -80,6 +81,7 @@ export interface ExecuteInput<
    */
   readonly features?: Features
   readonly statsContext?: StatsContext
+  readonly personasContext?: Personas
   readonly logger?: Logger
   /** Engage internal use only. DO NOT USE. */
   readonly engageDestinationCache?: EngageDestinationCache
