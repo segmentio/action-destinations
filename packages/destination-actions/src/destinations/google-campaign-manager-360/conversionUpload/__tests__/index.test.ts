@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { SegmentEvent } from '@segment/actions-core/*'
+import { API_VERSION, CANARY_API_VERSION, FLAGON_NAME } from '../../utils'
 
 const testDestination = createTestIntegration(Destination)
 const timestamp = new Date('Thu Jun 10 2024 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
@@ -41,7 +42,9 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -144,7 +147,9 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -222,7 +227,9 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -285,7 +292,9 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -420,7 +429,9 @@ describe('Cm360.conversionUpload', () => {
           }
         ]
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -542,7 +553,9 @@ describe('Cm360.conversionUpload', () => {
           }
         ]
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -637,7 +650,9 @@ describe('Cm360.conversionUpload', () => {
           }
         ]
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -974,7 +989,9 @@ describe('Cm360.conversionUpload', () => {
         }
       })
 
-      nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+      )
         .post('')
         .reply(201, { results: [{}] })
 
@@ -1108,7 +1125,9 @@ describe('Cm360.conversionUpload', () => {
         kind: 'dfareporting#conversionsBatchUpdateResponse'
       }
 
-      nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+      )
         .post('')
         .reply(201, resp20XWithErrors)
 
@@ -1187,7 +1206,7 @@ describe('Cm360.conversionUpload', () => {
 
     it('throws an error when a 401 response is returned', async () => {
       const tsNow = new Date().toISOString()
-      
+
       const event = createTestEvent({
         timestamp: tsNow,
         event: 'Test Event',
@@ -1216,7 +1235,9 @@ describe('Cm360.conversionUpload', () => {
         }
       })
 
-      nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+      )
         .post('')
         .reply(401)
 
@@ -1291,6 +1312,110 @@ describe('Cm360.conversionUpload', () => {
           }
         })
       ).rejects.toThrowError('Unauthorized')
-    })    
+    })
+  })
+
+  describe('API Version Feature Flag', () => {
+    it('should use v4 API by default (stable version)', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          gclid: 'test-gclid',
+          value: 100,
+          quantity: 1,
+          ordinal: '1'
+        }
+      })
+
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+      )
+        .post('')
+        .reply(201, { results: [{}] })
+
+      await expect(
+        testDestination.testAction('conversionUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+      ).resolves.not.toThrowError()
+    })
+
+    it('should use v5 API when canary feature flag is enabled', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          gclid: 'test-gclid',
+          value: 100,
+          quantity: 1,
+          ordinal: '1'
+        }
+      })
+
+      // Should call v5 endpoint when feature flag is enabled
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${CANARY_API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+      )
+        .post('')
+        .reply(201, { results: [{}] })
+
+      await expect(
+        testDestination.testAction('conversionUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          },
+          features: { [FLAGON_NAME]: true }
+        })
+      ).resolves.not.toThrowError()
+    })
   })
 })
