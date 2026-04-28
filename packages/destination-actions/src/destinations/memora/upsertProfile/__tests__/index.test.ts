@@ -1298,8 +1298,6 @@ describe('Memora.upsertProfile', () => {
     })
 
     it('should emit success stat with correct count and tags on success', async () => {
-      nock(BASE_URL).put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`).reply(202)
-
       const action = Destination.actions.upsertProfile
       const payloads: Payload[] = [
         {
