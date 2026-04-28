@@ -59,6 +59,8 @@ function cleanPropObj(
     return undefined
   }
 
+  let hasEmptyStringToNumber = false
+
   Object.keys(obj).forEach((key) => {
     const value = obj[key]
     const cleanKey = cleanProp(key)
@@ -73,10 +75,7 @@ function cleanPropObj(
       cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
     } else if (!isNaN(Number(value))) {
       if (typeof value === 'string' && value.trim() === '') {
-        statsContext?.statsClient?.incr('hubspot.custom_event.empty_string_to_number', 1, statsContext?.tags)
-        logger?.warn(
-          `hubspot.custom_event.empty_string_to_number destinationConfigId: ${subscriptionMetadata?.destinationConfigId} sourceId: ${subscriptionMetadata?.sourceId}`
-        )
+        hasEmptyStringToNumber = true
       }
       // If the value can be cast to a number
       cleanObj[cleanKey] = Number(value)
@@ -88,6 +87,14 @@ function cleanPropObj(
       cleanObj[cleanKey] = String(value).trim()
     }
   })
+
+  if (hasEmptyStringToNumber) {
+    statsContext?.statsClient?.incr('hubspot.custom_event.empty_string_to_number', 1, statsContext?.tags)
+    logger?.warn(
+      `hubspot.custom_event.empty_string_to_number destinationConfigId: ${subscriptionMetadata?.destinationConfigId} sourceId: ${subscriptionMetadata?.sourceId}`
+    )
+  }
+
   return cleanObj
 }
 

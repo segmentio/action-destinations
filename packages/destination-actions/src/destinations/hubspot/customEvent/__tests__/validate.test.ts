@@ -112,6 +112,26 @@ describe('Hubspot.customEvent', () => {
       )
     })
 
+    it('should emit only once even when multiple properties are empty strings', () => {
+      const payloadWithMultipleEmpty: Payload = {
+        event_name: 'Test Event',
+        record_details: {
+          object_type: 'contact',
+          email: 'test@example.com'
+        },
+        properties: {
+          prop_a: '',
+          prop_b: '',
+          prop_c: 'hello'
+        }
+      }
+
+      validate(payloadWithMultipleEmpty, statsContext, logger, subscriptionMetadata)
+
+      expect(statsClient.incr).toHaveBeenCalledTimes(1)
+      expect(logger.warn).toHaveBeenCalledTimes(1)
+    })
+
     it('should not emit a metric for non-empty string values', () => {
       const payloadWithNormalValues: Payload = {
         event_name: 'Test Event',
