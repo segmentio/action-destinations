@@ -16,7 +16,7 @@ export interface Settings {
   /**
    * The email of the user who will own the cohorts in Amplitude. This can be overriden per Audience, but if left blank, all cohorts will be owned by this user.
    */
-  owner_email: string
+  default_owner_email: string
   /**
    * The region to send your data.
    */

@@ -20,6 +20,7 @@ describe('Moengage Web init', () => {
     // Mock window.moe to simulate SDK loading
     const mockMoe = jest.fn((_config) => {
       mockMoengage = {
+        initialized: true,
         track_event: jest.fn(),
         add_user_attribute: jest.fn(),
         add_first_name: jest.fn(),
