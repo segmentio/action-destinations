@@ -30,6 +30,7 @@ import { resolveAudienceMembership } from '../audience-membership'
 import {
   Logger,
   StatsContext,
+  Personas,
   TransactionContext,
   StateContext,
   EngageDestinationCache,
@@ -41,7 +42,14 @@ type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, ActionHookInputs = any, AudienceMembershipType = AudienceMembership | AudienceMembership[]> = (
+export type RequestFn<
+  Settings,
+  Payload,
+  Return = any,
+  AudienceSettings = any,
+  ActionHookInputs = any,
+  AudienceMembershipType = AudienceMembership | AudienceMembership[]
+> = (
   request: RequestClient,
   data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs, any, AudienceMembershipType>
 ) => MaybePromise<Return>
@@ -230,6 +238,7 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   /** For internal Segment/Twilio use only. */
   features?: Features | undefined
   statsContext?: StatsContext | undefined
+  personasContext?: Personas | undefined
   logger?: Logger | undefined
   engageDestinationCache?: EngageDestinationCache
   transactionContext?: TransactionContext
@@ -362,10 +371,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       rawMapping: bundle.mapping,
       settings: bundle.settings,
       payload,
-      ...( typeof audienceMembership === 'boolean' ? { audienceMembership } : {}),
+      ...(typeof audienceMembership === 'boolean' ? { audienceMembership } : {}),
       auth: bundle.auth,
       features: bundle.features,
       statsContext: bundle.statsContext,
+      personasContext: bundle.personasContext,
       logger: bundle.logger,
       engageDestinationCache: bundle.engageDestinationCache,
       transactionContext: bundle.transactionContext,
@@ -475,6 +485,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         auth: bundle.auth,
         features: bundle.features,
         statsContext: bundle.statsContext,
+        personasContext: bundle.personasContext,
         logger: bundle.logger,
         engageDestinationCache: bundle.engageDestinationCache,
         transactionContext: bundle.transactionContext,
