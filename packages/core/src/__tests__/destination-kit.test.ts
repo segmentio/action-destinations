@@ -1073,6 +1073,79 @@ describe('destination kit', () => {
         { output: 'Action Executed', data: { personasContext: undefined } }
       ])
     })
+
+    test('should populate personasContext from events[0] in onBatch', async () => {
+      const personas: Personas = { computation_key: 'batch-audience', computation_id: 'comp-2', namespace: 'ns' }
+      let capturedPersonasContext: Personas | undefined = null as any
+      const destinationWithBatch: DestinationDefinition<JSONObject> = {
+        name: 'Test Destination',
+        mode: 'cloud',
+        actions: {
+          customEvent: {
+            title: 'Custom Event',
+            description: 'Test action',
+            defaultSubscription: 'type = "track"',
+            fields: {},
+            perform: (_request, _data) => {
+              return {}
+            },
+            performBatch: (_request, { personasContext }) => {
+              capturedPersonasContext = personasContext
+              return [{}]
+            }
+          }
+        }
+      }
+      const destinationTest = new Destination(destinationWithBatch)
+      const batchSettings = {
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {}
+        }
+      }
+      const testEvent: SegmentEvent = { type: 'track', userId: 'user-1', context: { personas } }
+
+      await destinationTest.onBatch([testEvent], batchSettings, { statsContext: {} as StatsContext })
+
+      expect(capturedPersonasContext).toEqual(personas)
+    })
+
+    test('should set personasContext to undefined in onBatch for non-Personas events', async () => {
+      let capturedPersonasContext: Personas | undefined = 'sentinel' as any
+      const destinationWithBatch: DestinationDefinition<JSONObject> = {
+        name: 'Test Destination',
+        mode: 'cloud',
+        actions: {
+          customEvent: {
+            title: 'Custom Event',
+            description: 'Test action',
+            defaultSubscription: 'type = "track"',
+            fields: {},
+            perform: (_request, _data) => {
+              return {}
+            },
+            performBatch: (_request, { personasContext }) => {
+              capturedPersonasContext = personasContext
+              return [{}]
+            }
+          }
+        }
+      }
+      const destinationTest = new Destination(destinationWithBatch)
+      const batchSettings = {
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {}
+        }
+      }
+      const testEvent: SegmentEvent = { type: 'track', userId: 'user-1' }
+
+      await destinationTest.onBatch([testEvent], batchSettings, { statsContext: {} as StatsContext })
+
+      expect(capturedPersonasContext).toBeUndefined()
+    })
   })
 
   describe('transactionContext', () => {
