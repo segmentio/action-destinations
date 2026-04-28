@@ -176,9 +176,13 @@ async function upsertProfiles(
     )
   }
 
+  const statsTags = buildStatsTags(settings, storeId, personasContext, statsContext?.tags)
+
   // If all profiles are invalid, return MultiStatusResponse with per-profile errors
   if (validProfiles.length === 0) {
     logger?.warn?.('No valid profiles to import. All profiles failed validation.')
+
+    statsContext?.statsClient?.incr('memora.upsert_profile.failure', invalidIndices.length, statsTags)
 
     const multiStatusResponse = new MultiStatusResponse()
     invalidIndices.forEach((index) => {
@@ -211,16 +215,13 @@ async function upsertProfiles(
       }`
     )
 
-    const statsTags = buildStatsTags(settings, storeId, personasContext, statsContext?.tags)
     statsContext?.statsClient?.incr('memora.upsert_profile.success', validProfiles.length, statsTags)
     if (invalidIndices.length > 0) {
       statsContext?.statsClient?.incr('memora.upsert_profile.failure', invalidIndices.length, statsTags)
     }
 
-    // Build multi-status response
     const multiStatusResponse = new MultiStatusResponse()
 
-    // Mark valid profiles as successful
     validIndices.forEach((index) => {
       multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: response.status,
@@ -229,7 +230,6 @@ async function upsertProfiles(
       })
     })
 
-    // Mark invalid profiles with validation error
     invalidIndices.forEach((index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -245,7 +245,6 @@ async function upsertProfiles(
         twilioRequestId ? `. twilio-request-id: ${twilioRequestId}` : ''
       }`
     )
-    const statsTags = buildStatsTags(settings, storeId, personasContext, statsContext?.tags)
     statsContext?.statsClient?.incr('memora.upsert_profile.failure', payloads.length, statsTags)
     throw error
   }
