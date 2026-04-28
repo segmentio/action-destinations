@@ -1281,6 +1281,181 @@ describe('Memora.upsertProfile', () => {
     })
   })
 
+  describe('stats and logging', () => {
+    const mockStatsClient = {
+      observe: jest.fn(),
+      _name: jest.fn(),
+      _tags: jest.fn(),
+      incr: jest.fn(),
+      set: jest.fn(),
+      histogram: jest.fn()
+    }
+    const mockStatsContext = { statsClient: mockStatsClient, tags: ['env:test'] }
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+      nock.cleanAll()
+    })
+
+    it('should emit success stat with correct count and tags on success', async () => {
+      nock(BASE_URL).put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`).reply(202)
+
+      const action = Destination.actions.upsertProfile
+      const payloads: Payload[] = [
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'b@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'B' }
+        }
+      ]
+
+      const mockRequestFn = jest.fn().mockResolvedValue({ status: 202, data: {}, headers: { get: () => 'req-id-123' } })
+      await action.performBatch!(mockRequestFn as unknown as RequestClient, {
+        payload: payloads,
+        settings: defaultSettings,
+        statsContext: mockStatsContext
+      })
+
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'memora.upsert_profile.success',
+        2,
+        expect.arrayContaining([
+          'env:test',
+          `twilioAccountId:${defaultSettings.twilioAccount}`,
+          'memoraStoreId:test-store-id',
+          'computationKey:connections',
+          'spaceId:connections'
+        ])
+      )
+      expect(mockStatsClient.incr).not.toHaveBeenCalledWith(
+        'memora.upsert_profile.failure',
+        expect.anything(),
+        expect.anything()
+      )
+    })
+
+    it('should emit failure stat for invalid profiles alongside success for valid ones', async () => {
+      const mockRequestFn = jest.fn().mockResolvedValue({ status: 202, data: {}, headers: { get: () => null } })
+      const action = Destination.actions.upsertProfile
+
+      const payloads: Payload[] = [
+        { memora_store: 'test-store-id', profile_identifiers: {}, profile_traits: { 'Contact.$.firstName': 'Bad' } },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'good@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'Good' }
+        }
+      ]
+
+      await action.performBatch!(mockRequestFn as unknown as RequestClient, {
+        payload: payloads,
+        settings: defaultSettings,
+        statsContext: mockStatsContext
+      })
+
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'memora.upsert_profile.success',
+        1,
+        expect.arrayContaining(['twilioAccountId:AC1234567890'])
+      )
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'memora.upsert_profile.failure',
+        1,
+        expect.arrayContaining(['twilioAccountId:AC1234567890'])
+      )
+    })
+
+    it('should emit failure stat with full payload count when API call throws', async () => {
+      const mockRequestFn = jest
+        .fn()
+        .mockRejectedValue(Object.assign(new Error('server error'), { response: { status: 500 } }))
+      const action = Destination.actions.upsertProfile
+
+      const payloads: Payload[] = [
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        }
+      ]
+
+      await expect(
+        action.performBatch!(mockRequestFn as unknown as RequestClient, {
+          payload: payloads,
+          settings: defaultSettings,
+          statsContext: mockStatsContext
+        })
+      ).rejects.toThrow('server error')
+
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'memora.upsert_profile.failure',
+        1,
+        expect.arrayContaining(['twilioAccountId:AC1234567890'])
+      )
+    })
+
+    it('should use computation_key and space_id from personasContext as tags', async () => {
+      const mockRequestFn = jest.fn().mockResolvedValue({ status: 202, data: {}, headers: { get: () => null } })
+      const action = Destination.actions.upsertProfile
+
+      const payloads: Payload[] = [
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        }
+      ]
+
+      await action.performBatch!(mockRequestFn as unknown as RequestClient, {
+        payload: payloads,
+        settings: defaultSettings,
+        statsContext: mockStatsContext,
+        personasContext: {
+          computation_key: 'my-audience',
+          computation_id: 'comp-1',
+          namespace: 'ns',
+          space_id: 'space-abc'
+        }
+      })
+
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'memora.upsert_profile.success',
+        1,
+        expect.arrayContaining(['computationKey:my-audience', 'spaceId:space-abc'])
+      )
+    })
+
+    it('should default computationKey and spaceId to connections when personasContext is undefined', async () => {
+      const mockRequestFn = jest.fn().mockResolvedValue({ status: 202, data: {}, headers: { get: () => null } })
+      const action = Destination.actions.upsertProfile
+
+      const payloads: Payload[] = [
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        }
+      ]
+
+      await action.performBatch!(mockRequestFn as unknown as RequestClient, {
+        payload: payloads,
+        settings: defaultSettings,
+        statsContext: mockStatsContext
+      })
+
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'memora.upsert_profile.success',
+        1,
+        expect.arrayContaining(['computationKey:connections', 'spaceId:connections'])
+      )
+    })
+  })
+
   describe('error handling', () => {
     it('should throw error when API returns error response', async () => {
       const event = createTestEvent({

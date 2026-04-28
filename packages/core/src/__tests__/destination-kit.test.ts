@@ -12,7 +12,8 @@ import {
   RefreshAccessTokenResult,
   AudienceDestinationDefinition,
   OAuth2Authentication,
-  OAuthManagedAuthentication
+  OAuthManagedAuthentication,
+  Personas
 } from '../destination-kit'
 import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
@@ -1012,6 +1013,64 @@ describe('destination kit', () => {
             logger: eventOptions.logger
           }
         }
+      ])
+    })
+  })
+
+  describe('personasContext', () => {
+    const destinationWithPersonasContext: DestinationDefinition<JSONObject> = {
+      name: 'Test Destination',
+      mode: 'cloud',
+      actions: {
+        customEvent: {
+          title: 'Custom Event',
+          description: 'Test action',
+          defaultSubscription: 'type = "track"',
+          fields: {},
+          perform: (_request, { personasContext }) => {
+            return { personasContext }
+          }
+        }
+      }
+    }
+
+    const testSettings = {
+      subscription: {
+        subscribe: 'type = "track"',
+        partnerAction: 'customEvent',
+        mapping: {}
+      }
+    }
+
+    test('should populate personasContext from event.context.personas', async () => {
+      const destinationTest = new Destination(destinationWithPersonasContext)
+      const personas: Personas = { computation_key: 'my-audience', computation_id: 'comp-1', namespace: 'ns' }
+      const testEvent: SegmentEvent = {
+        type: 'track',
+        userId: 'user-1',
+        context: { personas }
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings, { statsContext: {} as StatsContext })
+
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Action Executed', data: { personasContext: personas } }
+      ])
+    })
+
+    test('should set personasContext to undefined for non-Personas events', async () => {
+      const destinationTest = new Destination(destinationWithPersonasContext)
+      const testEvent: SegmentEvent = {
+        type: 'track',
+        userId: 'user-1'
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings, { statsContext: {} as StatsContext })
+
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Action Executed', data: { personasContext: undefined } }
       ])
     })
   })

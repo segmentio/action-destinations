@@ -204,9 +204,11 @@ async function upsertProfiles(
       }
     })
 
-    const twilioRequestId = response.headers.get('twilio-request-id') ?? 'unknown'
+    const twilioRequestId = response.headers?.get?.('twilio-request-id')
     logger?.info?.(
-      `Bulk upsert completed successfully for ${validProfiles.length} profile(s). twilio-request-id: ${twilioRequestId}`
+      `Bulk upsert completed successfully for ${validProfiles.length} profile(s)${
+        twilioRequestId ? `. twilio-request-id: ${twilioRequestId}` : ''
+      }`
     )
 
     const statsTags = buildStatsTags(settings, storeId, personasContext, statsContext?.tags)
@@ -256,7 +258,13 @@ function buildStatsTags(
   existingTags?: string[]
 ): string[] {
   const computationKey = personasContext?.computation_key ?? 'connections'
-  const spaceId = (personasContext as any)?.space_id ?? 'connections'
+  const rawSpaceId = personasContext?.['space_id']
+  const spaceId =
+    typeof rawSpaceId === 'string'
+      ? rawSpaceId
+      : typeof rawSpaceId === 'number' || typeof rawSpaceId === 'boolean'
+      ? String(rawSpaceId)
+      : 'connections'
   return [
     ...(existingTags ?? []),
     `twilioAccountId:${settings.twilioAccount}`,
