@@ -1,7 +1,13 @@
 import { Payload } from '../generated-types'
 import { PayloadValidationError, StatsContext, Logger } from '@segment/actions-core'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 
-export function validate(payload: Payload, statsContext?: StatsContext, logger?: Logger): Payload {
+export function validate(
+  payload: Payload,
+  statsContext?: StatsContext,
+  logger?: Logger,
+  subscriptionMetadata?: SubscriptionMetadata
+): Payload {
   if (payload.record_details.object_type !== 'contact' && typeof payload.record_details.object_id !== 'number') {
     throw new PayloadValidationError('object_id is required and must be numeric')
   }
@@ -19,7 +25,7 @@ export function validate(payload: Payload, statsContext?: StatsContext, logger?:
 
   cleanIdentifiers(payload)
   payload.event_name = cleanEventName(payload.event_name)
-  payload.properties = cleanPropObj(payload.properties ?? {}, statsContext, logger)
+  payload.properties = cleanPropObj(payload.properties ?? {}, statsContext, logger, subscriptionMetadata)
 
   return payload
 }
@@ -44,7 +50,8 @@ export function cleanEventName(str: string): string {
 function cleanPropObj(
   obj: { [k: string]: unknown } | undefined,
   statsContext?: StatsContext,
-  logger?: Logger
+  logger?: Logger,
+  subscriptionMetadata?: SubscriptionMetadata
 ): { [k: string]: string | number | boolean } | undefined {
   const cleanObj: { [k: string]: string | number | boolean } = {}
 
@@ -67,7 +74,9 @@ function cleanPropObj(
     } else if (!isNaN(Number(value))) {
       if (typeof value === 'string' && value.trim() === '') {
         statsContext?.statsClient?.incr('hubspot.custom_event.empty_string_to_number', 1, statsContext?.tags)
-        logger?.warn(`hubspot.custom_event.empty_string_to_number property: ${cleanKey}`)
+        logger?.warn(
+          `hubspot.custom_event.empty_string_to_number destinationConfigId: ${subscriptionMetadata?.destinationConfigId} sourceId: ${subscriptionMetadata?.sourceId}`
+        )
       }
       // If the value can be cast to a number
       cleanObj[cleanKey] = Number(value)

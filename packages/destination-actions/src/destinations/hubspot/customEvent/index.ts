@@ -54,7 +54,7 @@ const send = async (
   statsContext?.tags?.push('action:custom_event')
 
   const client = new Client(request)
-  const validPayload = validate(payload, statsContext, logger)
+  const validPayload = validate(payload, statsContext, logger, subscriptionMetadata)
   const schema = eventSchema(validPayload)
   const cachedSchema = getSchemaFromCache(schema.name, subscriptionMetadata, statsContext)
 
