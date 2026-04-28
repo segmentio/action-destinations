@@ -2,7 +2,7 @@ import type { ActionDefinition, RequestClient, ModifiedResponse } from '@segment
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, PayloadValidationError, MultiStatusResponse } from '@segment/actions-core'
-import type { Logger } from '@segment/actions-core/destination-kit'
+import type { Logger, StatsContext, Personas } from '@segment/actions-core/destination-kit'
 import { API_VERSION } from '../versioning-info'
 import { BASE_URL } from '../constants'
 
@@ -79,8 +79,15 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { payload, settings, logger }) => {
-    const { rawResponse, multiStatus } = await upsertProfiles(request, [payload], settings, logger)
+  perform: async (request, { payload, settings, logger, statsContext, personasContext }) => {
+    const { rawResponse, multiStatus } = await upsertProfiles(
+      request,
+      [payload],
+      settings,
+      logger,
+      statsContext,
+      personasContext
+    )
 
     // For single-event execution, convert validation errors to thrown exceptions
     if (multiStatus.isErrorResponseAtIndex(0)) {
@@ -97,8 +104,8 @@ const action: ActionDefinition<Settings, Payload> = {
     return rawResponse
   },
 
-  performBatch: async (request, { payload: payloads, settings, logger }) => {
-    const { multiStatus } = await upsertProfiles(request, payloads, settings, logger)
+  performBatch: async (request, { payload: payloads, settings, logger, statsContext, personasContext }) => {
+    const { multiStatus } = await upsertProfiles(request, payloads, settings, logger, statsContext, personasContext)
     return multiStatus
   }
 }
@@ -108,7 +115,9 @@ async function upsertProfiles(
   request: RequestClient,
   payloads: Payload[],
   settings: Settings,
-  logger?: Logger
+  logger?: Logger,
+  statsContext?: StatsContext,
+  personasContext?: Personas
 ): Promise<{ rawResponse: ModifiedResponse | undefined; multiStatus: MultiStatusResponse }> {
   if (!payloads || payloads.length === 0) {
     throw new IntegrationError('No profiles provided', 'EMPTY_BATCH', 400)
@@ -195,7 +204,16 @@ async function upsertProfiles(
       }
     })
 
-    logger?.info?.(`Bulk upsert completed successfully for ${validProfiles.length} profile(s)`)
+    const twilioRequestId = response.headers.get('twilio-request-id') ?? 'unknown'
+    logger?.info?.(
+      `Bulk upsert completed successfully for ${validProfiles.length} profile(s). twilio-request-id: ${twilioRequestId}`
+    )
+
+    const statsTags = buildStatsTags(settings, storeId, personasContext, statsContext?.tags)
+    statsContext?.statsClient?.incr('memora.upsert_profile.success', validProfiles.length, statsTags)
+    if (invalidIndices.length > 0) {
+      statsContext?.statsClient?.incr('memora.upsert_profile.failure', invalidIndices.length, statsTags)
+    }
 
     // Build multi-status response
     const multiStatusResponse = new MultiStatusResponse()
@@ -219,9 +237,33 @@ async function upsertProfiles(
 
     return { rawResponse: response, multiStatus: multiStatusResponse }
   } catch (error) {
-    logger?.error?.(`Error in bulk upsert: ${error instanceof Error ? error.message : String(error)}`)
+    const twilioRequestId = error?.response?.headers?.get?.('twilio-request-id')
+    logger?.error?.(
+      `Error in bulk upsert: ${error instanceof Error ? error.message : String(error)}${
+        twilioRequestId ? `. twilio-request-id: ${twilioRequestId}` : ''
+      }`
+    )
+    const statsTags = buildStatsTags(settings, storeId, personasContext, statsContext?.tags)
+    statsContext?.statsClient?.incr('memora.upsert_profile.failure', payloads.length, statsTags)
     throw error
   }
+}
+
+function buildStatsTags(
+  settings: Settings,
+  storeId: string,
+  personasContext?: Personas,
+  existingTags?: string[]
+): string[] {
+  const computationKey = personasContext?.computation_key ?? 'connections'
+  const spaceId = (personasContext as any)?.space_id ?? 'connections'
+  return [
+    ...(existingTags ?? []),
+    `twilioAccountId:${settings.twilioAccount}`,
+    `memoraStoreId:${storeId}`,
+    `computationKey:${computationKey}`,
+    `spaceId:${spaceId}`
+  ]
 }
 
 // Build trait groups payload for Memora API
