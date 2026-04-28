@@ -51,4 +51,84 @@ describe('Hubspot.customEvent', () => {
     const validatedPayload = validate(payload)
     expect(validatedPayload).toEqual(expectedValidatedPayload)
   })
+
+  describe('empty string to number instrumentation', () => {
+    const statsClient = {
+      incr: jest.fn(),
+      observe: jest.fn(),
+      _name: jest.fn(),
+      _tags: jest.fn(),
+      set: jest.fn(),
+      histogram: jest.fn()
+    }
+
+    const statsContext = {
+      statsClient,
+      tags: ['test:tag']
+    }
+
+    const logger = {
+      level: 'warn',
+      name: 'test-logger',
+      debug: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      crit: jest.fn(),
+      log: jest.fn(),
+      withTags: jest.fn()
+    }
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    it('should emit a metric and log when an empty string is coerced to a number', () => {
+      const payloadWithEmptyString: Payload = {
+        event_name: 'Test Event',
+        record_details: {
+          object_type: 'contact',
+          email: 'test@example.com'
+        },
+        properties: {
+          some_prop: ''
+        }
+      }
+
+      validate(payloadWithEmptyString, statsContext, logger)
+
+      expect(statsClient.incr).toHaveBeenCalledWith(
+        'hubspot.custom_event.empty_string_to_number',
+        1,
+        statsContext.tags
+      )
+      expect(logger.warn).toHaveBeenCalledWith(
+        'hubspot.custom_event.empty_string_to_number property: some_prop'
+      )
+    })
+
+    it('should not emit a metric for non-empty string values', () => {
+      const payloadWithNormalValues: Payload = {
+        event_name: 'Test Event',
+        record_details: {
+          object_type: 'contact',
+          email: 'test@example.com'
+        },
+        properties: {
+          str_prop: 'hello',
+          num_prop: 42,
+          bool_prop: true
+        }
+      }
+
+      validate(payloadWithNormalValues, statsContext, logger)
+
+      expect(statsClient.incr).not.toHaveBeenCalledWith(
+        'hubspot.custom_event.empty_string_to_number',
+        expect.anything(),
+        expect.anything()
+      )
+      expect(logger.warn).not.toHaveBeenCalled()
+    })
+  })
 })
