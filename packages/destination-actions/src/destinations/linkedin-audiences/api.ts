@@ -64,7 +64,7 @@ export class LinkedInAudiences {
       method: 'POST',
       headers: {
         'X-RestLi-Method': 'BATCH_CREATE',
-        'Linkedin-Version': getApiVersion(this.features) // https://learn.microsoft.com/en-us/linkedin/marketing/matched-audiences/create-and-manage-segment-users?view=li-lms-2025-11&tabs=curl
+        'LinkedIn-Version': getApiVersion(this.features) // https://learn.microsoft.com/en-us/linkedin/marketing/matched-audiences/create-and-manage-segment-users?view=li-lms-2025-11&tabs=curl
       },
       json: {
         elements

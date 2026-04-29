@@ -882,7 +882,7 @@ describe('LinkedinAudiences.updateAudience - API Version Feature Flag', () => {
 
     nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
       .post(/.*/)
-      .matchHeader('Linkedin-Version', LINKEDIN_API_VERSION)
+      .matchHeader('LinkedIn-Version', LINKEDIN_API_VERSION)
       .reply(200)
 
     await expect(
@@ -911,7 +911,7 @@ describe('LinkedinAudiences.updateAudience - API Version Feature Flag', () => {
 
     nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
       .post(/.*/)
-      .matchHeader('Linkedin-Version', LINKEDIN_CANARY_API_VERSION)
+      .matchHeader('LinkedIn-Version', LINKEDIN_CANARY_API_VERSION)
       .reply(200)
 
     await expect(
