@@ -1,6 +1,7 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { isRestrictedUrl } from '../ssrf-utils'
 
 type RequestMethod = 'POST' | 'PUT' | 'PATCH'
 
@@ -48,6 +49,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
+    if (isRestrictedUrl(payload.url)) {
+      throw new PayloadValidationError(`URL is not allowed: ${payload.url}`)
+    }
     try {
       let body
       let contentType = 'application/json'
@@ -72,8 +76,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: (request, { payload }) => {
     // Expect these to be the same across the payloads
+    const { url, method, headers } = payload[0]
+    if (isRestrictedUrl(url)) {
+      throw new PayloadValidationError(`URL is not allowed: ${url}`)
+    }
     try {
-      const { url, method, headers } = payload[0]
       return request(url, {
         method: method as RequestMethod,
         headers: headers as Record<string, string>,
