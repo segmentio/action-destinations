@@ -82,7 +82,8 @@ export type {
   StatsContext,
   Logger,
   Preset,
-  Result
+  Result,
+  AsyncPollResponseType
 } from './destination-kit'
 
 export type {
