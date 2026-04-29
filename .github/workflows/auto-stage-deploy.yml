@@ -1,0 +1,74 @@
+# Triggers a Buildkite pipeline in the integrations repo to deploy
+# action-destinations changes to the staging environment.
+#
+# Fires when the "auto-stage-deploy" label is added to a PR.
+# Uses pull_request_target (not pull_request) so secrets are available
+# even for fork PRs. This is safe because we never checkout or execute
+# the PR's code — we only read event metadata and make an outbound API call.
+
+name: Auto Stage Deploy
+
+on:
+  pull_request_target:
+    types: [labeled]
+
+jobs:
+  trigger-stage-deploy:
+    if: github.event.label.name == 'auto-stage-deploy'
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Check author allowlist
+        id: authz
+        env:
+          ALLOWED_AUTHORS: hjoshi
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          if echo ",$ALLOWED_AUTHORS," | grep -q ",$PR_AUTHOR,"; then
+            echo "authorized=true" >> "$GITHUB_OUTPUT"
+            echo "Author $PR_AUTHOR is authorized."
+          else
+            echo "authorized=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Author $PR_AUTHOR is not in the allowlist. Skipping stage deploy."
+          fi
+
+      - name: Trigger Buildkite pipeline
+        if: steps.authz.outputs.authorized == 'true'
+        env:
+          BUILDKITE_API_TOKEN: ${{ secrets.BUILDKITE_API_TOKEN }}
+          BUILDKITE_PIPELINE_SLUG: ${{ secrets.BUILDKITE_AUTO_STAGE_PIPELINE_SLUG }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          RESPONSE=$(curl -sf -w "\n%{http_code}" -X POST \
+            "https://api.buildkite.com/v2/organizations/segment/pipelines/${BUILDKITE_PIPELINE_SLUG}/builds" \
+            -H "Authorization: Bearer ${BUILDKITE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "$(cat <<EOF
+          {
+            "commit": "HEAD",
+            "branch": "master",
+            "message": "Auto stage deploy for PR #${PR_NUMBER} (${PR_BRANCH}) by @${PR_AUTHOR}",
+            "env": {
+              "PR_BRANCH": "${PR_BRANCH}",
+              "PR_NUMBER": "${PR_NUMBER}",
+              "PR_SHA": "${PR_SHA}",
+              "PR_AUTHOR": "${PR_AUTHOR}"
+            }
+          }
+          EOF
+          )")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          if [[ "$HTTP_CODE" -ge 200 && "$HTTP_CODE" -lt 300 ]]; then
+            BUILD_URL=$(echo "$BODY" | jq -r '.web_url // "unknown"')
+            echo "Buildkite build triggered: $BUILD_URL"
+          else
+            echo "::error::Buildkite API returned HTTP $HTTP_CODE"
+            echo "$BODY"
+            exit 1
+          fi
