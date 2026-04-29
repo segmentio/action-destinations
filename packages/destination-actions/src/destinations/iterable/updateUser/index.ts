@@ -10,7 +10,6 @@ import {
   DataCenterLocation
 } from '../shared-fields'
 import { convertDatesInObject, getRegionalEndpoint } from '../utils'
-import { constituentPayloadWithLookupId } from 'src/destinations/blackbaud-raisers-edge-nxt/createOrUpdateIndividualConstituent/fixtures'
 
 interface UserUpdateRequestPayload {
   email?: string
