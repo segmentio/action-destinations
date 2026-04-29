@@ -91,6 +91,25 @@ describe('Hubspot.customEvent', () => {
       expect(result.properties?.prop_c).toBe('hello')
     })
 
+    it('should keep whitespace-only strings as empty strings instead of coercing to 0', () => {
+      const payloadWithWhitespace: Payload = {
+        event_name: 'Test Event',
+        record_details: {
+          object_type: 'contact',
+          email: 'test@example.com'
+        },
+        properties: {
+          space_only: '   ',
+          tab_only: '\t'
+        }
+      }
+
+      const result = validate(payloadWithWhitespace)
+
+      expect(result.properties?.space_only).toBe('')
+      expect(result.properties?.tab_only).toBe('')
+    })
+
     it('should still coerce non-empty numeric strings to numbers', () => {
       const payloadWithNumericStrings: Payload = {
         event_name: 'Test Event',
