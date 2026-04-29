@@ -49,17 +49,15 @@ export function cleanEventName(str: string): string {
 
 function cleanPropObj(
   obj: { [k: string]: unknown } | undefined,
-  statsContext?: StatsContext,
-  logger?: Logger,
-  subscriptionMetadata?: SubscriptionMetadata
+  _statsContext?: StatsContext,
+  _logger?: Logger,
+  _subscriptionMetadata?: SubscriptionMetadata
 ): { [k: string]: string | number | boolean } | undefined {
   const cleanObj: { [k: string]: string | number | boolean } = {}
 
   if (obj === undefined) {
     return undefined
   }
-
-  let hasEmptyStringToNumber = false
 
   Object.keys(obj).forEach((key) => {
     const value = obj[key]
