@@ -112,8 +112,21 @@ export function convertStringToNumbers(validPayload: Payload, stringToNumbers: s
     return
   }
   for (const propName of stringToNumbers) {
-    if (validPayload.properties[propName] !== undefined) {
-      validPayload.properties[propName] = Number(validPayload.properties[propName])
+    const propValue = validPayload.properties[propName]
+    if (propValue === undefined || typeof propValue !== 'string') {
+      continue
+    }
+
+    if (propValue.trim() === '') {
+      validPayload.properties[propName] = 0
+    } else {
+      const convertedValue = Number(propValue)
+      if (Number.isNaN(convertedValue)) {
+        throw new PayloadValidationError(
+          `Property "${propName}" is typed as number in HubSpot but received a non-numeric string.`
+        )
+      }
+      validPayload.properties[propName] = convertedValue
     }
   }
 }

@@ -1,7 +1,13 @@
 import { Payload } from '../generated-types'
-import { PayloadValidationError } from '@segment/actions-core'
+import { PayloadValidationError, StatsContext, Logger } from '@segment/actions-core'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 
-export function validate(payload: Payload): Payload {
+export function validate(
+  payload: Payload,
+  statsContext?: StatsContext,
+  logger?: Logger,
+  subscriptionMetadata?: SubscriptionMetadata
+): Payload {
   if (payload.record_details.object_type !== 'contact' && typeof payload.record_details.object_id !== 'number') {
     throw new PayloadValidationError('object_id is required and must be numeric')
   }
@@ -19,7 +25,7 @@ export function validate(payload: Payload): Payload {
 
   cleanIdentifiers(payload)
   payload.event_name = cleanEventName(payload.event_name)
-  payload.properties = cleanPropObj(payload.properties ?? {})
+  payload.properties = cleanPropObj(payload.properties ?? {}, statsContext, logger, subscriptionMetadata)
 
   return payload
 }
@@ -42,7 +48,10 @@ export function cleanEventName(str: string): string {
 }
 
 function cleanPropObj(
-  obj: { [k: string]: unknown } | undefined
+  obj: { [k: string]: unknown } | undefined,
+  _statsContext?: StatsContext,
+  _logger?: Logger,
+  _subscriptionMetadata?: SubscriptionMetadata
 ): { [k: string]: string | number | boolean } | undefined {
   const cleanObj: { [k: string]: string | number | boolean } = {}
 
@@ -63,14 +72,15 @@ function cleanPropObj(
       // If the value can be cast to a boolean
       cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
     } else if (!isNaN(Number(value))) {
-        if (typeof value === 'string' && value.trim() === '') {
-          // Empty strings stay as strings — the schema comparison will coerce
-          // back to 0 if HubSpot already has this field typed as number
-          cleanObj[cleanKey] = ''
-        } else {
-          // If the value can be cast to a number
-          cleanObj[cleanKey] = Number(value)
-        }
+      if (typeof value === 'string' && value.trim() === '') {
+        // Empty strings stay as strings here. If compareSchemas determines
+        // that HubSpot already has this field typed as a number,
+        // convertStringToNumbers will later coerce '' back to 0 at runtime.
+        cleanObj[cleanKey] = ''
+      } else {
+        // If the value can be cast to a number
+        cleanObj[cleanKey] = Number(value)
+      }
     } else if (typeof value === 'object' && value !== null) {
       // If the value is an object
       cleanObj[cleanKey] = JSON.stringify(value).trim()
