@@ -1,7 +1,14 @@
 import dayjs from '../../lib/dayjs'
 import isPlainObject from 'lodash/isPlainObject'
 import { fullFormats } from 'ajv-formats/dist/formats'
-import { ErrorCodes, getErrorCodeFromHttpStatus, HTTPError, IntegrationError, MultiStatusResponse, RequestClient } from '@segment/actions-core'
+import {
+  ErrorCodes,
+  getErrorCodeFromHttpStatus,
+  HTTPError,
+  IntegrationError,
+  MultiStatusResponse,
+  RequestClient
+} from '@segment/actions-core'
 import { CUSTOMERIO_TRACK_API_VERSION } from './versioning-info'
 
 const isEmail = (value: string): boolean => {
@@ -40,10 +47,11 @@ export enum AccountRegion {
 
 export const convertValidTimestamp = <Value = unknown>(value: Value): Value | number => {
   // Timestamps may be on a `string` field, so check if the string is only
-  // numbers. If it is, ignore it since it's probably already a unix timestamp.
+  // digits (optionally with a fractional part). If it is, ignore it since
+  // it's probably already a unix timestamp (integer or decimal).
   // DayJS doesn't parse unix timestamps correctly outside of the `.unix()`
   // initializer.
-  if (typeof value !== 'string' || /^\d+$/.test(value)) {
+  if (typeof value !== 'string' || /^\d+(\.\d+)?$/.test(value)) {
     return value
   }
 

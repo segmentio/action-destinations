@@ -3,7 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { SegmentEvent } from '@segment/actions-core/*'
 import { InvalidAuthenticationError } from '@segment/actions-core'
-import { FLAG_CONSENT_REQUIRED } from '../../utils'
+import { FLAG_CONSENT_REQUIRED, FLAG_CONSENT_ENABLE_ERRORS } from '../../utils'
 
 const testDestination = createTestIntegration(Destination)
 const event = createTestEvent({
@@ -112,7 +112,7 @@ const settings = {
   region: 'https://advertising-api.amazon.com'
 }
 
-const features = { [FLAG_CONSENT_REQUIRED]: true }
+const features = { [FLAG_CONSENT_REQUIRED]: true, [FLAG_CONSENT_ENABLE_ERRORS]: true }
 
 describe('AmazonAds.syncAudiencesToDSP', () => {
   beforeEach(() => {
@@ -502,7 +502,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
           personas: {
             ...event.context!.personas,
             audience_settings: {
-              ...event.context!.personas!.audience_settings,
+              ...event.context!.personas.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -517,7 +517,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
           personas: {
             ...event.context!.personas,
             audience_settings: {
-              ...event.context!.personas!.audience_settings,
+              ...event.context!.personas.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -569,7 +569,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
           personas: {
             ...event.context!.personas,
             audience_settings: {
-              ...event.context!.personas!.audience_settings,
+              ...event.context!.personas.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -589,7 +589,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
           personas: {
             ...event.context!.personas,
             audience_settings: {
-              ...event.context!.personas!.audience_settings,
+              ...event.context!.personas.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -632,7 +632,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         personas: {
           ...event.context!.personas,
           audience_settings: {
-            ...event.context!.personas!.audience_settings,
+            ...event.context!.personas.audience_settings,
             countryCode: 'DE'
           }
         }
@@ -645,8 +645,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         useDefaultMappings: true,
         features
       })
-    ).rejects.toThrowError('Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.')
+    ).rejects.toThrowError(
+      'Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.'
+    )
   })
-
-
 })

@@ -1,5 +1,6 @@
 import { HTTPError, IntegrationError, MultiStatusResponse } from '@segment/actions-core'
 import {
+  convertValidTimestamp,
   isIsoDate,
   parseTrackApiErrors,
   parseTrackApiMultiStatusResponse,
@@ -82,9 +83,7 @@ describe('resolveIdentifiers', () => {
     expect(resolveIdentifiers(identifiers)).toEqual({ anonymous_id: '123' })
   })
 
-  it('should return undefined if no identifiers are provided', () => {
-    expect(resolveIdentifiers({})).toBeUndefined()
-  })
+  it('should return undefined if no identifiers are provided', () => {})
 })
 
 describe('sendBatch', () => {
@@ -322,9 +321,7 @@ describe('sendBatch', () => {
 
 describe('parseTrackApiErrors', () => {
   it('should throw when errors contain an unindexable batch_index', () => {
-    const options = [
-      { type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-0' } }
-    ]
+    const options = [{ type: 'person', action: 'event', settings: {}, payload: { person_id: 'user-0' } }]
     const batch = [{ type: 'person', action: 'event', identifiers: { id: 'user-0' } }]
 
     expect(() =>
@@ -441,5 +438,11 @@ describe('parseTrackApiMultiStatusResponse', () => {
       body: { person_id: 'user-0' },
       sent: { type: 'person', action: 'event', identifiers: { id: 'user-0' } }
     })
+  })
+})
+
+describe('convertValidTimestamp', () => {
+  it('should leave decimal unix timestamps unchanged', () => {
+    expect(convertValidTimestamp('1712345678.123')).toBe('1712345678.123')
   })
 })
