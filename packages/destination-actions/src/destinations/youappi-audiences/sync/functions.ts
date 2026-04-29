@@ -1,4 +1,4 @@
-import { RequestClient, MultiStatusResponse, JSONLikeObject, IntegrationError } from '@segment/actions-core'
+import { RequestClient, MultiStatusResponse, JSONLikeObject, IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { URL } from '../constants'
@@ -15,9 +15,21 @@ export async function send(
   const deleteMap = new Map<number, Payload>()
 
   payloads.forEach((payload, index) => {
-    const { 
-      traits_or_props, 
-      audience_name 
+    if (!payload.idfa && !payload.gaid) {
+      if (!isBatch) {
+        throw new PayloadValidationError('Payload must include either an IDFA or GAID.')
+      }
+      msResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_ERROR',
+        errormessage: 'Payload must include either an IDFA or GAID.'
+      })
+      return
+    }
+
+    const {
+      traits_or_props,
+      audience_name
     } = payload
 
     const isAudienceMember = traits_or_props && typeof audience_name === 'string' && traits_or_props[audience_name] === true

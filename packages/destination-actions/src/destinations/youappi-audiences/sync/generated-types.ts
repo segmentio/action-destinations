@@ -2,13 +2,13 @@
 
 export interface Payload {
   /**
-   * User's IDFA
+   * User's IDFA. Required if GAID is not provided.
    */
-  idfa: string
+  idfa?: string
   /**
-   * User's GAID
+   * User's GAID. Required if IDFA is not provided.
    */
-  gaid: string
+  gaid?: string
   /**
    * The name of the audience to which you want to add users.
    */

@@ -1,6 +1,11 @@
-import { getJSON } from '../sync/functions'
+import nock from 'nock'
+import { getJSON} from '../sync/functions'
+import { createTestIntegration } from '@segment/actions-core'
+import Definition from '../index'
 import { Payload } from '../sync/generated-types'
 import { Settings } from '../generated-types'
+
+const testDestination = createTestIntegration(Definition)
 
 describe('YouAppi Audiences - Helper Functions', () => {
   const mockSettings: Settings = {
@@ -281,6 +286,185 @@ describe('YouAppi Audiences - Helper Functions', () => {
       expect(result.device_identities).toHaveLength(2)
       expect(result.device_identities.some(id => id.type === 'IDFA')).toBe(true)
       expect(result.device_identities.some(id => id.type === 'GAID')).toBe(true)
+    })
+  })
+
+  describe('send - missing IDFA and GAID validation', () => {
+    beforeEach(() => {
+      nock.cleanAll()
+    })
+
+    afterEach(() => {
+      nock.cleanAll()
+    })
+
+    it('should throw PayloadValidationError for perform when both IDFA and GAID are missing', async () => {
+      await expect(
+        testDestination.testAction('sync', {
+          event: {
+            type: 'identify',
+            userId: 'user-no-ids',
+            traits: {
+              'Test Audience': true
+            },
+            context: {
+              personas: {
+                computation_id: 'aud_test_123',
+                computation_key: 'Test Audience'
+              }
+            }
+          } as any,
+          mapping: {
+            audience_name: { '@path': '$.context.personas.computation_key' },
+            audience_id: { '@path': '$.context.personas.computation_id' },
+            traits_or_props: { '@path': '$.traits' },
+            enable_batching: true,
+            batch_size: 1000,
+            batch_keys: ['audience_id', 'audience_name']
+          },
+          settings: mockSettings
+        })
+      ).rejects.toThrow('Payload must include either an IDFA or GAID.')
+    })
+
+    it('should set error in multistatus response for batch payloads missing both IDFA and GAID', async () => {
+      nock('https://audiences.youappi.com')
+        .post('/segment/AudienceMembership')
+        .reply(200, { success: true })
+
+      const events = [
+        {
+          type: 'identify',
+          userId: 'user-valid',
+          traits: {
+            idfa: 'AEBE52E7-03EE-455A-B3C4-E57283966239',
+            'Test Audience': true
+          },
+          context: {
+            personas: {
+              computation_id: 'aud_test_123',
+              computation_key: 'Test Audience'
+            }
+          }
+        },
+        {
+          type: 'identify',
+          userId: 'user-no-ids',
+          traits: {
+            'Test Audience': true
+          },
+          context: {
+            personas: {
+              computation_id: 'aud_test_123',
+              computation_key: 'Test Audience'
+            }
+          }
+        },
+        {
+          type: 'identify',
+          userId: 'user-valid-2',
+          traits: {
+            gaid: '38400000-8cf0-11bd-b23e-10b96e40000d',
+            'Test Audience': true
+          },
+          context: {
+            personas: {
+              computation_id: 'aud_test_123',
+              computation_key: 'Test Audience'
+            }
+          }
+        }
+      ]
+
+      const result = await testDestination.testBatchAction('sync', {
+        events: events as any,
+        mapping: {
+          idfa: { '@path': '$.traits.idfa' },
+          gaid: { '@path': '$.traits.gaid' },
+          audience_name: { '@path': '$.context.personas.computation_key' },
+          audience_id: { '@path': '$.context.personas.computation_id' },
+          traits_or_props: { '@path': '$.traits' },
+          enable_batching: true,
+          batch_size: 1000,
+          batch_keys: ['audience_id', 'audience_name']
+        },
+        settings: mockSettings
+      })
+
+      expect(result).toBeDefined()
+      expect(result.length).toBeGreaterThanOrEqual(1)
+    })
+
+    it('should succeed for perform when only IDFA is present', async () => {
+      nock('https://audiences.youappi.com')
+        .post('/segment/AudienceMembership')
+        .reply(200, { success: true })
+
+      const responses = await testDestination.testAction('sync', {
+        event: {
+          type: 'identify',
+          userId: 'user-idfa-only',
+          traits: {
+            idfa: 'AEBE52E7-03EE-455A-B3C4-E57283966239',
+            'Test Audience': true
+          },
+          context: {
+            personas: {
+              computation_id: 'aud_test_123',
+              computation_key: 'Test Audience'
+            }
+          }
+        } as any,
+        mapping: {
+          idfa: { '@path': '$.traits.idfa' },
+          audience_name: { '@path': '$.context.personas.computation_key' },
+          audience_id: { '@path': '$.context.personas.computation_id' },
+          traits_or_props: { '@path': '$.traits' },
+          enable_batching: true,
+          batch_size: 1000,
+          batch_keys: ['audience_id', 'audience_name']
+        },
+        settings: mockSettings
+      })
+
+      expect(responses).toHaveLength(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+    it('should succeed for perform when only GAID is present', async () => {
+      nock('https://audiences.youappi.com')
+        .post('/segment/AudienceMembership')
+        .reply(200, { success: true })
+
+      const responses = await testDestination.testAction('sync', {
+        event: {
+          type: 'identify',
+          userId: 'user-gaid-only',
+          traits: {
+            gaid: '38400000-8cf0-11bd-b23e-10b96e40000d',
+            'Test Audience': true
+          },
+          context: {
+            personas: {
+              computation_id: 'aud_test_123',
+              computation_key: 'Test Audience'
+            }
+          }
+        } as any,
+        mapping: {
+          gaid: { '@path': '$.traits.gaid' },
+          audience_name: { '@path': '$.context.personas.computation_key' },
+          audience_id: { '@path': '$.context.personas.computation_id' },
+          traits_or_props: { '@path': '$.traits' },
+          enable_batching: true,
+          batch_size: 1000,
+          batch_keys: ['audience_id', 'audience_name']
+        },
+        settings: mockSettings
+      })
+
+      expect(responses).toHaveLength(1)
+      expect(responses[0].status).toBe(200)
     })
   })
 })
