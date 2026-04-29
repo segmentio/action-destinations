@@ -1,6 +1,6 @@
 import nock from 'nock'
-import { getJSON} from '../sync/functions'
-import { createTestIntegration } from '@segment/actions-core'
+import { getJSON, send } from '../sync/functions'
+import { createTestIntegration, createRequestClient } from '@segment/actions-core'
 import Definition from '../index'
 import { Payload } from '../sync/generated-types'
 import { Settings } from '../generated-types'
@@ -332,67 +332,48 @@ describe('YouAppi Audiences - Helper Functions', () => {
         .post('/segment/AudienceMembership')
         .reply(200, { success: true })
 
-      const events = [
+      const request = createRequestClient()
+
+      const payloads: Payload[] = [
         {
-          type: 'identify',
-          userId: 'user-valid',
-          traits: {
-            idfa: 'AEBE52E7-03EE-455A-B3C4-E57283966239',
-            'Test Audience': true
-          },
-          context: {
-            personas: {
-              computation_id: 'aud_test_123',
-              computation_key: 'Test Audience'
-            }
-          }
+          idfa: 'AEBE52E7-03EE-455A-B3C4-E57283966239',
+          audience_name: 'Test Audience',
+          audience_id: 'aud_test_123',
+          traits_or_props: { 'Test Audience': true },
+          enable_batching: true,
+          batch_size: 1000
         },
         {
-          type: 'identify',
-          userId: 'user-no-ids',
-          traits: {
-            'Test Audience': true
-          },
-          context: {
-            personas: {
-              computation_id: 'aud_test_123',
-              computation_key: 'Test Audience'
-            }
-          }
+          audience_name: 'Test Audience',
+          audience_id: 'aud_test_123',
+          traits_or_props: { 'Test Audience': true },
+          enable_batching: true,
+          batch_size: 1000
         },
         {
-          type: 'identify',
-          userId: 'user-valid-2',
-          traits: {
-            gaid: '38400000-8cf0-11bd-b23e-10b96e40000d',
-            'Test Audience': true
-          },
-          context: {
-            personas: {
-              computation_id: 'aud_test_123',
-              computation_key: 'Test Audience'
-            }
-          }
+          gaid: '38400000-8cf0-11bd-b23e-10b96e40000d',
+          audience_name: 'Test Audience',
+          audience_id: 'aud_test_123',
+          traits_or_props: { 'Test Audience': true },
+          enable_batching: true,
+          batch_size: 1000
         }
       ]
 
-      const result = await testDestination.testBatchAction('sync', {
-        events: events as any,
-        mapping: {
-          idfa: { '@path': '$.traits.idfa' },
-          gaid: { '@path': '$.traits.gaid' },
-          audience_name: { '@path': '$.context.personas.computation_key' },
-          audience_id: { '@path': '$.context.personas.computation_id' },
-          traits_or_props: { '@path': '$.traits' },
-          enable_batching: true,
-          batch_size: 1000,
-          batch_keys: ['audience_id', 'audience_name']
-        },
-        settings: mockSettings
-      })
+      const msResponse = await send(request, payloads, mockSettings, true)
 
-      expect(result).toBeDefined()
-      expect(result.length).toBeGreaterThanOrEqual(1)
+      expect(msResponse).toBeDefined()
+      expect(msResponse!.isErrorResponseAtIndex(1)).toBe(true)
+      const errorResponse = msResponse!.getResponseAtIndex(1)
+      expect(errorResponse).toMatchObject({
+        data: {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: 'Payload must include either an IDFA or GAID.'
+        }
+      })
+      expect(msResponse!.isSuccessResponseAtIndex(0)).toBe(true)
+      expect(msResponse!.isSuccessResponseAtIndex(2)).toBe(true)
     })
 
     it('should succeed for perform when only IDFA is present', async () => {
