@@ -2,9 +2,9 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from './common-fields'
 import { Client } from './client'
-import { ActionDefinition, RequestClient, IntegrationError, StatsContext, Logger } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, IntegrationError, StatsContext } from '@segment/actions-core'
 import { dynamicFields } from './functions/dynamic-field-functions'
-import { SyncMode, SchemaMatch, CachableSchema } from './types'
+import { SyncMode, SchemaMatch, CachableSchema, SchemaDiff } from './types'
 import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import {
   getSchemaFromHubspot,
@@ -18,7 +18,8 @@ import {
   compareSchemas,
   saveSchemaToCache,
   getSchemaFromCache,
-  convertNumericStrings
+  convertNumericStrings,
+  convertStringToNumbers
 } from './functions/cache-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -38,8 +39,8 @@ const action: ActionDefinition<Settings, Payload> = {
     ...commonFields
   },
   dynamicFields,
-  perform: async (request, { payload, syncMode, subscriptionMetadata, statsContext, logger }) => {
-    return await send(request, payload, syncMode as SyncMode, subscriptionMetadata, statsContext, logger)
+  perform: async (request, { payload, syncMode, subscriptionMetadata, statsContext }) => {
+    return await send(request, payload, syncMode as SyncMode, subscriptionMetadata, statsContext)
   }
 }
 
@@ -48,24 +49,24 @@ const send = async (
   payload: Payload,
   syncMode: SyncMode,
   subscriptionMetadata?: SubscriptionMetadata,
-  statsContext?: StatsContext,
-  logger?: Logger
+  statsContext?: StatsContext
 ) => {
   statsContext?.tags?.push('action:custom_event')
 
   const client = new Client(request)
-  const validPayload = validate(payload, statsContext, logger, subscriptionMetadata)
+  const validPayload = validate(payload)
   const schema = eventSchema(validPayload)
   const cachedSchema = getSchemaFromCache(schema.name, subscriptionMetadata, statsContext)
 
   statsContext?.statsClient?.incr(`cache.get.${cachedSchema === undefined ? 'miss' : 'hit'}`, 1, statsContext?.tags)
 
-  const cacheSchemaDiff = compareSchemas(schema, cachedSchema)
+  const cacheSchemaDiff: SchemaDiff = compareSchemas(schema, cachedSchema)
 
   statsContext?.statsClient?.incr(`cache.diff.${cacheSchemaDiff.match}`, 1, statsContext?.tags)
 
   if (cacheSchemaDiff.match === SchemaMatch.FullMatch) {
     convertNumericStrings(validPayload, cacheSchemaDiff.numericStrings)
+    convertStringToNumbers(validPayload, cacheSchemaDiff.stringToNumbers)
     return await sendEvent(client, (cachedSchema as CachableSchema).fullyQualifiedName, validPayload)
   }
 
@@ -77,11 +78,12 @@ const send = async (
     statsContext?.tags
   )
 
-  const hubspotSchemaDiff = compareSchemas(schema, hubspotSchema)
+  const hubspotSchemaDiff: SchemaDiff = compareSchemas(schema, hubspotSchema)
 
   statsContext?.statsClient?.incr(`hubspotSchemaDiff.diff.${hubspotSchemaDiff.match}`, 1, statsContext?.tags)
 
   convertNumericStrings(validPayload, hubspotSchemaDiff.numericStrings)
+  convertStringToNumbers(validPayload, hubspotSchemaDiff.stringToNumbers)
 
   switch (hubspotSchemaDiff.match) {
     case SchemaMatch.FullMatch: {
