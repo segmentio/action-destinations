@@ -196,18 +196,21 @@ async function upsertProfiles(
   }
 
   try {
-    const response = await request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Pre-Auth-Context': settings.twilioAccount
-      },
-      username: settings.username,
-      password: settings.password,
-      json: {
-        profiles: validProfiles
+    const response = await request(
+      `https://blackhole-webhook.segment.build/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Pre-Auth-Context': settings.twilioAccount
+        },
+        username: settings.username,
+        password: settings.password,
+        json: {
+          profiles: validProfiles
+        }
       }
-    })
+    )
 
     const twilioRequestId = response.headers?.get?.('twilio-request-id')
     logger?.info?.(
