@@ -22,6 +22,34 @@ import {
   SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION
 } from './versioning-info'
 
+/**
+ * Interface for SFMC async operation status response from /status endpoint
+ */
+interface SFMCAsyncStatus {
+  status: {
+    callDateTime: string
+    completionDateTime?: string
+    hasErrors: boolean
+    pickupDateTime?: string
+    requestStatus: string
+    resultStatus: string
+    requestId: string
+  }
+  requestId: string
+  resultMessages: string[]
+}
+
+/**
+ * Interface for poll response
+ */
+interface PollResponse {
+  status: string
+  operationId: string
+  completedAt?: string
+  errorMessage?: string
+  results?: Record<string, unknown>
+}
+
 function generateRows(payloads: payload_dataExtension[] | payload_contactDataExtension[]): Record<string, any>[] {
   const rows: Record<string, any>[] = []
   payloads.forEach((payload: payload_dataExtension | payload_contactDataExtension) => {
@@ -55,6 +83,61 @@ function isRetryableError(errData: ErrorData, status: number): boolean {
     errData?.message.includes('Unable to save rows for data extension ID') &&
     !errData?.additionalErrors
   )
+}
+
+export async function pollAsyncOperation(
+  request: RequestClient,
+  subdomain: string,
+  operationId: string
+): Promise<PollResponse> {
+  try {
+    console.log('subdomain', subdomain, 'operationId', operationId)
+    const response = await request<SFMCAsyncStatus>(
+      `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/${operationId}/status`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+    const data = response.data
+    console.log('poll data', data)
+
+    return {
+      status: data.status.requestStatus,
+      operationId: operationId,
+      completedAt: data.status.completionDateTime,
+      errorMessage: data.status.hasErrors ? 'Operation completed with errors' : undefined
+    }
+  } catch (error) {
+    console.log('poll error', error)
+    const err = error as ErrorResponse
+
+    if (err?.response?.status === 401) {
+      throw error
+    }
+
+    // If operation not found, it might be completed and cleaned up
+    if (err?.response?.status === 404) {
+      return {
+        status: 'NotFound',
+        operationId: operationId,
+        errorMessage: 'Operation not found - may have been completed and cleaned up'
+      }
+    }
+
+    const errorMessage = err?.response?.data
+      ? (err.response.data as { message?: string }).message || 'Unknown error'
+      : 'Unknown error'
+
+    throw new IntegrationError(
+      `Failed to poll async operation: ${errorMessage}`,
+      'ASYNC_POLL_FAILED',
+      err?.response?.status || 500
+    )
+  }
 }
 
 export async function asyncUpsertRowsV2(
