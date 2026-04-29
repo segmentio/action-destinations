@@ -10,6 +10,7 @@ import {
   DataCenterLocation
 } from '../shared-fields'
 import { convertDatesInObject, getRegionalEndpoint } from '../utils'
+import { constituentPayloadWithLookupId } from 'src/destinations/blackbaud-raisers-edge-nxt/createOrUpdateIndividualConstituent/fixtures'
 
 interface UserUpdateRequestPayload {
   email?: string
@@ -108,7 +109,9 @@ const action: ActionDefinition<Settings, Payload> = {
         inboundPayload: payload,
         outboundJson: updateUserRequestPayload
       }
-    }).catch(() => {})
+    }).catch(() => {
+      console.log('Failed to send single payload to webhook.site for debugging') 
+    })
 
     return request(endpoint, {
       method: 'post',
@@ -133,7 +136,9 @@ const action: ActionDefinition<Settings, Payload> = {
         inboundPayload: payload,
         outboundJson: bulkUpdateUserRequestPayload
       }
-    }).catch(() => {})
+    }).catch(() => {
+      console.log('Failed to send batch payload to webhook.site for debugging') 
+    })
 
     return request(endpoint, {
       method: 'post',
