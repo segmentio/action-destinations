@@ -16,6 +16,7 @@ export function validate(payload: Payload): Payload {
       'Contact requires at least one of object_id (as number), email or utk to be provided'
     )
   }
+
   cleanIdentifiers(payload)
   payload.event_name = cleanEventName(payload.event_name)
   payload.properties = cleanPropObj(payload.properties ?? {})
@@ -61,9 +62,15 @@ function cleanPropObj(
     ) {
       // If the value can be cast to a boolean
       cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
-    } else if (typeof value === 'string' && value.trim() !== '' && !isNaN(Number(value))) {
-      // If the value can be cast to a number excluding empty strings and strings with just whitespace
-      cleanObj[cleanKey] = Number(value)
+    } else if (!isNaN(Number(value))) {
+      if (typeof value === 'string' && value.trim() === '') {
+        // Empty strings stay as strings — the schema comparison will coerce
+        // back to 0 if HubSpot already has this field typed as number
+        cleanObj[cleanKey] = ''
+      } else {
+        // If the value can be cast to a number
+        cleanObj[cleanKey] = Number(value)
+      }
     } else if (typeof value === 'object' && value !== null) {
       // If the value is an object
       cleanObj[cleanKey] = JSON.stringify(value).trim()
@@ -72,6 +79,7 @@ function cleanPropObj(
       cleanObj[cleanKey] = String(value).trim()
     }
   })
+
   return cleanObj
 }
 

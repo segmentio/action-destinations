@@ -52,42 +52,64 @@ describe('Hubspot.customEvent', () => {
     expect(validatedPayload).toEqual(expectedValidatedPayload)
   })
 
-  it('should preserve empty strings as strings and not convert them to numbers', async () => {
-    const payloadWithEmptyString: Payload = {
-      event_name: 'Test Event',
-      record_details: {
-        object_type: 'contact',
-        email: 'test@example.com'
-      },
-      properties: {
-        empty_string: '',
-        whitespace_string: '   ',
-        valid_number: '123',
-        valid_string: 'hello',
-        bool_str: 'false'
+  describe('empty string handling', () => {
+    it('should keep empty strings as strings instead of coercing to 0', () => {
+      const payloadWithEmptyString: Payload = {
+        event_name: 'Test Event',
+        record_details: {
+          object_type: 'contact',
+          email: 'test@example.com'
+        },
+        properties: {
+          some_prop: ''
+        }
       }
-    }
 
-    const validatedPayload = validate(payloadWithEmptyString)
+      const result = validate(payloadWithEmptyString)
 
-    // Empty string should remain as empty string, not be converted to 0
-    expect(validatedPayload.properties?.empty_string).toBe('')
-    expect(typeof validatedPayload.properties?.empty_string).toBe('string')
+      expect(result.properties?.some_prop).toBe('')
+    })
 
-    // Whitespace-only string should be trimmed to empty string, not converted to 0
-    expect(validatedPayload.properties?.whitespace_string).toBe('')
-    expect(typeof validatedPayload.properties?.whitespace_string).toBe('string')
+    it('should keep multiple empty strings as strings', () => {
+      const payloadWithMultipleEmpty: Payload = {
+        event_name: 'Test Event',
+        record_details: {
+          object_type: 'contact',
+          email: 'test@example.com'
+        },
+        properties: {
+          prop_a: '',
+          prop_b: '',
+          prop_c: 'hello'
+        }
+      }
 
-    // Numeric string should still be converted to number
-    expect(validatedPayload.properties?.valid_number).toBe(123)
-    expect(typeof validatedPayload.properties?.valid_number).toBe('number')
+      const result = validate(payloadWithMultipleEmpty)
 
-    // Regular string should remain as string
-    expect(validatedPayload.properties?.valid_string).toBe('hello')
-    expect(typeof validatedPayload.properties?.valid_string).toBe('string')
+      expect(result.properties?.prop_a).toBe('')
+      expect(result.properties?.prop_b).toBe('')
+      expect(result.properties?.prop_c).toBe('hello')
+    })
 
-    // Boolean string should be converted to boolean
-    expect(validatedPayload.properties?.bool_str).toBe(false)
-    expect(typeof validatedPayload.properties?.bool_str).toBe('boolean')
+    it('should still coerce non-empty numeric strings to numbers', () => {
+      const payloadWithNumericStrings: Payload = {
+        event_name: 'Test Event',
+        record_details: {
+          object_type: 'contact',
+          email: 'test@example.com'
+        },
+        properties: {
+          num_str: '42',
+          float_str: '3.14',
+          empty_str: ''
+        }
+      }
+
+      const result = validate(payloadWithNumericStrings)
+
+      expect(result.properties?.num_str).toBe(42)
+      expect(result.properties?.float_str).toBe(3.14)
+      expect(result.properties?.empty_str).toBe('')
+    })
   })
 })

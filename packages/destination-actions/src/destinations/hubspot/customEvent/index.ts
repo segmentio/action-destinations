@@ -4,7 +4,7 @@ import { commonFields } from './common-fields'
 import { Client } from './client'
 import { ActionDefinition, RequestClient, IntegrationError, StatsContext } from '@segment/actions-core'
 import { dynamicFields } from './functions/dynamic-field-functions'
-import { SyncMode, SchemaMatch, CachableSchema } from './types'
+import { SyncMode, SchemaMatch, CachableSchema, SchemaDiff } from './types'
 import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import {
   getSchemaFromHubspot,
@@ -18,7 +18,8 @@ import {
   compareSchemas,
   saveSchemaToCache,
   getSchemaFromCache,
-  convertNumericStrings
+  convertNumericStrings,
+  convertStringToNumbers
 } from './functions/cache-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -59,12 +60,13 @@ const send = async (
 
   statsContext?.statsClient?.incr(`cache.get.${cachedSchema === undefined ? 'miss' : 'hit'}`, 1, statsContext?.tags)
 
-  const cacheSchemaDiff = compareSchemas(schema, cachedSchema)
+  const cacheSchemaDiff: SchemaDiff = compareSchemas(schema, cachedSchema)
 
   statsContext?.statsClient?.incr(`cache.diff.${cacheSchemaDiff.match}`, 1, statsContext?.tags)
 
   if (cacheSchemaDiff.match === SchemaMatch.FullMatch) {
     convertNumericStrings(validPayload, cacheSchemaDiff.numericStrings)
+    convertStringToNumbers(validPayload, cacheSchemaDiff.stringToNumbers)
     return await sendEvent(client, (cachedSchema as CachableSchema).fullyQualifiedName, validPayload)
   }
 
@@ -76,11 +78,12 @@ const send = async (
     statsContext?.tags
   )
 
-  const hubspotSchemaDiff = compareSchemas(schema, hubspotSchema)
+  const hubspotSchemaDiff: SchemaDiff = compareSchemas(schema, hubspotSchema)
 
   statsContext?.statsClient?.incr(`hubspotSchemaDiff.diff.${hubspotSchemaDiff.match}`, 1, statsContext?.tags)
 
   convertNumericStrings(validPayload, hubspotSchemaDiff.numericStrings)
+  convertStringToNumbers(validPayload, hubspotSchemaDiff.stringToNumbers)
 
   switch (hubspotSchemaDiff.match) {
     case SchemaMatch.FullMatch: {

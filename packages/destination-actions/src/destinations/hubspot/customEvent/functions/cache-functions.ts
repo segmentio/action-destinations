@@ -43,7 +43,7 @@ export async function saveSchemaToCache(
 
 export function compareSchemas(schema1: Schema, schema2: CachableSchema | undefined): SchemaDiff {
   if (schema2 === undefined) {
-    return { match: 'no_match', missingProperties: {}, numericStrings: [] }
+    return { match: 'no_match', missingProperties: {}, numericStrings: [], stringToNumbers: [] }
   }
 
   if (schema1.name !== schema2.name && schema1.name !== schema2.fullyQualifiedName) {
@@ -52,6 +52,7 @@ export function compareSchemas(schema1: Schema, schema2: CachableSchema | undefi
 
   const missingProperties: { [key: string]: SegmentProperty } = {}
   const numericStrings: string[] = []
+  const stringToNumbers: string[] = []
 
   for (const [key, prop1] of Object.entries(schema1.properties)) {
     const prop2 = schema2.properties[key]
@@ -64,6 +65,12 @@ export function compareSchemas(schema1: Schema, schema2: CachableSchema | undefi
       numericStrings.push(key)
       continue
     }
+    // Handle case where we inferred string but HubSpot/cache has number
+    // (e.g. empty string "" that was previously coerced to 0)
+    if (prop1.type === 'string' && prop2.type === 'number') {
+      stringToNumbers.push(key)
+      continue
+    }
     if (prop1.stringFormat === prop2.stringFormat && prop1.type === prop2.type) {
       continue
     } else {
@@ -74,7 +81,8 @@ export function compareSchemas(schema1: Schema, schema2: CachableSchema | undefi
   return {
     match: Object.keys(missingProperties).length > 0 ? 'properties_missing' : 'full_match',
     missingProperties,
-    numericStrings
+    numericStrings,
+    stringToNumbers
   }
 }
 
@@ -90,6 +98,22 @@ export function convertNumericStrings(validPayload: Payload, numericStrings: str
   for (const propName of numericStrings) {
     if (validPayload.properties[propName] !== undefined) {
       validPayload.properties[propName] = String(validPayload.properties[propName])
+    }
+  }
+}
+
+/**
+ * Converts string property values to numbers when the schema indicates they should be numbers.
+ * This handles backward compatibility for empty strings that were previously coerced to 0
+ * and caused HubSpot to create the field as numeric type.
+ */
+export function convertStringToNumbers(validPayload: Payload, stringToNumbers: string[]): void {
+  if (!validPayload.properties || stringToNumbers.length === 0) {
+    return
+  }
+  for (const propName of stringToNumbers) {
+    if (validPayload.properties[propName] !== undefined) {
+      validPayload.properties[propName] = Number(validPayload.properties[propName])
     }
   }
 }
