@@ -1,7 +1,13 @@
 import { Payload } from '../generated-types'
-import { PayloadValidationError } from '@segment/actions-core'
+import { PayloadValidationError, StatsContext, Logger } from '@segment/actions-core'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 
-export function validate(payload: Payload): Payload {
+export function validate(
+  payload: Payload,
+  statsContext?: StatsContext,
+  logger?: Logger,
+  subscriptionMetadata?: SubscriptionMetadata
+): Payload {
   if (payload.record_details.object_type !== 'contact' && typeof payload.record_details.object_id !== 'number') {
     throw new PayloadValidationError('object_id is required and must be numeric')
   }
@@ -19,7 +25,7 @@ export function validate(payload: Payload): Payload {
 
   cleanIdentifiers(payload)
   payload.event_name = cleanEventName(payload.event_name)
-  payload.properties = cleanPropObj(payload.properties ?? {})
+  payload.properties = cleanPropObj(payload.properties ?? {}, statsContext, logger, subscriptionMetadata)
 
   return payload
 }
@@ -42,13 +48,18 @@ export function cleanEventName(str: string): string {
 }
 
 function cleanPropObj(
-  obj: { [k: string]: unknown } | undefined
+  obj: { [k: string]: unknown } | undefined,
+  statsContext?: StatsContext,
+  logger?: Logger,
+  subscriptionMetadata?: SubscriptionMetadata
 ): { [k: string]: string | number | boolean } | undefined {
   const cleanObj: { [k: string]: string | number | boolean } = {}
 
   if (obj === undefined) {
     return undefined
   }
+
+  let hasEmptyStringToNumber = false
 
   Object.keys(obj).forEach((key) => {
     const value = obj[key]
@@ -63,6 +74,9 @@ function cleanPropObj(
       // If the value can be cast to a boolean
       cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
     } else if (!isNaN(Number(value))) {
+      if (typeof value === 'string' && value.trim() === '') {
+        hasEmptyStringToNumber = true
+      }
       // If the value can be cast to a number
       cleanObj[cleanKey] = Number(value)
     } else if (typeof value === 'object' && value !== null) {
@@ -73,6 +87,14 @@ function cleanPropObj(
       cleanObj[cleanKey] = String(value).trim()
     }
   })
+
+  if (hasEmptyStringToNumber) {
+    statsContext?.statsClient?.incr('hubspot.custom_event.empty_string_to_number', 1, statsContext?.tags)
+    logger?.warn?.(
+      `hubspot.custom_event.empty_string_to_number destinationConfigId: ${subscriptionMetadata?.destinationConfigId} sourceId: ${subscriptionMetadata?.sourceId}`
+    )
+  }
+
   return cleanObj
 }
 
