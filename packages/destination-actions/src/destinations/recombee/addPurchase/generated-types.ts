@@ -29,7 +29,7 @@ export interface Payload {
   /**
    * The UTC timestamp of when the purchase occurred.
    */
-  timestamp?: string
+  timestamp?: string | number
   /**
    * The ID of the clicked recommendation (if the purchase is based on a recommendation request).
    */

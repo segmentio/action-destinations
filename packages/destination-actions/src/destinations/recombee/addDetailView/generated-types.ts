@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * The UTC timestamp of when the view occurred.
    */
-  timestamp?: string
+  timestamp?: string | number
   /**
    * The duration of the view in seconds.
    */

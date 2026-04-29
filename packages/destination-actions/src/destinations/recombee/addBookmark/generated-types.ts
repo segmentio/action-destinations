@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * The UTC timestamp of when the bookmark event occurred.
    */
-  timestamp?: string
+  timestamp?: string | number
   /**
    * The ID of the clicked recommendation (if the bookmark is based on a recommendation request).
    */

@@ -49,7 +49,7 @@ describe('deleteBookmark', () => {
         hmac_sign: /.*/,
         userId: 'user-id',
         itemId: 'product-id',
-        timestamp: /.*/
+        timestamp: /^\d{10}$/
       })
       .reply(200, 'ok')
 
@@ -73,7 +73,7 @@ describe('deleteBookmark', () => {
       }
     })
 
-    expect(response[0].request.url).toMatch(/.*\/?.*(userId=user-id&itemId=product-id&timestamp=1630454400000).*/)
+    expect(response[0].request.url).toMatch(/.*\/?.*(userId=user-id&itemId=product-id&timestamp=1630454400).*/)
   })
 
   it('should validate action fields with timestamp as Unix number', async () => {
@@ -84,7 +84,7 @@ describe('deleteBookmark', () => {
         hmac_sign: /.*/,
         userId: 'user-id',
         itemId: 'product-id',
-        timestamp: /.*/
+        timestamp: /^\d{10}$/
       })
       .reply(200, 'ok')
 
@@ -92,7 +92,7 @@ describe('deleteBookmark', () => {
       userId: 'user-id',
       properties: {
         product_id: 'product-id',
-        originalTimestamp: 1630454000000
+        originalTimestamp: 1630454000
       },
       timestamp: '2021-09-02T00:00:00.000Z'
     })
@@ -108,6 +108,6 @@ describe('deleteBookmark', () => {
       }
     })
 
-    expect(response[0].request.url).toMatch(/.*\/?.*(userId=user-id&itemId=product-id&timestamp=1630454000000).*/)
+    expect(response[0].request.url).toMatch(/.*\/?.*(userId=user-id&itemId=product-id&timestamp=1630454000).*/)
   })
 })

@@ -37,7 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp: {
       label: 'Timestamp',
       description: 'The UTC timestamp of when the rating occurred.',
-      type: 'string',
+      type: 'datetime',
       required: false,
       default: { '@path': '$.timestamp' }
     },

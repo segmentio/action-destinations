@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * The UTC timestamp of when the view portion occurred.
    */
-  timestamp?: string
+  timestamp?: string | number
   /**
    * The portion of the item that the user viewed.
    */

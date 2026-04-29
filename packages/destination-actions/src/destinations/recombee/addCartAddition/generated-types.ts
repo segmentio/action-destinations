@@ -25,7 +25,7 @@ export interface Payload {
   /**
    * The UTC timestamp of when the cart addition occurred.
    */
-  timestamp?: string
+  timestamp?: string | number
   /**
    * The ID of the clicked recommendation (if the cart addition is based on a recommendation request).
    */

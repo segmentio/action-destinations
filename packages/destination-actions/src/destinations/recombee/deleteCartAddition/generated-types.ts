@@ -12,5 +12,5 @@ export interface Payload {
   /**
    * The UTC timestamp of when the cart addition occurred. If the timestamp is omitted, then all the cart additions with the given `userId` and `itemId` are deleted.
    */
-  timestamp?: string
+  timestamp?: string | number
 }

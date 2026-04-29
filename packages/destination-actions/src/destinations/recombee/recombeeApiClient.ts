@@ -1,4 +1,4 @@
-import { InvalidAuthenticationError, RequestClient } from '@segment/actions-core'
+import { InvalidAuthenticationError, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { createHmac } from 'crypto'
 
@@ -47,7 +47,7 @@ type AddRatingParams = AddInteractionParams & {
 type DeleteParams = {
   userId: string
   itemId: string
-  timestamp?: string // since type in Segment is string, it will always be converted
+  timestamp?: string | number
 }
 
 type SetViewPortionParams = AddInteractionParams & {
@@ -131,15 +131,34 @@ export class SetViewPortion extends Request<SetViewPortionParams> {
   }
 }
 
-function getDeleteUrl(interactionType: string, params: DeleteParams) {
-  const url = `/${interactionType}/?userId=${params.userId}&itemId=${params.itemId}`
-  if (params.timestamp !== undefined) {
-    if (isNaN(Number(params.timestamp))) {
-      return url + `&timestamp=${new Date(params.timestamp).getTime()}`
+function getDeleteUrl(interactionType: string, params: DeleteParams): string {
+  const query = new URLSearchParams({
+    userId: params.userId,
+    itemId: params.itemId
+  })
+
+  if (params.timestamp) {
+    // In the URL, timestamp has to be seconds since epoch.
+    if (typeof params.timestamp === 'number' || /^\d+$/.test(params.timestamp)) {
+      if (String(params.timestamp).length > 10) {
+        const secondsFromMs = Math.floor(Number(params.timestamp) / 1000)
+        query.append('timestamp', secondsFromMs.toString())
+      } else {
+        query.append('timestamp', String(params.timestamp))
+      }
+    } else {
+      const parsedDate = new Date(params.timestamp)
+
+      if (!isNaN(parsedDate.getTime())) {
+        const epochSeconds = Math.floor(parsedDate.getTime() / 1000)
+        query.append('timestamp', epochSeconds.toString())
+      } else {
+        throw new PayloadValidationError(`Invalid timestamp provided: ${params.timestamp}`)
+      }
     }
-    return url + `&timestamp=${params.timestamp}`
   }
-  return url
+
+  return `/${interactionType}/?${query.toString()}`
 }
 
 export class DeleteBookmark extends Request<DeleteParams> {
