@@ -28,7 +28,6 @@ import type {
   DeletionPayload,
   DynamicFieldResponse,
   ResultMultiStatusNode,
-  AsyncActionResponseType,
   AsyncPollResponseType
 } from './types'
 import type { AllRequestOptions } from '../request-client'
@@ -47,7 +46,6 @@ export type {
   ExecuteInput,
   RequestFn,
   Result,
-  AsyncActionResponseType,
   AsyncPollResponseType
 }
 export { hookTypeStrings }
