@@ -21,7 +21,7 @@ export async function send(
       }
       msResponse.setErrorResponseAtIndex(index, {
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_ERROR',
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'Payload must include either an IDFA or GAID.'
       })
       return
