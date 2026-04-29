@@ -40,6 +40,10 @@ interface UserID {
 }
 
 function validate(payload: Payload, conversionTime: number) {
+  if (!Number.isFinite(conversionTime)) {
+    throw new PayloadValidationError('Timestamp is not a valid date.')
+  }
+
   // Check if the timestamp is within the past 90 days
   const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000
   if (conversionTime < ninetyDaysAgo) {
@@ -517,7 +521,7 @@ export class LinkedInConversions {
       validResponseIndices.forEach((originalIndex, filteredIndex) => {
         multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
           status: response.status,
-          sent: validElements[filteredIndex] as JSONLikeObject,
+          sent: validElements[filteredIndex] as unknown as JSONLikeObject,
           body: response.content
         })
       })
@@ -538,7 +542,7 @@ export class LinkedInConversions {
           multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
             status,
             errormessage: error.message,
-            sent: validElements[filteredIndex] as JSONLikeObject
+            sent: validElements[filteredIndex] as unknown as JSONLikeObject
           })
         })
       } else {
