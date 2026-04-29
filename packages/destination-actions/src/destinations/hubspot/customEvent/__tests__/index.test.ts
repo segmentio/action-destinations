@@ -1215,6 +1215,43 @@ describe('Hubspot.customEvent', () => {
       expect(responses[1].status).toBe(200)
     })
 
+    it('should throw PayloadValidationError when non-numeric string is sent to a HubSpot number field', async () => {
+      const event = createTestEvent({
+        timestamp: timestamp,
+        event: 'Custom Event Non Numeric',
+        messageId: 'aaa-bbb-ccc',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: {
+          numeric_field: 'hello'
+        }
+      } as Partial<SegmentEvent>)
+
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_non_numeric/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_non_numeric',
+          fullyQualifiedName: 'pe23132826_custom_event_non_numeric',
+          properties: [
+            {
+              name: 'numeric_field',
+              type: 'number',
+              archived: false
+            }
+          ]
+        })
+
+      await expect(
+        testDestination.testAction('customEvent', {
+          event,
+          settings,
+          useDefaultMappings: true,
+          mapping: upsertMapping,
+          subscriptionMetadata
+        })
+      ).rejects.toThrow('Property "numeric_field" is typed as number in HubSpot but received a non-numeric string.')
+    })
+
     it('should create new field as string type when empty string is sent and field does not exist in HubSpot', async () => {
       const event = createTestEvent({
         timestamp: timestamp,
