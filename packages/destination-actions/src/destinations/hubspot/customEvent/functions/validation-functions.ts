@@ -73,8 +73,9 @@ function cleanPropObj(
       cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
     } else if (!isNaN(Number(value))) {
       if (typeof value === 'string' && value.trim() === '') {
-        // Empty strings stay as strings — the schema comparison will coerce
-        // back to 0 if HubSpot already has this field typed as number
+        // Empty strings stay as strings here. If compareSchemas determines
+        // that HubSpot already has this field typed as a number,
+        // convertStringToNumbers will later coerce '' back to 0 at runtime.
         cleanObj[cleanKey] = ''
       } else {
         // If the value can be cast to a number
