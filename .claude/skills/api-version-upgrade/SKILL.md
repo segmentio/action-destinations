@@ -68,9 +68,13 @@ API version upgrades in action-destinations follow a **canary pattern**:
 
 **EVERY API version upgrade MUST include:**
 
-1. **versioning-info.ts file** - If it doesn't exist, CREATE IT. No exceptions.
-2. **Feature flag implementation** - ALL upgrades must be behind a feature flag. No direct version changes.
-3. **Feature flag tests** - Test both stable (default) and canary (feature flag enabled) versions.
+1. **versioning-info.ts file** - If it doesn't exist, CREATE IT. No exceptions. (Both cloud and browser modes)
+2. **Version control mechanism** - Depends on mode:
+   - **Cloud mode**: Runtime feature flag with `getApiVersion(features)` helper
+   - **Browser mode**: Opt-in via settings dropdown, no runtime feature flag
+3. **Version tests** - Test both stable (default) and new version:
+   - **Cloud mode**: Feature flag tests with `features` parameter
+   - **Browser mode**: SDK loading tests with explicit version selection
 
 These are not optional. They are required for safe, gradual rollouts and instant rollback capability.
 
@@ -177,23 +181,50 @@ Ask the user for:
 - Changelog URL (optional): [base URL for API docs]
 ```
 
-### 1.2 Locate Destination Files
+### 1.2 Detect Destination Mode
 
-Find the destination directory:
+Determine if this is a cloud-mode or browser-mode destination:
 
 ```bash
-packages/destination-actions/src/destinations/<destination-name>/
+# Check for cloud-mode destination
+if [ -d "packages/destination-actions/src/destinations/<destination-name>" ]; then
+  echo "CLOUD"
+  DEST_PATH="packages/destination-actions/src/destinations/<destination-name>"
+# Check for browser-mode destination
+elif [ -d "packages/browser-destinations/destinations/<destination-name>" ]; then
+  echo "BROWSER"
+  DEST_PATH="packages/browser-destinations/destinations/<destination-name>/src"
+else
+  echo "NOT FOUND"
+fi
 ```
 
-Key files to check:
+**Critical difference:**
+
+- **CLOUD mode**: Version used internally in API calls, controlled by runtime feature flag
+- **BROWSER mode**: Customer selects SDK version from dropdown, loaded from external CDN
+
+If both paths exist or neither exists, ask the user to clarify.
+
+### 1.3 Locate Destination Files
+
+Key files to check (paths vary by mode):
+
+**Cloud Mode** (`packages/destination-actions/src/destinations/<destination>/`):
 
 - `versioning-info.ts` - version constants (CREATE if missing)
 - `config.ts` - may have version constants
-- `functions.ts` or `utils.ts` - API request building
+- `functions.ts` or `utils.ts` - API request building with version
 - `index.ts` - main destination definition
-- `__tests__/` - test files
+- `__tests__/` - test files (action-specific)
 
-### 1.3 Detect Current Version
+**Browser Mode** (`packages/browser-destinations/destinations/<destination>/src/`):
+
+- `versioning-info.ts` - version constants (CREATE if missing)
+- `index.ts` - destination with `settings.sdkVersion.choices` array
+- `__tests__/initialization.test.ts` - SDK loading tests
+
+### 1.4 Detect Current Version
 
 Search for version constants in this order:
 
@@ -217,17 +248,21 @@ const API_VERSION = 'v3'
 const BASE_URL = `https://api.example.com/${API_VERSION}`
 ```
 
-**If versioning-info.ts does NOT exist, you MUST create it in Step 4.**
+**If versioning-info.ts does NOT exist, you MUST create it in Step 4A or 4B (depending on mode).**
 
 Print after step completes:
 
 ```
   • Destination:        <destination-name>
-  • Directory:          packages/destination-actions/src/destinations/<destination>/
+  • Mode:               CLOUD | BROWSER
+  • Directory:          <full-path-to-destination>
   • Current version:    <current-version>
   • Target version:     <target-version>
   • versioning-info.ts: <EXISTS | MISSING — will be created in Step 4>
-✅ Step 1 complete: destination located, versions identified
+
+  → Next: Proceed to Step 2 (Changelog Analysis)
+  → Then: Step 4A (Cloud Mode) | Step 4B (Browser Mode)
+✅ Step 1 complete: destination located, versions identified, mode detected
 ```
 
 ## Step 2: Changelog Analysis
@@ -388,7 +423,7 @@ Print after step completes:
 ✅ Step 3 complete: on branch <branch-name>, up to date with main
 ```
 
-## Step 4: Implement Version Upgrade with Feature Flag
+## Step 4: Implement Version Upgrade
 
 Print at start:
 
@@ -398,9 +433,22 @@ Print at start:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-### ⚠️ CRITICAL: Feature Flag is MANDATORY ⚠️
+### Routing: Choose Implementation Path
 
-**ALL API version upgrades MUST be behind a feature flag.**
+Based on the destination mode detected in Step 1:
+
+- **CLOUD mode** → Proceed to **Step 4A** (Feature Flag Implementation)
+- **BROWSER mode** → Proceed to **Step 4B** (Opt-In Version Selection)
+
+---
+
+## Step 4A: Cloud Mode - Feature Flag Implementation
+
+**Use this section ONLY for CLOUD-MODE destinations.**
+
+### ⚠️ CRITICAL: Feature Flag is MANDATORY for Cloud Destinations ⚠️
+
+**ALL cloud-mode API version upgrades MUST be behind a feature flag.**
 **If versioning-info.ts does NOT exist, you MUST create it.**
 
 There is NO option to upgrade the version directly without a feature flag.
@@ -649,8 +697,136 @@ Print after step completes:
   • getApiVersion helper:  <file where added>
   • API call sites updated: <N files>
   • Actions updated:       <list of action names>
-✅ Step 4 complete: feature flag implemented, all API calls use getApiVersion()
+✅ Step 4A complete: feature flag implemented, all API calls use getApiVersion()
 ```
+
+---
+
+## Step 4B: Browser Mode - Opt-In Version Selection
+
+**Use this section ONLY for BROWSER-MODE destinations.**
+
+### Architecture Note
+
+Browser destinations work fundamentally differently from cloud destinations:
+
+- **Version Selection**: Customers explicitly choose SDK version from a dropdown in settings
+- **SDK Loading**: Version determines which SDK is loaded from external CDN (e.g., `https://js.appboycdn.com/web-sdk/{version}/...`)
+- **No Runtime Feature Flag**: Browser destinations don't receive `features` parameter in actions
+- **"Canary" Pattern**: Means "newly available option for customers to opt-in to"
+- **Safe Rollout**: Keep default at stable version, add new version to choices array
+
+### 4B.1 Check if versioning-info.ts Exists
+
+```bash
+ls packages/browser-destinations/destinations/{destination}/src/versioning-info.ts
+```
+
+### 4B.2 Create or Update versioning-info.ts
+
+Create the file with version constants:
+
+```typescript
+/** DESTINATION_API_VERSION
+ * {Destination} SDK version (stable/default for new installations).
+ * This is the default version selected for new destination configurations.
+ * Changelog: {URL}
+ */
+export const DESTINATION_API_VERSION = '{current-version}'
+
+/** DESTINATION_CANARY_API_VERSION
+ * {Destination} SDK version (newly available option).
+ * Version {target-version} is available for customers to explicitly select in settings.
+ * This allows customers to opt-in to the latest version before it becomes the default.
+ */
+export const DESTINATION_CANARY_API_VERSION = '{target-version}'
+```
+
+### 4B.3 Update index.ts
+
+**Step 1**: Import version constant and re-export for tests:
+
+```typescript
+// At top of file
+import { DESTINATION_API_VERSION } from './versioning-info'
+
+// Re-export for tests (after imports, before other code)
+export { DESTINATION_API_VERSION, DESTINATION_CANARY_API_VERSION } from './versioning-info'
+```
+
+**Step 2**: Update defaultVersion to use constant:
+
+```typescript
+// Before
+const defaultVersion = '6.1'
+
+// After
+// Default version for new installations (stable)
+// Customers can explicitly select DESTINATION_CANARY_API_VERSION from settings
+const defaultVersion = DESTINATION_API_VERSION
+```
+
+**Step 3**: Add new version to settings choices:
+
+Find the `settings` object with the version dropdown (usually `sdkVersion` or similar field):
+
+```typescript
+settings: {
+  sdkVersion: {
+    label: 'SDK Version',
+    type: 'string',
+    choices: [
+      // ... existing versions ...
+      {
+        value: '{current-version}',
+        label: '{current-version}'
+      },
+      // ADD THIS:
+      {
+        value: '{target-version}',
+        label: '{target-version}'
+      }
+    ],
+    default: defaultVersion,
+    required: true
+  },
+  // ... other settings ...
+}
+```
+
+### 4B.4 Verification Checklist
+
+**MANDATORY CHECKLIST** - verify ALL items:
+
+```markdown
+- [ ] versioning-info.ts file EXISTS with both DESTINATION_API_VERSION and DESTINATION_CANARY_API_VERSION
+- [ ] DESTINATION_API_VERSION set to current stable version
+- [ ] DESTINATION_CANARY_API_VERSION set to new target version
+- [ ] index.ts imports DESTINATION_API_VERSION
+- [ ] index.ts re-exports both constants for tests
+- [ ] defaultVersion uses DESTINATION_API_VERSION (not hardcoded)
+- [ ] New version added to settings choices array
+- [ ] Default version remains stable (not changed to canary)
+- [ ] No getApiVersion() function (not needed for browser mode)
+- [ ] No FLAGON_NAME constant (not needed for browser mode)
+- [ ] No Features import or usage (browser actions don't receive features)
+```
+
+**If ANY item is not checked, the implementation is INCOMPLETE.**
+
+Print after step completes:
+
+```
+  • versioning-info.ts:    <created | updated>
+  • DESTINATION_API_VERSION: <stable-version>
+  • DESTINATION_CANARY_API_VERSION: <new-version>
+  • Settings choices updated: added {target-version}
+  • Default version:       remains {stable-version} (safe rollout)
+  • Pattern:               Opt-in selection (no runtime feature flag)
+✅ Step 4B complete: new version available for customer selection
+```
+
+---
 
 ## Step 5: Update Tests
 
@@ -664,16 +840,28 @@ Print at start:
 
 ### 5.1 Auto-Detect Test Pattern
 
-The test path follows the pattern:
+Test paths vary by mode:
+
+**Cloud Mode:**
 
 ```
 packages/destination-actions/src/destinations/{destination}/__tests__/
 ```
 
+**Browser Mode:**
+
+```
+packages/browser-destinations/destinations/{destination}/src/__tests__/
+```
+
 Find test files:
 
 ```bash
+# Cloud mode
 find packages/destination-actions/src/destinations/{destination} -name "*.test.ts" -o -name "*.test.js"
+
+# Browser mode
+find packages/browser-destinations/destinations/{destination}/src -name "*.test.ts" -o -name "*.test.js"
 ```
 
 ### 5.2 Update Existing Tests
@@ -693,7 +881,11 @@ import { API_VERSION } from '../../utils'
 nock(`https://api.example.com/${API_VERSION}/endpoint`).post('').reply(200, {})
 ```
 
-### 5.3 Add Feature Flag Tests (MANDATORY)
+### 5.3 Add Version Tests (MANDATORY)
+
+Choose the appropriate test pattern based on destination mode:
+
+#### For Cloud Mode: Feature Flag Tests
 
 **Add a new test suite** for feature flag behavior:
 
@@ -744,9 +936,73 @@ describe('API Version Feature Flag', () => {
 
 **IMPORTANT**: Add these tests for EVERY action in the destination (conversionUpload, identify, track, etc.)
 
+#### For Browser Mode: SDK Version Loading Tests
+
+**Add tests to `__tests__/initialization.test.ts`**:
+
+```typescript
+import { DESTINATION_API_VERSION, DESTINATION_CANARY_API_VERSION } from '../versioning-info'
+
+describe('SDK Version Tests', () => {
+  test('uses stable SDK version by default', async () => {
+    const [event] = await brazeDestination({
+      api_key: 'test_key',
+      endpoint: 'sdk.example.com',
+      // sdkVersion not specified - should use default
+      subscriptions: [
+        /* ... */
+      ]
+    })
+
+    await event.load(Context.system(), {} as Analytics)
+
+    const scripts = window.document.querySelectorAll('script')
+    const sdkScript = Array.from(scripts).find((script) => script.src.includes('cdn.example.com'))
+
+    expect(sdkScript?.src).toBe(`https://cdn.example.com/sdk/${DESTINATION_API_VERSION}/sdk.min.js`)
+  })
+
+  test('can load canary SDK version when explicitly selected', async () => {
+    const [event] = await brazeDestination({
+      api_key: 'test_key',
+      endpoint: 'sdk.example.com',
+      sdkVersion: DESTINATION_CANARY_API_VERSION, // Explicitly select new version
+      subscriptions: [
+        /* ... */
+      ]
+    })
+
+    await event.load(Context.system(), {} as Analytics)
+
+    const scripts = window.document.querySelectorAll('script')
+    const sdkScript = Array.from(scripts).find((script) => script.src.includes('cdn.example.com'))
+
+    expect(sdkScript?.src).toBe(`https://cdn.example.com/sdk/${DESTINATION_CANARY_API_VERSION}/sdk.min.js`)
+  })
+
+  test('verifies new SDK version is available in settings choices', () => {
+    const sdkVersionField = destination.settings.sdkVersion
+    const choices = sdkVersionField?.choices || []
+    const hasNewVersion = choices.some((choice) => choice.value === DESTINATION_CANARY_API_VERSION)
+
+    expect(hasNewVersion).toBe(true)
+    expect(sdkVersionField?.default).toBe(DESTINATION_API_VERSION)
+  })
+})
+```
+
+**Key differences for browser mode:**
+
+- No `features` parameter
+- Test SDK loading from CDN (check script src)
+- Verify version in settings choices array
+- Usually in initialization.test.ts (not action-specific tests)
+
 ### 5.4 Run Tests
 
-Switch to compatible Node version and run tests:
+Switch to compatible Node version and run tests based on mode:
+
+**Cloud Mode:**
 
 ```bash
 # Switch Node version if needed
@@ -754,6 +1010,16 @@ source ~/.nvm/nvm.sh && nvm use 22.13.1
 
 # Run destination-specific tests
 TZ=UTC yarn cloud test --testPathPattern=src/destinations/{destination} --no-coverage
+```
+
+**Browser Mode:**
+
+```bash
+# Switch Node version if needed
+source ~/.nvm/nvm.sh && nvm use 22.13.1
+
+# Run browser destination tests
+TZ=UTC yarn test --testPathPattern="destinations/{destination}" --no-coverage
 ```
 
 **Expected outcome**: All tests must pass. If tests fail:
@@ -808,6 +1074,8 @@ Print at start:
 [STEP 5.5/8] API VALIDATION AGAINST REAL ENDPOINTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
+
+**Note**: This step applies primarily to **CLOUD-MODE** destinations where we make server-to-server API calls. For **BROWSER-MODE** destinations, skip this step as the SDK is loaded from an external CDN and validation would require browser automation.
 
 This step makes real HTTP calls to both the stable and canary revisions and structurally diffs the responses. It catches breaking changes that mocked unit tests cannot detect.
 
