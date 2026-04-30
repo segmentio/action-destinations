@@ -1,9 +1,15 @@
 {
   "name": "Ironclad",
-  "basicOptions": ["sid", "staging_endpoint", "test_mode"],
+  "basicOptions": [
+    "sid",
+    "staging_endpoint",
+    "test_mode"
+  ],
   "options": {
     "sid": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Site Access ID. An ID that’s unique for each site within your account. Information on finding your sid can be found in the authentication section.",
       "encrypt": false,
@@ -14,11 +20,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The sid property is required."]],
+      "validators": [
+        [
+          "required",
+          "The sid property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "staging_endpoint": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": false,
       "description": "Turn this ON, to send requests to the staging server, ONLY if Clickwrap support instructs you to do so.",
       "encrypt": false,
@@ -33,7 +46,9 @@
       "uIMetadata": null
     },
     "test_mode": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": false,
       "description": "Test Mode, whether or not to process the acceptance in test_mode. Defaults to false, Toggle to ON to enable it.",
       "encrypt": false,
@@ -56,7 +71,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -102,7 +120,9 @@
                 "type": "string"
               }
             },
-            "required": ["sig"]
+            "required": [
+              "sig"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -159,7 +179,9 @@
                 "type": "integer"
               }
             },
-            "required": ["group_id"]
+            "required": [
+              "group_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -198,10 +220,16 @@
                 "title": "Event Type",
                 "description": "The type of event being logged, the available choices are displayed, agreed, and disagreed.",
                 "type": "string",
-                "enum": ["displayed", "agreed", "disagreed"]
+                "enum": [
+                  "displayed",
+                  "agreed",
+                  "disagreed"
+                ]
               }
             },
-            "required": ["event_type"]
+            "required": [
+              "event_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

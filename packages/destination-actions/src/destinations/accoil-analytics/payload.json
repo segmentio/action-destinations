@@ -1,9 +1,13 @@
 {
   "name": "Accoil Analytics",
-  "basicOptions": ["api_key"],
+  "basicOptions": [
+    "api_key"
+  ],
   "options": {
     "api_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Accoil.com API Key. You can find your API Key in your Accoil account settings.",
       "encrypt": true,
@@ -14,7 +18,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -122,7 +134,9 @@
                 "type": "string"
               }
             },
-            "required": ["groupId"]
+            "required": [
+              "groupId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -334,7 +348,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -374,7 +390,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -587,7 +605,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -688,7 +708,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -789,7 +811,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -829,7 +853,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -859,7 +885,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -890,7 +918,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

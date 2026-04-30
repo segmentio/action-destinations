@@ -1,9 +1,14 @@
 {
   "name": "Usermaven (Actions)",
-  "basicOptions": ["api_key", "server_token"],
+  "basicOptions": [
+    "api_key",
+    "server_token"
+  ],
   "options": {
     "api_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Found on your general settings page.",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "server_token": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Found on your general settings page.",
       "encrypt": true,
@@ -29,7 +41,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The server_token property is required."]],
+      "validators": [
+        [
+          "required",
+          "The server_token property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -77,7 +97,9 @@
                 "type": "string"
               }
             },
-            "required": ["company_id"]
+            "required": [
+              "company_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -107,7 +129,9 @@
                 "type": "string"
               }
             },
-            "required": ["user_id"]
+            "required": [
+              "user_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -224,7 +248,10 @@
               "user_anonymous_id": {
                 "title": "Anonymous ID",
                 "description": "User Anonymous id",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -769,7 +796,9 @@
                 "type": "string"
               }
             },
-            "required": ["user_id"]
+            "required": [
+              "user_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -809,7 +838,9 @@
                 "type": "string"
               }
             },
-            "required": ["user_email"]
+            "required": [
+              "user_email"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -976,7 +1007,10 @@
               "user_anonymous_id": {
                 "title": "Anonymous ID",
                 "description": "User Anonymous id",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -1658,7 +1692,10 @@
               "user_anonymous_id": {
                 "title": "Anonymous ID",
                 "description": "User Anonymous id",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -2203,7 +2240,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2370,7 +2409,10 @@
               "user_anonymous_id": {
                 "title": "Anonymous ID",
                 "description": "User Anonymous id",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []

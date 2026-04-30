@@ -1,10 +1,14 @@
 {
   "name": "UserMotion (Actions)",
   "description": "Send server-side events to the UserMotion REST API.",
-  "basicOptions": ["apiKey"],
+  "basicOptions": [
+    "apiKey"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your UserMotion API Key",
       "encrypt": true,
@@ -15,7 +19,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -63,7 +75,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -133,7 +147,9 @@
                 "type": "string"
               }
             },
-            "required": ["email"]
+            "required": [
+              "email"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -263,7 +279,9 @@
                 "type": "string"
               }
             },
-            "required": ["groupId"]
+            "required": [
+              "groupId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -403,7 +421,9 @@
                 "type": "string"
               }
             },
-            "required": ["eventName"]
+            "required": [
+              "eventName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

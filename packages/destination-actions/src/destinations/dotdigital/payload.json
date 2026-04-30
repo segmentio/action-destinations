@@ -1,10 +1,16 @@
 {
   "name": "Dotdigital",
   "description": "Send Segment events and user profile data to Dotdigital.",
-  "basicOptions": ["api_host", "username", "password"],
+  "basicOptions": [
+    "api_host",
+    "username",
+    "password"
+  ],
   "options": {
     "api_host": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "https://r1-api.dotdigital.com",
       "description": "The region your account is in",
       "encrypt": false,
@@ -32,11 +38,18 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_host property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_host property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "username": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Dotdigital username",
       "encrypt": false,
@@ -47,11 +60,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The username property is required."]],
+      "validators": [
+        [
+          "required",
+          "The username property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "password": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Dotdigital password.",
       "encrypt": true,
@@ -62,7 +82,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The password property is required."]],
+      "validators": [
+        [
+          "required",
+          "The password property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -74,7 +99,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "basic",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -115,10 +143,15 @@
                 "title": "Contact Identifier type",
                 "description": "Select the field to identify contacts.",
                 "type": "string",
-                "enum": ["email", "mobileNumber"]
+                "enum": [
+                  "email",
+                  "mobileNumber"
+                ]
               }
             },
-            "required": ["channelIdentifier"]
+            "required": [
+              "channelIdentifier"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -163,7 +196,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["channelIdentifier"],
+                  "required": [
+                    "channelIdentifier"
+                  ],
                   "properties": {
                     "channelIdentifier": {
                       "const": "email"
@@ -171,7 +206,9 @@
                   }
                 },
                 "then": {
-                  "required": ["emailIdentifier"]
+                  "required": [
+                    "emailIdentifier"
+                  ]
                 }
               }
             ]
@@ -236,7 +273,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["channelIdentifier"],
+                  "required": [
+                    "channelIdentifier"
+                  ],
                   "properties": {
                     "channelIdentifier": {
                       "const": "mobileNumber"
@@ -244,7 +283,9 @@
                   }
                 },
                 "then": {
-                  "required": ["mobileNumberIdentifier"]
+                  "required": [
+                    "mobileNumberIdentifier"
+                  ]
                 }
               }
             ]
@@ -300,7 +341,10 @@
                 "title": "Email Type",
                 "description": "The type of email the contact prefers to receive.",
                 "type": "string",
-                "enum": ["html", "plainText"]
+                "enum": [
+                  "html",
+                  "plainText"
+                ]
               }
             },
             "required": []
@@ -354,7 +398,12 @@
                 "title": "Opt-in Type",
                 "description": "The type of opt-in used for this contact. [Learn more](https://support.dotdigital.com/en/articles/8198810-email-opt-in-types)",
                 "type": "string",
-                "enum": ["unknown", "single", "double", "verifiedDouble"]
+                "enum": [
+                  "unknown",
+                  "single",
+                  "double",
+                  "verifiedDouble"
+                ]
               }
             },
             "required": []
@@ -440,7 +489,11 @@
                 "title": "Email Subscription Status",
                 "description": "The subscription status for the email channel.",
                 "type": "string",
-                "enum": ["subscribed", "unsubscribed", "suppressed"]
+                "enum": [
+                  "subscribed",
+                  "unsubscribed",
+                  "suppressed"
+                ]
               }
             },
             "required": []
@@ -789,7 +842,11 @@
                 "title": "SMS Subscription Status",
                 "description": "The subscription status for the SMS channel.",
                 "type": "string",
-                "enum": ["subscribed", "unsubscribed", "suppressed"]
+                "enum": [
+                  "subscribed",
+                  "unsubscribed",
+                  "suppressed"
+                ]
               }
             },
             "required": []
@@ -831,7 +888,13 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         },
         {
@@ -861,8 +924,16 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"],
-            "dynamicProperties": ["__keys__"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ],
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         }
       ]
@@ -905,10 +976,15 @@
                 "title": "Contact Identifier type",
                 "description": "Select the field to identify contacts.",
                 "type": "string",
-                "enum": ["email", "mobileNumber"]
+                "enum": [
+                  "email",
+                  "mobileNumber"
+                ]
               }
             },
-            "required": ["channelIdentifier"]
+            "required": [
+              "channelIdentifier"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -953,7 +1029,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["channelIdentifier"],
+                  "required": [
+                    "channelIdentifier"
+                  ],
                   "properties": {
                     "channelIdentifier": {
                       "const": "email"
@@ -961,7 +1039,9 @@
                   }
                 },
                 "then": {
-                  "required": ["emailIdentifier"]
+                  "required": [
+                    "emailIdentifier"
+                  ]
                 }
               }
             ]
@@ -1026,7 +1106,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["channelIdentifier"],
+                  "required": [
+                    "channelIdentifier"
+                  ],
                   "properties": {
                     "channelIdentifier": {
                       "const": "mobileNumber"
@@ -1034,7 +1116,9 @@
                   }
                 },
                 "then": {
-                  "required": ["mobileNumberIdentifier"]
+                  "required": [
+                    "mobileNumberIdentifier"
+                  ]
                 }
               }
             ]
@@ -1082,11 +1166,19 @@
                 "type": "string"
               }
             },
-            "required": ["programId"]
+            "required": [
+              "programId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         }
       ]
@@ -1129,10 +1221,15 @@
                 "title": "Contact Identifier type",
                 "description": "Select the field to identify contacts.",
                 "type": "string",
-                "enum": ["email", "mobileNumber"]
+                "enum": [
+                  "email",
+                  "mobileNumber"
+                ]
               }
             },
-            "required": ["channelIdentifier"]
+            "required": [
+              "channelIdentifier"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1177,7 +1274,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["channelIdentifier"],
+                  "required": [
+                    "channelIdentifier"
+                  ],
                   "properties": {
                     "channelIdentifier": {
                       "const": "email"
@@ -1185,7 +1284,9 @@
                   }
                 },
                 "then": {
-                  "required": ["emailIdentifier"]
+                  "required": [
+                    "emailIdentifier"
+                  ]
                 }
               }
             ]
@@ -1250,7 +1351,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["channelIdentifier"],
+                  "required": [
+                    "channelIdentifier"
+                  ],
                   "properties": {
                     "channelIdentifier": {
                       "const": "mobileNumber"
@@ -1258,7 +1361,9 @@
                   }
                 },
                 "then": {
-                  "required": ["mobileNumberIdentifier"]
+                  "required": [
+                    "mobileNumberIdentifier"
+                  ]
                 }
               }
             ]
@@ -1306,11 +1411,19 @@
                 "type": "number"
               }
             },
-            "required": ["listId"]
+            "required": [
+              "listId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         }
       ]
@@ -1358,7 +1471,9 @@
                 "type": "string"
               }
             },
-            "required": ["email"]
+            "required": [
+              "email"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1385,11 +1500,19 @@
                 "type": "number"
               }
             },
-            "required": ["campaignId"]
+            "required": [
+              "campaignId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         },
         {
@@ -1411,7 +1534,10 @@
               "sendDate": {
                 "title": "Send Date",
                 "description": "The campaign will be sent immediately if the send date is left blank.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -1493,7 +1619,9 @@
                 "type": "string"
               }
             },
-            "required": ["to"]
+            "required": [
+              "to"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1521,7 +1649,9 @@
                 "format": "text"
               }
             },
-            "required": ["message"]
+            "required": [
+              "message"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1558,7 +1688,9 @@
                 "type": "string"
               }
             },
-            "required": ["fromAddress"]
+            "required": [
+              "fromAddress"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1598,7 +1730,9 @@
                 "type": "string"
               }
             },
-            "required": ["toAddresses"]
+            "required": [
+              "toAddresses"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1625,7 +1759,9 @@
                 "type": "string"
               }
             },
-            "required": ["subject"]
+            "required": [
+              "subject"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1653,7 +1789,9 @@
                 "format": "text"
               }
             },
-            "required": ["htmlContent"]
+            "required": [
+              "htmlContent"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1785,7 +1923,9 @@
                 "type": "string"
               }
             },
-            "required": ["to"]
+            "required": [
+              "to"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1840,7 +1980,9 @@
                 "format": "text"
               }
             },
-            "required": ["message"]
+            "required": [
+              "message"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

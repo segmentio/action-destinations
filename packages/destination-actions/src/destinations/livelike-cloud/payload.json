@@ -1,9 +1,14 @@
 {
   "name": "LiveLike",
-  "basicOptions": ["clientId", "producerToken"],
+  "basicOptions": [
+    "clientId",
+    "producerToken"
+  ],
   "options": {
     "clientId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your LiveLike Application Client ID.",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The clientId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The clientId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "producerToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your LiveLike Producer token.",
       "encrypt": true,
@@ -29,7 +41,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The producerToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The producerToken property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -77,7 +97,9 @@
                 "type": "string"
               }
             },
-            "required": ["audience_id"]
+            "required": [
+              "audience_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -107,7 +129,9 @@
                 "type": "string"
               }
             },
-            "required": ["audience_name"]
+            "required": [
+              "audience_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -164,7 +188,9 @@
                 "type": "string"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -406,7 +432,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -436,7 +464,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_type"]
+            "required": [
+              "event_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -587,7 +617,9 @@
                 "type": "string"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

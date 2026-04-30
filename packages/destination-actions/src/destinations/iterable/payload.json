@@ -1,9 +1,14 @@
 {
   "name": "Iterable (Actions)",
-  "basicOptions": ["apiKey", "dataCenterLocation"],
+  "basicOptions": [
+    "apiKey",
+    "dataCenterLocation"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "dataCenterLocation": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "united_states",
       "description": "The location where your Iterable data is hosted.",
       "encrypt": false,
@@ -53,7 +65,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -157,7 +172,10 @@
                   "phoneNumber": {
                     "title": "User Phone Number",
                     "description": "User phone number. Must be a valid phone number including country code. e.g. +14158675309",
-                    "type": ["string", "null"],
+                    "type": [
+                      "string",
+                      "null"
+                    ],
                     "default": {
                       "@path": "$.traits.phone"
                     }
@@ -166,7 +184,9 @@
                 "required": []
               }
             },
-            "required": ["user"]
+            "required": [
+              "user"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -276,11 +296,18 @@
                       "type": "string"
                     }
                   },
-                  "required": ["id", "name", "quantity", "price"]
+                  "required": [
+                    "id",
+                    "name",
+                    "quantity",
+                    "price"
+                  ]
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -391,7 +418,9 @@
                 "type": "string"
               }
             },
-            "required": ["eventName"]
+            "required": [
+              "eventName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -478,7 +507,10 @@
               "createdAt": {
                 "title": "Timestamp",
                 "description": "Time the event took place.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -737,7 +769,10 @@
                   "phoneNumber": {
                     "title": "User Phone Number",
                     "description": "User phone number. Must be a valid phone number including country code. e.g. +14158675309",
-                    "type": ["string", "null"],
+                    "type": [
+                      "string",
+                      "null"
+                    ],
                     "default": {
                       "@path": "$.traits.phone"
                     }
@@ -746,7 +781,9 @@
                 "required": []
               }
             },
-            "required": ["user"]
+            "required": [
+              "user"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -886,11 +923,18 @@
                       "type": "string"
                     }
                   },
-                  "required": ["id", "name", "quantity", "price"]
+                  "required": [
+                    "id",
+                    "name",
+                    "quantity",
+                    "price"
+                  ]
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -920,7 +964,9 @@
                 "type": "number"
               }
             },
-            "required": ["total"]
+            "required": [
+              "total"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -947,7 +993,10 @@
               "createdAt": {
                 "title": "Timestamp",
                 "description": "Time the event took place.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -1139,7 +1188,10 @@
               "phoneNumber": {
                 "title": "User Phone Number",
                 "description": "User phone number. Must be a valid phone number including country code. e.g. +14158675309",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []

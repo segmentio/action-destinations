@@ -11,7 +11,9 @@
   ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
       "encrypt": true,
@@ -22,7 +24,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "updateExistingUsersOnly": {
@@ -103,7 +110,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -249,7 +259,9 @@
                 "type": "object"
               }
             },
-            "required": ["traitsOrProperties"]
+            "required": [
+              "traitsOrProperties"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -280,7 +292,9 @@
                 "type": "string"
               }
             },
-            "required": ["segmentAudienceKey"]
+            "required": [
+              "segmentAudienceKey"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -311,7 +325,9 @@
                 "type": "string"
               }
             },
-            "required": ["segmentAudienceId"]
+            "required": [
+              "segmentAudienceId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

@@ -1,9 +1,13 @@
 {
   "name": "Inleads AI",
-  "basicOptions": ["apiKey"],
+  "basicOptions": [
+    "apiKey"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Inleads AI API Key. You can find your API Key in your inleads.ai settings.",
       "encrypt": false,
@@ -14,7 +18,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -62,7 +74,9 @@
                 "type": "string"
               }
             },
-            "required": ["account_id"]
+            "required": [
+              "account_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -132,7 +146,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -400,7 +416,10 @@
               "anonymous_id": {
                 "title": "Anonymous ID",
                 "description": "User Anonymous id",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -554,7 +573,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["utc_time"]
+            "required": [
+              "utc_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -796,7 +817,9 @@
                 "type": "string"
               }
             },
-            "required": ["user_id"]
+            "required": [
+              "user_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -833,7 +856,10 @@
               "name": {
                 "title": "Name",
                 "description": "The user's name",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -873,7 +899,10 @@
               "first_name": {
                 "title": "First name",
                 "description": "The user's first name. This field is mandatory if you're not providing a name field",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -913,7 +942,10 @@
               "last_name": {
                 "title": "Last name",
                 "description": "The user's last name. This field is mandatory if you're not providing a name field",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -1235,7 +1267,10 @@
               "anonymous_id": {
                 "title": "Anonymous ID",
                 "description": "User Anonymous id",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -1389,7 +1424,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["utc_time"]
+            "required": [
+              "utc_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1631,7 +1668,9 @@
                 "type": "string"
               }
             },
-            "required": ["eventName"]
+            "required": [
+              "eventName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1661,7 +1700,9 @@
                 "type": "string"
               }
             },
-            "required": ["user_id"]
+            "required": [
+              "user_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1929,7 +1970,10 @@
               "anonymous_id": {
                 "title": "Anonymous ID",
                 "description": "User Anonymous id",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -2083,7 +2127,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["utc_time"]
+            "required": [
+              "utc_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

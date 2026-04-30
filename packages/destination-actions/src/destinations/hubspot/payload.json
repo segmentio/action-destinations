@@ -1,9 +1,13 @@
 {
   "name": "HubSpot Cloud Mode (Actions)",
-  "basicOptions": ["portalId"],
+  "basicOptions": [
+    "portalId"
+  ],
   "options": {
     "portalId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Hub ID of your HubSpot account.",
       "encrypt": false,
@@ -76,7 +80,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -109,7 +116,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -173,19 +182,31 @@
                     "type": "string"
                   }
                 },
-                "required": ["object_type"]
+                "required": [
+                  "object_type"
+                ]
               }
             },
-            "required": ["record_details"]
+            "required": [
+              "record_details"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
             "propertiesMetadata": {
               "object_type": {
-                "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
               }
             },
-            "dynamicProperties": ["object_type"]
+            "dynamicProperties": [
+              "object_type"
+            ]
           }
         },
         {
@@ -215,7 +236,9 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -240,7 +263,10 @@
               "occurred_at": {
                 "title": "Event Timestamp",
                 "description": "The time when this event occurred.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -332,25 +358,53 @@
                     "type": "string"
                   }
                 },
-                "required": ["object_type", "id_field_name", "id_field_value"]
+                "required": [
+                  "object_type",
+                  "id_field_name",
+                  "id_field_value"
+                ]
               }
             },
-            "required": ["object_details"]
+            "required": [
+              "object_details"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
             "propertiesMetadata": {
               "object_type": {
-                "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
               },
               "id_field_name": {
-                "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
               },
               "property_group": {
-                "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
               }
             },
-            "dynamicProperties": ["object_type", "id_field_name", "property_group"]
+            "dynamicProperties": [
+              "object_type",
+              "id_field_name",
+              "property_group"
+            ]
           }
         },
         {
@@ -380,7 +434,9 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -410,7 +466,9 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -443,14 +501,25 @@
                 "title": "Associated Record Sync Mode",
                 "description": "Specify if Segment create associated records in Hubspot. Records will only be created if the record requires a single identifier field and does not require property fields to be set upon creation.",
                 "type": "string",
-                "enum": ["upsert", "read"]
+                "enum": [
+                  "upsert",
+                  "read"
+                ]
               }
             },
-            "required": ["association_sync_mode"]
+            "required": [
+              "association_sync_mode"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         },
         {
@@ -500,7 +569,11 @@
                       "type": "string"
                     }
                   },
-                  "required": ["object_type", "association_label", "id_field_name"]
+                  "required": [
+                    "object_type",
+                    "association_label",
+                    "id_field_name"
+                  ]
                 }
               }
             },
@@ -510,16 +583,38 @@
           "displayMetadata": {
             "propertiesMetadata": {
               "object_type": {
-                "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
               },
               "association_label": {
-                "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
               },
               "id_field_name": {
-                "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
               }
             },
-            "dynamicProperties": ["object_type", "association_label", "id_field_name"]
+            "dynamicProperties": [
+              "object_type",
+              "association_label",
+              "id_field_name"
+            ]
           }
         },
         {
@@ -569,7 +664,11 @@
                       "type": "string"
                     }
                   },
-                  "required": ["object_type", "association_label", "id_field_name"]
+                  "required": [
+                    "object_type",
+                    "association_label",
+                    "id_field_name"
+                  ]
                 }
               }
             },
@@ -579,16 +678,38 @@
           "displayMetadata": {
             "propertiesMetadata": {
               "object_type": {
-                "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
               },
               "association_label": {
-                "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
               },
               "id_field_name": {
-                "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
               }
             },
-            "dynamicProperties": ["object_type", "association_label", "id_field_name"]
+            "dynamicProperties": [
+              "object_type",
+              "association_label",
+              "id_field_name"
+            ]
           }
         },
         {
@@ -649,19 +770,30 @@
           "displayMetadata": {
             "propertiesMetadata": {
               "connected_to_engage_audience": {
-                "disabledInputMethods": ["literal", "freeform"]
+                "disabledInputMethods": [
+                  "literal",
+                  "freeform"
+                ]
               },
               "list_name": {
                 "disabledInputMethods": []
               },
               "list_action": {
-                "disabledInputMethods": ["literal", "freeform"]
+                "disabledInputMethods": [
+                  "literal",
+                  "freeform"
+                ]
               },
               "should_create_list": {
-                "disabledInputMethods": ["literal", "freeform"]
+                "disabledInputMethods": [
+                  "literal",
+                  "freeform"
+                ]
               }
             },
-            "dynamicProperties": ["list_name"]
+            "dynamicProperties": [
+              "list_name"
+            ]
           }
         },
         {
@@ -717,7 +849,9 @@
                 "type": "number"
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -727,7 +861,9 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The keys to use for batching the events.",
-          "defaultValue": ["list_details"],
+          "defaultValue": [
+            "list_details"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,
@@ -783,7 +919,13 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         },
         {
@@ -949,7 +1091,9 @@
                 "type": "string"
               }
             },
-            "required": ["eventName"]
+            "required": [
+              "eventName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -976,7 +1120,10 @@
               "occurredAt": {
                 "title": "Event Timestamp",
                 "description": "The time when this event occurred. If this isn't set, the current time will be used.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -1153,7 +1300,9 @@
                 "type": "string"
               }
             },
-            "required": ["groupid"]
+            "required": [
+              "groupid"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1181,7 +1330,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["createNewCompany"]
+            "required": [
+              "createNewCompany"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1209,7 +1360,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["associateContact"]
+            "required": [
+              "associateContact"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1643,7 +1796,9 @@
                 "format": "email"
               }
             },
-            "required": ["email"]
+            "required": [
+              "email"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2149,11 +2304,19 @@
                 "type": "string"
               }
             },
-            "required": ["objectType"]
+            "required": [
+              "objectType"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         },
         {
@@ -2179,7 +2342,9 @@
                 "type": "object"
               }
             },
-            "required": ["properties"]
+            "required": [
+              "properties"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2238,7 +2403,13 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         },
         {

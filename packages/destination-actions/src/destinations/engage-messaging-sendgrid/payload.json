@@ -12,7 +12,9 @@
   ],
   "options": {
     "unlayerApiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The API key for your Unlayer account",
       "encrypt": true,
@@ -27,7 +29,9 @@
       "uIMetadata": null
     },
     "sendGridApiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Api Key for your SendGrid account",
       "encrypt": true,
@@ -38,11 +42,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The sendGridApiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The sendGridApiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "profileApiEnvironment": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Profile API Environment",
       "encrypt": false,
@@ -53,11 +64,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The profileApiEnvironment property is required."]],
+      "validators": [
+        [
+          "required",
+          "The profileApiEnvironment property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "profileApiAccessToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Profile API Access Token",
       "encrypt": true,
@@ -68,11 +86,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The profileApiAccessToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The profileApiAccessToken property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "spaceId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Space ID",
       "encrypt": false,
@@ -83,11 +108,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The spaceId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The spaceId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "sourceId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Source ID",
       "encrypt": false,
@@ -98,11 +130,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The sourceId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The sourceId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "us-west-2",
       "description": "The region where the email is originating from",
       "encrypt": false,
@@ -137,7 +176,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -197,7 +239,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -224,7 +268,9 @@
                 "type": "string"
               }
             },
-            "required": ["url"]
+            "required": [
+              "url"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -251,7 +297,9 @@
                 "type": "string"
               }
             },
-            "required": ["method"]
+            "required": [
+              "method"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -278,7 +326,9 @@
                 "type": "integer"
               }
             },
-            "required": ["cacheTtl"]
+            "required": [
+              "cacheTtl"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -359,7 +409,9 @@
                 "type": "string"
               }
             },
-            "required": ["responseType"]
+            "required": [
+              "responseType"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -560,7 +612,10 @@
               "fromDomain": {
                 "title": "From Domain",
                 "description": "Verified domain in Sendgrid",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -590,7 +645,9 @@
                 "type": "string"
               }
             },
-            "required": ["fromEmail"]
+            "required": [
+              "fromEmail"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -617,7 +674,9 @@
                 "type": "string"
               }
             },
-            "required": ["fromName"]
+            "required": [
+              "fromName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -671,7 +730,9 @@
                 "type": "string"
               }
             },
-            "required": ["replyToEmail"]
+            "required": [
+              "replyToEmail"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -698,7 +759,9 @@
                 "type": "string"
               }
             },
-            "required": ["replyToName"]
+            "required": [
+              "replyToName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -725,7 +788,9 @@
                 "type": "string"
               }
             },
-            "required": ["bcc"]
+            "required": [
+              "bcc"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -779,7 +844,9 @@
                 "type": "string"
               }
             },
-            "required": ["subject"]
+            "required": [
+              "subject"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -862,7 +929,9 @@
                 "type": "string"
               }
             },
-            "required": ["bodyType"]
+            "required": [
+              "bodyType"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1076,7 +1145,13 @@
                       "type": "boolean"
                     }
                   },
-                  "required": ["name", "url", "method", "cacheTtl", "responseType"]
+                  "required": [
+                    "name",
+                    "url",
+                    "method",
+                    "cacheTtl",
+                    "responseType"
+                  ]
                 }
               }
             },

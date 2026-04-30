@@ -57,9 +57,13 @@ jobs:
 
       - name: Generate push payloads (specific destination)
         if: ${{ inputs.slug }}
-        run: yarn push-payloads --slug=${{ inputs.slug }}
+        env:
+          DESTINATION_SLUG: ${{ inputs.slug }}
+        run: yarn push-payloads --slug="$DESTINATION_SLUG"
 
       - name: Commit and push payload files
+        env:
+          HUSKY: 0
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

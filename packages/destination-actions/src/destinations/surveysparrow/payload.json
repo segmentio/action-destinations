@@ -1,10 +1,14 @@
 {
   "name": "Surveysparrow",
   "description": "Trigger Surveys and Create Contacts in SurveySparrow",
-  "basicOptions": ["apiToken"],
+  "basicOptions": [
+    "apiToken"
+  ],
   "options": {
     "apiToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "SurveySparrow Access Token can be found in Settings > Apps and Integrations > Create a Custom app",
       "encrypt": true,
@@ -15,7 +19,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiToken property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -315,7 +327,9 @@
                 "type": "number"
               }
             },
-            "required": ["id"]
+            "required": [
+              "id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -356,10 +370,16 @@
                 "title": "Share Type",
                 "description": "Type of Survey Share to be triggered",
                 "type": "string",
-                "enum": ["Email", "SMS", "WhatsApp"]
+                "enum": [
+                  "Email",
+                  "SMS",
+                  "WhatsApp"
+                ]
               }
             },
-            "required": ["share_type"]
+            "required": [
+              "share_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -389,7 +409,9 @@
                 "type": "number"
               }
             },
-            "required": ["survey_id"]
+            "required": [
+              "survey_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

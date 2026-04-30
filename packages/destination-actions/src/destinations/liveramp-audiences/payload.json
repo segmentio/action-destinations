@@ -1,9 +1,14 @@
 {
   "name": "Liveramp Audiences",
-  "basicOptions": ["__segment_internal_engage_force_full_sync", "__segment_internal_engage_batch_sync"],
+  "basicOptions": [
+    "__segment_internal_engage_force_full_sync",
+    "__segment_internal_engage_batch_sync"
+  ],
   "options": {
     "__segment_internal_engage_force_full_sync": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": true,
       "description": "",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "boolean",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The __segment_internal_engage_force_full_sync property is required."]],
+      "validators": [
+        [
+          "required",
+          "The __segment_internal_engage_force_full_sync property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "__segment_internal_engage_batch_sync": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": true,
       "description": "",
       "encrypt": false,
@@ -29,7 +41,12 @@
       "type": "boolean",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The __segment_internal_engage_batch_sync property is required."]],
+      "validators": [
+        [
+          "required",
+          "The __segment_internal_engage_batch_sync property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -156,7 +176,9 @@
                 "type": "string"
               }
             },
-            "required": ["s3_aws_region"]
+            "required": [
+              "s3_aws_region"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -186,7 +208,9 @@
                 "type": "string"
               }
             },
-            "required": ["audience_key"]
+            "required": [
+              "audience_key"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -270,7 +294,9 @@
                 "type": "string"
               }
             },
-            "required": ["delimiter"]
+            "required": [
+              "delimiter"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -300,7 +326,9 @@
                 "type": "string"
               }
             },
-            "required": ["filename"]
+            "required": [
+              "filename"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -329,7 +357,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -511,7 +541,9 @@
                 "type": "string"
               }
             },
-            "required": ["audience_key"]
+            "required": [
+              "audience_key"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -595,7 +627,9 @@
                 "type": "string"
               }
             },
-            "required": ["delimiter"]
+            "required": [
+              "delimiter"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -625,7 +659,9 @@
                 "type": "string"
               }
             },
-            "required": ["filename"]
+            "required": [
+              "filename"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -654,7 +690,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

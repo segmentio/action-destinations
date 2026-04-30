@@ -24,7 +24,9 @@
   ],
   "options": {
     "segmentWriteKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Optionally forward Responses from Segment's requests to Responsys to a Segment Source.",
       "encrypt": false,
@@ -39,7 +41,9 @@
       "uIMetadata": null
     },
     "segmentWriteKeyRegion": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "US",
       "description": "Segment Region to forward responses from Responsys to. Segment Source WriteKey must also be populated",
       "encrypt": false,
@@ -66,7 +70,9 @@
       "uIMetadata": null
     },
     "username": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Responsys username",
       "encrypt": false,
@@ -77,11 +83,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The username property is required."]],
+      "validators": [
+        [
+          "required",
+          "The username property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "userPassword": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Responsys password",
       "encrypt": true,
@@ -92,11 +105,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The userPassword property is required."]],
+      "validators": [
+        [
+          "required",
+          "The userPassword property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "baseUrl": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Responsys endpoint URL. Refer to Responsys documentation for more details. Must start with 'HTTPS://'. See [Responsys docs](https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/GetStarted/Authentication/auth-endpoints-rest.htm).",
       "encrypt": false,
@@ -107,11 +127,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The baseUrl property is required."]],
+      "validators": [
+        [
+          "required",
+          "The baseUrl property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "defaultFolderName": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Name of the folder where the Profile Extension Table is located.",
       "encrypt": false,
@@ -126,7 +153,9 @@
       "uIMetadata": null
     },
     "profileListName": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Name of the Profile Extension Table's Contact List.",
       "encrypt": false,
@@ -141,7 +170,9 @@
       "uIMetadata": null
     },
     "profileExtensionTable": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Default Profile Extension Table (PET) Name. Required if using the \"Send Custom Traits\" Action. Can be overridden in the mapping.",
       "encrypt": false,
@@ -156,7 +187,9 @@
       "uIMetadata": null
     },
     "insertOnNoMatch": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": true,
       "description": "Indicates what should be done for records where a match is not found.",
       "encrypt": false,
@@ -167,11 +200,18 @@
       "type": "boolean",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The insertOnNoMatch property is required."]],
+      "validators": [
+        [
+          "required",
+          "The insertOnNoMatch property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "matchColumnName1": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "EMAIL_ADDRESS",
       "description": "First match column for determining whether an insert or update should occur.\n                      A trailing underscore (_) is added to the match column name at the time of request \n                      to Responsys. \n                      This aligns with Responsys’ naming conventions for match columns.",
       "encrypt": false,
@@ -214,11 +254,18 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The matchColumnName1 property is required."]],
+      "validators": [
+        [
+          "required",
+          "The matchColumnName1 property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "matchColumnName2": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Second match column for determining whether an insert or update should occur.\n                      A trailing underscore (_) is added to the match column name at the time of request \n                      to Responsys. \n                      This aligns with Responsys’ naming conventions for match columns.",
       "encrypt": false,
@@ -265,7 +312,9 @@
       "uIMetadata": null
     },
     "updateOnMatch": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "REPLACE_ALL",
       "description": "Controls how the existing record should be updated. Defaults to Replace All.",
       "encrypt": false,
@@ -288,11 +337,18 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The updateOnMatch property is required."]],
+      "validators": [
+        [
+          "required",
+          "The updateOnMatch property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "textValue": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Value of incoming preferred email format data. For example, 'T' may represent a preference for Text formatted email.",
       "encrypt": false,
@@ -307,7 +363,9 @@
       "uIMetadata": null
     },
     "matchOperator": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "AND",
       "description": "Operator to join match column names.",
       "encrypt": false,
@@ -334,7 +392,9 @@
       "uIMetadata": null
     },
     "optoutValue": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Value of incoming opt-out status data that represents an optout status. For example, 'O' may represent an opt-out status.",
       "encrypt": false,
@@ -349,7 +409,9 @@
       "uIMetadata": null
     },
     "rejectRecordIfChannelEmpty": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "String containing comma-separated channel codes that if specified will result in record rejection when the channel address field is null. See [Responsys API docs](https://docs.oracle.com/en/cloud/saas/marketing/responsys-rest-api/op-rest-api-v1.3-lists-listname-members-post.html)",
       "encrypt": false,
@@ -364,7 +426,9 @@
       "uIMetadata": null
     },
     "defaultPermissionStatus": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "OPTOUT",
       "description": "This value must be specified as either OPTIN or OPTOUT. Defaults to OPTOUT. Can be overridden in the mapping.",
       "encrypt": false,
@@ -387,11 +451,18 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The defaultPermissionStatus property is required."]],
+      "validators": [
+        [
+          "required",
+          "The defaultPermissionStatus property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "htmlValue": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Value of incoming preferred email format data. For example, 'H' may represent a preference for HTML formatted email.",
       "encrypt": false,
@@ -406,7 +477,9 @@
       "uIMetadata": null
     },
     "optinValue": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Value of incoming opt-in status data that represents an opt-in status. For example, 'I' may represent an opt-in status.",
       "encrypt": false,
@@ -479,7 +552,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -547,7 +623,9 @@
                 "required": []
               }
             },
-            "required": ["userData"]
+            "required": [
+              "userData"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -578,7 +656,9 @@
                 "type": "string"
               }
             },
-            "required": ["computation_key"]
+            "required": [
+              "computation_key"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -619,7 +699,9 @@
                 "type": "object"
               }
             },
-            "required": ["traits_or_props"]
+            "required": [
+              "traits_or_props"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -657,10 +739,15 @@
                 "title": "Segment Audience Computation Class",
                 "description": "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' or 'journey_step' will be dropped before the perform() fuction call.",
                 "type": "string",
-                "enum": ["audience", "journey_step"]
+                "enum": [
+                  "audience",
+                  "journey_step"
+                ]
               }
             },
-            "required": ["computation_class"]
+            "required": [
+              "computation_class"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -746,7 +833,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["stringify"]
+            "required": [
+              "stringify"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -774,11 +863,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of when the event occurred.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -830,7 +924,14 @@
                 "title": "Delay (seconds)",
                 "description": "A delay of the selected seconds will be added before retrying a failed request.\n                    Max delay allowed is 600 secs (10 mins). The default is 0 seconds.",
                 "type": "number",
-                "enum": [0, 30, 120, 300, 480, 600]
+                "enum": [
+                  0,
+                  30,
+                  120,
+                  300,
+                  480,
+                  600
+                ]
               }
             },
             "required": []
@@ -910,7 +1011,9 @@
                 "required": []
               }
             },
-            "required": ["userData"]
+            "required": [
+              "userData"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -969,7 +1072,9 @@
                 "type": "string"
               }
             },
-            "required": ["pet_name"]
+            "required": [
+              "pet_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1000,7 +1105,9 @@
                 "type": "string"
               }
             },
-            "required": ["computation_key"]
+            "required": [
+              "computation_key"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1041,7 +1148,9 @@
                 "type": "object"
               }
             },
-            "required": ["traits_or_props"]
+            "required": [
+              "traits_or_props"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1069,7 +1178,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of when the event occurred.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -1125,7 +1237,14 @@
                 "title": "Delay (seconds)",
                 "description": "A delay of the selected seconds will be added before retrying a failed request.\n                Max delay allowed is 600 secs (10 mins). The default is 0 seconds.",
                 "type": "number",
-                "enum": [0, 30, 120, 300, 480, 600]
+                "enum": [
+                  0,
+                  30,
+                  120,
+                  300,
+                  480,
+                  600
+                ]
               }
             },
             "required": []
@@ -1162,7 +1281,10 @@
                 "title": "Default Permission Status",
                 "description": "This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.",
                 "type": "string",
-                "enum": ["OPTIN", "OPTOUT"]
+                "enum": [
+                  "OPTIN",
+                  "OPTOUT"
+                ]
               }
             },
             "required": []
@@ -1239,7 +1361,9 @@
                 "required": []
               }
             },
-            "required": ["userData"]
+            "required": [
+              "userData"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1352,7 +1476,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["stringify"]
+            "required": [
+              "stringify"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1380,11 +1506,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of when the event occurred.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1436,7 +1567,14 @@
                 "title": "Delay (seconds)",
                 "description": "A delay of the selected seconds will be added before retrying a failed request.\n                    Max delay allowed is 600 secs (10 mins). The default is 0 seconds.",
                 "type": "number",
-                "enum": [0, 30, 120, 300, 480, 600]
+                "enum": [
+                  0,
+                  30,
+                  120,
+                  300,
+                  480,
+                  600
+                ]
               }
             },
             "required": []
@@ -1516,7 +1654,9 @@
                 "required": []
               }
             },
-            "required": ["userData"]
+            "required": [
+              "userData"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1599,7 +1739,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of when the event occurred.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -1723,7 +1866,10 @@
                 "title": "Default Permission Status",
                 "description": "This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.",
                 "type": "string",
-                "enum": ["OPTIN", "OPTOUT"]
+                "enum": [
+                  "OPTIN",
+                  "OPTOUT"
+                ]
               }
             },
             "required": []
@@ -1829,7 +1975,9 @@
                 "required": []
               }
             },
-            "required": ["userData"]
+            "required": [
+              "userData"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1949,7 +2097,10 @@
                 "title": "Default Permission Status",
                 "description": "This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.",
                 "type": "string",
-                "enum": ["OPTIN", "OPTOUT"]
+                "enum": [
+                  "OPTIN",
+                  "OPTOUT"
+                ]
               }
             },
             "required": []

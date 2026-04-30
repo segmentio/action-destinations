@@ -1,10 +1,15 @@
 {
   "name": "Voiceops",
   "description": "Send Segment call-completed events to Voiceops for call ingestion, conference bridge splitting, and agent attribution.",
-  "basicOptions": ["accessToken", "baseUrl"],
+  "basicOptions": [
+    "accessToken",
+    "baseUrl"
+  ],
   "options": {
     "accessToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Voiceops access token.",
       "encrypt": true,
@@ -15,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The accessToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The accessToken property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "baseUrl": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "https://projectfrontline.net",
       "description": "Your Voiceops base URL.",
       "encrypt": false,
@@ -30,7 +42,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The baseUrl property is required."]],
+      "validators": [
+        [
+          "required",
+          "The baseUrl property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -42,7 +59,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -78,7 +98,9 @@
                 "type": "string"
               }
             },
-            "required": ["call_id"]
+            "required": [
+              "call_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -108,7 +130,9 @@
                 "type": "string"
               }
             },
-            "required": ["call_started_at"]
+            "required": [
+              "call_started_at"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -139,7 +163,9 @@
                 "format": "email"
               }
             },
-            "required": ["agent_email"]
+            "required": [
+              "agent_email"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -170,7 +196,9 @@
                 "format": "uri"
               }
             },
-            "required": ["recording_url"]
+            "required": [
+              "recording_url"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -295,7 +323,11 @@
                       "title": "Type",
                       "description": "The participant role for the channel. Supported values are CONTACT, HANDLING_AGENT, and TRANSFER_AGENT.",
                       "type": "string",
-                      "enum": ["CONTACT", "HANDLING_AGENT", "TRANSFER_AGENT"]
+                      "enum": [
+                        "CONTACT",
+                        "HANDLING_AGENT",
+                        "TRANSFER_AGENT"
+                      ]
                     },
                     "recording_start_time": {
                       "title": "Recording Start Time",
@@ -319,7 +351,12 @@
                       "type": "string"
                     }
                   },
-                  "required": ["channel", "type", "recording_start_time", "identifier"]
+                  "required": [
+                    "channel",
+                    "type",
+                    "recording_start_time",
+                    "identifier"
+                  ]
                 }
               }
             },
@@ -405,7 +442,12 @@
                       "type": "string"
                     }
                   },
-                  "required": ["agent_email", "started_at", "first_name", "last_name"]
+                  "required": [
+                    "agent_email",
+                    "started_at",
+                    "first_name",
+                    "last_name"
+                  ]
                 }
               }
             },

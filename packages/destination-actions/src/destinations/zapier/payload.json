@@ -1,7 +1,9 @@
 {
   "name": "Zapier (Actions)",
   "description": "Send Segment event data to Zapier",
-  "basicOptions": ["required_hidden_token"],
+  "basicOptions": [
+    "required_hidden_token"
+  ],
   "options": {
     "required_hidden_token": {
       "label": "Required Hidden Token",
@@ -21,7 +23,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -57,7 +62,9 @@
                 "type": "object"
               }
             },
-            "required": ["data"]
+            "required": [
+              "data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -86,7 +93,9 @@
                 "format": "password"
               }
             },
-            "required": ["zapSubscriptionUrl"]
+            "required": [
+              "zapSubscriptionUrl"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

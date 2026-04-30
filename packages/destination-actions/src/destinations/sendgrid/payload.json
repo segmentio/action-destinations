@@ -1,10 +1,15 @@
 {
   "name": "SendGrid",
   "description": "Trigger emails from SendGrid and sync Contacts to SendGrid Markeitng Campaigns.",
-  "basicOptions": ["sendGridApiKey", "endpoint"],
+  "basicOptions": [
+    "sendGridApiKey",
+    "endpoint"
+  ],
   "options": {
     "sendGridApiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Api key for your SendGrid account.",
       "encrypt": true,
@@ -15,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The sendGridApiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The sendGridApiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "endpoint": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "https://api.sendgrid.com",
       "description": "The regional processing endpoint for your SendGrid account. [See more details](https://www.twilio.com/en-us/blog/send-emails-in-eu?_gl=1*7hyri9*_gcl_au*MTg0MTQwMjAzNi4xNzQzMDAyNzc4*_ga*MTk4OTI2MDk1LjE3NDMwMDI3Nzg.*_ga_8W5LR442LD*MTc0MzY3NTc2NC41LjAuMTc0MzY3NTc2NC4wLjAuMA..)",
       "encrypt": false,
@@ -54,7 +66,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -91,7 +106,13 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         },
         {
@@ -130,10 +151,14 @@
                     "type": "string"
                   }
                 },
-                "required": ["email"]
+                "required": [
+                  "email"
+                ]
               }
             },
-            "required": ["from"]
+            "required": [
+              "from"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -182,10 +207,14 @@
                     "type": "string"
                   }
                 },
-                "required": ["email"]
+                "required": [
+                  "email"
+                ]
               }
             },
-            "required": ["to"]
+            "required": [
+              "to"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -339,7 +368,9 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -364,11 +395,19 @@
                 "type": "string"
               }
             },
-            "required": ["template_id"]
+            "required": [
+              "template_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         },
         {
@@ -527,7 +566,13 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         },
         {
@@ -556,7 +601,13 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         }
       ]
@@ -629,7 +680,10 @@
               "first_name": {
                 "title": "First Name",
                 "description": "The contact's first name.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -669,7 +723,10 @@
               "last_name": {
                 "title": "Last Name",
                 "description": "The contact's last name.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -709,7 +766,10 @@
               "country": {
                 "title": "Country",
                 "description": "The contact's country.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -749,7 +809,10 @@
               "postal_code": {
                 "title": "Postal Code",
                 "description": "The contact's postal code.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -789,7 +852,10 @@
               "city": {
                 "title": "City",
                 "description": "The contact's city.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -829,7 +895,10 @@
               "state": {
                 "title": "State",
                 "description": "The contact's state.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -869,7 +938,10 @@
               "address_line_1": {
                 "title": "Address Line 1",
                 "description": "The contact's address line 1.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -909,7 +981,10 @@
               "address_line_2": {
                 "title": "Address Line 2",
                 "description": "The contact's address line 2.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -949,7 +1024,10 @@
               "phone_number": {
                 "title": "Phone Number",
                 "description": "The contact's phone number. Note: This is different from the Phone Number ID field, but the same value can be stored in both fields.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -989,7 +1067,10 @@
               "whatsapp": {
                 "title": "WhatsApp",
                 "description": "The contact's WhatsApp.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -1029,7 +1110,10 @@
               "line": {
                 "title": "Line",
                 "description": "The contact's landline.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -1069,7 +1153,10 @@
               "facebook": {
                 "title": "Facebook",
                 "description": "The contact's Facebook identifier.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -1109,7 +1196,10 @@
               "unique_name": {
                 "title": "Unique Name",
                 "description": "The contact's unique name.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -1149,7 +1239,10 @@
               "primary_email": {
                 "title": "Email Address",
                 "description": "The contact's email address.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -1189,7 +1282,10 @@
               "phone_number_id": {
                 "title": "Phone Number ID",
                 "description": "Primary Phone Number used to identify a Contact. This must be a valid phone number.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -1229,7 +1325,10 @@
               "external_id": {
                 "title": "External ID",
                 "description": "The contact's External ID.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -1259,7 +1358,10 @@
               "anonymous_id": {
                 "title": "Anonymous ID ",
                 "description": "The contact's Anonymous ID.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []

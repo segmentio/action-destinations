@@ -1,10 +1,14 @@
 {
   "name": "Survicate Cloud Mode (Actions)",
   "description": "Sync Segment analytics events, user profile and company profile details to Survicate.",
-  "basicOptions": ["apiKey"],
+  "basicOptions": [
+    "apiKey"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Survicate Destination Key, which you can find in Survicate - Integrations - Segment (Cloud Mode, Actions) - Settings.",
       "encrypt": true,
@@ -15,7 +19,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -123,7 +135,9 @@
                 "type": "string"
               }
             },
-            "required": ["group_id"]
+            "required": [
+              "group_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -153,7 +167,9 @@
                 "type": "object"
               }
             },
-            "required": ["traits"]
+            "required": [
+              "traits"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -184,7 +200,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -294,7 +312,9 @@
                 "type": "object"
               }
             },
-            "required": ["traits"]
+            "required": [
+              "traits"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -325,7 +345,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -425,7 +447,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -486,7 +510,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

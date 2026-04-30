@@ -12,7 +12,9 @@
   ],
   "options": {
     "conversionTrackingId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "You will find this information in the event snippet for your conversion action, for example `send_to: AW-CONVERSION_ID/AW-CONVERSION_LABEL`. In the sample snippet, AW-CONVERSION_ID stands for the conversion ID unique to your account. Enter the conversion ID, without the AW- prefix. **Required if you are using a mapping that sends data to the legacy Google Enhanced Conversions API (i.e. Upload Enhanced Conversion (Legacy) Action).**",
       "encrypt": false,
@@ -27,7 +29,9 @@
       "uIMetadata": null
     },
     "customerId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "ID of your Google Ads Account. This should be 10-digits and in XXX-XXX-XXXX format. **Required if you are using a mapping that sends data to the Google Ads API.**",
       "encrypt": false,
@@ -42,7 +46,9 @@
       "uIMetadata": null
     },
     "loginCustomerId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "ID of your Google Ads Manager Account. This should be 10-digits and in XXX-XXX-XXXX format. **Required if you want your Manager Account to handle data for its connected accounts.**",
       "encrypt": false,
@@ -210,7 +216,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -243,7 +252,9 @@
                 "type": "number"
               }
             },
-            "required": ["conversion_action"]
+            "required": [
+              "conversion_action"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -270,7 +281,9 @@
                 "type": "string"
               }
             },
-            "required": ["caller_id"]
+            "required": [
+              "caller_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -297,7 +310,9 @@
                 "type": "string"
               }
             },
-            "required": ["call_timestamp"]
+            "required": [
+              "call_timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -327,7 +342,9 @@
                 "type": "string"
               }
             },
-            "required": ["conversion_timestamp"]
+            "required": [
+              "conversion_timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -453,7 +470,11 @@
                 "title": "Ad User Data Consent State",
                 "description": "This represents consent for ad user data. For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED", "UNSPECIFIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED",
+                  "UNSPECIFIED"
+                ]
               }
             },
             "required": []
@@ -494,7 +515,11 @@
                 "title": "Ad Personalization Consent State",
                 "description": "This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED", "UNSPECIFIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED",
+                  "UNSPECIFIED"
+                ]
               }
             },
             "required": []
@@ -612,7 +637,9 @@
                 "type": "number"
               }
             },
-            "required": ["conversion_action"]
+            "required": [
+              "conversion_action"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -867,7 +894,9 @@
                 "type": "string"
               }
             },
-            "required": ["conversion_timestamp"]
+            "required": [
+              "conversion_timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1116,7 +1145,11 @@
                 "title": "Conversion Environment",
                 "description": "The environment this conversion was recorded on, e.g. APP or WEB. Sending the environment field requires an allowlist in your Google Ads account. Leave this field blank if your account has not been allowlisted.",
                 "type": "string",
-                "enum": ["APP", "WEB", "UNSPECIFIED"]
+                "enum": [
+                  "APP",
+                  "WEB",
+                  "UNSPECIFIED"
+                ]
               }
             },
             "required": []
@@ -1359,7 +1392,11 @@
                 "title": "Ad User Data Consent State",
                 "description": "This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED", "UNSPECIFIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED",
+                  "UNSPECIFIED"
+                ]
               }
             },
             "required": []
@@ -1400,7 +1437,11 @@
                 "title": "Ad Personalization Consent State",
                 "description": "This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED", "UNSPECIFIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED",
+                  "UNSPECIFIED"
+                ]
               }
             },
             "required": []
@@ -1518,7 +1559,9 @@
                 "type": "number"
               }
             },
-            "required": ["conversion_action"]
+            "required": [
+              "conversion_action"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1564,10 +1607,18 @@
                 "title": "Adjustment Type",
                 "description": "The adjustment type. See [Google’s documentation](https://developers.google.com/google-ads/api/reference/rpc/v11/ConversionAdjustmentTypeEnum.ConversionAdjustmentType) for details on each type.",
                 "type": "string",
-                "enum": ["UNSPECIFIED", "UNKNOWN", "RETRACTION", "RESTATEMENT", "ENHANCEMENT"]
+                "enum": [
+                  "UNSPECIFIED",
+                  "UNKNOWN",
+                  "RETRACTION",
+                  "RESTATEMENT",
+                  "ENHANCEMENT"
+                ]
               }
             },
-            "required": ["adjustment_type"]
+            "required": [
+              "adjustment_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1725,7 +1776,9 @@
               {
                 "fieldKey": "adjustment_type",
                 "operator": "is_not",
-                "value": ["RETRACTION"]
+                "value": [
+                  "RETRACTION"
+                ]
               }
             ]
           },
@@ -1760,7 +1813,9 @@
               {
                 "fieldKey": "adjustment_type",
                 "operator": "is_not",
-                "value": ["RETRACTION"]
+                "value": [
+                  "RETRACTION"
+                ]
               }
             ]
           },
@@ -2618,10 +2673,16 @@
                 "title": "Ad User Data Consent State",
                 "description": "This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED", "UNSPECIFIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED",
+                  "UNSPECIFIED"
+                ]
               }
             },
-            "required": ["ad_user_data_consent_state"]
+            "required": [
+              "ad_user_data_consent_state"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2659,10 +2720,16 @@
                 "title": "Ad Personalization Consent State",
                 "description": "This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED", "UNSPECIFIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED",
+                  "UNSPECIFIED"
+                ]
               }
             },
-            "required": ["ad_personalization_consent_state"]
+            "required": [
+              "ad_personalization_consent_state"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2877,7 +2944,11 @@
                 "title": "External ID Type",
                 "description": "Customer match upload key types.",
                 "type": "string",
-                "enum": ["CONTACT_INFO", "CRM_ID", "MOBILE_ADVERTISING_ID"]
+                "enum": [
+                  "CONTACT_INFO",
+                  "CRM_ID",
+                  "MOBILE_ADVERTISING_ID"
+                ]
               }
             },
             "required": []
@@ -3040,7 +3111,9 @@
                 "type": "number"
               }
             },
-            "required": ["conversion_action"]
+            "required": [
+              "conversion_action"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3067,7 +3140,9 @@
                 "type": "string"
               }
             },
-            "required": ["caller_id"]
+            "required": [
+              "caller_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3094,7 +3169,9 @@
                 "type": "string"
               }
             },
-            "required": ["call_timestamp"]
+            "required": [
+              "call_timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3124,7 +3201,9 @@
                 "type": "string"
               }
             },
-            "required": ["conversion_timestamp"]
+            "required": [
+              "conversion_timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3250,7 +3329,11 @@
                 "title": "Ad User Data Consent State",
                 "description": "This represents consent for ad user data. For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED", "UNSPECIFIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED",
+                  "UNSPECIFIED"
+                ]
               }
             },
             "required": []
@@ -3291,7 +3374,11 @@
                 "title": "Ad Personalization Consent State",
                 "description": "This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED", "UNSPECIFIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED",
+                  "UNSPECIFIED"
+                ]
               }
             },
             "required": []
@@ -3389,7 +3476,9 @@
                 "type": "number"
               }
             },
-            "required": ["conversion_action"]
+            "required": [
+              "conversion_action"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3644,7 +3733,9 @@
                 "type": "string"
               }
             },
-            "required": ["conversion_timestamp"]
+            "required": [
+              "conversion_timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3893,7 +3984,11 @@
                 "title": "Conversion Environment",
                 "description": "The environment this conversion was recorded on, e.g. APP or WEB. Sending the environment field requires an allowlist in your Google Ads account. Leave this field blank if your account has not been allowlisted.",
                 "type": "string",
-                "enum": ["APP", "WEB", "UNSPECIFIED"]
+                "enum": [
+                  "APP",
+                  "WEB",
+                  "UNSPECIFIED"
+                ]
               }
             },
             "required": []
@@ -4136,7 +4231,11 @@
                 "title": "Ad User Data Consent State",
                 "description": "This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED", "UNSPECIFIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED",
+                  "UNSPECIFIED"
+                ]
               }
             },
             "required": []
@@ -4177,7 +4276,11 @@
                 "title": "Ad Personalization Consent State",
                 "description": "This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED", "UNSPECIFIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED",
+                  "UNSPECIFIED"
+                ]
               }
             },
             "required": []
@@ -4275,7 +4378,9 @@
                 "type": "number"
               }
             },
-            "required": ["conversion_action"]
+            "required": [
+              "conversion_action"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4321,10 +4426,18 @@
                 "title": "Adjustment Type",
                 "description": "The adjustment type. See [Google’s documentation](https://developers.google.com/google-ads/api/reference/rpc/v11/ConversionAdjustmentTypeEnum.ConversionAdjustmentType) for details on each type.",
                 "type": "string",
-                "enum": ["UNSPECIFIED", "UNKNOWN", "RETRACTION", "RESTATEMENT", "ENHANCEMENT"]
+                "enum": [
+                  "UNSPECIFIED",
+                  "UNKNOWN",
+                  "RETRACTION",
+                  "RESTATEMENT",
+                  "ENHANCEMENT"
+                ]
               }
             },
-            "required": ["adjustment_type"]
+            "required": [
+              "adjustment_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4482,7 +4595,9 @@
               {
                 "fieldKey": "adjustment_type",
                 "operator": "is_not",
-                "value": ["RETRACTION"]
+                "value": [
+                  "RETRACTION"
+                ]
               }
             ]
           },
@@ -4517,7 +4632,9 @@
               {
                 "fieldKey": "adjustment_type",
                 "operator": "is_not",
-                "value": ["RETRACTION"]
+                "value": [
+                  "RETRACTION"
+                ]
               }
             ]
           },
@@ -5037,7 +5154,9 @@
                 "type": "string"
               }
             },
-            "required": ["conversion_label"]
+            "required": [
+              "conversion_label"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5078,7 +5197,9 @@
                 "format": "email"
               }
             },
-            "required": ["email"]
+            "required": [
+              "email"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5108,7 +5229,9 @@
                 "type": "string"
               }
             },
-            "required": ["transaction_id"]
+            "required": [
+              "transaction_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5165,11 +5288,16 @@
               "conversion_time": {
                 "title": "Conversion Time",
                 "description": "Timestamp of the conversion event.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["conversion_time"]
+            "required": [
+              "conversion_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

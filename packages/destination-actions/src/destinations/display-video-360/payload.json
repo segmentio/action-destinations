@@ -19,7 +19,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The advertiserId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The advertiserId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "accountType": {
@@ -51,7 +56,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The accountType property is required."]],
+      "validators": [
+        [
+          "required",
+          "The accountType property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "__segment_internal_engage_batch_sync": {
@@ -86,7 +96,10 @@
     "warehouse": false,
     "cloudAppObject": false
   },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -121,7 +134,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -152,7 +167,9 @@
                 "type": "string"
               }
             },
-            "required": ["external_audience_id"]
+            "required": [
+              "external_audience_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -281,7 +298,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -312,7 +331,9 @@
                 "type": "string"
               }
             },
-            "required": ["external_audience_id"]
+            "required": [
+              "external_audience_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

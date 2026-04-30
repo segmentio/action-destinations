@@ -1,9 +1,15 @@
 {
   "name": "Twilio",
-  "basicOptions": ["accountId", "token", "phoneNumber"],
+  "basicOptions": [
+    "accountId",
+    "token",
+    "phoneNumber"
+  ],
   "options": {
     "accountId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Twilio Account Id",
       "encrypt": false,
@@ -14,11 +20,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The accountId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The accountId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "token": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Twilio Token.",
       "encrypt": true,
@@ -29,11 +42,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The token property is required."]],
+      "validators": [
+        [
+          "required",
+          "The token property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "phoneNumber": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Twilio Phone Number with Country Code.",
       "encrypt": false,
@@ -44,7 +64,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The phoneNumber property is required."]],
+      "validators": [
+        [
+          "required",
+          "The phoneNumber property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -56,7 +81,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "basic",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -89,7 +117,9 @@
                 "type": "string"
               }
             },
-            "required": ["To"]
+            "required": [
+              "To"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -117,7 +147,9 @@
                 "format": "text"
               }
             },
-            "required": ["Body"]
+            "required": [
+              "Body"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

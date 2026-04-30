@@ -1,9 +1,14 @@
 {
   "name": "Facebook Conversions API (Actions)",
-  "basicOptions": ["pixelId", "testEventCode"],
+  "basicOptions": [
+    "pixelId",
+    "testEventCode"
+  ],
   "options": {
     "pixelId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Facebook Pixel ID. Note: You may also use a dataset ID here if you have configured a dataset in your Facebook Events Manager.",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The pixelId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The pixelId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "testEventCode": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Use this field to specify that events should be test events rather than actual traffic. You can find your Test Event Code in your Facebook Events Manager under the \"Test events\" tab. This can be overridden by the Test Event Code defined in the mapping. You'll want to remove your Test Event Code when sending real traffic through this integration.",
       "encrypt": false,
@@ -41,7 +53,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -105,10 +120,21 @@
                 "title": "Action Source",
                 "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
                 "type": "string",
-                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "other"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -138,7 +164,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -334,7 +362,9 @@
                 "required": []
               }
             },
-            "required": ["user_data"]
+            "required": [
+              "user_data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -420,7 +450,10 @@
                     "title": "ExtInfo Version",
                     "description": "*Required for app events* Example: 'i2'.",
                     "type": "string",
-                    "enum": ["i2", "a2"]
+                    "enum": [
+                      "i2",
+                      "a2"
+                    ]
                   },
                   "packageName": {
                     "title": "Package Name",
@@ -870,7 +903,10 @@
                 "title": "Data Processing Country",
                 "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1]
+                "enum": [
+                  0,
+                  1
+                ]
               }
             },
             "required": []
@@ -947,7 +983,20 @@
                 "title": "Data Processing State",
                 "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+                "enum": [
+                  0,
+                  1000,
+                  1001,
+                  1002,
+                  1003,
+                  1004,
+                  1005,
+                  1006,
+                  1007,
+                  1008,
+                  1009,
+                  1010
+                ]
               }
             },
             "required": []
@@ -1045,10 +1094,21 @@
                 "title": "Action Source",
                 "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
                 "type": "string",
-                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "other"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1078,7 +1138,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1274,7 +1336,9 @@
                 "required": []
               }
             },
-            "required": ["user_data"]
+            "required": [
+              "user_data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1360,7 +1424,10 @@
                     "title": "ExtInfo Version",
                     "description": "*Required for app events* Example: 'i2'.",
                     "type": "string",
-                    "enum": ["i2", "a2"]
+                    "enum": [
+                      "i2",
+                      "a2"
+                    ]
                   },
                   "packageName": {
                     "title": "Package Name",
@@ -1810,7 +1877,10 @@
                 "title": "Data Processing Country",
                 "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1]
+                "enum": [
+                  0,
+                  1
+                ]
               }
             },
             "required": []
@@ -1887,7 +1957,20 @@
                 "title": "Data Processing State",
                 "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+                "enum": [
+                  0,
+                  1000,
+                  1001,
+                  1002,
+                  1003,
+                  1004,
+                  1005,
+                  1006,
+                  1007,
+                  1008,
+                  1009,
+                  1010
+                ]
               }
             },
             "required": []
@@ -2005,10 +2088,21 @@
                 "title": "Action Source",
                 "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
                 "type": "string",
-                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "other"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2038,7 +2132,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2068,7 +2164,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2264,7 +2362,9 @@
                 "required": []
               }
             },
-            "required": ["user_data"]
+            "required": [
+              "user_data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2350,7 +2450,10 @@
                     "title": "ExtInfo Version",
                     "description": "*Required for app events* Example: 'i2'.",
                     "type": "string",
-                    "enum": ["i2", "a2"]
+                    "enum": [
+                      "i2",
+                      "a2"
+                    ]
                   },
                   "packageName": {
                     "title": "Package Name",
@@ -2585,7 +2688,10 @@
                 "title": "Data Processing Country",
                 "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1]
+                "enum": [
+                  0,
+                  1
+                ]
               }
             },
             "required": []
@@ -2662,7 +2768,20 @@
                 "title": "Data Processing State",
                 "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+                "enum": [
+                  0,
+                  1000,
+                  1001,
+                  1002,
+                  1003,
+                  1004,
+                  1005,
+                  1006,
+                  1007,
+                  1008,
+                  1009,
+                  1010
+                ]
               }
             },
             "required": []
@@ -2760,10 +2879,21 @@
                 "title": "Action Source",
                 "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
                 "type": "string",
-                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "other"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2793,7 +2923,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2823,7 +2955,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3019,7 +3153,9 @@
                 "required": []
               }
             },
-            "required": ["user_data"]
+            "required": [
+              "user_data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3105,7 +3241,10 @@
                     "title": "ExtInfo Version",
                     "description": "*Required for app events* Example: 'i2'.",
                     "type": "string",
-                    "enum": ["i2", "a2"]
+                    "enum": [
+                      "i2",
+                      "a2"
+                    ]
                   },
                   "packageName": {
                     "title": "Package Name",
@@ -3340,7 +3479,10 @@
                 "title": "Data Processing Country",
                 "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1]
+                "enum": [
+                  0,
+                  1
+                ]
               }
             },
             "required": []
@@ -3417,7 +3559,20 @@
                 "title": "Data Processing State",
                 "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+                "enum": [
+                  0,
+                  1000,
+                  1001,
+                  1002,
+                  1003,
+                  1004,
+                  1005,
+                  1006,
+                  1007,
+                  1008,
+                  1009,
+                  1010
+                ]
               }
             },
             "required": []
@@ -3535,10 +3690,21 @@
                 "title": "Action Source",
                 "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
                 "type": "string",
-                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "other"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3568,7 +3734,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3764,7 +3932,9 @@
                 "required": []
               }
             },
-            "required": ["user_data"]
+            "required": [
+              "user_data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3850,7 +4020,10 @@
                     "title": "ExtInfo Version",
                     "description": "*Required for app events* Example: 'i2'.",
                     "type": "string",
-                    "enum": ["i2", "a2"]
+                    "enum": [
+                      "i2",
+                      "a2"
+                    ]
                   },
                   "packageName": {
                     "title": "Package Name",
@@ -4300,7 +4473,10 @@
                 "title": "Data Processing Country",
                 "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1]
+                "enum": [
+                  0,
+                  1
+                ]
               }
             },
             "required": []
@@ -4377,7 +4553,20 @@
                 "title": "Data Processing State",
                 "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+                "enum": [
+                  0,
+                  1000,
+                  1001,
+                  1002,
+                  1003,
+                  1004,
+                  1005,
+                  1006,
+                  1007,
+                  1008,
+                  1009,
+                  1010
+                ]
               }
             },
             "required": []
@@ -4475,10 +4664,21 @@
                 "title": "Action Source",
                 "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
                 "type": "string",
-                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "other"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4508,7 +4708,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4704,7 +4906,9 @@
                 "required": []
               }
             },
-            "required": ["user_data"]
+            "required": [
+              "user_data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4790,7 +4994,10 @@
                     "title": "ExtInfo Version",
                     "description": "*Required for app events* Example: 'i2'.",
                     "type": "string",
-                    "enum": ["i2", "a2"]
+                    "enum": [
+                      "i2",
+                      "a2"
+                    ]
                   },
                   "packageName": {
                     "title": "Package Name",
@@ -5240,7 +5447,10 @@
                 "title": "Data Processing Country",
                 "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1]
+                "enum": [
+                  0,
+                  1
+                ]
               }
             },
             "required": []
@@ -5317,7 +5527,20 @@
                 "title": "Data Processing State",
                 "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+                "enum": [
+                  0,
+                  1000,
+                  1001,
+                  1002,
+                  1003,
+                  1004,
+                  1005,
+                  1006,
+                  1007,
+                  1008,
+                  1009,
+                  1010
+                ]
               }
             },
             "required": []
@@ -5435,10 +5658,21 @@
                 "title": "Action Source",
                 "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
                 "type": "string",
-                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "other"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5468,7 +5702,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5664,7 +5900,9 @@
                 "required": []
               }
             },
-            "required": ["user_data"]
+            "required": [
+              "user_data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5750,7 +5988,10 @@
                     "title": "ExtInfo Version",
                     "description": "*Required for app events* Example: 'i2'.",
                     "type": "string",
-                    "enum": ["i2", "a2"]
+                    "enum": [
+                      "i2",
+                      "a2"
+                    ]
                   },
                   "packageName": {
                     "title": "Package Name",
@@ -5985,7 +6226,10 @@
                 "title": "Data Processing Country",
                 "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1]
+                "enum": [
+                  0,
+                  1
+                ]
               }
             },
             "required": []
@@ -6062,7 +6306,20 @@
                 "title": "Data Processing State",
                 "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+                "enum": [
+                  0,
+                  1000,
+                  1001,
+                  1002,
+                  1003,
+                  1004,
+                  1005,
+                  1006,
+                  1007,
+                  1008,
+                  1009,
+                  1010
+                ]
               }
             },
             "required": []
@@ -6160,10 +6417,21 @@
                 "title": "Action Source",
                 "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
                 "type": "string",
-                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "other"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6193,7 +6461,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6389,7 +6659,9 @@
                 "required": []
               }
             },
-            "required": ["user_data"]
+            "required": [
+              "user_data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6475,7 +6747,10 @@
                     "title": "ExtInfo Version",
                     "description": "*Required for app events* Example: 'i2'.",
                     "type": "string",
-                    "enum": ["i2", "a2"]
+                    "enum": [
+                      "i2",
+                      "a2"
+                    ]
                   },
                   "packageName": {
                     "title": "Package Name",
@@ -6710,7 +6985,10 @@
                 "title": "Data Processing Country",
                 "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1]
+                "enum": [
+                  0,
+                  1
+                ]
               }
             },
             "required": []
@@ -6787,7 +7065,20 @@
                 "title": "Data Processing State",
                 "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+                "enum": [
+                  0,
+                  1000,
+                  1001,
+                  1002,
+                  1003,
+                  1004,
+                  1005,
+                  1006,
+                  1007,
+                  1008,
+                  1009,
+                  1010
+                ]
               }
             },
             "required": []
@@ -6905,10 +7196,21 @@
                 "title": "Action Source",
                 "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
                 "type": "string",
-                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "other"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6938,7 +7240,9 @@
                 "type": "string"
               }
             },
-            "required": ["currency"]
+            "required": [
+              "currency"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6968,7 +7272,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -7164,7 +7470,9 @@
                 "required": []
               }
             },
-            "required": ["user_data"]
+            "required": [
+              "user_data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -7250,7 +7558,10 @@
                     "title": "ExtInfo Version",
                     "description": "*Required for app events* Example: 'i2'.",
                     "type": "string",
-                    "enum": ["i2", "a2"]
+                    "enum": [
+                      "i2",
+                      "a2"
+                    ]
                   },
                   "packageName": {
                     "title": "Package Name",
@@ -7366,7 +7677,9 @@
                 "type": "number"
               }
             },
-            "required": ["value"]
+            "required": [
+              "value"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -7724,7 +8037,10 @@
                 "title": "Data Processing Country",
                 "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1]
+                "enum": [
+                  0,
+                  1
+                ]
               }
             },
             "required": []
@@ -7801,7 +8117,20 @@
                 "title": "Data Processing State",
                 "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+                "enum": [
+                  0,
+                  1000,
+                  1001,
+                  1002,
+                  1003,
+                  1004,
+                  1005,
+                  1006,
+                  1007,
+                  1008,
+                  1009,
+                  1010
+                ]
               }
             },
             "required": []
@@ -7899,10 +8228,21 @@
                 "title": "Action Source",
                 "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
                 "type": "string",
-                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "other"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -7932,7 +8272,9 @@
                 "type": "string"
               }
             },
-            "required": ["currency"]
+            "required": [
+              "currency"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -7962,7 +8304,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -8158,7 +8502,9 @@
                 "required": []
               }
             },
-            "required": ["user_data"]
+            "required": [
+              "user_data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -8244,7 +8590,10 @@
                     "title": "ExtInfo Version",
                     "description": "*Required for app events* Example: 'i2'.",
                     "type": "string",
-                    "enum": ["i2", "a2"]
+                    "enum": [
+                      "i2",
+                      "a2"
+                    ]
                   },
                   "packageName": {
                     "title": "Package Name",
@@ -8360,7 +8709,9 @@
                 "type": "number"
               }
             },
-            "required": ["value"]
+            "required": [
+              "value"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -8718,7 +9069,10 @@
                 "title": "Data Processing Country",
                 "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1]
+                "enum": [
+                  0,
+                  1
+                ]
               }
             },
             "required": []
@@ -8795,7 +9149,20 @@
                 "title": "Data Processing State",
                 "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+                "enum": [
+                  0,
+                  1000,
+                  1001,
+                  1002,
+                  1003,
+                  1004,
+                  1005,
+                  1006,
+                  1007,
+                  1008,
+                  1009,
+                  1010
+                ]
               }
             },
             "required": []
@@ -8913,10 +9280,21 @@
                 "title": "Action Source",
                 "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
                 "type": "string",
-                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "other"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -8946,7 +9324,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -9142,7 +9522,9 @@
                 "required": []
               }
             },
-            "required": ["user_data"]
+            "required": [
+              "user_data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -9228,7 +9610,10 @@
                     "title": "ExtInfo Version",
                     "description": "*Required for app events* Example: 'i2'.",
                     "type": "string",
-                    "enum": ["i2", "a2"]
+                    "enum": [
+                      "i2",
+                      "a2"
+                    ]
                   },
                   "packageName": {
                     "title": "Package Name",
@@ -9678,7 +10063,10 @@
                 "title": "Data Processing Country",
                 "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1]
+                "enum": [
+                  0,
+                  1
+                ]
               }
             },
             "required": []
@@ -9755,7 +10143,20 @@
                 "title": "Data Processing State",
                 "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+                "enum": [
+                  0,
+                  1000,
+                  1001,
+                  1002,
+                  1003,
+                  1004,
+                  1005,
+                  1006,
+                  1007,
+                  1008,
+                  1009,
+                  1010
+                ]
               }
             },
             "required": []
@@ -9853,10 +10254,21 @@
                 "title": "Action Source",
                 "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
                 "type": "string",
-                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "other"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -9886,7 +10298,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -10082,7 +10496,9 @@
                 "required": []
               }
             },
-            "required": ["user_data"]
+            "required": [
+              "user_data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -10168,7 +10584,10 @@
                     "title": "ExtInfo Version",
                     "description": "*Required for app events* Example: 'i2'.",
                     "type": "string",
-                    "enum": ["i2", "a2"]
+                    "enum": [
+                      "i2",
+                      "a2"
+                    ]
                   },
                   "packageName": {
                     "title": "Package Name",
@@ -10618,7 +11037,10 @@
                 "title": "Data Processing Country",
                 "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1]
+                "enum": [
+                  0,
+                  1
+                ]
               }
             },
             "required": []
@@ -10695,7 +11117,20 @@
                 "title": "Data Processing State",
                 "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+                "enum": [
+                  0,
+                  1000,
+                  1001,
+                  1002,
+                  1003,
+                  1004,
+                  1005,
+                  1006,
+                  1007,
+                  1008,
+                  1009,
+                  1010
+                ]
               }
             },
             "required": []
@@ -10813,10 +11248,21 @@
                 "title": "Action Source",
                 "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
                 "type": "string",
-                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "other"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -10846,7 +11292,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -11042,7 +11490,9 @@
                 "required": []
               }
             },
-            "required": ["user_data"]
+            "required": [
+              "user_data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -11128,7 +11578,10 @@
                     "title": "ExtInfo Version",
                     "description": "*Required for app events* Example: 'i2'.",
                     "type": "string",
-                    "enum": ["i2", "a2"]
+                    "enum": [
+                      "i2",
+                      "a2"
+                    ]
                   },
                   "packageName": {
                     "title": "Package Name",
@@ -11608,7 +12061,10 @@
                 "title": "Data Processing Country",
                 "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1]
+                "enum": [
+                  0,
+                  1
+                ]
               }
             },
             "required": []
@@ -11685,7 +12141,20 @@
                 "title": "Data Processing State",
                 "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+                "enum": [
+                  0,
+                  1000,
+                  1001,
+                  1002,
+                  1003,
+                  1004,
+                  1005,
+                  1006,
+                  1007,
+                  1008,
+                  1009,
+                  1010
+                ]
               }
             },
             "required": []
@@ -11783,10 +12252,21 @@
                 "title": "Action Source",
                 "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
                 "type": "string",
-                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "other"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -11816,7 +12296,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -12012,7 +12494,9 @@
                 "required": []
               }
             },
-            "required": ["user_data"]
+            "required": [
+              "user_data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -12098,7 +12582,10 @@
                     "title": "ExtInfo Version",
                     "description": "*Required for app events* Example: 'i2'.",
                     "type": "string",
-                    "enum": ["i2", "a2"]
+                    "enum": [
+                      "i2",
+                      "a2"
+                    ]
                   },
                   "packageName": {
                     "title": "Package Name",
@@ -12578,7 +13065,10 @@
                 "title": "Data Processing Country",
                 "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1]
+                "enum": [
+                  0,
+                  1
+                ]
               }
             },
             "required": []
@@ -12655,7 +13145,20 @@
                 "title": "Data Processing State",
                 "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
                 "type": "number",
-                "enum": [0, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010]
+                "enum": [
+                  0,
+                  1000,
+                  1001,
+                  1002,
+                  1003,
+                  1004,
+                  1005,
+                  1006,
+                  1007,
+                  1008,
+                  1009,
+                  1010
+                ]
               }
             },
             "required": []

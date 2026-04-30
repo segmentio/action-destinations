@@ -1,10 +1,16 @@
 {
   "name": "Twilio Messaging",
   "description": "Send SMS, MMS, Whatsapp and Messenger messages with Twilio",
-  "basicOptions": ["accountSID", "apiKeySID", "apiKeySecret"],
+  "basicOptions": [
+    "accountSID",
+    "apiKeySID",
+    "apiKeySecret"
+  ],
   "options": {
     "accountSID": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Twilio Account SID",
       "encrypt": false,
@@ -15,11 +21,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The accountSID property is required."]],
+      "validators": [
+        [
+          "required",
+          "The accountSID property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "apiKeySID": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Twilio API Key SID",
       "encrypt": false,
@@ -30,11 +43,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKeySID property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKeySID property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "apiKeySecret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Twilio API Key Secret",
       "encrypt": true,
@@ -45,7 +65,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKeySecret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKeySecret property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -57,7 +82,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "basic",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -90,7 +118,9 @@
                 "type": "string"
               }
             },
-            "required": ["channel"]
+            "required": [
+              "channel"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -117,7 +147,9 @@
                 "type": "string"
               }
             },
-            "required": ["senderType"]
+            "required": [
+              "senderType"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -144,7 +176,9 @@
                 "type": "string"
               }
             },
-            "required": ["contentTemplateType"]
+            "required": [
+              "contentTemplateType"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -211,7 +245,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["channel"],
+                  "required": [
+                    "channel"
+                  ],
                   "properties": {
                     "channel": {
                       "const": "Messenger"
@@ -219,7 +255,9 @@
                   }
                 },
                 "then": {
-                  "required": ["toMessengerUserId"]
+                  "required": [
+                    "toMessengerUserId"
+                  ]
                 }
               }
             ]
@@ -314,7 +352,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["channel"],
+                  "required": [
+                    "channel"
+                  ],
                   "properties": {
                     "channel": {
                       "const": "Messenger"
@@ -322,7 +362,9 @@
                   }
                 },
                 "then": {
-                  "required": ["fromFacebookPageId"]
+                  "required": [
+                    "fromFacebookPageId"
+                  ]
                 }
               }
             ]
@@ -376,7 +418,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["channel"],
+                  "required": [
+                    "channel"
+                  ],
                   "properties": {
                     "channel": {
                       "const": "RCS"
@@ -384,7 +428,9 @@
                   }
                 },
                 "then": {
-                  "required": ["messagingServiceSid"]
+                  "required": [
+                    "messagingServiceSid"
+                  ]
                 }
               }
             ]
@@ -491,7 +537,9 @@
             ]
           },
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {

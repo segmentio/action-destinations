@@ -15,7 +15,9 @@
   ],
   "options": {
     "api_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Amplitude project API key. You can find this key in the \"General\" tab of your Amplitude project.",
       "encrypt": true,
@@ -26,11 +28,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "secret_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Amplitude project secret key. You can find this key in the \"General\" tab of your Amplitude project.",
       "encrypt": true,
@@ -41,11 +50,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The secret_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The secret_key property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "app_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Amplitude App ID for the cohort you want to sync to. You can find this in the \"General\" tab of your Amplitude project.",
       "encrypt": false,
@@ -56,11 +72,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The app_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The app_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "default_owner_email": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The email of the user who will own the cohorts in Amplitude. This can be overriden per Audience, but if left blank, all cohorts will be owned by this user.",
       "encrypt": false,
@@ -71,11 +94,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The default_owner_email property is required."]],
+      "validators": [
+        [
+          "required",
+          "The default_owner_email property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "endpoint": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "north_america",
       "description": "The region to send your data.",
       "encrypt": false,
@@ -98,7 +128,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The endpoint property is required."]],
+      "validators": [
+        [
+          "required",
+          "The endpoint property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "owner_email": {
@@ -140,7 +175,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The id_type property is required."]],
+      "validators": [
+        [
+          "required",
+          "The id_type property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "audience_name": {
@@ -191,7 +231,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -285,7 +328,9 @@
                 "type": "string"
               }
             },
-            "required": ["segment_external_audience_id"]
+            "required": [
+              "segment_external_audience_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -315,7 +360,9 @@
                 "maximum": 500
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "minimum": 1,

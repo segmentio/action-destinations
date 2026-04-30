@@ -1,9 +1,14 @@
 {
   "name": "Aampe (Actions)",
-  "basicOptions": ["apiKey", "region"],
+  "basicOptions": [
+    "apiKey",
+    "region"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Aampe API Key",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app/v1/",
       "description": "Your data region",
       "encrypt": false,
@@ -46,7 +58,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The region property is required."]],
+      "validators": [
+        [
+          "required",
+          "The region property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -58,7 +75,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "basic",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -104,7 +124,9 @@
                 "type": "string"
               }
             },
-            "required": ["contact_id"]
+            "required": [
+              "contact_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -144,7 +166,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -175,7 +199,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -316,7 +342,9 @@
                 "type": "string"
               }
             },
-            "required": ["contact_id"]
+            "required": [
+              "contact_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -344,7 +372,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -375,7 +405,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -477,7 +509,9 @@
                 "type": "object"
               }
             },
-            "required": ["user_properties"]
+            "required": [
+              "user_properties"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

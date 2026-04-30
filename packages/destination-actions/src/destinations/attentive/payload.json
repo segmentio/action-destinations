@@ -1,10 +1,14 @@
 {
   "name": "Attentive",
   "description": "Send Segment analytics events to Attentive.",
-  "basicOptions": ["apiKey"],
+  "basicOptions": [
+    "apiKey"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Attentive API Key.",
       "encrypt": true,
@@ -15,7 +19,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -113,7 +125,9 @@
                 "required": []
               }
             },
-            "required": ["userIdentifiers"]
+            "required": [
+              "userIdentifiers"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -203,7 +217,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -323,7 +339,9 @@
                 "required": []
               }
             },
-            "required": ["userIdentifiers"]
+            "required": [
+              "userIdentifiers"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -391,10 +409,16 @@
                 "title": "Event Type",
                 "description": "The type of ecommerce event",
                 "type": "string",
-                "enum": ["product-view", "add-to-cart", "purchase"]
+                "enum": [
+                  "product-view",
+                  "add-to-cart",
+                  "purchase"
+                ]
               }
             },
-            "required": ["eventType"]
+            "required": [
+              "eventType"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -499,11 +523,17 @@
                       "type": "integer"
                     }
                   },
-                  "required": ["productId", "productVariantId", "value"]
+                  "required": [
+                    "productId",
+                    "productVariantId",
+                    "value"
+                  ]
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -593,7 +623,9 @@
                 "required": []
               }
             },
-            "required": ["userIdentifiers"]
+            "required": [
+              "userIdentifiers"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -688,10 +720,15 @@
                 "title": "Subscription Type",
                 "description": "Type of subscription",
                 "type": "string",
-                "enum": ["MARKETING", "TRANSACTIONAL"]
+                "enum": [
+                  "MARKETING",
+                  "TRANSACTIONAL"
+                ]
               }
             },
-            "required": ["subscriptionType"]
+            "required": [
+              "subscriptionType"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -866,7 +903,9 @@
                 "required": []
               }
             },
-            "required": ["userIdentifiers"]
+            "required": [
+              "userIdentifiers"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -896,7 +935,9 @@
                 "type": "object"
               }
             },
-            "required": ["properties"]
+            "required": [
+              "properties"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

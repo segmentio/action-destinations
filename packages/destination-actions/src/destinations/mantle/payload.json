@@ -1,10 +1,15 @@
 {
   "name": "Mantle (Actions)",
   "description": "Track important revenue metrics for your Shopify apps. Manage plans and pricing. Improve customer relationships. Focus on growing your business.",
-  "basicOptions": ["appId", "apiKey"],
+  "basicOptions": [
+    "appId",
+    "apiKey"
+  ],
   "options": {
     "appId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The unique identifier for the app in Mantle. Get this from the API Keys section for your app in Mantle.",
       "encrypt": false,
@@ -15,11 +20,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The appId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The appId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The API key for the app in Mantle. Get this from the API Keys section for your app in Mantle.",
       "encrypt": true,
@@ -30,7 +42,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -42,7 +59,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -75,7 +95,9 @@
                 "type": "string"
               }
             },
-            "required": ["platformId"]
+            "required": [
+              "platformId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -102,7 +124,9 @@
                 "type": "string"
               }
             },
-            "required": ["myshopifyDomain"]
+            "required": [
+              "myshopifyDomain"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -383,7 +407,9 @@
                 "type": "string"
               }
             },
-            "required": ["eventName"]
+            "required": [
+              "eventName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -440,7 +466,9 @@
                 "type": "string"
               }
             },
-            "required": ["customerId"]
+            "required": [
+              "customerId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -497,7 +525,10 @@
               "timestamp": {
                 "title": "Event timestamp",
                 "description": "The timestamp of the event, defaults to the current time",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

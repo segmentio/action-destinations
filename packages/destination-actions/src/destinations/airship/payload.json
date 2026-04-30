@@ -1,10 +1,16 @@
 {
   "name": "Airship (Actions)",
   "description": "Send events from Segment to Airship for message triggering, audience targeting, personalization, and analytics.",
-  "basicOptions": ["access_token", "app_key", "endpoint"],
+  "basicOptions": [
+    "access_token",
+    "app_key",
+    "endpoint"
+  ],
   "options": {
     "access_token": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Create in the Airship Go dashboard in Settings->Partner Integrations->Segment",
       "encrypt": true,
@@ -15,11 +21,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The access_token property is required."]],
+      "validators": [
+        [
+          "required",
+          "The access_token property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "app_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The App Key identifies the Airship Project to which API requests are made.",
       "encrypt": true,
@@ -30,11 +43,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The app_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The app_key property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "endpoint": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "US",
       "description": "US or EU",
       "encrypt": false,
@@ -57,7 +77,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The endpoint property is required."]],
+      "validators": [
+        [
+          "required",
+          "The endpoint property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -69,7 +94,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -105,7 +133,9 @@
                 "type": "string"
               }
             },
-            "required": ["named_user_id"]
+            "required": [
+              "named_user_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -135,7 +165,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -162,11 +194,16 @@
               "occurred": {
                 "title": "Occurred",
                 "description": "When the event occurred.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["occurred"]
+            "required": [
+              "occurred"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -264,7 +301,9 @@
                 "type": "string"
               }
             },
-            "required": ["named_user_id"]
+            "required": [
+              "named_user_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -322,7 +361,9 @@
                 "type": "string"
               }
             },
-            "required": ["tag_group"]
+            "required": [
+              "tag_group"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -367,7 +408,10 @@
                 "title": "Channel Type",
                 "description": "Email (default) or SMS",
                 "type": "string",
-                "enum": ["email", "sms"]
+                "enum": [
+                  "email",
+                  "sms"
+                ]
               }
             },
             "required": []
@@ -522,7 +566,10 @@
                 "title": "Registration Type",
                 "description": "Classic or Double",
                 "type": "string",
-                "enum": ["classic", "double"]
+                "enum": [
+                  "classic",
+                  "double"
+                ]
               }
             },
             "required": []
@@ -653,10 +700,14 @@
                     "type": "string"
                   }
                 },
-                "required": ["address"]
+                "required": [
+                  "address"
+                ]
               }
             },
-            "required": ["channel_object"]
+            "required": [
+              "channel_object"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -696,7 +747,9 @@
                 "type": "string"
               }
             },
-            "required": ["named_user_id"]
+            "required": [
+              "named_user_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -723,11 +776,16 @@
               "occurred": {
                 "title": "Occurred",
                 "description": "When the Trait was set",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["occurred"]
+            "required": [
+              "occurred"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -875,7 +933,10 @@
                   "birthdate": {
                     "title": "Birthdate",
                     "description": "The user's birthdate.",
-                    "type": ["string", "number"],
+                    "type": [
+                      "string",
+                      "number"
+                    ],
                     "format": "date-like"
                   },
                   "age": {
@@ -916,7 +977,10 @@
                   "account_creation": {
                     "title": "Account Creation Date",
                     "description": "The user's account creation date.",
-                    "type": ["string", "number"],
+                    "type": [
+                      "string",
+                      "number"
+                    ],
                     "format": "date-like"
                   },
                   "email": {

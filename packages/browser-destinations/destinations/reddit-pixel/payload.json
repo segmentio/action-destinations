@@ -1,7 +1,10 @@
 {
   "name": "Reddit Pixel",
   "description": "The Reddit Pixel Browser Destination allows you to install the Reddit Javascript pixel onto your site and pass mapped Segment events and metadata to Reddit.",
-  "basicOptions": ["pixel_id", "ldu"],
+  "basicOptions": [
+    "pixel_id",
+    "ldu"
+  ],
   "options": {
     "pixel_id": {
       "tags": [],
@@ -15,7 +18,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The pixel_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The pixel_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "ldu": {
@@ -41,7 +49,10 @@
     "warehouse": false,
     "cloudAppObject": false
   },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -117,7 +128,9 @@
                 ]
               }
             },
-            "required": ["tracking_type"]
+            "required": [
+              "tracking_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -632,7 +645,14 @@
                     "title": "Currency",
                     "description": "The currency for the value provided. This must be a three-character ISO 4217 currency code. This should only be set for revenue-related events.",
                     "type": "string",
-                    "enum": ["AUD", "CAD", "EUR", "GBP", "NZD", "USD"]
+                    "enum": [
+                      "AUD",
+                      "CAD",
+                      "EUR",
+                      "GBP",
+                      "NZD",
+                      "USD"
+                    ]
                   },
                   "itemCount": {
                     "title": "Item Count",
@@ -656,7 +676,11 @@
               {
                 "fieldKey": "tracking_type",
                 "operator": "is",
-                "value": [null, null, ""]
+                "value": [
+                  null,
+                  null,
+                  ""
+                ]
               },
               {
                 "fieldKey": "tracking_type",
@@ -805,7 +829,14 @@
                     "title": "Currency",
                     "description": "The currency for the value provided. This must be a three-character ISO 4217 currency code. This should only be set for revenue-related events.",
                     "type": "string",
-                    "enum": ["AUD", "CAD", "EUR", "GBP", "NZD", "USD"]
+                    "enum": [
+                      "AUD",
+                      "CAD",
+                      "EUR",
+                      "GBP",
+                      "NZD",
+                      "USD"
+                    ]
                   },
                   "itemCount": {
                     "title": "Item Count",
@@ -829,7 +860,11 @@
               {
                 "fieldKey": "tracking_type",
                 "operator": "is",
-                "value": [null, null, ""]
+                "value": [
+                  null,
+                  null,
+                  ""
+                ]
               },
               {
                 "fieldKey": "tracking_type",
@@ -1344,7 +1379,9 @@
                 "type": "string"
               }
             },
-            "required": ["custom_event_name"]
+            "required": [
+              "custom_event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

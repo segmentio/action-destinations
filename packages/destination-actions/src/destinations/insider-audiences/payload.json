@@ -1,9 +1,14 @@
 {
   "name": "Insider Audiences",
-  "basicOptions": ["account_name", "ucd_key"],
+  "basicOptions": [
+    "account_name",
+    "ucd_key"
+  ],
   "options": {
     "account_name": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "You can get your Account Name via Insider Inone Panel > Settings > Inone Settings > Account Preferences.",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The account_name property is required."]],
+      "validators": [
+        [
+          "required",
+          "The account_name property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "ucd_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "You can get your API Key via Insider Inone Panel > Settings > Preferences > Integration Settings",
       "encrypt": true,
@@ -29,7 +41,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The ucd_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The ucd_key property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -77,7 +97,9 @@
                 "type": "string"
               }
             },
-            "required": ["custom_audience_name"]
+            "required": [
+              "custom_audience_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -107,7 +129,9 @@
                 "type": "string"
               }
             },
-            "required": ["segment_computation_action"]
+            "required": [
+              "segment_computation_action"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -257,7 +281,9 @@
                 "type": "object"
               }
             },
-            "required": ["traits_or_props"]
+            "required": [
+              "traits_or_props"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -347,7 +373,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_type"]
+            "required": [
+              "event_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -417,7 +445,9 @@
                 "type": "string"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

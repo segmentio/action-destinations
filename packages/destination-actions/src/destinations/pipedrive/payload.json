@@ -1,9 +1,17 @@
 {
   "name": "Actions Pipedrive",
-  "basicOptions": ["domain", "apiToken", "personField", "organizationField", "dealField"],
+  "basicOptions": [
+    "domain",
+    "apiToken",
+    "personField",
+    "organizationField",
+    "dealField"
+  ],
   "options": {
     "domain": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Pipedrive domain. This is found in Pipedrive in Settings > Company settings > Company domain.",
       "encrypt": false,
@@ -14,11 +22,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The domain property is required."]],
+      "validators": [
+        [
+          "required",
+          "The domain property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "apiToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Pipedrive API token. This is found in Pipedrive in Settings > Personal preferences > API > Your personal API token.",
       "encrypt": true,
@@ -29,11 +44,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiToken property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "personField": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "id",
       "description": "This is a key by which a Person in Pipedrive will be searched. It can be either Person id or has of a custom field containing external id. Default value is `person_id`.",
       "encrypt": false,
@@ -48,7 +70,9 @@
       "uIMetadata": null
     },
     "organizationField": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "id",
       "description": "This is a key by which an Organization in Pipedrive will be searched. It can be either Organization id or has of a custom field containing external id. Default value is `org_id`.",
       "encrypt": false,
@@ -63,7 +87,9 @@
       "uIMetadata": null
     },
     "dealField": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "id",
       "description": "This is a key by which a Deal in Pipedrive will be searched. It can be either Deal id or has of a custom field containing external id. Default value is `deal_id`.",
       "encrypt": false,
@@ -86,7 +112,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -149,7 +178,9 @@
                 "type": "string"
               }
             },
-            "required": ["match_value"]
+            "required": [
+              "match_value"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -221,7 +252,12 @@
                 "title": "Visible To",
                 "description": "Visibility of the Organization. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans",
                 "type": "string",
-                "enum": ["1", "3", "5", "7"]
+                "enum": [
+                  "1",
+                  "3",
+                  "5",
+                  "7"
+                ]
               }
             },
             "required": []
@@ -248,7 +284,10 @@
               "add_time": {
                 "title": "Created At",
                 "description": "If the organization is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -346,7 +385,9 @@
                 "type": "string"
               }
             },
-            "required": ["match_value"]
+            "required": [
+              "match_value"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -484,7 +525,12 @@
                 "title": "Visible To",
                 "description": "Visibility of the Person. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans",
                 "type": "string",
-                "enum": ["1", "3", "5", "7"]
+                "enum": [
+                  "1",
+                  "3",
+                  "5",
+                  "7"
+                ]
               }
             },
             "required": []
@@ -511,7 +557,10 @@
               "add_time": {
                 "title": "Created At",
                 "description": "If the person is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -746,7 +795,9 @@
                 "type": "string"
               }
             },
-            "required": ["title"]
+            "required": [
+              "title"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -908,7 +959,12 @@
                 "title": "Visible To",
                 "description": "Visibility of the Lead. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans",
                 "type": "string",
-                "enum": ["1", "3", "5", "7"]
+                "enum": [
+                  "1",
+                  "3",
+                  "5",
+                  "7"
+                ]
               }
             },
             "required": []
@@ -1122,7 +1178,9 @@
                 "type": "string"
               }
             },
-            "required": ["title"]
+            "required": [
+              "title"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1254,7 +1312,12 @@
                 "title": "Status",
                 "description": "Deal status - open, won, lost or deleted. If omitted, status will be set to open.",
                 "type": "string",
-                "enum": ["open", "won", "lost", "deleted"]
+                "enum": [
+                  "open",
+                  "won",
+                  "lost",
+                  "deleted"
+                ]
               }
             },
             "required": []
@@ -1389,7 +1452,12 @@
                 "title": "Visible To",
                 "description": "Visibility of the deal. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans",
                 "type": "string",
-                "enum": ["1", "3", "5", "7"]
+                "enum": [
+                  "1",
+                  "3",
+                  "5",
+                  "7"
+                ]
               }
             },
             "required": []
@@ -1416,7 +1484,10 @@
               "add_time": {
                 "title": "Created At",
                 "description": "If the deal is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -1718,7 +1789,9 @@
                 "type": "string"
               }
             },
-            "required": ["content"]
+            "required": [
+              "content"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

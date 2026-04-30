@@ -10,7 +10,9 @@
   ],
   "options": {
     "client_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Marketo REST API Client ID.",
       "encrypt": false,
@@ -21,11 +23,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "client_secret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Marketo REST API Client Secret.",
       "encrypt": true,
@@ -36,11 +45,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_secret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_secret property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "api_endpoint": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Marketo REST API Endpoint in this format: https://<your_account_id>.mktorest.com.",
       "encrypt": false,
@@ -51,11 +67,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_endpoint property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_endpoint property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "folder_name": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Name of the folder in which to create static lists.",
       "encrypt": false,
@@ -66,7 +89,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The folder_name property is required."]],
+      "validators": [
+        [
+          "required",
+          "The folder_name property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "oauth": {
@@ -152,7 +180,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -270,7 +301,9 @@
                 ]
               }
             },
-            "required": ["lookup_field"]
+            "required": [
+              "lookup_field"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -322,7 +355,9 @@
                 "required": []
               }
             },
-            "required": ["data"]
+            "required": [
+              "data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -351,7 +386,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -382,7 +419,9 @@
                 "maximum": 300000
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "minimum": 1,
@@ -415,7 +454,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -636,7 +677,9 @@
                 ]
               }
             },
-            "required": ["lookup_field"]
+            "required": [
+              "lookup_field"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -676,7 +719,9 @@
                 "type": "string"
               }
             },
-            "required": ["field_value"]
+            "required": [
+              "field_value"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -705,7 +750,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -736,7 +783,9 @@
                 "maximum": 300
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "minimum": 1,
@@ -769,7 +818,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

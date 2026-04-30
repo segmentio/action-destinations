@@ -1,9 +1,14 @@
 {
   "name": "Listrak (Actions)",
-  "basicOptions": ["client_id", "client_secret"],
+  "basicOptions": [
+    "client_id",
+    "client_secret"
+  ],
   "options": {
     "client_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Listrak API client ID. Find this on the setup tab of your Segment integration under Integrations > Integrations Management in https://admin.listrak.com.",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "client_secret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Lisrak API client secret. Find this on the setup tab of your Segment integration under Integrations > Integrations Management in https://admin.listrak.com.",
       "encrypt": true,
@@ -29,7 +41,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_secret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_secret property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "oauth": {
@@ -91,7 +108,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -124,7 +144,9 @@
                 "type": "integer"
               }
             },
-            "required": ["listId"]
+            "required": [
+              "listId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -165,7 +187,9 @@
                 "format": "email"
               }
             },
-            "required": ["emailAddress"]
+            "required": [
+              "emailAddress"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -193,7 +217,9 @@
                 "type": "object"
               }
             },
-            "required": ["profileFieldValues"]
+            "required": [
+              "profileFieldValues"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -293,7 +319,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

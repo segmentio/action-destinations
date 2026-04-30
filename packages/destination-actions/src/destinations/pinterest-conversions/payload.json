@@ -1,9 +1,14 @@
 {
   "name": "Pinterest Conversions API",
-  "basicOptions": ["ad_account_id", "conversion_token"],
+  "basicOptions": [
+    "ad_account_id",
+    "conversion_token"
+  ],
   "options": {
     "ad_account_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Unique identifier of an ad account. This can be found in the Pinterest UI by following the steps mentioned [here](https://developers.pinterest.com/docs/conversions/conversions/#Find%20your%20%2Cad_account_id).",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The ad_account_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The ad_account_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "conversion_token": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The conversion token for your Pinterest account. This can be found in the Pinterest UI by following the steps mentioned [here](https://developers.pinterest.com/docs/conversions/conversions/#Get%20the%20conversion%20token).",
       "encrypt": true,
@@ -29,7 +41,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The conversion_token property is required."]],
+      "validators": [
+        [
+          "required",
+          "The conversion_token property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -122,7 +142,9 @@
                 ]
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -165,10 +187,17 @@
                 "title": "Action Source",
                 "description": "The source indicating where the conversion event occurred. This must be app_android, app_ios , web or offline.",
                 "type": "string",
-                "enum": ["app_android", "app_ios", "web", "offline"]
+                "enum": [
+                  "app_android",
+                  "app_ios",
+                  "web",
+                  "offline"
+                ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -198,7 +227,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -228,7 +259,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_id"]
+            "required": [
+              "event_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -444,12 +477,18 @@
                   "click_id": {
                     "title": "Click ID",
                     "description": "The unique identifier stored in _epik cookie on your domain or &epik= query parameter in the URL.",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "partner_id": {
                     "title": "Partner ID",
                     "description": "A unique identifier of visitors' information defined by third party partners.",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
                 },
                 "required": []
@@ -637,7 +676,9 @@
                 "type": "string"
               }
             },
-            "required": ["app_name"]
+            "required": [
+              "app_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

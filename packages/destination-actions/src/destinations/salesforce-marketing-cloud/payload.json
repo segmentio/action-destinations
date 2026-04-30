@@ -1,9 +1,16 @@
 {
   "name": "Salesforce Marketing Cloud (Actions)",
-  "basicOptions": ["subdomain", "account_id", "client_id", "client_secret"],
+  "basicOptions": [
+    "subdomain",
+    "account_id",
+    "client_id",
+    "client_secret"
+  ],
   "options": {
     "subdomain": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The unique subdomain Salesforce Marketing Cloud assigned to your account. Subdomains are tenant specific and should be a 28-character string starting with the letters \"mc\". Do not include the .rest.marketingcloudapis.com part of your subdomain URL. See more information on how to find your subdomain [here](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/your-subdomain-tenant-specific-endpoints.html).",
       "encrypt": false,
@@ -14,11 +21,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The subdomain property is required."]],
+      "validators": [
+        [
+          "required",
+          "The subdomain property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "account_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Salesforce Marketing Cloud account identifier (or MID). See more information on how to find your MID [here](https://help.salesforce.com/s/articleView?id=sf.mc_overview_determine_your_marketing_cloud_instance.htm&type=5).",
       "encrypt": false,
@@ -29,11 +43,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The account_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The account_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "client_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Salesforce Marketing Cloud client ID. The client ID is issued when you create an API integration in [Installed Packages](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/install-packages.html).",
       "encrypt": false,
@@ -44,11 +65,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "client_secret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Salesforce Marketing Cloud client secret. The client secret is issued when you create an API integration in Installed Packages.",
       "encrypt": true,
@@ -59,7 +87,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_secret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_secret property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "oauth": {
@@ -121,7 +154,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -157,7 +193,9 @@
                 "type": "string"
               }
             },
-            "required": ["contactKey"]
+            "required": [
+              "contactKey"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -194,7 +232,9 @@
                 "type": "string"
               }
             },
-            "required": ["eventDefinitionKey"]
+            "required": [
+              "eventDefinitionKey"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -224,7 +264,9 @@
                 "type": "string"
               }
             },
-            "required": ["contactKey"]
+            "required": [
+              "contactKey"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -356,10 +398,14 @@
                     "type": "string"
                   }
                 },
-                "required": ["contactKey"]
+                "required": [
+                  "contactKey"
+                ]
               }
             },
-            "required": ["keys"]
+            "required": [
+              "keys"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -387,7 +433,9 @@
                 "type": "object"
               }
             },
-            "required": ["values"]
+            "required": [
+              "values"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -494,14 +542,20 @@
                     "type": "string"
                   }
                 },
-                "required": ["contactKey"]
+                "required": [
+                  "contactKey"
+                ]
               }
             },
-            "required": ["keys"]
+            "required": [
+              "keys"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -527,11 +581,15 @@
                 "type": "object"
               }
             },
-            "required": ["values"]
+            "required": [
+              "values"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -620,10 +678,15 @@
                 "title": "Operation",
                 "description": "Whether to create a new data extension or select an existing one for data delivery.",
                 "type": "string",
-                "enum": ["create", "select"]
+                "enum": [
+                  "create",
+                  "select"
+                ]
               }
             },
-            "required": ["operation"]
+            "required": [
+              "operation"
+            ]
           },
           "dependsOn": null,
           "hookInputFieldType": "retlOnMappingSave",
@@ -692,7 +755,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -700,7 +765,9 @@
                   }
                 },
                 "then": {
-                  "required": ["categoryId"]
+                  "required": [
+                    "categoryId"
+                  ]
                 }
               }
             ]
@@ -755,7 +822,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -763,7 +832,9 @@
                   }
                 },
                 "then": {
-                  "required": ["name"]
+                  "required": [
+                    "name"
+                  ]
                 }
               }
             ]
@@ -892,7 +963,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["isSendable"],
+                  "required": [
+                    "isSendable"
+                  ],
                   "properties": {
                     "isSendable": {
                       "const": true
@@ -900,7 +973,9 @@
                   }
                 },
                 "then": {
-                  "required": ["sendableCustomObjectField"]
+                  "required": [
+                    "sendableCustomObjectField"
+                  ]
                 }
               }
             ]
@@ -958,14 +1033,19 @@
                 "title": "Sendable Subscriber Field",
                 "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
                 "type": "string",
-                "enum": ["_SubscriberKey", "_SubscriberID"]
+                "enum": [
+                  "_SubscriberKey",
+                  "_SubscriberID"
+                ]
               }
             },
             "required": [],
             "allOf": [
               {
                 "if": {
-                  "required": ["isSendable"],
+                  "required": [
+                    "isSendable"
+                  ],
                   "properties": {
                     "isSendable": {
                       "const": true
@@ -973,7 +1053,9 @@
                   }
                 },
                 "then": {
-                  "required": ["sendableSubscriberField"]
+                  "required": [
+                    "sendableSubscriberField"
+                  ]
                 }
               }
             ]
@@ -1037,7 +1119,16 @@
                       "title": "Field Type",
                       "description": "The data type of the field.",
                       "type": "string",
-                      "enum": ["Text", "Number", "Date", "Boolean", "EmailAddress", "Phone", "Decimal", "Locale"]
+                      "enum": [
+                        "Text",
+                        "Number",
+                        "Date",
+                        "Boolean",
+                        "EmailAddress",
+                        "Phone",
+                        "Decimal",
+                        "Locale"
+                      ]
                     },
                     "isNullable": {
                       "title": "Is Nullable",
@@ -1065,7 +1156,12 @@
                       "type": "string"
                     }
                   },
-                  "required": ["name", "type", "isNullable", "isPrimaryKey"]
+                  "required": [
+                    "name",
+                    "type",
+                    "isNullable",
+                    "isPrimaryKey"
+                  ]
                 }
               }
             },
@@ -1073,7 +1169,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -1081,7 +1179,9 @@
                   }
                 },
                 "then": {
-                  "required": ["columns"]
+                  "required": [
+                    "columns"
+                  ]
                 }
               }
             ]
@@ -1146,7 +1246,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["id", "name"]
+                "required": [
+                  "id",
+                  "name"
+                ]
               }
             },
             "required": []
@@ -1182,10 +1285,15 @@
                 "title": "Operation",
                 "description": "Whether to create a new data extension or select an existing one for data delivery.",
                 "type": "string",
-                "enum": ["create", "select"]
+                "enum": [
+                  "create",
+                  "select"
+                ]
               }
             },
-            "required": ["operation"]
+            "required": [
+              "operation"
+            ]
           },
           "dependsOn": null,
           "hookInputFieldType": "onMappingSave",
@@ -1254,7 +1362,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -1262,7 +1372,9 @@
                   }
                 },
                 "then": {
-                  "required": ["categoryId"]
+                  "required": [
+                    "categoryId"
+                  ]
                 }
               }
             ]
@@ -1317,7 +1429,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -1325,7 +1439,9 @@
                   }
                 },
                 "then": {
-                  "required": ["name"]
+                  "required": [
+                    "name"
+                  ]
                 }
               }
             ]
@@ -1454,7 +1570,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["isSendable"],
+                  "required": [
+                    "isSendable"
+                  ],
                   "properties": {
                     "isSendable": {
                       "const": true
@@ -1462,7 +1580,9 @@
                   }
                 },
                 "then": {
-                  "required": ["sendableCustomObjectField"]
+                  "required": [
+                    "sendableCustomObjectField"
+                  ]
                 }
               }
             ]
@@ -1520,14 +1640,19 @@
                 "title": "Sendable Subscriber Field",
                 "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
                 "type": "string",
-                "enum": ["_SubscriberKey", "_SubscriberID"]
+                "enum": [
+                  "_SubscriberKey",
+                  "_SubscriberID"
+                ]
               }
             },
             "required": [],
             "allOf": [
               {
                 "if": {
-                  "required": ["isSendable"],
+                  "required": [
+                    "isSendable"
+                  ],
                   "properties": {
                     "isSendable": {
                       "const": true
@@ -1535,7 +1660,9 @@
                   }
                 },
                 "then": {
-                  "required": ["sendableSubscriberField"]
+                  "required": [
+                    "sendableSubscriberField"
+                  ]
                 }
               }
             ]
@@ -1599,7 +1726,16 @@
                       "title": "Field Type",
                       "description": "The data type of the field.",
                       "type": "string",
-                      "enum": ["Text", "Number", "Date", "Boolean", "EmailAddress", "Phone", "Decimal", "Locale"]
+                      "enum": [
+                        "Text",
+                        "Number",
+                        "Date",
+                        "Boolean",
+                        "EmailAddress",
+                        "Phone",
+                        "Decimal",
+                        "Locale"
+                      ]
                     },
                     "isNullable": {
                       "title": "Is Nullable",
@@ -1627,7 +1763,12 @@
                       "type": "string"
                     }
                   },
-                  "required": ["name", "type", "isNullable", "isPrimaryKey"]
+                  "required": [
+                    "name",
+                    "type",
+                    "isNullable",
+                    "isPrimaryKey"
+                  ]
                 }
               }
             },
@@ -1635,7 +1776,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -1643,7 +1786,9 @@
                   }
                 },
                 "then": {
-                  "required": ["columns"]
+                  "required": [
+                    "columns"
+                  ]
                 }
               }
             ]
@@ -1708,7 +1853,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["id", "name"]
+                "required": [
+                  "id",
+                  "name"
+                ]
               }
             },
             "required": []
@@ -1748,11 +1896,15 @@
                 "type": "object"
               }
             },
-            "required": ["keys"]
+            "required": [
+              "keys"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -1778,11 +1930,15 @@
                 "type": "object"
               }
             },
-            "required": ["values"]
+            "required": [
+              "values"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -1905,10 +2061,15 @@
                 "title": "Operation",
                 "description": "Whether to create a new data extension or select an existing one for data delivery.",
                 "type": "string",
-                "enum": ["create", "select"]
+                "enum": [
+                  "create",
+                  "select"
+                ]
               }
             },
-            "required": ["operation"]
+            "required": [
+              "operation"
+            ]
           },
           "dependsOn": null,
           "hookInputFieldType": "retlOnMappingSave",
@@ -1977,7 +2138,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -1985,7 +2148,9 @@
                   }
                 },
                 "then": {
-                  "required": ["categoryId"]
+                  "required": [
+                    "categoryId"
+                  ]
                 }
               }
             ]
@@ -2040,7 +2205,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -2048,7 +2215,9 @@
                   }
                 },
                 "then": {
-                  "required": ["name"]
+                  "required": [
+                    "name"
+                  ]
                 }
               }
             ]
@@ -2177,7 +2346,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["isSendable"],
+                  "required": [
+                    "isSendable"
+                  ],
                   "properties": {
                     "isSendable": {
                       "const": true
@@ -2185,7 +2356,9 @@
                   }
                 },
                 "then": {
-                  "required": ["sendableCustomObjectField"]
+                  "required": [
+                    "sendableCustomObjectField"
+                  ]
                 }
               }
             ]
@@ -2243,14 +2416,19 @@
                 "title": "Sendable Subscriber Field",
                 "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
                 "type": "string",
-                "enum": ["_SubscriberKey", "_SubscriberID"]
+                "enum": [
+                  "_SubscriberKey",
+                  "_SubscriberID"
+                ]
               }
             },
             "required": [],
             "allOf": [
               {
                 "if": {
-                  "required": ["isSendable"],
+                  "required": [
+                    "isSendable"
+                  ],
                   "properties": {
                     "isSendable": {
                       "const": true
@@ -2258,7 +2436,9 @@
                   }
                 },
                 "then": {
-                  "required": ["sendableSubscriberField"]
+                  "required": [
+                    "sendableSubscriberField"
+                  ]
                 }
               }
             ]
@@ -2322,7 +2502,16 @@
                       "title": "Field Type",
                       "description": "The data type of the field.",
                       "type": "string",
-                      "enum": ["Text", "Number", "Date", "Boolean", "EmailAddress", "Phone", "Decimal", "Locale"]
+                      "enum": [
+                        "Text",
+                        "Number",
+                        "Date",
+                        "Boolean",
+                        "EmailAddress",
+                        "Phone",
+                        "Decimal",
+                        "Locale"
+                      ]
                     },
                     "isNullable": {
                       "title": "Is Nullable",
@@ -2350,7 +2539,12 @@
                       "type": "string"
                     }
                   },
-                  "required": ["name", "type", "isNullable", "isPrimaryKey"]
+                  "required": [
+                    "name",
+                    "type",
+                    "isNullable",
+                    "isPrimaryKey"
+                  ]
                 }
               }
             },
@@ -2358,7 +2552,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -2366,7 +2562,9 @@
                   }
                 },
                 "then": {
-                  "required": ["columns"]
+                  "required": [
+                    "columns"
+                  ]
                 }
               }
             ]
@@ -2431,7 +2629,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["id", "name"]
+                "required": [
+                  "id",
+                  "name"
+                ]
               }
             },
             "required": []
@@ -2467,10 +2668,15 @@
                 "title": "Operation",
                 "description": "Whether to create a new data extension or select an existing one for data delivery.",
                 "type": "string",
-                "enum": ["create", "select"]
+                "enum": [
+                  "create",
+                  "select"
+                ]
               }
             },
-            "required": ["operation"]
+            "required": [
+              "operation"
+            ]
           },
           "dependsOn": null,
           "hookInputFieldType": "onMappingSave",
@@ -2539,7 +2745,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -2547,7 +2755,9 @@
                   }
                 },
                 "then": {
-                  "required": ["categoryId"]
+                  "required": [
+                    "categoryId"
+                  ]
                 }
               }
             ]
@@ -2602,7 +2812,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -2610,7 +2822,9 @@
                   }
                 },
                 "then": {
-                  "required": ["name"]
+                  "required": [
+                    "name"
+                  ]
                 }
               }
             ]
@@ -2739,7 +2953,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["isSendable"],
+                  "required": [
+                    "isSendable"
+                  ],
                   "properties": {
                     "isSendable": {
                       "const": true
@@ -2747,7 +2963,9 @@
                   }
                 },
                 "then": {
-                  "required": ["sendableCustomObjectField"]
+                  "required": [
+                    "sendableCustomObjectField"
+                  ]
                 }
               }
             ]
@@ -2805,14 +3023,19 @@
                 "title": "Sendable Subscriber Field",
                 "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
                 "type": "string",
-                "enum": ["_SubscriberKey", "_SubscriberID"]
+                "enum": [
+                  "_SubscriberKey",
+                  "_SubscriberID"
+                ]
               }
             },
             "required": [],
             "allOf": [
               {
                 "if": {
-                  "required": ["isSendable"],
+                  "required": [
+                    "isSendable"
+                  ],
                   "properties": {
                     "isSendable": {
                       "const": true
@@ -2820,7 +3043,9 @@
                   }
                 },
                 "then": {
-                  "required": ["sendableSubscriberField"]
+                  "required": [
+                    "sendableSubscriberField"
+                  ]
                 }
               }
             ]
@@ -2884,7 +3109,16 @@
                       "title": "Field Type",
                       "description": "The data type of the field.",
                       "type": "string",
-                      "enum": ["Text", "Number", "Date", "Boolean", "EmailAddress", "Phone", "Decimal", "Locale"]
+                      "enum": [
+                        "Text",
+                        "Number",
+                        "Date",
+                        "Boolean",
+                        "EmailAddress",
+                        "Phone",
+                        "Decimal",
+                        "Locale"
+                      ]
                     },
                     "isNullable": {
                       "title": "Is Nullable",
@@ -2912,7 +3146,12 @@
                       "type": "string"
                     }
                   },
-                  "required": ["name", "type", "isNullable", "isPrimaryKey"]
+                  "required": [
+                    "name",
+                    "type",
+                    "isNullable",
+                    "isPrimaryKey"
+                  ]
                 }
               }
             },
@@ -2920,7 +3159,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -2928,7 +3169,9 @@
                   }
                 },
                 "then": {
-                  "required": ["columns"]
+                  "required": [
+                    "columns"
+                  ]
                 }
               }
             ]
@@ -2993,7 +3236,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["id", "name"]
+                "required": [
+                  "id",
+                  "name"
+                ]
               }
             },
             "required": []
@@ -3087,7 +3333,9 @@
                 "type": "object"
               }
             },
-            "required": ["keys"]
+            "required": [
+              "keys"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3115,7 +3363,9 @@
                 "type": "object"
               }
             },
-            "required": ["values"]
+            "required": [
+              "values"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3210,11 +3460,15 @@
                 "type": "object"
               }
             },
-            "required": ["keys"]
+            "required": [
+              "keys"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -3240,11 +3494,15 @@
                 "type": "object"
               }
             },
-            "required": ["values"]
+            "required": [
+              "values"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -3333,10 +3591,15 @@
                 "title": "Operation",
                 "description": "Whether to create a new data extension or select an existing one for data delivery.",
                 "type": "string",
-                "enum": ["create", "select"]
+                "enum": [
+                  "create",
+                  "select"
+                ]
               }
             },
-            "required": ["operation"]
+            "required": [
+              "operation"
+            ]
           },
           "dependsOn": null,
           "hookInputFieldType": "retlOnMappingSave",
@@ -3405,7 +3668,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -3413,7 +3678,9 @@
                   }
                 },
                 "then": {
-                  "required": ["categoryId"]
+                  "required": [
+                    "categoryId"
+                  ]
                 }
               }
             ]
@@ -3468,7 +3735,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -3476,7 +3745,9 @@
                   }
                 },
                 "then": {
-                  "required": ["name"]
+                  "required": [
+                    "name"
+                  ]
                 }
               }
             ]
@@ -3605,7 +3876,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["isSendable"],
+                  "required": [
+                    "isSendable"
+                  ],
                   "properties": {
                     "isSendable": {
                       "const": true
@@ -3613,7 +3886,9 @@
                   }
                 },
                 "then": {
-                  "required": ["sendableCustomObjectField"]
+                  "required": [
+                    "sendableCustomObjectField"
+                  ]
                 }
               }
             ]
@@ -3671,14 +3946,19 @@
                 "title": "Sendable Subscriber Field",
                 "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
                 "type": "string",
-                "enum": ["_SubscriberKey", "_SubscriberID"]
+                "enum": [
+                  "_SubscriberKey",
+                  "_SubscriberID"
+                ]
               }
             },
             "required": [],
             "allOf": [
               {
                 "if": {
-                  "required": ["isSendable"],
+                  "required": [
+                    "isSendable"
+                  ],
                   "properties": {
                     "isSendable": {
                       "const": true
@@ -3686,7 +3966,9 @@
                   }
                 },
                 "then": {
-                  "required": ["sendableSubscriberField"]
+                  "required": [
+                    "sendableSubscriberField"
+                  ]
                 }
               }
             ]
@@ -3750,7 +4032,16 @@
                       "title": "Field Type",
                       "description": "The data type of the field.",
                       "type": "string",
-                      "enum": ["Text", "Number", "Date", "Boolean", "EmailAddress", "Phone", "Decimal", "Locale"]
+                      "enum": [
+                        "Text",
+                        "Number",
+                        "Date",
+                        "Boolean",
+                        "EmailAddress",
+                        "Phone",
+                        "Decimal",
+                        "Locale"
+                      ]
                     },
                     "isNullable": {
                       "title": "Is Nullable",
@@ -3778,7 +4069,12 @@
                       "type": "string"
                     }
                   },
-                  "required": ["name", "type", "isNullable", "isPrimaryKey"]
+                  "required": [
+                    "name",
+                    "type",
+                    "isNullable",
+                    "isPrimaryKey"
+                  ]
                 }
               }
             },
@@ -3786,7 +4082,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -3794,7 +4092,9 @@
                   }
                 },
                 "then": {
-                  "required": ["columns"]
+                  "required": [
+                    "columns"
+                  ]
                 }
               }
             ]
@@ -3859,7 +4159,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["id", "name"]
+                "required": [
+                  "id",
+                  "name"
+                ]
               }
             },
             "required": []
@@ -3895,10 +4198,15 @@
                 "title": "Operation",
                 "description": "Whether to create a new data extension or select an existing one for data delivery.",
                 "type": "string",
-                "enum": ["create", "select"]
+                "enum": [
+                  "create",
+                  "select"
+                ]
               }
             },
-            "required": ["operation"]
+            "required": [
+              "operation"
+            ]
           },
           "dependsOn": null,
           "hookInputFieldType": "onMappingSave",
@@ -3967,7 +4275,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -3975,7 +4285,9 @@
                   }
                 },
                 "then": {
-                  "required": ["categoryId"]
+                  "required": [
+                    "categoryId"
+                  ]
                 }
               }
             ]
@@ -4030,7 +4342,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -4038,7 +4352,9 @@
                   }
                 },
                 "then": {
-                  "required": ["name"]
+                  "required": [
+                    "name"
+                  ]
                 }
               }
             ]
@@ -4167,7 +4483,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["isSendable"],
+                  "required": [
+                    "isSendable"
+                  ],
                   "properties": {
                     "isSendable": {
                       "const": true
@@ -4175,7 +4493,9 @@
                   }
                 },
                 "then": {
-                  "required": ["sendableCustomObjectField"]
+                  "required": [
+                    "sendableCustomObjectField"
+                  ]
                 }
               }
             ]
@@ -4233,14 +4553,19 @@
                 "title": "Sendable Subscriber Field",
                 "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
                 "type": "string",
-                "enum": ["_SubscriberKey", "_SubscriberID"]
+                "enum": [
+                  "_SubscriberKey",
+                  "_SubscriberID"
+                ]
               }
             },
             "required": [],
             "allOf": [
               {
                 "if": {
-                  "required": ["isSendable"],
+                  "required": [
+                    "isSendable"
+                  ],
                   "properties": {
                     "isSendable": {
                       "const": true
@@ -4248,7 +4573,9 @@
                   }
                 },
                 "then": {
-                  "required": ["sendableSubscriberField"]
+                  "required": [
+                    "sendableSubscriberField"
+                  ]
                 }
               }
             ]
@@ -4312,7 +4639,16 @@
                       "title": "Field Type",
                       "description": "The data type of the field.",
                       "type": "string",
-                      "enum": ["Text", "Number", "Date", "Boolean", "EmailAddress", "Phone", "Decimal", "Locale"]
+                      "enum": [
+                        "Text",
+                        "Number",
+                        "Date",
+                        "Boolean",
+                        "EmailAddress",
+                        "Phone",
+                        "Decimal",
+                        "Locale"
+                      ]
                     },
                     "isNullable": {
                       "title": "Is Nullable",
@@ -4340,7 +4676,12 @@
                       "type": "string"
                     }
                   },
-                  "required": ["name", "type", "isNullable", "isPrimaryKey"]
+                  "required": [
+                    "name",
+                    "type",
+                    "isNullable",
+                    "isPrimaryKey"
+                  ]
                 }
               }
             },
@@ -4348,7 +4689,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -4356,7 +4699,9 @@
                   }
                 },
                 "then": {
-                  "required": ["columns"]
+                  "required": [
+                    "columns"
+                  ]
                 }
               }
             ]
@@ -4421,7 +4766,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["id", "name"]
+                "required": [
+                  "id",
+                  "name"
+                ]
               }
             },
             "required": []

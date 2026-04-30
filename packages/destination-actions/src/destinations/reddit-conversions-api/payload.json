@@ -1,10 +1,16 @@
 {
   "name": "Reddit Conversions API",
   "description": "Send Segment events to Reddit Conversions API.",
-  "basicOptions": ["ad_account_id", "conversion_token", "test_mode"],
+  "basicOptions": [
+    "ad_account_id",
+    "conversion_token",
+    "test_mode"
+  ],
   "options": {
     "ad_account_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Unique identifier of an ad account. This can be found in the Reddit UI.",
       "encrypt": false,
@@ -15,11 +21,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The ad_account_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The ad_account_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "conversion_token": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The conversion token for your Reddit account. This can be found by following the steps mentioned [here](https://business.reddithelp.com/helpcenter/s/article/conversion-access-token).",
       "encrypt": true,
@@ -30,11 +43,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The conversion_token property is required."]],
+      "validators": [
+        [
+          "required",
+          "The conversion_token property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "test_mode": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": false,
       "description": "Indicates if events should be treated as test events by Reddit.",
       "encrypt": false,
@@ -57,7 +77,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -99,11 +122,16 @@
               "event_at": {
                 "title": "Event At",
                 "description": "The RFC3339 timestamp when the conversion event occurred",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["event_at"]
+            "required": [
+              "event_at"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -130,7 +158,9 @@
                 "type": "string"
               }
             },
-            "required": ["custom_event_name"]
+            "required": [
+              "custom_event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -661,7 +691,9 @@
                     "title": "Modes",
                     "description": "Comma delimited list of Data Processing Modes for this conversion event. Currently only LDU (Limited Data Use) is supported.",
                     "type": "string",
-                    "enum": ["LDU"]
+                    "enum": [
+                      "LDU"
+                    ]
                   },
                   "region": {
                     "title": "Region",
@@ -1039,11 +1071,16 @@
               "event_at": {
                 "title": "Event At",
                 "description": "The RFC3339 timestamp when the conversion event occurred",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["event_at"]
+            "required": [
+              "event_at"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1113,7 +1150,9 @@
                 ]
               }
             },
-            "required": ["tracking_type"]
+            "required": [
+              "tracking_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1644,7 +1683,9 @@
                     "title": "Modes",
                     "description": "Comma delimited list of Data Processing Modes for this conversion event. Currently only LDU (Limited Data Use) is supported.",
                     "type": "string",
-                    "enum": ["LDU"]
+                    "enum": [
+                      "LDU"
+                    ]
                   },
                   "region": {
                     "title": "Region",

@@ -1,6 +1,8 @@
 {
   "name": "Google Sheets (dev only)",
-  "basicOptions": ["required_hidden_token"],
+  "basicOptions": [
+    "required_hidden_token"
+  ],
   "options": {
     "required_hidden_token": {
       "label": "Required Hidden Token",
@@ -20,7 +22,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth-managed",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -56,7 +61,9 @@
                 "type": "string"
               }
             },
-            "required": ["record_identifier"]
+            "required": [
+              "record_identifier"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -87,7 +94,9 @@
                 "type": "string"
               }
             },
-            "required": ["operation_type"]
+            "required": [
+              "operation_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -115,7 +124,9 @@
                 "type": "string"
               }
             },
-            "required": ["spreadsheet_id"]
+            "required": [
+              "spreadsheet_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -143,7 +154,9 @@
                 "type": "string"
               }
             },
-            "required": ["spreadsheet_name"]
+            "required": [
+              "spreadsheet_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -178,10 +191,15 @@
                 "title": "Data Format",
                 "description": "The way Google will interpret values. If you select raw, values will not be parsed and will be stored as-is. If you select user entered, values will be parsed as if you typed them into the UI. Numbers will stay as numbers, but strings may be converted to numbers, dates, etc. following the same rules that are applied when entering text into a cell via the Google Sheets UI.",
                 "type": "string",
-                "enum": ["RAW", "USER_ENTERED"]
+                "enum": [
+                  "RAW",
+                  "USER_ENTERED"
+                ]
               }
             },
-            "required": ["data_format"]
+            "required": [
+              "data_format"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -209,7 +227,9 @@
                 "type": "object"
               }
             },
-            "required": ["fields"]
+            "required": [
+              "fields"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -266,7 +286,9 @@
                 "type": "number"
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -295,7 +317,9 @@
                 "type": "number"
               }
             },
-            "required": ["batch_bytes"]
+            "required": [
+              "batch_bytes"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

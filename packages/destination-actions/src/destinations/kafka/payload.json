@@ -18,7 +18,9 @@
   ],
   "options": {
     "clientId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "segment-actions-kafka-producer",
       "description": "The client ID for your Kafka instance. Defaults to 'segment-actions-kafka-producer'.",
       "encrypt": false,
@@ -29,11 +31,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The clientId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The clientId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "brokers": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The brokers for your Kafka instance, in the format of `host:port`. E.g. localhost:9092. Accepts a comma delimited string.",
       "encrypt": false,
@@ -44,11 +53,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The brokers property is required."]],
+      "validators": [
+        [
+          "required",
+          "The brokers property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "mechanism": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "plain",
       "description": "Select the Authentication Mechanism to use. For SCRAM or PLAIN populate the 'Username' and 'Password' fields. For 'Client Certificate' populated the 'SSL Client Key' and 'SSL Client Certificate' fields",
       "encrypt": false,
@@ -81,11 +97,18 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The mechanism property is required."]],
+      "validators": [
+        [
+          "required",
+          "The mechanism property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "username": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The username for your Kafka instance. Should be populated only if using PLAIN or SCRAM Authentication Mechanisms.",
       "encrypt": false,
@@ -119,7 +142,9 @@
       "uIMetadata": null
     },
     "password": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The password for your Kafka instance. Should only be populated if using PLAIN or SCRAM Authentication Mechanisms.",
       "encrypt": true,
@@ -153,7 +178,9 @@
       "uIMetadata": null
     },
     "accessKeyId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Access Key ID for your AWS IAM instance. Must be populated if using AWS IAM Authentication Mechanism.",
       "encrypt": false,
@@ -176,7 +203,9 @@
       "uIMetadata": null
     },
     "secretAccessKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Secret Key for your AWS IAM instance. Must be populated if using AWS IAM Authentication Mechanism.",
       "encrypt": true,
@@ -199,7 +228,9 @@
       "uIMetadata": null
     },
     "authorizationIdentity": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "AWS IAM role ARN used for authorization. This field is optional, and should only be populated if using the AWS IAM Authentication Mechanism.",
       "encrypt": false,
@@ -222,7 +253,9 @@
       "uIMetadata": null
     },
     "ssl_enabled": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": true,
       "description": "Indicates if SSL should be enabled.",
       "encrypt": false,
@@ -237,7 +270,9 @@
       "uIMetadata": null
     },
     "ssl_ca": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.",
       "encrypt": false,
@@ -252,7 +287,9 @@
       "uIMetadata": null
     },
     "ssl_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Client Key for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.",
       "encrypt": true,
@@ -275,7 +312,9 @@
       "uIMetadata": null
     },
     "ssl_cert": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.",
       "encrypt": false,
@@ -298,7 +337,9 @@
       "uIMetadata": null
     },
     "ssl_reject_unauthorized_ca": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": true,
       "description": "Whether to reject unauthorized CAs or not. This can be useful when testing, but is unadvised in Production.",
       "encrypt": false,
@@ -321,7 +362,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -354,7 +398,9 @@
                 "type": "string"
               }
             },
-            "required": ["topic"]
+            "required": [
+              "topic"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -384,7 +430,9 @@
                 "type": "object"
               }
             },
-            "required": ["payload"]
+            "required": [
+              "payload"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -532,7 +580,11 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The keys to use for batching the events.",
-          "defaultValue": ["topic", "partition", "default_partition"],
+          "defaultValue": [
+            "topic",
+            "partition",
+            "default_partition"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,

@@ -1,10 +1,15 @@
 {
   "name": "Aggregations.io (Actions)",
   "description": "Send Segment events to Aggregations.io",
-  "basicOptions": ["api_key", "ingest_id"],
+  "basicOptions": [
+    "api_key",
+    "ingest_id"
+  ],
   "options": {
     "api_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Aggregations.io API Key. This key requires Write permissions.",
       "encrypt": true,
@@ -15,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "ingest_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The ID of the ingest you want to send data to. This ingest should be set up as \"Array of JSON Objects\". Find your ID on the Aggregations.io Organization page.",
       "encrypt": false,
@@ -30,7 +42,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The ingest_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The ingest_id property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -42,7 +59,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -106,7 +126,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

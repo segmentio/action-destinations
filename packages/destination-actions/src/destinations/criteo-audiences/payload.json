@@ -1,10 +1,17 @@
 {
   "name": "Criteo Audiences",
   "description": "Add/remove users to/from Criteo Audiences using Criteo API",
-  "basicOptions": ["client_id", "client_secret", "advertiser_id", "enable_batching"],
+  "basicOptions": [
+    "client_id",
+    "client_secret",
+    "advertiser_id",
+    "enable_batching"
+  ],
   "options": {
     "client_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Criteo API client ID",
       "encrypt": false,
@@ -15,11 +22,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "client_secret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Criteo API client secret",
       "encrypt": true,
@@ -30,11 +44,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_secret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_secret property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "advertiser_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Criteo Advertiser ID",
       "encrypt": false,
@@ -45,11 +66,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The advertiser_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The advertiser_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "enable_batching": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": true,
       "description": "Important: This setting should remain enabled!",
       "encrypt": false,
@@ -72,7 +100,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {

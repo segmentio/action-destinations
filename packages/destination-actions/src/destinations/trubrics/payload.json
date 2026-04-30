@@ -1,9 +1,14 @@
 {
   "name": "Trubrics",
-  "basicOptions": ["apiKey", "url"],
+  "basicOptions": [
+    "apiKey",
+    "url"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Trubrics Project API Key. This can be found in your project settings.",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "url": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "app.trubrics.com/api/ingestion",
       "description": "The Trubrics API URL. In most cases the default value should be used.",
       "encrypt": false,
@@ -29,7 +41,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The url property is required."]],
+      "validators": [
+        [
+          "required",
+          "The url property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -77,7 +97,9 @@
                 "type": "string"
               }
             },
-            "required": ["user_id"]
+            "required": [
+              "user_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -220,7 +242,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

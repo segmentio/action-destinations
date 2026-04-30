@@ -1,10 +1,17 @@
 {
   "name": "Appcues (Actions)",
   "description": "Send events to Appcues.",
-  "basicOptions": ["apiKey", "apiSecret", "accountId", "region"],
+  "basicOptions": [
+    "apiKey",
+    "apiSecret",
+    "accountId",
+    "region"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Appcues API key.",
       "encrypt": true,
@@ -15,11 +22,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "apiSecret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Appcues API secret.",
       "encrypt": true,
@@ -30,11 +44,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiSecret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiSecret property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "accountId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": 0,
       "description": "Your Appcues account ID.",
       "encrypt": false,
@@ -45,11 +66,18 @@
       "type": "number",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The accountId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The accountId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "US",
       "description": "Select the region for your Appcues account.",
       "encrypt": false,
@@ -72,7 +100,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The region property is required."]],
+      "validators": [
+        [
+          "required",
+          "The region property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -84,7 +117,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -139,10 +175,18 @@
                 "title": "Event Type",
                 "description": "The type of event to send to Appcues",
                 "type": "string",
-                "enum": ["track", "page", "screen", "identify", "group"]
+                "enum": [
+                  "track",
+                  "page",
+                  "screen",
+                  "identify",
+                  "group"
+                ]
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -236,7 +280,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["type"],
+                  "required": [
+                    "type"
+                  ],
                   "properties": {
                     "type": {
                       "const": "track"
@@ -244,7 +290,9 @@
                   }
                 },
                 "then": {
-                  "required": ["event"]
+                  "required": [
+                    "event"
+                  ]
                 }
               }
             ]

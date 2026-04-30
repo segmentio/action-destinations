@@ -1,10 +1,16 @@
 {
   "name": "Altertable",
   "description": "Send events server-side to the [Altertable REST API](https://altertable.ai/docs/product-analytics/reference/api).",
-  "basicOptions": ["apiKey", "environment", "endpoint"],
+  "basicOptions": [
+    "apiKey",
+    "environment",
+    "endpoint"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Altertable API key",
       "encrypt": true,
@@ -15,11 +21,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "environment": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "production",
       "description": "The environment to send events to",
       "encrypt": false,
@@ -30,11 +43,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The environment property is required."]],
+      "validators": [
+        [
+          "required",
+          "The environment property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "endpoint": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "https://api.altertable.ai",
       "description": "The endpoint to send events to",
       "encrypt": false,
@@ -45,7 +65,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The endpoint property is required."]],
+      "validators": [
+        [
+          "required",
+          "The endpoint property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -57,7 +82,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -93,7 +121,9 @@
                 "type": "string"
               }
             },
-            "required": ["previousId"]
+            "required": [
+              "previousId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -123,7 +153,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -363,11 +395,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -396,7 +433,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -494,7 +533,9 @@
                 "type": "object"
               }
             },
-            "required": ["traits"]
+            "required": [
+              "traits"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -524,7 +565,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -764,11 +807,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -797,7 +845,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -895,7 +945,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -925,7 +977,9 @@
                 "type": "object"
               }
             },
-            "required": ["properties"]
+            "required": [
+              "properties"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -955,7 +1009,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1195,11 +1251,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1228,7 +1289,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

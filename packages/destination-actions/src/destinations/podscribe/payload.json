@@ -1,9 +1,14 @@
 {
   "name": "Podscribe (Actions)",
-  "basicOptions": ["advertiser", "userId"],
+  "basicOptions": [
+    "advertiser",
+    "userId"
+  ],
   "options": {
     "advertiser": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Podscribe advertiser lookup key",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The advertiser property is required."]],
+      "validators": [
+        [
+          "required",
+          "The advertiser property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "userId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Podscribe user ID",
       "encrypt": false,
@@ -41,7 +53,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -74,7 +89,10 @@
               "anonymousId": {
                 "title": "Anonymous ID",
                 "description": "The anonymous ID associated with the user",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -108,7 +126,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -145,7 +165,10 @@
               "referrer": {
                 "title": "Page Referrer",
                 "description": "The page referrer",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -185,7 +208,10 @@
               "url": {
                 "title": "Page URL",
                 "description": "The page URL",
-                "type": ["string", "null"],
+                "type": [
+                  "string",
+                  "null"
+                ],
                 "format": "uri"
               }
             },
@@ -219,7 +245,9 @@
                 "type": "string"
               }
             },
-            "required": ["ip"]
+            "required": [
+              "ip"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -316,7 +344,10 @@
               "anonymousId": {
                 "title": "Anonymous ID",
                 "description": "The anonymous ID associated with the user",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -350,7 +381,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -387,7 +420,10 @@
               "referrer": {
                 "title": "Page Referrer",
                 "description": "The page referrer",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -427,7 +463,10 @@
               "url": {
                 "title": "Page URL",
                 "description": "The page URL",
-                "type": ["string", "null"],
+                "type": [
+                  "string",
+                  "null"
+                ],
                 "format": "uri"
               }
             },
@@ -461,7 +500,9 @@
                 "type": "string"
               }
             },
-            "required": ["ip"]
+            "required": [
+              "ip"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -558,7 +599,10 @@
               "email": {
                 "title": "Email address",
                 "description": "Email address of the user",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -681,7 +725,9 @@
                 "type": "string"
               }
             },
-            "required": ["podscribeEvent"]
+            "required": [
+              "podscribeEvent"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

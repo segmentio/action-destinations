@@ -1,9 +1,13 @@
 {
   "name": "RevX Cloud (Actions)",
-  "basicOptions": ["client_id"],
+  "basicOptions": [
+    "client_id"
+  ],
   "options": {
     "client_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Revx specific client id. This can be found by contacting the RevX support team",
       "encrypt": false,
@@ -14,7 +18,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_id property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -62,7 +74,9 @@
                 "type": "string"
               }
             },
-            "required": ["os"]
+            "required": [
+              "os"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -219,7 +233,10 @@
               "time": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

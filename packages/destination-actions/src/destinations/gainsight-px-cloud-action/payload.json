@@ -1,9 +1,14 @@
 {
   "name": "Gainsight Px Cloud (Actions)",
-  "basicOptions": ["apiKey", "dataCenter"],
+  "basicOptions": [
+    "apiKey",
+    "dataCenter"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Gainsight PX API key. You can find this key in the \"Administration/Products\" screen.",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "dataCenter": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The PX data center where your PX subscription is hosted.",
       "encrypt": false,
@@ -46,7 +58,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The dataCenter property is required."]],
+      "validators": [
+        [
+          "required",
+          "The dataCenter property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -58,7 +75,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "basic",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {

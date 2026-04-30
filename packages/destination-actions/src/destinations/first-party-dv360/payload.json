@@ -22,7 +22,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The advertiserId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The advertiserId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "audienceType": {
@@ -49,7 +54,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The audienceType property is required."]],
+      "validators": [
+        [
+          "required",
+          "The audienceType property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "description": {
@@ -94,7 +104,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The membershipDurationDays property is required."]],
+      "validators": [
+        [
+          "required",
+          "The membershipDurationDays property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "oauth": {
@@ -180,7 +195,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -465,7 +483,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -494,7 +514,9 @@
                 "type": "number"
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -534,7 +556,9 @@
                 "type": "string"
               }
             },
-            "required": ["mobileDeviceIds"]
+            "required": [
+              "mobileDeviceIds"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -565,7 +589,9 @@
                 "type": "string"
               }
             },
-            "required": ["external_id"]
+            "required": [
+              "external_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -596,7 +622,9 @@
                 "type": "string"
               }
             },
-            "required": ["advertiser_id"]
+            "required": [
+              "advertiser_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -625,7 +653,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -654,7 +684,9 @@
                 "type": "number"
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -943,7 +975,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -972,7 +1006,9 @@
                 "type": "number"
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1012,7 +1048,9 @@
                 "type": "string"
               }
             },
-            "required": ["mobileDeviceIds"]
+            "required": [
+              "mobileDeviceIds"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1043,7 +1081,9 @@
                 "type": "string"
               }
             },
-            "required": ["external_id"]
+            "required": [
+              "external_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1074,7 +1114,9 @@
                 "type": "string"
               }
             },
-            "required": ["advertiser_id"]
+            "required": [
+              "advertiser_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1103,7 +1145,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1132,7 +1176,9 @@
                 "type": "number"
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

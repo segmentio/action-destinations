@@ -1,10 +1,16 @@
 {
   "name": "Delivr AI Audiences",
   "description": "Sync users to Delivr AI Audience Segmentation.",
-  "basicOptions": ["client_identifier_id", "placeholder", "__segment_internal_engage_batch_sync"],
+  "basicOptions": [
+    "client_identifier_id",
+    "placeholder",
+    "__segment_internal_engage_batch_sync"
+  ],
   "options": {
     "client_identifier_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Client Identifier is the Hashed Key that provided by Delivr AI.",
       "encrypt": false,
@@ -15,7 +21,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_identifier_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_identifier_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "placeholder": {
@@ -54,7 +65,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -132,7 +146,9 @@
                 "type": "string"
               }
             },
-            "required": ["email"]
+            "required": [
+              "email"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
@@ -269,7 +285,9 @@
                 "type": "string"
               }
             },
-            "required": ["segment_audience_key"]
+            "required": [
+              "segment_audience_key"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

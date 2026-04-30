@@ -1,9 +1,17 @@
 {
   "name": "Mixpanel (Actions)",
-  "basicOptions": ["projectToken", "apiSecret", "apiRegion", "sourceName", "strictMode"],
+  "basicOptions": [
+    "projectToken",
+    "apiSecret",
+    "apiRegion",
+    "sourceName",
+    "strictMode"
+  ],
   "options": {
     "projectToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Mixpanel project token.",
       "encrypt": false,
@@ -14,11 +22,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The projectToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The projectToken property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "apiSecret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Mixpanel project secret.",
       "encrypt": true,
@@ -29,11 +44,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiSecret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiSecret property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "apiRegion": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "US 🇺🇸",
       "description": "Learn about [EU data residency](https://docs.mixpanel.com/docs/privacy/eu-residency) and [India data residency](https://docs.mixpanel.com/docs/privacy/in-residency)",
       "encrypt": false,
@@ -65,7 +87,9 @@
       "uIMetadata": null
     },
     "sourceName": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event/page/screen call.",
       "encrypt": false,
@@ -80,7 +104,9 @@
       "uIMetadata": null
     },
     "strictMode": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "1",
       "description": "This value, if it's 1 (recommended), Mixpanel will validate the events you are trying to send and return errors per event that failed. Learn more about the Mixpanel [Import Events API](https://developer.mixpanel.com/reference/import-events)",
       "encrypt": false,
@@ -115,7 +141,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -158,7 +187,10 @@
               "alias": {
                 "title": "Alias",
                 "description": "A new distinct id to be merged with the original distinct id. Each alias can only map to one distinct id.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -258,7 +290,9 @@
                 "type": "string"
               }
             },
-            "required": ["group_id"]
+            "required": [
+              "group_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -355,7 +389,10 @@
               "user_id": {
                 "title": "User ID",
                 "description": "The unique user identifier set by you",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -385,7 +422,10 @@
               "anonymous_id": {
                 "title": "Anonymous ID",
                 "description": "The generated anonymous ID for the user",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -485,7 +525,10 @@
               "user_id": {
                 "title": "User ID",
                 "description": "The unique user identifier set by you",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -515,7 +558,10 @@
               "anonymous_id": {
                 "title": "Anonymous ID",
                 "description": "The generated anonymous ID for the user",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -549,7 +595,9 @@
                 "type": "object"
               }
             },
-            "required": ["increment"]
+            "required": [
+              "increment"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -589,7 +637,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -776,7 +826,10 @@
               "time": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event. Mixpanel expects epoch timestamp in millisecond or second. Please note, Mixpanel only accepts this field as the timestamp. If the field is empty, it will be set to the time Mixpanel servers receive it.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -2295,7 +2348,10 @@
               "time": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event. Mixpanel expects epoch timestamp in millisecond or second. Please note, Mixpanel only accepts this field as the timestamp. If the field is empty, it will be set to the time Mixpanel servers receive it.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -3757,7 +3813,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

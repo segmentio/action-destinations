@@ -1,9 +1,13 @@
 {
   "name": "Metronome (Actions)",
-  "basicOptions": ["apiToken"],
+  "basicOptions": [
+    "apiToken"
+  ],
   "options": {
     "apiToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Metronome API Token",
       "encrypt": true,
@@ -14,7 +18,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiToken property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -62,7 +74,9 @@
                 "type": "string"
               }
             },
-            "required": ["transaction_id"]
+            "required": [
+              "transaction_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -92,7 +106,9 @@
                 "type": "string"
               }
             },
-            "required": ["customer_id"]
+            "required": [
+              "customer_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -119,11 +135,16 @@
               "timestamp": {
                 "title": "timestamp",
                 "description": "The timestamp at which this event occurred.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -153,7 +174,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_type"]
+            "required": [
+              "event_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -183,7 +206,9 @@
                 "type": "object"
               }
             },
-            "required": ["properties"]
+            "required": [
+              "properties"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

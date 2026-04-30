@@ -8,7 +8,9 @@
   ],
   "options": {
     "api_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "You can find this by going to Klaviyo's UI and clicking Account > Settings > API Keys > Create API Key",
       "encrypt": true,
@@ -19,7 +21,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "listId": {
@@ -70,7 +77,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -178,7 +188,9 @@
                 "type": "string"
               }
             },
-            "required": ["list_id"]
+            "required": [
+              "list_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -471,35 +483,59 @@
                 "properties": {
                   "address1": {
                     "title": "Address 1",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "address2": {
                     "title": "Address 2",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "city": {
                     "title": "City",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "region": {
                     "title": "Region",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "zip": {
                     "title": "ZIP",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "latitude": {
                     "title": "Latitude",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "longitude": {
                     "title": "Longitide",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "country": {
                     "title": "Country",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
                 },
                 "required": []
@@ -1818,7 +1854,9 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The keys to use for batching the events.",
-          "defaultValue": ["list_id"],
+          "defaultValue": [
+            "list_id"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,
@@ -2160,7 +2198,9 @@
                 "required": []
               }
             },
-            "required": ["profile"]
+            "required": [
+              "profile"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2190,7 +2230,9 @@
                 "type": "object"
               }
             },
-            "required": ["properties"]
+            "required": [
+              "properties"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2217,7 +2259,10 @@
               "time": {
                 "title": "Time",
                 "description": "When this event occurred. By default, the time the request was received will be used.\n      The time is truncated to the second. The time must be after the year 2000 and can only\n      be up to 1 year in the future.\n      ",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -2459,7 +2504,9 @@
                 "type": "string"
               }
             },
-            "required": ["list_id"]
+            "required": [
+              "list_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3841,7 +3888,9 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The keys to use for batching the events.",
-          "defaultValue": ["list_id"],
+          "defaultValue": [
+            "list_id"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,
@@ -3972,7 +4021,9 @@
                 "type": "string"
               }
             },
-            "required": ["list_id"]
+            "required": [
+              "list_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5354,7 +5405,9 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The keys to use for batching the events.",
-          "defaultValue": ["list_id"],
+          "defaultValue": [
+            "list_id"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,
@@ -6850,7 +6903,10 @@
               "consented_at": {
                 "title": "Consented At",
                 "description": "The timestamp of when the profile's consent was gathered.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -6891,7 +6947,11 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The keys to use for batching the events.",
-          "defaultValue": ["list_id", "custom_source", "historical_import"],
+          "defaultValue": [
+            "list_id",
+            "custom_source",
+            "historical_import"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,
@@ -7276,7 +7336,9 @@
                 "required": []
               }
             },
-            "required": ["profile"]
+            "required": [
+              "profile"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -7306,7 +7368,9 @@
                 "type": "string"
               }
             },
-            "required": ["metric_name"]
+            "required": [
+              "metric_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -7336,7 +7400,9 @@
                 "type": "object"
               }
             },
-            "required": ["properties"]
+            "required": [
+              "properties"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -7363,7 +7429,10 @@
               "time": {
                 "title": "Time",
                 "description": "When this event occurred. By default, the time the request was received will be used.\n      The time is truncated to the second. The time must be after the year 2000 and can only\n      be up to 1 year in the future.\n      ",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -8921,7 +8990,9 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The keys to use for batching the events.",
-          "defaultValue": ["list_id"],
+          "defaultValue": [
+            "list_id"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,
@@ -10579,35 +10650,59 @@
                 "properties": {
                   "address1": {
                     "title": "Address 1",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "address2": {
                     "title": "Address 2",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "city": {
                     "title": "City",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "region": {
                     "title": "Region",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "zip": {
                     "title": "ZIP",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "latitude": {
                     "title": "Latitude",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "longitude": {
                     "title": "Longitide",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "country": {
                     "title": "Country",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
                 },
                 "required": []
@@ -10752,7 +10847,10 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The keys to use for batching the events.",
-          "defaultValue": ["list_id", "override_list_id"],
+          "defaultValue": [
+            "list_id",
+            "override_list_id"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,
@@ -10942,7 +11040,9 @@
         "properties": {
           "@path": "$.properties.properties"
         },
-        "batch_keys": ["list_id"]
+        "batch_keys": [
+          "list_id"
+        ]
       },
       "type": "specificEvent",
       "eventSlug": "warehouse_entity_added_track"
@@ -10972,7 +11072,9 @@
         },
         "enable_batching": true,
         "batch_size": 1000,
-        "batch_keys": ["list_id"]
+        "batch_keys": [
+          "list_id"
+        ]
       },
       "type": "specificEvent",
       "eventSlug": "warehouse_entity_removed_track"
@@ -11037,7 +11139,9 @@
         "properties": {
           "@path": "$.properties.properties"
         },
-        "batch_keys": ["list_id"]
+        "batch_keys": [
+          "list_id"
+        ]
       },
       "type": "specificEvent",
       "eventSlug": "warehouse_audience_entered_track"
@@ -11067,7 +11171,9 @@
         },
         "enable_batching": true,
         "batch_size": 1000,
-        "batch_keys": ["list_id"]
+        "batch_keys": [
+          "list_id"
+        ]
       },
       "type": "specificEvent",
       "eventSlug": "warehouse_audience_exited_track"
@@ -11132,7 +11238,9 @@
         "properties": {
           "@path": "$.properties.properties"
         },
-        "batch_keys": ["list_id"]
+        "batch_keys": [
+          "list_id"
+        ]
       },
       "type": "specificEvent",
       "eventSlug": "journeys_step_entered_track"
@@ -11213,7 +11321,11 @@
         "consented_at": {
           "@path": "$.timestamp"
         },
-        "batch_keys": ["list_id", "custom_source", "historical_import"],
+        "batch_keys": [
+          "list_id",
+          "custom_source",
+          "historical_import"
+        ],
         "batch_size": 1000
       },
       "type": "specificEvent",
@@ -11249,7 +11361,9 @@
             }
           }
         },
-        "batch_keys": ["list_id"],
+        "batch_keys": [
+          "list_id"
+        ],
         "batch_size": 100
       },
       "type": "specificEvent",

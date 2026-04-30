@@ -1,10 +1,14 @@
 {
   "name": "Encharge (Actions)",
   "description": "Encharge is a marketing automation platform that enables B2B SaaS companies to automate their marketing processes to increase customer engagement, retention, and revenue.",
-  "basicOptions": ["apiKey"],
+  "basicOptions": [
+    "apiKey"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Encharge.io API Key. This can be found on your [Account page](https://app.encharge.io/settings/api-keys).",
       "encrypt": true,
@@ -15,7 +19,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -63,7 +75,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -93,7 +107,9 @@
                 "type": "string"
               }
             },
-            "required": ["previousUserId"]
+            "required": [
+              "previousUserId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -192,7 +208,9 @@
                 "type": "string"
               }
             },
-            "required": ["objectType"]
+            "required": [
+              "objectType"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -449,7 +467,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -906,7 +926,9 @@
                 "type": "string"
               }
             },
-            "required": ["tag"]
+            "required": [
+              "tag"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1046,7 +1068,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1137,7 +1161,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1695,7 +1721,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2192,7 +2220,9 @@
                 "type": "string"
               }
             },
-            "required": ["tag"]
+            "required": [
+              "tag"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

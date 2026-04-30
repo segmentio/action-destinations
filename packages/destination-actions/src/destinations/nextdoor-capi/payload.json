@@ -1,9 +1,15 @@
 {
   "name": "Nextdoor Conversions API",
-  "basicOptions": ["apiKey", "client_id", "pixel_id"],
+  "basicOptions": [
+    "apiKey",
+    "client_id",
+    "pixel_id"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Embed API Key for your account. You can find this on your settings pages.",
       "encrypt": true,
@@ -14,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "client_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Nextdoor Advertiser ID for self serve clients can be found in your NAM account for managed your support team can provide",
       "encrypt": false,
@@ -29,11 +42,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "pixel_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Nextdoor Pixel Id. Used for deduplication when events are sent via CAPI and front end Pixel.",
       "encrypt": false,
@@ -44,7 +64,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The pixel_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The pixel_id property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -56,7 +81,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -166,7 +194,9 @@
                 ]
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -223,7 +253,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_time"]
+            "required": [
+              "event_time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -293,7 +325,9 @@
                 ]
               }
             },
-            "required": ["action_source"]
+            "required": [
+              "action_source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -327,7 +361,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["action_source"],
+                  "required": [
+                    "action_source"
+                  ],
                   "properties": {
                     "action_source": {
                       "const": "website"
@@ -335,7 +371,9 @@
                   }
                 },
                 "then": {
-                  "required": ["action_source_url"]
+                  "required": [
+                    "action_source_url"
+                  ]
                 }
               }
             ]
@@ -376,7 +414,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["delivery_optimization"]
+            "required": [
+              "delivery_optimization"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -404,7 +444,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["test_event"]
+            "required": [
+              "test_event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -436,10 +478,14 @@
                 "title": "Partner Id",
                 "description": "ID of partners like Segment",
                 "type": "string",
-                "enum": ["segment"]
+                "enum": [
+                  "segment"
+                ]
               }
             },
-            "required": ["partner_id"]
+            "required": [
+              "partner_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -680,7 +726,9 @@
                 "required": []
               }
             },
-            "required": ["customer"]
+            "required": [
+              "customer"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -740,10 +788,17 @@
                     "title": "Delivery Category",
                     "description": "How a product is delivered",
                     "type": "string",
-                    "enum": ["not_specified", "in_store", "curbside", "home_delivery"]
+                    "enum": [
+                      "not_specified",
+                      "in_store",
+                      "curbside",
+                      "home_delivery"
+                    ]
                   }
                 },
-                "required": ["delivery_category"]
+                "required": [
+                  "delivery_category"
+                ]
               }
             },
             "required": []
@@ -808,7 +863,9 @@
                       "type": "number"
                     }
                   },
-                  "required": ["id"]
+                  "required": [
+                    "id"
+                  ]
                 }
               }
             },
@@ -869,7 +926,10 @@
                     "title": "App Platfrom",
                     "description": "Mobile app platform",
                     "type": "string",
-                    "enum": ["ios", "android"]
+                    "enum": [
+                      "ios",
+                      "android"
+                    ]
                   },
                   "app_version": {
                     "title": "App Version",

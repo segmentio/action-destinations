@@ -1,9 +1,14 @@
 {
   "name": "Talon.One (Actions)",
-  "basicOptions": ["apiKey", "deployment"],
+  "basicOptions": [
+    "apiKey",
+    "deployment"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Created under Developer Settings in the Talon.One Campaign Manager.",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "deployment": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The base URL of your Talon.One deployment.",
       "encrypt": false,
@@ -29,7 +41,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The deployment property is required."]],
+      "validators": [
+        [
+          "required",
+          "The deployment property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -74,7 +94,9 @@
                 "type": "string"
               }
             },
-            "required": ["audienceId"]
+            "required": [
+              "audienceId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -101,7 +123,9 @@
                 "type": "string"
               }
             },
-            "required": ["audienceName"]
+            "required": [
+              "audienceName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -138,7 +162,9 @@
                 "type": "string"
               }
             },
-            "required": ["audienceId"]
+            "required": [
+              "audienceId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -206,7 +232,9 @@
                 "type": "string"
               }
             },
-            "required": ["customerProfileId"]
+            "required": [
+              "customerProfileId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -236,7 +264,9 @@
                 "type": "string"
               }
             },
-            "required": ["eventType"]
+            "required": [
+              "eventType"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -303,7 +333,9 @@
                 "type": "string"
               }
             },
-            "required": ["audienceId"]
+            "required": [
+              "audienceId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -330,7 +362,9 @@
                 "type": "string"
               }
             },
-            "required": ["audienceName"]
+            "required": [
+              "audienceName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -395,11 +429,15 @@
                       }
                     }
                   },
-                  "required": ["customerProfileId"]
+                  "required": [
+                    "customerProfileId"
+                  ]
                 }
               }
             },
-            "required": ["data"]
+            "required": [
+              "data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -439,7 +477,9 @@
                 "type": "string"
               }
             },
-            "required": ["customerProfileId"]
+            "required": [
+              "customerProfileId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -622,7 +662,9 @@
                 "type": "string"
               }
             },
-            "required": ["customerSessionId"]
+            "required": [
+              "customerSessionId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -918,7 +960,12 @@
                 "title": "State",
                 "description": "Indicates the current state of the session. `",
                 "type": "string",
-                "enum": ["open", "closed", "partially_returned", "cancelled"]
+                "enum": [
+                  "open",
+                  "closed",
+                  "partially_returned",
+                  "cancelled"
+                ]
               }
             },
             "required": []
@@ -1151,7 +1198,9 @@
                 "type": "string"
               }
             },
-            "required": ["customerProfileId"]
+            "required": [
+              "customerProfileId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1181,7 +1230,9 @@
                 "type": "string"
               }
             },
-            "required": ["eventType"]
+            "required": [
+              "eventType"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1209,7 +1260,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1293,7 +1346,10 @@
                       "type": "string"
                     }
                   },
-                  "required": ["name", "type"]
+                  "required": [
+                    "name",
+                    "type"
+                  ]
                 }
               }
             },
@@ -1334,7 +1390,9 @@
                 "type": "string"
               }
             },
-            "required": ["customerSessionId"]
+            "required": [
+              "customerSessionId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1504,7 +1562,12 @@
                     "title": "State",
                     "description": "Indicates the current state of the session. `",
                     "type": "string",
-                    "enum": ["open", "closed", "partially_returned", "cancelled"]
+                    "enum": [
+                      "open",
+                      "closed",
+                      "partially_returned",
+                      "cancelled"
+                    ]
                   },
                   "cartItems": {
                     "title": "Card Items",
@@ -1604,7 +1667,9 @@
                 "required": []
               }
             },
-            "required": ["customerSession"]
+            "required": [
+              "customerSession"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1656,10 +1721,19 @@
                       "title": "Type",
                       "description": "Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`",
                       "type": "string",
-                      "enum": ["string", "time", "number", "boolean", "location"]
+                      "enum": [
+                        "string",
+                        "time",
+                        "number",
+                        "boolean",
+                        "location"
+                      ]
                     }
                   },
-                  "required": ["name", "type"]
+                  "required": [
+                    "name",
+                    "type"
+                  ]
                 }
               }
             },
@@ -1715,10 +1789,19 @@
                       "title": "Type",
                       "description": "Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`",
                       "type": "string",
-                      "enum": ["string", "time", "number", "boolean", "location"]
+                      "enum": [
+                        "string",
+                        "time",
+                        "number",
+                        "boolean",
+                        "location"
+                      ]
                     }
                   },
-                  "required": ["name", "type"]
+                  "required": [
+                    "name",
+                    "type"
+                  ]
                 }
               }
             },
@@ -1792,7 +1875,9 @@
                 "type": "string"
               }
             },
-            "required": ["customerProfileId"]
+            "required": [
+              "customerProfileId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1934,7 +2019,10 @@
                       "type": "string"
                     }
                   },
-                  "required": ["name", "type"]
+                  "required": [
+                    "name",
+                    "type"
+                  ]
                 }
               }
             },
@@ -1978,7 +2066,9 @@
                 "type": "string"
               }
             },
-            "required": ["customerProfileId"]
+            "required": [
+              "customerProfileId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2032,7 +2122,9 @@
                       "type": "string"
                     }
                   },
-                  "required": ["name"]
+                  "required": [
+                    "name"
+                  ]
                 }
               }
             },
@@ -2090,7 +2182,9 @@
                       "type": "string"
                     }
                   },
-                  "required": ["name"]
+                  "required": [
+                    "name"
+                  ]
                 }
               }
             },
@@ -2204,10 +2298,19 @@
                       "title": "Type",
                       "description": "Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`",
                       "type": "string",
-                      "enum": ["string", "time", "number", "boolean", "location"]
+                      "enum": [
+                        "string",
+                        "time",
+                        "number",
+                        "boolean",
+                        "location"
+                      ]
                     }
                   },
-                  "required": ["name", "type"]
+                  "required": [
+                    "name",
+                    "type"
+                  ]
                 }
               }
             },

@@ -1,9 +1,13 @@
 {
   "name": "Toplyne Cloud Mode (Actions)",
-  "basicOptions": ["apiKey"],
+  "basicOptions": [
+    "apiKey"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Toplyne API Key",
       "encrypt": true,
@@ -14,7 +18,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -62,7 +74,9 @@
                 "type": "string"
               }
             },
-            "required": ["accountId"]
+            "required": [
+              "accountId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -89,11 +103,16 @@
               "creationTime": {
                 "title": "Creation time",
                 "description": "Toplyne calculates the creation time using the timestamp of the first event or group call",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["creationTime"]
+            "required": [
+              "creationTime"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -253,7 +272,9 @@
                 "type": "string"
               }
             },
-            "required": ["eventName"]
+            "required": [
+              "eventName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -280,11 +301,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -411,11 +437,16 @@
               "creationTime": {
                 "title": "Creation time",
                 "description": "Toplyne calculates the creation time of the user using the timestamp of the first track or identify call",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["creationTime"]
+            "required": [
+              "creationTime"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

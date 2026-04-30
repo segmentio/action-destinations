@@ -1,10 +1,14 @@
 {
   "name": "Sprig Cloud (Actions)",
   "description": "Send Segment analytics events and user profile data to Sprig.",
-  "basicOptions": ["apiKey"],
+  "basicOptions": [
+    "apiKey"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Sprig API key.",
       "encrypt": true,
@@ -15,7 +19,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -63,7 +75,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -133,7 +147,9 @@
                 "type": "string"
               }
             },
-            "required": ["eventName"]
+            "required": [
+              "eventName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -163,7 +179,9 @@
                 "type": "string"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -193,7 +211,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

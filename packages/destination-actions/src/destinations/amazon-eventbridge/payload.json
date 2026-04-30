@@ -1,10 +1,15 @@
 {
   "name": "Amazon Eventbridge",
   "description": "Amazon EventBridge is a serverless event bus service that makes it easy to connect your applications with data from a variety of sources.",
-  "basicOptions": ["accountId", "region"],
+  "basicOptions": [
+    "accountId",
+    "region"
+  ],
   "options": {
     "accountId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The AWS Account ID that the event bus belongs to. This is used to generate the ARN for the event bus.",
       "encrypt": false,
@@ -15,11 +20,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The accountId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The accountId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The AWS region that the event bus belongs to.",
       "encrypt": false,
@@ -107,7 +119,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The region property is required."]],
+      "validators": [
+        [
+          "required",
+          "The region property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -119,7 +136,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -155,7 +175,9 @@
                 "type": "object"
               }
             },
-            "required": ["data"]
+            "required": [
+              "data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -186,7 +208,9 @@
                 "maxLength": 128
               }
             },
-            "required": ["detailType"]
+            "required": [
+              "detailType"
+            ]
           },
           "dependsOn": null,
           "maximum": 128,
@@ -277,7 +301,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -346,7 +372,9 @@
                     "type": "string"
                   }
                 },
-                "required": ["sourceId"]
+                "required": [
+                  "sourceId"
+                ]
               }
             },
             "required": []
@@ -384,7 +412,9 @@
                     "type": "string"
                   }
                 },
-                "required": ["sourceId"]
+                "required": [
+                  "sourceId"
+                ]
               }
             },
             "required": []

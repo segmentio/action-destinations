@@ -8,7 +8,9 @@
   ],
   "options": {
     "advertiser_ids": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Advertiser IDs where audiences should be synced. Hidden in production and should not be altered by users.",
       "encrypt": false,
@@ -120,7 +122,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -153,7 +158,9 @@
                 "type": "string"
               }
             },
-            "required": ["selected_advertiser_id"]
+            "required": [
+              "selected_advertiser_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -180,7 +187,9 @@
                 "type": "string"
               }
             },
-            "required": ["audience_id"]
+            "required": [
+              "audience_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -778,7 +787,9 @@
                 "type": "string"
               }
             },
-            "required": ["selected_advertiser_id"]
+            "required": [
+              "selected_advertiser_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -805,7 +816,9 @@
                 "type": "string"
               }
             },
-            "required": ["custom_audience_name"]
+            "required": [
+              "custom_audience_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -842,7 +855,9 @@
                 "type": "string"
               }
             },
-            "required": ["selected_advertiser_id"]
+            "required": [
+              "selected_advertiser_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -869,7 +884,9 @@
                 "type": "string"
               }
             },
-            "required": ["audience_id"]
+            "required": [
+              "audience_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

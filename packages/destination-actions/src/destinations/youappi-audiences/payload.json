@@ -1,10 +1,14 @@
 {
   "name": "Youappi Audiences",
   "description": "Sync Segment Engage Audiences to Youappi",
-  "basicOptions": ["api_key"],
+  "basicOptions": [
+    "api_key"
+  ],
   "options": {
     "api_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Youappi API key.",
       "encrypt": true,
@@ -15,7 +19,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -73,7 +85,9 @@
                 "type": "string"
               }
             },
-            "required": ["idfa"]
+            "required": [
+              "idfa"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -113,7 +127,9 @@
                 "type": "string"
               }
             },
-            "required": ["gaid"]
+            "required": [
+              "gaid"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -143,7 +159,9 @@
                 "type": "string"
               }
             },
-            "required": ["audience_name"]
+            "required": [
+              "audience_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -174,7 +192,9 @@
                 "type": "string"
               }
             },
-            "required": ["audience_id"]
+            "required": [
+              "audience_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -215,7 +235,9 @@
                 "type": "object"
               }
             },
-            "required": ["traits_or_props"]
+            "required": [
+              "traits_or_props"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -244,7 +266,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -273,7 +297,9 @@
                 "type": "number"
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -283,7 +309,10 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The keys to use for batching the events.",
-          "defaultValue": ["audience_id", "audience_name"],
+          "defaultValue": [
+            "audience_id",
+            "audience_name"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,
@@ -366,7 +395,10 @@
         },
         "enable_batching": true,
         "batch_size": 1000,
-        "batch_keys": ["audience_id", "audience_name"]
+        "batch_keys": [
+          "audience_id",
+          "audience_name"
+        ]
       },
       "type": "automatic"
     }

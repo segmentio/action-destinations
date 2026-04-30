@@ -1,9 +1,15 @@
 {
   "name": "m3ter",
-  "basicOptions": ["access_key_id", "api_secret", "org_id"],
+  "basicOptions": [
+    "access_key_id",
+    "api_secret",
+    "org_id"
+  ],
   "options": {
     "access_key_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your service user Access Key Id. You can generate the service user and its Access Key Id in your m3ter console under \"Settings\" -> \"Access\" -> \"Service Users\" -> \"Create Service User\". Step by step guide can be found in [m3ter Docs](https://www.m3ter.com/docs/guides/authenticating-with-the-platform/service-authentication#generating-an-api-key-and-secret-for-a-service-user)",
       "encrypt": true,
@@ -14,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The access_key_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The access_key_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "api_secret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your service user Api Secret. You can generate the service user and its Api Secret in your m3ter console under \"Settings\" -> \"Access\" -> \"Service Users\" -> \"Create Service User\". Step by step guide can be found in [m3ter Docs](https://www.m3ter.com/docs/guides/authenticating-with-the-platform/service-authentication#generating-an-api-key-and-secret-for-a-service-user)",
       "encrypt": true,
@@ -29,11 +42,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_secret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_secret property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "org_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "ID of your organization where your data will be submitted to",
       "encrypt": false,
@@ -44,7 +64,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The org_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The org_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "oauth": {
@@ -106,7 +131,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -142,7 +170,9 @@
                 "type": "string"
               }
             },
-            "required": ["uid"]
+            "required": [
+              "uid"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -172,7 +202,9 @@
                 "type": "string"
               }
             },
-            "required": ["meter"]
+            "required": [
+              "meter"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -202,7 +234,9 @@
                 "type": "string"
               }
             },
-            "required": ["account"]
+            "required": [
+              "account"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -229,11 +263,16 @@
               "ts": {
                 "title": "Timestamp",
                 "description": "Timestamp for the measurement",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["ts"]
+            "required": [
+              "ts"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -257,7 +296,10 @@
               "ets": {
                 "title": "End timestamp",
                 "description": "End timestamp for the measurement. Can be used in the case a usage event needs to have an explicit start and end rather than being instantaneous",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -505,7 +547,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

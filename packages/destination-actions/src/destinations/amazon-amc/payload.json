@@ -14,7 +14,9 @@
   ],
   "options": {
     "region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "https://advertising-api.amazon.com",
       "description": "Region for API Endpoint, either NA, EU, FE.",
       "encrypt": false,
@@ -42,7 +44,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The region property is required."]],
+      "validators": [
+        [
+          "required",
+          "The region property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "description": {
@@ -57,7 +64,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The description property is required."]],
+      "validators": [
+        [
+          "required",
+          "The description property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "countryCode": {
@@ -72,7 +84,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The countryCode property is required."]],
+      "validators": [
+        [
+          "required",
+          "The countryCode property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "externalAudienceId": {
@@ -87,7 +104,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The externalAudienceId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The externalAudienceId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "cpmCents": {
@@ -214,7 +236,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The advertiserId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The advertiserId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "oauth": {
@@ -300,7 +327,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -367,7 +397,9 @@
                 "type": "string"
               }
             },
-            "required": ["externalUserId"]
+            "required": [
+              "externalUserId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -664,7 +696,9 @@
                 "type": "string"
               }
             },
-            "required": ["audienceId"]
+            "required": [
+              "audienceId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -718,13 +752,19 @@
                     "title": "Ad Storage Consent",
                     "description": "Amazon Consent Format: Captures whether the user has consented to cookie based tracking.",
                     "type": "string",
-                    "enum": ["GRANTED", "DENIED"]
+                    "enum": [
+                      "GRANTED",
+                      "DENIED"
+                    ]
                   },
                   "amznUserData": {
                     "title": "User Data Consent",
                     "description": "Amazon Consent Format: Captures whether the user has consented to use personal data for advertising.",
                     "type": "string",
-                    "enum": ["GRANTED", "DENIED"]
+                    "enum": [
+                      "GRANTED",
+                      "DENIED"
+                    ]
                   },
                   "tcf": {
                     "title": "TCF String",
@@ -768,7 +808,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

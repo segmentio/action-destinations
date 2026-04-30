@@ -1,9 +1,15 @@
 {
   "name": "Google Analytics 4 Cloud",
-  "basicOptions": ["measurementId", "firebaseAppId", "apiSecret"],
+  "basicOptions": [
+    "measurementId",
+    "firebaseAppId",
+    "apiSecret"
+  ],
   "options": {
     "measurementId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Measurement ID associated with a stream. Found in the Google Analytics UI under: Admin > Data Streams > choose your stream > Measurement ID. **Required for web streams.**",
       "encrypt": false,
@@ -18,7 +24,9 @@
       "uIMetadata": null
     },
     "firebaseAppId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Firebase App ID associated with the Firebase app. Found in the Firebase console under: Project Settings > General > Your Apps > App ID. **Required for mobile app streams.**",
       "encrypt": false,
@@ -33,7 +41,9 @@
       "uIMetadata": null
     },
     "apiSecret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "An API SECRET generated in the Google Analytics UI, navigate to: Admin > Data Streams > choose your stream > Measurement Protocol > Create",
       "encrypt": true,
@@ -44,7 +54,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiSecret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiSecret property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -56,7 +71,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -97,7 +115,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -508,7 +529,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -626,7 +649,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -663,7 +689,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -711,7 +740,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -1032,7 +1064,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1180,7 +1214,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -1217,7 +1254,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -1265,7 +1305,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -1616,7 +1659,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1734,7 +1779,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -1771,7 +1819,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -1819,7 +1870,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -2173,7 +2227,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2321,7 +2377,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -2358,7 +2417,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -2406,7 +2468,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -2563,7 +2628,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2709,7 +2776,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -2746,7 +2816,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -2794,7 +2867,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -3099,7 +3175,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -3136,7 +3215,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -3184,7 +3266,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -3456,7 +3541,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -3493,7 +3581,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -3541,7 +3632,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -3876,7 +3970,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -3913,7 +4010,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -3961,7 +4061,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -4178,7 +4281,9 @@
                 "type": "string"
               }
             },
-            "required": ["currency"]
+            "required": [
+              "currency"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4345,7 +4450,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4375,7 +4482,9 @@
                 "type": "string"
               }
             },
-            "required": ["transaction_id"]
+            "required": [
+              "transaction_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4583,7 +4692,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -4620,7 +4732,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -4668,7 +4783,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -4855,7 +4973,9 @@
                 "type": "string"
               }
             },
-            "required": ["transaction_id"]
+            "required": [
+              "transaction_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5284,7 +5404,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -5321,7 +5444,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -5369,7 +5495,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -5720,7 +5849,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5838,7 +5969,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -5875,7 +6009,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -5923,7 +6060,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -6080,7 +6220,9 @@
                 "type": "string"
               }
             },
-            "required": ["search_term"]
+            "required": [
+              "search_term"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6198,7 +6340,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -6235,7 +6380,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -6283,7 +6431,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -6628,7 +6779,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6746,7 +6899,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -6783,7 +6939,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -6831,7 +6990,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -7404,7 +7566,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -7441,7 +7606,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -7489,7 +7657,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -7764,7 +7935,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -7801,7 +7975,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -7849,7 +8026,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -8203,7 +8383,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -8321,7 +8503,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -8358,7 +8543,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -8406,7 +8594,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -8757,7 +8948,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -8875,7 +9068,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -8912,7 +9108,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -8960,7 +9159,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -9314,7 +9516,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -9432,7 +9636,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -9469,7 +9676,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -9517,7 +9727,10 @@
                 "title": "Data Stream Type",
                 "description": "The type of data stream this data belongs in. This can either be a web stream or a mobile app stream (iOS or Android). Possible values: \"Web\" (default) and \"Mobile App\".",
                 "type": "string",
-                "enum": ["Web", "Mobile App"]
+                "enum": [
+                  "Web",
+                  "Mobile App"
+                ]
               }
             },
             "required": []
@@ -9975,7 +10188,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -10093,7 +10308,10 @@
                 "title": "Ad User Data Consent State",
                 "description": "Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -10130,7 +10348,10 @@
                 "title": "Ad Personalization Consent State",
                 "description": "Sets consent for personalized advertising. Must be either GRANTED or DENIED.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []

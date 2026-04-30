@@ -1,9 +1,14 @@
 {
   "name": "Clay",
-  "basicOptions": ["connection_key", "secret_key"],
+  "basicOptions": [
+    "connection_key",
+    "secret_key"
+  ],
   "options": {
     "connection_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Clay connection key",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The connection_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The connection_key property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "secret_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Clay secret key",
       "encrypt": true,
@@ -29,7 +41,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The secret_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The secret_key property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -212,7 +232,9 @@
                 "type": "string"
               }
             },
-            "required": ["ip"]
+            "required": [
+              "ip"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -332,7 +354,9 @@
                 "type": "string"
               }
             },
-            "required": ["messageId"]
+            "required": [
+              "messageId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -402,7 +426,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -537,7 +563,9 @@
                 "type": "string"
               }
             },
-            "required": ["ip"]
+            "required": [
+              "ip"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -657,7 +685,9 @@
                 "type": "string"
               }
             },
-            "required": ["messageId"]
+            "required": [
+              "messageId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

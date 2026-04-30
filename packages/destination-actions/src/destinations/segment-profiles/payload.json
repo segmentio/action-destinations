@@ -1,6 +1,8 @@
 {
   "name": "Segment Profiles",
-  "basicOptions": ["required_hidden_token"],
+  "basicOptions": [
+    "required_hidden_token"
+  ],
   "options": {
     "required_hidden_token": {
       "label": "Required Hidden Token",
@@ -19,7 +21,10 @@
     "warehouse": true,
     "cloudAppObject": true
   },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -52,7 +57,9 @@
                 "type": "string"
               }
             },
-            "required": ["engage_space"]
+            "required": [
+              "engage_space"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -133,7 +140,9 @@
                 "type": "string"
               }
             },
-            "required": ["group_id"]
+            "required": [
+              "group_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -188,7 +197,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -291,7 +303,9 @@
                 "type": "string"
               }
             },
-            "required": ["engage_space"]
+            "required": [
+              "engage_space"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -427,7 +441,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -530,7 +547,9 @@
                 "type": "string"
               }
             },
-            "required": ["engage_space"]
+            "required": [
+              "engage_space"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -635,7 +654,10 @@
               "email_subscription_status": {
                 "title": "Email Subscription Status",
                 "description": "Global status of the email subscription. True is subscribed, false is unsubscribed, and did_not_subscribe is did_not_subscribe.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -717,7 +739,10 @@
               "sms_subscription_status": {
                 "title": "SMS Subscription Status",
                 "description": "Global status of the SMS subscription. True is subscribed, false is unsubscribed, and did_not_subscribe is did_not_subscribe.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -744,7 +769,10 @@
               "whatsapp_subscription_status": {
                 "title": "WhatsApp Subscription Status",
                 "description": "Global status of the WhatsApp subscription. True is subscribed, false is unsubscribed, and did_not_subscribe is did_not_subscribe.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -798,7 +826,10 @@
               "android_push_subscription_status": {
                 "title": "Android Push Subscription Status",
                 "description": "Global status of the android push subscription. True is subscribed, false is unsubscribed, and did_not_subscribe is did_not_subscribe.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -852,7 +883,10 @@
               "ios_push_subscription_status": {
                 "title": "Ios Push Subscription Status",
                 "description": "Global status of the ios push subscription. True is subscribed, false is unsubscribed, and did_not_subscribe is did_not_subscribe.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -910,7 +944,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -1013,7 +1050,9 @@
                 "type": "string"
               }
             },
-            "required": ["engage_space"]
+            "required": [
+              "engage_space"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1094,7 +1133,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -1125,7 +1167,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

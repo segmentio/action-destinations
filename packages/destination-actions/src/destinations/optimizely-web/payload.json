@@ -1,9 +1,15 @@
 {
   "name": "Optimizely Web (Actions)",
-  "basicOptions": ["optimizelyApiKey", "optimizelyAccountId", "projectID"],
+  "basicOptions": [
+    "optimizelyApiKey",
+    "optimizelyAccountId",
+    "projectID"
+  ],
   "options": {
     "optimizelyApiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Optimizely API Key. TODO: Provide link to instructions on how to get this.",
       "encrypt": true,
@@ -14,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The optimizelyApiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The optimizelyApiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "optimizelyAccountId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Optimizely Account ID. TODO: Provide link to instructions on how to get this.",
       "encrypt": false,
@@ -29,11 +42,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The optimizelyAccountId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The optimizelyAccountId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "projectID": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": 0,
       "description": "The unique numeric identifier for the project.",
       "encrypt": false,
@@ -44,7 +64,12 @@
       "type": "number",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The projectID property is required."]],
+      "validators": [
+        [
+          "required",
+          "The projectID property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -56,7 +81,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -92,7 +120,9 @@
                 "type": "string"
               }
             },
-            "required": ["uuid"]
+            "required": [
+              "uuid"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -132,7 +162,9 @@
                 "type": "string"
               }
             },
-            "required": ["endUserId"]
+            "required": [
+              "endUserId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -160,11 +192,19 @@
                 "type": "boolean"
               }
             },
-            "required": ["anonymizeIP"]
+            "required": [
+              "anonymizeIP"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["enrichment", "freeform", "function", "literal", "variable"]
+            "disabledInputMethods": [
+              "enrichment",
+              "freeform",
+              "function",
+              "literal",
+              "variable"
+            ]
           }
         },
         {
@@ -214,7 +254,10 @@
                     "title": "Create If Not Found",
                     "description": "Segment can define new Custom Events in Optimizely, along with their custom properties. However once an event is defined by Segment its properties cannot be modified.",
                     "type": "string",
-                    "enum": ["DO_NOT_CREATE", "CREATE"]
+                    "enum": [
+                      "DO_NOT_CREATE",
+                      "CREATE"
+                    ]
                   },
                   "shouldSnakeCaseEventKey": {
                     "title": "Should Snake Case Event Key",
@@ -235,10 +278,15 @@
                     "type": "string"
                   }
                 },
-                "required": ["createEventIfNotFound", "shouldSnakeCaseEventKey"]
+                "required": [
+                  "createEventIfNotFound",
+                  "shouldSnakeCaseEventKey"
+                ]
               }
             },
-            "required": ["eventSyncConfig"]
+            "required": [
+              "eventSyncConfig"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -265,11 +313,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "Timestamp for when the event took place",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

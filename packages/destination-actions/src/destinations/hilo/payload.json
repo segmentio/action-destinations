@@ -1,9 +1,13 @@
 {
   "name": "Hilo",
-  "basicOptions": ["integrationId"],
+  "basicOptions": [
+    "integrationId"
+  ],
   "options": {
     "integrationId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Hilo integration ID. This can be found on the integration page.",
       "encrypt": false,
@@ -14,7 +18,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The integrationId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The integrationId property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth-managed",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -92,7 +104,9 @@
                 "type": "string"
               }
             },
-            "required": ["groupId"]
+            "required": [
+              "groupId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -153,7 +167,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -284,7 +300,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -445,7 +463,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -606,7 +626,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -767,7 +789,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

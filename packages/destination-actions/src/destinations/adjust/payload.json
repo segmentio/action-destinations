@@ -1,10 +1,16 @@
 {
   "name": "Adjust (Actions)",
   "description": "Send events to Adjust.",
-  "basicOptions": ["environment", "default_app_token", "default_event_token"],
+  "basicOptions": [
+    "environment",
+    "default_app_token",
+    "default_event_token"
+  ],
   "options": {
     "environment": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "production",
       "description": "The environment for your Adjust account.",
       "encrypt": false,
@@ -27,11 +33,18 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The environment property is required."]],
+      "validators": [
+        [
+          "required",
+          "The environment property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "default_app_token": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The app token for your Adjust account. This can be overridden in the event mapping.",
       "encrypt": true,
@@ -46,7 +59,9 @@
       "uIMetadata": null
     },
     "default_event_token": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The default event token. This can be overridden in the event mapping.",
       "encrypt": true,
@@ -69,7 +84,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -102,7 +120,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "Timestamp for when the event happened.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -190,7 +211,9 @@
                 "type": "string"
               }
             },
-            "required": ["device_id"]
+            "required": [
+              "device_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -220,7 +243,9 @@
                 "type": "string"
               }
             },
-            "required": ["advertising_id"]
+            "required": [
+              "advertising_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -250,7 +275,9 @@
                 "type": "string"
               }
             },
-            "required": ["device_type"]
+            "required": [
+              "device_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

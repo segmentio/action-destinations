@@ -1,10 +1,17 @@
 {
   "name": "AWS S3 (Actions)",
   "description": "Sync Segment event data to AWS S3.",
-  "basicOptions": ["iam_role_arn", "s3_aws_bucket_name", "s3_aws_region", "iam_external_id"],
+  "basicOptions": [
+    "iam_role_arn",
+    "s3_aws_bucket_name",
+    "s3_aws_region",
+    "iam_external_id"
+  ],
   "options": {
     "iam_role_arn": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "IAM role ARN with write permissions to the S3 bucket. Format: arn:aws:iam::account-id:role/role-name",
       "encrypt": false,
@@ -15,11 +22,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The iam_role_arn property is required."]],
+      "validators": [
+        [
+          "required",
+          "The iam_role_arn property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "s3_aws_bucket_name": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Name of the S3 bucket where the files will be uploaded to.",
       "encrypt": false,
@@ -30,11 +44,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The s3_aws_bucket_name property is required."]],
+      "validators": [
+        [
+          "required",
+          "The s3_aws_bucket_name property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "s3_aws_region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Region Code where the S3 bucket is hosted. See [AWS S3 Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions)",
       "encrypt": false,
@@ -45,11 +66,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The s3_aws_region property is required."]],
+      "validators": [
+        [
+          "required",
+          "The s3_aws_region property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "iam_external_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The External ID to your IAM role. Generate a secure string and treat it like a password.",
       "encrypt": true,
@@ -60,7 +88,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The iam_external_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The iam_external_id property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -72,7 +105,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -245,7 +281,9 @@
                 "required": []
               }
             },
-            "required": ["columns"]
+            "required": [
+              "columns"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -277,7 +315,12 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["enrichment", "function", "variable", "literal"]
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable",
+              "literal"
+            ]
           }
         },
         {
@@ -307,7 +350,12 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["enrichment", "function", "variable", "literal"]
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable",
+              "literal"
+            ]
           }
         },
         {
@@ -406,7 +454,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -438,7 +488,12 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["enrichment", "function", "variable", "literal"]
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable",
+              "literal"
+            ]
           }
         },
         {
@@ -496,7 +551,12 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["enrichment", "function", "variable", "literal"]
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable",
+              "literal"
+            ]
           }
         },
         {
@@ -541,14 +601,27 @@
                 "title": "Delimeter",
                 "description": "Character used to separate tokens in the resulting file.",
                 "type": "string",
-                "enum": [",", "|", "tab", ";", ":"]
+                "enum": [
+                  ",",
+                  "|",
+                  "tab",
+                  ";",
+                  ":"
+                ]
               }
             },
-            "required": ["delimiter"]
+            "required": [
+              "delimiter"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["enrichment", "function", "variable", "literal"]
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable",
+              "literal"
+            ]
           }
         },
         {
@@ -581,14 +654,24 @@
                 "title": "File Extension",
                 "description": "File extension for the uploaded file.",
                 "type": "string",
-                "enum": ["csv", "txt"]
+                "enum": [
+                  "csv",
+                  "txt"
+                ]
               }
             },
-            "required": ["file_extension"]
+            "required": [
+              "file_extension"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["enrichment", "function", "variable", "literal"]
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable",
+              "literal"
+            ]
           }
         },
         {
@@ -596,7 +679,9 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The keys to use for batching the events.",
-          "defaultValue": ["s3_aws_folder_name"],
+          "defaultValue": [
+            "s3_aws_folder_name"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,

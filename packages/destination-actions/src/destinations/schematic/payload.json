@@ -1,10 +1,14 @@
 {
   "name": "Schematic",
   "description": "Send Segment events to Schematic to enrich/update user and company profiles.",
-  "basicOptions": ["apiKey"],
+  "basicOptions": [
+    "apiKey"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Found on your settings page.",
       "encrypt": true,
@@ -15,7 +19,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -66,7 +78,9 @@
                 "type": "object"
               }
             },
-            "required": ["company_keys"]
+            "required": [
+              "company_keys"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -151,11 +165,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "Time the event took place",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -188,7 +207,9 @@
                 "type": "object"
               }
             },
-            "required": ["user_keys"]
+            "required": [
+              "user_keys"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -286,7 +307,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -341,11 +364,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "Time the event took place",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

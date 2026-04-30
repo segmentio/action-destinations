@@ -11,7 +11,9 @@
   ],
   "options": {
     "fileNamePrefix": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "customer_org_",
       "description": "Use your Acoustic Org name but replace any spaces with an underscore, eg., AcmeCustomer_Prod",
       "encrypt": false,
@@ -22,11 +24,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The fileNamePrefix property is required."]],
+      "validators": [
+        [
+          "required",
+          "The fileNamePrefix property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "s3_bucket_accesspoint_alias": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Alias of the Access Point created for your access to the S3 Bucket.",
       "encrypt": false,
@@ -37,11 +46,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The s3_bucket_accesspoint_alias property is required."]],
+      "validators": [
+        [
+          "required",
+          "The s3_bucket_accesspoint_alias property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "s3_access_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "S3 Access Key for the S3 bucket.",
       "encrypt": true,
@@ -52,11 +68,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The s3_access_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The s3_access_key property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "s3_secret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "S3 Secret credential for the S3 bucket.",
       "encrypt": true,
@@ -67,11 +90,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The s3_secret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The s3_secret property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "s3_region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "us-east-1",
       "description": "Should always be us-east-1 unless directed by Acoustic otherwise. ",
       "encrypt": false,
@@ -82,11 +112,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The s3_region property is required."]],
+      "validators": [
+        [
+          "required",
+          "The s3_region property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "version": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "Version 2.3",
       "description": "\n\nLast-Modified: 02.01.2024 10.30.43\n\n",
       "encrypt": false,
@@ -109,7 +146,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -294,7 +334,9 @@
                 "format": "text"
               }
             },
-            "required": ["uniqueRecipientId"]
+            "required": [
+              "uniqueRecipientId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -324,7 +366,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -351,11 +395,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "Do Not Modify - The timestamp for when the event took place. This field is required",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

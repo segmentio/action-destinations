@@ -1,10 +1,19 @@
 {
   "name": "Kevel Audience (Actions)",
   "description": "Sync Segment user profile traits and Engage Audiences to Kevel Audiences. Only users with a Segment userId will be synced.",
-  "basicOptions": ["audienceDomain", "userIdType", "clientId", "siteId", "apiKey", "eventType"],
+  "basicOptions": [
+    "audienceDomain",
+    "userIdType",
+    "clientId",
+    "siteId",
+    "apiKey",
+    "eventType"
+  ],
   "options": {
     "audienceDomain": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Kevel Audience root subdomain. For example: \"cdp.yourdomain.com\".",
       "encrypt": false,
@@ -15,11 +24,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The audienceDomain property is required."]],
+      "validators": [
+        [
+          "required",
+          "The audienceDomain property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "userIdType": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Kevel Audience User ID Type to map your Segment User ID to. For example: \"crm\".",
       "encrypt": false,
@@ -30,11 +46,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The userIdType property is required."]],
+      "validators": [
+        [
+          "required",
+          "The userIdType property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "clientId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Kevel Audience client ID to identify the event. For example: \"brand-name\".",
       "encrypt": false,
@@ -45,11 +68,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The clientId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The clientId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "siteId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Kevel Audience site ID to identify the event. For example: \"segment-app\".",
       "encrypt": false,
@@ -60,11 +90,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The siteId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The siteId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Kevel Audience API Key to authorize the requests. Get yours from your Kevel Customer Success representative.",
       "encrypt": false,
@@ -75,11 +112,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "eventType": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The type of event to send to Kevel Audience. For example: \"segmentSync\".",
       "encrypt": false,
@@ -90,7 +134,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The eventType property is required."]],
+      "validators": [
+        [
+          "required",
+          "The eventType property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -102,7 +151,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -139,7 +191,9 @@
                 "type": "string"
               }
             },
-            "required": ["segment_user_id"]
+            "required": [
+              "segment_user_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -180,7 +234,9 @@
                 "type": "object"
               }
             },
-            "required": ["traits_or_props"]
+            "required": [
+              "traits_or_props"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

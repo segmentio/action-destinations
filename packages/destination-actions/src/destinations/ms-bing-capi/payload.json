@@ -1,9 +1,15 @@
 {
   "name": "Microsoft Bing CAPI (Actions)",
-  "basicOptions": ["UetTag", "ApiToken", "adStorageConsent"],
+  "basicOptions": [
+    "UetTag",
+    "ApiToken",
+    "adStorageConsent"
+  ],
   "options": {
     "UetTag": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Bing UetTag.",
       "encrypt": false,
@@ -14,11 +20,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The UetTag property is required."]],
+      "validators": [
+        [
+          "required",
+          "The UetTag property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "ApiToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Bing API Token. API token generation is not generally available. To obtain one, you’ll need to contact Microsoft Support, or alternatively, you can [fill out this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbRwMZAe0PcMxHmZ0AjDaNRmxUM0o5UURRVktCRkxHNEFLTVNYQjI3NDNBUS4u) to request access.",
       "encrypt": true,
@@ -29,11 +42,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The ApiToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The ApiToken property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "adStorageConsent": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "G",
       "description": "Ad Storage Consent for GDPR compliance",
       "encrypt": false,
@@ -68,7 +88,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "basic",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -142,7 +165,10 @@
                     "title": "Event Type",
                     "description": "The type of event being sent to the Bing API.",
                     "type": "string",
-                    "enum": ["pageLoad", "custom"]
+                    "enum": [
+                      "pageLoad",
+                      "custom"
+                    ]
                   },
                   "eventId": {
                     "title": "Event ID",
@@ -189,7 +215,10 @@
                     "description": "Ad Storage Consent for GDPR compliance",
                     "type": "string",
                     "default": "G",
-                    "enum": ["G", "D"]
+                    "enum": [
+                      "G",
+                      "D"
+                    ]
                   },
                   "dataProvider": {
                     "title": "Data Provider",
@@ -204,7 +233,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["eventType"],
+                  "required": [
+                    "eventType"
+                  ],
                   "properties": {
                     "eventType": {
                       "const": "pageLoad"
@@ -212,10 +243,14 @@
                   }
                 },
                 "then": {
-                  "required": ["data"],
+                  "required": [
+                    "data"
+                  ],
                   "properties": {
                     "data": {
-                      "required": ["eventSourceUrl"]
+                      "required": [
+                        "eventSourceUrl"
+                      ]
                     }
                   }
                 }
@@ -350,7 +385,9 @@
                 "required": []
               }
             },
-            "required": ["userData"]
+            "required": [
+              "userData"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -641,7 +678,15 @@
                     "title": "Page Type",
                     "description": "The type of page where the event occurred.",
                     "type": "string",
-                    "enum": ["home", "product", "category", "searchresults", "cart", "purchase", "other"]
+                    "enum": [
+                      "home",
+                      "product",
+                      "category",
+                      "searchresults",
+                      "cart",
+                      "purchase",
+                      "other"
+                    ]
                   },
                   "ecommTotalValue": {
                     "title": "Ecomm Total Value",

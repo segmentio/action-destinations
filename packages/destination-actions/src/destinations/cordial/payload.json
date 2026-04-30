@@ -1,10 +1,16 @@
 {
   "name": "Cordial (Actions)",
   "description": "Sync Segment Users, Groups and Events to Cordial",
-  "basicOptions": ["apiKey", "endpoint", "segmentIdKey"],
+  "basicOptions": [
+    "apiKey",
+    "endpoint",
+    "segmentIdKey"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Cordial API Key",
       "encrypt": true,
@@ -15,11 +21,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "endpoint": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "https://integrations-ingest-svc.usw1.cordial.com",
       "description": "Cordial API endpoint. Leave default, unless you've been provided with another one. [See more details](https://support.cordial.com/hc/en-us/sections/200553578-REST-API-Introduction-and-Overview)",
       "encrypt": false,
@@ -30,11 +43,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The endpoint property is required."]],
+      "validators": [
+        [
+          "required",
+          "The endpoint property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "segmentIdKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Cordial string unique attribute key to store Segment User ID in (e.g. `segment_id`)",
       "encrypt": false,
@@ -57,7 +77,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -183,7 +206,9 @@
                 "type": "string"
               }
             },
-            "required": ["groupId"]
+            "required": [
+              "groupId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -343,7 +368,9 @@
                 "type": "string"
               }
             },
-            "required": ["productID"]
+            "required": [
+              "productID"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -373,7 +400,9 @@
                 "type": "string"
               }
             },
-            "required": ["sku"]
+            "required": [
+              "sku"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -403,7 +432,9 @@
                 "type": "integer"
               }
             },
-            "required": ["qty"]
+            "required": [
+              "qty"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -433,7 +464,9 @@
                 "type": "string"
               }
             },
-            "required": ["category"]
+            "required": [
+              "category"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -463,7 +496,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -757,7 +792,9 @@
                 "type": "string"
               }
             },
-            "required": ["action"]
+            "required": [
+              "action"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -784,7 +821,10 @@
               "time": {
                 "title": "Event timestamp",
                 "description": "Event timestamp. Optional. Date format is ISO 8601 standard. If empty, the request upload time will be used. ",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -948,7 +988,9 @@
                 "type": "string"
               }
             },
-            "required": ["previousId"]
+            "required": [
+              "previousId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1078,7 +1120,9 @@
                 "type": "string"
               }
             },
-            "required": ["groupId"]
+            "required": [
+              "groupId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1208,7 +1252,9 @@
                 "type": "string"
               }
             },
-            "required": ["productID"]
+            "required": [
+              "productID"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1238,7 +1284,9 @@
                 "type": "integer"
               }
             },
-            "required": ["qty"]
+            "required": [
+              "qty"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1496,7 +1544,9 @@
                 "type": "string"
               }
             },
-            "required": ["orderID"]
+            "required": [
+              "orderID"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1523,11 +1573,16 @@
               "purchaseDate": {
                 "title": "Order purchase date",
                 "description": "Order purchase date",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["purchaseDate"]
+            "required": [
+              "purchaseDate"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1557,7 +1612,9 @@
                 "type": "string"
               }
             },
-            "required": ["status"]
+            "required": [
+              "status"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1587,7 +1644,9 @@
                 "type": "number"
               }
             },
-            "required": ["totalAmount"]
+            "required": [
+              "totalAmount"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1625,7 +1684,9 @@
                     "title": "Type",
                     "description": "Type of discount applied to the order (e.g. fixed)",
                     "type": "string",
-                    "enum": ["fixed"]
+                    "enum": [
+                      "fixed"
+                    ]
                   },
                   "amount": {
                     "title": "Amount",
@@ -1811,11 +1872,17 @@
                       "type": "object"
                     }
                   },
-                  "required": ["productID", "sku", "name"]
+                  "required": [
+                    "productID",
+                    "sku",
+                    "name"
+                  ]
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

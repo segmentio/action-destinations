@@ -1,9 +1,14 @@
 {
   "name": "Twilio Messaging Omnichannel",
-  "basicOptions": ["username", "password"],
+  "basicOptions": [
+    "username",
+    "password"
+  ],
   "options": {
     "username": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Twilio Account SID. This can be found in the [Twilio Console](https://www.twilio.com/docs/usage/api#authenticate-with-http:~:text=token%20in%20the-,Twilio%20Console,-after%20signing%20up).",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The username property is required."]],
+      "validators": [
+        [
+          "required",
+          "The username property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "password": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "AUTH Token. This can be found in the [Twilio Console](https://www.twilio.com/docs/usage/api#authenticate-with-http:~:text=token%20in%20the-,Twilio%20Console,-after%20signing%20up).",
       "encrypt": true,
@@ -29,7 +41,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The password property is required."]],
+      "validators": [
+        [
+          "required",
+          "The password property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "basic",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -81,7 +101,11 @@
                       "title": "From",
                       "description": "The type of sender.",
                       "type": "string",
-                      "enum": ["MessageAddressSender", "AgentIdSender", "AgentPoolIdSender"]
+                      "enum": [
+                        "MessageAddressSender",
+                        "AgentIdSender",
+                        "AgentPoolIdSender"
+                      ]
                     },
                     "address": {
                       "title": "Address",
@@ -92,7 +116,12 @@
                       "title": "Channel",
                       "description": "The channels available for the Message entity.",
                       "type": "string",
-                      "enum": ["phone", "rcs", "whatsapp", "fbm"]
+                      "enum": [
+                        "phone",
+                        "rcs",
+                        "whatsapp",
+                        "fbm"
+                      ]
                     },
                     "agent_id": {
                       "title": "Agent ID",
@@ -109,7 +138,9 @@
                 }
               }
             },
-            "required": ["fromObject"]
+            "required": [
+              "fromObject"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -148,7 +179,11 @@
                       "title": "Channel",
                       "description": "The channels available for the Message entity.",
                       "type": "string",
-                      "enum": ["phone", "whatsapp", "fbm"]
+                      "enum": [
+                        "phone",
+                        "whatsapp",
+                        "fbm"
+                      ]
                     },
                     "variables": {
                       "title": "Variables",
@@ -156,11 +191,16 @@
                       "type": "object"
                     }
                   },
-                  "required": ["address", "channel"]
+                  "required": [
+                    "address",
+                    "channel"
+                  ]
                 }
               }
             },
-            "required": ["to"]
+            "required": [
+              "to"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -192,7 +232,10 @@
                     "title": "Content Type",
                     "description": "The type of message content.",
                     "type": "string",
-                    "enum": ["MessageContentText", "MessageContentTemplate"]
+                    "enum": [
+                      "MessageContentText",
+                      "MessageContentTemplate"
+                    ]
                   },
                   "text": {
                     "title": "Text",
@@ -215,10 +258,15 @@
                     "type": "string"
                   }
                 },
-                "required": ["text", "content_id"]
+                "required": [
+                  "text",
+                  "content_id"
+                ]
               }
             },
-            "required": ["content"]
+            "required": [
+              "content"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -287,7 +335,11 @@
                     "title": "Ignore Compliances",
                     "description": "List of compliance rules to ignore.",
                     "type": "string",
-                    "enum": ["all", "france_marketing", "eu_all"]
+                    "enum": [
+                      "all",
+                      "france_marketing",
+                      "eu_all"
+                    ]
                   },
                   "frequency_cap": {
                     "title": "Frequency Cap",

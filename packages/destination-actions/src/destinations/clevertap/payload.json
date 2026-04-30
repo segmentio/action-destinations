@@ -1,10 +1,16 @@
 {
   "name": "CleverTap (Actions)",
   "description": "CleverTap is a customer engagement and retention platform that provides the functionality to integrate app analytics and marketing. The platform helps customers increase user engagement in three ways: 1) Tracks actions users are taking and analyzes how people use the product. 2) [Segment](https://docs.clevertap.com/docs/segments) users based on their actions and run targeted [campaigns](https://docs.clevertap.com/docs/intro-to-campaigns) to these  segments. 3) [Analyze](https://docs.clevertap.com/docs/intro-to-reports) each campaign to understand its effect on user engagement and business metrics",
-  "basicOptions": ["clevertapAccountId", "clevertapPasscode", "clevertapEndpoint"],
+  "basicOptions": [
+    "clevertapAccountId",
+    "clevertapPasscode",
+    "clevertapEndpoint"
+  ],
   "options": {
     "clevertapAccountId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "CleverTap Account Id. This can be found under [Settings Page](https://developer.clevertap.com/docs/authentication#getting-your-account-credentials).",
       "encrypt": false,
@@ -15,11 +21,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The clevertapAccountId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The clevertapAccountId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "clevertapPasscode": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "CleverTap Passcode. This can be found under [Settings Page](https://developer.clevertap.com/docs/authentication#getting-your-account-credentials).",
       "encrypt": true,
@@ -30,11 +43,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The clevertapPasscode property is required."]],
+      "validators": [
+        [
+          "required",
+          "The clevertapPasscode property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "clevertapEndpoint": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "https://sk1.api.clevertap.com",
       "description": "Learn More about [Account regions](https://docs.clevertap.com/docs/build-segment-destination#set-up-segment-destination-action).",
       "encrypt": false,
@@ -72,7 +92,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The clevertapEndpoint property is required."]],
+      "validators": [
+        [
+          "required",
+          "The clevertapEndpoint property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -84,7 +109,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -120,7 +148,9 @@
                 "type": "string"
               }
             },
-            "required": ["identity"]
+            "required": [
+              "identity"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -220,7 +250,9 @@
                 "type": "string"
               }
             },
-            "required": ["identity"]
+            "required": [
+              "identity"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

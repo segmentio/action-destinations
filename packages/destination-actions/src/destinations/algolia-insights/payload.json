@@ -1,9 +1,14 @@
 {
   "name": "Algolia Insights (Actions)",
-  "basicOptions": ["appId", "apiKey"],
+  "basicOptions": [
+    "appId",
+    "apiKey"
+  ],
   "options": {
     "appId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Algolia Application ID.",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The appId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The appId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "An API key which has write permissions to the Algolia Insights API",
       "encrypt": true,
@@ -29,7 +41,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -91,7 +111,10 @@
                 "title": "Event Subtype",
                 "description": "Sub-type of the event, \"purchase\" or \"addToCart\".",
                 "type": "string",
-                "enum": ["purchase", "addToCart"]
+                "enum": [
+                  "purchase",
+                  "addToCart"
+                ]
               }
             },
             "required": []
@@ -168,11 +191,15 @@
                       "type": "string"
                     }
                   },
-                  "required": ["product_id"]
+                  "required": [
+                    "product_id"
+                  ]
                 }
               }
             },
-            "required": ["products"]
+            "required": [
+              "products"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -202,7 +229,9 @@
                 "type": "string"
               }
             },
-            "required": ["index"]
+            "required": [
+              "index"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -282,7 +311,9 @@
                 "type": "string"
               }
             },
-            "required": ["userToken"]
+            "required": [
+              "userToken"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -499,7 +530,11 @@
                 "title": "Event Type",
                 "description": "The type of event to send to Algolia. Defaults to 'conversion'",
                 "type": "string",
-                "enum": ["view", "conversion", "click"]
+                "enum": [
+                  "view",
+                  "conversion",
+                  "click"
+                ]
               }
             },
             "required": []
@@ -542,7 +577,9 @@
                 "type": "string"
               }
             },
-            "required": ["product"]
+            "required": [
+              "product"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -572,7 +609,9 @@
                 "type": "string"
               }
             },
-            "required": ["index"]
+            "required": [
+              "index"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -652,7 +691,9 @@
                 "type": "string"
               }
             },
-            "required": ["userToken"]
+            "required": [
+              "userToken"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -809,7 +850,11 @@
                 "title": "Event Type",
                 "description": "The type of event to send to Algolia. Defaults to 'conversion'",
                 "type": "string",
-                "enum": ["view", "conversion", "click"]
+                "enum": [
+                  "view",
+                  "conversion",
+                  "click"
+                ]
               }
             },
             "required": []
@@ -852,7 +897,9 @@
                 "type": "string"
               }
             },
-            "required": ["objectID"]
+            "required": [
+              "objectID"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -882,7 +929,9 @@
                 "type": "string"
               }
             },
-            "required": ["index"]
+            "required": [
+              "index"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -992,7 +1041,9 @@
                 "type": "string"
               }
             },
-            "required": ["userToken"]
+            "required": [
+              "userToken"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1149,7 +1200,11 @@
                 "title": "Event Type",
                 "description": "The type of event to send to Algolia. Defaults to 'click'",
                 "type": "string",
-                "enum": ["view", "conversion", "click"]
+                "enum": [
+                  "view",
+                  "conversion",
+                  "click"
+                ]
               }
             },
             "required": []
@@ -1217,11 +1272,16 @@
                       "type": "string"
                     }
                   },
-                  "required": ["attribute", "value"]
+                  "required": [
+                    "attribute",
+                    "value"
+                  ]
                 }
               }
             },
-            "required": ["filters"]
+            "required": [
+              "filters"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1251,7 +1311,9 @@
                 "type": "string"
               }
             },
-            "required": ["index"]
+            "required": [
+              "index"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1331,7 +1393,9 @@
                 "type": "string"
               }
             },
-            "required": ["userToken"]
+            "required": [
+              "userToken"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1488,7 +1552,11 @@
                 "title": "Event Type",
                 "description": "The type of event to send to Algolia. Defaults to 'click'",
                 "type": "string",
-                "enum": ["view", "conversion", "click"]
+                "enum": [
+                  "view",
+                  "conversion",
+                  "click"
+                ]
               }
             },
             "required": []
@@ -1548,11 +1616,15 @@
                       "type": "string"
                     }
                   },
-                  "required": ["product_id"]
+                  "required": [
+                    "product_id"
+                  ]
                 }
               }
             },
-            "required": ["products"]
+            "required": [
+              "products"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1582,7 +1654,9 @@
                 "type": "string"
               }
             },
-            "required": ["index"]
+            "required": [
+              "index"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1662,7 +1736,9 @@
                 "type": "string"
               }
             },
-            "required": ["userToken"]
+            "required": [
+              "userToken"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1819,7 +1895,11 @@
                 "title": "Event Type",
                 "description": "The type of event to send to Algolia. Defaults to 'view'",
                 "type": "string",
-                "enum": ["view", "conversion", "click"]
+                "enum": [
+                  "view",
+                  "conversion",
+                  "click"
+                ]
               }
             },
             "required": []
@@ -1862,7 +1942,9 @@
                 "type": "string"
               }
             },
-            "required": ["objectID"]
+            "required": [
+              "objectID"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1892,7 +1974,9 @@
                 "type": "string"
               }
             },
-            "required": ["index"]
+            "required": [
+              "index"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1972,7 +2056,9 @@
                 "type": "string"
               }
             },
-            "required": ["userToken"]
+            "required": [
+              "userToken"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2129,7 +2215,11 @@
                 "title": "Event Type",
                 "description": "The type of event to send to Algolia. Defaults to 'view'",
                 "type": "string",
-                "enum": ["view", "conversion", "click"]
+                "enum": [
+                  "view",
+                  "conversion",
+                  "click"
+                ]
               }
             },
             "required": []

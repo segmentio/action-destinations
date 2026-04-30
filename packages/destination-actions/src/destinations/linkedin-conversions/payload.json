@@ -61,7 +61,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -97,7 +100,9 @@
                 "type": "string"
               }
             },
-            "required": ["conversionHappenedAt"]
+            "required": [
+              "conversionHappenedAt"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -145,7 +150,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["currencyCode", "amount"]
+                "required": [
+                  "currencyCode",
+                  "amount"
+                ]
               }
             },
             "required": []
@@ -341,7 +349,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["firstName", "lastName"]
+                "required": [
+                  "firstName",
+                  "lastName"
+                ]
               }
             },
             "required": []
@@ -459,7 +470,9 @@
                 "type": "string"
               }
             },
-            "required": ["adAccountId"]
+            "required": [
+              "adAccountId"
+            ]
           },
           "dependsOn": null,
           "hookInputFieldType": "onMappingSave",
@@ -808,7 +821,10 @@
                 "title": "Attribution Type",
                 "description": "The attribution type for the conversion rule.",
                 "type": "string",
-                "enum": ["LAST_TOUCH_BY_CAMPAIGN", "LAST_TOUCH_BY_CONVERSION"]
+                "enum": [
+                  "LAST_TOUCH_BY_CAMPAIGN",
+                  "LAST_TOUCH_BY_CONVERSION"
+                ]
               }
             },
             "required": []
@@ -863,7 +879,12 @@
                 "title": "Post-Click Attribution Window Size",
                 "description": "Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 30.",
                 "type": "number",
-                "enum": [1, 7, 30, 90]
+                "enum": [
+                  1,
+                  7,
+                  30,
+                  90
+                ]
               }
             },
             "required": []
@@ -918,7 +939,12 @@
                 "title": "View-Through Attribution Window Size",
                 "description": "Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.",
                 "type": "number",
-                "enum": [1, 7, 30, 90]
+                "enum": [
+                  1,
+                  7,
+                  30,
+                  90
+                ]
               }
             },
             "required": []

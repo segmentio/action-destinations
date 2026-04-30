@@ -1,10 +1,15 @@
 {
   "name": "DevRev",
   "description": "Send Segment events via Cloud Mode to DevRev to create work items and RevUsers",
-  "basicOptions": ["apiKey", "blacklistedDomains"],
+  "basicOptions": [
+    "apiKey",
+    "blacklistedDomains"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your DevRev API Key, generated from the setting page in your DevRev organization.",
       "encrypt": true,
@@ -15,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "blacklistedDomains": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "gmail.com,hotmail.com,outlook.com,yahoo.com,aol.com,icloud.com,me.com,msn.com",
       "description": "A comma separated list of email domains to blacklist from being used to search for/create Accounts.",
       "encrypt": false,
@@ -42,7 +54,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -88,7 +103,9 @@
                 "type": "string"
               }
             },
-            "required": ["email"]
+            "required": [
+              "email"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -299,7 +316,9 @@
                 "type": "string"
               }
             },
-            "required": ["partId"]
+            "required": [
+              "partId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -339,7 +358,9 @@
                 "type": "string"
               }
             },
-            "required": ["title"]
+            "required": [
+              "title"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -370,7 +391,9 @@
                 "format": "text"
               }
             },
-            "required": ["description"]
+            "required": [
+              "description"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -428,7 +451,9 @@
                 "type": "string"
               }
             },
-            "required": ["assignTo"]
+            "required": [
+              "assignTo"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -471,10 +496,17 @@
                 "title": "Priority",
                 "description": "The priority of the work to create.",
                 "type": "string",
-                "enum": ["p0", "p1", "p2", "p3"]
+                "enum": [
+                  "p0",
+                  "p1",
+                  "p2",
+                  "p3"
+                ]
               }
             },
-            "required": ["priority"]
+            "required": [
+              "priority"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -509,10 +541,15 @@
                 "title": "Type",
                 "description": "The type of the work to create.",
                 "type": "string",
-                "enum": ["issue", "ticket"]
+                "enum": [
+                  "issue",
+                  "ticket"
+                ]
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -646,7 +683,9 @@
                 "type": "string"
               }
             },
-            "required": ["eventName"]
+            "required": [
+              "eventName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -673,11 +712,16 @@
               "timestamp": {
                 "title": "Event Timestamp",
                 "description": "The time when this event occurred. If this isn't set, the current time will be used.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

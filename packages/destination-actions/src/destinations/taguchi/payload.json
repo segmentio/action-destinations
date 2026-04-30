@@ -1,10 +1,16 @@
 {
   "name": "Taguchi",
   "description": "Sync analytics events, user profile details, including Audience and Computed Trait details to Taguchi.",
-  "basicOptions": ["apiKey", "integrationURL", "organizationId"],
+  "basicOptions": [
+    "apiKey",
+    "integrationURL",
+    "organizationId"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Taguchi API Key used to authenticate requests to the Taguchi platform.",
       "encrypt": true,
@@ -15,11 +21,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "integrationURL": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Taguchi URL Segment will send data to. This should be created in the Taguchi User Interface by navigating to 'Taguchi Integrations' then 'Integrations Setup.'",
       "encrypt": false,
@@ -30,11 +43,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The integrationURL property is required."]],
+      "validators": [
+        [
+          "required",
+          "The integrationURL property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "organizationId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Taguchi ID of the organization to which this Subscriber belongs.",
       "encrypt": false,
@@ -45,7 +65,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The organizationId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The organizationId property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -57,7 +82,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -124,7 +152,9 @@
                 "required": []
               }
             },
-            "required": ["target"]
+            "required": [
+              "target"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -159,10 +189,15 @@
                 "title": "Event Type",
                 "description": "Type of event being sent.",
                 "type": "string",
-                "enum": ["p", "f"]
+                "enum": [
+                  "p",
+                  "f"
+                ]
               }
             },
-            "required": ["eventType"]
+            "required": [
+              "eventType"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -385,7 +420,9 @@
                 "required": []
               }
             },
-            "required": ["identifiers"]
+            "required": [
+              "identifiers"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -685,7 +722,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

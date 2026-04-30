@@ -1,10 +1,15 @@
 {
   "name": "Ripe Cloud Mode (Actions)",
   "description": "Send server-side events to the Ripe REST API.",
-  "basicOptions": ["apiKey", "endpoint"],
+  "basicOptions": [
+    "apiKey",
+    "endpoint"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Ripe API key found in the Ripe App",
       "encrypt": true,
@@ -15,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "endpoint": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "https://api.getripe.com/event",
       "description": "The Ripe API endpoint (do not change this unless you know what you're doing)",
       "encrypt": false,
@@ -42,7 +54,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -75,7 +90,10 @@
               "anonymousId": {
                 "title": "Anonymous ID",
                 "description": "Anonymous id",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -105,7 +123,10 @@
               "userId": {
                 "title": "User ID",
                 "description": "The ID associated with the user",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -138,7 +159,9 @@
                 "type": "string"
               }
             },
-            "required": ["groupId"]
+            "required": [
+              "groupId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -195,7 +218,10 @@
               "traits": {
                 "title": "Traits",
                 "description": "Traits to associate with the group",
-                "type": ["object", "null"]
+                "type": [
+                  "object",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -296,7 +322,10 @@
               "anonymousId": {
                 "title": "Anonymous ID",
                 "description": "An anonymous identifier",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -326,7 +355,10 @@
               "userId": {
                 "title": "User ID",
                 "description": "The ID associated with the user",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -487,7 +519,10 @@
               "anonymousId": {
                 "title": "Anonymous ID",
                 "description": "An anonymous identifier",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -517,7 +552,10 @@
               "userId": {
                 "title": "User ID",
                 "description": "The ID associated with the user",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -647,7 +685,10 @@
               "url": {
                 "title": "Page URL",
                 "description": "The page URL",
-                "type": ["string", "null"],
+                "type": [
+                  "string",
+                  "null"
+                ],
                 "format": "uri"
               }
             },
@@ -688,7 +729,10 @@
               "path": {
                 "title": "Page Path",
                 "description": "The page path",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -728,7 +772,10 @@
               "search": {
                 "title": "Page Query String",
                 "description": "URL query string",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -768,7 +815,10 @@
               "referrer": {
                 "title": "Page Referrer",
                 "description": "The page referrer",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -808,7 +858,10 @@
               "title": {
                 "title": "Page Title",
                 "description": "The page title",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -909,7 +962,10 @@
               "anonymousId": {
                 "title": "Anonymous ID",
                 "description": "An anonymous identifier",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -972,7 +1028,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

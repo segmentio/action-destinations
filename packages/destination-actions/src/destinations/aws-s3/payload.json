@@ -14,7 +14,9 @@
   ],
   "options": {
     "iam_role_arn": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "IAM role ARN with write permissions to the S3 bucket. Format: arn:aws:iam::account-id:role/role-name",
       "encrypt": false,
@@ -25,11 +27,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The iam_role_arn property is required."]],
+      "validators": [
+        [
+          "required",
+          "The iam_role_arn property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "s3_aws_bucket_name": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Name of the S3 bucket where the files will be uploaded to.",
       "encrypt": false,
@@ -40,11 +49,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The s3_aws_bucket_name property is required."]],
+      "validators": [
+        [
+          "required",
+          "The s3_aws_bucket_name property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "s3_aws_region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Region Code where the S3 bucket is hosted. See [AWS S3 Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions)",
       "encrypt": false,
@@ -55,11 +71,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The s3_aws_region property is required."]],
+      "validators": [
+        [
+          "required",
+          "The s3_aws_region property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "iam_external_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The External ID to your IAM role. Generate a secure string and treat it like a password.",
       "encrypt": true,
@@ -70,7 +93,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The iam_external_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The iam_external_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "s3_aws_folder_name": {
@@ -142,7 +170,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The delimiter property is required."]],
+      "validators": [
+        [
+          "required",
+          "The delimiter property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "__segment_internal_engage_batch_sync": {
@@ -178,7 +211,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -285,7 +321,9 @@
                 "required": []
               }
             },
-            "required": ["columns"]
+            "required": [
+              "columns"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -316,7 +354,9 @@
                 "type": "string"
               }
             },
-            "required": ["audienceName"]
+            "required": [
+              "audienceName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -347,7 +387,9 @@
                 "type": "string"
               }
             },
-            "required": ["audienceId"]
+            "required": [
+              "audienceId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -478,11 +520,16 @@
               "timestamp": {
                 "title": "Timestamp Hidden Field",
                 "description": "Timestamp Hidden Field",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -513,7 +560,9 @@
                 "type": "string"
               }
             },
-            "required": ["messageId"]
+            "required": [
+              "messageId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -544,7 +593,9 @@
                 "type": "string"
               }
             },
-            "required": ["spaceId"]
+            "required": [
+              "spaceId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -575,7 +626,9 @@
                 "type": "object"
               }
             },
-            "required": ["integrationsObject"]
+            "required": [
+              "integrationsObject"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -616,7 +669,9 @@
                 "type": "object"
               }
             },
-            "required": ["propertiesOrTraits"]
+            "required": [
+              "propertiesOrTraits"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -648,7 +703,11 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["enrichment", "function", "variable"]
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable"
+            ]
           }
         },
         {
@@ -675,7 +734,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -742,10 +803,15 @@
                 "title": "Segment Audience Computation Class",
                 "description": "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' or 'journey_step' will be dropped before the perform() fuction call.",
                 "type": "string",
-                "enum": ["audience", "journey_step"]
+                "enum": [
+                  "audience",
+                  "journey_step"
+                ]
               }
             },
-            "required": ["computation_class"]
+            "required": [
+              "computation_class"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

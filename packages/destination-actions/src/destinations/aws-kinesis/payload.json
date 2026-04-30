@@ -1,9 +1,14 @@
 {
   "name": "Aws Kinesis",
-  "basicOptions": ["iamRoleArn", "iamExternalId"],
+  "basicOptions": [
+    "iamRoleArn",
+    "iamExternalId"
+  ],
   "options": {
     "iamRoleArn": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The ARN of the IAM Role to assume for sending data to Kinesis.",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The iamRoleArn property is required."]],
+      "validators": [
+        [
+          "required",
+          "The iamRoleArn property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "iamExternalId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The external ID to use when assuming the IAM Role. Generate a secure string and treat it like a password.  This is often used as an additional security measure.",
       "encrypt": true,
@@ -29,7 +41,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The iamExternalId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The iamExternalId property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -77,7 +97,9 @@
                 "type": "object"
               }
             },
-            "required": ["payload"]
+            "required": [
+              "payload"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -107,7 +129,9 @@
                 "type": "string"
               }
             },
-            "required": ["partitionKey"]
+            "required": [
+              "partitionKey"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -134,7 +158,9 @@
                 "type": "string"
               }
             },
-            "required": ["streamName"]
+            "required": [
+              "streamName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
@@ -241,11 +267,18 @@
                 ]
               }
             },
-            "required": ["awsRegion"]
+            "required": [
+              "awsRegion"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         },
         {
@@ -279,7 +312,12 @@
           "minimum": 1,
           "maximum": 500,
           "displayMetadata": {
-            "disabledInputMethods": ["variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         },
         {
@@ -287,7 +325,10 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The keys to use for batching the events.",
-          "defaultValue": ["awsRegion", "streamName"],
+          "defaultValue": [
+            "awsRegion",
+            "streamName"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,
@@ -340,13 +381,20 @@
                 "maximum": 500
               }
             },
-            "required": ["max_batch_size"]
+            "required": [
+              "max_batch_size"
+            ]
           },
           "dependsOn": null,
           "minimum": 1,
           "maximum": 500,
           "displayMetadata": {
-            "disabledInputMethods": ["variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         },
         {
@@ -402,7 +450,9 @@
                 "type": "number"
               }
             },
-            "required": ["batch_bytes"]
+            "required": [
+              "batch_bytes"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

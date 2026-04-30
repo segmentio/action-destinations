@@ -1,9 +1,15 @@
 {
   "name": "Voucherify (Actions)",
-  "basicOptions": ["apiKey", "secretKey", "customURL"],
+  "basicOptions": [
+    "apiKey",
+    "secretKey",
+    "customURL"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Application ID can be found in [Voucherify dashboard](https://docs.voucherify.io/docs/authentication).",
       "encrypt": true,
@@ -14,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "secretKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Secret Key can be found in [Voucherify dashboard](https://docs.voucherify.io/docs/authentication).",
       "encrypt": true,
@@ -29,11 +42,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The secretKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The secretKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "customURL": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Check your API region in [Voucherify dashboard](https://app.voucherify.io/#/login) -> Project settings -> API endpoint. For example, if you are using a project with a URL: `https://us1.api.voucherify.io`, your Custom URL will be: `https://us1.segmentio.voucherify.io`. It also works for dedicated URLs.",
       "encrypt": false,
@@ -44,7 +64,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The customURL property is required."]],
+      "validators": [
+        [
+          "required",
+          "The customURL property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -56,7 +81,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "basic",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -92,7 +120,9 @@
                 "type": "string"
               }
             },
-            "required": ["source_id"]
+            "required": [
+              "source_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -119,7 +149,10 @@
               "name": {
                 "title": "Name",
                 "description": "First name and last name of the [customer](https://docs.voucherify.io/reference/customer-object).",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -149,7 +182,10 @@
               "first_name": {
                 "title": "First Name",
                 "description": "First name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `last_name` to create the `name` field.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -179,7 +215,10 @@
               "last_name": {
                 "title": "Last Name",
                 "description": "Last name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `first_name` to create the `name` field.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -209,7 +248,10 @@
               "description": {
                 "title": "Description",
                 "description": "An arbitrary string that you can attach to a [customer](https://docs.voucherify.io/reference/customer-object) object.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -239,7 +281,10 @@
               "email": {
                 "title": "Email Address",
                 "description": "The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -269,7 +314,10 @@
               "phone": {
                 "title": "Phone",
                 "description": "Phone number of the [customer](https://docs.voucherify.io/reference/the-customer-object).",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -299,7 +347,10 @@
               "birthdate": {
                 "title": "Birthdate",
                 "description": "Birthdate of the [customer](https://docs.voucherify.io/reference/the-customer-object). You can pass data here in `date` or `datetime` format (ISO 8601).",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -349,23 +400,38 @@
                 "properties": {
                   "city": {
                     "title": "City",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "state": {
                     "title": "State",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "postal_code": {
                     "title": "Postal Code",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "street": {
                     "title": "Street",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "country": {
                     "title": "Country",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
                 },
                 "required": []
@@ -398,7 +464,10 @@
               "metadata": {
                 "title": "Metadata",
                 "description": "A set of custom key/value pairs that you can attach to a customer. The metadata object stores all custom attributes assigned to the customer. It can be useful for storing additional information about the customer in a structured format.",
-                "type": ["object", "null"]
+                "type": [
+                  "object",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -431,7 +500,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -498,10 +569,14 @@
                     "type": "string"
                   }
                 },
-                "required": ["source_id"]
+                "required": [
+                  "source_id"
+                ]
               }
             },
-            "required": ["customer"]
+            "required": [
+              "customer"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -690,7 +765,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -747,10 +824,14 @@
                     "type": "string"
                   }
                 },
-                "required": ["source_id"]
+                "required": [
+                  "source_id"
+                ]
               }
             },
-            "required": ["customer"]
+            "required": [
+              "customer"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -780,7 +861,9 @@
                 "type": "string"
               }
             },
-            "required": ["group_id"]
+            "required": [
+              "group_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -840,7 +923,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

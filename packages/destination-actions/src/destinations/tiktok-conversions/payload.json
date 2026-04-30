@@ -1,9 +1,14 @@
 {
   "name": "Tiktok Conversions",
-  "basicOptions": ["accessToken", "pixelCode"],
+  "basicOptions": [
+    "accessToken",
+    "pixelCode"
+  ],
   "options": {
     "accessToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your TikTok Access Token. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to generate an access token via the TikTok Ads Manager or API.",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The accessToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The accessToken property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "pixelCode": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your TikTok Pixel ID. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to find this value.",
       "encrypt": false,
@@ -29,7 +41,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The pixelCode property is required."]],
+      "validators": [
+        [
+          "required",
+          "The pixelCode property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -82,7 +102,10 @@
                 "title": "Event Source",
                 "description": "The type of events you are uploading through TikTok Events API. Please see TikTok's [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to find this value. If no selection is made 'Web' is assumed.",
                 "type": "string",
-                "enum": ["web", "crm"]
+                "enum": [
+                  "web",
+                  "crm"
+                ]
               }
             },
             "required": []
@@ -119,7 +142,10 @@
                 "title": "Additional Fields",
                 "description": "Include fields for travel or vehicle events.",
                 "type": "string",
-                "enum": ["travel_fields", "vehicle_fields"]
+                "enum": [
+                  "travel_fields",
+                  "vehicle_fields"
+                ]
               }
             },
             "required": []
@@ -157,7 +183,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -986,7 +1014,10 @@
                 "title": "Content Type",
                 "description": "Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.",
                 "type": "string",
-                "enum": ["product", "product_group"]
+                "enum": [
+                  "product",
+                  "product_group"
+                ]
               }
             },
             "required": []
@@ -1214,7 +1245,11 @@
                 "title": "Delivery Category",
                 "description": "Category of the delivery.",
                 "type": "string",
-                "enum": ["in_store", "curbside", "home_delivery"]
+                "enum": [
+                  "in_store",
+                  "curbside",
+                  "home_delivery"
+                ]
               }
             },
             "required": []
@@ -1340,7 +1375,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["event_source"],
+                  "required": [
+                    "event_source"
+                  ],
                   "properties": {
                     "event_source": {
                       "const": "crm"
@@ -1348,7 +1385,9 @@
                   }
                 },
                 "then": {
-                  "required": ["lead_fields"]
+                  "required": [
+                    "lead_fields"
+                  ]
                 }
               }
             ]
@@ -1487,7 +1526,11 @@
                     "title": "State of the Vehicle",
                     "description": "Vehicle status.",
                     "type": "string",
-                    "enum": ["New", "Used", "CPO"]
+                    "enum": [
+                      "New",
+                      "Used",
+                      "CPO"
+                    ]
                   },
                   "mileage_value": {
                     "title": "Mileage Value",
@@ -1498,7 +1541,10 @@
                     "title": "Mileage Unit",
                     "description": "Mileage unites in miles (MI) or kilometers (KM).",
                     "type": "string",
-                    "enum": ["MI", "KM"]
+                    "enum": [
+                      "MI",
+                      "KM"
+                    ]
                   },
                   "exterior_color": {
                     "title": "Exterior Color of the Vehicle",
@@ -1509,7 +1555,11 @@
                     "title": "Transmission Type of the Vehicle",
                     "description": "Vehicle transmission type.",
                     "type": "string",
-                    "enum": ["Automatic", "Manual", "Other"]
+                    "enum": [
+                      "Automatic",
+                      "Manual",
+                      "Other"
+                    ]
                   },
                   "body_style": {
                     "title": "Body Type of the Vehicle",
@@ -1533,13 +1583,27 @@
                     "title": "Fuel Type of the Vehicle",
                     "description": "Vehicle fuel type.",
                     "type": "string",
-                    "enum": ["Diesel", "Electric", "Flex", "Gasoline", "Hybrid", "Other"]
+                    "enum": [
+                      "Diesel",
+                      "Electric",
+                      "Flex",
+                      "Gasoline",
+                      "Hybrid",
+                      "Other"
+                    ]
                   },
                   "drivetrain": {
                     "title": "Drivetrain of the Vehicle",
                     "description": "Vehicle drivetrain.",
                     "type": "string",
-                    "enum": ["AWD", "FOUR_WD", "FWD", "RWD", "TWO_WD", "Other"]
+                    "enum": [
+                      "AWD",
+                      "FOUR_WD",
+                      "FWD",
+                      "RWD",
+                      "TWO_WD",
+                      "Other"
+                    ]
                   },
                   "preferred_price_range_min": {
                     "title": "Minimum Preferred Price",
@@ -1570,7 +1634,13 @@
                     "title": "Condition of the Vehicle",
                     "description": "Vehicle drivetrain.",
                     "type": "string",
-                    "enum": ["Excellent", "Good", "Fair", "Poor", "Other"]
+                    "enum": [
+                      "Excellent",
+                      "Good",
+                      "Fair",
+                      "Poor",
+                      "Other"
+                    ]
                   },
                   "viewcontent_type": {
                     "title": "Soft Lead Landing Page",
@@ -1792,7 +1862,12 @@
                     "title": "Flight Ticket Class",
                     "description": "Class of the flight ticket, must be: \"eco\", \"prem\", \"bus\", \"first\".",
                     "type": "string",
-                    "enum": ["eco", "prem", "bus", "first"]
+                    "enum": [
+                      "eco",
+                      "prem",
+                      "bus",
+                      "first"
+                    ]
                   },
                   "user_score": {
                     "title": "User Score",

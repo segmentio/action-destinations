@@ -1,9 +1,15 @@
 {
   "name": "Google Campaign Manager 360",
-  "basicOptions": ["profileId", "defaultFloodlightActivityId", "defaultFloodlightConfigurationId"],
+  "basicOptions": [
+    "profileId",
+    "defaultFloodlightActivityId",
+    "defaultFloodlightConfigurationId"
+  ],
   "options": {
     "profileId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The ID of the Campaign Manager 360 profile you want to use.",
       "encrypt": false,
@@ -14,11 +20,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The profileId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The profileId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "defaultFloodlightActivityId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Default Floodlight activity ID associated with all the mappings. Can be overridden in the mapping.",
       "encrypt": false,
@@ -33,7 +46,9 @@
       "uIMetadata": null
     },
     "defaultFloodlightConfigurationId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Default Floodlight configuration ID associated with all the mappings. Can be overridden in the mapping.",
       "encrypt": false,
@@ -106,7 +121,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -217,7 +235,9 @@
                 "required": []
               }
             },
-            "required": ["requiredId"]
+            "required": [
+              "requiredId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -322,10 +342,18 @@
                     "title": "Encryption Source",
                     "description": "The encryption source. This should match the encryption type configuration for ad serving or Data Transfer.",
                     "type": "string",
-                    "enum": ["AD_SERVING", "ENCRYPTION_SCOPE_UNKNOWN", "DATA_TRANSFER"]
+                    "enum": [
+                      "AD_SERVING",
+                      "ENCRYPTION_SCOPE_UNKNOWN",
+                      "DATA_TRANSFER"
+                    ]
                   }
                 },
-                "required": ["encryptionEntityId", "encryptionEntityType", "encryptionSource"]
+                "required": [
+                  "encryptionEntityId",
+                  "encryptionEntityType",
+                  "encryptionSource"
+                ]
               }
             },
             "required": []
@@ -554,7 +582,9 @@
                 "type": "string"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -594,7 +624,9 @@
                 "type": "number"
               }
             },
-            "required": ["value"]
+            "required": [
+              "value"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -624,7 +656,9 @@
                 "type": "string"
               }
             },
-            "required": ["quantity"]
+            "required": [
+              "quantity"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -651,7 +685,9 @@
                 "type": "string"
               }
             },
-            "required": ["ordinal"]
+            "required": [
+              "ordinal"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -797,7 +833,10 @@
                 "title": "Ad User Data Consent",
                 "description": "The user data consent status for the conversion.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -943,7 +982,11 @@
                       "type": "number"
                     }
                   },
-                  "required": ["itemId", "quantity", "unitPrice"]
+                  "required": [
+                    "itemId",
+                    "quantity",
+                    "unitPrice"
+                  ]
                 }
               }
             },
@@ -1154,7 +1197,10 @@
                       "type": "string"
                     }
                   },
-                  "required": ["type", "value"]
+                  "required": [
+                    "type",
+                    "value"
+                  ]
                 }
               }
             },
@@ -1271,7 +1317,9 @@
                 "required": []
               }
             },
-            "required": ["requiredId"]
+            "required": [
+              "requiredId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1376,10 +1424,18 @@
                     "title": "Encryption Source",
                     "description": "The encryption source. This should match the encryption type configuration for ad serving or Data Transfer.",
                     "type": "string",
-                    "enum": ["AD_SERVING", "ENCRYPTION_SCOPE_UNKNOWN", "DATA_TRANSFER"]
+                    "enum": [
+                      "AD_SERVING",
+                      "ENCRYPTION_SCOPE_UNKNOWN",
+                      "DATA_TRANSFER"
+                    ]
                   }
                 },
-                "required": ["encryptionEntityId", "encryptionEntityType", "encryptionSource"]
+                "required": [
+                  "encryptionEntityId",
+                  "encryptionEntityType",
+                  "encryptionSource"
+                ]
               }
             },
             "required": []
@@ -1608,7 +1664,9 @@
                 "type": "string"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1648,7 +1706,9 @@
                 "type": "number"
               }
             },
-            "required": ["value"]
+            "required": [
+              "value"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1678,7 +1738,9 @@
                 "type": "string"
               }
             },
-            "required": ["quantity"]
+            "required": [
+              "quantity"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1705,7 +1767,9 @@
                 "type": "string"
               }
             },
-            "required": ["ordinal"]
+            "required": [
+              "ordinal"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1851,7 +1915,10 @@
                 "title": "Ad User Data Consent",
                 "description": "The user data consent status for the conversion.",
                 "type": "string",
-                "enum": ["GRANTED", "DENIED"]
+                "enum": [
+                  "GRANTED",
+                  "DENIED"
+                ]
               }
             },
             "required": []
@@ -1997,7 +2064,11 @@
                       "type": "number"
                     }
                   },
-                  "required": ["itemId", "quantity", "unitPrice"]
+                  "required": [
+                    "itemId",
+                    "quantity",
+                    "unitPrice"
+                  ]
                 }
               }
             },

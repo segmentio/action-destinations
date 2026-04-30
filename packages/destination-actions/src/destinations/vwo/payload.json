@@ -1,9 +1,15 @@
 {
   "name": "VWO Cloud Mode (Actions)",
-  "basicOptions": ["vwoAccountId", "apikey", "region"],
+  "basicOptions": [
+    "vwoAccountId",
+    "apikey",
+    "region"
+  ],
   "options": {
     "vwoAccountId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": 0,
       "description": "Enter your VWO Account ID",
       "encrypt": false,
@@ -14,11 +20,18 @@
       "type": "number",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The vwoAccountId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The vwoAccountId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "apikey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "VWO Fullstack SDK Key. It is mandatory when using the VWO Fullstack suite.",
       "encrypt": true,
@@ -33,7 +46,9 @@
       "uIMetadata": null
     },
     "region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "US",
       "description": "VWO Region to sync data to. Default is US",
       "encrypt": false,
@@ -73,7 +88,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -109,7 +127,9 @@
                 "type": "object"
               }
             },
-            "required": ["attributes"]
+            "required": [
+              "attributes"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -139,7 +159,9 @@
                 "type": "string"
               }
             },
-            "required": ["vwoUuid"]
+            "required": [
+              "vwoUuid"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -329,7 +351,9 @@
                 "type": "string"
               }
             },
-            "required": ["vwoUuid"]
+            "required": [
+              "vwoUuid"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -489,7 +513,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -579,7 +605,9 @@
                 "type": "string"
               }
             },
-            "required": ["audienceId"]
+            "required": [
+              "audienceId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -619,7 +647,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -679,7 +709,9 @@
                 "type": "string"
               }
             },
-            "required": ["vwoUuid"]
+            "required": [
+              "vwoUuid"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

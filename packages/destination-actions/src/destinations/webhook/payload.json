@@ -1,9 +1,13 @@
 {
   "name": "Webhook",
-  "basicOptions": ["sharedSecret"],
+  "basicOptions": [
+    "sharedSecret"
+  ],
   "options": {
     "sharedSecret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "If set, Segment will sign requests with an HMAC in the \"X-Signature\" request header. The HMAC is a hex-encoded SHA1 hash generated using this shared secret and the request body.",
       "encrypt": true,
@@ -26,7 +30,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -60,7 +67,9 @@
                 "format": "uri"
               }
             },
-            "required": ["url"]
+            "required": [
+              "url"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -99,10 +108,16 @@
                 "title": "Method",
                 "description": "HTTP method to use.",
                 "type": "string",
-                "enum": ["POST", "PUT", "PATCH"]
+                "enum": [
+                  "POST",
+                  "PUT",
+                  "PATCH"
+                ]
               }
             },
-            "required": ["method"]
+            "required": [
+              "method"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -198,7 +213,11 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The mapping keys to batch events together by.",
-          "defaultValue": ["url", "method", "headers"],
+          "defaultValue": [
+            "url",
+            "method",
+            "headers"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,

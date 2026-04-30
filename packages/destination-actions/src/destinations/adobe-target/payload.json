@@ -1,9 +1,14 @@
 {
   "name": "Adobe Target Cloud Mode",
-  "basicOptions": ["client_code", "bearer_token"],
+  "basicOptions": [
+    "client_code",
+    "bearer_token"
+  ],
   "options": {
     "client_code": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Adobe Target client code. To find your client code in Adobe Target, navigate to **Administration > Implementation**. The client code is shown at the top under Account Details.",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_code property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_code property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "bearer_token": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "If you choose to require authentication for Adobe Target's Profile API, you will need to generate an authentication token. Tokens can be generated in your Adobe Target account under the Implementation Settings tab or via the [Adobe.IO Authentication Token API](https://developers.adobetarget.com/api/#authentication-tokens). Input the authentication token here. Note: Authentication tokens expire so a new token will need to be generated and updated here prior to expiration.",
       "encrypt": true,
@@ -41,7 +53,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -87,7 +102,9 @@
                 "type": "string"
               }
             },
-            "required": ["user_id"]
+            "required": [
+              "user_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -115,7 +132,9 @@
                 "type": "object"
               }
             },
-            "required": ["traits"]
+            "required": [
+              "traits"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

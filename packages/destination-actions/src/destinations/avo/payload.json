@@ -1,9 +1,15 @@
 {
   "name": "Avo",
-  "basicOptions": ["apiKey", "env", "appVersionPropertyName"],
+  "basicOptions": [
+    "apiKey",
+    "env",
+    "appVersionPropertyName"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Avo Inspector API Key can be found in the Inspector setup page on your source in Avo.",
       "encrypt": true,
@@ -14,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "env": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "prod",
       "description": "Avo Inspector Environment",
       "encrypt": false,
@@ -46,11 +59,18 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The env property is required."]],
+      "validators": [
+        [
+          "required",
+          "The env property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "appVersionPropertyName": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "If you send a custom event property on all events that contains the app version, please enter the name of that property here (e.g. “app_version”). If you do not have a custom event property for the app version, please leave this field empty.",
       "encrypt": false,
@@ -73,7 +93,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -109,7 +132,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -139,7 +164,9 @@
                 "type": "object"
               }
             },
-            "required": ["properties"]
+            "required": [
+              "properties"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -169,7 +196,9 @@
                 "type": "string"
               }
             },
-            "required": ["messageId"]
+            "required": [
+              "messageId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -199,7 +228,9 @@
                 "type": "string"
               }
             },
-            "required": ["createdAt"]
+            "required": [
+              "createdAt"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

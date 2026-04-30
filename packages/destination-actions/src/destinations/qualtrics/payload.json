@@ -1,9 +1,14 @@
 {
   "name": "Qualtrics",
-  "basicOptions": ["apiToken", "datacenter"],
+  "basicOptions": [
+    "apiToken",
+    "datacenter"
+  ],
   "options": {
     "apiToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Qualtrics API token found in your Qualtrics account under \"Account settings\" -> \"Qualtrics IDs.\"",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiToken property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "datacenter": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "iad1",
       "description": "Qualtrics datacenter id that identifies where your qualtrics instance is located. Found under \"Account settings\" -> \"Qualtrics IDs\".",
       "encrypt": false,
@@ -29,7 +41,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The datacenter property is required."]],
+      "validators": [
+        [
+          "required",
+          "The datacenter property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -74,7 +94,9 @@
                 "type": "string"
               }
             },
-            "required": ["directoryId"]
+            "required": [
+              "directoryId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -366,7 +388,9 @@
                 "format": "uri"
               }
             },
-            "required": ["workflowUrl"]
+            "required": [
+              "workflowUrl"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -451,7 +475,9 @@
                 "type": "string"
               }
             },
-            "required": ["directoryId"]
+            "required": [
+              "directoryId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -481,7 +507,9 @@
                 "type": "string"
               }
             },
-            "required": ["mailingListId"]
+            "required": [
+              "mailingListId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -551,7 +579,9 @@
                 "type": "string"
               }
             },
-            "required": ["extRef"]
+            "required": [
+              "extRef"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -802,7 +832,10 @@
               "transactionDate": {
                 "title": "Date & time of transaction",
                 "description": "Date and time of when the transaction occurred.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

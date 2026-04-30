@@ -1,10 +1,16 @@
 {
   "name": "Movable Ink",
   "description": "Send Segment analytics events to Movable Ink",
-  "basicOptions": ["username", "password", "movable_ink_url"],
+  "basicOptions": [
+    "username",
+    "password",
+    "movable_ink_url"
+  ],
   "options": {
     "username": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Movable Ink username",
       "encrypt": false,
@@ -15,11 +21,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The username property is required."]],
+      "validators": [
+        [
+          "required",
+          "The username property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "password": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Movable Ink Access Secret.",
       "encrypt": true,
@@ -30,11 +43,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The password property is required."]],
+      "validators": [
+        [
+          "required",
+          "The password property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "movable_ink_url": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Movable Ink URL to send data to.",
       "encrypt": false,
@@ -45,7 +65,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The movable_ink_url property is required."]],
+      "validators": [
+        [
+          "required",
+          "The movable_ink_url property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -57,7 +82,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "basic",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {

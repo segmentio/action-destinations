@@ -1,10 +1,15 @@
 {
   "name": "Pushwoosh",
   "description": "Pushwoosh(https://www.pushwoosh.com) provides a customer engagement platform for mobile apps and websites and brings together all essential communication tools within one platform.Through the integration with Segment, Pushwoosh can leverage the comprehensive customer data collected, ensuring highly personalized and effective communication strategies.",
-  "basicOptions": ["pushwooshAPIKey", "pushwooshAppCode"],
+  "basicOptions": [
+    "pushwooshAPIKey",
+    "pushwooshAppCode"
+  ],
   "options": {
     "pushwooshAPIKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Pushwoosh API Key from Pushwoosh Control Panel",
       "encrypt": true,
@@ -15,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The pushwooshAPIKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The pushwooshAPIKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "pushwooshAppCode": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Pushwoosh Application Code from Pushwoosh Control Panel",
       "encrypt": false,
@@ -30,7 +42,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The pushwooshAppCode property is required."]],
+      "validators": [
+        [
+          "required",
+          "The pushwooshAppCode property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -42,7 +59,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -105,7 +125,10 @@
               "email": {
                 "title": "Email",
                 "description": "The user's email",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -135,7 +158,10 @@
               "app_version": {
                 "title": "App Version",
                 "description": "Version of the app",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -165,7 +191,10 @@
               "device_id": {
                 "title": "Device ID",
                 "description": "Device ID",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -195,7 +224,10 @@
               "device_model": {
                 "title": "Device Model",
                 "description": "Device Model",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -225,7 +257,10 @@
               "device_platform": {
                 "title": "Device Platform",
                 "description": "Device Platform",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -255,7 +290,10 @@
               "device_token": {
                 "title": "Device Token",
                 "description": "Device Token. This is not automatically collected by Segment Mobile SDKs. Add it into the Segment payload if needed",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -285,7 +323,10 @@
               "language": {
                 "title": "Language",
                 "description": "Language",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -315,7 +356,10 @@
               "country": {
                 "title": "Country",
                 "description": "The country code of the user",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -345,7 +389,10 @@
               "city": {
                 "title": "City",
                 "description": "The city of the user",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -423,7 +470,10 @@
               "device_os_version": {
                 "title": "Device OS Version",
                 "description": "The version of the device OS",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -453,7 +503,10 @@
               "timezone": {
                 "title": "Timezone",
                 "description": "The timezone of the user",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -483,7 +536,10 @@
               "user_agent": {
                 "title": "User Agent",
                 "description": "User agent of the device",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -556,7 +612,9 @@
                 "type": "string"
               }
             },
-            "required": ["external_id"]
+            "required": [
+              "external_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -583,7 +641,10 @@
               "device_id": {
                 "title": "Device ID",
                 "description": "Device ID",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -613,7 +674,10 @@
               "device_platform": {
                 "title": "Device Platform",
                 "description": "Device Platform",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -656,7 +720,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -683,11 +749,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "When the event occurred.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

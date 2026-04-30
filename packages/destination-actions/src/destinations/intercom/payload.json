@@ -61,7 +61,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -94,7 +97,10 @@
               "remote_created_at": {
                 "title": "Company Creation Time",
                 "description": "The time the company was created by you.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -189,7 +195,9 @@
                 "type": "string"
               }
             },
-            "required": ["company_id"]
+            "required": [
+              "company_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -468,10 +476,15 @@
                 "title": "Role",
                 "description": "The role of the contact. Accepted values are `user` or `lead`.",
                 "type": "string",
-                "enum": ["lead", "user"]
+                "enum": [
+                  "lead",
+                  "user"
+                ]
               }
             },
-            "required": ["role"]
+            "required": [
+              "role"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -655,7 +668,10 @@
               "signed_up_at": {
                 "title": "Signed Up Timestamp",
                 "description": "The time specified for when a contact signed up.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -686,7 +702,10 @@
               "last_seen_at": {
                 "title": "Last Seen Timestamp",
                 "description": "The time when the contact was last seen.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -812,7 +831,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -839,11 +860,16 @@
               "created_at": {
                 "title": "Event Timestamp",
                 "description": "The time the event occurred as a UTC Unix timestamp. Segment will convert to Unix if not already converted.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["created_at"]
+            "required": [
+              "created_at"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

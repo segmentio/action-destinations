@@ -1,9 +1,13 @@
 {
   "name": "Segment",
-  "basicOptions": ["source_write_key"],
+  "basicOptions": [
+    "source_write_key"
+  ],
   "options": {
     "source_write_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The **Write Key** of a Segment source.",
       "encrypt": true,
@@ -14,7 +18,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The source_write_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The source_write_key property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -113,7 +125,9 @@
                 "type": "string"
               }
             },
-            "required": ["group_id"]
+            "required": [
+              "group_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3319,7 +3333,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

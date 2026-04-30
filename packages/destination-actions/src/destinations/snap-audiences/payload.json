@@ -10,7 +10,9 @@
   ],
   "options": {
     "ad_account_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The ID of the Snap Ad Account",
       "encrypt": false,
@@ -21,7 +23,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The ad_account_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The ad_account_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "customAudienceName": {
@@ -152,7 +159,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -189,7 +199,9 @@
                 "type": "string"
               }
             },
-            "required": ["external_audience_id"]
+            "required": [
+              "external_audience_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -220,7 +232,9 @@
                 "type": "string"
               }
             },
-            "required": ["audienceKey"]
+            "required": [
+              "audienceKey"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -251,7 +265,9 @@
                 "type": "object"
               }
             },
-            "required": ["props"]
+            "required": [
+              "props"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -381,7 +397,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -413,7 +431,9 @@
                 "maximum": 100000
               }
             },
-            "required": ["max_batch_size"]
+            "required": [
+              "max_batch_size"
+            ]
           },
           "dependsOn": null,
           "minimum": 1,
@@ -425,7 +445,9 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The keys to use for batching the events. Ensures events from different audiences are sent in separate batches. This is Segment default behavior with Engage Audiences anyway.",
-          "defaultValue": ["external_audience_id"],
+          "defaultValue": [
+            "external_audience_id"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,
@@ -490,7 +512,9 @@
         },
         "enable_batching": true,
         "max_batch_size": 100000,
-        "batch_keys": ["external_audience_id"]
+        "batch_keys": [
+          "external_audience_id"
+        ]
       },
       "type": "specificEvent",
       "eventSlug": "warehouse_entity_added_track"
@@ -529,7 +553,9 @@
         },
         "enable_batching": true,
         "max_batch_size": 100000,
-        "batch_keys": ["external_audience_id"]
+        "batch_keys": [
+          "external_audience_id"
+        ]
       },
       "type": "specificEvent",
       "eventSlug": "warehouse_entity_removed_track"
@@ -568,7 +594,9 @@
         },
         "enable_batching": true,
         "max_batch_size": 100000,
-        "batch_keys": ["external_audience_id"]
+        "batch_keys": [
+          "external_audience_id"
+        ]
       },
       "type": "specificEvent",
       "eventSlug": "warehouse_audience_membership_changed_identify"
@@ -607,7 +635,9 @@
         },
         "enable_batching": true,
         "max_batch_size": 100000,
-        "batch_keys": ["external_audience_id"]
+        "batch_keys": [
+          "external_audience_id"
+        ]
       },
       "type": "specificEvent",
       "eventSlug": "journeys_step_entered_track"
@@ -647,7 +677,9 @@
         },
         "enable_batching": true,
         "max_batch_size": 100000,
-        "batch_keys": ["external_audience_id"]
+        "batch_keys": [
+          "external_audience_id"
+        ]
       },
       "type": "automatic"
     }

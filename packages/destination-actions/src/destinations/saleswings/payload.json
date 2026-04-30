@@ -1,9 +1,14 @@
 {
   "name": "Saleswings (Actions)",
-  "basicOptions": ["apiKey", "environment"],
+  "basicOptions": [
+    "apiKey",
+    "environment"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Segment.io API key for your SalesWings project.",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "environment": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "helium",
       "description": "SalesWings environment this destination is connected with.",
       "encrypt": false,
@@ -41,7 +53,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The environment property is required."]],
+      "validators": [
+        [
+          "required",
+          "The environment property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -53,7 +70,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -87,7 +107,9 @@
                 "type": "string"
               }
             },
-            "required": ["kind"]
+            "required": [
+              "kind"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -117,7 +139,9 @@
                 "type": "string"
               }
             },
-            "required": ["data"]
+            "required": [
+              "data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -217,7 +241,9 @@
                 "type": "string"
               }
             },
-            "required": ["email"]
+            "required": [
+              "email"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -354,7 +380,10 @@
               "timestamp": {
                 "title": "Event Timestamp",
                 "description": "When the event was sent.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -510,7 +539,9 @@
                 "type": "string"
               }
             },
-            "required": ["url"]
+            "required": [
+              "url"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -607,7 +638,10 @@
               "timestamp": {
                 "title": "Event Timestamp",
                 "description": "When the event was sent.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -661,7 +695,9 @@
                 "type": "string"
               }
             },
-            "required": ["kind"]
+            "required": [
+              "kind"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -691,7 +727,9 @@
                 "type": "string"
               }
             },
-            "required": ["data"]
+            "required": [
+              "data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -928,7 +966,10 @@
               "timestamp": {
                 "title": "Event Timestamp",
                 "description": "When the event was sent.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -1012,7 +1053,9 @@
                 "type": "string"
               }
             },
-            "required": ["kind"]
+            "required": [
+              "kind"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1042,7 +1085,9 @@
                 "type": "string"
               }
             },
-            "required": ["data"]
+            "required": [
+              "data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1279,7 +1324,10 @@
               "timestamp": {
                 "title": "Event Timestamp",
                 "description": "When the event was sent.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

@@ -1,9 +1,17 @@
 {
   "name": "Salesforce (Actions)",
-  "basicOptions": ["instanceUrl", "isSandbox", "username", "auth_password", "security_token"],
+  "basicOptions": [
+    "instanceUrl",
+    "isSandbox",
+    "username",
+    "auth_password",
+    "security_token"
+  ],
   "options": {
     "instanceUrl": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The user specific instance URL returned by Salesforce Oauth. This setting is hidden to the user and set by Oauth Service.",
       "encrypt": false,
@@ -14,11 +22,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The instanceUrl property is required."]],
+      "validators": [
+        [
+          "required",
+          "The instanceUrl property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "isSandbox": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": false,
       "description": "Enable to authenticate into a sandbox instance. You can log in to a sandbox by appending the sandbox name to your Salesforce username. For example, if a username for a production org is user@acme.com and the sandbox is named test, the username to log in to the sandbox is user@acme.com.test. If you are already authenticated, please disconnect and reconnect with your sandbox username.",
       "encrypt": false,
@@ -33,7 +48,9 @@
       "uIMetadata": null
     },
     "username": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The username of the Salesforce account you want to connect to. When all three of username, password, and security token are provided, a username-password flow is used to authenticate. This field is hidden to all users except those who have opted in to the username+password flow.",
       "encrypt": false,
@@ -48,7 +65,9 @@
       "uIMetadata": null
     },
     "auth_password": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The password of the Salesforce account you want to connect to. When all three of username, password, and security token are provided, a username-password flow is used to authenticate. This field is hidden to all users except those who have opted in to the username+password flow.",
       "encrypt": true,
@@ -63,7 +82,9 @@
       "uIMetadata": null
     },
     "security_token": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The security token of the Salesforce account you want to connect to. When all three of username, password, and security token are provided, a username-password flow is used to authenticate. This value will be appended to the password field to construct the credential used for authentication. This field is hidden to all users except those who have opted in to the username+password flow.",
       "encrypt": true,
@@ -136,7 +157,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -184,10 +208,17 @@
                 "title": "Operation",
                 "description": "The Salesforce operation performed. The available operations are Create, Delete, Update or Upsert records in Salesforce.",
                 "type": "string",
-                "enum": ["create", "update", "upsert", "delete"]
+                "enum": [
+                  "create",
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             },
-            "required": ["operation"]
+            "required": [
+              "operation"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -295,7 +326,10 @@
                 "title": "Record Matchers Operator",
                 "description": "This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the \"OR\" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to \"AND\".",
                 "type": "string",
-                "enum": ["OR", "AND"]
+                "enum": [
+                  "OR",
+                  "AND"
+                ]
               }
             },
             "required": []
@@ -305,7 +339,11 @@
               {
                 "fieldKey": "operation",
                 "operator": "is",
-                "value": ["update", "upsert", "delete"]
+                "value": [
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             ]
           },
@@ -341,7 +379,11 @@
               {
                 "fieldKey": "operation",
                 "operator": "is",
-                "value": ["update", "upsert", "delete"]
+                "value": [
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             ]
           },
@@ -1279,7 +1321,10 @@
                 "title": "Record Matchers Operator",
                 "description": "This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the \"OR\" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to \"AND\".",
                 "type": "string",
-                "enum": ["OR", "AND"]
+                "enum": [
+                  "OR",
+                  "AND"
+                ]
               }
             },
             "required": []
@@ -2266,10 +2311,17 @@
                 "title": "Operation",
                 "description": "The Salesforce operation performed. The available operations are Create, Delete, Update or Upsert records in Salesforce.",
                 "type": "string",
-                "enum": ["create", "update", "upsert", "delete"]
+                "enum": [
+                  "create",
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             },
-            "required": ["operation"]
+            "required": [
+              "operation"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2304,7 +2356,10 @@
                 "title": "Record Matchers Operator",
                 "description": "This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the \"OR\" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to \"AND\".",
                 "type": "string",
-                "enum": ["OR", "AND"]
+                "enum": [
+                  "OR",
+                  "AND"
+                ]
               }
             },
             "required": []
@@ -2314,7 +2369,11 @@
               {
                 "fieldKey": "operation",
                 "operator": "is",
-                "value": ["update", "upsert", "delete"]
+                "value": [
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             ]
           },
@@ -2423,7 +2482,11 @@
               {
                 "fieldKey": "operation",
                 "operator": "is",
-                "value": ["update", "upsert", "delete"]
+                "value": [
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             ]
           },
@@ -2638,7 +2701,10 @@
                 "title": "Record Matchers Operator",
                 "description": "This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the \"OR\" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to \"AND\".",
                 "type": "string",
-                "enum": ["OR", "AND"]
+                "enum": [
+                  "OR",
+                  "AND"
+                ]
               }
             },
             "required": []
@@ -3037,10 +3103,17 @@
                 "title": "Operation",
                 "description": "The Salesforce operation performed. The available operations are Create, Delete, Update or Upsert records in Salesforce.",
                 "type": "string",
-                "enum": ["create", "update", "upsert", "delete"]
+                "enum": [
+                  "create",
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             },
-            "required": ["operation"]
+            "required": [
+              "operation"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3075,7 +3148,10 @@
                 "title": "Record Matchers Operator",
                 "description": "This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the \"OR\" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to \"AND\".",
                 "type": "string",
-                "enum": ["OR", "AND"]
+                "enum": [
+                  "OR",
+                  "AND"
+                ]
               }
             },
             "required": []
@@ -3085,7 +3161,11 @@
               {
                 "fieldKey": "operation",
                 "operator": "is",
-                "value": ["update", "upsert", "delete"]
+                "value": [
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             ]
           },
@@ -3194,7 +3274,11 @@
               {
                 "fieldKey": "operation",
                 "operator": "is",
-                "value": ["update", "upsert", "delete"]
+                "value": [
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             ]
           },
@@ -3793,7 +3877,10 @@
                 "title": "Record Matchers Operator",
                 "description": "This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the \"OR\" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to \"AND\".",
                 "type": "string",
-                "enum": ["OR", "AND"]
+                "enum": [
+                  "OR",
+                  "AND"
+                ]
               }
             },
             "required": []
@@ -4584,10 +4671,17 @@
                 "title": "Operation",
                 "description": "The Salesforce operation performed. The available operations are Create, Delete, Update or Upsert records in Salesforce.",
                 "type": "string",
-                "enum": ["create", "update", "upsert", "delete"]
+                "enum": [
+                  "create",
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             },
-            "required": ["operation"]
+            "required": [
+              "operation"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4622,7 +4716,10 @@
                 "title": "Record Matchers Operator",
                 "description": "This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the \"OR\" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to \"AND\".",
                 "type": "string",
-                "enum": ["OR", "AND"]
+                "enum": [
+                  "OR",
+                  "AND"
+                ]
               }
             },
             "required": []
@@ -4632,7 +4729,11 @@
               {
                 "fieldKey": "operation",
                 "operator": "is",
-                "value": ["update", "upsert", "delete"]
+                "value": [
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             ]
           },
@@ -4741,7 +4842,11 @@
               {
                 "fieldKey": "operation",
                 "operator": "is",
-                "value": ["update", "upsert", "delete"]
+                "value": [
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             ]
           },
@@ -4867,7 +4972,9 @@
                 "type": "string"
               }
             },
-            "required": ["customObjectName"]
+            "required": [
+              "customObjectName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4948,7 +5055,10 @@
                 "title": "Record Matchers Operator",
                 "description": "This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the \"OR\" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to \"AND\".",
                 "type": "string",
-                "enum": ["OR", "AND"]
+                "enum": [
+                  "OR",
+                  "AND"
+                ]
               }
             },
             "required": []
@@ -5217,7 +5327,9 @@
                 "type": "string"
               }
             },
-            "required": ["customObjectName"]
+            "required": [
+              "customObjectName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5338,10 +5450,17 @@
                 "title": "Operation",
                 "description": "The Salesforce operation performed. The available operations are Create, Delete, Update or Upsert records in Salesforce.",
                 "type": "string",
-                "enum": ["create", "update", "upsert", "delete"]
+                "enum": [
+                  "create",
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             },
-            "required": ["operation"]
+            "required": [
+              "operation"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5376,7 +5495,10 @@
                 "title": "Record Matchers Operator",
                 "description": "This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the \"OR\" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to \"AND\".",
                 "type": "string",
-                "enum": ["OR", "AND"]
+                "enum": [
+                  "OR",
+                  "AND"
+                ]
               }
             },
             "required": []
@@ -5386,7 +5508,11 @@
               {
                 "fieldKey": "operation",
                 "operator": "is",
-                "value": ["update", "upsert", "delete"]
+                "value": [
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             ]
           },
@@ -5495,7 +5621,11 @@
               {
                 "fieldKey": "operation",
                 "operator": "is",
-                "value": ["update", "upsert", "delete"]
+                "value": [
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             ]
           },
@@ -5686,7 +5816,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -5694,7 +5826,9 @@
                   }
                 },
                 "then": {
-                  "required": ["last_name"]
+                  "required": [
+                    "last_name"
+                  ]
                 }
               }
             ]
@@ -6132,7 +6266,10 @@
                 "title": "Record Matchers Operator",
                 "description": "This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the \"OR\" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to \"AND\".",
                 "type": "string",
-                "enum": ["OR", "AND"]
+                "enum": [
+                  "OR",
+                  "AND"
+                ]
               }
             },
             "required": []
@@ -6936,10 +7073,17 @@
                 "title": "Operation",
                 "description": "The Salesforce operation performed. The available operations are Create, Delete, Update or Upsert records in Salesforce.",
                 "type": "string",
-                "enum": ["create", "update", "upsert", "delete"]
+                "enum": [
+                  "create",
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             },
-            "required": ["operation"]
+            "required": [
+              "operation"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6974,7 +7118,10 @@
                 "title": "Record Matchers Operator",
                 "description": "This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the \"OR\" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to \"AND\".",
                 "type": "string",
-                "enum": ["OR", "AND"]
+                "enum": [
+                  "OR",
+                  "AND"
+                ]
               }
             },
             "required": []
@@ -6984,7 +7131,11 @@
               {
                 "fieldKey": "operation",
                 "operator": "is",
-                "value": ["update", "upsert", "delete"]
+                "value": [
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             ]
           },
@@ -7093,7 +7244,11 @@
               {
                 "fieldKey": "operation",
                 "operator": "is",
-                "value": ["update", "upsert", "delete"]
+                "value": [
+                  "update",
+                  "upsert",
+                  "delete"
+                ]
               }
             ]
           },
@@ -7448,7 +7603,10 @@
                 "title": "Record Matchers Operator",
                 "description": "This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the \"OR\" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to \"AND\".",
                 "type": "string",
-                "enum": ["OR", "AND"]
+                "enum": [
+                  "OR",
+                  "AND"
+                ]
               }
             },
             "required": []

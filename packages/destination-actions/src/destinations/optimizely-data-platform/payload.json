@@ -1,10 +1,15 @@
 {
   "name": "Optimizely Data Platform",
   "description": "Sync Segment analytics events and user profile data to Optimizely Data Platform",
-  "basicOptions": ["apiKey", "region"],
+  "basicOptions": [
+    "apiKey",
+    "region"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Api Key used for Optimizely API authorization when sending events",
       "encrypt": true,
@@ -15,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "US",
       "description": "Optimizely Region to sync data to. Default is US",
       "encrypt": false,
@@ -47,7 +59,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The region property is required."]],
+      "validators": [
+        [
+          "required",
+          "The region property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -59,7 +76,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -167,7 +187,9 @@
                 "required": []
               }
             },
-            "required": ["user_identifiers"]
+            "required": [
+              "user_identifiers"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -284,7 +306,9 @@
                 "type": "string"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -454,7 +478,9 @@
                 "required": []
               }
             },
-            "required": ["user_identifiers"]
+            "required": [
+              "user_identifiers"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -511,7 +537,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_action"]
+            "required": [
+              "event_action"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -659,7 +687,9 @@
                 "type": "string"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -826,10 +856,14 @@
                     "type": "string"
                   }
                 },
-                "required": ["email"]
+                "required": [
+                  "email"
+                ]
               }
             },
-            "required": ["user_identifiers"]
+            "required": [
+              "user_identifiers"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -856,7 +890,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_action"]
+            "required": [
+              "event_action"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -886,7 +922,9 @@
                 "type": "string"
               }
             },
-            "required": ["campaign"]
+            "required": [
+              "campaign"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -976,7 +1014,9 @@
                 "type": "string"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1146,7 +1186,9 @@
                 "required": []
               }
             },
-            "required": ["user_identifiers"]
+            "required": [
+              "user_identifiers"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1353,7 +1395,10 @@
               "DOB": {
                 "title": "Birthday",
                 "description": "Contact's birthday. The format should be datetime",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

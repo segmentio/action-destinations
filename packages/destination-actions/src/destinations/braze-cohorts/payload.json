@@ -1,9 +1,14 @@
 {
   "name": "Braze Cohorts",
-  "basicOptions": ["client_secret", "endpoint"],
+  "basicOptions": [
+    "client_secret",
+    "endpoint"
+  ],
   "options": {
     "client_secret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Data Import Key for the client whose cohort this belongs to. Also known as customer key.",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_secret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_secret property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "endpoint": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "https://rest.iad-01.braze.com",
       "description": "Your Braze REST endpoint. [See more details](https://www.braze.com/docs/api/basics/#endpoints)",
       "encrypt": false,
@@ -86,7 +98,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The endpoint property is required."]],
+      "validators": [
+        [
+          "required",
+          "The endpoint property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -98,7 +115,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -171,7 +191,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["alias_name", "alias_label"]
+                "required": [
+                  "alias_name",
+                  "alias_label"
+                ]
               }
             },
             "required": []
@@ -232,7 +255,9 @@
                 "type": "string"
               }
             },
-            "required": ["cohort_id"]
+            "required": [
+              "cohort_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -263,7 +288,9 @@
                 "type": "string"
               }
             },
-            "required": ["cohort_name"]
+            "required": [
+              "cohort_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -318,7 +345,9 @@
                 "type": "string"
               }
             },
-            "required": ["personas_audience_key"]
+            "required": [
+              "personas_audience_key"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -359,7 +388,9 @@
                 "type": "object"
               }
             },
-            "required": ["event_properties"]
+            "required": [
+              "event_properties"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -390,7 +421,9 @@
                 "type": "string"
               }
             },
-            "required": ["time"]
+            "required": [
+              "time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -400,7 +433,10 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The keys to use for batching the events.",
-          "defaultValue": ["cohort_name", "cohort_id"],
+          "defaultValue": [
+            "cohort_name",
+            "cohort_id"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,

@@ -1,9 +1,13 @@
 {
   "name": "Dawn AI",
-  "basicOptions": ["writeKey"],
+  "basicOptions": [
+    "writeKey"
+  ],
   "options": {
     "writeKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Get your key at app.dawnai.com",
       "encrypt": true,
@@ -14,7 +18,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The writeKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The writeKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -62,7 +74,9 @@
                 "type": "string"
               }
             },
-            "required": ["user_id"]
+            "required": [
+              "user_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -120,7 +134,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -160,7 +176,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -190,7 +208,9 @@
                 "type": "string"
               }
             },
-            "required": ["user_id"]
+            "required": [
+              "user_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -248,7 +268,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

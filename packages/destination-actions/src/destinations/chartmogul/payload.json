@@ -1,10 +1,14 @@
 {
   "name": "ChartMogul",
   "description": "Send Contacts and Customers to ChartMogul.",
-  "basicOptions": ["chartmogul_webhook_url"],
+  "basicOptions": [
+    "chartmogul_webhook_url"
+  ],
   "options": {
     "chartmogul_webhook_url": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Copy the webhook URL from ChartMogul and paste it here",
       "encrypt": false,
@@ -15,7 +19,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The chartmogul_webhook_url property is required."]],
+      "validators": [
+        [
+          "required",
+          "The chartmogul_webhook_url property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -62,7 +74,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -92,7 +106,9 @@
                 "type": "string"
               }
             },
-            "required": ["message_id"]
+            "required": [
+              "message_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -119,11 +135,16 @@
               "timestamp": {
                 "title": "Event Timestamp",
                 "description": "The timestamp at which the event was created",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -150,11 +171,16 @@
               "sent_at": {
                 "title": "Sent At",
                 "description": "When the event was sent",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["sent_at"]
+            "required": [
+              "sent_at"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -504,7 +530,9 @@
                     "type": "string"
                   }
                 },
-                "required": ["id"]
+                "required": [
+                  "id"
+                ]
               }
             },
             "required": []
@@ -546,7 +574,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -576,7 +606,9 @@
                 "type": "string"
               }
             },
-            "required": ["message_id"]
+            "required": [
+              "message_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -603,11 +635,16 @@
               "timestamp": {
                 "title": "Event Timestamp",
                 "description": "The timestamp at which the event was created",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -634,11 +671,16 @@
               "sent_at": {
                 "title": "Sent At",
                 "description": "When the event was sent",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["sent_at"]
+            "required": [
+              "sent_at"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -669,7 +711,9 @@
                 "type": "string"
               }
             },
-            "required": ["user_id"]
+            "required": [
+              "user_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -699,7 +743,9 @@
                 "type": "string"
               }
             },
-            "required": ["group_id"]
+            "required": [
+              "group_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -848,7 +894,10 @@
               "created_at": {
                 "title": "Created at",
                 "description": "Date the group’s account was first created",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

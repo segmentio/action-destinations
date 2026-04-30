@@ -1,9 +1,14 @@
 {
   "name": "TikTok Offline Conversions Sandbox",
-  "basicOptions": ["accessToken", "eventSetID"],
+  "basicOptions": [
+    "accessToken",
+    "eventSetID"
+  ],
   "options": {
     "accessToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your TikTok Access Token. Please see TikTok’s [Events API 2.0 documentation](https://business-api.tiktok.com/portal/docs?id=1771101130925058) for information on how to generate an access token via the TikTok Ads Manager or API.",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The accessToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The accessToken property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "eventSetID": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your TikTok Offline Event Set ID. Please see TikTok’s [Events API 2.0 documentation](https://business-api.tiktok.com/portal/docs?id=1771101027431425) for information on how to find this value.",
       "encrypt": false,
@@ -29,7 +41,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The eventSetID property is required."]],
+      "validators": [
+        [
+          "required",
+          "The eventSetID property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -74,7 +94,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -683,7 +705,10 @@
                 "title": "Content Type",
                 "description": "Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.",
                 "type": "string",
-                "enum": ["product", "product_group"]
+                "enum": [
+                  "product",
+                  "product_group"
+                ]
               }
             },
             "required": []
@@ -907,7 +932,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1516,7 +1543,10 @@
                 "title": "Content Type",
                 "description": "Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.",
                 "type": "string",
-                "enum": ["product", "product_group"]
+                "enum": [
+                  "product",
+                  "product_group"
+                ]
               }
             },
             "required": []
@@ -1740,7 +1770,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2349,7 +2381,10 @@
                 "title": "Content Type",
                 "description": "Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.",
                 "type": "string",
-                "enum": ["product", "product_group"]
+                "enum": [
+                  "product",
+                  "product_group"
+                ]
               }
             },
             "required": []

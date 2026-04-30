@@ -1,9 +1,15 @@
 {
   "name": "Actions Amplitude",
-  "basicOptions": ["apiKey", "secretKey", "endpoint"],
+  "basicOptions": [
+    "apiKey",
+    "secretKey",
+    "endpoint"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Amplitude project API key. You can find this key in the \"General\" tab of your Amplitude project.",
       "encrypt": true,
@@ -14,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "secretKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Amplitude project secret key. You can find this key in the \"General\" tab of your Amplitude project.",
       "encrypt": true,
@@ -29,11 +42,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The secretKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The secretKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "endpoint": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "north_america",
       "description": "The region to send your data.",
       "encrypt": false,
@@ -68,7 +88,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -101,7 +124,10 @@
               "user_id": {
                 "title": "User ID",
                 "description": "A UUID (unique user ID) specified by you. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event. If either user ID or device ID is present, an associate user to group call will be made.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -258,7 +284,9 @@
                 "type": "string"
               }
             },
-            "required": ["group_type"]
+            "required": [
+              "group_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -285,7 +313,9 @@
                 "type": "string"
               }
             },
-            "required": ["group_value"]
+            "required": [
+              "group_value"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -309,7 +339,10 @@
               "min_id_length": {
                 "title": "Minimum ID Length",
                 "description": "Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.",
-                "type": ["integer", "null"]
+                "type": [
+                  "integer",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -349,7 +382,10 @@
               "user_id": {
                 "title": "User ID",
                 "description": "A UUID (unique user ID) specified by you. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event. Required unless device ID is present.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -1126,7 +1162,10 @@
               "min_id_length": {
                 "title": "Minimum ID Length",
                 "description": "Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.",
-                "type": ["integer", "null"]
+                "type": [
+                  "integer",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -1244,7 +1283,10 @@
               "user_id": {
                 "title": "User ID",
                 "description": "A readable ID specified by you. Must have a minimum length of 5 characters. Required unless device ID is present. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -1317,7 +1359,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_type"]
+            "required": [
+              "event_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1344,7 +1388,10 @@
               "session_id": {
                 "title": "Session ID",
                 "description": "The start time of the session, necessary if you want to associate events with a particular system. To use automatic Amplitude session tracking in browsers, enable Analytics 2.0 on your connected source.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -1375,7 +1422,10 @@
               "time": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -2354,7 +2404,10 @@
                     "title": "Behavior",
                     "description": "Configure how to set the library value.",
                     "type": "string",
-                    "enum": ["auto", "use_mapping"]
+                    "enum": [
+                      "auto",
+                      "use_mapping"
+                    ]
                   },
                   "mapping": {
                     "title": "Library Mapping",
@@ -2684,7 +2737,10 @@
               "min_id_length": {
                 "title": "Minimum ID Length",
                 "description": "Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.",
-                "type": ["integer", "null"]
+                "type": [
+                  "integer",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -2772,7 +2828,10 @@
               "user_id": {
                 "title": "User ID",
                 "description": "A readable ID specified by you. Must have a minimum length of 5 characters. Required unless device ID is present. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -2845,7 +2904,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_type"]
+            "required": [
+              "event_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2872,7 +2933,10 @@
               "session_id": {
                 "title": "Session ID",
                 "description": "The start time of the session, necessary if you want to associate events with a particular system. To use automatic Amplitude session tracking in browsers, enable Analytics 2.0 on your connected source.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -2903,7 +2967,10 @@
               "time": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -3882,7 +3949,10 @@
                     "title": "Behavior",
                     "description": "Configure how to set the library value.",
                     "type": "string",
-                    "enum": ["auto", "use_mapping"]
+                    "enum": [
+                      "auto",
+                      "use_mapping"
+                    ]
                   },
                   "mapping": {
                     "title": "Library Mapping",
@@ -4294,7 +4364,10 @@
               "min_id_length": {
                 "title": "Minimum ID Length",
                 "description": "Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.",
-                "type": ["integer", "null"]
+                "type": [
+                  "integer",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -4410,7 +4483,10 @@
               "user_id": {
                 "title": "User ID",
                 "description": "A readable ID specified by you. Must have a minimum length of 5 characters. Required unless device ID is present. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -4483,7 +4559,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_type"]
+            "required": [
+              "event_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4510,7 +4588,10 @@
               "session_id": {
                 "title": "Session ID",
                 "description": "The start time of the session, necessary if you want to associate events with a particular system. To use automatic Amplitude session tracking in browsers, enable Analytics 2.0 on your connected source.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -4541,7 +4622,10 @@
               "time": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event. If time is not sent with the event, it will be set to the request upload time.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -5520,7 +5604,10 @@
                     "title": "Behavior",
                     "description": "Configure how to set the library value.",
                     "type": "string",
-                    "enum": ["auto", "use_mapping"]
+                    "enum": [
+                      "auto",
+                      "use_mapping"
+                    ]
                   },
                   "mapping": {
                     "title": "Library Mapping",
@@ -5850,7 +5937,10 @@
               "min_id_length": {
                 "title": "Minimum ID Length",
                 "description": "Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.",
-                "type": ["integer", "null"]
+                "type": [
+                  "integer",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -5995,7 +6085,10 @@
               "min_id_length": {
                 "title": "Minimum ID Length",
                 "description": "Amplitude has a default minimum id length (`min_id_length`) of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.",
-                "type": ["integer", "null"]
+                "type": [
+                  "integer",
+                  "null"
+                ]
               }
             },
             "required": []

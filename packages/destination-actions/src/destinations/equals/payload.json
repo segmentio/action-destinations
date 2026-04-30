@@ -1,10 +1,14 @@
 {
   "name": "Equals",
   "description": "Send Segment analytics data to Equals.",
-  "basicOptions": ["url"],
+  "basicOptions": [
+    "url"
+  ],
   "options": {
     "url": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Equals URL to send data to.",
       "encrypt": false,
@@ -15,7 +19,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The url property is required."]],
+      "validators": [
+        [
+          "required",
+          "The url property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -64,7 +76,9 @@
                 "type": "object"
               }
             },
-            "required": ["data"]
+            "required": [
+              "data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

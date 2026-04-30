@@ -1,10 +1,14 @@
 {
   "name": "Lark",
   "description": "Send usage events to Lark for billing and metering purposes.",
-  "basicOptions": ["apiKey"],
+  "basicOptions": [
+    "apiKey"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Lark API key. You can find this in your Lark dashboard.",
       "encrypt": true,
@@ -15,7 +19,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -63,7 +75,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -93,7 +107,9 @@
                 "type": "string"
               }
             },
-            "required": ["subject_id"]
+            "required": [
+              "subject_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -123,7 +139,9 @@
                 "type": "string"
               }
             },
-            "required": ["idempotency_key"]
+            "required": [
+              "idempotency_key"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -150,7 +168,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of the usage event (ISO 8601 format). If not provided, the current timestamp will be used.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

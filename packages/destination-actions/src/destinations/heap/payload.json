@@ -1,9 +1,14 @@
 {
   "name": "Heap Cloud (Actions)",
-  "basicOptions": ["appId", "region"],
+  "basicOptions": [
+    "appId",
+    "region"
+  ],
   "options": {
     "appId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The app_id corresponding to one of your projects.",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The appId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The appId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "US",
       "description": "Select the region for your Heap environment.",
       "encrypt": false,
@@ -53,7 +65,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -86,7 +101,10 @@
               "user_id": {
                 "title": "Identity",
                 "description": "REQUIRED: A string that uniquely identifies a user, such as an email, handle, or username. This means no two users in one environment may share the same identity. More on identify: https://developers.heap.io/docs/using-identify",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -116,7 +134,10 @@
               "anonymous_id": {
                 "title": "Anonymous ID",
                 "description": "The generated anonymous ID for the user.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -189,7 +210,9 @@
                 "type": "string"
               }
             },
-            "required": ["message_id"]
+            "required": [
+              "message_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -213,7 +236,10 @@
               "identity": {
                 "title": "Identity",
                 "description": "a string that uniquely identifies a user, such as an email, handle, or username. This means no two users in one environment may share the same identity. More on identify: https://developers.heap.io/docs/using-identify",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -243,7 +269,10 @@
               "anonymous_id": {
                 "title": "Anonymous ID",
                 "description": "The generated anonymous ID for the user.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -333,7 +362,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "Defaults to the current time if not provided.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

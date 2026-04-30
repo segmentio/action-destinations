@@ -1,6 +1,8 @@
 {
   "name": "Slack",
-  "basicOptions": ["required_hidden_token"],
+  "basicOptions": [
+    "required_hidden_token"
+  ],
   "options": {
     "required_hidden_token": {
       "label": "Required Hidden Token",
@@ -19,7 +21,10 @@
     "warehouse": false,
     "cloudAppObject": false
   },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -53,7 +58,9 @@
                 "format": "uri"
               }
             },
-            "required": ["url"]
+            "required": [
+              "url"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -81,7 +88,9 @@
                 "format": "text"
               }
             },
-            "required": ["text"]
+            "required": [
+              "text"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

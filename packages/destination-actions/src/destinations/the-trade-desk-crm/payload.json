@@ -10,7 +10,9 @@
   ],
   "options": {
     "auth_token": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your long-lived Trade Desk authentication token. Please see The Trade Desk’s [authentication documentation](https://api.thetradedesk.com/v3/portal/api/doc/Authentication) for information on how to generate a long-lived API Token via the Manage API Tokens in the developer Portal.",
       "encrypt": true,
@@ -21,11 +23,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The auth_token property is required."]],
+      "validators": [
+        [
+          "required",
+          "The auth_token property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "advertiser_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The platform ID of the advertiser for which to retrieve the status of the specified CRM data segment.",
       "encrypt": false,
@@ -36,7 +45,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The advertiser_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The advertiser_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "__segment_internal_engage_force_full_sync": {
@@ -92,7 +106,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The region property is required."]],
+      "validators": [
+        [
+          "required",
+          "The region property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "__segment_internal_engage_support_audience_functions": {
@@ -116,7 +135,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -187,10 +209,15 @@
                 "title": "PII Type",
                 "description": "The type of personally identifiable data (PII) sent by the advertiser.",
                 "type": "string",
-                "enum": ["Email", "EmailHashedUnifiedId2"]
+                "enum": [
+                  "Email",
+                  "EmailHashedUnifiedId2"
+                ]
               }
             },
-            "required": ["pii_type"]
+            "required": [
+              "pii_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

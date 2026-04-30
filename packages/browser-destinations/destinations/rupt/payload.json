@@ -1,6 +1,12 @@
 {
   "name": "Rupt",
-  "basicOptions": ["client_id", "new_account_url", "logout_url", "success_url", "suspended_url"],
+  "basicOptions": [
+    "client_id",
+    "new_account_url",
+    "logout_url",
+    "success_url",
+    "suspended_url"
+  ],
   "options": {
     "client_id": {
       "tags": [],
@@ -14,7 +20,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "new_account_url": {
@@ -29,7 +40,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The new_account_url property is required."]],
+      "validators": [
+        [
+          "required",
+          "The new_account_url property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "logout_url": {
@@ -85,7 +101,10 @@
     "warehouse": false,
     "cloudAppObject": false
   },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -121,7 +140,9 @@
                 "type": "string"
               }
             },
-            "required": ["account"]
+            "required": [
+              "account"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

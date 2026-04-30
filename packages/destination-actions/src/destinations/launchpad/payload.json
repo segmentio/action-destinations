@@ -1,9 +1,15 @@
 {
   "name": "Launchpad (Actions)",
-  "basicOptions": ["apiSecret", "apiRegion", "sourceName"],
+  "basicOptions": [
+    "apiSecret",
+    "apiRegion",
+    "sourceName"
+  ],
   "options": {
     "apiSecret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Launchpad project secret. You can find that in the settings in your Launchpad.pm account.",
       "encrypt": true,
@@ -14,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiSecret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiSecret property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "apiRegion": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "US 🇺🇸",
       "description": "Learn about [EU data residency](https://help.launchpad.pm).",
       "encrypt": false,
@@ -45,7 +58,9 @@
       "uIMetadata": null
     },
     "sourceName": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "This value, if it's not blank, will be sent as segment_source_name to Launchpad for every event/page/screen call.",
       "encrypt": false,
@@ -68,7 +83,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -131,7 +149,9 @@
                 "type": "string"
               }
             },
-            "required": ["groupId"]
+            "required": [
+              "groupId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -351,7 +371,9 @@
                 "type": "object"
               }
             },
-            "required": ["traits"]
+            "required": [
+              "traits"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -391,7 +413,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -511,7 +535,9 @@
                 "type": "string"
               }
             },
-            "required": ["messageId"]
+            "required": [
+              "messageId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -538,11 +564,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event. Launchpad expects epoch timestamp in millisecond or second. Please note, Launchpad only accepts this field as the timestamp. If the field is empty, it will be set to the time Launchpad servers receive it.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

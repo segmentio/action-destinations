@@ -1,10 +1,15 @@
 {
   "name": "Epsilon (Actions)",
   "description": "Sync analytics events and user profile details to Epsilon",
-  "basicOptions": ["dtm_cid", "dtm_cmagic"],
+  "basicOptions": [
+    "dtm_cid",
+    "dtm_cmagic"
+  ],
   "options": {
     "dtm_cid": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Company ID. Contact Epsilon support for assistance.",
       "encrypt": false,
@@ -15,11 +20,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The dtm_cid property is required."]],
+      "validators": [
+        [
+          "required",
+          "The dtm_cid property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "dtm_cmagic": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Company Magic. Contact Epsilon support for assistance.",
       "encrypt": false,
@@ -30,7 +42,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The dtm_cmagic property is required."]],
+      "validators": [
+        [
+          "required",
+          "The dtm_cmagic property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -42,7 +59,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "basic",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -78,7 +98,9 @@
                 "type": "string"
               }
             },
-            "required": ["id"]
+            "required": [
+              "id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -108,7 +130,9 @@
                 "type": "string"
               }
             },
-            "required": ["appId"]
+            "required": [
+              "appId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -208,7 +232,9 @@
                 ]
               }
             },
-            "required": ["dtm_event"]
+            "required": [
+              "dtm_event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -238,7 +264,9 @@
                 "type": "string"
               }
             },
-            "required": ["version"]
+            "required": [
+              "version"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -268,7 +296,9 @@
                 "type": "string"
               }
             },
-            "required": ["dtm_fid"]
+            "required": [
+              "dtm_fid"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -408,7 +438,9 @@
                 "required": []
               }
             },
-            "required": ["identifiers"]
+            "required": [
+              "identifiers"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -445,10 +477,15 @@
                 "title": "Device Type",
                 "description": "Type of the device (e.g., iOS, Android).",
                 "type": "string",
-                "enum": ["ios", "android"]
+                "enum": [
+                  "ios",
+                  "android"
+                ]
               }
             },
-            "required": ["deviceType"]
+            "required": [
+              "deviceType"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -532,7 +569,15 @@
               {
                 "fieldKey": "dtm_event",
                 "operator": "is",
-                "value": ["custom", "category", "subcategory", "product", "addFavorites", "addSavedList", "cart"]
+                "value": [
+                  "custom",
+                  "category",
+                  "subcategory",
+                  "product",
+                  "addFavorites",
+                  "addSavedList",
+                  "cart"
+                ]
               }
             ]
           },
@@ -570,7 +615,14 @@
               {
                 "fieldKey": "dtm_event",
                 "operator": "is",
-                "value": ["custom", "subcategory", "product", "addFavorites", "addSavedList", "cart"]
+                "value": [
+                  "custom",
+                  "subcategory",
+                  "product",
+                  "addFavorites",
+                  "addSavedList",
+                  "cart"
+                ]
               }
             ]
           },
@@ -608,7 +660,13 @@
               {
                 "fieldKey": "dtm_event",
                 "operator": "is",
-                "value": ["custom", "product", "addFavorites", "addSavedList", "cart"]
+                "value": [
+                  "custom",
+                  "product",
+                  "addFavorites",
+                  "addSavedList",
+                  "cart"
+                ]
               }
             ]
           },
@@ -646,7 +704,13 @@
               {
                 "fieldKey": "dtm_event",
                 "operator": "is",
-                "value": ["custom", "product", "addFavorites", "addSavedList", "cart"]
+                "value": [
+                  "custom",
+                  "product",
+                  "addFavorites",
+                  "addSavedList",
+                  "cart"
+                ]
               }
             ]
           },
@@ -684,7 +748,13 @@
               {
                 "fieldKey": "dtm_event",
                 "operator": "is",
-                "value": ["custom", "product", "addFavorites", "addSavedList", "cart"]
+                "value": [
+                  "custom",
+                  "product",
+                  "addFavorites",
+                  "addSavedList",
+                  "cart"
+                ]
               }
             ]
           },
@@ -722,7 +792,13 @@
               {
                 "fieldKey": "dtm_event",
                 "operator": "is",
-                "value": ["custom", "product", "addFavorites", "addSavedList", "cart"]
+                "value": [
+                  "custom",
+                  "product",
+                  "addFavorites",
+                  "addSavedList",
+                  "cart"
+                ]
               }
             ]
           },
@@ -760,7 +836,10 @@
               {
                 "fieldKey": "dtm_event",
                 "operator": "is",
-                "value": ["custom", "conversion"]
+                "value": [
+                  "custom",
+                  "conversion"
+                ]
               }
             ]
           },
@@ -795,7 +874,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["dtm_event"],
+                  "required": [
+                    "dtm_event"
+                  ],
                   "properties": {
                     "dtm_event": {
                       "const": "conversion"
@@ -803,7 +884,9 @@
                   }
                 },
                 "then": {
-                  "required": ["dtm_conv_val"]
+                  "required": [
+                    "dtm_conv_val"
+                  ]
                 }
               }
             ]
@@ -813,7 +896,10 @@
               {
                 "fieldKey": "dtm_event",
                 "operator": "is",
-                "value": ["custom", "conversion"]
+                "value": [
+                  "custom",
+                  "conversion"
+                ]
               }
             ]
           },
@@ -905,7 +991,10 @@
               {
                 "fieldKey": "dtm_event",
                 "operator": "is",
-                "value": ["custom", "conversion"]
+                "value": [
+                  "custom",
+                  "conversion"
+                ]
               }
             ]
           },
@@ -940,7 +1029,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["dtm_event"],
+                  "required": [
+                    "dtm_event"
+                  ],
                   "properties": {
                     "dtm_event": {
                       "const": "conversion"
@@ -948,7 +1039,9 @@
                   }
                 },
                 "then": {
-                  "required": ["dtm_conv_curr"]
+                  "required": [
+                    "dtm_conv_curr"
+                  ]
                 }
               }
             ]
@@ -958,7 +1051,10 @@
               {
                 "fieldKey": "dtm_event",
                 "operator": "is",
-                "value": ["custom", "conversion"]
+                "value": [
+                  "custom",
+                  "conversion"
+                ]
               }
             ]
           },
@@ -1003,7 +1099,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["dtm_event"],
+                  "required": [
+                    "dtm_event"
+                  ],
                   "properties": {
                     "dtm_event": {
                       "const": "conversion"
@@ -1011,7 +1109,9 @@
                   }
                 },
                 "then": {
-                  "required": ["dtmc_conv_type"]
+                  "required": [
+                    "dtmc_conv_type"
+                  ]
                 }
               }
             ]
@@ -1021,7 +1121,10 @@
               {
                 "fieldKey": "dtm_event",
                 "operator": "is",
-                "value": ["custom", "conversion"]
+                "value": [
+                  "custom",
+                  "conversion"
+                ]
               }
             ]
           },
@@ -1066,7 +1169,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["dtm_event"],
+                  "required": [
+                    "dtm_event"
+                  ],
                   "properties": {
                     "dtm_event": {
                       "const": "conversion"
@@ -1074,7 +1179,9 @@
                   }
                 },
                 "then": {
-                  "required": ["dtmc_conv_store_location"]
+                  "required": [
+                    "dtmc_conv_store_location"
+                  ]
                 }
               }
             ]
@@ -1084,7 +1191,10 @@
               {
                 "fieldKey": "dtm_event",
                 "operator": "is",
-                "value": ["custom", "conversion"]
+                "value": [
+                  "custom",
+                  "conversion"
+                ]
               }
             ]
           },
@@ -1129,7 +1239,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["dtm_event"],
+                  "required": [
+                    "dtm_event"
+                  ],
                   "properties": {
                     "dtm_event": {
                       "const": "custom"
@@ -1137,7 +1249,9 @@
                   }
                 },
                 "then": {
-                  "required": ["customEventName"]
+                  "required": [
+                    "customEventName"
+                  ]
                 }
               }
             ]

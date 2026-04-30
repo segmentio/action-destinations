@@ -1,9 +1,13 @@
 {
   "name": "Nudge (Actions)",
-  "basicOptions": ["apikey"],
+  "basicOptions": [
+    "apikey"
+  ],
   "options": {
     "apikey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Private Backend API Key",
       "encrypt": true,
@@ -14,7 +18,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apikey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apikey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -62,7 +74,9 @@
                 "type": "string"
               }
             },
-            "required": ["ext_id"]
+            "required": [
+              "ext_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -252,7 +266,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -282,7 +298,9 @@
                 "type": "string"
               }
             },
-            "required": ["ext_id"]
+            "required": [
+              "ext_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -309,11 +327,16 @@
               "occurred_at": {
                 "title": "Event Timestamp",
                 "description": "The time at which the event occurred",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["occurred_at"]
+            "required": [
+              "occurred_at"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

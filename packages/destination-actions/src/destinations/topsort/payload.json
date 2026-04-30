@@ -1,10 +1,15 @@
 {
   "name": "Topsort",
   "description": "Send events server-side to the Topsort Events API.",
-  "basicOptions": ["api_key", "skipZeroPricePurchases"],
+  "basicOptions": [
+    "api_key",
+    "skipZeroPricePurchases"
+  ],
   "options": {
     "api_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Created under Settings > API Integration in the Topsort Manager Platform.",
       "encrypt": true,
@@ -15,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "skipZeroPricePurchases": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": false,
       "description": "When enabled, purchase events with items that have zero or missing unit price will be filtered out.",
       "encrypt": false,
@@ -42,7 +54,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -78,7 +93,9 @@
                 "type": "string"
               }
             },
-            "required": ["id"]
+            "required": [
+              "id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -105,11 +122,16 @@
               "occurredAt": {
                 "title": "Occurred At",
                 "description": "Timestamp that the event happened at.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["occurredAt"]
+            "required": [
+              "occurredAt"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -139,7 +161,9 @@
                 "type": "string"
               }
             },
-            "required": ["opaqueUserId"]
+            "required": [
+              "opaqueUserId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -169,7 +193,9 @@
                 "type": "string"
               }
             },
-            "required": ["resolvedBidId"]
+            "required": [
+              "resolvedBidId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -271,7 +297,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["id", "type"]
+                "required": [
+                  "id",
+                  "type"
+                ]
               }
             },
             "required": []
@@ -369,7 +398,9 @@
                     "type": "string"
                   }
                 },
-                "required": ["path"]
+                "required": [
+                  "path"
+                ]
               }
             },
             "required": []
@@ -441,7 +472,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["type", "pageId"]
+                "required": [
+                  "type",
+                  "pageId"
+                ]
               }
             },
             "required": []
@@ -491,7 +525,9 @@
                     "type": "string"
                   }
                 },
-                "required": ["type"]
+                "required": [
+                  "type"
+                ]
               }
             },
             "required": []
@@ -624,7 +660,9 @@
                 "type": "string"
               }
             },
-            "required": ["id"]
+            "required": [
+              "id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -651,11 +689,16 @@
               "occurredAt": {
                 "title": "Occurred At",
                 "description": "Timestamp that the event happened at.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["occurredAt"]
+            "required": [
+              "occurredAt"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -685,7 +728,9 @@
                 "type": "string"
               }
             },
-            "required": ["opaqueUserId"]
+            "required": [
+              "opaqueUserId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -715,7 +760,9 @@
                 "type": "string"
               }
             },
-            "required": ["resolvedBidId"]
+            "required": [
+              "resolvedBidId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -817,7 +864,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["id", "type"]
+                "required": [
+                  "id",
+                  "type"
+                ]
               }
             },
             "required": []
@@ -915,7 +965,9 @@
                     "type": "string"
                   }
                 },
-                "required": ["path"]
+                "required": [
+                  "path"
+                ]
               }
             },
             "required": []
@@ -987,7 +1039,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["type", "pageId"]
+                "required": [
+                  "type",
+                  "pageId"
+                ]
               }
             },
             "required": []
@@ -1037,7 +1092,9 @@
                     "type": "string"
                   }
                 },
-                "required": ["type"]
+                "required": [
+                  "type"
+                ]
               }
             },
             "required": []
@@ -1170,7 +1227,9 @@
                 "type": "string"
               }
             },
-            "required": ["id"]
+            "required": [
+              "id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1197,11 +1256,16 @@
               "occurredAt": {
                 "title": "Occurred At",
                 "description": "Timestamp that the event happened at.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["occurredAt"]
+            "required": [
+              "occurredAt"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1231,7 +1295,9 @@
                 "type": "string"
               }
             },
-            "required": ["opaqueUserId"]
+            "required": [
+              "opaqueUserId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1285,11 +1351,15 @@
                       "type": "object"
                     }
                   },
-                  "required": ["resolvedBidId"]
+                  "required": [
+                    "resolvedBidId"
+                  ]
                 }
               }
             },
-            "required": ["products"]
+            "required": [
+              "products"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1389,7 +1459,9 @@
                 "type": "string"
               }
             },
-            "required": ["id"]
+            "required": [
+              "id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1416,11 +1488,16 @@
               "occurredAt": {
                 "title": "Occurred At",
                 "description": "Timestamp that the event happened at.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["occurredAt"]
+            "required": [
+              "occurredAt"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1450,7 +1527,9 @@
                 "type": "string"
               }
             },
-            "required": ["opaqueUserId"]
+            "required": [
+              "opaqueUserId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1509,10 +1588,15 @@
                     "type": "string"
                   }
                 },
-                "required": ["type", "pageId"]
+                "required": [
+                  "type",
+                  "pageId"
+                ]
               }
             },
-            "required": ["page"]
+            "required": [
+              "page"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1612,7 +1696,9 @@
                 "type": "string"
               }
             },
-            "required": ["id"]
+            "required": [
+              "id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1639,11 +1725,16 @@
               "occurredAt": {
                 "title": "Occurred At",
                 "description": "Timestamp that the event happened at.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["occurredAt"]
+            "required": [
+              "occurredAt"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1673,7 +1764,9 @@
                 "type": "string"
               }
             },
-            "required": ["opaqueUserId"]
+            "required": [
+              "opaqueUserId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1753,11 +1846,15 @@
                       "type": "string"
                     }
                   },
-                  "required": ["productId"]
+                  "required": [
+                    "productId"
+                  ]
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

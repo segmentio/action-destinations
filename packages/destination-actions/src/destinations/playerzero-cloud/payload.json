@@ -1,9 +1,13 @@
 {
   "name": "PlayerZero Cloud",
-  "basicOptions": ["projectToken"],
+  "basicOptions": [
+    "projectToken"
+  ],
   "options": {
     "projectToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Project Token for the PlayerZero project you want to send data to. You can find this Token on the [Segment (Cloud) Connector](https://go.playerzero.app/connector/segment-cloud) page.",
       "encrypt": true,
@@ -14,7 +18,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The projectToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The projectToken property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {

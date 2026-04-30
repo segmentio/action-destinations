@@ -16,7 +16,9 @@
   ],
   "options": {
     "twilioAccountSID": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Twilio Account SID",
       "encrypt": false,
@@ -27,11 +29,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The twilioAccountSID property is required."]],
+      "validators": [
+        [
+          "required",
+          "The twilioAccountSID property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "twilioApiKeySID": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Twilio API Key SID",
       "encrypt": false,
@@ -42,11 +51,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The twilioApiKeySID property is required."]],
+      "validators": [
+        [
+          "required",
+          "The twilioApiKeySID property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "twilioApiKeySecret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Twilio API Key Secret",
       "encrypt": true,
@@ -57,11 +73,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The twilioApiKeySecret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The twilioApiKeySecret property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "profileApiEnvironment": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Profile API Environment",
       "encrypt": false,
@@ -72,11 +95,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The profileApiEnvironment property is required."]],
+      "validators": [
+        [
+          "required",
+          "The profileApiEnvironment property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "profileApiAccessToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Profile API Access Token",
       "encrypt": true,
@@ -87,11 +117,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The profileApiAccessToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The profileApiAccessToken property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "spaceId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Space ID",
       "encrypt": false,
@@ -102,11 +139,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The spaceId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The spaceId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "sourceId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Source ID",
       "encrypt": false,
@@ -117,11 +161,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The sourceId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The sourceId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "webhookUrl": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Webhook URL that will receive all events for the sent message",
       "encrypt": false,
@@ -136,7 +187,9 @@
       "uIMetadata": null
     },
     "twilioHostname": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "api.twilio.com",
       "description": "Overrides the default Twilio host name used mainly for testing without having to send real messages.",
       "encrypt": false,
@@ -151,7 +204,9 @@
       "uIMetadata": null
     },
     "connectionOverrides": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "rp=all&rc=5",
       "description": "Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url",
       "encrypt": false,
@@ -166,7 +221,9 @@
       "uIMetadata": null
     },
     "region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "us-west-2",
       "description": "The region where the message is originating from",
       "encrypt": false,
@@ -201,7 +258,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -261,7 +321,9 @@
                 "type": "string"
               }
             },
-            "required": ["from"]
+            "required": [
+              "from"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -326,7 +388,10 @@
                     "title": "Notification priority",
                     "description": "Sets the priority of the message",
                     "type": "string",
-                    "enum": ["low", "high"]
+                    "enum": [
+                      "low",
+                      "high"
+                    ]
                   },
                   "badgeAmount": {
                     "title": "Badge amount",
@@ -339,7 +404,11 @@
                     "description": "Sets the badge count strategy in the notification",
                     "type": "string",
                     "default": "inc",
-                    "enum": ["inc", "dec", "set"]
+                    "enum": [
+                      "inc",
+                      "dec",
+                      "set"
+                    ]
                   },
                   "ttl": {
                     "title": "Time to live",
@@ -376,7 +445,11 @@
                           "type": "string"
                         }
                       },
-                      "required": ["id", "text", "onTap"]
+                      "required": [
+                        "id",
+                        "text",
+                        "onTap"
+                      ]
                     }
                   }
                 },
@@ -664,7 +737,10 @@
                 "title": "Google Api Version",
                 "description": "Controls the notification payload format",
                 "type": "string",
-                "enum": ["legacy", "v1"]
+                "enum": [
+                  "legacy",
+                  "v1"
+                ]
               }
             },
             "required": []
@@ -761,7 +837,9 @@
                 "type": "string"
               }
             },
-            "required": ["from"]
+            "required": [
+              "from"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1215,7 +1293,9 @@
                 "type": "string"
               }
             },
-            "required": ["contentSid"]
+            "required": [
+              "contentSid"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1296,7 +1376,9 @@
                 "type": "string"
               }
             },
-            "required": ["from"]
+            "required": [
+              "from"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

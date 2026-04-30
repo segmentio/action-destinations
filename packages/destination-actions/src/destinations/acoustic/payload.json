@@ -13,7 +13,9 @@
   ],
   "options": {
     "pod": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "2",
       "description": "Pod Number for API Endpoint",
       "encrypt": false,
@@ -24,11 +26,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The pod property is required."]],
+      "validators": [
+        [
+          "required",
+          "The pod property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "US",
       "description": "Region for API Endpoint, either US, EU, AP, or CA",
       "encrypt": false,
@@ -61,11 +70,18 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The region property is required."]],
+      "validators": [
+        [
+          "required",
+          "The region property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "tableName": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "Segment Events Table Name",
       "description": "The Segment Table Name in Acoustic Campaign Data dialog.",
       "encrypt": false,
@@ -76,11 +92,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The tableName property is required."]],
+      "validators": [
+        [
+          "required",
+          "The tableName property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "tableListId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Segment Table List Id from the Database-Relational Table dialog in Acoustic Campaign",
       "encrypt": false,
@@ -91,11 +114,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The tableListId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The tableListId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "a_clientId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Client Id from the App definition dialog in Acoustic Campaign",
       "encrypt": false,
@@ -106,11 +136,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The a_clientId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The a_clientId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "a_clientSecret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Client Secret from the App definition dialog in Acoustic Campaign",
       "encrypt": true,
@@ -121,11 +158,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The a_clientSecret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The a_clientSecret property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "a_refreshToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The RefreshToken provided when defining access for the App in Acoustic Campaign",
       "encrypt": true,
@@ -136,11 +180,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The a_refreshToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The a_refreshToken property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "attributesMax": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": 15,
       "description": "A safety against mapping too many attributes into the Event, Event will be ignored if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.",
       "encrypt": false,
@@ -155,7 +206,9 @@
       "uIMetadata": null
     },
     "version": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "Version 3.1   (nodeJS: v22.13.1)",
       "description": "\nLast-Modified: 06.28.2023 16.15.37\n",
       "encrypt": false,
@@ -228,7 +281,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -265,7 +321,9 @@
                 "format": "email"
               }
             },
-            "required": ["email"]
+            "required": [
+              "email"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -322,7 +380,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The Timestamp of the Event",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

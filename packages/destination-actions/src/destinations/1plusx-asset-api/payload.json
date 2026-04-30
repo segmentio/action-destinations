@@ -1,9 +1,15 @@
 {
   "name": "1Plusx Asset Api",
-  "basicOptions": ["client_id", "key_id", "client_secret"],
+  "basicOptions": [
+    "client_id",
+    "key_id",
+    "client_secret"
+  ],
   "options": {
     "client_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your 1plusX Client ID. Please refer to your 1PlusX representative to obtain it.",
       "encrypt": false,
@@ -14,11 +20,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "key_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your 1plusX Key ID. Available in 1plusX UI in the \"API Keys\" section.",
       "encrypt": true,
@@ -29,11 +42,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The key_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The key_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "client_secret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your 1plusX Secret. Available in 1plusX UI in the \"API Keys\" section.",
       "encrypt": true,
@@ -44,7 +64,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_secret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_secret property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "oauth": {
@@ -106,7 +131,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -142,7 +170,9 @@
                 "type": "string"
               }
             },
-            "required": ["asset_uri"]
+            "required": [
+              "asset_uri"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

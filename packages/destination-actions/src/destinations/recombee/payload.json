@@ -1,9 +1,16 @@
 {
   "name": "Recombee",
-  "basicOptions": ["databaseId", "privateToken", "databaseRegion", "apiUri"],
+  "basicOptions": [
+    "databaseId",
+    "privateToken",
+    "databaseRegion",
+    "apiUri"
+  ],
   "options": {
     "databaseId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The ID of the Recombee Database into which the interactions will be sent.",
       "encrypt": false,
@@ -14,11 +21,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The databaseId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The databaseId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "privateToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The private token for the Recombee Database used.",
       "encrypt": true,
@@ -29,11 +43,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The privateToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The privateToken property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "databaseRegion": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "eu-west",
       "description": "The Recombee cluster where your Database is located. [Learn more](https://docs.recombee.com/regions)",
       "encrypt": false,
@@ -71,11 +92,18 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The databaseRegion property is required."]],
+      "validators": [
+        [
+          "required",
+          "The databaseRegion property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "apiUri": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "URI of the Recombee API that should be used. *Keep this field empty unless you are calling the Recombee cluster based in a specific region or you were assigned a custom URI by the Recombee Support team.*",
       "encrypt": false,
@@ -106,7 +134,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -152,7 +183,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -192,7 +225,9 @@
                 "type": "string"
               }
             },
-            "required": ["itemId"]
+            "required": [
+              "itemId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -390,7 +425,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -456,10 +493,14 @@
                     "type": "number"
                   }
                 },
-                "required": ["itemId"]
+                "required": [
+                  "itemId"
+                ]
               }
             },
-            "required": ["item"]
+            "required": [
+              "item"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -657,7 +698,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -697,7 +740,9 @@
                 "type": "string"
               }
             },
-            "required": ["itemId"]
+            "required": [
+              "itemId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -922,7 +967,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1003,11 +1050,15 @@
                       "type": "number"
                     }
                   },
-                  "required": ["itemId"]
+                  "required": [
+                    "itemId"
+                  ]
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1205,7 +1256,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1245,7 +1298,9 @@
                 "type": "string"
               }
             },
-            "required": ["itemId"]
+            "required": [
+              "itemId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1305,7 +1360,9 @@
                 "type": "number"
               }
             },
-            "required": ["rating"]
+            "required": [
+              "rating"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1473,7 +1530,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1513,7 +1572,9 @@
                 "type": "string"
               }
             },
-            "required": ["itemId"]
+            "required": [
+              "itemId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1602,7 +1663,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1642,7 +1705,9 @@
                 "type": "string"
               }
             },
-            "required": ["itemId"]
+            "required": [
+              "itemId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1721,7 +1786,9 @@
                 "type": "string"
               }
             },
-            "required": ["targetUserId"]
+            "required": [
+              "targetUserId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1751,7 +1818,9 @@
                 "type": "string"
               }
             },
-            "required": ["sourceUserId"]
+            "required": [
+              "sourceUserId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1813,7 +1882,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1853,7 +1924,9 @@
                 "type": "string"
               }
             },
-            "required": ["itemId"]
+            "required": [
+              "itemId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1914,7 +1987,9 @@
                 "maximum": 1
               }
             },
-            "required": ["portion"]
+            "required": [
+              "portion"
+            ]
           },
           "dependsOn": null,
           "minimum": 0,
@@ -2114,7 +2189,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2154,7 +2231,9 @@
                 "type": "string"
               }
             },
-            "required": ["itemId"]
+            "required": [
+              "itemId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2231,10 +2310,15 @@
                     "type": "number"
                   }
                 },
-                "required": ["totalLength", "watchTime"]
+                "required": [
+                  "totalLength",
+                  "watchTime"
+                ]
               }
             },
-            "required": ["portion"]
+            "required": [
+              "portion"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

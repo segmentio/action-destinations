@@ -1,10 +1,16 @@
 {
   "name": "Amazon Conversions Api",
   "description": "Amazon conversion API destination to send conversion event data to Amazon.",
-  "basicOptions": ["region", "advertiserId", "dataSetName"],
+  "basicOptions": [
+    "region",
+    "advertiserId",
+    "dataSetName"
+  ],
   "options": {
     "region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "https://advertising-api.amazon.com",
       "description": "Region for API Endpoint, either NA, EU, FE.",
       "encrypt": false,
@@ -32,11 +38,18 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The region property is required."]],
+      "validators": [
+        [
+          "required",
+          "The region property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "advertiserId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Amazon Advertiser Account ID. This must be a numeric value. Use Amazon DSP CFID and not Entity ID.",
       "encrypt": false,
@@ -47,11 +60,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The advertiserId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The advertiserId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "dataSetName": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Amazon Ads organizes uploaded data into datasets, which are logical groupings used to separate and categorize events from your sources. The default dataset name (if not provided) is Default_Events. All events within a dataset will appear in Amazon Ads Data Manager under the name you provide here. New destination? We recommend providing a dataset name during initial setup. Existing destination? We strongly recommend reading the [FAQ](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-amazon-conversions-api#what-is-a-dataset-and-how-does-amazon-use-the-dataset-name) before updating your dataset name, as changes may impact your existing events.",
       "encrypt": false,
@@ -124,7 +144,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -160,7 +183,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -250,7 +275,9 @@
                 ]
               }
             },
-            "required": ["eventType"]
+            "required": [
+              "eventType"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -307,10 +334,18 @@
                 "title": "Event Action Source",
                 "description": "The platform from which the event was sourced. If no value is provided, then website is used as default.",
                 "type": "string",
-                "enum": ["android", "fire_tv", "ios", "offline", "website"]
+                "enum": [
+                  "android",
+                  "fire_tv",
+                  "ios",
+                  "offline",
+                  "website"
+                ]
               }
             },
-            "required": ["eventActionSource"]
+            "required": [
+              "eventActionSource"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -340,7 +375,9 @@
                 "type": "string"
               }
             },
-            "required": ["countryCode"]
+            "required": [
+              "countryCode"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -370,7 +407,9 @@
                 "type": "string"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -821,7 +860,9 @@
                 "required": []
               }
             },
-            "required": ["matchKeys"]
+            "required": [
+              "matchKeys"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -856,7 +897,9 @@
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "enum": ["LIMITED_DATA_USE"]
+                  "enum": [
+                    "LIMITED_DATA_USE"
+                  ]
                 }
               }
             },
@@ -914,13 +957,19 @@
                     "title": "Ad Storage Consent",
                     "description": "Amazon Consent Format: Captures whether the user has consented to cookie based tracking.",
                     "type": "string",
-                    "enum": ["GRANTED", "DENIED"]
+                    "enum": [
+                      "GRANTED",
+                      "DENIED"
+                    ]
                   },
                   "amznUserData": {
                     "title": "User Data Consent",
                     "description": "Amazon Consent Format: Captures whether the user has consented to use personal data for advertising.",
                     "type": "string",
-                    "enum": ["GRANTED", "DENIED"]
+                    "enum": [
+                      "GRANTED",
+                      "DENIED"
+                    ]
                   },
                   "tcf": {
                     "title": "TCF String",
@@ -1103,7 +1152,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

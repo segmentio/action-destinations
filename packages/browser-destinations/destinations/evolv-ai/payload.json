@@ -144,7 +144,10 @@
     "warehouse": false,
     "cloudAppObject": false
   },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -180,7 +183,9 @@
                 "type": "object"
               }
             },
-            "required": ["attributes"]
+            "required": [
+              "attributes"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -280,7 +285,9 @@
                 "type": "string"
               }
             },
-            "required": ["eventName"]
+            "required": [
+              "eventName"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

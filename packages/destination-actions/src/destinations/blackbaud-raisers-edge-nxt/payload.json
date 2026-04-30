@@ -1,9 +1,13 @@
 {
   "name": "Blackbaud Raiser's Edge NXT",
-  "basicOptions": ["bbApiSubscriptionKey"],
+  "basicOptions": [
+    "bbApiSubscriptionKey"
+  ],
   "options": {
     "bbApiSubscriptionKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The access key found on your Blackbaud \"My subscriptions\" page.",
       "encrypt": false,
@@ -14,7 +18,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The bbApiSubscriptionKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The bbApiSubscriptionKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth-managed",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -59,11 +71,16 @@
               "date": {
                 "title": "Date",
                 "description": "The action date in ISO-8601 format.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["date"]
+            "required": [
+              "date"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -112,10 +129,18 @@
                 "title": "Category",
                 "description": "The channel or intent of the constituent interaction. Available values are Phone Call, Meeting, Mailing, Email, and Task/Other.",
                 "type": "string",
-                "enum": ["Phone Call", "Meeting", "Mailing", "Email", "Task/Other"]
+                "enum": [
+                  "Phone Call",
+                  "Meeting",
+                  "Mailing",
+                  "Email",
+                  "Task/Other"
+                ]
               }
             },
-            "required": ["category"]
+            "required": [
+              "category"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -172,7 +197,10 @@
               "completed_date": {
                 "title": "Completed Date",
                 "description": "The date when the action was completed in ISO-8601 format.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -241,7 +269,10 @@
                 "title": "Direction",
                 "description": "The direction of the action. Available values are \"Inbound\" and \"Outbound\".",
                 "type": "string",
-                "enum": ["Inbound", "Outbound"]
+                "enum": [
+                  "Inbound",
+                  "Outbound"
+                ]
               }
             },
             "required": []
@@ -398,7 +429,10 @@
                 "title": "Outcome",
                 "description": "The outcome of the action. Available values are Successful and Unsuccessful.",
                 "type": "string",
-                "enum": ["Successful", "Unsuccessful"]
+                "enum": [
+                  "Successful",
+                  "Unsuccessful"
+                ]
               }
             },
             "required": []
@@ -440,7 +474,11 @@
                 "title": "Priority",
                 "description": "The priority of the action. Available values are Normal, High, and Low.",
                 "type": "string",
-                "enum": ["High", "Low", "Normal"]
+                "enum": [
+                  "High",
+                  "Low",
+                  "Normal"
+                ]
               }
             },
             "required": []
@@ -764,7 +802,10 @@
               "constituent_birthdate": {
                 "title": "Constituent Birthdate",
                 "description": "The constituent's birthdate.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -1705,7 +1746,10 @@
                   "date": {
                     "title": "Date",
                     "description": "The date associated with the acknowledgement in ISO-8601 format.",
-                    "type": ["string", "number"],
+                    "type": [
+                      "string",
+                      "number"
+                    ],
                     "format": "date-like"
                   },
                   "status": {
@@ -1747,7 +1791,9 @@
                 "type": "number"
               }
             },
-            "required": ["amount"]
+            "required": [
+              "amount"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1834,7 +1880,10 @@
               "check_date": {
                 "title": "Check Date",
                 "description": "The check date in ISO-8601 format.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -1938,7 +1987,10 @@
               "date": {
                 "title": "Gift Date",
                 "description": "The gift date in ISO-8601 format.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -2032,7 +2084,9 @@
                 "type": "string"
               }
             },
-            "required": ["fund_id"]
+            "required": [
+              "fund_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2111,7 +2165,13 @@
                 "title": "Gift Status",
                 "description": "The status of the gift. Available values are \"Active\", \"Held\", \"Terminated\", \"Completed\", and \"Cancelled\".",
                 "type": "string",
-                "enum": ["Active", "Held", "Terminated", "Completed", "Cancelled"]
+                "enum": [
+                  "Active",
+                  "Held",
+                  "Terminated",
+                  "Completed",
+                  "Cancelled"
+                ]
               }
             },
             "required": []
@@ -2258,10 +2318,20 @@
                 "title": "Payment Method",
                 "description": "The payment method. Available values are \"Cash\", \"CreditCard\", \"PersonalCheck\", \"DirectDebit\", \"Other\", \"PayPal\", or \"Venmo\".",
                 "type": "string",
-                "enum": ["Cash", "CreditCard", "PersonalCheck", "DirectDebit", "Other", "PayPal", "Venmo"]
+                "enum": [
+                  "Cash",
+                  "CreditCard",
+                  "PersonalCheck",
+                  "DirectDebit",
+                  "Other",
+                  "PayPal",
+                  "Venmo"
+                ]
               }
             },
-            "required": ["payment_method"]
+            "required": [
+              "payment_method"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2288,7 +2358,10 @@
               "post_date": {
                 "title": "Post Date",
                 "description": "The date that the gift was posted to general ledger in ISO-8601 format.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -2331,7 +2404,11 @@
                 "title": "Post Status",
                 "description": "The general ledger post status of the gift. Available values are \"Posted\", \"NotPosted\", and \"DoNotPost\".",
                 "type": "string",
-                "enum": ["Posted", "NotPosted", "DoNotPost"]
+                "enum": [
+                  "Posted",
+                  "NotPosted",
+                  "DoNotPost"
+                ]
               }
             },
             "required": []
@@ -2374,7 +2451,10 @@
                   "date": {
                     "title": "Date",
                     "description": "The date that the gift was receipted. Includes an offset from UTC in ISO-8601 format: 1969-11-21T10:29:43.",
-                    "type": ["string", "number"],
+                    "type": [
+                      "string",
+                      "number"
+                    ],
                     "format": "date-like"
                   },
                   "status": {
@@ -2429,7 +2509,10 @@
                   "end_date": {
                     "title": "End Date",
                     "description": "Date the recurring gift should end in ISO-8601 format.",
-                    "type": ["string", "number"],
+                    "type": [
+                      "string",
+                      "number"
+                    ],
                     "format": "date-like"
                   },
                   "frequency": {
@@ -2440,7 +2523,10 @@
                   "start_date": {
                     "title": "Start Date",
                     "description": "Date the recurring gift should start in ISO-8601 format.",
-                    "type": ["string", "number"],
+                    "type": [
+                      "string",
+                      "number"
+                    ],
                     "format": "date-like"
                   }
                 },
@@ -2554,7 +2640,13 @@
                 "title": "Type",
                 "description": "The gift type. Available values are \"Donation\", \"Other\", \"GiftInKind\", \"RecurringGift\", and \"RecurringGiftPayment\".",
                 "type": "string",
-                "enum": ["Donation", "Other", "GiftInKind", "RecurringGift", "RecurringGiftPayment"]
+                "enum": [
+                  "Donation",
+                  "Other",
+                  "GiftInKind",
+                  "RecurringGift",
+                  "RecurringGiftPayment"
+                ]
               }
             },
             "required": []
@@ -2728,7 +2820,10 @@
               "constituent_birthdate": {
                 "title": "Constituent Birthdate",
                 "description": "The constituent's birthdate.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -3800,7 +3895,10 @@
               "birthdate": {
                 "title": "Birthdate",
                 "description": "The constituent's birthdate.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

@@ -1,9 +1,13 @@
 {
   "name": "Attribution (Actions)",
-  "basicOptions": ["projectID"],
+  "basicOptions": [
+    "projectID"
+  ],
   "options": {
     "projectID": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Attribution project ID.",
       "encrypt": false,
@@ -14,7 +18,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The projectID property is required."]],
+      "validators": [
+        [
+          "required",
+          "The projectID property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -62,7 +74,9 @@
                 "type": "string"
               }
             },
-            "required": ["messageId"]
+            "required": [
+              "messageId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -92,7 +106,9 @@
                 "type": "string"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -145,10 +161,19 @@
                 "title": "Event Type",
                 "description": "The type of event to send to Attribution.",
                 "type": "string",
-                "enum": ["track", "page", "screen", "identify", "group", "alias"]
+                "enum": [
+                  "track",
+                  "page",
+                  "screen",
+                  "identify",
+                  "group",
+                  "alias"
+                ]
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -182,7 +207,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["type"],
+                  "required": [
+                    "type"
+                  ],
                   "properties": {
                     "type": {
                       "const": "track"
@@ -190,7 +217,9 @@
                   }
                 },
                 "then": {
-                  "required": ["event"]
+                  "required": [
+                    "event"
+                  ]
                 }
               }
             ]
@@ -386,7 +415,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["type"],
+                  "required": [
+                    "type"
+                  ],
                   "properties": {
                     "type": {
                       "const": "alias"
@@ -394,7 +425,9 @@
                   }
                 },
                 "then": {
-                  "required": ["userId"]
+                  "required": [
+                    "userId"
+                  ]
                 }
               }
             ]
@@ -471,7 +504,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["type"],
+                  "required": [
+                    "type"
+                  ],
                   "properties": {
                     "type": {
                       "const": "group"
@@ -479,7 +514,9 @@
                   }
                 },
                 "then": {
-                  "required": ["groupId"]
+                  "required": [
+                    "groupId"
+                  ]
                 }
               }
             ]

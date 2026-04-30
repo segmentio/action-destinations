@@ -1,10 +1,18 @@
 {
   "name": "Posthog",
   "description": "Send events server-side to the [Posthog REST API](https://posthog.com/docs/api).",
-  "basicOptions": ["api_key", "project_id", "endpoint", "historical_migration", "geoip_disable"],
+  "basicOptions": [
+    "api_key",
+    "project_id",
+    "endpoint",
+    "historical_migration",
+    "geoip_disable"
+  ],
   "options": {
     "api_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Found in your project settings, under \"Project API key\"",
       "encrypt": true,
@@ -15,11 +23,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "project_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Found in your project settings, under \"Project ID\"",
       "encrypt": false,
@@ -30,11 +45,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The project_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The project_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "endpoint": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "https://us.i.posthog.com",
       "description": "API Endpoint URL based on project region",
       "encrypt": false,
@@ -57,11 +79,18 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The endpoint property is required."]],
+      "validators": [
+        [
+          "required",
+          "The endpoint property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "historical_migration": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": false,
       "description": "If enabled, this ensures that events are processed in order without triggering our spike detection systems. Affects events sent via the track Action only.",
       "encrypt": false,
@@ -76,7 +105,9 @@
       "uIMetadata": null
     },
     "geoip_disable": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": false,
       "description": "If enabled, [GeoIP collection](https://github.com/PostHog/posthog-plugin-geoip) will be disabled. This will prevent the collection of IP addresses and other geolocation data.",
       "encrypt": false,
@@ -99,7 +130,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -135,7 +169,9 @@
                 "type": "string"
               }
             },
-            "required": ["distinct_id"]
+            "required": [
+              "distinct_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -165,7 +201,9 @@
                 "type": "object"
               }
             },
-            "required": ["properties"]
+            "required": [
+              "properties"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -192,7 +230,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -223,7 +264,10 @@
               "ip_address": {
                 "title": "IP Address",
                 "description": "The IP address of the user",
-                "type": ["string", "null"],
+                "type": [
+                  "string",
+                  "null"
+                ],
                 "format": "ipv4"
               }
             },
@@ -277,10 +321,16 @@
                 "title": "Event Type",
                 "description": "For regular analytics events, use `track`. For page views, use `page`. For mobile screens, use `screen`.",
                 "type": "string",
-                "enum": ["track", "page", "screen"]
+                "enum": [
+                  "track",
+                  "page",
+                  "screen"
+                ]
               }
             },
-            "required": ["event_type"]
+            "required": [
+              "event_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -310,7 +360,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -340,7 +392,9 @@
                 "type": "string"
               }
             },
-            "required": ["distinct_id"]
+            "required": [
+              "distinct_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -404,7 +458,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["event_type"],
+                  "required": [
+                    "event_type"
+                  ],
                   "properties": {
                     "event_type": {
                       "const": "page"
@@ -412,7 +468,9 @@
                   }
                 },
                 "then": {
-                  "required": ["current_url"]
+                  "required": [
+                    "current_url"
+                  ]
                 }
               }
             ]
@@ -467,7 +525,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["event_type"],
+                  "required": [
+                    "event_type"
+                  ],
                   "properties": {
                     "event_type": {
                       "const": "screen"
@@ -475,7 +535,9 @@
                   }
                 },
                 "then": {
-                  "required": ["screen_name"]
+                  "required": [
+                    "screen_name"
+                  ]
                 }
               }
             ]
@@ -524,7 +586,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["anonymous_event_capture"]
+            "required": [
+              "anonymous_event_capture"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -551,7 +615,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -583,7 +650,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -639,7 +708,10 @@
               "ip_address": {
                 "title": "IP Address",
                 "description": "The IP address of the user",
-                "type": ["string", "null"],
+                "type": [
+                  "string",
+                  "null"
+                ],
                 "format": "ipv4"
               }
             },

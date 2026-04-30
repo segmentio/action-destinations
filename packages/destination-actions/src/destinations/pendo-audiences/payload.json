@@ -10,7 +10,9 @@
   ],
   "options": {
     "integrationKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Pendo Integration Key. Found in Pendo under Settings > Integrations > Integration Keys.",
       "encrypt": true,
@@ -21,11 +23,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The integrationKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The integrationKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "DEFAULT",
       "description": "The region your Pendo account is hosted in.",
       "encrypt": false,
@@ -63,7 +72,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The region property is required."]],
+      "validators": [
+        [
+          "required",
+          "The region property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "audienceName": {
@@ -114,7 +128,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -150,7 +167,9 @@
                 "type": "string"
               }
             },
-            "required": ["visitorId"]
+            "required": [
+              "visitorId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -191,7 +210,9 @@
                 "type": "object"
               }
             },
-            "required": ["traitsOrProperties"]
+            "required": [
+              "traitsOrProperties"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -222,7 +243,9 @@
                 "type": "string"
               }
             },
-            "required": ["segmentAudienceKey"]
+            "required": [
+              "segmentAudienceKey"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -253,7 +276,9 @@
                 "type": "string"
               }
             },
-            "required": ["segmentAudienceId"]
+            "required": [
+              "segmentAudienceId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -281,7 +306,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

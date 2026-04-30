@@ -1,9 +1,14 @@
 {
   "name": "Gameball (Actions)",
-  "basicOptions": ["apiKey", "secretKey"],
+  "basicOptions": [
+    "apiKey",
+    "secretKey"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Go to [help center](https://help.gameball.co/en/articles/3467114-get-your-account-integration-details-api-key-and-transaction-key) to learn how to find your API Key.",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "secretKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Go to [help center](https://help.gameball.co/en/articles/3467114-get-your-account-integration-details-api-key-and-transaction-key) to learn how to find your API Key.",
       "encrypt": true,
@@ -29,7 +41,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The secretKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The secretKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -87,7 +107,9 @@
                 "type": "string"
               }
             },
-            "required": ["playerUniqueId"]
+            "required": [
+              "playerUniqueId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -314,7 +336,10 @@
               "dateOfBirth": {
                 "title": "Date Of Birth",
                 "description": "Player's date of birth",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -345,7 +370,10 @@
               "joinDate": {
                 "title": "Join Date",
                 "description": "Player's join date at your system.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -712,7 +740,10 @@
               "lastOrderDate": {
                 "title": "Last Order Date",
                 "description": "Player's last order date",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -966,7 +997,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1036,7 +1069,9 @@
                 "type": "string"
               }
             },
-            "required": ["playerUniqueId"]
+            "required": [
+              "playerUniqueId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1166,7 +1201,9 @@
                 "type": "string"
               }
             },
-            "required": ["playerUniqueId"]
+            "required": [
+              "playerUniqueId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1276,7 +1313,9 @@
                 "type": "string"
               }
             },
-            "required": ["orderId"]
+            "required": [
+              "orderId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1303,11 +1342,16 @@
               "orderDate": {
                 "title": "Order Date",
                 "description": "The date this order was placed, as an ISO8601 timestamp. Defaults to now if not provided.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["orderDate"]
+            "required": [
+              "orderDate"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1337,7 +1381,9 @@
                 "type": "number"
               }
             },
-            "required": ["totalPrice"]
+            "required": [
+              "totalPrice"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1367,7 +1413,9 @@
                 "type": "number"
               }
             },
-            "required": ["totalPaid"]
+            "required": [
+              "totalPaid"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1600,7 +1648,11 @@
                       "type": "number"
                     }
                   },
-                  "required": ["price", "taxes", "discount"]
+                  "required": [
+                    "price",
+                    "taxes",
+                    "discount"
+                  ]
                 }
               }
             },

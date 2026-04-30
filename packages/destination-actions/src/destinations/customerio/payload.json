@@ -1,9 +1,15 @@
 {
   "name": "Actions Customerio",
-  "basicOptions": ["siteId", "apiKey", "accountRegion"],
+  "basicOptions": [
+    "siteId",
+    "apiKey",
+    "accountRegion"
+  ],
   "options": {
     "siteId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Customer.io site ID. This can be found on your [API Credentials page](https://fly.customer.io/settings/api_credentials).",
       "encrypt": true,
@@ -14,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The siteId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The siteId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Customer.io API key. This can be found on your [API Credentials page](https://fly.customer.io/settings/api_credentials).",
       "encrypt": true,
@@ -29,11 +42,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "accountRegion": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "US 🇺🇸",
       "description": "Learn about [Account Regions](https://customer.io/docs/data-centers/).",
       "encrypt": false,
@@ -68,7 +88,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "basic",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -104,7 +127,9 @@
                 "type": "string"
               }
             },
-            "required": ["person_id"]
+            "required": [
+              "person_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -134,7 +159,9 @@
                 "type": "string"
               }
             },
-            "required": ["device_id"]
+            "required": [
+              "device_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -194,7 +221,9 @@
                 "type": "string"
               }
             },
-            "required": ["platform"]
+            "required": [
+              "platform"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -382,7 +411,9 @@
                 "type": "string"
               }
             },
-            "required": ["id"]
+            "required": [
+              "id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1108,7 +1139,9 @@
                 "type": "string"
               }
             },
-            "required": ["person_id"]
+            "required": [
+              "person_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1138,7 +1171,9 @@
                 "type": "string"
               }
             },
-            "required": ["device_id"]
+            "required": [
+              "device_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1378,7 +1413,9 @@
                 "type": "string"
               }
             },
-            "required": ["person_id"]
+            "required": [
+              "person_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1478,7 +1515,9 @@
                 "type": "string"
               }
             },
-            "required": ["person_id"]
+            "required": [
+              "person_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1538,7 +1577,9 @@
                 "type": "string"
               }
             },
-            "required": ["object_id"]
+            "required": [
+              "object_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1678,7 +1719,9 @@
                 "type": "string"
               }
             },
-            "required": ["primary"]
+            "required": [
+              "primary"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1708,7 +1751,9 @@
                 "type": "string"
               }
             },
-            "required": ["secondary"]
+            "required": [
+              "secondary"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1845,10 +1890,15 @@
                 "title": "Action Type",
                 "description": "The type of content event.",
                 "type": "string",
-                "enum": ["viewed_content", "clicked_content"]
+                "enum": [
+                  "viewed_content",
+                  "clicked_content"
+                ]
               }
             },
-            "required": ["actionType"]
+            "required": [
+              "actionType"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2036,7 +2086,9 @@
                 "type": "string"
               }
             },
-            "required": ["delivery_id"]
+            "required": [
+              "delivery_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2097,10 +2149,21 @@
                 "title": "Metric",
                 "description": "The metric you want to report back to Customer.io. Not all metrics are available for all channels. Please refer to the [documentation](https://customer.io/docs/api/track/#operation/metrics) for more information.",
                 "type": "string",
-                "enum": ["delivered", "opened", "clicked", "converted", "spammed", "bounced", "dropped", "deferred"]
+                "enum": [
+                  "delivered",
+                  "opened",
+                  "clicked",
+                  "converted",
+                  "spammed",
+                  "bounced",
+                  "dropped",
+                  "deferred"
+                ]
               }
             },
-            "required": ["metric"]
+            "required": [
+              "metric"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2277,7 +2340,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "A timestamp of when the metric event took place. Default is when the event was triggered.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -2381,7 +2447,9 @@
                 "type": "string"
               }
             },
-            "required": ["person_id"]
+            "required": [
+              "person_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2541,7 +2609,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2849,7 +2919,9 @@
                 "type": "string"
               }
             },
-            "required": ["url"]
+            "required": [
+              "url"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3127,7 +3199,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3315,7 +3389,9 @@
                 "type": "string"
               }
             },
-            "required": ["person_id"]
+            "required": [
+              "person_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

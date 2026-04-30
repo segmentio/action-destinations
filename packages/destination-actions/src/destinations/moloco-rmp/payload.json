@@ -1,10 +1,17 @@
 {
   "name": "Moloco MCM",
   "description": "This destination sends user events to Moloco MCM for machine learning and ad attribution.",
-  "basicOptions": ["platformId", "platformName", "apiKey", "channel_type"],
+  "basicOptions": [
+    "platformId",
+    "platformName",
+    "apiKey",
+    "channel_type"
+  ],
   "options": {
     "platformId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "ID of the platform",
       "encrypt": false,
@@ -15,11 +22,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The platformId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The platformId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "platformName": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Name of the platform (default to the `Platform ID`)",
       "encrypt": false,
@@ -34,7 +48,9 @@
       "uIMetadata": null
     },
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The API key for the platform",
       "encrypt": true,
@@ -45,11 +61,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "channel_type": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Type of channel, either APP or SITE. Defaults to SITE.",
       "encrypt": false,
@@ -72,7 +95,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The channel_type property is required."]],
+      "validators": [
+        [
+          "required",
+          "The channel_type property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -84,7 +112,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -147,11 +178,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "Timestamp that the event happened at.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -561,11 +597,15 @@
                       "type": "string"
                     }
                   },
-                  "required": ["id"]
+                  "required": [
+                    "id"
+                  ]
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -690,11 +730,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "Timestamp that the event happened at.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1104,11 +1149,15 @@
                       "type": "string"
                     }
                   },
-                  "required": ["id"]
+                  "required": [
+                    "id"
+                  ]
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1181,7 +1230,10 @@
                     ]
                   }
                 },
-                "required": ["price", "currency"]
+                "required": [
+                  "price",
+                  "currency"
+                ]
               }
             },
             "required": []
@@ -1309,11 +1361,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "Timestamp that the event happened at.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1723,7 +1780,9 @@
                       "type": "string"
                     }
                   },
-                  "required": ["id"]
+                  "required": [
+                    "id"
+                  ]
                 }
               }
             },
@@ -1852,11 +1911,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "Timestamp that the event happened at.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2266,11 +2330,15 @@
                       "type": "string"
                     }
                   },
-                  "required": ["id"]
+                  "required": [
+                    "id"
+                  ]
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2395,11 +2463,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "Timestamp that the event happened at.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2809,7 +2882,9 @@
                       "type": "string"
                     }
                   },
-                  "required": ["id"]
+                  "required": [
+                    "id"
+                  ]
                 }
               }
             },
@@ -2901,7 +2976,9 @@
                 "type": "string"
               }
             },
-            "required": ["referrer_page_id"]
+            "required": [
+              "referrer_page_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2968,11 +3045,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "Timestamp that the event happened at.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3382,7 +3464,9 @@
                       "type": "string"
                     }
                   },
-                  "required": ["id"]
+                  "required": [
+                    "id"
+                  ]
                 }
               }
             },
@@ -3541,11 +3625,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "Timestamp that the event happened at.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3955,11 +4044,15 @@
                       "type": "string"
                     }
                   },
-                  "required": ["id"]
+                  "required": [
+                    "id"
+                  ]
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4032,10 +4125,15 @@
                     ]
                   }
                 },
-                "required": ["price", "currency"]
+                "required": [
+                  "price",
+                  "currency"
+                ]
               }
             },
-            "required": ["revenue"]
+            "required": [
+              "revenue"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4158,7 +4256,10 @@
                     ]
                   }
                 },
-                "required": ["price", "currency"]
+                "required": [
+                  "price",
+                  "currency"
+                ]
               }
             },
             "required": []
@@ -4228,11 +4329,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "Timestamp that the event happened at.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4642,7 +4748,9 @@
                       "type": "string"
                     }
                   },
-                  "required": ["id"]
+                  "required": [
+                    "id"
+                  ]
                 }
               }
             },
@@ -4676,7 +4784,9 @@
                 "type": "string"
               }
             },
-            "required": ["search_query"]
+            "required": [
+              "search_query"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

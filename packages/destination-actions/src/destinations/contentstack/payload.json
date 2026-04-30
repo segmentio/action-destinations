@@ -1,9 +1,14 @@
 {
   "name": "Contentstack Cloud",
-  "basicOptions": ["personalizeProjectId", "personalizeEdgeApiBaseUrl"],
+  "basicOptions": [
+    "personalizeProjectId",
+    "personalizeEdgeApiBaseUrl"
+  ],
   "options": {
     "personalizeProjectId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Personalize project ID to which Segment's data should be synced.",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The personalizeProjectId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The personalizeProjectId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "personalizeEdgeApiBaseUrl": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your region-based personalize-edge API base URL.",
       "encrypt": false,
@@ -29,7 +41,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The personalizeEdgeApiBaseUrl property is required."]],
+      "validators": [
+        [
+          "required",
+          "The personalizeEdgeApiBaseUrl property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -137,7 +157,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -167,7 +189,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -267,7 +291,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -297,7 +323,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

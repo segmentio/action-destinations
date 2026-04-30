@@ -1,9 +1,13 @@
 {
   "name": "Revend Actions",
-  "basicOptions": ["apiSecret"],
+  "basicOptions": [
+    "apiSecret"
+  ],
   "options": {
     "apiSecret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "An API SECRET generated for endpoint usage",
       "encrypt": true,
@@ -14,7 +18,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiSecret property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiSecret property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -72,7 +84,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -413,7 +427,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -547,7 +563,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -798,7 +816,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -962,7 +982,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1243,7 +1265,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1377,7 +1401,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1661,7 +1687,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1825,7 +1853,9 @@
                 "type": "string"
               }
             },
-            "required": ["clientId"]
+            "required": [
+              "clientId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -1912,7 +1942,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2074,7 +2106,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2325,7 +2359,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2543,7 +2579,9 @@
                 "type": "string"
               }
             },
-            "required": ["clientId"]
+            "required": [
+              "clientId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2824,7 +2862,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2971,7 +3011,9 @@
                 "type": "string"
               }
             },
-            "required": ["currency"]
+            "required": [
+              "currency"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3138,7 +3180,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3168,7 +3212,9 @@
                 "type": "string"
               }
             },
-            "required": ["transaction_id"]
+            "required": [
+              "transaction_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3392,7 +3438,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3509,7 +3557,9 @@
                 "type": "string"
               }
             },
-            "required": ["transaction_id"]
+            "required": [
+              "transaction_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3954,7 +4004,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4235,7 +4287,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4369,7 +4423,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4456,7 +4512,9 @@
                 "type": "string"
               }
             },
-            "required": ["search_term"]
+            "required": [
+              "search_term"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4590,7 +4648,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4865,7 +4925,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4999,7 +5061,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5518,7 +5582,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5739,7 +5805,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6023,7 +6091,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6157,7 +6227,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6438,7 +6510,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6572,7 +6646,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6856,7 +6932,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6990,7 +7068,9 @@
                 "type": "string"
               }
             },
-            "required": ["client_id"]
+            "required": [
+              "client_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -7378,7 +7458,9 @@
                 }
               }
             },
-            "required": ["items"]
+            "required": [
+              "items"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

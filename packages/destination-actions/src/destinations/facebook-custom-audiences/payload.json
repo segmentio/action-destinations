@@ -10,7 +10,9 @@
   ],
   "options": {
     "retlAdAccountId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762). This is required to set up the connection, but can be overriden using the Engage Audience setting named \"Advertiser Account ID\".",
       "encrypt": false,
@@ -21,7 +23,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The retlAdAccountId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The retlAdAccountId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "engageAdAccountId": {
@@ -51,7 +58,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The audienceDescription property is required."]],
+      "validators": [
+        [
+          "required",
+          "The audienceDescription property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "oauth": {
@@ -137,7 +149,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -173,7 +188,9 @@
                 "type": "string"
               }
             },
-            "required": ["externalId"]
+            "required": [
+              "externalId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
@@ -765,7 +782,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -794,7 +813,9 @@
                 "type": "number"
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -829,7 +850,10 @@
                 "title": "Create a new custom audience or connect to an existing one?",
                 "description": "Choose to either create a new custom audience or use an existing one. If you opt to create a new audience, we will display the required fields for audience creation. If you opt to use an existing audience, a drop-down menu will appear, allowing you to select from all the custom audiences in your ad account.",
                 "type": "string",
-                "enum": ["create", "existing"]
+                "enum": [
+                  "create",
+                  "existing"
+                ]
               }
             },
             "required": []
@@ -946,7 +970,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["audienceName", "audienceId"]
+                "required": [
+                  "audienceName",
+                  "audienceId"
+                ]
               }
             },
             "required": []

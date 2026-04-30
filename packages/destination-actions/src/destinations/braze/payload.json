@@ -1,10 +1,16 @@
 {
   "name": "Braze Cloud Mode (Actions)",
   "description": "Send events server-side to the Braze REST API.",
-  "basicOptions": ["api_key", "app_id", "endpoint"],
+  "basicOptions": [
+    "api_key",
+    "app_id",
+    "endpoint"
+  ],
   "options": {
     "api_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Created under Developer Console in the Braze Dashboard.",
       "encrypt": true,
@@ -15,11 +21,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "app_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The app identifier used to reference specific Apps in requests made to the Braze API. Created under Developer Console in the Braze Dashboard.",
       "encrypt": false,
@@ -34,7 +47,9 @@
       "uIMetadata": null
     },
     "endpoint": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "https://rest.iad-01.braze.com",
       "description": "Your Braze REST endpoint. [See more details](https://www.braze.com/docs/api/basics/#endpoints)",
       "encrypt": false,
@@ -122,7 +137,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The endpoint property is required."]],
+      "validators": [
+        [
+          "required",
+          "The endpoint property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -134,7 +154,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -164,7 +187,10 @@
               "external_id": {
                 "title": "External ID",
                 "description": "The external ID of the user to create an alias for.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -194,7 +220,9 @@
                 "type": "string"
               }
             },
-            "required": ["alias_name"]
+            "required": [
+              "alias_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -221,7 +249,9 @@
                 "type": "string"
               }
             },
-            "required": ["alias_label"]
+            "required": [
+              "alias_label"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -255,7 +285,10 @@
               "external_id": {
                 "title": "External ID",
                 "description": "The external ID of the user to create an alias for.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -285,7 +318,9 @@
                 "type": "string"
               }
             },
-            "required": ["alias_name"]
+            "required": [
+              "alias_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -312,7 +347,9 @@
                 "type": "string"
               }
             },
-            "required": ["alias_label"]
+            "required": [
+              "alias_label"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -406,7 +443,9 @@
                 ]
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -474,7 +513,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["alias_name", "alias_label"]
+                "required": [
+                  "alias_name",
+                  "alias_label"
+                ]
               }
             },
             "required": []
@@ -555,7 +597,10 @@
               "phone": {
                 "title": "Phone Number",
                 "description": "The user's phone number",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -595,7 +640,10 @@
               "braze_id": {
                 "title": "Braze User Identifier",
                 "description": "The unique user identifier",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -632,7 +680,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["name"],
+                  "required": [
+                    "name"
+                  ],
                   "properties": {
                     "name": {
                       "const": "ecommerce.order_cancelled"
@@ -640,7 +690,9 @@
                   }
                 },
                 "then": {
-                  "required": ["cancel_reason"]
+                  "required": [
+                    "cancel_reason"
+                  ]
                 }
               }
             ]
@@ -694,7 +746,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["time"]
+            "required": [
+              "time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -728,7 +782,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["name"],
+                  "required": [
+                    "name"
+                  ],
                   "properties": {
                     "name": {
                       "const": "ecommerce.checkout_started"
@@ -736,7 +792,9 @@
                   }
                 },
                 "then": {
-                  "required": ["checkout_id"]
+                  "required": [
+                    "checkout_id"
+                  ]
                 }
               }
             ]
@@ -800,7 +858,9 @@
                           "const": "ecommerce.order_placed"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     },
                     {
                       "properties": {
@@ -808,7 +868,9 @@
                           "const": "ecommerce.order_cancelled"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     },
                     {
                       "properties": {
@@ -816,12 +878,16 @@
                           "const": "ecommerce.order_refunded"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     }
                   ]
                 },
                 "then": {
-                  "required": ["order_id"]
+                  "required": [
+                    "order_id"
+                  ]
                 }
               }
             ]
@@ -949,7 +1015,9 @@
                           "const": "ecommerce.checkout_started"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     },
                     {
                       "properties": {
@@ -957,7 +1025,9 @@
                           "const": "ecommerce.order_placed"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     },
                     {
                       "properties": {
@@ -965,7 +1035,9 @@
                           "const": "ecommerce.order_cancelled"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     },
                     {
                       "properties": {
@@ -973,12 +1045,16 @@
                           "const": "ecommerce.order_refunded"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     }
                   ]
                 },
                 "then": {
-                  "required": ["total_value"]
+                  "required": [
+                    "total_value"
+                  ]
                 }
               }
             ]
@@ -1133,7 +1209,10 @@
                       "type": "number"
                     }
                   },
-                  "required": ["code", "amount"]
+                  "required": [
+                    "code",
+                    "amount"
+                  ]
                 }
               }
             },
@@ -2034,7 +2113,9 @@
                 ]
               }
             },
-            "required": ["currency"]
+            "required": [
+              "currency"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2064,7 +2145,9 @@
                 "type": "string"
               }
             },
-            "required": ["source"]
+            "required": [
+              "source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2120,7 +2203,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2150,7 +2235,9 @@
                 "maximum": 75
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "minimum": 2,
@@ -2249,11 +2336,19 @@
                       "type": "number"
                     }
                   },
-                  "required": ["product_id", "product_name", "variant_id", "quantity", "price"]
+                  "required": [
+                    "product_id",
+                    "product_name",
+                    "variant_id",
+                    "quantity",
+                    "price"
+                  ]
                 }
               }
             },
-            "required": ["products"]
+            "required": [
+              "products"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2342,7 +2437,9 @@
                 ]
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2410,7 +2507,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["alias_name", "alias_label"]
+                "required": [
+                  "alias_name",
+                  "alias_label"
+                ]
               }
             },
             "required": []
@@ -2491,7 +2591,10 @@
               "phone": {
                 "title": "Phone Number",
                 "description": "The user's phone number",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -2531,7 +2634,10 @@
               "braze_id": {
                 "title": "Braze User Identifier",
                 "description": "The unique user identifier",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -2568,7 +2674,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["name"],
+                  "required": [
+                    "name"
+                  ],
                   "properties": {
                     "name": {
                       "const": "ecommerce.order_cancelled"
@@ -2576,7 +2684,9 @@
                   }
                 },
                 "then": {
-                  "required": ["cancel_reason"]
+                  "required": [
+                    "cancel_reason"
+                  ]
                 }
               }
             ]
@@ -2630,7 +2740,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["time"]
+            "required": [
+              "time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2664,7 +2776,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["name"],
+                  "required": [
+                    "name"
+                  ],
                   "properties": {
                     "name": {
                       "const": "ecommerce.checkout_started"
@@ -2672,7 +2786,9 @@
                   }
                 },
                 "then": {
-                  "required": ["checkout_id"]
+                  "required": [
+                    "checkout_id"
+                  ]
                 }
               }
             ]
@@ -2736,7 +2852,9 @@
                           "const": "ecommerce.order_placed"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     },
                     {
                       "properties": {
@@ -2744,7 +2862,9 @@
                           "const": "ecommerce.order_cancelled"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     },
                     {
                       "properties": {
@@ -2752,12 +2872,16 @@
                           "const": "ecommerce.order_refunded"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     }
                   ]
                 },
                 "then": {
-                  "required": ["order_id"]
+                  "required": [
+                    "order_id"
+                  ]
                 }
               }
             ]
@@ -2885,7 +3009,9 @@
                           "const": "ecommerce.checkout_started"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     },
                     {
                       "properties": {
@@ -2893,7 +3019,9 @@
                           "const": "ecommerce.order_placed"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     },
                     {
                       "properties": {
@@ -2901,7 +3029,9 @@
                           "const": "ecommerce.order_cancelled"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     },
                     {
                       "properties": {
@@ -2909,12 +3039,16 @@
                           "const": "ecommerce.order_refunded"
                         }
                       },
-                      "required": ["name"]
+                      "required": [
+                        "name"
+                      ]
                     }
                   ]
                 },
                 "then": {
-                  "required": ["total_value"]
+                  "required": [
+                    "total_value"
+                  ]
                 }
               }
             ]
@@ -3069,7 +3203,10 @@
                       "type": "number"
                     }
                   },
-                  "required": ["code", "amount"]
+                  "required": [
+                    "code",
+                    "amount"
+                  ]
                 }
               }
             },
@@ -3970,7 +4107,9 @@
                 ]
               }
             },
-            "required": ["currency"]
+            "required": [
+              "currency"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4000,7 +4139,9 @@
                 "type": "string"
               }
             },
-            "required": ["source"]
+            "required": [
+              "source"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4056,7 +4197,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4086,7 +4229,9 @@
                 "maximum": 75
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "minimum": 2,
@@ -4170,10 +4315,17 @@
                     "type": "number"
                   }
                 },
-                "required": ["product_id", "product_name", "variant_id", "price"]
+                "required": [
+                  "product_id",
+                  "product_name",
+                  "variant_id",
+                  "price"
+                ]
               }
             },
-            "required": ["product"]
+            "required": [
+              "product"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4234,7 +4386,9 @@
                 "type": "string"
               }
             },
-            "required": ["external_id"]
+            "required": [
+              "external_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4271,10 +4425,15 @@
                     "type": "string"
                   }
                 },
-                "required": ["alias_name", "alias_label"]
+                "required": [
+                  "alias_name",
+                  "alias_label"
+                ]
               }
             },
-            "required": ["user_alias"]
+            "required": [
+              "user_alias"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4308,7 +4467,10 @@
                 "title": "Merge Behavior",
                 "description": "Sets the endpoint to merge some fields found exclusively on the anonymous user to the identified user. See [the docs](https://www.braze.com/docs/api/endpoints/user_data/post_user_identify/#request-parameters).",
                 "type": "string",
-                "enum": ["none", "merge"]
+                "enum": [
+                  "none",
+                  "merge"
+                ]
               }
             },
             "required": []
@@ -4348,7 +4510,9 @@
                 "type": "string"
               }
             },
-            "required": ["external_id"]
+            "required": [
+              "external_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4385,7 +4549,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["alias_name", "alias_label"]
+                "required": [
+                  "alias_name",
+                  "alias_label"
+                ]
               }
             },
             "required": [],
@@ -4395,7 +4562,9 @@
                   "anyOf": [
                     {
                       "not": {
-                        "required": ["email_to_identify"]
+                        "required": [
+                          "email_to_identify"
+                        ]
                       }
                     },
                     {
@@ -4408,7 +4577,9 @@
                   ]
                 },
                 "then": {
-                  "required": ["user_alias"]
+                  "required": [
+                    "user_alias"
+                  ]
                 }
               }
             ]
@@ -4455,7 +4626,9 @@
                   "anyOf": [
                     {
                       "not": {
-                        "required": ["user_alias"]
+                        "required": [
+                          "user_alias"
+                        ]
                       }
                     },
                     {
@@ -4468,7 +4641,9 @@
                   ]
                 },
                 "then": {
-                  "required": ["email_to_identify"]
+                  "required": [
+                    "email_to_identify"
+                  ]
                 }
               }
             ]
@@ -4513,13 +4688,21 @@
                     "title": "First Priority",
                     "description": "First priority for user merging if multiple users are found",
                     "type": "string",
-                    "enum": ["unidentified", "most_recently_updated", "least_recently_updated"]
+                    "enum": [
+                      "unidentified",
+                      "most_recently_updated",
+                      "least_recently_updated"
+                    ]
                   },
                   "second_priority": {
                     "title": "Second Priority",
                     "description": "Second priority for user merging if multiple users are found",
                     "type": "string",
-                    "enum": ["unidentified", "most_recently_updated", "least_recently_updated"]
+                    "enum": [
+                      "unidentified",
+                      "most_recently_updated",
+                      "least_recently_updated"
+                    ]
                   }
                 },
                 "required": []
@@ -4531,7 +4714,9 @@
                 "if": {
                   "allOf": [
                     {
-                      "required": ["email_to_identify"]
+                      "required": [
+                        "email_to_identify"
+                      ]
                     },
                     {
                       "not": {
@@ -4545,7 +4730,9 @@
                   ]
                 },
                 "then": {
-                  "required": ["prioritization"]
+                  "required": [
+                    "prioritization"
+                  ]
                 }
               }
             ]
@@ -4598,7 +4785,10 @@
                 "title": "Merge Behavior",
                 "description": "Sets the endpoint to merge some fields found exclusively on the anonymous user to the identified user. See [the docs](https://www.braze.com/docs/api/endpoints/user_data/post_user_identify/#request-parameters).",
                 "type": "string",
-                "enum": ["none", "merge"]
+                "enum": [
+                  "none",
+                  "merge"
+                ]
               }
             },
             "required": []
@@ -4772,7 +4962,10 @@
               "braze_id": {
                 "title": "Braze User Identifier",
                 "description": "The unique user identifier",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -4805,7 +4998,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4832,11 +5027,16 @@
               "time": {
                 "title": "Time",
                 "description": "When the event occurred.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["time"]
+            "required": [
+              "time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5098,7 +5298,10 @@
               "braze_id": {
                 "title": "Braze User Identifier",
                 "description": "The unique user identifier",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -5131,7 +5334,9 @@
                 "type": "string"
               }
             },
-            "required": ["name"]
+            "required": [
+              "name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5158,11 +5363,16 @@
               "time": {
                 "title": "Time",
                 "description": "When the event occurred.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["time"]
+            "required": [
+              "time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5410,7 +5620,10 @@
               "braze_id": {
                 "title": "Braze User Identifier",
                 "description": "The unique user identifier",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -5440,11 +5653,16 @@
               "time": {
                 "title": "Time",
                 "description": "When the event occurred.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["time"]
+            "required": [
+              "time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5494,11 +5712,16 @@
                       "type": "integer"
                     }
                   },
-                  "required": ["product_id", "price"]
+                  "required": [
+                    "product_id",
+                    "price"
+                  ]
                 }
               }
             },
-            "required": ["products"]
+            "required": [
+              "products"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5750,7 +5973,10 @@
               "braze_id": {
                 "title": "Braze User Identifier",
                 "description": "The unique user identifier",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -5780,11 +6006,16 @@
               "time": {
                 "title": "Time",
                 "description": "When the event occurred.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["time"]
+            "required": [
+              "time"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5834,11 +6065,16 @@
                       "type": "integer"
                     }
                   },
-                  "required": ["product_id", "price"]
+                  "required": [
+                    "product_id",
+                    "price"
+                  ]
                 }
               }
             },
-            "required": ["products"]
+            "required": [
+              "products"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5986,7 +6222,9 @@
                 "type": "string"
               }
             },
-            "required": ["campaign_id"]
+            "required": [
+              "campaign_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6077,18 +6315,24 @@
                   "allOf": [
                     {
                       "not": {
-                        "required": ["recipients"]
+                        "required": [
+                          "recipients"
+                        ]
                       }
                     },
                     {
                       "not": {
-                        "required": ["audience"]
+                        "required": [
+                          "audience"
+                        ]
                       }
                     }
                   ]
                 },
                 "then": {
-                  "required": ["broadcast"]
+                  "required": [
+                    "broadcast"
+                  ]
                 }
               }
             ]
@@ -6155,7 +6399,10 @@
                       "type": "string"
                     }
                   },
-                  "required": ["file_name", "url"]
+                  "required": [
+                    "file_name",
+                    "url"
+                  ]
                 }
               }
             },
@@ -6271,13 +6518,23 @@
                     "title": "First Priority",
                     "description": "First priority in the prioritization sequence",
                     "type": "string",
-                    "enum": ["identified", "unidentified", "most_recently_updated", "least_recently_updated"]
+                    "enum": [
+                      "identified",
+                      "unidentified",
+                      "most_recently_updated",
+                      "least_recently_updated"
+                    ]
                   },
                   "second_priority": {
                     "title": "Second Priority",
                     "description": "Second priority in the prioritization sequence",
                     "type": "string",
-                    "enum": ["identified", "unidentified", "most_recently_updated", "least_recently_updated"]
+                    "enum": [
+                      "identified",
+                      "unidentified",
+                      "most_recently_updated",
+                      "least_recently_updated"
+                    ]
                   }
                 },
                 "required": []
@@ -6369,7 +6626,9 @@
                 "type": "string"
               }
             },
-            "required": ["canvas_id"]
+            "required": [
+              "canvas_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -6523,7 +6782,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["broadcast"],
+                  "required": [
+                    "broadcast"
+                  ],
                   "properties": {
                     "broadcast": {
                       "not": {
@@ -6533,7 +6794,9 @@
                   }
                 },
                 "then": {
-                  "required": ["recipients"]
+                  "required": [
+                    "recipients"
+                  ]
                 }
               }
             ]
@@ -6588,13 +6851,23 @@
                     "title": "First Priority",
                     "description": "First priority in the prioritization sequence",
                     "type": "string",
-                    "enum": ["identified", "unidentified", "most_recently_updated", "least_recently_updated"]
+                    "enum": [
+                      "identified",
+                      "unidentified",
+                      "most_recently_updated",
+                      "least_recently_updated"
+                    ]
                   },
                   "second_priority": {
                     "title": "Second Priority",
                     "description": "Second priority in the prioritization sequence",
                     "type": "string",
-                    "enum": ["identified", "unidentified", "most_recently_updated", "least_recently_updated"]
+                    "enum": [
+                      "identified",
+                      "unidentified",
+                      "most_recently_updated",
+                      "least_recently_updated"
+                    ]
                   }
                 },
                 "required": []
@@ -6744,7 +7017,10 @@
               "braze_id": {
                 "title": "Braze User Identifier",
                 "description": "The unique user identifier",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -6774,7 +7050,10 @@
               "country": {
                 "title": "Country",
                 "description": "The country code of the user",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -6849,7 +7128,11 @@
               "date_of_first_session": {
                 "title": "Date of First Session",
                 "description": "The date the user first used the app",
-                "type": ["string", "number", "null"],
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ],
                 "format": "date-like"
               }
             },
@@ -6877,7 +7160,11 @@
               "date_of_last_session": {
                 "title": "Date of Last Session",
                 "description": "The date the user last used the app",
-                "type": ["string", "number", "null"],
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ],
                 "format": "date-like"
               }
             },
@@ -6905,7 +7192,11 @@
               "dob": {
                 "title": "Date of Birth",
                 "description": "The user's date of birth",
-                "type": ["string", "number", "null"],
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ],
                 "format": "date-like"
               }
             },
@@ -6936,7 +7227,10 @@
               "email": {
                 "title": "Email",
                 "description": "The user's email",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -7094,7 +7388,10 @@
               "first_name": {
                 "title": "First Name",
                 "description": "The user's first name",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -7124,7 +7421,10 @@
               "gender": {
                 "title": "Gender",
                 "description": "The user's gender: “M”, “F”, “O” (other), “N” (not applicable), “P” (prefer not to say) or nil (unknown).",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -7154,7 +7454,10 @@
               "home_city": {
                 "title": "Home City",
                 "description": "The user's home city.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -7184,7 +7487,10 @@
               "image_url": {
                 "title": "Image URL",
                 "description": "URL of image to be associated with user profile.",
-                "type": ["string", "null"],
+                "type": [
+                  "string",
+                  "null"
+                ],
                 "format": "uri"
               }
             },
@@ -7212,7 +7518,10 @@
               "language": {
                 "title": "Language",
                 "description": "The user's preferred language.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -7269,7 +7578,11 @@
               "marked_email_as_spam_at": {
                 "title": "Marked Email as Spam At",
                 "description": "The date the user marked their email as spam.",
-                "type": ["string", "number", "null"],
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ],
                 "format": "date-like"
               }
             },
@@ -7300,7 +7613,10 @@
               "phone": {
                 "title": "Phone Number",
                 "description": "The user's phone number",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -7376,7 +7692,10 @@
                       "type": "string"
                     }
                   },
-                  "required": ["app_id", "token"]
+                  "required": [
+                    "app_id",
+                    "token"
+                  ]
                 }
               }
             },
@@ -7499,10 +7818,16 @@
                       "title": "Subscription State",
                       "description": "The user's subscription status: \"subscribed\" or \"unsubscribed\"",
                       "type": "string",
-                      "enum": ["subscribed", "unsubscribed"]
+                      "enum": [
+                        "subscribed",
+                        "unsubscribed"
+                      ]
                     }
                   },
-                  "required": ["subscription_group_id", "subscription_state"]
+                  "required": [
+                    "subscription_group_id",
+                    "subscription_state"
+                  ]
                 }
               }
             },
@@ -7728,7 +8053,10 @@
               "braze_id": {
                 "title": "Braze User Identifier",
                 "description": "The unique user identifier",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -7758,7 +8086,10 @@
               "country": {
                 "title": "Country",
                 "description": "The country code of the user",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -7833,7 +8164,11 @@
               "date_of_first_session": {
                 "title": "Date of First Session",
                 "description": "The date the user first used the app",
-                "type": ["string", "number", "null"],
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ],
                 "format": "date-like"
               }
             },
@@ -7861,7 +8196,11 @@
               "date_of_last_session": {
                 "title": "Date of Last Session",
                 "description": "The date the user last used the app",
-                "type": ["string", "number", "null"],
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ],
                 "format": "date-like"
               }
             },
@@ -7889,7 +8228,11 @@
               "dob": {
                 "title": "Date of Birth",
                 "description": "The user's date of birth",
-                "type": ["string", "number", "null"],
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ],
                 "format": "date-like"
               }
             },
@@ -7920,7 +8263,10 @@
               "email": {
                 "title": "Email",
                 "description": "The user's email",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -8078,7 +8424,10 @@
               "first_name": {
                 "title": "First Name",
                 "description": "The user's first name",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -8108,7 +8457,10 @@
               "gender": {
                 "title": "Gender",
                 "description": "The user's gender: “M”, “F”, “O” (other), “N” (not applicable), “P” (prefer not to say) or nil (unknown).",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -8138,7 +8490,10 @@
               "home_city": {
                 "title": "Home City",
                 "description": "The user's home city.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -8168,7 +8523,10 @@
               "image_url": {
                 "title": "Image URL",
                 "description": "URL of image to be associated with user profile.",
-                "type": ["string", "null"],
+                "type": [
+                  "string",
+                  "null"
+                ],
                 "format": "uri"
               }
             },
@@ -8196,7 +8554,10 @@
               "language": {
                 "title": "Language",
                 "description": "The user's preferred language.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -8253,7 +8614,11 @@
               "marked_email_as_spam_at": {
                 "title": "Marked Email as Spam At",
                 "description": "The date the user marked their email as spam.",
-                "type": ["string", "number", "null"],
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ],
                 "format": "date-like"
               }
             },
@@ -8284,7 +8649,10 @@
               "phone": {
                 "title": "Phone Number",
                 "description": "The user's phone number",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -8360,7 +8728,10 @@
                       "type": "string"
                     }
                   },
-                  "required": ["app_id", "token"]
+                  "required": [
+                    "app_id",
+                    "token"
+                  ]
                 }
               }
             },
@@ -8483,10 +8854,16 @@
                       "title": "Subscription State",
                       "description": "The user's subscription status: \"subscribed\" or \"unsubscribed\"",
                       "type": "string",
-                      "enum": ["subscribed", "unsubscribed"]
+                      "enum": [
+                        "subscribed",
+                        "unsubscribed"
+                      ]
                     }
                   },
-                  "required": ["subscription_group_id", "subscription_state"]
+                  "required": [
+                    "subscription_group_id",
+                    "subscription_state"
+                  ]
                 }
               }
             },
@@ -8639,7 +9016,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["__segment_internal_sync_mode"],
+                  "required": [
+                    "__segment_internal_sync_mode"
+                  ],
                   "properties": {
                     "__segment_internal_sync_mode": {
                       "const": "upsert"
@@ -8647,7 +9026,9 @@
                   }
                 },
                 "then": {
-                  "required": ["item"]
+                  "required": [
+                    "item"
+                  ]
                 }
               }
             ]
@@ -8675,7 +9056,9 @@
                 }
               ]
             },
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -8702,7 +9085,9 @@
                 "maxLength": 250
               }
             },
-            "required": ["item_id"]
+            "required": [
+              "item_id"
+            ]
           },
           "dependsOn": null,
           "minimum": 1,
@@ -8799,15 +9184,26 @@
                 "title": "Operation",
                 "description": "Whether to select an existing catalog or create a new one in Braze.",
                 "type": "string",
-                "enum": ["create", "select"]
+                "enum": [
+                  "create",
+                  "select"
+                ]
               }
             },
-            "required": ["operation"]
+            "required": [
+              "operation"
+            ]
           },
           "dependsOn": null,
           "hookInputFieldType": "onMappingSave",
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         },
         {
@@ -8836,7 +9232,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "select"
@@ -8844,7 +9242,9 @@
                   }
                 },
                 "then": {
-                  "required": ["selected_catalog_name"]
+                  "required": [
+                    "selected_catalog_name"
+                  ]
                 }
               }
             ]
@@ -8861,7 +9261,13 @@
           },
           "hookInputFieldType": "onMappingSave",
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"],
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ],
             "conditionallyRequired": {
               "match": "all",
               "conditions": [
@@ -8900,7 +9306,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -8908,7 +9316,9 @@
                   }
                 },
                 "then": {
-                  "required": ["created_catalog_name"]
+                  "required": [
+                    "created_catalog_name"
+                  ]
                 }
               }
             ]
@@ -9009,10 +9419,20 @@
                       "title": "Field Type",
                       "description": "The data type of the field.",
                       "type": "string",
-                      "enum": ["string", "number", "time", "boolean", "object", "array"]
+                      "enum": [
+                        "string",
+                        "number",
+                        "time",
+                        "boolean",
+                        "object",
+                        "array"
+                      ]
                     }
                   },
-                  "required": ["name", "type"]
+                  "required": [
+                    "name",
+                    "type"
+                  ]
                 }
               }
             },
@@ -9020,7 +9440,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["operation"],
+                  "required": [
+                    "operation"
+                  ],
                   "properties": {
                     "operation": {
                       "const": "create"
@@ -9028,7 +9450,9 @@
                   }
                 },
                 "then": {
-                  "required": ["columns"]
+                  "required": [
+                    "columns"
+                  ]
                 }
               }
             ]
@@ -9088,7 +9512,9 @@
                     "type": "string"
                   }
                 },
-                "required": ["catalog_name"]
+                "required": [
+                  "catalog_name"
+                ]
               }
             },
             "required": []

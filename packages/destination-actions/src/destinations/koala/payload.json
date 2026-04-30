@@ -1,9 +1,13 @@
 {
   "name": "Koala (Cloud)",
-  "basicOptions": ["public_key"],
+  "basicOptions": [
+    "public_key"
+  ],
   "options": {
     "public_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your public key",
       "encrypt": true,
@@ -14,7 +18,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The public_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The public_key property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -133,7 +145,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["sent_at"]
+            "required": [
+              "sent_at"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -223,7 +237,9 @@
                 "type": "string"
               }
             },
-            "required": ["message_id"]
+            "required": [
+              "message_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -303,7 +319,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -364,7 +382,9 @@
                 "format": "date-time"
               }
             },
-            "required": ["sent_at"]
+            "required": [
+              "sent_at"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -484,7 +504,9 @@
                 "type": "string"
               }
             },
-            "required": ["message_id"]
+            "required": [
+              "message_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

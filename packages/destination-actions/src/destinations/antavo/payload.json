@@ -1,9 +1,14 @@
 {
   "name": "Antavo (Actions)",
-  "basicOptions": ["stack", "api_key"],
+  "basicOptions": [
+    "stack",
+    "api_key"
+  ],
   "options": {
     "stack": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Antavo Loyalty Engine stack where your brand resides",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The stack property is required."]],
+      "validators": [
+        [
+          "required",
+          "The stack property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "api_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Antavo brand API key supplied to your brand in Antavo Loyalty Engine",
       "encrypt": true,
@@ -29,7 +41,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -77,7 +97,9 @@
                 "type": "string"
               }
             },
-            "required": ["customer"]
+            "required": [
+              "customer"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -104,7 +126,9 @@
                 "type": "string"
               }
             },
-            "required": ["action"]
+            "required": [
+              "action"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -198,7 +222,9 @@
                 "type": "string"
               }
             },
-            "required": ["customer"]
+            "required": [
+              "customer"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -325,7 +351,9 @@
                 "required": []
               }
             },
-            "required": ["data"]
+            "required": [
+              "data"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

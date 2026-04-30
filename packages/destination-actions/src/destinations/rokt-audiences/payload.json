@@ -1,10 +1,16 @@
 {
   "name": "Rokt Audiences (Actions)",
   "description": "\n  This destination allows user to engage audiences using Rokt's Public APIs.\n  User can connect Rokt Audiences (Actions) as a destination to their Engage Audience in Segment,\n  which will create/update custom audiences in the Rokt data platform. Audiences can be defined with either\n  email values or hashed (sha256) email values.\n  ",
-  "basicOptions": ["rpub", "rsec", "accountid"],
+  "basicOptions": [
+    "rpub",
+    "rsec",
+    "accountid"
+  ],
   "options": {
     "rpub": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Rokt public key, starts with `rpub-`",
       "encrypt": false,
@@ -15,11 +21,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The rpub property is required."]],
+      "validators": [
+        [
+          "required",
+          "The rpub property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "rsec": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Rokt secret key, starts with `rsec-`",
       "encrypt": true,
@@ -30,11 +43,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The rsec property is required."]],
+      "validators": [
+        [
+          "required",
+          "The rsec property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "accountid": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Rokt ID assigned to your particular account.",
       "encrypt": false,
@@ -45,7 +65,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The accountid property is required."]],
+      "validators": [
+        [
+          "required",
+          "The accountid property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -57,7 +82,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -93,7 +121,9 @@
                 "type": "string"
               }
             },
-            "required": ["custom_audience_name"]
+            "required": [
+              "custom_audience_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -123,7 +153,9 @@
                 "type": "string"
               }
             },
-            "required": ["segment_computation_action"]
+            "required": [
+              "segment_computation_action"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -171,7 +203,9 @@
                   "anyOf": [
                     {
                       "not": {
-                        "required": ["email_sha256"]
+                        "required": [
+                          "email_sha256"
+                        ]
                       }
                     },
                     {
@@ -184,7 +218,9 @@
                   ]
                 },
                 "then": {
-                  "required": ["email"]
+                  "required": [
+                    "email"
+                  ]
                 }
               }
             ]
@@ -244,7 +280,9 @@
                   "anyOf": [
                     {
                       "not": {
-                        "required": ["email"]
+                        "required": [
+                          "email"
+                        ]
                       }
                     },
                     {
@@ -257,7 +295,9 @@
                   ]
                 },
                 "then": {
-                  "required": ["email_sha256"]
+                  "required": [
+                    "email_sha256"
+                  ]
                 }
               }
             ]
@@ -309,7 +349,9 @@
                 "type": "object"
               }
             },
-            "required": ["traits_or_props"]
+            "required": [
+              "traits_or_props"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

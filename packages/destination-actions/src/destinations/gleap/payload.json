@@ -1,10 +1,14 @@
 {
   "name": "Gleap (Action)",
   "description": "Send Segment analytics events and user profile data to Gleap",
-  "basicOptions": ["apiToken"],
+  "basicOptions": [
+    "apiToken"
+  ],
   "options": {
     "apiToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Found in `Project settings` -> `Secret API token`.",
       "encrypt": true,
@@ -15,7 +19,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiToken property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -63,7 +75,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -385,7 +399,10 @@
               "createdAt": {
                 "title": "Signed Up Timestamp",
                 "description": "The time specified for when a contact signed up.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -416,7 +433,10 @@
               "lastActivity": {
                 "title": "Last Seen Timestamp",
                 "description": "The time when the contact was last seen.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -543,10 +563,16 @@
                 "title": "Event Type",
                 "description": "The type of the Segment event",
                 "type": "string",
-                "enum": ["track", "page", "screen"]
+                "enum": [
+                  "track",
+                  "page",
+                  "screen"
+                ]
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -605,11 +631,16 @@
               "date": {
                 "title": "Event Timestamp",
                 "description": "The time the event took place in ISO 8601 format. Segment will convert to Unix before sending to Gleap.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["date"]
+            "required": [
+              "date"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -639,7 +670,9 @@
                 "type": "string"
               }
             },
-            "required": ["userId"]
+            "required": [
+              "userId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

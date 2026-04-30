@@ -1,9 +1,15 @@
 {
   "name": "Moengage (Actions)",
-  "basicOptions": ["api_id", "api_key", "region"],
+  "basicOptions": [
+    "api_id",
+    "api_key",
+    "region"
+  ],
   "options": {
     "api_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Moengage API Id",
       "encrypt": false,
@@ -14,11 +20,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "api_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Moengage API Key",
       "encrypt": true,
@@ -29,11 +42,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "region": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "DC_01",
       "description": "The region to send your data.",
       "encrypt": false,
@@ -71,7 +91,12 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The region property is required."]],
+      "validators": [
+        [
+          "required",
+          "The region property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -83,7 +108,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -119,7 +147,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -146,7 +176,10 @@
               "userId": {
                 "title": "User ID",
                 "description": "The unique user identifier set by you",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -204,7 +237,10 @@
               "anonymousId": {
                 "title": "Anonymous ID",
                 "description": "The generated anonymous ID for the user",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -324,7 +360,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event. If time is not sent with the event, it will be set to the time our servers receive it.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -398,7 +437,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -428,7 +469,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -605,7 +648,10 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event. If time is not sent with the event, it will be set to the time our servers receive it.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

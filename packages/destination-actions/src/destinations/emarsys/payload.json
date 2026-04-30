@@ -1,9 +1,14 @@
 {
   "name": "Emarsys (Actions)",
-  "basicOptions": ["api_user", "api_password"],
+  "basicOptions": [
+    "api_user",
+    "api_password"
+  ],
   "options": {
     "api_user": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Emarsys API username",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_user property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_user property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "api_password": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Emarsys API password.",
       "encrypt": true,
@@ -29,7 +41,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_password property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_password property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -74,7 +94,9 @@
                 "type": "integer"
               }
             },
-            "required": ["contactlistid"]
+            "required": [
+              "contactlistid"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -101,7 +123,9 @@
                 "type": "string"
               }
             },
-            "required": ["key_field"]
+            "required": [
+              "key_field"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -128,7 +152,9 @@
                 "type": "string"
               }
             },
-            "required": ["key_value"]
+            "required": [
+              "key_value"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -177,7 +203,9 @@
                 "type": "integer"
               }
             },
-            "required": ["contactlistid"]
+            "required": [
+              "contactlistid"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -204,7 +232,9 @@
                 "type": "string"
               }
             },
-            "required": ["key_field"]
+            "required": [
+              "key_field"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -231,7 +261,9 @@
                 "type": "string"
               }
             },
-            "required": ["key_value"]
+            "required": [
+              "key_value"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -280,7 +312,9 @@
                 "type": "integer"
               }
             },
-            "required": ["eventid"]
+            "required": [
+              "eventid"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -307,7 +341,9 @@
                 "type": "string"
               }
             },
-            "required": ["key_field"]
+            "required": [
+              "key_field"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -334,7 +370,9 @@
                 "type": "string"
               }
             },
-            "required": ["key_value"]
+            "required": [
+              "key_value"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -358,7 +396,10 @@
               "event_payload": {
                 "title": "Event payload",
                 "description": "A JSON object that will be passed to the Emarsys template engine and can be used for personalization",
-                "type": ["object", "null"]
+                "type": [
+                  "object",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -410,7 +451,9 @@
                 "type": "string"
               }
             },
-            "required": ["key_field"]
+            "required": [
+              "key_field"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -437,7 +480,9 @@
                 "type": "string"
               }
             },
-            "required": ["key_value"]
+            "required": [
+              "key_value"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -479,7 +524,9 @@
                 "required": []
               }
             },
-            "required": ["write_field"]
+            "required": [
+              "write_field"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

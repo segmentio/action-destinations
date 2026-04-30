@@ -10,7 +10,9 @@
   ],
   "options": {
     "connectorUrl": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Eagle Eye URL of the Segment connector provided by your EagleEye CSM",
       "encrypt": false,
@@ -21,11 +23,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The connectorUrl property is required."]],
+      "validators": [
+        [
+          "required",
+          "The connectorUrl property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "externalKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Key to authenticate with the connector provided by your EagleEye CSM",
       "encrypt": true,
@@ -36,7 +45,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The externalKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The externalKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "behavioralActionTriggerReferences": {
@@ -87,7 +101,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -123,7 +140,9 @@
                 "type": "string"
               }
             },
-            "required": ["identityValue"]
+            "required": [
+              "identityValue"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -183,7 +202,9 @@
                 "type": "string"
               }
             },
-            "required": ["behavioralActionTriggerReferences"]
+            "required": [
+              "behavioralActionTriggerReferences"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

@@ -1,10 +1,15 @@
 {
   "name": "LaunchDarkly",
   "description": "Use Segment events as custom metric events in LaunchDarkly experiments, so you can measure results immediately, without any instrumentation, code, or delays.",
-  "basicOptions": ["client_id", "events_host_name"],
+  "basicOptions": [
+    "client_id",
+    "events_host_name"
+  ],
   "options": {
     "client_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Find and copy the client-side ID in the LaunchDarkly account settings page.",
       "encrypt": false,
@@ -15,11 +20,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The client_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The client_id property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "events_host_name": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "events.launchdarkly.com",
       "description": "Your LaunchDarkly events host name. If not specified, the default value of events.launchdarkly.com will be used. Most customers will not need to change this setting.",
       "encrypt": false,
@@ -42,7 +54,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -78,7 +93,9 @@
                 "type": "string"
               }
             },
-            "required": ["user_key"]
+            "required": [
+              "user_key"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -118,7 +135,9 @@
                 "type": "string"
               }
             },
-            "required": ["previous_key"]
+            "required": [
+              "previous_key"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -145,7 +164,10 @@
               "timestamp": {
                 "title": "Event Timestamp",
                 "description": "The time when the event happened. Defaults to the current time.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -227,7 +249,9 @@
                 "type": "string"
               }
             },
-            "required": ["user_key"]
+            "required": [
+              "user_key"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -289,7 +313,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -386,7 +412,10 @@
               "timestamp": {
                 "title": "Event timestamp",
                 "description": "The time when the event happened. Defaults to the current time.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

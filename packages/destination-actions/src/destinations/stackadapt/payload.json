@@ -1,10 +1,14 @@
 {
   "name": "StackAdapt Events & Conversions",
   "description": "Forward Segment events to StackAdapt for tracking ad conversions, and generating lookalike and retargeting Audiences",
-  "basicOptions": ["pixelId"],
+  "basicOptions": [
+    "pixelId"
+  ],
   "options": {
     "pixelId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your StackAdapt Universal Pixel ID",
       "encrypt": false,
@@ -15,7 +19,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The pixelId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The pixelId property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -163,7 +175,9 @@
                 "type": "string"
               }
             },
-            "required": ["ip_fwd"]
+            "required": [
+              "ip_fwd"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -314,7 +328,9 @@
                 "type": "string"
               }
             },
-            "required": ["user_agent"]
+            "required": [
+              "user_agent"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

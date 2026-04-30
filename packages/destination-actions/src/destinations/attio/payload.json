@@ -1,7 +1,9 @@
 {
   "name": "Attio (Actions)",
   "description": "The Attio destination allows you to assert Records in your Attio workspace based on Segment events",
-  "basicOptions": ["required_hidden_token"],
+  "basicOptions": [
+    "required_hidden_token"
+  ],
   "options": {
     "required_hidden_token": {
       "label": "Required Hidden Token",
@@ -21,7 +23,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth-managed",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -55,7 +60,9 @@
                 "type": "string"
               }
             },
-            "required": ["object"]
+            "required": [
+              "object"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -83,7 +90,9 @@
                 "type": "string"
               }
             },
-            "required": ["matching_attribute"]
+            "required": [
+              "matching_attribute"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -200,7 +209,10 @@
               "received_at": {
                 "title": "Received at",
                 "description": "When the event was received.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -255,7 +267,9 @@
                 "format": "text"
               }
             },
-            "required": ["domain"]
+            "required": [
+              "domain"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -296,7 +310,9 @@
                 "format": "text"
               }
             },
-            "required": ["workspace_id"]
+            "required": [
+              "workspace_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -469,7 +485,10 @@
               "received_at": {
                 "title": "Received at",
                 "description": "When the event was received.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -524,7 +543,9 @@
                 "format": "email"
               }
             },
-            "required": ["email_address"]
+            "required": [
+              "email_address"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -555,7 +576,9 @@
                 "format": "text"
               }
             },
-            "required": ["user_id"]
+            "required": [
+              "user_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -701,7 +724,10 @@
               "received_at": {
                 "title": "Received at",
                 "description": "When the event was received.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

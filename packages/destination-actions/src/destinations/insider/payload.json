@@ -1,9 +1,14 @@
 {
   "name": "Insider Cloud Mode (Actions)",
-  "basicOptions": ["account_name", "ucd_key"],
+  "basicOptions": [
+    "account_name",
+    "ucd_key"
+  ],
   "options": {
     "account_name": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "You can get your Account Name via Insider Inone Panel > Settings > Inone Settings > Account Preferences.",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The account_name property is required."]],
+      "validators": [
+        [
+          "required",
+          "The account_name property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "ucd_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "You can get your API Key via Insider Inone Panel > Settings > Preferences > Integration Settings",
       "encrypt": true,
@@ -29,7 +41,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The ucd_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The ucd_key property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -245,11 +265,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "When the event occurred",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -886,11 +911,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "When the event occurred",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2162,11 +2192,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "When the event occurred",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -2803,11 +2838,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "When the event occurred",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3416,11 +3456,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "When the event occurred",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -3974,11 +4019,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "When the event occurred",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -4587,11 +4637,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "When the event occurred",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5203,7 +5258,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_name"]
+            "required": [
+              "event_name"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5230,11 +5287,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "When the event occurred",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -5985,11 +6047,16 @@
               "timestamp": {
                 "title": "Timestamp",
                 "description": "When the event occurred",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

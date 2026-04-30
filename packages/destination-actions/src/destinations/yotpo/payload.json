@@ -1,10 +1,14 @@
 {
   "name": "Yotpo",
   "description": "Send data to Yotpo",
-  "basicOptions": ["store_id"],
+  "basicOptions": [
+    "store_id"
+  ],
   "options": {
     "store_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The store ID for your Yotpo account",
       "encrypt": false,
@@ -15,7 +19,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The store_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The store_id property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth-managed",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {

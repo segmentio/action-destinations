@@ -1,9 +1,14 @@
 {
   "name": "Batch (Actions)",
-  "basicOptions": ["apiToken", "projectKey"],
+  "basicOptions": [
+    "apiToken",
+    "projectKey"
+  ],
   "options": {
     "apiToken": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Token used to authorize sending data to the Destination platform",
       "encrypt": true,
@@ -14,11 +19,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiToken property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiToken property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "projectKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The unique project key identifying your project in the Destination platform",
       "encrypt": false,
@@ -29,7 +41,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The projectKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The projectKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -86,10 +106,14 @@
                     "type": "string"
                   }
                 },
-                "required": ["custom_id"]
+                "required": [
+                  "custom_id"
+                ]
               }
             },
-            "required": ["identifiers"]
+            "required": [
+              "identifiers"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -242,40 +266,67 @@
                   "language": {
                     "title": "Language",
                     "description": "The profile's language. This can be sent as a locale (e.g., 'en-US') or a language code (e.g., 'en').",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "email_address": {
                     "title": "Email",
                     "description": "The profile's email",
-                    "type": ["string", "null"],
+                    "type": [
+                      "string",
+                      "null"
+                    ],
                     "format": "email"
                   },
                   "phone_number": {
                     "title": "Phone Number",
                     "description": "The profile's phone number",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "email_marketing": {
                     "title": "Email marketing subscribe",
                     "description": "The profile's marketing emails subscription. Setting to 'reset' will reset the marketing emails subscription.",
                     "type": "string",
-                    "enum": ["subscribed", "unsubscribed", "reset"]
+                    "enum": [
+                      "subscribed",
+                      "unsubscribed",
+                      "reset"
+                    ]
                   },
                   "sms_marketing": {
                     "title": "SMS marketing subscribe",
                     "description": "The profile's marketing SMS subscription. Setting to 'reset' will reset the marketing SMS subscription.",
-                    "type": ["string", "null"],
-                    "enum": ["subscribed", "unsubscribed", "reset", null]
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "subscribed",
+                      "unsubscribed",
+                      "reset",
+                      null
+                    ]
                   },
                   "timezone": {
                     "title": "Timezone",
                     "description": "The profile's time zone name from IANA Time Zone Database (e.g., “Europe/Paris”). Only valid time zone values will be set.",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "region": {
                     "title": "Region",
                     "description": "The profile's region. This can be sent as a locale (e.g., 'en-US') or a country code (e.g., 'US').",
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
                 },
                 "required": []

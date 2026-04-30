@@ -1,10 +1,15 @@
 {
   "name": "StackAdapt Audiences",
   "description": "Sync Segment Engage Audiences as well as user profile details to StackAdapt",
-  "basicOptions": ["apiKey", "advertiser_id"],
+  "basicOptions": [
+    "apiKey",
+    "advertiser_id"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your StackAdapt GQL API Token",
       "encrypt": true,
@@ -15,11 +20,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "advertiser_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The StackAdapt advertiser ID to add the profile to.",
       "encrypt": false,
@@ -30,7 +42,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The advertiser_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The advertiser_id property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -42,7 +59,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -362,7 +382,9 @@
                 "type": "string"
               }
             },
-            "required": ["event_type"]
+            "required": [
+              "event_type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -396,14 +418,25 @@
                 "title": "Marketing Status",
                 "description": "In certain jurisdictions, explicit consent may be required to send email marketing communications to imported profiles. Consult independent counsel for further guidance.",
                 "type": "string",
-                "enum": ["Opted-in", "Indeterminate"]
+                "enum": [
+                  "Opted-in",
+                  "Indeterminate"
+                ]
               }
             },
-            "required": ["marketing_status"]
+            "required": [
+              "marketing_status"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
           }
         },
         {
@@ -430,7 +463,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -471,7 +506,9 @@
                 "type": "object"
               }
             },
-            "required": ["traits_or_props"]
+            "required": [
+              "traits_or_props"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -509,10 +546,15 @@
                 "title": "Segment Computation Class",
                 "description": "Segment computation class used to determine if input event is from an Engage Audience'.",
                 "type": "string",
-                "enum": ["audience", "journey_step"]
+                "enum": [
+                  "audience",
+                  "journey_step"
+                ]
               }
             },
-            "required": ["segment_computation_class"]
+            "required": [
+              "segment_computation_class"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -543,7 +585,9 @@
                 "type": "string"
               }
             },
-            "required": ["segment_computation_id"]
+            "required": [
+              "segment_computation_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -574,7 +618,9 @@
                 "type": "string"
               }
             },
-            "required": ["segment_computation_key"]
+            "required": [
+              "segment_computation_key"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -615,7 +661,9 @@
                 "format": "email"
               }
             },
-            "required": ["email"]
+            "required": [
+              "email"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null

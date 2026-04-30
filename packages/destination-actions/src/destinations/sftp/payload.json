@@ -12,7 +12,9 @@
   ],
   "options": {
     "auth_type": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "password",
       "description": "The type of authentication to use for the SFTP connection",
       "encrypt": false,
@@ -35,11 +37,18 @@
       ],
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The auth_type property is required."]],
+      "validators": [
+        [
+          "required",
+          "The auth_type property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "sftp_host": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The hostname or IP address of the SFTP server",
       "encrypt": false,
@@ -50,11 +59,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The sftp_host property is required."]],
+      "validators": [
+        [
+          "required",
+          "The sftp_host property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "sftp_port": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": 22,
       "description": "The port number for the SFTP connection",
       "encrypt": false,
@@ -69,7 +85,9 @@
       "uIMetadata": null
     },
     "sftp_username": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Username for establishing an SFTP connection",
       "encrypt": false,
@@ -80,11 +98,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The sftp_username property is required."]],
+      "validators": [
+        [
+          "required",
+          "The sftp_username property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "sftp_password": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Password for establishing an SFTP connection",
       "encrypt": true,
@@ -104,7 +129,10 @@
         ]
       },
       "validators": [
-        ["required", "The sftp_password property is required."],
+        [
+          "required",
+          "The sftp_password property is required."
+        ],
         [
           "conditional",
           "{\"$schema\":\"http://json-schema.org/schema#\",\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"sftp_password\":{\"title\":\"Password\",\"description\":\"Password for establishing an SFTP connection\",\"type\":\"string\",\"format\":\"password\"}},\"required\":[],\"allOf\":[{\"if\":{\"required\":[\"auth_type\"],\"properties\":{\"auth_type\":{\"const\":\"password\"}}},\"then\":{\"required\":[\"sftp_password\"]}}]}"
@@ -123,7 +151,9 @@
       }
     },
     "sftp_ssh_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "SSH Key for establishing an SFTP connection",
       "encrypt": true,
@@ -143,7 +173,10 @@
         ]
       },
       "validators": [
-        ["required", "The sftp_ssh_key property is required."],
+        [
+          "required",
+          "The sftp_ssh_key property is required."
+        ],
         [
           "conditional",
           "{\"$schema\":\"http://json-schema.org/schema#\",\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"sftp_ssh_key\":{\"title\":\"SSH Key\",\"description\":\"SSH Key for establishing an SFTP connection\",\"type\":\"string\",\"format\":\"password\"}},\"required\":[],\"allOf\":[{\"if\":{\"required\":[\"auth_type\"],\"properties\":{\"auth_type\":{\"const\":\"ssh_key\"}}},\"then\":{\"required\":[\"sftp_ssh_key\"]}}]}"
@@ -162,7 +195,9 @@
       }
     },
     "uploadStrategy": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "standard",
       "description": "Select the upload strategy to use when uploading files to the SFTP server.",
       "encrypt": false,
@@ -197,7 +232,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -370,7 +408,9 @@
                 "required": []
               }
             },
-            "required": ["columns"]
+            "required": [
+              "columns"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -397,7 +437,9 @@
                 "type": "string"
               }
             },
-            "required": ["filename_prefix"]
+            "required": [
+              "filename_prefix"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -440,10 +482,17 @@
                 "title": "File Extension",
                 "description": "File extension for the uploaded file.",
                 "type": "string",
-                "enum": ["csv", "txt", "tsv", "psv"]
+                "enum": [
+                  "csv",
+                  "txt",
+                  "tsv",
+                  "psv"
+                ]
               }
             },
-            "required": ["file_extension"]
+            "required": [
+              "file_extension"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -490,14 +539,26 @@
                 "title": "Delimiter",
                 "description": "Character used to separate tokens in the resulting file.",
                 "type": "string",
-                "enum": [",", "|", "tab", ";", ":"]
+                "enum": [
+                  ",",
+                  "|",
+                  "tab",
+                  ";",
+                  ":"
+                ]
               }
             },
-            "required": ["delimiter"]
+            "required": [
+              "delimiter"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["enrichment", "function", "variable"]
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable"
+            ]
           }
         },
         {
@@ -525,7 +586,9 @@
                 "type": "string"
               }
             },
-            "required": ["sftp_folder_path"]
+            "required": [
+              "sftp_folder_path"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -554,7 +617,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -584,7 +649,9 @@
                 "maximum": 100000
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "minimum": 1,
@@ -618,7 +685,11 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["variable", "function", "enrichment"]
+            "disabledInputMethods": [
+              "variable",
+              "function",
+              "enrichment"
+            ]
           }
         },
         {
@@ -648,7 +719,11 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["variable", "function", "enrichment"]
+            "disabledInputMethods": [
+              "variable",
+              "function",
+              "enrichment"
+            ]
           }
         },
         {
@@ -756,7 +831,9 @@
                 "type": "object"
               }
             },
-            "required": ["columns"]
+            "required": [
+              "columns"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -783,7 +860,9 @@
                 "type": "string"
               }
             },
-            "required": ["filename_prefix"]
+            "required": [
+              "filename_prefix"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -826,10 +905,17 @@
                 "title": "File Extension",
                 "description": "File extension for the uploaded file.",
                 "type": "string",
-                "enum": ["csv", "txt", "tsv", "psv"]
+                "enum": [
+                  "csv",
+                  "txt",
+                  "tsv",
+                  "psv"
+                ]
               }
             },
-            "required": ["file_extension"]
+            "required": [
+              "file_extension"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -876,14 +962,26 @@
                 "title": "Delimiter",
                 "description": "Character used to separate tokens in the resulting file.",
                 "type": "string",
-                "enum": [",", "|", "tab", ";", ":"]
+                "enum": [
+                  ",",
+                  "|",
+                  "tab",
+                  ";",
+                  ":"
+                ]
               }
             },
-            "required": ["delimiter"]
+            "required": [
+              "delimiter"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["enrichment", "function", "variable"]
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable"
+            ]
           }
         },
         {
@@ -911,7 +1009,9 @@
                 "type": "string"
               }
             },
-            "required": ["sftp_folder_path"]
+            "required": [
+              "sftp_folder_path"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -940,7 +1040,9 @@
                 "type": "boolean"
               }
             },
-            "required": ["enable_batching"]
+            "required": [
+              "enable_batching"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -970,7 +1072,9 @@
                 "maximum": 100000
               }
             },
-            "required": ["batch_size"]
+            "required": [
+              "batch_size"
+            ]
           },
           "dependsOn": null,
           "minimum": 1,
@@ -1004,7 +1108,11 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "disabledInputMethods": ["variable", "function", "enrichment"]
+            "disabledInputMethods": [
+              "variable",
+              "function",
+              "enrichment"
+            ]
           }
         }
       ]

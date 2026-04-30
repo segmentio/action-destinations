@@ -1,9 +1,14 @@
 {
   "name": "Calliper Cloud (Actions)",
-  "basicOptions": ["companyId", "segmentKey"],
+  "basicOptions": [
+    "companyId",
+    "segmentKey"
+  ],
   "options": {
     "companyId": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your company id in Calliper. During the onboarding you can find it by selecting Segment integration. After onboarding is complete you can find it by opening \"Data Sources\" in the main menu, pressing \"New Data Source\" and pressing \"Connect\" on a Segment card.",
       "encrypt": false,
@@ -14,11 +19,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The companyId property is required."]],
+      "validators": [
+        [
+          "required",
+          "The companyId property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "segmentKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Segment Key in Calliper. Please follow the instructions to find the Company id, secret key is located in a field next to it.",
       "encrypt": false,
@@ -29,7 +41,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The segmentKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The segmentKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -41,7 +58,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -74,7 +94,10 @@
               "time": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event. Could be any date string/number value compatible with JavaScript Date constructor: e.g. milliseconds epoch or an ISO datetime. If time is not sent with the event, it will be set to the request time.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -115,7 +138,10 @@
               "new_id": {
                 "title": "New ID",
                 "description": "A new user id to be merged with the original distinct id. Each alias can only map to one distinct id.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -185,7 +211,10 @@
               "time": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event. Could be any date string/number value compatible with JavaScript Date constructor: e.g. milliseconds epoch or an ISO datetime. If time is not sent with the event, it will be set to the request time.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -219,7 +248,9 @@
                 "type": "string"
               }
             },
-            "required": ["group_id"]
+            "required": [
+              "group_id"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -286,7 +317,10 @@
               "time": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event. Could be any date string/number value compatible with JavaScript Date constructor: e.g. milliseconds epoch or an ISO datetime. If time is not sent with the event, it will be set to the request time.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -317,7 +351,10 @@
               "user_id": {
                 "title": "User ID",
                 "description": "A distinct ID of an identified (logged in) user.",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -347,7 +384,10 @@
               "anonymous_id": {
                 "title": "Anonymous ID",
                 "description": "A distinct ID of an unidentified (logged out) user. Device id is used if available",
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             },
             "required": []
@@ -557,7 +597,10 @@
               "created_at": {
                 "title": "User Creation Time",
                 "description": "The timestamp for when the user profile was first created",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
@@ -631,7 +674,9 @@
                 "type": "string"
               }
             },
-            "required": ["event"]
+            "required": [
+              "event"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -658,7 +703,10 @@
               "time": {
                 "title": "Timestamp",
                 "description": "The timestamp of the event. Could be any date string/number value compatible with JavaScript Date constructor: e.g. milliseconds epoch or an ISO datetime. If time is not sent with the event, it will be set to the request time.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

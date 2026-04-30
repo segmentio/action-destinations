@@ -1,10 +1,14 @@
 {
   "name": "Qualified",
   "description": "Qualified is a Conversational Marketing platform that helps B2B companies engage and convert website visitors into customers using real-time chat, AI-driven insights, and personalized experiences.",
-  "basicOptions": ["api_key"],
+  "basicOptions": [
+    "api_key"
+  ],
   "options": {
     "api_key": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Your Qualified API Key. When creating the API Key in Qualified make sure to select all scopes.",
       "encrypt": true,
@@ -15,7 +19,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The api_key property is required."]],
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -63,7 +75,9 @@
                 "type": "string"
               }
             },
-            "required": ["domain"]
+            "required": [
+              "domain"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -95,7 +109,9 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -125,7 +141,9 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -155,7 +173,9 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         }
       ]
@@ -204,7 +224,9 @@
                 "format": "email"
               }
             },
-            "required": ["email"]
+            "required": [
+              "email"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -356,7 +378,9 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -386,7 +410,9 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         },
         {
@@ -416,7 +442,9 @@
           },
           "dependsOn": null,
           "displayMetadata": {
-            "dynamicProperties": ["__keys__"]
+            "dynamicProperties": [
+              "__keys__"
+            ]
           }
         }
       ]

@@ -10,7 +10,9 @@
   ],
   "options": {
     "sharedSecret": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "If set, Segment will sign requests with an HMAC in the \"X-Signature\" request header. The HMAC is a hex-encoded SHA1 hash generated using this shared secret and the request body.",
       "encrypt": true,
@@ -25,7 +27,9 @@
       "uIMetadata": null
     },
     "createAudienceUrl": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "If set, Segment will send a POST request with the audienceName in the JSON to the provided URL to create the audience. The expected JSON response must have \"externalId\".",
       "encrypt": false,
@@ -40,7 +44,9 @@
       "uIMetadata": null
     },
     "getAudienceUrl": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "If set, Segment will send a POST request with the externalId in the JSON to the provided URL to get the audience. The expected JSON response must have \"externalId\".",
       "encrypt": false,
@@ -102,7 +108,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {
@@ -136,7 +145,9 @@
                 "format": "uri"
               }
             },
-            "required": ["url"]
+            "required": [
+              "url"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -175,10 +186,16 @@
                 "title": "Method",
                 "description": "HTTP method to use.",
                 "type": "string",
-                "enum": ["POST", "PUT", "PATCH"]
+                "enum": [
+                  "POST",
+                  "PUT",
+                  "PATCH"
+                ]
               }
             },
-            "required": ["method"]
+            "required": [
+              "method"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -274,7 +291,11 @@
           "type": "string",
           "label": "Batch Keys",
           "description": "The mapping keys to batch events together by.",
-          "defaultValue": ["url", "method", "headers"],
+          "defaultValue": [
+            "url",
+            "method",
+            "headers"
+          ],
           "required": false,
           "multiple": true,
           "choices": null,
@@ -326,7 +347,11 @@
         "data": {
           "@path": "$."
         },
-        "batch_keys": ["url", "method", "headers"]
+        "batch_keys": [
+          "url",
+          "method",
+          "headers"
+        ]
       },
       "type": "specificEvent",
       "eventSlug": "warehouse_entity_added_track"
@@ -340,7 +365,11 @@
         "data": {
           "@path": "$."
         },
-        "batch_keys": ["url", "method", "headers"]
+        "batch_keys": [
+          "url",
+          "method",
+          "headers"
+        ]
       },
       "type": "specificEvent",
       "eventSlug": "warehouse_entity_removed_track"
@@ -354,7 +383,11 @@
         "data": {
           "@path": "$."
         },
-        "batch_keys": ["url", "method", "headers"]
+        "batch_keys": [
+          "url",
+          "method",
+          "headers"
+        ]
       },
       "type": "specificEvent",
       "eventSlug": "warehouse_audience_membership_changed_identify"
@@ -368,7 +401,11 @@
         "data": {
           "@path": "$."
         },
-        "batch_keys": ["url", "method", "headers"]
+        "batch_keys": [
+          "url",
+          "method",
+          "headers"
+        ]
       },
       "type": "specificEvent",
       "eventSlug": "journeys_step_entered_track"

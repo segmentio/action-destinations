@@ -1,6 +1,9 @@
 {
   "name": "Google Data Manager",
-  "basicOptions": ["__segment_internal_engage_batch_sync", "__segment_internal_engage_support_audience_functions"],
+  "basicOptions": [
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
   "options": {
     "oauth": {
       "default": {},
@@ -85,7 +88,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "oauth2",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": true,
   "actions": [
     {

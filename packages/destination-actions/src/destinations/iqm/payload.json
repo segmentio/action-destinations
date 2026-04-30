@@ -1,10 +1,14 @@
 {
   "name": "Iqm",
   "description": "Send Segment events to IQM",
-  "basicOptions": ["pixel_id"],
+  "basicOptions": [
+    "pixel_id"
+  ],
   "options": {
     "pixel_id": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The Pixel ID for your IQM Conversion.",
       "encrypt": false,
@@ -15,7 +19,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The pixel_id property is required."]],
+      "validators": [
+        [
+          "required",
+          "The pixel_id property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -27,7 +36,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {

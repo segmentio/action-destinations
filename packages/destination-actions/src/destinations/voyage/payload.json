@@ -1,9 +1,13 @@
 {
   "name": "Voyage",
-  "basicOptions": ["apiKey"],
+  "basicOptions": [
+    "apiKey"
+  ],
   "options": {
     "apiKey": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "Voyage API key. You can create a new API key or find your existing API key in the Advanced section of your [Settings page](https://app.voyagetext.com/dashboard/settings/advanced).",
       "encrypt": true,
@@ -14,7 +18,12 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -26,7 +35,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -59,11 +71,16 @@
               "DateCreated": {
                 "title": "Timestamp",
                 "description": "Date of cart creation. Default to current date and time.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },
-            "required": ["DateCreated"]
+            "required": [
+              "DateCreated"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -183,7 +200,9 @@
                 "type": "string"
               }
             },
-            "required": ["CustomerId"]
+            "required": [
+              "CustomerId"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -214,7 +233,9 @@
                 "format": "uri"
               }
             },
-            "required": ["Url"]
+            "required": [
+              "Url"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -244,7 +265,9 @@
                 "type": "number"
               }
             },
-            "required": ["OrderTotal"]
+            "required": [
+              "OrderTotal"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -274,7 +297,9 @@
                 "type": "number"
               }
             },
-            "required": ["TotalSpent"]
+            "required": [
+              "TotalSpent"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -364,7 +389,9 @@
                 "type": "string"
               }
             },
-            "required": ["Phone"]
+            "required": [
+              "Phone"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -425,7 +452,9 @@
                 "type": "string"
               }
             },
-            "required": ["Zip"]
+            "required": [
+              "Zip"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -452,7 +481,10 @@
               "LastUpdated": {
                 "title": "Last Updated",
                 "description": "The date and time when the updates interacted with.",
-                "type": ["string", "number"],
+                "type": [
+                  "string",
+                  "number"
+                ],
                 "format": "date-like"
               }
             },

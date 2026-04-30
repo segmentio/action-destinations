@@ -1,9 +1,18 @@
 {
   "name": "SingleStore",
-  "basicOptions": ["host", "port", "username", "password", "dbName", "tableName"],
+  "basicOptions": [
+    "host",
+    "port",
+    "username",
+    "password",
+    "dbName",
+    "tableName"
+  ],
   "options": {
     "host": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The host of the SingleStore database.",
       "encrypt": false,
@@ -14,11 +23,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The host property is required."]],
+      "validators": [
+        [
+          "required",
+          "The host property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "port": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "443",
       "description": "The port of the SingleStore Data API. Defaults to 443.",
       "encrypt": false,
@@ -33,7 +49,9 @@
       "uIMetadata": null
     },
     "username": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The username of the SingleStore database.",
       "encrypt": false,
@@ -44,11 +62,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The username property is required."]],
+      "validators": [
+        [
+          "required",
+          "The username property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "password": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The password of the SingleStore database.",
       "encrypt": true,
@@ -59,11 +84,18 @@
       "type": "password",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The password property is required."]],
+      "validators": [
+        [
+          "required",
+          "The password property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "dbName": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "",
       "description": "The name of the database.",
       "encrypt": false,
@@ -74,11 +106,18 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The dbName property is required."]],
+      "validators": [
+        [
+          "required",
+          "The dbName property is required."
+        ]
+      ],
       "uIMetadata": null
     },
     "tableName": {
-      "tags": ["authentication:test"],
+      "tags": [
+        "authentication:test"
+      ],
       "default": "segment_data",
       "description": "The name of the table. Defaults to \"segment_data\".",
       "encrypt": false,
@@ -89,7 +128,12 @@
       "type": "string",
       "readOnly": false,
       "dependsOn": null,
-      "validators": [["required", "The tableName property is required."]],
+      "validators": [
+        [
+          "required",
+          "The tableName property is required."
+        ]
+      ],
       "uIMetadata": null
     }
   },
@@ -101,7 +145,10 @@
     "cloudAppObject": false
   },
   "authenticationScheme": "custom",
-  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
   "supportsAudiences": false,
   "actions": [
     {
@@ -137,7 +184,9 @@
                 "type": "string"
               }
             },
-            "required": ["messageid"]
+            "required": [
+              "messageid"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -167,7 +216,9 @@
                 "type": "string"
               }
             },
-            "required": ["timestamp"]
+            "required": [
+              "timestamp"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -220,10 +271,19 @@
                 "title": "Type",
                 "description": "The type of the event (e.g., \"track\", \"identify\", \"page\", \"screen\", \"group\", \"alias\").",
                 "type": "string",
-                "enum": ["track", "identify", "page", "screen", "group", "alias"]
+                "enum": [
+                  "track",
+                  "identify",
+                  "page",
+                  "screen",
+                  "group",
+                  "alias"
+                ]
               }
             },
-            "required": ["type"]
+            "required": [
+              "type"
+            ]
           },
           "dependsOn": null,
           "displayMetadata": null
@@ -257,7 +317,9 @@
             "allOf": [
               {
                 "if": {
-                  "required": ["type"],
+                  "required": [
+                    "type"
+                  ],
                   "properties": {
                     "type": {
                       "const": "track"
@@ -265,7 +327,9 @@
                   }
                 },
                 "then": {
-                  "required": ["event"]
+                  "required": [
+                    "event"
+                  ]
                 }
               }
             ]
@@ -528,7 +592,9 @@
                 "maximum": 1000
               }
             },
-            "required": ["max_batch_size"]
+            "required": [
+              "max_batch_size"
+            ]
           },
           "dependsOn": null,
           "minimum": 1,
