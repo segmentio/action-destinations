@@ -68,9 +68,10 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     updateOnly: {
       label: 'Update Only',
-      description: 'When enabled, Segment will only update existing users in Iterable. New users will not be created. This is only applicable when batching is enabled. Talk to your Iterable representative to enable this feature on the Iterable side.',
+      description:
+        'When enabled, Segment will only update existing users in Iterable. New users will not be created. This is only applicable when batching is enabled. Talk to your Iterable representative to enable this feature on the Iterable side.',
       type: 'boolean',
-      required: false, 
+      required: false,
       disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment'],
       depends_on: {
         match: 'all',
@@ -92,7 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 1001
     }
   },
-  perform: async (request, { payload, settings }) => {
+  perform: (request, { payload, settings }) => {
     if (!payload.email && !payload.userId) {
       throw new PayloadValidationError('Must include email or userId.')
     }
@@ -100,45 +101,20 @@ const action: ActionDefinition<Settings, Payload> = {
     const updateUserRequestPayload: UserUpdateRequestPayload = transformIterableUserPayload(payload)
 
     const endpoint = getRegionalEndpoint('updateUser', settings.dataCenterLocation as DataCenterLocation)
-
-    await request('https://webhook.site/2a111695-0d4e-4daf-a68d-14ebc83b476c', {
-      method: 'post',
-      json: {
-        method: 'perform',
-        inboundPayload: payload,
-        outboundJson: updateUserRequestPayload
-      }
-    }).catch(() => {
-      console.log('Failed to send payload to webhook.site for debugging.')
-    })
-
     return request(endpoint, {
       method: 'post',
       json: updateUserRequestPayload,
       timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     })
   },
-  performBatch: async (request, { settings, payload }) => {
-    console.log('Batch payload:', JSON.stringify(payload, null, 2))
+  performBatch: (request, { settings, payload }) => {
     const { updateOnly } = payload[0]
     const bulkUpdateUserRequestPayload: BulkUserUpdateRequestPayload = {
-      ...( updateOnly ? { updateOnly } : {}),
+      ...(updateOnly ? { updateOnly } : {}),
       users: payload.map(transformIterableUserPayload)
     }
 
     const endpoint = getRegionalEndpoint('bulkUpdateUser', settings.dataCenterLocation as DataCenterLocation)
-
-    await request('https://webhook.site/2a111695-0d4e-4daf-a68d-14ebc83b476c', {
-      method: 'post',
-      json: {
-        method: 'performBatch',
-        inboundPayload: payload,
-        outboundJson: bulkUpdateUserRequestPayload
-      }
-    }).catch(() => {
-      console.log('Failed to send batch payload to webhook.site for debugging.')
-    })
-
     return request(endpoint, {
       method: 'post',
       json: bulkUpdateUserRequestPayload,
